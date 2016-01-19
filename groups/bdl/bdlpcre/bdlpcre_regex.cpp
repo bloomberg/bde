@@ -3,23 +3,13 @@
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
-//
+
 ///IMPLEMENTATION NOTES
 ///--------------------
 // This component depends on the open-source Perl Compatible Regular
-// Expressions (PCRE) library (http://www.pcre.org).
-//
-// The PCRE library can be configured with several options.  The complete list
-// of options is documented at:
-// http://www.pcre.org/pcre.txt (under 'PCRE BUILD-TIME OPTIONS')
+// Expressions (PCRE2) library (http://www.pcre.org).
 //
 // The PCRE library used by this component was configured with UTF8 support.
-// It was built using the following commands:
-//..
-//  $ configure --enable-utf8
-//  $ make
-//..
-// If successful, the library files are generated in a '.libs/' sub-directory.
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -61,6 +51,8 @@ void bdepcre2_free(void* data, void* context)
 
 namespace BloombergLP {
 
+namespace bdlpcre {
+
 // CONSTANTS
 
 enum {
@@ -70,35 +62,33 @@ enum {
 };
     // Return values for this API.
 
-const int NUM_INTS_PER_CAPTURED_STRING = 3;
-    // Number of integers required by PCRE for each captured string.
-
-                             // -------------------
-                             // class bdepcre_RegEx
-                             // -------------------
+                             // -----------
+                             // class RegEx
+                             // -----------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int
-        bdepcre_RegEx::s_depthLimit = {10000000}; // from pcre's config.h
-                                                  // MATCH_LIMIT value
+        RegEx::s_depthLimit = {10000000}; // from pcre2 config.h
+                                          // MATCH_LIMIT value
 
 // CREATORS
-bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
+RegEx::RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre2Context_p(0)
 , d_pcre2Code_p(0)
-, d_depthLimit(bdepcre_RegEx::defaultDepthLimit())
+, d_depthLimit(RegEx::defaultDepthLimit())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_pcre2Context_p = pcre2_general_context_create(
                                             &bdepcre2_malloc,
                                             &bdepcre2_free,
                                             static_cast<void*>(d_allocator_p));
+    BSLS_ASSERT(0 == d_pcre2Code_p);
 }
 
 // MANIPULATORS
-void bdepcre_RegEx::clear()
+void RegEx::clear()
 {
     if (isPrepared()) {
         pcre2_code_free(d_pcre2Code_p);
@@ -108,10 +98,10 @@ void bdepcre_RegEx::clear()
     }
 }
 
-int bdepcre_RegEx::prepare(bsl::string *errorMessage,
-                           int         *errorOffset,
-                           const char  *pattern,
-                           int          options)
+int RegEx::prepare(bsl::string *errorMessage,
+                   size_t      *errorOffset,
+                   const char  *pattern,
+                   int          options)
 {
     BSLS_ASSERT(pattern);
 
@@ -141,16 +131,33 @@ int bdepcre_RegEx::prepare(bsl::string *errorMessage,
 
     pcre2_code *pcre2Code = pcre2_compile(
                                reinterpret_cast<const unsigned char*>(pattern),
-                                          -1,
-                                          options,
-                                          &errorCodeFromPcre2,
-                                          &errorOffsetFromPcre2,
-                                          compileContext);
+                               PCRE2_ZERO_TERMINATED,
+                               options,
+                               &errorCodeFromPcre2,
+                               &errorOffsetFromPcre2,
+                               compileContext);
 
     pcre2_compile_context_free(compileContext);
 
     if (0 == pcre2Code) {
-#warning TODO: error handling
+        if (errorMessage) {
+            unsigned char errorBuffer[256];
+            int result = pcre2_get_error_message(errorCodeFromPcre2,
+                                                 errorBuffer,
+                                                 256);
+            if (result > 0) {
+                errorMessage->assign(
+                                reinterpret_cast<const char*>(&errorBuffer[0]),
+                                result);
+            } else {
+                errorMessage->assign("");
+            }
+        }
+
+        if (errorOffset) {
+            *errorOffset = errorOffsetFromPcre2;
+        }
+
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
@@ -162,9 +169,9 @@ int bdepcre_RegEx::prepare(bsl::string *errorMessage,
 }
 
 // ACCESSORS
-int bdepcre_RegEx::match(const char *subject,
-                         size_t      subjectLength,
-                         size_t      subjectOffset) const
+int RegEx::match(const char *subject,
+                 size_t      subjectLength,
+                 size_t      subjectOffset) const
 {
     BSLS_ASSERT(subject || 0 == subjectLength);
     BSLS_ASSERT(subjectOffset <= subjectLength);
@@ -189,8 +196,10 @@ int bdepcre_RegEx::match(const char *subject,
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
+    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
+                                                      (subject ? subject : "");
     int returnValue = pcre2_match(d_pcre2Code_p,
-             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  actualSubject,
                                   subjectLength,
                                   subjectOffset,
                                   0,
@@ -209,10 +218,10 @@ int bdepcre_RegEx::match(const char *subject,
     return result;
 }
 
-int bdepcre_RegEx::match(bsl::pair<size_t, size_t> *result,
-                         const char                *subject,
-                         size_t                     subjectLength,
-                         size_t                     subjectOffset) const
+int RegEx::match(bsl::pair<size_t, size_t> *result,
+                 const char                *subject,
+                 size_t                     subjectLength,
+                 size_t                     subjectOffset) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(subject || 0 == subjectLength);
@@ -237,8 +246,10 @@ int bdepcre_RegEx::match(bsl::pair<size_t, size_t> *result,
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
+    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
+                                                      (subject ? subject : "");
     int returnValue = pcre2_match(d_pcre2Code_p,
-             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  actualSubject,
                                   subjectLength,
                                   subjectOffset,
                                   0,
@@ -273,10 +284,10 @@ int bdepcre_RegEx::match(bsl::pair<size_t, size_t> *result,
 }
 
 int
-bdepcre_RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
-                     const char                        *subject,
-                     size_t                             subjectLength,
-                     size_t                             subjectOffset) const
+RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
+             const char                              *subject,
+             size_t                                   subjectLength,
+             size_t                                   subjectOffset) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(subject || 0 == subjectLength);
@@ -301,8 +312,10 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
+    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
+                                                      (subject ? subject : "");
     int returnValue = pcre2_match(d_pcre2Code_p,
-             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  actualSubject,
                                   subjectLength,
                                   subjectOffset,
                                   0,
@@ -338,7 +351,7 @@ bdepcre_RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     return BDEPCRE_SUCCESS;
 }
 
-int bdepcre_RegEx::numSubpatterns() const
+int RegEx::numSubpatterns() const
 {
     BSLS_ASSERT(isPrepared());
 
@@ -353,7 +366,7 @@ int bdepcre_RegEx::numSubpatterns() const
     return numSubpatterns;
 }
 
-int bdepcre_RegEx::subpatternIndex(const char *name) const
+int RegEx::subpatternIndex(const char *name) const
 {
     BSLS_ASSERT(isPrepared());
 
@@ -364,4 +377,22 @@ int bdepcre_RegEx::subpatternIndex(const char *name) const
     return 0 < index && index <= numSubpatterns() ? index : -1;
 }
 
+}  // close package namespace
+
 }  // close enterprise namespace
+
+// ----------------------------------------------------------------------------
+// Copyright 2016 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

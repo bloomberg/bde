@@ -1,13 +1,14 @@
 // bdlpcre_regex.t.cpp                                                -*-C++-*-
-
 #include <bdlpcre_regex.h>
+
+#include <bslim_testutil.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignedbuffer.h>
-
-#include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -17,18 +18,19 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
+using namespace bdlpcre;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The component under test is a mechanism that wraps the Perl Compatible
-// Regular Expression (PCRE) C library.  In this test, we want to ensure that
-// the PCRE library is "plugged in" correctly and that the component conforms
+// Regular Expression (PCRE2) C library.  In this test, we want to ensure that
+// the PCRE2 library is "plugged in" correctly and that the component conforms
 // to the documented interface.  We will not test the implementation details of
-// the PCRE library.
+// the PCRE2 library.
 //
 // After breathing the component, we will test the basic mechanism of preparing
 // and clearing a regular expression object.  We will then test that the
@@ -39,8 +41,8 @@ using namespace bsl;  // automatically added by script
 // usage example from the component's header file.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);
-// [ 2] ~bdepcre_RegEx();
+// [ 2] RegEx(bslma::Allocator *basicAllocator = 0);
+// [ 2] ~RegEx();
 //
 // MANIPULATORS
 // [ 2] void clear();
@@ -59,29 +61,37 @@ using namespace bsl;  // automatically added by script
 // [ 7] int subpatternIndex(const char *name) const;
 // [11] int getDepthLimit(int)
 // [11] int getDefaultDepthLimit(int)
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] BDEPCRE_FLAG_CASELESS
 // [ 5] BDEPCRE_FLAG_MULTILINE
 // [ 6] BDEPCRE_FLAG_UTF8
 // [ 8] ALLOCATION PROPAGATION
+// [ 9] NON-CAPTURING GROUPS
 // [12] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 //=============================================================================
 //                       TEMPLATIZED OUTPUT FUNCTIONS
@@ -373,58 +383,27 @@ void printValue(ostream& out, const string& value)
     printValue(out, value.c_str());
 }
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": ";  printValue(cout, I);  cout << "\t";   \
-               cout << #J << ": ";  printValue(cout, J);  cout << "\t";   \
-               cout << #K << ": ";  printValue(cout, K);  cout << "\t";   \
-               cout << #L << ": ";  printValue(cout, L);  cout << "\t";   \
-               cout << #M << ": ";  printValue(cout, M);  cout << "\t";   \
-               cout << #N << ": ";  printValue(cout, N);  cout << "\n";   \
-               aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = "; printValue(cout, X); cout << endl;
-                                                 // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = "; printValue(cout, X); cout << ", " << flush;
-                                                           // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -437,10 +416,17 @@ void printValue(ostream& out, const string& value)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-typedef bdepcre_RegEx Obj;
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+// ============================================================================
+//                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+typedef RegEx Obj;
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -454,13 +440,9 @@ typedef bdepcre_RegEx Obj;
 // a specified length and returns the text of the message's subject in the
 // 'result' "out" parameter:
 //..
-//  #include <bdepcre_regex.h>
-//
-//  using namespace BloombergLP;
-//
     int parseSubject(bsl::string *result,
                      const char  *message,
-                     int          messageLength)
+                     bsl::size_t  messageLength)
 //      // Parse the specified 'message' of the specified 'messageLength' for
 //      // the "Subject:" field of 'message'.  Return 0 on success and load the
 //      // specified 'result' with the text of the subject of 'message'; return
@@ -485,15 +467,15 @@ typedef bdepcre_RegEx Obj;
 // well as '\n' characters.  The 'prepare' method returns 0 on success, and a
 // non-zero value otherwise:
 //..
-        bdepcre_RegEx regEx;
-        bsl::string   errorMessage;
-        int           errorOffset;
+        RegEx       regEx;
+        bsl::string errorMessage;
+        size_t      errorOffset;
 
         int returnValue = regEx.prepare(&errorMessage,
                                         &errorOffset,
                                         PATTERN,
-                                        bdepcre_RegEx::BDEPCRE_FLAG_CASELESS |
-                                        bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE);
+                                        RegEx::BDEPCRE_FLAG_CASELESS |
+                                        RegEx::BDEPCRE_FLAG_MULTILINE);
         ASSERT(0 == returnValue);
 //..
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
@@ -619,7 +601,8 @@ int main(int argc, char *argv[])
         bsls::AlignedBuffer<256>           buffer;
         bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
                                                  sizeof(buffer));
-        bdepcre_RegEx                      regex(&arena);
+
+        Obj regex(&arena);
 
         regex.prepare(0, 0, k_PATTERN, 0);
       } break;
@@ -630,27 +613,27 @@ int main(int argc, char *argv[])
         //  attributes.
         //
         // Concerns:
-        //  The object depth limit attribute should take on the default value
-        //  by default, and be modifiable by the relevant accessor.
-        //
-        //  The object depth limit attribute should limit the recursion depth
-        //  for regular expression matches.
+        //: 1 The object depth limit attribute should take on the default value
+        //:   by default, and be modifiable by the relevant accessor.
+        //:
+        //: 2 The object depth limit attribute should limit the recursion depth
+        //:   for regular expression matches.
         //
         // Plan:
-        //  Default-construct a regular expression, and make sure that the
-        //  depth limit matches the process default.
-        //
-        //  Modify the process default, making sure that the
-        //  already-constructed regex is not affected, that the process default
-        //  accessor returns the new value, and that a new regex object is
-        //  affected.
-        //
-        //  Modify the depth limit for both objects, and make sure they don't
-        //  affect each other or the default value.
-        //
-        //  Finally, modify the depth limit for a regular expression and make
-        //  sure it affects the behaviour of the various 'match' overloads as
-        //  expected.
+        //: 1 Default-construct a regular expression, and make sure that the
+        //:   depth limit matches the process default.  (C-1)
+        //:
+        //: 2 Modify the process default, making sure that the already
+        //:   constructed regex is not affected, that the process default
+        //:   accessor returns the new value, and that a new regex object is
+        //:   affected.  (C-1)
+        //:
+        //: 3 Modify the depth limit for both objects, and make sure they don't
+        //:   affect each other or the default value.  (C-1)
+        //:
+        //: 4 Finally, modify the depth limit for a regular expression and make
+        //:   sure it affects the behaviour of the various 'match' overloads as
+        //:   expected.  (C-2)
         //
         // Testing:
         //   int setDepthLimit(int)
@@ -665,33 +648,35 @@ int main(int argc, char *argv[])
         Obj x;
         int originalDepthLimit = x.depthLimit();
 
-        ASSERT(x.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(x.depthLimit() == RegEx::defaultDepthLimit());
 
-        int previousGlobalLimit = bdepcre_RegEx::setDefaultDepthLimit(3);
-        ASSERT(3                  == bdepcre_RegEx::defaultDepthLimit());
+        int previousGlobalLimit = RegEx::setDefaultDepthLimit(3);
+
+        ASSERT(3                  == RegEx::defaultDepthLimit());
         ASSERT(3                  != originalDepthLimit);
         ASSERT(originalDepthLimit == x.depthLimit());
         ASSERT(originalDepthLimit == previousGlobalLimit);
 
         Obj y;
 
-        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
 
         int previousXLimit = x.setDepthLimit(5);
+
         ASSERT(5              == x.depthLimit());
         ASSERT(5              != originalDepthLimit);
-        ASSERT(3              == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(3              == RegEx::defaultDepthLimit());
         ASSERT(previousXLimit == previousGlobalLimit);
-        ASSERT(y.depthLimit() == bdepcre_RegEx::defaultDepthLimit());
+        ASSERT(y.depthLimit() == RegEx::defaultDepthLimit());
 
         const char *testString       = "a\n\n\n\n\nb";
         bsl::size_t testStringLength = bsl::strlen(testString);
         const char *testRegex        = "a(\n)+b";
 
         bsl::string errorMessage;
-        int         errorOffset;
+        size_t      errorOffset;
 
-        bsl::pair<size_t, size_t> resultPair;
+        bsl::pair<size_t, size_t>               resultPair;
         bsl::vector<bsl::pair<size_t, size_t> > resultVector;
 
         // We expect this to fail at depth 3, since it requires depth 14.
@@ -725,36 +710,36 @@ int main(int argc, char *argv[])
         //   compiling regular expressions.
         //
         // Concerns:
-        //   We want to make sure that the dot metacharacter '.' matches
-        //   all characters including newlines ('\n') when this flag is
-        //   specified.  We also want to check that not specifying this flag
-        //   disables the matching of newlines.
+        //: 1 We want to make sure that the dot metacharacter '.' matches all
+        //:   characters including newlines ('\n') when this flag is specified.
+        //:   We also want to check that not specifying this flag disables the
+        //:   matching of newlines.
         //
         // Plan:
-        //   For a given pattern string containing newlines, create two
-        //   regular expression objects - one with 'BDEPCRE_FLAG_MULTILINE'
-        //   specified and another without.
-        //
-        //   For each object, exercise the match function using subjects of the
-        //   form "<preamble>\n<pattern-match>\n<postamble>".  Note that in
-        //   some cases the pattern to be matched will contain newlines.
-        //   Select test data with increasing preamble/postamble length (from
-        //   0 to 3).  Verify that the object with 'BDEPCRE_FLAG_DOTMATCHESALL'
-        //   always succeeds and also that the object without
-        //   'BDEPCRE_FLAG_DOTMATCHESALL' always fails.
-        //
-        //   Finally, exercise the match function using a subject that matches
-        //   the pattern exactly on a single line (i.e.  without any
-        //   preamble/postamble/newline characters).  Verify that both objects
-        //   succeed.
+        //: 1 For a given pattern string containing newlines, create two
+        //:   regular expression objects - one with 'BDEPCRE_FLAG_MULTILINE'
+        //:   specified and another without.
+        //:
+        //: 2 For each object, exercise the match function using subjects of
+        //:   the form "<preamble>\n<pattern-match>\n<postamble>".  Note that
+        //:   in some cases the pattern to be matched will contain newlines.
+        //:   Select test data with increasing preamble/postamble length (from
+        //:   0 to 3).  Verify that the object with
+        //:   'BDEPCRE_FLAG_DOTMATCHESALL' always succeeds and also that the
+        //:   object without 'BDEPCRE_FLAG_DOTMATCHESALL' always fails.
+        //:
+        //: 3 Finally, exercise the match function using a subject that matches
+        //:   the pattern exactly on a single line (i.e.  without any
+        //:   preamble/postamble/newline characters).  Verify that both objects
+        //:   succeed.
         //
         // Testing:
         //   int flags() const;
         //   BDEPCRE_FLAG_DOTMATCHESALL
         // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Dot Matches All Flag"
-                          << "\n============================" << endl;
+        if (verbose) cout << endl
+                          << "Testing BDEPCRE_FLAG_DOTMATCHESALL Flag" << endl
+                          << "=======================================" << endl;
 
         const char PATTERN[]             = "b.*e";
         const char SUBJECT_SINGLE_LINE[] = "bbasm_SecurityCache";
@@ -762,8 +747,8 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_lineNum;          // source line number
             const char *d_subject;          // subject string
-            int         d_preambleLength;   // number of chars in preamble
-            int         d_postambleLength;  // number of chars in postamble
+            size_t      d_preambleLength;   // number of chars in preamble
+            size_t      d_postambleLength;  // number of chars in postamble
         } DATA[] = {
             //line  subject                            preamble   postamble
             //----  -------                            --------   ---------
@@ -778,7 +763,7 @@ int main(int argc, char *argv[])
             { L_,   "\nbbasm\n_Se\ncurityCache\nabc",      1,         4     },
             { L_,   "azc\nbbasm\n_Se\ncurityCache\nabc",   4,         4     },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         bslma::TestAllocator ta;
         Obj mX(&ta); const Obj& X = mX;   // has 'BDEPCRE_FLAG_DOTMATCHESALL'
@@ -793,33 +778,31 @@ int main(int argc, char *argv[])
         }
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
                                  Obj::BDEPCRE_FLAG_DOTMATCHESALL);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(X.flags(), Obj::BDEPCRE_FLAG_DOTMATCHESALL == X.flags());
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_DOTMATCHESALL == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(Y.flags(), 0 == Y.flags());
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(Y.flags(), 0 == Y.flags());
 
-        if (verbose) {
-            cout << "\nTrying multiline subjects." << endl;
-        }
+        if (verbose) cout << "\nTrying multiline subjects." << endl;
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE          = DATA[i].d_lineNum;
-            const char *SUBJECT       = DATA[i].d_subject;
-            const int   PREAMBLE_LEN  = DATA[i].d_preambleLength;
-            const int   POSTAMBLE_LEN = DATA[i].d_postambleLength;
-            const int   SUBJECT_LEN   = bsl::strlen(SUBJECT);
-            const int   MATCH_OFFSET  = PREAMBLE_LEN;
-            const int   MATCH_LENGTH  = SUBJECT_LEN
-                                      - PREAMBLE_LEN
-                                      - POSTAMBLE_LEN;
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int    LINE          = DATA[i].d_lineNum;
+            const char  *SUBJECT       = DATA[i].d_subject;
+            const size_t PREAMBLE_LEN  = DATA[i].d_preambleLength;
+            const size_t POSTAMBLE_LEN = DATA[i].d_postambleLength;
+            const size_t SUBJECT_LEN   = bsl::strlen(SUBJECT);
+            const size_t MATCH_OFFSET  = PREAMBLE_LEN;
+            const size_t MATCH_LENGTH  = SUBJECT_LEN
+                                         - PREAMBLE_LEN
+                                         - POSTAMBLE_LEN;
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(SUBJECT) P_(SUBJECT_LEN)
@@ -833,12 +816,14 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode,      0            == retCode);
-            LOOP2_ASSERT(LINE, match.first,  MATCH_OFFSET == match.first);
-            LOOP2_ASSERT(LINE, match.second, MATCH_LENGTH == match.second);
+
+            ASSERTV(LINE, retCode,      0            == retCode);
+            ASSERTV(LINE, match.first,  MATCH_OFFSET == match.first);
+            ASSERTV(LINE, match.second, MATCH_LENGTH == match.second);
 
             retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            ASSERTV(LINE, retCode, 0 != retCode);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -847,24 +832,20 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-            LOOP2_ASSERT(LINE, retCode, 1 == vMatch.size());
-            LOOP2_ASSERT(LINE, vMatch[0].first,
-                         MATCH_OFFSET == vMatch[0].first);
-            LOOP2_ASSERT(LINE, vMatch[0].second,
-                         MATCH_LENGTH == vMatch[0].second);
+
+            ASSERTV(LINE, retCode, 0 == retCode);
+            ASSERTV(LINE, retCode, 1 == vMatch.size());
+            ASSERTV(LINE, vMatch[0].first,  MATCH_OFFSET == vMatch[0].first);
+            ASSERTV(LINE, vMatch[0].second, MATCH_LENGTH == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+            ASSERTV(LINE, retCode, 0 != retCode);
         }
 
-        if (verbose) {
-            cout << "\nTrying single line subject." << endl;
-        }
-
+        if (verbose)  cout << "\nTrying single line subject." << endl;
         {
-            const char *SUBJECT     = SUBJECT_SINGLE_LINE;
-            const int   SUBJECT_LEN = bsl::strlen(SUBJECT);
+            const char   *SUBJECT     = SUBJECT_SINGLE_LINE;
+            const size_t  SUBJECT_LEN = bsl::strlen(SUBJECT);
 
             if (veryVerbose) {
                 T_ P_(SUBJECT) P(SUBJECT_LEN)
@@ -877,14 +858,16 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,      0           == retCode);
-            LOOP_ASSERT(match.first,  0           == match.first);
-            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            ASSERTV(retCode,      0           == retCode);
+            ASSERTV(match.first,  0           == match.first);
+            ASSERTV(match.second, SUBJECT_LEN == match.second);
 
             retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,      0           == retCode);
-            LOOP_ASSERT(match.first,  0           == match.first);
-            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            ASSERTV(retCode,      0           == retCode);
+            ASSERTV(match.first,  0           == match.first);
+            ASSERTV(match.second, SUBJECT_LEN == match.second);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -893,72 +876,90 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,          0           == retCode);
-            LOOP_ASSERT(vMatch.size(),    1           == vMatch.size());
-            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0           == retCode);
+            ASSERTV(vMatch.size(),    1           == vMatch.size());
+            ASSERTV(vMatch[0].first,  0           == vMatch[0].first);
+            ASSERTV(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,          0           == retCode);
-            LOOP_ASSERT(vMatch.size(),    1           == vMatch.size());
-            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0           == retCode);
+            ASSERTV(vMatch.size(),    1           == vMatch.size());
+            ASSERTV(vMatch[0].first,  0           == vMatch[0].first);
+            ASSERTV(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
         }
 
         if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ?: non-matching grouping
+        // TESTING NON-CAPTURING GROUPS
         //
         // Concerns:
-        //   That (?:  ) specifies grouping, without specifying a subpattern.
+        //: 1 That (?:  ) specifies grouping, without specifying a subpattern.
+        //:
+        //: 2 That a subpattern can be nested inside the grouping.
         //
-        //   That a subpattern can be nested inside the grouping.
+        // Plan:
+        //: 1 Create a pattern with non-capturing group and verify that this
+        //:   group is not returned in the match result.  (C-1)
+        //:
+        //: 2 Create a pattern with nested non-capturing group and verify that
+        //:   those groups are not returned in the match result.  (C-2)
+        //
+        // Testing:
+        //   NON-CAPTURING GROUPS
         // -------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "NON-CAPTURING GROUPS" << endl
+                          << "====================" << endl;
 
         Obj mX(&testAllocator);
         int rc = mX.prepare(0,0,"XX(?:\\d\\d:)+ (\\S+)");
+
         ASSERT(0 == rc);
+
         bsl::vector<bsl::pair<size_t, size_t> > results;
         //                     0123456789012
         const char MATCH1[] = "XX12:23: WORD";
         const char MATCH2[] = "XX12:23:34WORD";
+
         ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
+
+        ASSERTV(results.size(), 2 == results.size());
         if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 9 == results[1].first);
+            ASSERTV(results[1].first, 9 == results[1].first);
         }
 
         rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |\\d\\d)(\\S+)");
         ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
+
+        ASSERTV(results.size(), 2 == results.size());
         if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 9 == results[1].first);
+            ASSERTV(results[1].first, 9 == results[1].first);
         }
 
         ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
-        LOOP_ASSERT(results.size(), 2 == results.size());
+        ASSERTV(results.size(), 2 == results.size());
         if (2 == results.size()) {
-            LOOP_ASSERT(results[1].first, 10 == results[1].first);
+            ASSERTV(results[1].first, 10 == results[1].first);
         }
 
-        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |(\\d\\d))(\\S+)");
+        rc = mX.prepare(0,0,"XX(?:\\d\\d:)+(?: |(?:\\d\\d))(\\S+)");
         ASSERT(0 == mX.match(&results, MATCH1, sizeof(MATCH1)-1));
-        // TBD...should have *ONE* subpattern match, but has two now
-        LOOP_ASSERT(results.size(), 3 == results.size());
-        if (3 == results.size()) {
-            // TBD, this match probably shouldn't happen
-            LOOP_ASSERT(results[1].first, -1 == results[1].first);
-            // TBD...this should be the FIRST match, not second
-            LOOP_ASSERT(results[2].first, 9 == results[2].first);
+
+        ASSERTV(results.size(), 2 == results.size());
+
+        if (2 == results.size()) {
+            ASSERTV(results[1].first, 9 == results[1].first);
         }
 
         ASSERT(0 == mX.match(&results, MATCH2, sizeof(MATCH2)-1));
-        LOOP_ASSERT(results.size(), 3 == results.size());
-        if (3 == results.size()) {
-            LOOP_ASSERT(results[1].first, 8 == results[1].first);
-            LOOP_ASSERT(results[2].first, 10 == results[2].first);
+
+        ASSERTV(results.size(), 2 == results.size());
+        if (2 == results.size()) {
+            ASSERTV(results[1].first, 10 == results[1].first);
         }
       } break;
       case 8: {
@@ -966,21 +967,22 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATION PROPAGATION
         //
         // Concerns:
-        //   We want to make sure that the allocator is propagated properly and
-        //   that all memory allocation is done by the supplied allocator.
+        //: 1 We want to make sure that the allocator is propagated properly
+        //:   and that all memory allocation is done by the supplied allocator.
         //
         // Plan:
-        //   Create a set of patterns using a test allocator, and use a default
-        //   allocator guard to measure the amount of memory allocated via the
-        //   default allocator.  Verify that all memory is allocated by the
-        //   test allocator while exercising the pattern.
+        //: 1 Create a set of patterns using a test allocator, and use a
+        //:   default allocator guard to measure the amount of memory allocated
+        //:   via the default allocator.  Verify that all memory is allocated
+        //:   by the test allocator while exercising the pattern.  (C-1)
         //
         // Testing:
         //   ALLOCATION PROPAGATION
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Allocation"
-                          << "\n==================" << endl;
+        if (verbose) cout << endl
+                          << "Testing Allocation" << endl
+                          << "==================" << endl;
 
         bslma::TestAllocator allocator0(veryVeryVerbose);
         bslma::TestAllocator allocator1(veryVeryVerbose);
@@ -996,7 +998,7 @@ int main(int argc, char *argv[])
             Obj mX(Z1);  const Obj& X = mX;
 
             bsl::string errorMsg(Z2);          // do not use default allocator!
-            int         errorOffset;
+            size_t      errorOffset;
 
             const char PATTERN[]         = "(?P<pkgName>[a-z]+)_([A-Za-z]+)";
             // TBD
@@ -1007,9 +1009,9 @@ int main(int argc, char *argv[])
                                    PATTERN,
                                    Obj::BDEPCRE_FLAG_MULTILINE));
 
-            const char TEST_STRING[]   = "bbasm_SecurityCache\n"
-                                         "tweut_StringRef\n";
-            const int  TEST_STRING_LEN = sizeof(TEST_STRING) - 1;
+            const char   TEST_STRING[]   = "bbasm_SecurityCache\n"
+                                           "tweut_StringRef\n";
+            const size_t TEST_STRING_LEN = sizeof(TEST_STRING) - 1;
 
             bsl::pair<size_t, size_t> match;
             ASSERT(0 == X.match(&match, TEST_STRING, TEST_STRING_LEN));
@@ -1018,34 +1020,34 @@ int main(int argc, char *argv[])
                 const char EXPECTED_MATCH[] = "bbasm_SecurityCache";
                 bsl::string realMatch(&TEST_STRING[match.first],
                         match.second, Z2);     // do not use default allocator!
-                LOOP_ASSERT(realMatch, EXPECTED_MATCH == realMatch);
+                ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
             }
 
-            const int startPosition = match.second;
+            const size_t startPosition = match.second;
             X.match(&match, TEST_STRING, TEST_STRING_LEN, startPosition);
 
             {
                 const char EXPECTED_MATCH[] = "tweut_StringRef";
                 bsl::string realMatch(&TEST_STRING[match.first],
                         match.second, Z2);     // do not use default allocator!
-                LOOP_ASSERT(realMatch, EXPECTED_MATCH == realMatch);
+                ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
             }
 
             bsl::vector<pair<size_t, size_t> > vMatch(Z2);
                                                // do not use default allocator!
             X.match(&vMatch, TEST_STRING, TEST_STRING_LEN);
 
-            const int  LEN = 3;
-            const char EXPECTED_MATCHES[LEN][30] = { "bbasm_SecurityCache",
-                                                     "bbasm",
-                                                     "SecurityCache" };
+            const size_t LEN = 3;
+            const char   EXPECTED_MATCHES[LEN][30] = { "bbasm_SecurityCache",
+                                                       "bbasm",
+                                                       "SecurityCache" };
 
-            LOOP_ASSERT(vMatch.size(), LEN == (int)vMatch.size());
-            for (int i = 0; i < LEN; ++i) {
+            ASSERTV(vMatch.size(), LEN == (int)vMatch.size());
+            for (size_t i = 0; i < LEN; ++i) {
                 bsl::string realMatch(&TEST_STRING[vMatch[i].first],
                         vMatch[i].second, Z2); // do not use default allocator!
 
-                LOOP2_ASSERT(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
+                ASSERTV(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
             }
         }
         ASSERT(0 == Z0->numAllocations());
@@ -1060,24 +1062,24 @@ int main(int argc, char *argv[])
         //   verify that it returns the captured substrings correctly.
         //
         // Concerns:
-        //   We want to make sure that subpatterns are recognized correctly and
-        //   also that captured substrings can be retrieved.
+        //: 1 We want to make sure that subpatterns are recognized correctly
+        //:   and also that captured substrings can be retrieved.
         //
         // Plan:
-        //   Create a set of patterns, with increasing number of subpatterns.
-        //   The pattern used will be a regular expression with the capability
-        //   of splitting a BDE-style class name into package name & class
-        //   name, and also split the class name into separate words.  For
-        //   example, 'bbasm_SecurityDataChunkResolver' will be split into
-        //   package name 'bbasm' and class name 'SecurityDataChunkResolver'.
-        //   Further, the class name will be split into separate words
-        //   'Security', 'Data', 'Chunk', and 'Resolver'.  Each word is
-        //   represented by a sub-pattern in the regular expression.  Since the
-        //   set contains patterns with increasing number of subpatterns, the
-        //   number of words that a pattern can identify will also increase.
-        //   The test data contains 'numWords' values from 0 to 4.  This also
-        //   tests "nested" subpatterns (the 'words' sub-patterns are nested
-        //   inside the 'class-name' sub-pattern).
+        //: 1 Create a set of patterns, with increasing number of subpatterns.
+        //:   The pattern used will be a regular expression with the capability
+        //:   of splitting a BDE-style class name into package name & class
+        //:   name, and also split the class name into separate words.  For
+        //:   example, 'bbasm_SecurityDataChunkResolver' will be split into
+        //:   package name 'bbasm' and class name 'SecurityDataChunkResolver'.
+        //:   Further, the class name will be split into separate words
+        //:   'Security', 'Data', 'Chunk', and 'Resolver'.  Each word is
+        //:   represented by a sub-pattern in the regular expression.  Since
+        //:   the set contains patterns with increasing number of subpatterns,
+        //:   the number of words that a pattern can identify will also
+        //:   increase.  The test data contains 'numWords' values from 0 to 4.
+        //:   This also tests "nested" subpatterns (the 'words' sub-patterns
+        //:   are nested inside the 'class-name' sub-pattern).
         //
         // Testing:
         //   int match(bsl::vector<bsl::pair<size_t, size_t> >*, ...) const;
@@ -1085,8 +1087,8 @@ int main(int argc, char *argv[])
         //   int subpatternIndex(const char*) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Subpatterns"
-                          << "\n===================" << endl;
+        if (verbose) cout << endl << "Testing Subpatterns" << endl
+                                  << "===================" << endl;
 
         static const struct {
             int         d_lineNum;   // source line number
@@ -1121,7 +1123,7 @@ int main(int argc, char *argv[])
                     "(?P<word4>[A-Z][a-z]*)"
                     "([A-Z][a-z]*)*)",                             4        },
         };
-        const int NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS;
+        const size_t NUM_PATTERNS = sizeof PATTERNS / sizeof *PATTERNS;
 
         // subpattern names
         const char SPN_PKG[]      = "pkg";
@@ -1129,8 +1131,8 @@ int main(int argc, char *argv[])
         const char SPN_WORD[4][6] = { "word1", "word2", "word3", "word4" };
 
         // subject
-        const char SUBJECT[]   = "bbasm_SecurityDataChunkResolver";
-        const int  SUBJECT_LEN = sizeof(SUBJECT) - 1;
+        const char   SUBJECT[]   = "bbasm_SecurityDataChunkResolver";
+        const size_t SUBJECT_LEN = sizeof(SUBJECT) - 1;
 
         // captured substrings
         const char CS_PKG[]       = "bbasm";
@@ -1144,7 +1146,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting with increasing number of subpatterns." << endl;
         }
 
-        for (int i = 0; i < NUM_PATTERNS; ++i) {
+        for (size_t i = 0; i < NUM_PATTERNS; ++i) {
             const int   LINE      = PATTERNS[i].d_lineNum;
             const char *PATTERN   = PATTERNS[i].d_pattern;
             const int   NUM_WORDS = PATTERNS[i].d_numWords;
@@ -1152,13 +1154,13 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\n\tPreparing expression from "; P(LINE);
                 cout << "\t  with "; P(PATTERN)
-                cout << "\t  and "; P(NUM_WORDS)
+                cout << "\t  and ";  P(NUM_WORDS)
             }
 
             Obj mX(&testAllocator);  const Obj& X = mX;
 
             bsl::string errorMsg;
-            int         errorOffset;
+            size_t      errorOffset;
 
             int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0);
             LOOP3_ASSERT(LINE, errorMsg, errorOffset, 0 == retCode);
@@ -1175,11 +1177,11 @@ int main(int argc, char *argv[])
                 P(X.subpatternIndex(SPN_NAME))
             }
 
-            LOOP2_ASSERT(LINE,              X.numSubpatterns(),
+            ASSERTV(LINE,              X.numSubpatterns(),
                          NUM_SUBPATTERNS == X.numSubpatterns());
-            LOOP2_ASSERT(LINE,            X.subpatternIndex(SPN_PKG),
+            ASSERTV(LINE,            X.subpatternIndex(SPN_PKG),
                          SP_PKG_INDEX  == X.subpatternIndex(SPN_PKG));
-            LOOP2_ASSERT(LINE,            X.subpatternIndex(SPN_NAME),
+            ASSERTV(LINE,            X.subpatternIndex(SPN_NAME),
                          SP_NAME_INDEX == X.subpatternIndex(SPN_NAME));
 
             // Test names that do not identify sub-patterns.
@@ -1187,8 +1189,8 @@ int main(int argc, char *argv[])
             bsl::string BAD_SPN_NAME(SPN_NAME);  BAD_SPN_NAME += "xYz";
             bsl::string BAD_SPN_PKG(SPN_PKG);    BAD_SPN_PKG  += "AbC";
 
-            LOOP_ASSERT(LINE, -1 == X.subpatternIndex(BAD_SPN_NAME.c_str()));
-            LOOP_ASSERT(LINE, -1 == X.subpatternIndex(BAD_SPN_PKG.c_str()));
+            ASSERTV(LINE, -1 == X.subpatternIndex(BAD_SPN_NAME.c_str()));
+            ASSERTV(LINE, -1 == X.subpatternIndex(BAD_SPN_PKG.c_str()));
 
             int j;
 
@@ -1205,7 +1207,7 @@ int main(int argc, char *argv[])
 
                 bsl::string BAD_SPN_WORDJ(SPN_WORDJ);  BAD_SPN_WORDJ += "#%$";
 
-                LOOP_ASSERT(LINE,
+                ASSERTV(LINE,
                             -1 == X.subpatternIndex(BAD_SPN_WORDJ.c_str()));
             }
 
@@ -1227,8 +1229,8 @@ int main(int argc, char *argv[])
             }
 
             retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(LINE, 0 == retCode);
-            LOOP2_ASSERT(LINE,                vMatch.size(),
+            ASSERTV(LINE, 0 == retCode);
+            ASSERTV(LINE,                vMatch.size(),
                          NUM_SUBPATTERNS+1 == (int)vMatch.size());
 
             // captured substrings
@@ -1237,8 +1239,8 @@ int main(int argc, char *argv[])
             const string csName(&SUBJECT[vMatch[SP_NAME_INDEX].first],
                                 vMatch[SP_NAME_INDEX].second);
 
-            LOOP2_ASSERT(LINE, csPkg,  CS_PKG  == csPkg);
-            LOOP2_ASSERT(LINE, csName, CS_NAME == csName);
+            ASSERTV(LINE, csPkg,  CS_PKG  == csPkg);
+            ASSERTV(LINE, csName, CS_NAME == csName);
 
             if (veryVeryVerbose) {
                 T_ T_ P_(csPkg) P(csName)
@@ -1255,7 +1257,7 @@ int main(int argc, char *argv[])
                     T_ T_ P_(j) P(csWordj)
                 }
 
-                LOOP2_ASSERT(LINE, csWordj,  CS_WORDJ == csWordj);
+                ASSERTV(LINE, csWordj,  CS_WORDJ == csWordj);
             }
 
             if (4 == NUM_WORDS) {
@@ -1287,7 +1289,7 @@ int main(int argc, char *argv[])
                     T_ T_ P(csLastWord)
                 }
 
-                LOOP2_ASSERT(LINE, csLastWord, CS_WORD[3] == csLastWord);
+                ASSERTV(LINE, csLastWord, CS_WORD[3] == csLastWord);
             }
         }
 
@@ -1342,13 +1344,13 @@ int main(int argc, char *argv[])
             { L_,    "\\xD3",      { 0xC3, 0x93 },   0xD3           },
             { L_,    "\\xFF",      { 0xC3, 0xBF },   0xFF           },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) {
             cout << "\nRunning test data." << endl;
         }
 
-        for (int i = 0; i < NUM_DATA; ++i) {
+        for (size_t i = 0; i < NUM_DATA; ++i) {
             const int   LINE    = DATA[i].d_lineNum;
             const char *PATTERN = DATA[i].d_pattern;
 
@@ -1357,24 +1359,26 @@ int main(int argc, char *argv[])
                 P_(LINE) P(PATTERN)
             }
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            Obj mX(&testAllocator); const Obj& X = mX;
                                                    // has 'BDEPCRE_FLAG_UTF8'
-            Obj mY(&testAllocator);  const Obj& Y = mY;
+            Obj mY(&testAllocator); const Obj& Y = mY;
                                                    // !have 'BDEPCRE_FLAG_UTF8'
 
             bsl::string errorMsg;
-            int         errorOffset;
+            size_t      errorOffset;
 
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
                                      PATTERN,
                                      Obj::BDEPCRE_FLAG_UTF8);
-            LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-            LOOP_ASSERT(X.flags(), Obj::BDEPCRE_FLAG_UTF8 == X.flags());
+
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_UTF8 == X.flags());
 
             retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-            LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-            LOOP_ASSERT(Y.flags(), 0 == Y.flags());
+
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(Y.flags(), 0 == Y.flags());
 
             {
                 if (veryVeryVerbose) {
@@ -1384,10 +1388,12 @@ int main(int argc, char *argv[])
                 const unsigned char *UTF8_SUBJECT = DATA[i].d_utf8Subject;
 
                 retCode = X.match((const char*)UTF8_SUBJECT, 2);
-                LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+
+                ASSERTV(LINE, retCode, 0 == retCode);
 
                 retCode = Y.match((const char*)UTF8_SUBJECT, 2);
-                LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+                ASSERTV(LINE, retCode, 0 != retCode);
             }
 
             {
@@ -1398,10 +1404,12 @@ int main(int argc, char *argv[])
                 const unsigned char REGULAR_SUBJECT = DATA[i].d_regularSubject;
 
                 retCode = X.match((const char*)&REGULAR_SUBJECT, 1);
-                LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+                ASSERTV(LINE, retCode, 0 != retCode);
 
                 retCode = Y.match((const char*)&REGULAR_SUBJECT, 1);
-                LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+
+                ASSERTV(LINE, retCode, 0 == retCode);
             }
         }
 
@@ -1452,8 +1460,8 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_lineNum;          // source line number
             const char *d_subject;          // subject string
-            int         d_preambleLength;   // number of chars in preamble
-            int         d_postambleLength;  // number of chars in postamble
+            size_t      d_preambleLength;   // number of chars in preamble
+            size_t      d_postambleLength;  // number of chars in postamble
         } DATA[] = {
             //line  subject                            preamble   postamble
             //----  -------                            --------   ---------
@@ -1468,7 +1476,7 @@ int main(int argc, char *argv[])
             { L_,   "\nbbasm_SecurityCache\nabc",      0,         3         },
             { L_,   "abc\nbbasm_SecurityCache\nabc",   3,         3         },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Obj mX(&testAllocator);  const Obj& X = mX;
                                               // has 'BDEPCRE_FLAG_MULTILINE'
@@ -1484,34 +1492,34 @@ int main(int argc, char *argv[])
         }
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
                                  Obj::BDEPCRE_FLAG_MULTILINE);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(X.flags(), Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(Y.flags(), 0 == Y.flags());
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(Y.flags(), 0 == Y.flags());
 
         if (verbose) {
             cout << "\nTrying multiline subjects." << endl;
         }
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE          = DATA[i].d_lineNum;
-            const char *SUBJECT       = DATA[i].d_subject;
-            const int   PREAMBLE_LEN  = DATA[i].d_preambleLength;
-            const int   POSTAMBLE_LEN = DATA[i].d_postambleLength;
-            const int   SUBJECT_LEN   = strlen(SUBJECT);
-            const int   MATCH_OFFSET  = PREAMBLE_LEN + 1;
-            const int   MATCH_LENGTH  = SUBJECT_LEN
-                                        - PREAMBLE_LEN
-                                        - POSTAMBLE_LEN
-                                        - 2;
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int     LINE          = DATA[i].d_lineNum;
+            const char   *SUBJECT       = DATA[i].d_subject;
+            const size_t  PREAMBLE_LEN  = DATA[i].d_preambleLength;
+            const size_t  POSTAMBLE_LEN = DATA[i].d_postambleLength;
+            const size_t  SUBJECT_LEN   = strlen(SUBJECT);
+            const size_t  MATCH_OFFSET  = PREAMBLE_LEN + 1;
+            const size_t  MATCH_LENGTH  = SUBJECT_LEN
+                                          - PREAMBLE_LEN
+                                          - POSTAMBLE_LEN
+                                          - 2;
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(SUBJECT) P_(SUBJECT_LEN)
@@ -1525,12 +1533,14 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode,      0            == retCode);
-            LOOP2_ASSERT(LINE, match.first,  MATCH_OFFSET == match.first);
-            LOOP2_ASSERT(LINE, match.second, MATCH_LENGTH == match.second);
+
+            ASSERTV(LINE, retCode,      0            == retCode);
+            ASSERTV(LINE, match.first,  MATCH_OFFSET == match.first);
+            ASSERTV(LINE, match.second, MATCH_LENGTH == match.second);
 
             retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            ASSERTV(LINE, retCode, 0 != retCode);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -1539,14 +1549,16 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 == retCode);
-            LOOP2_ASSERT(LINE, vMatch[0].first,
+
+            ASSERTV(LINE, retCode, 0 == retCode);
+            ASSERTV(LINE, vMatch[0].first,
                          MATCH_OFFSET == vMatch[0].first);
-            LOOP2_ASSERT(LINE, vMatch[0].second,
+            ASSERTV(LINE, vMatch[0].second,
                          MATCH_LENGTH == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            ASSERTV(LINE, retCode, 0 != retCode);
         }
 
         if (verbose) {
@@ -1554,8 +1566,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            const char *SUBJECT     = SUBJECT_SINGLE_LINE;
-            const int   SUBJECT_LEN = strlen(SUBJECT);
+            const char   *SUBJECT     = SUBJECT_SINGLE_LINE;
+            const size_t  SUBJECT_LEN = strlen(SUBJECT);
 
             if (veryVerbose) {
                 T_ P_(SUBJECT) P(SUBJECT_LEN)
@@ -1568,14 +1580,16 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,      0           == retCode);
-            LOOP_ASSERT(match.first,  0           == match.first);
-            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            ASSERTV(retCode,      0           == retCode);
+            ASSERTV(match.first,  0           == match.first);
+            ASSERTV(match.second, SUBJECT_LEN == match.second);
 
             retCode = Y.match(&match, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,      0           == retCode);
-            LOOP_ASSERT(match.first,  0           == match.first);
-            LOOP_ASSERT(match.second, SUBJECT_LEN == match.second);
+
+            ASSERTV(retCode,      0           == retCode);
+            ASSERTV(match.first,  0           == match.first);
+            ASSERTV(match.second, SUBJECT_LEN == match.second);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -1584,14 +1598,16 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,          0           == retCode);
-            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0           == retCode);
+            ASSERTV(vMatch[0].first,  0           == vMatch[0].first);
+            ASSERTV(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            LOOP_ASSERT(retCode,          0           == retCode);
-            LOOP_ASSERT(vMatch[0].first,  0           == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0           == retCode);
+            ASSERTV(vMatch[0].first,  0           == vMatch[0].first);
+            ASSERTV(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
         }
 
         if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
@@ -1643,7 +1659,7 @@ int main(int argc, char *argv[])
             { L_,       "bBaSm_sEcUrItYcAcHe"                   },
             { L_,       "BbAsM_SeCuRiTyCaChE"                   },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Obj mX(&testAllocator);  const Obj& X = mX;
                                                // has 'BDEPCRE_FLAG_CASELESS'
@@ -1659,27 +1675,29 @@ int main(int argc, char *argv[])
         }
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
                                  Obj::BDEPCRE_FLAG_CASELESS);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(X.flags(), Obj::BDEPCRE_FLAG_CASELESS == X.flags());
+
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_CASELESS == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
-        LOOP_ASSERT(Y.flags(), 0 == Y.flags());
+
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(Y.flags(), 0 == Y.flags());
 
         if (verbose) {
             cout << "\nTrying different cases." << endl;
         }
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE    = DATA[i].d_lineNum;
-            const char *SUBJECT = DATA[i].d_subject;
-            const int   LEN     = strlen(SUBJECT);
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int     LINE    = DATA[i].d_lineNum;
+            const char   *SUBJECT = DATA[i].d_subject;
+            const size_t  LEN     = strlen(SUBJECT);
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(SUBJECT) P(LEN)
@@ -1692,12 +1710,14 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, LEN);
-            LOOP2_ASSERT(LINE, retCode,      0   == retCode);
-            LOOP2_ASSERT(LINE, match.first,  0   == match.first);
-            LOOP2_ASSERT(LINE, match.second, LEN == match.second);
+
+            ASSERTV(LINE, retCode,      0   == retCode);
+            ASSERTV(LINE, match.first,  0   == match.first);
+            ASSERTV(LINE, match.second, LEN == match.second);
 
             retCode = Y.match(&match, SUBJECT, LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            ASSERTV(LINE, retCode, 0 != retCode);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -1706,21 +1726,20 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, LEN);
-            LOOP2_ASSERT(LINE, retCode,          0   == retCode);
-            LOOP2_ASSERT(LINE, vMatch[0].first,  0   == vMatch[0].first);
-            LOOP2_ASSERT(LINE, vMatch[0].second, LEN == vMatch[0].second);
+
+            ASSERTV(LINE, retCode,          0   == retCode);
+            ASSERTV(LINE, vMatch[0].first,  0   == vMatch[0].first);
+            ASSERTV(LINE, vMatch[0].second, LEN == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, LEN);
-            LOOP2_ASSERT(LINE, retCode, 0 != retCode);
+
+            ASSERTV(LINE, retCode, 0 != retCode);
         }
 
-        if (verbose) {
-            cout << "\nTrying same case as pattern." << endl;
-        }
-
+        if (verbose) cout << "\nTrying same case as pattern." << endl;
         {
-            const char *SUBJECT = SUBJECT_SAME_CASE;
-            const int   LEN     = strlen(SUBJECT);
+            const char   *SUBJECT = SUBJECT_SAME_CASE;
+            const size_t  LEN     = strlen(SUBJECT);
 
             if (veryVerbose) {
                 T_ P_(SUBJECT) P(LEN)
@@ -1733,14 +1752,16 @@ int main(int argc, char *argv[])
             pair<size_t, size_t> match;
 
             retCode = X.match(&match, SUBJECT, LEN);
-            LOOP_ASSERT(retCode,      0   == retCode);
-            LOOP_ASSERT(match.first,  0   == match.first);
-            LOOP_ASSERT(match.second, LEN == match.second);
+
+            ASSERTV(retCode,      0   == retCode);
+            ASSERTV(match.first,  0   == match.first);
+            ASSERTV(match.second, LEN == match.second);
 
             retCode = Y.match(&match, SUBJECT, LEN);
-            LOOP_ASSERT(retCode,      0   == retCode);
-            LOOP_ASSERT(match.first,  0   == match.first);
-            LOOP_ASSERT(match.second, LEN == match.second);
+
+            ASSERTV(retCode,      0   == retCode);
+            ASSERTV(match.first,  0   == match.first);
+            ASSERTV(match.second, LEN == match.second);
 
             if (veryVeryVerbose) {
                 cout << "\t\tUsing vector match function." << endl;
@@ -1749,48 +1770,50 @@ int main(int argc, char *argv[])
             vector<pair<size_t, size_t> > vMatch;
 
             retCode = X.match(&vMatch, SUBJECT, LEN);
-            LOOP_ASSERT(retCode,          0   == retCode);
-            LOOP_ASSERT(vMatch[0].first,  0   == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0   == retCode);
+            ASSERTV(vMatch[0].first,  0   == vMatch[0].first);
+            ASSERTV(vMatch[0].second, LEN == vMatch[0].second);
 
             retCode = Y.match(&vMatch, SUBJECT, LEN);
-            LOOP_ASSERT(retCode,          0   == retCode);
-            LOOP_ASSERT(vMatch[0].first,  0   == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second, LEN == vMatch[0].second);
+
+            ASSERTV(retCode,          0   == retCode);
+            ASSERTV(vMatch[0].first,  0   == vMatch[0].first);
+            ASSERTV(vMatch[0].second, LEN == vMatch[0].second);
         }
 
         if (verbose) cout << "\nEnd of Caseless Flag Test." << endl;
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING MATCHING METHODS
+        // TESTING 'match' METHODS
         //   This will test the 'match' methods.
         //
         // Concerns:
-        //   Although we are not testing the implementation of the PCRE
-        //   library, we want to check that the interface is plugged in
-        //   correctly and works as documented.  In particular, we want to
-        //   check that the 'subject', 'subjectLength', and 'subjectStart'
-        //   arguments are passed to PCRE correctly and the resulting 'ovector'
-        //   is copied correctly to the 'result'.  Also we want to make sure
-        //   that a failure code is returned when the subject does not match
-        //   the pattern.
+        //: 1 Although we are not testing the implementation of the PCRE
+        //:   library, we want to check that the interface is plugged in
+        //:   correctly and works as documented.  In particular, we want to
+        //:   check that the 'subject', 'subjectLength', and 'subjectStart'
+        //:   arguments are passed to PCRE correctly and the resulting
+        //:   'ovector' is copied correctly to the 'result'.  Also we want to
+        //:   make sure that a failure code is returned when the subject does
+        //:   not match the pattern.
         //
         // Plan:
-        //   Prepare a regular expression object using a given 'PATTERN'
-        //   string, create a set of subjects that contain a match for
-        //   'PATTERN'.  The set should contain subjects of increasing length,
-        //   and also increasing match offsets ('matchOffset').
-        //
-        //   Exercise the 'match' methods using 'subjectStart' values in the
-        //   range [0..'subjectLength'].  Check that the methods succeed when
-        //   'subjectStart' <= 'matchOffset' and they fail when
-        //   'subjectStart' > 'matchOffset'.  For each successful call to
-        //   'match', check that 'result' contains the correct offset and
-        //   length for the captured string.  Note that captured substrings are
-        //   tested in later test case.
-        //
-        //   Finally, exercise the special case where 'subjectLength' is 0.
+        //: 1 Prepare a regular expression object using a given 'PATTERN'
+        //:   string, create a set of subjects that contain a match for
+        //:   'PATTERN'.  The set should contain subjects of increasing length,
+        //:   and also increasing match offsets ('matchOffset').
+        //:
+        //: 2 Exercise the 'match' methods using 'subjectStart' values in the
+        //:   range [0..'subjectLength'].  Check that the methods succeed when
+        //:   'subjectStart' <= 'matchOffset' and they fail when
+        //:   'subjectStart' > 'matchOffset'.  For each successful call to
+        //:   'match', check that 'result' contains the correct offset and
+        //:   length for the captured string.  Note that captured substrings
+        //:   are tested in later test case.
+        //:
+        //: 3 Finally, exercise the special case where 'subjectLength' is 0.
         //
         // Testing:
         //   int match(const char *subject, ...) const;
@@ -1870,15 +1893,15 @@ int main(int argc, char *argv[])
             { L_,    "ZZZZab",           4,            2            },
             { L_,    "ZZZZZa",           5,            1            },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&testAllocator);  const Obj& X = mX;
+        Obj mX(&testAllocator); const Obj& X = mX;
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
         if (verbose) {
             cout << "\nTesting non-empty subjects." << endl;
@@ -1888,7 +1911,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        for (int i = 0; i < NUM_DATA; ++i) {
+        for (size_t i = 0; i < NUM_DATA; ++i) {
             const int     LINE         = DATA[i].d_lineNum;
             const char   *SUBJECT      = DATA[i].d_subject;
             const size_t  MATCH_OFFSET = DATA[i].d_matchOffset;
@@ -1902,7 +1925,7 @@ int main(int argc, char *argv[])
             pair<size_t, size_t>          match;
             vector<pair<size_t, size_t> > vMatch;
 
-            for (int subjectStart = 0; subjectStart <= SUBJECT_LEN;
+            for (size_t subjectStart = 0; subjectStart <= SUBJECT_LEN;
                                                               ++subjectStart) {
                 if (veryVeryVerbose) {
                     T_ T_ P(subjectStart)
@@ -1911,36 +1934,36 @@ int main(int argc, char *argv[])
                 retCode = X.match(SUBJECT, SUBJECT_LEN, subjectStart);
 
                 if (subjectStart <= MATCH_OFFSET) {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, 0 == retCode);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 != retCode);
+                    ASSERTV(LINE, subjectStart, 0 != retCode);
                 }
 
                 retCode = X.match(&match, SUBJECT, SUBJECT_LEN, subjectStart);
 
                 if (subjectStart <= MATCH_OFFSET) {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, 0 == retCode);
                     LOOP3_ASSERT(LINE, subjectStart, match.first,
                                        MATCH_OFFSET == match.first);
                     LOOP3_ASSERT(LINE, subjectStart, match.second,
                                        MATCH_LENGTH == match.second);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 != retCode);
+                    ASSERTV(LINE, subjectStart, 0 != retCode);
                 }
 
                 retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN, subjectStart);
 
                 if (subjectStart <= MATCH_OFFSET) {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, 0 == retCode);
                     LOOP3_ASSERT(LINE, subjectStart, vMatch[0].first,
                                        MATCH_OFFSET == vMatch[0].first);
                     LOOP3_ASSERT(LINE, subjectStart, vMatch[0].second,
                                        MATCH_LENGTH == vMatch[0].second);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, subjectStart, 0 != retCode);
+                    ASSERTV(LINE, subjectStart, 0 != retCode);
                 }
             }
         }
@@ -1964,13 +1987,13 @@ int main(int argc, char *argv[])
                                         &errorOffset,
                                         GOOD_PATTERN,
                                         0);
-            LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
             retCode = mNotGood.prepare(&errorMsg,
                                        &errorOffset,
                                        NOT_GOOD_PATTERN,
                                        0);
-            LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
             if (veryVerbose) {
                 cout << "\tTesting good pattern." << endl;
@@ -1984,13 +2007,13 @@ int main(int argc, char *argv[])
 
             retCode = GOOD.match(&match, "", 0);
             ASSERT(0 == retCode);
-            LOOP_ASSERT(match.first,   0 == match.first);
-            LOOP_ASSERT(match.second , 0 == match.second);
+            ASSERTV(match.first,   0 == match.first);
+            ASSERTV(match.second , 0 == match.second);
 
             retCode = GOOD.match(&vMatch, "", 0);
             ASSERT(0 == retCode);
-            LOOP_ASSERT(vMatch[0].first,   0 == vMatch[0].first);
-            LOOP_ASSERT(vMatch[0].second , 0 == vMatch[0].second);
+            ASSERTV(vMatch[0].first,   0 == vMatch[0].first);
+            ASSERTV(vMatch[0].second , 0 == vMatch[0].second);
 
             if (veryVerbose) {
                 cout << "\tTesting not so good pattern." << endl;
@@ -2014,7 +2037,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
 
             bsl::string errorMsg;
-            int         errorOffset;
+            size_t      errorOffset;
             const char  PATTERN[] = "(abc)*";
             const char  SUBJECT[] = "XXXabcZZZ";
 
@@ -2140,8 +2163,9 @@ int main(int argc, char *argv[])
         //   const bsl::string& pattern() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Basic Mechanism"
-                          << "\n=======================" << endl;
+        if (verbose) cout << endl
+                          << "Testing Basic Mechanism" << endl
+                          << "=======================" << endl;
 
         const char PATTERN1[]        = "(abc)+";
         const char PATTERN2[]        = "(def)+";
@@ -2150,16 +2174,16 @@ int main(int argc, char *argv[])
         const char SUBJECT1[] = "abcabcabc";
         const char SUBJECT2[] = "defdefdef";
 
-        const int SUBJECT1_LEN = sizeof(SUBJECT1) - 1;
-        const int SUBJECT2_LEN = sizeof(SUBJECT2) - 1;
+        const size_t SUBJECT1_LEN = sizeof(SUBJECT1) - 1;
+        const size_t SUBJECT2_LEN = sizeof(SUBJECT2) - 1;
 
         if (verbose) {
             cout << "\nCreating two regular expression objects "
                  << "('mX' and 'mY')." << endl;
         }
 
-        Obj mX(&testAllocator);  const Obj& X = mX;
-        Obj mY(&testAllocator);  const Obj& Y = mY;
+        Obj mX(&testAllocator); const Obj& X = mX;
+        Obj mY(&testAllocator); const Obj& Y = mY;
 
         if (verbose) {
             cout << "\nVerifying that both objects are in the unprepared "
@@ -2174,10 +2198,10 @@ int main(int argc, char *argv[])
         }
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN1, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
         ASSERT(true     == X.isPrepared());
         ASSERT(PATTERN1 == X.pattern());
 
@@ -2185,8 +2209,8 @@ int main(int argc, char *argv[])
 
         retCode = X.match(&match, SUBJECT1, SUBJECT1_LEN);
         ASSERT(0 == retCode);
-        LOOP_ASSERT(match.first,  0            == match.first);
-        LOOP_ASSERT(match.second, SUBJECT1_LEN == match.second);
+        ASSERTV(match.first,  0            == match.first);
+        ASSERTV(match.second, SUBJECT1_LEN == match.second);
 
         retCode = X.match(&match, SUBJECT2, SUBJECT2_LEN);
         ASSERT(0 != retCode);
@@ -2197,6 +2221,7 @@ int main(int argc, char *argv[])
         }
 
         retCode = mY.prepare(&errorMsg, &errorOffset, INVALID_PATTERN, 0);
+
         ASSERT(0     != retCode);
         ASSERT(false == Y.isPrepared());
 
@@ -2205,17 +2230,20 @@ int main(int argc, char *argv[])
         }
 
         retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN2, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
         ASSERT(true     == X.isPrepared());
         ASSERT(PATTERN2 == X.pattern());
 
         retCode = X.match(&match, SUBJECT1, SUBJECT1_LEN);
+
         ASSERT(0 != retCode);
 
         retCode = X.match(&match, SUBJECT2, SUBJECT2_LEN);
+
         ASSERT(0 == retCode);
-        LOOP_ASSERT(match.first,  0            == match.first);
-        LOOP_ASSERT(match.second, SUBJECT2_LEN == match.second);
+        ASSERTV(match.first,  0            == match.first);
+        ASSERTV(match.second, SUBJECT2_LEN == match.second);
 
         if (verbose) {
             cout << "\nCalling 'mX.prepare()' with an invalid pattern."
@@ -2223,6 +2251,7 @@ int main(int argc, char *argv[])
         }
 
         retCode = mX.prepare(&errorMsg, &errorOffset, INVALID_PATTERN, 0);
+
         ASSERT(0     != retCode);
         ASSERT(false == X.isPrepared());
 
@@ -2242,16 +2271,19 @@ int main(int argc, char *argv[])
         }
 
         retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN1, 0);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
+
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
         ASSERT(true     == X.isPrepared());
         ASSERT(PATTERN1 == X.pattern());
 
         retCode = X.match(&match, SUBJECT1, SUBJECT1_LEN);
+
         ASSERT(0 == retCode);
-        LOOP_ASSERT(match.first,  0            == match.first);
-        LOOP_ASSERT(match.second, SUBJECT1_LEN == match.second);
+        ASSERTV(match.first,  0            == match.first);
+        ASSERTV(match.second, SUBJECT1_LEN == match.second);
 
         retCode = X.match(&match, SUBJECT2, SUBJECT2_LEN);
+
         ASSERT(0 != retCode);
 
         if (verbose) {
@@ -2266,45 +2298,48 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This test exercises basic functionality, but tests nothing.
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   We want to make sure that the PCRE library is plugged in
-        //   correctly.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //   1. Create a regular expression object.
-        //   2. Verify that it is in the unprepared state.
-        //   3. Prepare the object with a pattern.
-        //   4. Verify that it is in the prepared state and that all the basic
-        //      accessors return the correct values.
-        //   5. Verify that the regular and the vector match routines work
-        //      correctly, with a 0 start position and also a non-zero start
-        //      position.
-        //   6. Clear the object to free its resources.
-        //   7. Verify that the object has gone back to the unprepared state.
+        //: 1 Create a regular expression object.
+        //:
+        //: 2 Verify that it is in the unprepared state.
+        //:
+        //: 3 Prepare the object with a pattern.
+        //:
+        //: 4 Verify that it is in the prepared state and that all the basic
+        //:   accessors return the correct values.
+        //:
+        //: 5 Verify that the regular and the vector match routines work
+        //:   correctly, with a 0 start position and also a non-zero start
+        //:   position.
+        //:
+        //: 6 Clear the object to free its resources.
+        //:
+        //: 7 Verify that the object has gone back to the unprepared state.
         //
         // Testing:
-        //   This test case exercises basic functionality.
+        //   BREATING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         Obj mX(&testAllocator);  const Obj& X = mX;
 
-        if (verbose) {
-            cout << "\nVerifying unprepared state." << endl;
-        }
+        if (verbose) cout << "\nVerifying unprepared state." << endl;
 
         ASSERT(false == X.isPrepared());
 
-        if (verbose) {
-            cout << "\nPreparing the regular expression." << endl;
-        }
+        if (verbose) cout << "\nPreparing the regular expression." << endl;
 
         bsl::string errorMsg;
-        int         errorOffset;
+        size_t      errorOffset;
 
         const char PATTERN[]         = "(?P<pkgName>[a-z]+)_([A-Za-z]+)";
         const char SUBPATTERN_NAME[] = "pkgName";
@@ -2317,11 +2352,10 @@ int main(int argc, char *argv[])
                                  &errorOffset,
                                  PATTERN,
                                  Obj::BDEPCRE_FLAG_MULTILINE);
-        LOOP2_ASSERT(errorMsg, errorOffset, 0 == retCode);
 
-        if (verbose) {
-            cout << "\nVerifying prepared state." << endl;
-        }
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+
+        if (verbose) cout << "\nVerifying prepared state." << endl;
 
         ASSERT(true                        == X.isPrepared());
         ASSERT(Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
@@ -2335,9 +2369,9 @@ int main(int argc, char *argv[])
                  << "position." << endl;
         }
 
-        const char TEST_STRING[]   = "bbasm_SecurityCache\n"
-                                     "tweut_StringRef\n";
-        const int  TEST_STRING_LEN = sizeof(TEST_STRING) - 1;
+        const char   TEST_STRING[]   = "bbasm_SecurityCache\n"
+                                       "tweut_StringRef\n";
+        const size_t TEST_STRING_LEN = sizeof(TEST_STRING) - 1;
 
         pair<size_t, size_t> match;
 
@@ -2349,7 +2383,7 @@ int main(int argc, char *argv[])
 
             string realMatch(&TEST_STRING[match.first], match.second);
 
-            LOOP_ASSERT(realMatch, EXPECTED_MATCH == realMatch);
+            ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
         }
 
         if (verbose) {
@@ -2358,19 +2392,20 @@ int main(int argc, char *argv[])
         }
 
         {
-            const int startPosition = match.second;
+            const size_t startPosition = match.second;
 
             retCode = X.match(&match,
                               TEST_STRING,
                               TEST_STRING_LEN,
                               startPosition);
+
             ASSERT(0 == retCode);
 
             const char EXPECTED_MATCH[] = "tweut_StringRef";
 
             string realMatch(&TEST_STRING[match.first], match.second);
 
-            LOOP_ASSERT(realMatch, EXPECTED_MATCH == realMatch);
+            ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
         }
 
         if (verbose) {
@@ -2382,6 +2417,7 @@ int main(int argc, char *argv[])
 
         {
             retCode = X.match(&vMatch, TEST_STRING, TEST_STRING_LEN);
+
             ASSERT(0 == retCode);
 
             const int  LEN = 3;
@@ -2389,13 +2425,13 @@ int main(int argc, char *argv[])
                                                      "bbasm",
                                                      "SecurityCache" };
 
-            LOOP_ASSERT(vMatch.size(), LEN == (int)vMatch.size());
+            ASSERTV(vMatch.size(), LEN == (int)vMatch.size());
 
             for (int i = 0; i < LEN; ++i) {
                 string realMatch(&TEST_STRING[vMatch[i].first],
                                  vMatch[i].second);
 
-                LOOP2_ASSERT(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
+                ASSERTV(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
             }
         }
 
@@ -2405,7 +2441,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            const int startPosition = vMatch[0].second;
+            const size_t startPosition = vMatch[0].second;
 
             retCode = X.match(&vMatch,
                               TEST_STRING,
@@ -2418,25 +2454,21 @@ int main(int argc, char *argv[])
                                                      "tweut",
                                                      "StringRef" };
 
-            LOOP_ASSERT(vMatch.size(), LEN == (int)vMatch.size());
+            ASSERTV(vMatch.size(), LEN == vMatch.size());
 
             for (int i = 0; i < LEN; ++i) {
                 string realMatch(&TEST_STRING[vMatch[i].first],
                                  vMatch[i].second);
 
-                LOOP2_ASSERT(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
+                ASSERTV(i, realMatch, EXPECTED_MATCHES[i] == realMatch);
             }
         }
 
-        if (verbose) {
-            cout << "\nClearing regular expression." << endl;
-        }
+        if (verbose) cout << "\nClearing regular expression." << endl;
 
         mX.clear();
 
-        if (verbose) {
-            cout << "\nVerifying unprepared state." << endl;
-        }
+        if (verbose) cout << "\nVerifying unprepared state." << endl;
 
         ASSERT(false == X.isPrepared());
 
@@ -2455,11 +2487,18 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2016 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -10,31 +10,31 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a mechanism for regular expression pattern matching.
 //
 //@CLASSES:
-//  bdepcre_RegEx: mechanism for compiling and matching regular expressions
+//  bdepcre::RegEx: mechanism for compiling and matching regular expressions
 //
 //@SEE_ALSO: http://www.pcre.org/
 //
-//@DESCRIPTION: This component provides a mechanism, namely the 'bdepcre_RegEx'
-// class, for compiling (or "preparing") regular expressions, and subsequently
-// matching subject strings against a prepared expression.  The regular
-// expressions supported by this component correspond approximately with Perl
-// 5.8.  See the appendix entitled "Perl Compatibility" below for more
-// information.
+//@DESCRIPTION: This component provides a mechanism, 'bdepcre::RegEx', for
+// compiling (or "preparing") regular expressions, and subsequently matching
+// subject strings against a prepared expression.  The regular expressions
+// supported by this component correspond approximately with Perl 5.8.  See the
+// appendix entitled "Perl Compatibility" below for more information.
 //
-// Upon construction, a 'bdepcre_RegEx' object is initially not associated with
-// a regular expression.  A regular expression pattern is compiled for use by
-// the object using the 'prepare' method.  Subject strings may then be matched
-// against the prepared pattern using the three overloaded 'match' methods.
-// The first 'match' method simply returns 0 if a given subject string matches
-// the prepared regular expression, and returns a non-zero value otherwise.
-// The other two 'match' methods return the same status values, but the second
-// variant also returns an 'bsl::pair<int, int>' holding the (offset, length)
-// pair indicating the substring of the subject that matched.  The third
-// variant returns an 'bsl::vector' of 'bsl::pair<int, int>'.  The first
-// element of the vector holds the pair indicating the substring of the subject
-// that matched the entire pattern.  Subsequent elements hold the pairs that
-// indicate the substrings of the subject that matched respective sub-patterns.
-// The Usage example below provides an example of sub-pattern matching.
+// Upon construction, a 'bdepcre::RegEx' object is initially not associated
+// with a regular expression.  A regular expression pattern is compiled for use
+// by the object using the 'prepare' method.  Subject strings may then be
+// matched against the prepared pattern using the three overloaded 'match'
+// methods.  The first 'match' method simply returns 0 if a given subject
+// string matches the prepared regular expression, and returns a non-zero value
+// otherwise.  The other two 'match' methods return the same status values, but
+// the second variant also returns an 'bsl::pair<int, int>' holding the
+// (offset, length) pair indicating the substring of the subject that matched.
+// The third variant returns an 'bsl::vector' of 'bsl::pair<int, int>'.  The
+// first element of the vector holds the pair indicating the substring of the
+// subject that matched the entire pattern.  Subsequent elements hold the pairs
+// that indicate the substrings of the subject that matched respective
+// sub-patterns.  The Usage example below provides an example of sub-pattern
+// matching.
 //
 ///"Prepared" State
 ///----------------
@@ -54,13 +54,13 @@ BSLS_IDENT("$Id$ $CSID$")
 ///------------------
 // A set of flags may be optionally supplied to the 'prepare' method to affect
 // specific pattern matching behavior.  The flags recognized by 'prepare' are
-// defined in an enumeration declared within the 'bdepcre_RegEx'.  The
+// defined in an enumeration declared within the 'bdepcre::RegEx'.  The
 // following describes these flags and their effects.
 //
 ///Case-Insensitive Matching
 ///- - - - - - - - - - - - -
-// If 'bdepcre_RegEx::BDEPCRE_FLAG_CASELESS' is included in the flags supplied
-// to 'prepare', then letters in the regular expression pattern supplied to
+// If 'RegEx::BDEPCRE_FLAG_CASELESS' is included in the flags supplied to
+// 'prepare', then letters in the regular expression pattern supplied to
 // 'prepare' match both lower- and upper-case letters in subject strings
 // subsequently supplied to 'match'.  This is equivalent to Perl's '/i' option,
 // and can be turned off within a pattern by a '(?i)' option setting.
@@ -74,8 +74,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // the string (or before a terminating '\n', if present).  This matches the
 // behavior of Perl.
 //
-// If 'bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE' is included in the flags supplied
-// to 'prepare', then start-of-line and end-of-line meta-characters match
+// If 'RegEx::BDEPCRE_FLAG_MULTILINE' is included in the flags supplied to
+// 'prepare', then start-of-line and end-of-line meta-characters match
 // immediately following or immediately before any '\n' characters in subject
 // strings supplied to 'match', respectively (as well as at the very start and
 // end of subject strings).  This is equivalent to Perl's '/m' option, and can
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///UTF-8 Support
 ///- - - - - - -
-// If 'bdepcre_RegEx::BDEPCRE_FLAG_UTF8' is included in the flags supplied to
+// If 'RegEx::BDEPCRE_FLAG_UTF8' is included in the flags supplied to
 // 'prepare', then the regular expression pattern supplied to 'prepare', as
 // well as the subject strings subsequently supplied to 'match', are
 // interpreted as strings of UTF-8 characters instead of strings of ASCII
@@ -96,12 +96,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Dot Matches All
 ///- - - - - - - -
-// If 'bdepcre_RegEx::BDEPCRE_FLAG_DOTMATCHESALL' is included in the flags
-// supplied to 'prepare', then a dot metacharacter in the pattern matches a
-// character of any value, including one that indicates a newline.  However, it
-// only ever matches one character, even if newlines are encoded as '\r\n'.
-// If 'BDEPCRE_FLAG_DOTMATCHESALL' is not used to prepare a regular expression,
-// a dot metacharacter will *not* match a newline; hence, patterns expected to
+// If 'RegEx::BDEPCRE_FLAG_DOTMATCHESALL' is included in the flags supplied to
+// 'prepare', then a dot metacharacter in the pattern matches a character of
+// any value, including one that indicates a newline.  However, it only ever
+// matches one character, even if newlines are encoded as '\r\n'.  If
+// 'BDEPCRE_FLAG_DOTMATCHESALL' is not used to prepare a regular expression, a
+// dot metacharacter will *not* match a newline; hence, patterns expected to
 // match across lines will fail to do so.  This flag is equivalent to Perl's
 // '/s' option, and can be changed within a pattern by a '(?s)' option setting.
 // A negative class such as '[^a]' always matches newline characters,
@@ -115,13 +115,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // a specified length and returns the text of the message's subject in the
 // 'result' "out" parameter:
 //..
-//  #include <bdepcre_regex.h>
-//
-//  using namespace BloombergLP;
-//
 //  int parseSubject(bsl::string *result,
 //                   const char  *message,
-//                   int          messageLength)
+//                   bsl::size_t  messageLength)
 //      // Parse the specified 'message' of the specified 'messageLength' for
 //      // the "Subject:" field of 'message'.  Return 0 on success and load the
 //      // specified 'result' with the text of the subject of 'message'; return
@@ -146,15 +142,15 @@ BSLS_IDENT("$Id$ $CSID$")
 // well as '\n' characters.  The 'prepare' method returns 0 on success, and a
 // non-zero value otherwise:
 //..
-//      bdepcre_RegEx regEx;
-//      bsl::string   errorMessage;
-//      int           errorOffset;
+//      RegEx       regEx;
+//      bsl::string errorMessage;
+//      size_t      errorOffset;
 //
 //      int returnValue = regEx.prepare(&errorMessage,
 //                                      &errorOffset,
 //                                      PATTERN,
-//                                      bdepcre_RegEx::BDEPCRE_FLAG_CASELESS |
-//                                      bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE);
+//                                      RegEx::BDEPCRE_FLAG_CASELESS |
+//                                      RegEx::BDEPCRE_FLAG_MULTILINE);
 //      assert(0 == returnValue);
 //..
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
@@ -357,21 +353,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                             // ===================
-                             // class bdepcre_RegEx
-                             // ===================
+namespace bdlpcre {
 
-class bdepcre_RegEx {
+                             // ===========
+                             // class RegEx
+                             // ===========
+
+class RegEx {
     // This class provides a mechanism for compiling and matching regular
     // expressions.  A regular expression approximately compatible with Perl
     // 5.8 is compiled with the 'prepare' method.  Subsequently, strings are
     // matched against the compiled (prepared) pattern using the overloaded
     // 'match' methods.  Note that the underlying implementation uses the
-    // open-source Perl Compatible Regular Expressions (PCRE) library that was
+    // open-source Perl Compatible Regular Expressions (PCRE2) library that was
     // developed at the University of Cambridge ('http://www.pcre.org/').
-
-    // PRIVATE TYPES
-    struct Pcre;  // opaque type for the PCRE library
 
     // CLASS DATA
     static
@@ -381,45 +376,36 @@ class bdepcre_RegEx {
                                                             // recursion depth
 
     // PRIVATE DATA
-    int                    d_flags;        // prepare/match flags
+    int                    d_flags;          // prepare/match flags
 
-    bsl::string            d_pattern;      // regular expression pattern
+    bsl::string            d_pattern;        // regular expression pattern
 
     pcre2_general_context *d_pcre2Context_p; // pcre2 general context
 
-    pcre2_code            *d_pcre2Code_p;  // PCRE's internal structure (owned)
-    int                    d_depthLimit;   // maximum eval recursion depth
+    pcre2_code            *d_pcre2Code_p;    // PCRE2 compiled pattern
 
-    bslma::Allocator      *d_allocator_p;  // We allocate arbitrarily-sized
-                                           // segments that will contain
-                                           // 'int's, so we use an
-                                           // 'AligningAllocator' to make sure
-                                           // our segments are 'int'-aligned.
+    int                    d_depthLimit;     // maximum eval recursion depth
+
+    bslma::Allocator      *d_allocator_p;    // allocator to supply memory
 
   private:
     // NOT IMPLEMENTED
-    bdepcre_RegEx(const bdepcre_RegEx&);
-    bdepcre_RegEx& operator=(const bdepcre_RegEx&);
+    RegEx(const RegEx&);
+    RegEx& operator=(const RegEx&);
 
   public:
     // PUBLIC TYPES
     enum {
-        BDEPCRE_FLAG_CASELESS         = PCRE2_CASELESS, // case-insensitive
-                                                        // matching
+        BDEPCRE_FLAG_CASELESS      = PCRE2_CASELESS,  // case-insensitive
+                                                      // matching
 
-        BDEPCRE_FLAG_DOTMATCHESALL    = PCRE2_DOTALL,   // dot metacharacter
-                                                        // matches all chars
-                                                        // (including newlines)
+        BDEPCRE_FLAG_DOTMATCHESALL = PCRE2_DOTALL,    // dot metacharacter
+                                                      // matches all chars
+                                                      // (including newlines)
 
-        BDEPCRE_FLAG_MULTILINE        = PCRE2_MULTILINE,// multi-line matching
+        BDEPCRE_FLAG_MULTILINE     = PCRE2_MULTILINE, // multi-line matching
 
-        BDEPCRE_FLAG_UTF8             = PCRE2_UTF       // UTF-8 support
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , FLAG_CASELESS  = BDEPCRE_FLAG_CASELESS
-      , FLAG_MULTILINE = BDEPCRE_FLAG_MULTILINE
-      , FLAG_UTF8      = BDEPCRE_FLAG_UTF8
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+        BDEPCRE_FLAG_UTF8          = PCRE2_UTF        // UTF-8 support
     };
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
@@ -433,14 +419,14 @@ class bdepcre_RegEx {
         // specified 'depthLimit'.  Returns the previous depth limit.
 
     // CREATORS
-    bdepcre_RegEx(bslma::Allocator *basicAllocator = 0);            // IMPLICIT
+    RegEx(bslma::Allocator *basicAllocator = 0);                    // IMPLICIT
         // Create a regular-expression object in the "unprepared" state.
         // Optionally specify a 'basicAllocator' used to supply memory.  The
         // alignment strategy of the allocator must be "maximum" or "natural".
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    ~bdepcre_RegEx();
+    ~RegEx();
         // Destroy this regular-expression object.
 
     // MANIPULATORS
@@ -450,7 +436,7 @@ class bdepcre_RegEx {
         // this object is already in the "unprepared" state.
 
     int prepare(bsl::string *errorMessage,
-                int         *errorOffset,
+                size_t      *errorOffset,
                 const char  *pattern,
                 int          flags = 0);
         // Prepare this regular-expression object with the specified 'pattern'
@@ -594,13 +580,13 @@ class bdepcre_RegEx {
 
 // CLASS METHODS
 inline
-int bdepcre_RegEx::defaultDepthLimit()
+int RegEx::defaultDepthLimit()
 {
     return bsls::AtomicOperations::getIntRelaxed(&s_depthLimit);
 }
 
 inline
-int bdepcre_RegEx::setDefaultDepthLimit(int depthLimit)
+int RegEx::setDefaultDepthLimit(int depthLimit)
 {
     int previous = defaultDepthLimit();
 
@@ -611,7 +597,7 @@ int bdepcre_RegEx::setDefaultDepthLimit(int depthLimit)
 
 // CREATORS
 inline
-bdepcre_RegEx::~bdepcre_RegEx()
+RegEx::~RegEx()
 {
     clear();
     pcre2_general_context_free(d_pcre2Context_p);
@@ -619,7 +605,7 @@ bdepcre_RegEx::~bdepcre_RegEx()
 
 // MANIPULATORS
 inline
-int bdepcre_RegEx::setDepthLimit(int depthLimit)
+int RegEx::setDepthLimit(int depthLimit)
 {
     int previous = d_depthLimit;
 
@@ -630,29 +616,47 @@ int bdepcre_RegEx::setDepthLimit(int depthLimit)
 
 // ACCESSORS
 inline
-int bdepcre_RegEx::flags() const
+int RegEx::flags() const
 {
     return d_flags;
 }
 
 inline
-int bdepcre_RegEx::depthLimit() const
+int RegEx::depthLimit() const
 {
     return d_depthLimit;
 }
 
 inline
-bool bdepcre_RegEx::isPrepared() const
+bool RegEx::isPrepared() const
 {
     return 0 != d_pcre2Code_p;
 }
 
 inline
-const bsl::string& bdepcre_RegEx::pattern() const
+const bsl::string& RegEx::pattern() const
 {
     return d_pattern;
 }
 
+}  // close package namespace
+
 }  // close enterprise namespace
 
 #endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2016 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
