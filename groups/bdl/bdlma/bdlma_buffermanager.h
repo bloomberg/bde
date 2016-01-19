@@ -343,7 +343,7 @@ class BufferManager {
         // the remaining free memory space in the external buffer.  The
         // behavior is undefined unless '0 < size'.
 
-    void *allocateRaw(int size);
+    void *allocateRaw(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  The behavior is undefined unless the allocation
@@ -493,7 +493,8 @@ BufferManager::~BufferManager()
 inline
 void *BufferManager::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(0        <  size);
+    BSLS_ASSERT_SAFE(0        <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;
@@ -510,11 +511,12 @@ void *BufferManager::allocate(bsls::Types::size_type size)
 }
 
 inline
-void *BufferManager::allocateRaw(int size)
+void *BufferManager::allocateRaw(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(d_buffer_p);
-    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(0        <  size);
+    BSLS_ASSERT_SAFE(0        <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(d_buffer_p);
 
     char *address = d_buffer_p + d_cursor;
 

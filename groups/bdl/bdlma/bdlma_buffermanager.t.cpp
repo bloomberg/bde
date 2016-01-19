@@ -74,10 +74,11 @@ using namespace bsl;
 // // ACCESSORS
 // [ 2] char *buffer() const;
 // [ 2] int bufferSize() const;
+// [11] int calculateAlignmentOffsetFromSize(address, size) const;
 // [ 7] bool hasSufficientCapacity(int size) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -377,7 +378,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -407,6 +408,74 @@ int main(int argc, char *argv[])
         result = detectNOccurrences(3, array, 5);
         ASSERT(false == result);
 
+      } break;
+      case 11: {
+        // -------------------------------------------------------------------
+        // TESTING 'calculateAlignmentOffsetFromSize'
+        //   Ensure this accessor returns the expected value.
+        //
+        // Concerns:
+        //: 1 The method returns the expected value for all alignment
+        //:   strategies, values of 'address', and value of 'size'.
+        //
+        // Plan:
+        //: 1 Directly verify the result of this method using
+        //:   'bsls::AlignmentUtil' as an oracle for a large set of 'address'
+        //:   and 'size' values.
+        //
+        // Testing:
+        //   int calculateAlignmentOffsetFromSize(address, size) const;
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'calculateAlignmentOffsetFromSize'"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        char              address[1024];
+        const bsl::size_t numAddress = sizeof address;
+
+        for (bsl::size_t i = 0; i < numAddress; ++i) {
+            const void *a = &address[i];
+            for (bsl::size_t s = 1; s <= 128; ++s) {
+                {
+                    const int alignment =
+                            bsls::AlignmentUtil::calculateAlignmentFromSize(s);
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+                    
+                    const Obj bm(bsls::Alignment::BSLS_NATURAL);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment =
+                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+                    
+                    const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment = 1;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+                    
+                    const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1587,7 +1656,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(mX.allocate(    0));
                 ASSERT_SAFE_FAIL(mX.allocateRaw( 0));
-                ASSERT_SAFE_FAIL(mX.allocateRaw(-1));
             }
         }
 
