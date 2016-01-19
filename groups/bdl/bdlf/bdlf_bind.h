@@ -97,11 +97,14 @@ BSLS_IDENT("$Id: $")
 // 'bdlf::Bind' objects" below details the whole mechanism and offers some
 // examples.
 //
-// The 'bdlf::Bind' functors support 'bslma::Allocator *' arguments and, when
-// constructed with an allocator via the 'bdlf::BindUtil::bindA' factory
-// methods, allocate all the memory for holding copies of the bound functor and
-// arguments through that allocator.  See the section "Binding with allocators"
-// below for a more detailed discussion.
+// The 'bdlf::Bind' functors support 'bslma::Allocator *' arguments.  When
+// binders are constructed by the 'bdlf::BindUtil::bind' (and 'bindR') factory
+// methods, the currently installed default allocator isused.  When binders are
+// constructed by the 'bdlf::BindUtil::bindS' (and 'bindSR') factory methods,
+// the non-optional, user-supplied allocator is used both for the creation of
+// the bound functor arguments and for the reference counting mechanism that
+// manages those arguments.  See the section "Binding with allocators" below
+// for a more detailed discussion.
 //
 ///Elementary Construction and Usage of 'bdlf::Bind' Objects
 ///---------------------------------------------------------
@@ -382,13 +385,14 @@ BSLS_IDENT("$Id: $")
 // the function object.  The difference between the two usages is that the
 // binder object holds a copy of the whole object or of its address only.  In
 // particular, when passing by value an object that takes an allocator, the
-// copy held by the binder uses the same allocator as the binder object (if
-// constructed by 'bdlf::BindUtil::bindA') or the default allocator (if
-// constructed by 'bdlf::BindUtil::bind' or 'bdlf::BindUtil::bindR'), but *not*
-// the allocator of the original object.  For keeping the same allocator, pass
-// the object by address to the binder instead.  See the section "Binding with
-// allocators" and the usage example sections "Binding to Function Objects" and
-// "Binding to Function Objects by Reference" below.
+// copy held by the binder uses the default allocator if constructed by
+// 'bdlf::BindUtil::bind' or 'bdlf::BindUtil::bindR', *not* the allocator of
+// the original object.
+//
+// For keeping the same allocator, pass the object by address to the binder
+// instead.  See the section "Binding with allocators" and the usage example
+// sections "Binding to Function Objects" and "Binding to Function Objects by
+// Reference" below.
 //
 // CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
@@ -455,9 +459,9 @@ BSLS_IDENT("$Id: $")
 // however one limitation: if *any* of the arguments in the signature of the
 // bound functor should be of a modifiable reference type, then *all* the
 // invocation arguments need to be modifiable references.  That is, it is not
-// possible to pass a literal (const) value to some argument of a bound functor
-// when another argument expects a modifiable reference.  Note that a direct
-// call to the bound functor (without the binder) would accept such an
+// possible to pass a literal ('const') value to some argument of a bound
+// functor when another argument expects a modifiable reference.  Note that a
+// direct call to the bound functor (without the binder) would accept such an
 // argument.  This is not a severe limitation, and the workaround is to pass
 // instead a local modifiable variable initialized to the literal value.
 //
@@ -466,17 +470,18 @@ BSLS_IDENT("$Id: $")
 // The bound functor and bound arguments are created as members of the
 // 'bdlf::Bind' object, so no memory is allocated for storing them.  However,
 // if the bound functor or bound argument's copy constructor requires memory
-// allocation, that memory is supplied by the default allocator unless
-// 'bdlf::BindUtil::bindA' is used to specify the allocator to be passed to the
-// copy constructors of the bound functor and arguments.  Note that the
-// invocation arguments, passed to the binder at invocation time, are passed
-// "as is" to the bound functor, and are not copied if the bound functor takes
-// them by modifiable or non-modifiable reference.
+// allocation, that memory is supplied by the currently installed default
+// allocator unless 'bdlf::BindUtil::bindS' (or 'bindSR') method is used.  In
+// the latter cases, the non-optional, user-supplied allocator is passed to the
+// copy constructors of the bound functor and arguments.
 //
-// In order to make clear where the allocation occurs, we will wrap "p3" (the
-// third parameter for the function object 'invocable' into a type that takes
-// an allocator, e.g., a class 'MyString' (kept minimal here for the purpose of
-// exposition), and automatically converts to 'const char *':
+// Note that the invocation arguments, passed to the binder at invocation time,
+// are passed "as is" to the bound functor, and are not copied if the bound
+// functor takes them by modifiable or non-modifiable reference.
+//
+// In order to make clear where the allocation occurs, we will wrap "p3" into a
+// type that takes an allocator, e.g., a class 'MyString' (kept minimal here
+// for the purpose of exposition):
 //..
 //  class MyString {
 //      // PRIVATE INSTANCE DATA
@@ -485,8 +490,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyString,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyString, bslma::UsesBslmaAllocator);
 //
 //      //CREATORS
 //      MyString(const char *str, bslma::Allocator *allocator = 0)
@@ -514,46 +518,34 @@ BSLS_IDENT("$Id: $")
 // We will also use a 'bslma::TestAllocator' to keep track of the memory
 // allocated:
 //..
-//  void bindTest6(bslma::Allocator *allocator = 0) {
+//  void bindTest6() {
 //      bslma::TestAllocator allocator;
 //      MyString myString((const char*)"p3", &allocator);
-//      const int NUM_ALLOCS = allocator.numAllocations();
+//      const Int64 NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
-// allocator guard, which will re-route any default allocation to the
+// allocator guard, which will re-route any default allocation to the local
 // 'defaultAllocator':
 //..
-//      bslma::TestAllocator defaultAllocator;
+//      bslma::TestAllocator defaultAllocator("Default", globalVerbose);
 //      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
-//      assert(0 == defaultAllocator.numAllocations());
+//      const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
-// We now create a binder object with allocator using 'bindA'.  If the bound
-// object were an instance of a class taking an allocator, then 'allocator'
-// would be passed to its copy constructor; in this case, 'allocator' will be
-// ignored.  But 'allocator' *will* be used to make the copy of 'myString' held
-// by the binder:
+// We now create a shared binder object with 'allocator' using 'bindS'.  If the
+// bound object were an instance of a class taking an allocator, then
+// 'allocator' would be passed to its copy constructor; in this case.  In this
+// case, 'allocator' will be used to make the copy of 'myString' held by the
+// binder:
 //..
-//      callBinder(bdlf::BindUtil::bindA(&allocator, &invocable,
-//                                      _1, _2, myString));
-//..
-// We now check that memory was allocated from the test allocator, and none
-// from the default allocator:
-//..
-//      assert(NUM_ALLOCS < allocator.numAllocations());
-//      assert(0 == defaultAllocator.numAllocations());
-//..
-// Next, we repeat the same calls using 'bindS' below:
-//..
-//       callBinder(bdlf::BindUtil::bindS(&allocator,
-//                                        &invocable,
-//                                        _1, _2, myString));
+//      callBinder(
+//            bdlf::BindUtil::bindS(&allocator, &invocable, _1, _2, myString));
 //..
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
-//       assert(NUM_ALLOCS != allocator.numAllocations());
-//       assert(2 * NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
-//   }
+//      assert(NUM_ALLOCS         != allocator.numAllocations());
+//      assert(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+//  }
 //..
 //
 ///Usage
@@ -1629,8 +1621,8 @@ class BindWrapper {
 
 struct BindUtil {
     // This 'struct' provides a namespace for utility functions used to
-    // construct 'Bind' and 'BindWrapper objects.  Five families of factory
-    // methods are provided: 'bind', 'bindA', 'bindR', 'bindS', and 'bindSR'.
+    // construct 'Bind' and 'BindWrapper objects.  Four families of factory
+    // methods are provided: 'bind', 'bindR', 'bindS', and 'bindSR'.
     // All factory methods accept an invocable object, optionally followed by
     // up to fourteen additional arguments.  Each argument can be either a
     // literal value, a place-holder, or another 'Bind' or 'BindWrapper'
@@ -1640,16 +1632,14 @@ struct BindUtil {
     // object automatically, including the return type, and return a binder
     // object with the specified bound functor and bound arguments.  Memory for
     // copying the bound functor and bound arguments is supplied by the user
-    // specified allocator if 'bindA', 'bindS', or 'bindSR' is used, or the
-    // currently installed default allocator.  The return type is inferred by
-    // using 'bslmf::FunctionPointerTraits' for free functions references and
+    // specified allocator if 'bindS', or 'bindSR' is used, or the currently
+    // installed default allocator.  The return type is inferred by using
+    // 'bslmf::FunctionPointerTraits' for free functions references and
     // pointers, 'bslmf::MemberFunctionPointerTraits' for member function
     // pointers, and 'FUNC::ResultType' for a functor of type 'FUNC'.
     //
-    // The 'bindA' variations are used when a specified allocator must be used
-    // to supply memory for copying the bound functor and bound arguments.  The
-    // 'bindR' and 'bindSR' variations must be used when binding to an object
-    // for which a result type cannot be automatically determined.
+    // The 'bindR' and 'bindSR' variations must be used when binding to an
+    // object for which a result type cannot be automatically determined.
 
     // CLASS METHODS
 
