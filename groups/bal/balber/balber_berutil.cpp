@@ -127,6 +127,8 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
+#include <bdldfp_decimalconvertutil.h>
+
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
@@ -1165,6 +1167,32 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
          : getBinaryTimeTzValue(streamBuf, value, length);
 }
 
+int BerUtil_Imp::getValue(bsl::streambuf     *streamBuf,
+                          bdldfp::Decimal64  *value,
+                          int                 length)
+{
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    unsigned char buf[8];
+    if (static_cast<bsl::size_t>(length) > sizeof(buf)) {
+        return FAILURE;
+    }
+
+    const int bytesConsumed = streamBuf->sgetn(reinterpret_cast<char*>(buf),
+                                               length);
+
+    if (bytesConsumed != length) {
+        return FAILURE;                                               // RETURN
+    }
+
+
+    *value = bdldfp::DecimalConvertUtil::decimal64FromMultiWidthEncoding(
+        buf, length);
+
+    return SUCCESS;
+}
+
+
 int BerUtil_Imp::numBytesToStream(short value)
 {
     // This overload of 'numBytesToStream' is optimized for a 16-bit 'value'.
@@ -1268,6 +1296,27 @@ int BerUtil_Imp::numBytesToStream(long long value)
     // Round up to correct number of bytes:
 
     return (numBits + e_BITS_PER_OCTET - 1) / e_BITS_PER_OCTET;
+}
+
+int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                          bdldfp::Decimal64        value,
+                          const BerEncoderOptions *)
+{
+
+    enum { SUCCESS = 0, FAILURE = -1 };
+
+    unsigned char buf[8];
+    bsls::Types::size_type length =
+        bdldfp::DecimalConvertUtil::decimal64ToMultiWidthEncoding(buf, value);
+    putLength(streamBuf, length);
+
+    if (static_cast<bsl::streamsize>(length) ==
+        streamBuf->sputn(reinterpret_cast<char*>(buf), length)) {
+        return SUCCESS;
+    }
+    else {
+        return FAILURE;
+    }
 }
 
 int BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)

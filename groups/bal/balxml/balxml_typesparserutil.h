@@ -172,6 +172,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
+#endif
+
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -376,6 +380,10 @@ struct TypesParserUtil_Imp {
                             const char                 *input,
                             int                         inputLength,
                             bdlat_TypeCategory::Simple);
+    static int parseDefault(bdldfp::Decimal64          *result,
+                            const char                 *input,
+                            int                         inputLength,
+                            bdeat_TypeCategory::Simple);
 
     // DEFAULT FUNCTIONS
     template <class TYPE>

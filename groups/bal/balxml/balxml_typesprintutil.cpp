@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 
+#include <bdldfp_decimalutil.h>
+
 #include <bdlb_print.h>
 
 #include <bdlde_base64encoder.h>
@@ -998,8 +1000,47 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 
     return stream;
 }
-}  // close package namespace
 
+bsl::ostream& TypesPrintUtil_Imp::printDefault(
+                                             bsl::ostream&              stream,
+                                             const bdldfp::Decimal64&   object,
+                                             const EncoderOptions       *,
+                                             bdeat_TypeCategory::Simple)
+{
+    if (bdldfp::DecimalUtil::isInf(object)) {
+        if (object < bdldfp::Decimal64()) {
+            stream << "-";
+        }
+        stream << "INF";
+    }
+    else if (bdldfp::DecimalUtil::isNan(object)) {
+        stream << "NaN";
+    }
+    else {
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+        bdldfp::DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
+        dpdStorage = bdldfp::DecimalImpUtil::convertToDPD(*object.data());
+
+        bdldfp::DecimalImpUtil_DecNumber::ValueType64 dpdValue;
+        bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+        bdldfp::DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
+        int (*tolower) (int) = &bsl::tolower;
+
+        // The string output provided by decnumber uses capital "E" by default.
+        bsl::transform(buffer,
+                       buffer + bsl::strlen(buffer),
+                       buffer,
+                       tolower);
+
+        stream << buffer;
+    }
+    return stream;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
