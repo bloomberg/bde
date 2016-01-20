@@ -110,12 +110,8 @@ int RegEx::prepare(bsl::string *errorMessage,
 
     clear();
 
-    // Set these data members here, before compiling the pattern.  In case of
-    // an exception (assigning to 'd_pattern' or compiling the pattern), the
-    // object will remain in the "unprepared" state.
-
-    d_flags   = options;
-    d_pattern = pattern;
+    d_flags        = options;
+    d_pattern      = pattern;
 
     // Compile the new pattern.
 
@@ -161,8 +157,9 @@ int RegEx::prepare(bsl::string *errorMessage,
         return BDEPCRE_FAILURE;                                       // RETURN
     }
 
-    // Set object to the "prepared" state.
-
+    // Set the data members and set the object to the "prepared" state.
+    d_flags        = options;
+    d_pattern      = pattern;
     d_pcre2Code_p  = pcre2Code;
 
     return BDEPCRE_SUCCESS;

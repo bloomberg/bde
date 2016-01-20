@@ -132,7 +132,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //      const char PATTERN[] = "^subject:(?P<subjectText>[^\r]*)";
 //..
-// We first need to compile 'PATTERN', using the 'prepare' method, in order to
+// First we compile the 'PATTERN', using the 'prepare' method, in order to
 // match subject strings against it.  In the event that 'prepare' fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
@@ -166,7 +166,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //          return returnValue;  // no match
 //      }
 //..
-// Next we pass "subjectText" to the 'subpatternIndex' method to obtain the
+// Then we pass "subjectText" to the 'subpatternIndex' method to obtain the
 // index into 'matchVector' that describes how to locate the subject text
 // within 'message'.  The text is then extracted from 'message' and assigned to
 // the 'result' "out" parameter:
@@ -196,10 +196,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //      "This is the message body.\r\n"
 //      ".\r\n";
 //..
-// Finally, the following 'main' function calls 'parseSubject' to extract the
-// subject from 'RFC822_MESSAGE'.  The assertions verify that the subject of
-// the message is correctly extracted and assigned to the local 'subject'
-// variable:
+// Finally, we call 'parseSubject' to extract the subject from
+// 'RFC822_MESSAGE'.  The assertions verify that the subject of the message is
+// correctly extracted and assigned to the local 'subject' variable:
 //..
 //  int main()
 //  {
