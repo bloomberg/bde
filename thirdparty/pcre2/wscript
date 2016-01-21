@@ -53,14 +53,14 @@ def build(bld):
     ]
 
     prefix  = bld.env['PREFIX']
-    bde_key = 'bde_thirdparty_pcre2-8_config'
+    bde_key = 'bde_thirdparty_pcre2_config'
     if bde_key in bld.env:
         config = bld.env[bde_key]
         is_bde = True
     else:
         config = {}
         config['cflags'] = []
-        config['lib_target'] = 'pcre2-8'
+        config['lib_target'] = 'pcre2'
         config['lib_install_path'] = os.path.join(prefix, 'lib')
         config['h_install_path'] = os.path.join(prefix, 'include', 'pcre2')
         config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
