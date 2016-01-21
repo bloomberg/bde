@@ -150,7 +150,7 @@ enum {
 enum {
     k_SUCCESS                 = 0,
     k_INVALID_INPUT_CHARACTER =
-                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
+                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_INPUT_BIT,
     k_OUTPUT_BUFFER_TOO_SMALL =
                     BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
