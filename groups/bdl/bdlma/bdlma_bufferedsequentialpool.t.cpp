@@ -16,6 +16,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -68,12 +69,12 @@ using namespace bsl;
 // [ 6] void deleteObjectRaw(const TYPE *object);
 // [ 6] void deleteObject(const TYPE *object);
 // [ 5] void release();
-// [ 5] void rewind();
+// [ 9] void rewind();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
 // [ 8] FREE FUNCTION: 'operator new(size_t, bdlma::BufferedSequentialPool)'
-// [ 9] USAGE TEST
+// [10] USAGE TEST
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -492,7 +493,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -514,6 +515,124 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+      } break;
+      case 9: {
+        // -------------------------------------------------------------------
+        // TESTING 'rewind'
+        //   Ensure this manipulator appropriately allows memory reuse.
+        //
+        // Concerns:
+        //: 1 The method allows reuse of allocate memory.
+        //:
+        //: 2 The method does not release any memory back to the underlying
+        //:   allocator.
+        //:
+        //: 3 The method does not violate any invariants for the class.
+        //
+        // Plan:
+        //: 1 For all growth and allocation strategies, perform a set of
+        //:   allocations, perform the 'rewind', and then re-allocate the
+        //:   identical set of sizes and ensure the returned addresses match
+        //:   the addresses returned during the initial allocations.  (C-1)
+        //:
+        //: 2 Through use of a 'bslma::TestAllocator' provided during
+        //:   construction, directly verify no memory is returned during
+        //:   'rewind'.  (C-2)
+        //:
+        //: 3 Allow the object to go out-of-scope and verify all memory has
+        //:   been returned to the underlying allocator.          
+        //
+        // Testing:
+        //   void rewind();
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'rewind'" << endl
+                          << "================" << endl;
+
+        bsls::BlockGrowth::Strategy growthStrategy[] = {
+            bsls::BlockGrowth::BSLS_GEOMETRIC,
+            bsls::BlockGrowth::BSLS_CONSTANT
+        };
+        const bsl::size_t numGrowthStrategy = sizeof  growthStrategy
+                                            / sizeof *growthStrategy;
+
+        const bsls::Alignment::Strategy alignmentStrategy[] = {
+            bsls::Alignment::BSLS_NATURAL,
+            bsls::Alignment::BSLS_MAXIMUM,
+            bsls::Alignment::BSLS_BYTEALIGNED
+        };
+        const bsl::size_t numAlignmentStrategy = sizeof  alignmentStrategy
+                                               / sizeof *alignmentStrategy;
+
+        bsl::size_t allocationSize[] = {
+            4, 8, 1024, 256, 512, 4, 4, 16, 1, 2, 3, 4, 5, 2048, 12, 7
+        };
+        const bsl::size_t numAllocationSize = sizeof  allocationSize
+                                            / sizeof *allocationSize;
+
+          
+        for (bsl::size_t growthIndex = 0;
+             growthIndex < numGrowthStrategy;
+             ++growthIndex) {
+
+            for (bsl::size_t alignmentIndex = 0;
+                 alignmentIndex < numAlignmentStrategy;
+                 ++alignmentIndex) {
+                  
+                for (bsl::size_t allocationMaxIndex = 0;
+                     allocationMaxIndex < numAllocationSize;
+                     ++allocationMaxIndex) {
+
+                    std::vector<void *> address;
+                    address.reserve(numAllocationSize);
+
+                    bslma::TestAllocator allocator("Local Allocator",
+                                                   veryVeryVeryVerbose);
+
+                    {
+                        char buffer[k_INITIAL_SIZE];
+
+                        Obj mX(buffer,
+                               k_INITIAL_SIZE,
+                               growthStrategy[growthIndex],
+                               alignmentStrategy[alignmentIndex],
+                               &allocator);
+
+                        // Initial allocation.
+
+                        for (bsl::size_t allocationIndex = 0;
+                             allocationIndex <= allocationMaxIndex;
+                             ++allocationIndex) {
+                            address.push_back(
+                                 mX.allocate(allocationSize[allocationIndex]));
+                        }
+
+                        bsls::Types::Int64 numBytesInUse =
+                                                     allocator.numBytesInUse();
+
+                        // Rewind.
+
+                        mX.rewind();
+
+                        ASSERT(numBytesInUse == allocator.numBytesInUse());
+
+                        // Re-allocate.
+
+                        for (bsl::size_t allocationIndex = 0;
+                             allocationIndex <= allocationMaxIndex;
+                             ++allocationIndex) {
+                            ASSERT(address[allocationIndex] ==
+                                 mX.allocate(allocationSize[allocationIndex]));
+                        }
+
+                        ASSERT(numBytesInUse == allocator.numBytesInUse());
+                    }
+
+                    ASSERT(0 == allocator.numBytesInUse());
+                }
+            }
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -678,7 +797,6 @@ int main(int argc, char *argv[])
         }
       } break;
       case 5: {
-          // TBD rewind
         // --------------------------------------------------------------------
         // 'release' TEST
         //
