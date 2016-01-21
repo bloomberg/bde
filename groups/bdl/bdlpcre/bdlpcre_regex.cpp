@@ -1,4 +1,4 @@
-// bdepcre_regex.cpp                                                  -*-C++-*-
+// bdlpcre_regex.cpp                                                  -*-C++-*-
 #include <bdlpcre_regex.h>
 
 #include <bsls_ident.h>
@@ -9,7 +9,7 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 // This component depends on the open-source Perl Compatible Regular
 // Expressions (PCRE2) library (http://www.pcre.org).
 //
-// The PCRE library used by this component was configured with UTF8 support.
+// The PCRE2 library used by this component was configured with UTF8 support.
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -25,7 +25,7 @@ BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
 
 extern "C" {
 
-void *bdepcre2_malloc(size_t size, void* context)
+void *bdlpcre_malloc(size_t size, void* context)
 {
     void *result = 0;
 
@@ -38,7 +38,7 @@ void *bdepcre2_malloc(size_t size, void* context)
     return result;
 }
 
-void bdepcre2_free(void* data, void* context)
+void bdlpcre_free(void* data, void* context)
 {
     BloombergLP::bslma::Allocator *basicAllocator =
                      reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
@@ -56,9 +56,9 @@ namespace bdlpcre {
 // CONSTANTS
 
 enum {
-    BDEPCRE_SUCCESS           =  0,
-    BDEPCRE_DEPTHLIMITFAILURE =  1,
-    BDEPCRE_FAILURE           = -1
+    BDLPCRE_SUCCESS           =  0,
+    BDLPCRE_DEPTHLIMITFAILURE =  1,
+    BDLPCRE_FAILURE           = -1
 };
     // Return values for this API.
 
@@ -81,8 +81,8 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     d_pcre2Context_p = pcre2_general_context_create(
-                                            &bdepcre2_malloc,
-                                            &bdepcre2_free,
+                                            &bdlpcre_malloc,
+                                            &bdlpcre_free,
                                             static_cast<void*>(d_allocator_p));
     BSLS_ASSERT(0 == d_pcre2Code_p);
 }
@@ -101,7 +101,7 @@ void RegEx::clear()
 int RegEx::prepare(bsl::string *errorMessage,
                    size_t      *errorOffset,
                    const char  *pattern,
-                   int          options)
+                   int          flags)
 {
     BSLS_ASSERT(pattern);
 
@@ -110,7 +110,7 @@ int RegEx::prepare(bsl::string *errorMessage,
 
     clear();
 
-    d_flags        = options;
+    d_flags        = flags;
     d_pattern      = pattern;
 
     // Compile the new pattern.
@@ -122,13 +122,13 @@ int RegEx::prepare(bsl::string *errorMessage,
                                                              d_pcre2Context_p);
 
     if (0 == compileContext) {
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     pcre2_code *pcre2Code = pcre2_compile(
                                reinterpret_cast<const unsigned char*>(pattern),
                                PCRE2_ZERO_TERMINATED,
-                               options,
+                               flags,
                                &errorCodeFromPcre2,
                                &errorOffsetFromPcre2,
                                compileContext);
@@ -138,6 +138,7 @@ int RegEx::prepare(bsl::string *errorMessage,
     if (0 == pcre2Code) {
         if (errorMessage) {
             unsigned char errorBuffer[256];
+
             int result = pcre2_get_error_message(errorCodeFromPcre2,
                                                  errorBuffer,
                                                  256);
@@ -154,15 +155,15 @@ int RegEx::prepare(bsl::string *errorMessage,
             *errorOffset = errorOffsetFromPcre2;
         }
 
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     // Set the data members and set the object to the "prepared" state.
-    d_flags        = options;
+    d_flags        = flags;
     d_pattern      = pattern;
     d_pcre2Code_p  = pcre2Code;
 
-    return BDEPCRE_SUCCESS;
+    return BDLPCRE_SUCCESS;
 }
 
 // ACCESSORS
@@ -174,13 +175,13 @@ int RegEx::match(const char *subject,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    int result = BDEPCRE_SUCCESS;
+    int result = BDLPCRE_SUCCESS;
 
     pcre2_match_context *matchContext = pcre2_match_context_create(
                                                              d_pcre2Context_p);
 
     if (0 == matchContext) {
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     pcre2_set_match_limit(matchContext, d_depthLimit);
@@ -190,11 +191,12 @@ int RegEx::match(const char *subject,
 
     if (0 == matchData) {
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
-    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
-                                                      (subject ? subject : "");
+    const unsigned char* actualSubject =
+                reinterpret_cast<const unsigned char*>(subject ? subject : "");
+
     int returnValue = pcre2_match(d_pcre2Code_p,
                                   actualSubject,
                                   subjectLength,
@@ -204,9 +206,9 @@ int RegEx::match(const char *subject,
                                   matchContext);
 
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        result = BDEPCRE_DEPTHLIMITFAILURE;
+        result = BDLPCRE_DEPTHLIMITFAILURE;
     } else if (0 > returnValue) {
-        result = BDEPCRE_FAILURE;
+        result = BDLPCRE_FAILURE;
     }
 
     pcre2_match_data_free(matchData);
@@ -229,7 +231,7 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                                                              d_pcre2Context_p);
 
     if (0 == matchContext) {
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     pcre2_set_match_limit(matchContext, d_depthLimit);
@@ -240,11 +242,12 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
 
     if (0 == matchData) {
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
-    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
-                                                      (subject ? subject : "");
+    const unsigned char* actualSubject =
+                reinterpret_cast<const unsigned char*>(subject ? subject : "");
+
     int returnValue = pcre2_match(d_pcre2Code_p,
                                   actualSubject,
                                   subjectLength,
@@ -256,16 +259,16 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
         pcre2_match_data_free(matchData);
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+        return BDLPCRE_DEPTHLIMITFAILURE;                             // RETURN
     } else if (0 > returnValue) {
         pcre2_match_data_free(matchData);
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
-    // Number of pairs in the ovector
+    // Number of pairs in the output vector
     unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
 
     BSLS_ASSERT(1 <= ovectorCount);
@@ -277,7 +280,7 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     pcre2_match_data_free(matchData);
     pcre2_match_context_free(matchContext);
 
-    return BDEPCRE_SUCCESS;
+    return BDLPCRE_SUCCESS;
 }
 
 int
@@ -295,7 +298,7 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
                                                              d_pcre2Context_p);
 
     if (0 == matchContext) {
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     pcre2_set_match_limit(matchContext, d_depthLimit);
@@ -306,11 +309,12 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
 
     if (0 == matchData) {
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_FAILURE;                                       // RETURN
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
-    const unsigned char* actualSubject = reinterpret_cast<const unsigned char*>
-                                                      (subject ? subject : "");
+    const unsigned char* actualSubject =
+                reinterpret_cast<const unsigned char*>(subject ? subject : "");
+
     int returnValue = pcre2_match(d_pcre2Code_p,
                                   actualSubject,
                                   subjectLength,
@@ -322,16 +326,16 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
         pcre2_match_data_free(matchData);
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+        return BDLPCRE_DEPTHLIMITFAILURE;                             // RETURN
     } else if (0 > returnValue) {
         pcre2_match_data_free(matchData);
         pcre2_match_context_free(matchContext);
-        return BDEPCRE_FAILURE;
+        return BDLPCRE_FAILURE;                                       // RETURN
     }
 
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
 
-    // Number of pairs in the ovector
+    // Number of pairs in the output vector
     unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
 
     result->resize(ovectorCount);
@@ -345,7 +349,7 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     pcre2_match_data_free(matchData);
     pcre2_match_context_free(matchContext);
 
-    return BDEPCRE_SUCCESS;
+    return BDLPCRE_SUCCESS;
 }
 
 int RegEx::numSubpatterns() const

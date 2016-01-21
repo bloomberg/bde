@@ -1,6 +1,6 @@
-// bdepcre_regex.h                                                    -*-C++-*-
-#ifndef INCLUDED_BDLPCRE2_REGEX
-#define INCLUDED_BDLPCRE2_REGEX
+// bdlpcre_regex.h                                                    -*-C++-*-
+#ifndef INCLUDED_BDLPCRE_REGEX
+#define INCLUDED_BDLPCRE_REGEX
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Case-Insensitive Matching
 ///- - - - - - - - - - - - -
-// If 'RegEx::BDEPCRE_FLAG_CASELESS' is included in the flags supplied to
+// If 'RegEx::BDLPCRE_FLAG_CASELESS' is included in the flags supplied to
 // 'prepare', then letters in the regular expression pattern supplied to
 // 'prepare' match both lower- and upper-case letters in subject strings
 // subsequently supplied to 'match'.  This is equivalent to Perl's '/i' option,
@@ -74,33 +74,33 @@ BSLS_IDENT("$Id$ $CSID$")
 // the string (or before a terminating '\n', if present).  This matches the
 // behavior of Perl.
 //
-// If 'RegEx::BDEPCRE_FLAG_MULTILINE' is included in the flags supplied to
+// If 'RegEx::BDLPCRE_FLAG_MULTILINE' is included in the flags supplied to
 // 'prepare', then start-of-line and end-of-line meta-characters match
 // immediately following or immediately before any '\n' characters in subject
 // strings supplied to 'match', respectively (as well as at the very start and
 // end of subject strings).  This is equivalent to Perl's '/m' option, and can
 // be turned off within a pattern by a '(?m)' option setting.  If there are no
 // '\n' characters in the subject string, or if there are no occurrences of '^'
-// or '$' in the prepared pattern, then including 'BDEPCRE_FLAG_MULTILINE' has
+// or '$' in the prepared pattern, then including 'BDLPCRE_FLAG_MULTILINE' has
 // no effect.
 //
 ///UTF-8 Support
 ///- - - - - - -
-// If 'RegEx::BDEPCRE_FLAG_UTF8' is included in the flags supplied to
+// If 'RegEx::BDLPCRE_FLAG_UTF8' is included in the flags supplied to
 // 'prepare', then the regular expression pattern supplied to 'prepare', as
 // well as the subject strings subsequently supplied to 'match', are
 // interpreted as strings of UTF-8 characters instead of strings of ASCII
-// characters.  If 'BDEPCRE_FLAG_UTF8' is used to prepare a regular expression,
+// characters.  If 'BDLPCRE_FLAG_UTF8' is used to prepare a regular expression,
 // then any subject strings passed to the 'match' methods *must* be valid
 // UTF-8; otherwise, unexpected behavior may result.
 //
 ///Dot Matches All
 ///- - - - - - - -
-// If 'RegEx::BDEPCRE_FLAG_DOTMATCHESALL' is included in the flags supplied to
+// If 'RegEx::BDLPCRE_FLAG_DOTMATCHESALL' is included in the flags supplied to
 // 'prepare', then a dot metacharacter in the pattern matches a character of
 // any value, including one that indicates a newline.  However, it only ever
 // matches one character, even if newlines are encoded as '\r\n'.  If
-// 'BDEPCRE_FLAG_DOTMATCHESALL' is not used to prepare a regular expression, a
+// 'BDLPCRE_FLAG_DOTMATCHESALL' is not used to prepare a regular expression, a
 // dot metacharacter will *not* match a newline; hence, patterns expected to
 // match across lines will fail to do so.  This flag is equivalent to Perl's
 // '/s' option, and can be changed within a pattern by a '(?s)' option setting.
@@ -136,8 +136,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // match subject strings against it.  In the event that 'prepare' fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
-// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDEPCRE_FLAG_CASELESS'
-// and 'bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE', are used in preparing the
+// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDLPCRE_FLAG_CASELESS'
+// and 'bdepcre_RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the
 // pattern since Internet message headers contain case-insensitive content as
 // well as '\n' characters.  The 'prepare' method returns 0 on success, and a
 // non-zero value otherwise:
@@ -149,8 +149,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //      int returnValue = regEx.prepare(&errorMessage,
 //                                      &errorOffset,
 //                                      PATTERN,
-//                                      RegEx::BDEPCRE_FLAG_CASELESS |
-//                                      RegEx::BDEPCRE_FLAG_MULTILINE);
+//                                      RegEx::BDLPCRE_FLAG_CASELESS |
+//                                      RegEx::BDLPCRE_FLAG_MULTILINE);
 //      assert(0 == returnValue);
 //..
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
@@ -326,6 +326,18 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -346,9 +358,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 #endif
 
+#ifndef _PCRE2_H
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
-
+#endif
 
 namespace BloombergLP {
 
@@ -383,7 +396,7 @@ class RegEx {
 
     pcre2_code            *d_pcre2Code_p;    // PCRE2 compiled pattern
 
-    int                    d_depthLimit;     // maximum eval recursion depth
+    int                    d_depthLimit;     // max evaluation recursion depth
 
     bslma::Allocator      *d_allocator_p;    // allocator to supply memory
 
@@ -393,18 +406,21 @@ class RegEx {
     RegEx& operator=(const RegEx&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(RegEx, bslma::UsesBslmaAllocator);
+
     // PUBLIC TYPES
     enum {
-        BDEPCRE_FLAG_CASELESS      = PCRE2_CASELESS,  // case-insensitive
+        BDLPCRE_FLAG_CASELESS      = PCRE2_CASELESS,  // case-insensitive
                                                       // matching
 
-        BDEPCRE_FLAG_DOTMATCHESALL = PCRE2_DOTALL,    // dot metacharacter
+        BDLPCRE_FLAG_DOTMATCHESALL = PCRE2_DOTALL,    // dot metacharacter
                                                       // matches all chars
                                                       // (including newlines)
 
-        BDEPCRE_FLAG_MULTILINE     = PCRE2_MULTILINE, // multi-line matching
+        BDLPCRE_FLAG_MULTILINE     = PCRE2_MULTILINE, // multi-line matching
 
-        BDEPCRE_FLAG_UTF8          = PCRE2_UTF        // UTF-8 support
+        BDLPCRE_FLAG_UTF8          = PCRE2_UTF        // UTF-8 support
     };
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
@@ -439,7 +455,7 @@ class RegEx {
                 const char  *pattern,
                 int          flags = 0);
         // Prepare this regular-expression object with the specified 'pattern'
-        // and the optionally-specified 'flags'.  On success, put this object
+        // and the optionally specified 'flags'.  On success, put this object
         // into the "prepared" state and return 0, with no effect on the
         // specified 'errorMessage' and 'errorOffset'.  Otherwise, (1) put this
         // object into the "unprepared" state, (2) load 'errorMessage' (if
@@ -449,10 +465,10 @@ class RegEx {
         // behavior is undefined unless 'flags' is the bit-wise inclusive-or of
         // 0 or more of the following values:
         //..
-        //  BDEPCRE_FLAG_CASELESS
-        //  BDEPCRE_FLAG_DOTMATCHESALL
-        //  BDEPCRE_FLAG_MULTILINE
-        //  BDEPCRE_FLAG_UTF8
+        //  BDLPCRE_FLAG_CASELESS
+        //  BDLPCRE_FLAG_DOTMATCHESALL
+        //  BDLPCRE_FLAG_MULTILINE
+        //  BDLPCRE_FLAG_UTF8
         //..
 
     int setDepthLimit(int depthLimit);
@@ -461,6 +477,10 @@ class RegEx {
         // limit.
 
     // ACCESSORS
+    int depthLimit() const;
+        // Returns the evaluation recursion depth limit for this
+        // regular-expression object.
+
     int flags() const;
         // Return the flags that were supplied to the most recent successful
         // call to the 'prepare' method of this regular-expression object.  The
@@ -468,15 +488,11 @@ class RegEx {
         // returned value will be the bit-wise inclusive-or of 0 or more of the
         // following values:
         //..
-        //  BDEPCRE_FLAG_CASELESS
-        //  BDEPCRE_FLAG_DOTMATCHESALL
-        //  BDEPCRE_FLAG_MULTILINE
-        //  BDEPCRE_FLAG_UTF8
+        //  BDLPCRE_FLAG_CASELESS
+        //  BDLPCRE_FLAG_DOTMATCHESALL
+        //  BDLPCRE_FLAG_MULTILINE
+        //  BDLPCRE_FLAG_UTF8
         //..
-
-    int depthLimit() const;
-        // Returns the evaluation recursion depth limit for this
-        // regular-expression object.
 
     bool isPrepared() const;
         // Return 'true' if this regular-expression object is in the "prepared"
@@ -487,14 +503,14 @@ class RegEx {
               size_t      subjectOffset = 0) const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally-specified
+        // ('pattern()').  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // then begin matching from the start of 'subject'.  Return 0 on
         // success, 1 if the depth limit was exceeded, and another non-zero
         // value otherwise.  The behavior is undefined unless 'isPrepared() ==
         // true', '0 <= subjectLength', '0 <= subjectOffset', and
         // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but 'subject' is
+        // 'pattern()' was prepared with 'BDLPCRE_FLAG_UTF8', but 'subject' is
         // not valid UTF-8.  Note that 'subject' need not be null-terminated
         // and may contain embedded null characters.  Also note that 'subject'
         // may be null if '0 == subjectLength' (denoting the empty string).
@@ -505,7 +521,7 @@ class RegEx {
               size_t                     subjectOffset = 0) const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally-specified
+        // ('pattern()').  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // then begin matching from the start of 'subject'.  On success, load
         // the specified 'result' with the '(offset, length)' pair indicating
@@ -515,7 +531,7 @@ class RegEx {
         // is undefined unless 'isPrepared() == true', '0 <= subjectLength', '0
         // <= subjectOffset', and 'subjectOffset <= subjectLength'.  The
         // behavior is also undefined if 'pattern()' was prepared with
-        // 'BDEPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
+        // 'BDLPCRE_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note that
         // 'subject' need not be null-terminated and may contain embedded null
         // characters.  Also note that 'subject' may be null if
         // '0 == subjectLength' (denoting the empty string).
@@ -523,10 +539,11 @@ class RegEx {
     int match(bsl::vector<bsl::pair<size_t, size_t> > *result,
               const char                              *subject,
               size_t                                   subjectLength,
-              size_t                                   subjectOffset = 0) const;
+              size_t                                   subjectOffset = 0)
+                                                                         const;
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
-        // ('pattern()').  Begin matching at the optionally-specified
+        // ('pattern()').  Begin matching at the optionally specified
         // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
         // then begin matching from the start of 'subject'.  On success, (1)
         // load the first element of the specified 'result' with the
@@ -542,7 +559,7 @@ class RegEx {
         // exceeding the depth limit.  The behavior is undefined unless
         // 'isPrepared() == true', '0 <= subjectLength', '0 <= subjectOffset',
         // and 'subjectOffset <= subjectLength'.  The behavior is also
-        // undefined if 'pattern()' was prepared with 'BDEPCRE_FLAG_UTF8', but
+        // undefined if 'pattern()' was prepared with 'BDLPCRE_FLAG_UTF8', but
         // 'subject' is not valid UTF-8.  Note that 'subject' need not be
         // null-terminated and may contain embedded null characters.  Also note
         // that 'subject' may be null if '0 == subjectLength' (denoting the
@@ -570,12 +587,12 @@ class RegEx {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                             // -------------------
-                             // class bdepcre_RegEx
-                             // -------------------
+                             // -----------
+                             // class RegEx
+                             // -----------
 
 // CLASS METHODS
 inline
@@ -615,15 +632,15 @@ int RegEx::setDepthLimit(int depthLimit)
 
 // ACCESSORS
 inline
-int RegEx::flags() const
-{
-    return d_flags;
-}
-
-inline
 int RegEx::depthLimit() const
 {
     return d_depthLimit;
+}
+
+inline
+int RegEx::flags() const
+{
+    return d_flags;
 }
 
 inline

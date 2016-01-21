@@ -63,10 +63,10 @@ using namespace bdlpcre;
 // [13] int getDefaultDepthLimit(int)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] BDEPCRE_FLAG_CASELESS
-// [ 5] BDEPCRE_FLAG_MULTILINE
-// [ 6] BDEPCRE_FLAG_UTF8
-// [ 9] BDEPCRE_FLAG_DOTMATCHESALL
+// [ 4] BDLPCRE_FLAG_CASELESS
+// [ 5] BDLPCRE_FLAG_MULTILINE
+// [ 6] BDLPCRE_FLAG_UTF8
+// [ 9] BDLPCRE_FLAG_DOTMATCHESALL
 // [11] ALLOCATOR PROPAGATION
 // [12] NON-CAPTURING GROUPS
 // [14] MEMORY ALLIGNMENT
@@ -463,8 +463,8 @@ typedef RegEx Obj;
 // match subject strings against it.  In the event that 'prepare' fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
-// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDEPCRE_FLAG_CASELESS'
-// and 'bdepcre_RegEx::BDEPCRE_FLAG_MULTILINE', are used in preparing the
+// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDLPCRE_FLAG_CASELESS'
+// and 'bdepcre_RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the
 // pattern since Internet message headers contain case-insensitive content as
 // well as '\n' characters.  The 'prepare' method returns 0 on success, and a
 // non-zero value otherwise:
@@ -476,8 +476,8 @@ typedef RegEx Obj;
         int returnValue = regEx.prepare(&errorMessage,
                                         &errorOffset,
                                         PATTERN,
-                                        RegEx::BDEPCRE_FLAG_CASELESS |
-                                        RegEx::BDEPCRE_FLAG_MULTILINE);
+                                        RegEx::BDLPCRE_FLAG_CASELESS |
+                                        RegEx::BDLPCRE_FLAG_MULTILINE);
         ASSERT(0 == returnValue);
 //..
 // Next we call 'match' supplying 'message' and its length.  The 'matchVector'
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.prepare(&errorMsg,
                                    &errorOffset,
                                    PATTERN,
-                                   Obj::BDEPCRE_FLAG_MULTILINE));
+                                   Obj::BDLPCRE_FLAG_MULTILINE));
 
             const char   TEST_STRING[]   = "bbasm_SecurityCache\n"
                                            "tweut_StringRef\n";
@@ -1112,8 +1112,8 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING BDEPCRE_FLAG_DOTMATCHESALL FLAG
-        //   This will test the 'BDEPCRE_FLAG_DOTMATCHESALL' option when
+        // TESTING BDLPCRE_FLAG_DOTMATCHESALL FLAG
+        //   This will test the 'BDLPCRE_FLAG_DOTMATCHESALL' option when
         //   compiling regular expressions.
         //
         // Concerns:
@@ -1124,7 +1124,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 For a given pattern string containing newlines, create two
-        //:   regular expression objects - one with 'BDEPCRE_FLAG_MULTILINE'
+        //:   regular expression objects - one with 'BDLPCRE_FLAG_MULTILINE'
         //:   specified and another without.
         //:
         //: 2 For each object, exercise the match function using subjects of
@@ -1132,8 +1132,8 @@ int main(int argc, char *argv[])
         //:   in some cases the pattern to be matched will contain newlines.
         //:   Select test data with increasing preamble/postamble length (from
         //:   0 to 3).  Verify that the object with
-        //:   'BDEPCRE_FLAG_DOTMATCHESALL' always succeeds and also that the
-        //:   object without 'BDEPCRE_FLAG_DOTMATCHESALL' always fails.
+        //:   'BDLPCRE_FLAG_DOTMATCHESALL' always succeeds and also that the
+        //:   object without 'BDLPCRE_FLAG_DOTMATCHESALL' always fails.
         //:
         //: 3 Finally, exercise the match function using a subject that matches
         //:   the pattern exactly on a single line (i.e.  without any
@@ -1141,10 +1141,10 @@ int main(int argc, char *argv[])
         //:   succeed.
         //
         // Testing:
-        //   BDEPCRE_FLAG_DOTMATCHESALL
+        //   BDLPCRE_FLAG_DOTMATCHESALL
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING BDEPCRE_FLAG_DOTMATCHESALL FLAG" << endl
+                          << "TESTING BDLPCRE_FLAG_DOTMATCHESALL FLAG" << endl
                           << "=======================================" << endl;
 
         const char PATTERN[]             = "b.*e";
@@ -1172,8 +1172,8 @@ int main(int argc, char *argv[])
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         bslma::TestAllocator ta;
-        Obj mX(&ta); const Obj& X = mX;   // has 'BDEPCRE_FLAG_DOTMATCHESALL'
-        Obj mY(&ta); const Obj& Y = mY;   // !have 'BDEPCRE_FLAG_DOTMATCHESALL'
+        Obj mX(&ta); const Obj& X = mX;   // has 'BDLPCRE_FLAG_DOTMATCHESALL'
+        Obj mY(&ta); const Obj& Y = mY;   // !have 'BDLPCRE_FLAG_DOTMATCHESALL'
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -1189,9 +1189,9 @@ int main(int argc, char *argv[])
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
-                                 Obj::BDEPCRE_FLAG_DOTMATCHESALL);
+                                 Obj::BDLPCRE_FLAG_DOTMATCHESALL);
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
-        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_DOTMATCHESALL == X.flags());
+        ASSERTV(X.flags(), Obj::BDLPCRE_FLAG_DOTMATCHESALL == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
@@ -1301,7 +1301,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING UTF8 FLAG
-        //   This will test the 'BDEPCRE_FLAG_UTF8' option when compiling
+        //   This will test the 'BDLPCRE_FLAG_UTF8' option when compiling
         //   regular expressions.
         //
         // Concerns:
@@ -1312,20 +1312,20 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a set of UTF8 patterns.  For each pattern, create two
-        //:   regular expression objects - one with 'BDEPCRE_FLAG_UTF8'
-        //:   specified and another without 'BDEPCRE_FLAG_UTF8' specified.
+        //:   regular expression objects - one with 'BDLPCRE_FLAG_UTF8'
+        //:   specified and another without 'BDLPCRE_FLAG_UTF8' specified.
         //:
         //: 2 For each object, exercise the match function using a UTF8 subject
         //:   that matches the pattern being tested.  Verify that the object
-        //:   with 'BDEPCRE_FLAG_UTF8' succeeds and the object without
-        //:   'BDEPCRE_FLAG_UTF8' fails.  Next, exercise the match function
+        //:   with 'BDLPCRE_FLAG_UTF8' succeeds and the object without
+        //:   'BDLPCRE_FLAG_UTF8' fails.  Next, exercise the match function
         //:   using a non-UTF8 subject that matches the pattern being tested.
-        //:   Verify that the object with 'BDEPCRE_FLAG_UTF8' fails and the
-        //:   object without 'BDEPCRE_FLAG_UTF8' succeeds.  (C-1)
+        //:   Verify that the object with 'BDLPCRE_FLAG_UTF8' fails and the
+        //:   object without 'BDLPCRE_FLAG_UTF8' succeeds.  (C-1)
         //
         // Testing:
         //   int flags() const;
-        //   BDEPCRE_FLAG_UTF8
+        //   BDLPCRE_FLAG_UTF8
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING UTF8 FLAG" << endl
@@ -1360,9 +1360,9 @@ int main(int argc, char *argv[])
             }
 
             Obj mX(&testAllocator); const Obj& X = mX;
-                                                   // has 'BDEPCRE_FLAG_UTF8'
+                                                   // has 'BDLPCRE_FLAG_UTF8'
             Obj mY(&testAllocator); const Obj& Y = mY;
-                                                   // !have 'BDEPCRE_FLAG_UTF8'
+                                                   // !have 'BDLPCRE_FLAG_UTF8'
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -1370,10 +1370,10 @@ int main(int argc, char *argv[])
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
                                      PATTERN,
-                                     Obj::BDEPCRE_FLAG_UTF8);
+                                     Obj::BDLPCRE_FLAG_UTF8);
 
             ASSERTV(errorMsg, errorOffset, 0 == retCode);
-            ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_UTF8 == X.flags());
+            ASSERTV(X.flags(), Obj::BDLPCRE_FLAG_UTF8 == X.flags());
 
             retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
 
@@ -1416,7 +1416,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING MULTILINE FLAG
-        //   This will test the 'BDEPCRE_FLAG_MULTILINE' option when compiling
+        //   This will test the 'BDLPCRE_FLAG_MULTILINE' option when compiling
         //   regular expressions.
         //
         // Concerns:
@@ -1429,14 +1429,14 @@ int main(int argc, char *argv[])
         // Plan:
         //   For a given pattern string starting with '^' and ending with '$',
         //   create two regular expression objects - one with
-        //   'BDEPCRE_FLAG_MULTILINE' specified and another without
-        //   'BDEPCRE_FLAG_MULTILINE' specified.
+        //   'BDLPCRE_FLAG_MULTILINE' specified and another without
+        //   'BDLPCRE_FLAG_MULTILINE' specified.
         //
         //   For each object, exercise the match function using subjects of the
         //   form "<preamble>\n<pattern-match>\n<postamble>".  Select test data
         //   with increasing preamble/postamble length (from 0 to 3).  Verify
-        //   that the object with 'BDEPCRE_FLAG_MULTILINE' always succeeds and
-        //   also that the object without 'BDEPCRE_FLAG_MULTILINE' always
+        //   that the object with 'BDLPCRE_FLAG_MULTILINE' always succeeds and
+        //   also that the object without 'BDLPCRE_FLAG_MULTILINE' always
         //   fails.
         //
         //   Finally, exercise the match function using a subject that matches
@@ -1446,7 +1446,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int flags() const;
-        //   BDEPCRE_FLAG_MULTILINE
+        //   BDLPCRE_FLAG_MULTILINE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1480,9 +1480,9 @@ int main(int argc, char *argv[])
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Obj mX(&testAllocator);  const Obj& X = mX;
-                                              // has 'BDEPCRE_FLAG_MULTILINE'
+                                              // has 'BDLPCRE_FLAG_MULTILINE'
         Obj mY(&testAllocator);  const Obj& Y = mY;
-                                              // !have 'BDEPCRE_FLAG_MULTILINE'
+                                              // !have 'BDLPCRE_FLAG_MULTILINE'
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -1498,9 +1498,9 @@ int main(int argc, char *argv[])
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
-                                 Obj::BDEPCRE_FLAG_MULTILINE);
+                                 Obj::BDLPCRE_FLAG_MULTILINE);
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
-        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
+        ASSERTV(X.flags(), Obj::BDLPCRE_FLAG_MULTILINE == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING CASELESS FLAG
-        //   This will test the 'BDEPCRE_FLAG_CASELESS' option when compiling
+        //   This will test the 'BDLPCRE_FLAG_CASELESS' option when compiling
         //   regular expressions.
         //
         // Concerns:
@@ -1627,20 +1627,20 @@ int main(int argc, char *argv[])
         // Plan:
         //   For a given pattern string containing both upper-case and
         //   lower-case letters, create two regular expression objects - one
-        //   with 'BDEPCRE_FLAG_CASELESS' specified and another without
-        //   'BDEPCRE_FLAG_CASELESS' specified.
+        //   with 'BDLPCRE_FLAG_CASELESS' specified and another without
+        //   'BDLPCRE_FLAG_CASELESS' specified.
         //
         //   For each object, exercise the match function using subjects that
         //   use different cases from the pattern.  Verify that the object with
-        //   'BDEPCRE_FLAG_CASELESS' always succeeds and also that the object
-        //   without 'BDEPCRE_FLAG_CASELESS' always fails.
+        //   'BDLPCRE_FLAG_CASELESS' always succeeds and also that the object
+        //   without 'BDLPCRE_FLAG_CASELESS' always fails.
         //
         //   Finally, exercise the match function using a subject that uses the
         //   same case as the pattern.  Verify that both objects succeed.
         //
         // Testing:
         //   int flags() const;
-        //   BDEPCRE_FLAG_CASELESS
+        //   BDLPCRE_FLAG_CASELESS
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1666,9 +1666,9 @@ int main(int argc, char *argv[])
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Obj mX(&testAllocator);  const Obj& X = mX;
-                                               // has 'BDEPCRE_FLAG_CASELESS'
+                                               // has 'BDLPCRE_FLAG_CASELESS'
         Obj mY(&testAllocator);  const Obj& Y = mY;
-                                               // !have 'BDEPCRE_FLAG_CASELESS'
+                                               // !have 'BDLPCRE_FLAG_CASELESS'
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -1684,10 +1684,10 @@ int main(int argc, char *argv[])
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
-                                 Obj::BDEPCRE_FLAG_CASELESS);
+                                 Obj::BDLPCRE_FLAG_CASELESS);
 
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
-        ASSERTV(X.flags(), Obj::BDEPCRE_FLAG_CASELESS == X.flags());
+        ASSERTV(X.flags(), Obj::BDLPCRE_FLAG_CASELESS == X.flags());
 
         retCode = mY.prepare(&errorMsg, &errorOffset, PATTERN, 0);
 
@@ -1825,38 +1825,38 @@ int main(int argc, char *argv[])
             int retCode = mX.prepare(0,
                                      0,
                                      PATTERN,
-                                     Obj::BDEPCRE_FLAG_MULTILINE);
+                                     Obj::BDLPCRE_FLAG_MULTILINE);
 
             ASSERTV(retCode,        0        == retCode);
             ASSERTV(X.isPrepared(), true     == X.isPrepared());
-            ASSERTV(X.flags(),      Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
+            ASSERTV(X.flags(),      Obj::BDLPCRE_FLAG_MULTILINE == X.flags());
 
-            retCode = mX.prepare(0, 0, PATTERN, Obj::BDEPCRE_FLAG_CASELESS);
-
-            ASSERTV(retCode,        0        == retCode);
-            ASSERTV(X.isPrepared(), true     == X.isPrepared());
-            ASSERTV(X.flags(),      Obj::BDEPCRE_FLAG_CASELESS == X.flags());
-
-            retCode = mX.prepare(0, 0, PATTERN, Obj::BDEPCRE_FLAG_UTF8);
+            retCode = mX.prepare(0, 0, PATTERN, Obj::BDLPCRE_FLAG_CASELESS);
 
             ASSERTV(retCode,        0        == retCode);
             ASSERTV(X.isPrepared(), true     == X.isPrepared());
-            ASSERTV(X.flags(),      Obj::BDEPCRE_FLAG_UTF8 == X.flags());
+            ASSERTV(X.flags(),      Obj::BDLPCRE_FLAG_CASELESS == X.flags());
+
+            retCode = mX.prepare(0, 0, PATTERN, Obj::BDLPCRE_FLAG_UTF8);
+
+            ASSERTV(retCode,        0        == retCode);
+            ASSERTV(X.isPrepared(), true     == X.isPrepared());
+            ASSERTV(X.flags(),      Obj::BDLPCRE_FLAG_UTF8 == X.flags());
 
             retCode = mX.prepare(0,
                                  0,
                                  PATTERN,
-                                 Obj::BDEPCRE_FLAG_DOTMATCHESALL);
+                                 Obj::BDLPCRE_FLAG_DOTMATCHESALL);
 
             ASSERTV(retCode,        0        == retCode);
             ASSERTV(X.isPrepared(), true     == X.isPrepared());
-            ASSERTV(X.flags(),   Obj::BDEPCRE_FLAG_DOTMATCHESALL == X.flags());
+            ASSERTV(X.flags(),   Obj::BDLPCRE_FLAG_DOTMATCHESALL == X.flags());
 
 
-            const int flags = Obj::BDEPCRE_FLAG_MULTILINE
-                            | Obj::BDEPCRE_FLAG_CASELESS
-                            | Obj::BDEPCRE_FLAG_UTF8
-                            | Obj::BDEPCRE_FLAG_DOTMATCHESALL;
+            const int flags = Obj::BDLPCRE_FLAG_MULTILINE
+                            | Obj::BDLPCRE_FLAG_CASELESS
+                            | Obj::BDLPCRE_FLAG_UTF8
+                            | Obj::BDLPCRE_FLAG_DOTMATCHESALL;
 
             retCode = mX.prepare(0, 0, PATTERN, flags);
 
@@ -2550,14 +2550,14 @@ int main(int argc, char *argv[])
         int retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
                                  PATTERN,
-                                 Obj::BDEPCRE_FLAG_MULTILINE);
+                                 Obj::BDLPCRE_FLAG_MULTILINE);
 
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
 
         if (verbose) cout << "\nVerifying prepared state." << endl;
 
         ASSERT(true                        == X.isPrepared());
-        ASSERT(Obj::BDEPCRE_FLAG_MULTILINE == X.flags());
+        ASSERT(Obj::BDLPCRE_FLAG_MULTILINE == X.flags());
         ASSERT(2                           == X.numSubpatterns());
         ASSERT(PATTERN                     == X.pattern());
         ASSERT(1                           ==
