@@ -43,8 +43,8 @@ bsl::ostream& CharConvertStatus::print(bsl::ostream&           stream,
 const char *CharConvertStatus::toAscii(CharConvertStatus::Enum value)
 {
     switch (value) {
-      case k_INVALID_CHARS_BIT: {
-        return  "INVALID_CHARS_BIT";                                  // RETURN
+      case k_INVALID_INPUT_BIT: {
+        return  "INVALID_INPUT_BIT";                                  // RETURN
       } break;
       case k_OUT_OF_SPACE_BIT: {
         return  "OUT_OF_SPACE_BIT";                                   // RETURN

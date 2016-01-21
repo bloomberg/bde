@@ -4,6 +4,7 @@ bslmt_conditionimpl_pthread
 bslmt_conditionimpl_win32
 bslmt_configuration
 bslmt_entrypointfunctoradapter
+bslmt_latch
 bslmt_lockguard
 bslmt_meteredmutex
 bslmt_mutex
