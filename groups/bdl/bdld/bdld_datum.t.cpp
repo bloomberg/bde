@@ -2093,6 +2093,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // LINE  ENUMERATOR VALUE             EXPECTED OUTPUT
             // ----  ---------------------------  -------------------
+            {  L_,   Datum::e_UNINITIALIZED,      "UNINITIALIZED"     },
             {  L_,   Datum::e_NIL,                "NIL"               },
             {  L_,   Datum::e_INTEGER,            "INTEGER"           },
             {  L_,   Datum::e_REAL,               "REAL"              },
@@ -6782,7 +6783,9 @@ int main(int argc, char *argv[])
         {
             const DatumMapEntry obj;
             ASSERT(StringRef() == obj.key());
-            ASSERT(Datum()     == obj.value());
+            // The assertion below is invalid - the Datum value is
+            // uninitialized and cannot be compared with any other Datum
+            //ASSERT(Datum()     == obj.value());
         }
 
         if (verbose) cout << "\nTesting value constructor." << endl;

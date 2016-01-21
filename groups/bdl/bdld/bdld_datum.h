@@ -183,6 +183,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                        external   requires
 //  dataType              reference  allocation  Description
 //  --------              ---------  ----------  -----------
+//  e_UNINITIALIZED       no         no          uninitialized value
 //  e_NIL                 no         no          null value
 //  e_INTEGER             no         no          integer value
 //  e_REAL                no         no          double value
@@ -662,23 +663,24 @@ class Datum {
     enum DataType {
         // Enumeration used to discriminate among the different externally-
         // exposed types of values that can be stored inside 'Datum'.
-        e_NIL                    =  0  // null value
-        , e_INTEGER              =  1  // integer value
-        , e_REAL                 =  2  // double value
-        , e_STRING               =  3  // string value
-        , e_BOOLEAN              =  4  // boolean value
-        , e_ERROR                =  5  // error value
-        , e_DATE                 =  6  // date value
-        , e_TIME                 =  7  // time value
-        , e_DATETIME             =  8  // datetime value
-        , e_DATETIME_INTERVAL    =  9  // datetime interval value
-        , e_INTEGER64            = 10  // 64-bit integer value
-        , e_USERDEFINED          = 11  // pointer to a user-defined object
-        , e_ARRAY                = 12  // array reference
-        , e_MAP                  = 13  // map reference
-        , e_BINARY               = 14  // pointer to the binary data
-        , e_DECIMAL64            = 15  // Decimal64
-        , k_NUM_TYPES            = 16  // number of distinct enumerated types
+        e_UNINITIALIZED          =  0  // uninitialized value
+        , e_NIL                  =  1  // null value
+        , e_INTEGER              =  2  // integer value
+        , e_REAL                 =  3  // double value
+        , e_STRING               =  4  // string value
+        , e_BOOLEAN              =  5  // boolean value
+        , e_ERROR                =  6  // error value
+        , e_DATE                 =  7  // date value
+        , e_TIME                 =  8  // time value
+        , e_DATETIME             =  9  // datetime value
+        , e_DATETIME_INTERVAL    = 10  // datetime interval value
+        , e_INTEGER64            = 11  // 64-bit integer value
+        , e_USERDEFINED          = 12  // pointer to a user-defined object
+        , e_ARRAY                = 13  // array reference
+        , e_MAP                  = 14  // map reference
+        , e_BINARY               = 15  // pointer to the binary data
+        , e_DECIMAL64            = 16  // Decimal64
+        , k_NUM_TYPES            = 17  // number of distinct enumerated types
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -1042,55 +1044,57 @@ class Datum {
         // Enumeration used to discriminate among the different types of values
         // that can be stored inside 'Datum'.
 
-        e_INTERNAL_INF               =  0,  // +/- infinity value
+        e_INTERNAL_UNINITIALIZED     =  0,  // zero-filled Datums are invalid
 
-        e_INTERNAL_NIL               =  1,  // null value
+        e_INTERNAL_INF               =  1,  // +/- infinity value
 
-        e_INTERNAL_BOOLEAN           =  2,  // boolean value
+        e_INTERNAL_NIL               =  2,  // null value
 
-        e_INTERNAL_SHORTSTRING       =  3,  // short string value
+        e_INTERNAL_BOOLEAN           =  3,  // boolean value
 
-        e_INTERNAL_STRING            =  4,  // string value
+        e_INTERNAL_SHORTSTRING       =  4,  // short string value
 
-        e_INTERNAL_DATE              =  5,  // date value
+        e_INTERNAL_STRING            =  5,  // string value
 
-        e_INTERNAL_TIME              =  6,  // time value
+        e_INTERNAL_DATE              =  6,  // date value
 
-        e_INTERNAL_DATETIME          =  7,  // date+time value
+        e_INTERNAL_TIME              =  7,  // time value
 
-        e_INTERNAL_DATETIME_INTERVAL =  8,  // date+time interval value
+        e_INTERNAL_DATETIME          =  8,  // date+time value
 
-        e_INTERNAL_INTEGER           =  9,  // integer value
+        e_INTERNAL_DATETIME_INTERVAL =  9,  // date+time interval value
 
-        e_INTERNAL_INTEGER64         = 10,  // 64-bit integer value
+        e_INTERNAL_INTEGER           = 10,  // integer value
 
-        e_INTERNAL_USERDEFINED       = 11,  // pointer to a user-defined object
+        e_INTERNAL_INTEGER64         = 11,  // 64-bit integer value
 
-        e_INTERNAL_ARRAY             = 12,  // array of datums
+        e_INTERNAL_USERDEFINED       = 12,  // pointer to a user-defined object
 
-        e_INTERNAL_STRING_REFERENCE  = 13,  // not owned string
+        e_INTERNAL_ARRAY             = 13,  // array of datums
 
-        e_INTERNAL_ARRAY_REFERENCE   = 14,  // not owned array
+        e_INTERNAL_STRING_REFERENCE  = 14,  // not owned string
 
-        e_INTERNAL_REAL              = 15,  // double value
+        e_INTERNAL_ARRAY_REFERENCE   = 15,  // not owned array
 
-        e_INTERNAL_MAP               = 16,  // map of datums keyed by string
+        e_INTERNAL_REAL              = 16,  // double value
+
+        e_INTERNAL_MAP               = 17,  // map of datums keyed by string
                                             // values that are not owned
 
-        e_INTERNAL_OWNED_MAP         = 17,  // map of datums keyed by string
+        e_INTERNAL_OWNED_MAP         = 18,  // map of datums keyed by string
                                             // values that are owned
 
-        e_INTERNAL_ERROR             = 18,  // error code, internal storage
+        e_INTERNAL_ERROR             = 19,  // error code, internal storage
 
-        e_INTERNAL_ERROR_ALLOC       = 19,  // error code, allocated storage
+        e_INTERNAL_ERROR_ALLOC       = 20,  // error code, allocated storage
 
-        e_INTERNAL_BINARY            = 20,  // binary data, internal storage
+        e_INTERNAL_BINARY            = 21,  // binary data, internal storage
 
-        e_INTERNAL_BINARY_ALLOC      = 21,  // binary data, allocated storage
+        e_INTERNAL_BINARY_ALLOC      = 22,  // binary data, allocated storage
 
-        e_INTERNAL_DECIMAL64         = 22,  // Decimal64
+        e_INTERNAL_DECIMAL64         = 23,  // Decimal64
 
-        k_NUM_INTERNAL_TYPES         = 23   // number of enumerated types
+        k_NUM_INTERNAL_TYPES         = 24   // number of enumerated types
     };
 
     // CLASS DATA
@@ -3078,6 +3082,9 @@ bool Datum::isExternalReference() const
       case e_INTERNAL_ARRAY_REFERENCE:
       case e_INTERNAL_USERDEFINED:
         return true;                                                  // RETURN
+      case e_INTERNAL_UNINITIALIZED:
+        BSLS_ASSERT(!"Uninitialized Datum!!");
+        break;
       default:
         break;
     }
@@ -3430,29 +3437,30 @@ Datum::DataType Datum::type() const
     return convert[type];
 #else  // BSLS_PLATFORM_CPU_32_BIT
     static const DataType convert[] = {
-        e_REAL                             // e_INTERNAL_INF               = 0
-      , e_NIL                              // e_INTERNAL_NIL               = 1
-      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 2
-      , e_STRING                           // e_INTERNAL_SHORTSTRING       = 3
-      , e_STRING                           // e_INTERNAL_STRING            = 4
-      , e_DATE                             // e_INTERNAL_DATE              = 5
-      , e_TIME                             // e_INTERNAL_TIME              = 6
-      , e_DATETIME                         // e_INTERNAL_DATETIME          = 7
-      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL = 8
-      , e_INTEGER                          // e_INTERNAL_INTEGER           = 9
-      , e_INTEGER64                        // e_INTERNAL_INTEGER64         = 10
-      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED       = 11
-      , e_ARRAY                            // e_INTERNAL_ARRAY             = 12
-      , e_STRING                           // e_INTERNAL_STRING_REFERENCE  = 13
-      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE   = 14
-      , e_REAL                             // e_INTERNAL_REAL              = 15
-      , e_MAP                              // e_INTERNAL_MAP               = 16
-      , e_MAP                              // e_INTERNAL_OWNED_MAP         = 17
-      , e_ERROR                            // e_INTERNAL_ERROR             = 18
-      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC       = 19
-      , e_BINARY                           // e_INTERNAL_BINARY            = 20
-      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC      = 21
-      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 22
+        e_UNINITIALIZED                    // e_INTERNAL_UNINITIALIZED     = 0
+      , e_REAL                             // e_INTERNAL_INF               = 1
+      , e_NIL                              // e_INTERNAL_NIL               = 2
+      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3
+      , e_STRING                           // e_INTERNAL_SHORTSTRING       = 4
+      , e_STRING                           // e_INTERNAL_STRING            = 5
+      , e_DATE                             // e_INTERNAL_DATE              = 6
+      , e_TIME                             // e_INTERNAL_TIME              = 7
+      , e_DATETIME                         // e_INTERNAL_DATETIME          = 8
+      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL = 9
+      , e_INTEGER                          // e_INTERNAL_INTEGER           = 10
+      , e_INTEGER64                        // e_INTERNAL_INTEGER64         = 11
+      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED       = 12
+      , e_ARRAY                            // e_INTERNAL_ARRAY             = 13
+      , e_STRING                           // e_INTERNAL_STRING_REFERENCE  = 14
+      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE   = 15
+      , e_REAL                             // e_INTERNAL_REAL              = 16
+      , e_MAP                              // e_INTERNAL_MAP               = 17
+      , e_MAP                              // e_INTERNAL_OWNED_MAP         = 18
+      , e_ERROR                            // e_INTERNAL_ERROR             = 19
+      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC       = 20
+      , e_BINARY                           // e_INTERNAL_BINARY            = 21
+      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC      = 22
+      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 23
     };
 
     return convert[internalType()];
@@ -3628,6 +3636,9 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         break;
       case e_INTERNAL_DECIMAL64:
         visitor(theDecimal64());
+        break;
+      case e_INTERNAL_UNINITIALIZED:
+        BSLS_ASSERT(!"Uninitilized Datum!!");
         break;
       default:
         BSLS_ASSERT_SAFE(!"Unknown type!!");
