@@ -117,8 +117,8 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // * On 64-bit platforms, zero-initialized Datums are not mapped to any valid
 //   Datum value.  Zero-initialized Datums may appear in uninitialized
 //   static variables.  This behaviour is implemented specifically to help
-//   finding unitialized static Datums.  On 32-bit platforms similar mechanism
-//   have some performance implications and is not implemented.
+//   finding such unitialized static Datums.  On 32-bit platforms similar
+//   mechanism have some performance implications and is not implemented.
 //
 // * DatumMapRef::find() does a binary search if the map is sorted.  Otherwise
 //   it does a linear search.
@@ -348,14 +348,12 @@ class Datum_CopyVisitor {
     bslma::Allocator *d_allocator_p;  // allocator used to allocate memory for
                                       // 'd_result_p' (if needed)
 
-    bool             *d_isSuccess;    // successful in copy
   public:
     // CREATORS
     Datum_CopyVisitor(Datum            *result,
-                      bool             *isSuccess,
                       bslma::Allocator *basicAllocator);
-        // Create a 'Datum_CopyVisitor' object with the specified 'result',
-        // 'isSuccess', and 'basicAllocator'.
+        // Create a 'Datum_CopyVisitor' object with the specified 'result'
+        // and 'basicAllocator'.
 
     // MANIPULATORS
     void operator()(bslmf::Nil value);
@@ -433,13 +431,10 @@ class Datum_CopyVisitor {
 
 // CREATORS
 Datum_CopyVisitor::Datum_CopyVisitor(Datum            *result,
-                                     bool             *isSuccess,
                                      bslma::Allocator *basicAllocator)
 : d_result_p(result)
 , d_allocator_p(basicAllocator)
-, d_isSuccess(isSuccess)
 {
-    *d_isSuccess = true;
 }
 
 // MANIPULATORS
@@ -515,10 +510,7 @@ void Datum_CopyVisitor::operator()(const DatumArrayRef& value)
 
 void Datum_CopyVisitor::operator()(const DatumMapRef& value)
 {
-    // Do not do anything here, since the decision to copy the keys or not has
-    // to be made by checking the type of the map we are trying to copy.
-    (void) value;
-    *d_isSuccess = false;
+    *d_result_p = copyMapOwningKeys(value, d_allocator_p);
 }
 
 void Datum_CopyVisitor::operator()(const DatumBinaryRef& value)
@@ -532,7 +524,6 @@ void Datum_CopyVisitor::operator()(bdldfp::Decimal64 value)
 {
     *d_result_p = Datum::createDecimal64(value, d_allocator_p);
 }
-
 
                          // =========================
                          // class Datum_StreamVisitor
@@ -787,6 +778,7 @@ BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));
 // Platform independent sanity checks
 BSLMF_ASSERT(sizeof(bdlt::Date) <= sizeof(int));
 BSLMF_ASSERT(sizeof(bdlt::Time) <= sizeof(int));
+BSLMF_ASSERT(sizeof(Datum_MapHeader) <= sizeof(DatumMapEntry));
 
 // CLASS METHODS
 Datum Datum::createDecimal64(bdldfp::Decimal64  value,
@@ -995,27 +987,24 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max()/
-                                                      sizeof(DatumMapEntry)-2);
+                                                      sizeof(DatumMapEntry)-1);
 
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
 
     void *mem = basicAllocator->allocate(
-                                       sizeof(DatumMapEntry) * (capacity + 2));
+                                       sizeof(DatumMapEntry) * (capacity + 1));
 
-    // Store size of the map in the front.
+    // Store map header in the front (1 DatumMapEntry).
+    Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    SizeType *size = static_cast<SizeType *>(mem);
-    *size = 0;
+    header->d_size     = 0;
+    header->d_sorted   = false;
+    header->d_ownsKeys = false;
 
-    // Map is unsorted to start with.
-
-    bool *sorted = reinterpret_cast<bool *>(
-                                        static_cast<DatumMapEntry *>(mem) + 1);
-    *sorted = false;
-    *result = DatumMutableMapRef(static_cast<DatumMapEntry *>(mem) + 2,
-                                 size,
-                                 sorted);
+    *result = DatumMutableMapRef(static_cast<DatumMapEntry *>(mem) + 1,
+                                 &header->d_size,
+                                 &header->d_sorted);
 }
 
 void Datum::createUninitializedMap(
@@ -1027,30 +1016,30 @@ void Datum::createUninitializedMap(
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < (bsl::numeric_limits<SizeType>::max()-keysCapacity)/
-                                                      sizeof(DatumMapEntry)-2);
+                                                      sizeof(DatumMapEntry)-1);
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
     SizeType     bufferSize =
         bsls::AlignmentUtil::roundUpToMaximalAlignment(
-                        sizeof(DatumMapEntry) * (capacity + 2) + keysCapacity);
+                        sizeof(DatumMapEntry) * (capacity + 1) + keysCapacity);
     void * const mem = basicAllocator->allocate(bufferSize);
 
-    // Store size of the map in the front.
-    SizeType *size = static_cast<SizeType *>(mem);
-    *size = 0;
+    // Store map header in the front ( 1 DatumMapEntry ).
+    Datum_MapHeader *header = static_cast<Datum_MapHeader *>(mem);
 
-    // Map is unsorted to start with.
-    bool *sorted = reinterpret_cast<bool *>(
-                                        static_cast<DatumMapEntry *>(mem) + 1);
-    *sorted = false;
+    header->d_size     = 0;
+    header->d_sorted   = false;
+    header->d_ownsKeys = true;
+
     char *keysMem = static_cast<char *>(mem)
-                                    + (sizeof(DatumMapEntry) * (capacity + 2));
+                                    + (sizeof(DatumMapEntry) * (capacity + 1));
+
     *result = DatumMutableMapOwningKeysRef(
-                                         static_cast<DatumMapEntry *>(mem) + 2,
-                                         size,
+                                         static_cast<DatumMapEntry *>(mem) + 1,
+                                         &header->d_size,
                                          keysMem,
-                                         sorted);
+                                         &header->d_sorted);
 }
 
 char *Datum::createUninitializedString(Datum            *result,
@@ -1210,34 +1199,10 @@ Datum Datum::clone(bslma::Allocator *basicAllocator) const
 {
     BSLS_ASSERT(basicAllocator);
     Datum result = createNull();
-    bool  isSuccess;
 
-    Datum_CopyVisitor cv(&result, &isSuccess, basicAllocator);
+    Datum_CopyVisitor cv(&result, basicAllocator);
     apply(cv);
 
-    if (isSuccess) {
-        return result;                                                // RETURN
-    }
-
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-    const ExtendedInternalDataType extType = extendedInternalType();
-    if (e_EXTENDED_INTERNAL_MAP == extType) {
-        return copyMap(theMap(), basicAllocator);                     // RETURN
-    }
-
-    if (e_EXTENDED_INTERNAL_OWNED_MAP == extType) {
-        return copyMapOwningKeys(theMap(), basicAllocator);           // RETURN
-    }
-#else   // BSLS_PLATFORM_CPU_32_BIT
-    const InternalDataType type = internalType();
-    if (e_INTERNAL_MAP == type) {
-        return copyMap(theMap(), basicAllocator);                     // RETURN
-    }
-    if (e_INTERNAL_OWNED_MAP == type) {
-        return copyMapOwningKeys(theMap(), basicAllocator);           // RETURN
-    }
-#endif  // BSLS_PLATFORM_CPU_32_BIT
-    BSLS_ASSERT(!"Failed to clone");
     return result;
 }
 
