@@ -319,7 +319,7 @@ using bdldfp::Decimal64;
 //                            // class DatumMapRef
 //                            // -----------------
 // CREATORS
-// [13] DatumMapRef(const DatumMapEntry *, SizeType, bool);
+// [13] DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
 //
 // ACCESSORS
 // [13] const DatumMapEntry& operator[](SizeType index) const;
@@ -1582,7 +1582,7 @@ int main(int argc, char *argv[])
 // Next, we verify that the created object actually represents a string value
 // and verify that the value was set correctly:
 //..
-    ASSERT(cityName.isString());
+    ASSERT(true     == cityName.isString());
     ASSERT("Boston" == cityName.theString());
 //..
 // Finally, we destroy the 'cityName' object to deallocate memory used to hold
@@ -1779,7 +1779,7 @@ int main(int argc, char *argv[])
 //..
     Sequence sequence;
     const Datum datumS0 = Datum::createUdt(&sequence, e_SEQUENCE);
-    ASSERT(datumS0.isUdt());
+    ASSERT(true == datumS0.isUdt());
 //..
 // Next, we verify that the 'datumS0' refers to the external 'Sequence' object:
 //..
@@ -1792,7 +1792,7 @@ int main(int argc, char *argv[])
 //..
     enum { e_FATAL_ERROR = 100 };
     Datum datumError = Datum::createError(e_FATAL_ERROR, "Fatal error.", &oa);
-    ASSERT(datumError.isError());
+    ASSERT(true == datumError.isError());
     DatumError error = datumError.theError();
     ASSERT(e_FATAL_ERROR == error.code());
     ASSERT("Fatal error." == error.message());
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
     int buffer[] = { 1, 2, 3 };
     Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
     buffer[2] = 666;
-    ASSERT(datumBlob.isBinary());
+    ASSERT(true == datumBlob.isBinary());
     DatumBinaryRef blob = datumBlob.theBinary();
     ASSERT(blob.size() == 3 * sizeof(int));
     ASSERT(reinterpret_cast<const int*>(blob.data())[2] == 3);
@@ -2788,7 +2788,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isBoolean());
+                    ASSERT(true  == D.isBoolean());
                     ASSERT(VALUE == D.theBoolean());
 
                     const Datum DC = D.clone(&ca);
@@ -2796,7 +2796,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(DC.isBoolean());
+                    ASSERT(true  == DC.isBoolean());
                     ASSERT(VALUE == DC.theBoolean());
 
                     Datum::destroy(D, &oa);
@@ -2831,7 +2831,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isDate());
+                    ASSERT(true  == D.isDate());
                     ASSERT(VALUE == D.theDate());
 
                     const Datum DC = D.clone(&ca);
@@ -2871,14 +2871,14 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == da.numBlocksInUse());
 
-                    ASSERT(D.isDatetime());
+                    ASSERT(true  == D.isDatetime());
                     ASSERT(VALUE == D.theDatetime());
 
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(0 == da.numBlocksInUse());
 
-                    ASSERT(DC.isDatetime());
+                    ASSERT(true  == DC.isDatetime());
                     ASSERT(VALUE == DC.theDatetime());
 
                     Datum::destroy(D, &oa);
@@ -2925,14 +2925,14 @@ int main(int argc, char *argv[])
 
                     Int64 bytesInUse = oa.numBytesInUse();
 
-                    ASSERT(D.isDatetimeInterval());
+                    ASSERT(true  == D.isDatetimeInterval());
                     ASSERT(VALUE == D.theDatetimeInterval());
 
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
 
-                    ASSERT(DC.isDatetimeInterval());
+                    ASSERT(true  == DC.isDatetimeInterval());
                     ASSERT(VALUE == DC.theDatetimeInterval());
 
                     Datum::destroy(D, &oa);
@@ -2982,7 +2982,8 @@ int main(int argc, char *argv[])
 
                     Int64 bytesInUse = oa.numBytesInUse();
 
-                    ASSERT(D.isDecimal64());
+                    ASSERT(true == D.isDecimal64());
+
                     if (EQUAL) {
                         ASSERT(VALUE == D.theDecimal64());
                     } else {
@@ -2992,7 +2993,8 @@ int main(int argc, char *argv[])
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(bytesInUse == ca.numBytesInUse());
-                    ASSERT(DC.isDecimal64());
+                    ASSERT(true       == DC.isDecimal64());
+
                     if (EQUAL) {
                         ASSERT(VALUE == DC.theDecimal64());
                     } else {
@@ -3048,7 +3050,8 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isDouble());
+                    ASSERT(true == D.isDouble());
+
                     if (EQUAL) {
                         ASSERT(VALUE == D.theDouble());
                     } else {
@@ -3059,7 +3062,8 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(DC.isDouble());
+                    ASSERT(true == DC.isDouble());
+
                     if (EQUAL) {
                         ASSERT(VALUE == DC.theDouble());
                     } else {
@@ -3103,14 +3107,14 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isError());
+                    ASSERT(true == D.isError());
                     ASSERT(DatumError(ERROR) == D.theError());
 
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(DC.isError());
+                    ASSERT(true == DC.isError());
                     ASSERT(DatumError(ERROR) == DC.theError());
 
                     Datum::destroy(D, &oa);
@@ -3138,13 +3142,13 @@ int main(int argc, char *argv[])
 
                         Int64 bytesInUse = oa.numBytesInUse();
 
-                        ASSERT(D.isError());
+                        ASSERT(true == D.isError());
                         ASSERT(DatumError(ERROR, MESSAGE) == D.theError());
 
                         const Datum DC = D.clone(&ca);
 
                         ASSERT(bytesInUse == ca.numBytesInUse());
-                        ASSERT(DC.isError());
+                        ASSERT(true == DC.isError());
                         ASSERT(DatumError(ERROR, MESSAGE) == DC.theError());
 
                         Datum::destroy(D, &oa);
@@ -3186,14 +3190,14 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isInteger());
+                    ASSERT(true  == D.isInteger());
                     ASSERT(VALUE == D.theInteger());
 
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(DC.isInteger());
+                    ASSERT(true  == DC.isInteger());
                     ASSERT(VALUE == DC.theInteger());
 
                     Datum::destroy(D, &oa);
@@ -3239,7 +3243,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_64_BIT
 
-                    ASSERT(D.isInteger64());
+                    ASSERT(true  == D.isInteger64());
                     ASSERT(VALUE == D.theInteger64());
 
                     const Datum DC = D.clone(&ca);
@@ -3249,7 +3253,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_64_BIT
 
-                    ASSERT(DC.isInteger64());
+                    ASSERT(true  == DC.isInteger64());
                     ASSERT(VALUE == DC.theInteger64());
 
                     Datum::destroy(D, &oa);
@@ -3269,11 +3273,12 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                ASSERT(D.isNull());
+                ASSERT(true == D.isNull());
 
                 const Datum DC = D.clone(&ca);
 
                 ASSERT(0 == ca.numBlocksInUse()); // non allocating type
+                ASSERT(true == DC.isNull());
 
                 Datum::destroy(D, &oa);
                 Datum::destroy(DC, &ca);
@@ -3321,8 +3326,8 @@ int main(int argc, char *argv[])
 
                         const Datum D = Datum::createStringRef(STRING, &oa);
 
-                        ASSERT(D.isString());
-                        ASSERT(D.isExternalReference());
+                        ASSERT(true   == D.isString());
+                        ASSERT(true   == D.isExternalReference());
                         ASSERT(STRING == D.theString());
 
                         const Datum DC = D.clone(&ca);
@@ -3343,8 +3348,8 @@ int main(int argc, char *argv[])
                         }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                        ASSERT(DC.isString());
-                        ASSERT(!DC.isExternalReference());
+                        ASSERT(true   == DC.isString());
+                        ASSERT(false  == DC.isExternalReference());
                         ASSERT(STRING == DC.theString());
 
                         Datum::destroy(D, &oa);
@@ -3380,14 +3385,14 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                    ASSERT(D.isTime());
+                    ASSERT(true  == D.isTime());
                     ASSERT(VALUE == D.theTime());
 
                     const Datum DC = D.clone(&ca);
 
                     ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                    ASSERT(DC.isTime());
+                    ASSERT(true  == DC.isTime());
                     ASSERT(VALUE == DC.theTime());
 
                     Datum::destroy(D, &oa);
@@ -3412,14 +3417,14 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                ASSERT(D.isUdt());
+                ASSERT(true  == D.isUdt());
                 ASSERT(VALUE == D.theUdt());
 
                 const Datum DC = D.clone(&ca);
 
                 ASSERT(0 == ca.numBlocksInUse()); // non allocating type
 
-                ASSERT(DC.isUdt());
+                ASSERT(true  == DC.isUdt());
                 ASSERT(VALUE == DC.theUdt());
 
                 Datum::destroy(D, &oa);
@@ -3454,8 +3459,8 @@ int main(int argc, char *argv[])
                     }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                    ASSERT(D.isBinary());
-                    ASSERT(REF == D.theBinary());
+                    ASSERT(true == D.isBinary());
+                    ASSERT(REF  == D.theBinary());
 
                     const Datum DC = D.clone(&ca);
 
@@ -3470,8 +3475,8 @@ int main(int argc, char *argv[])
                     }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                    ASSERT(DC.isBinary());
-                    ASSERT(REF == DC.theBinary());
+                    ASSERT(true == DC.isBinary());
+                    ASSERT(REF  == DC.theBinary());
 
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
@@ -3509,8 +3514,8 @@ int main(int argc, char *argv[])
                         ASSERT(0 != bytesInUse);
                     }
 
-                    ASSERT(D.isString());
-                    ASSERT(REF == D.theString());
+                    ASSERT(true == D.isString());
+                    ASSERT(REF  == D.theString());
 
                     const Datum DC = D.clone(&ca);
 
@@ -3527,8 +3532,8 @@ int main(int argc, char *argv[])
                         ASSERT(0 != bytesInUse);
                     }
 
-                    ASSERT(DC.isString());
-                    ASSERT(REF == DC.theString());
+                    ASSERT(true == DC.isString());
+                    ASSERT(REF  == DC.theString());
 
                     Datum::destroy(D, &oa);
                     Datum::destroy(DC, &ca);
@@ -3553,16 +3558,16 @@ int main(int argc, char *argv[])
             Datum         dummyDatum;
             DatumArrayRef REF(&dummyDatum, 0);
 
-            ASSERT(D.isArray());
-            ASSERT(REF == D.theArray());
+            ASSERT(true == D.isArray());
+            ASSERT(REF  == D.theArray());
 
             Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isArray());
-            ASSERT(REF == DC.theArray());
+            ASSERT(true == DC.isArray());
+            ASSERT(REF  == DC.theArray());
 
             Datum::destroy(D, &oa);
             Datum::destroy(DC, &ca);
@@ -3589,16 +3594,16 @@ int main(int argc, char *argv[])
 
             DatumArrayRef REF(array.data(), 6);
 
-            ASSERT(D.isArray());
-            ASSERT(REF == D.theArray());
+            ASSERT(true == D.isArray());
+            ASSERT(REF  == D.theArray());
 
             Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isArray());
-            ASSERT(REF == DC.theArray());
+            ASSERT(true == DC.isArray());
+            ASSERT(REF  == DC.theArray());
 
             Datum::destroy(D, &oa);
             Datum::destroy(DC, &ca);
@@ -3616,14 +3621,18 @@ int main(int argc, char *argv[])
             DatumMutableMapRef map;
             const Datum        D = Datum::adoptMap(map);
 
-            ASSERT(D.isMap());
+            ASSERT(true  == D.isMap());
+            // Empty maps never owns the keys.
+            ASSERT(false == D.theMap().ownsKeys());
 
             Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isMap());
+            ASSERT(true   == DC.isMap());
+            // Empty maps never owns the keys.
+            ASSERT(false  == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3655,14 +3664,15 @@ int main(int argc, char *argv[])
             *(map.sorted()) = false;
             const Datum D = Datum::adoptMap(map);
 
-            ASSERT(D.isMap());
-
-            Int64 bytesInUse = oa.numBytesInUse();
+            ASSERT(true  == D.isMap());
+            ASSERT(false == D.theMap().ownsKeys());
+            ASSERT(0     != oa.numBytesInUse());
 
             const Datum DC = D.clone(&ca);
 
-            ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isMap());
+            ASSERT(0    != ca.numBytesInUse());
+            ASSERT(true == DC.isMap());
+            ASSERT(true == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3682,14 +3692,18 @@ int main(int argc, char *argv[])
             DatumMutableMapOwningKeysRef map;
             const Datum                  D = Datum::adoptMap(map);
 
-            ASSERT(D.isMap());
+            ASSERT(true  == D.isMap());
+            // Empty maps never owns the keys.
+            ASSERT(false == D.theMap().ownsKeys());
 
             Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isMap());
+            ASSERT(true  == DC.isMap());
+            // Empty maps never owns the keys.
+            ASSERT(false == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3744,14 +3758,16 @@ int main(int argc, char *argv[])
 
             const Datum D = Datum::adoptMap(map);
 
-            ASSERT(D.isMap());
+            ASSERT(true == D.isMap());
+            ASSERT(true == D.theMap().ownsKeys());
 
             Int64 bytesInUse = oa.numBytesInUse();
 
             const Datum DC = D.clone(&ca);
 
             ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isMap());
+            ASSERT(true == DC.isMap());
+            ASSERT(true == DC.theMap().ownsKeys());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -3795,14 +3811,13 @@ int main(int argc, char *argv[])
 
             const Datum D = Datum::adoptArray(array);
 
-            ASSERT(D.isArray());
-
-            Int64 bytesInUse = oa.numBytesInUse();
+            ASSERT(true == D.isArray());
+            ASSERT(0    != oa.numBytesInUse());
 
             const Datum DC = D.clone(&ca);
 
-            ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isArray());
+            ASSERT(0            != ca.numBytesInUse());
+            ASSERT(true         == DC.isArray());
             ASSERT(D.theArray() == DC.theArray());
 
             Datum::destroy(D, &oa);
@@ -3845,14 +3860,13 @@ int main(int argc, char *argv[])
 
             const Datum D = Datum::adoptMap(map);
 
-            ASSERT(D.isMap());
-
-            Int64 bytesInUse = oa.numBytesInUse();
+            ASSERT(true == D.isMap());
+            ASSERT(0    != oa.numBytesInUse());
 
             const Datum DC = D.clone(&ca);
 
-            ASSERT(bytesInUse == ca.numBytesInUse());
-            ASSERT(DC.isMap());
+            ASSERT(0          != ca.numBytesInUse());
+            ASSERT(true       == DC.isMap());
             ASSERT(D.theMap() == DC.theMap());
 
             Datum::destroy(D, &oa);
@@ -5001,7 +5015,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == D.theMap().isSorted());
 
                 DatumMapEntry *mp = 0;
-                DatumMapRef    mapRef(mp, 0, false);
+                DatumMapRef    mapRef(mp, 0, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5053,7 +5067,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, false);
+                DatumMapRef mapRef(map.data(), capacity, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5107,7 +5121,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(true == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, true);
+                DatumMapRef mapRef(map.data(), capacity, true, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5152,12 +5166,27 @@ int main(int argc, char *argv[])
                 Datum        mD = Datum::adoptMap(map);
                 const Datum& D = mD;
 
-                ASSERT(D.isMap());
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isMap());              // *
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
                 ASSERT(!D.isExternalReference());
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), capacity, false);
+                DatumMapRef mapRef(map.data(), capacity, false, false);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5197,7 +5226,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == D.theMap().isSorted());
 
                 DatumMapEntry *mp = 0;
-                DatumMapRef    mapRef(mp, 0, false);
+                DatumMapRef    mapRef(mp, 0, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5271,7 +5300,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, false);
+                DatumMapRef mapRef(map.data(), mapCapacity, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5345,7 +5374,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(true == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, true);
+                DatumMapRef mapRef(map.data(), mapCapacity, true, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5399,12 +5428,27 @@ int main(int argc, char *argv[])
                 Datum        mD = Datum::adoptMap(map);
                 const Datum& D = mD;
 
-                ASSERT(D.isMap());
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isMap());              // *
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
                 ASSERT(!D.isExternalReference());
 
                 ASSERT(false == D.theMap().isSorted());
 
-                DatumMapRef mapRef(map.data(), mapCapacity, false);
+                DatumMapRef mapRef(map.data(), mapCapacity, false, true);
                 ASSERT(mapRef == D.theMap());
 
                 Datum::destroy(D, &oa);
@@ -5841,10 +5885,11 @@ int main(int argc, char *argv[])
         //:   sorted and unsorted maps.
         //
         // Testing:
-        //   DatumMapRef(const DatumMapEntry *, SizeType, bool);
+        //   DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
         //   const DatumMapEntry& operator[](SizeType index) const;
         //   const DatumMapEntry *data() const;
         //   bool isSorted() const;
+        //   bool ownsKeys() const;
         //   SizeType size() const;
         //   const Datum *find(const bslstl::StringRef& key) const;
         //   bsl::ostream& print(bsl::ostream&, int,int) const;
@@ -5878,11 +5923,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting value constructor." << endl;
         {
-            const DatumMapRef obj(map, size, false);
+            const DatumMapRef obj(map, size, false, false);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
             ASSERT(size       == obj.size());
             ASSERT(false      == obj.isSorted());
+            ASSERT(false      == obj.ownsKeys());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
 
@@ -5891,10 +5937,26 @@ int main(int argc, char *argv[])
             }
         }
         {
-            const DatumMapRef obj(map, size, true);
+            const DatumMapRef obj(map, size, true, false);
             ASSERT(bytesInUse == oa.numBytesInUse());
             ASSERT(size       == obj.size());
             ASSERT(true       == obj.isSorted());
+            ASSERT(false      == obj.ownsKeys());
+            for (size_t i = 0; i < obj.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
+
+                ASSERTV(i, map[i] == obj.data()[i]);
+                ASSERTV(i, map[i] == obj[i]);
+            }
+        }
+        {
+            // Note that ownKeys is set to 'true' only to test 'ownsKey'
+            // accessor.
+            const DatumMapRef obj(map, size, true, true);
+            ASSERT(bytesInUse == oa.numBytesInUse());
+            ASSERT(size       == obj.size());
+            ASSERT(true       == obj.isSorted());
+            ASSERT(true       == obj.ownsKeys());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
 
@@ -5906,7 +5968,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting copy constructor for non-sorted map."
                           << endl;
         {
-            const DatumMapRef obj(map, size, false);
+            const DatumMapRef obj(map, size, false, false);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
 
@@ -5923,6 +5985,7 @@ int main(int argc, char *argv[])
 
             ASSERT(size  == obj.size());
             ASSERT(false == obj.isSorted());
+            ASSERT(false == obj.ownsKeys());
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
 
@@ -5934,14 +5997,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting copy constructor for sorted map."
                           << endl;
         {
-            const DatumMapRef obj(map, size, true);
+            const DatumMapRef obj(map, size, true, false);
 
             ASSERT(bytesInUse == oa.numBytesInUse());
 
             const DatumMapRef objCopy(obj);
 
-            ASSERT(size == objCopy.size());
-            ASSERT(true == objCopy.isSorted());
+            ASSERT(size  == objCopy.size());
+            ASSERT(true  == objCopy.isSorted());
+            ASSERT(false == obj.ownsKeys());
+
             for (size_t i = 0; i < objCopy.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(objCopy[i]) }
 
@@ -5949,8 +6014,10 @@ int main(int argc, char *argv[])
                 ASSERTV(i, map[i] == objCopy[i]);
             }
 
-            ASSERT(size == obj.size());
-            ASSERT(true == obj.isSorted());
+            ASSERT(size  == obj.size());
+            ASSERT(true  == obj.isSorted());
+            ASSERT(false == obj.ownsKeys());
+
             for (size_t i = 0; i < obj.size(); ++i) {
                 if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
 
@@ -5961,7 +6028,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'print'." << endl;
         {
-            const DatumMapRef obj(map, size, false);
+            const DatumMapRef obj(map, size, false, false);
 
             if (verbose) cout << "\tTesting single-line format." << endl;
             {
@@ -6072,7 +6139,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'operator<<'." << endl;
         {
-            const DatumMapRef obj(map, size, false);
+            const DatumMapRef obj(map, size, false, false);
 
             bsl::ostringstream os;
             os << obj;
@@ -6152,9 +6219,12 @@ int main(int argc, char *argv[])
                 } DATA[] = {
      //LINE VALUE
      //---- -------------------
-     { L_,  DatumMapRef(map1, SIZE1, true), DatumMapRef(map1c, SIZE1, false) },
-     { L_,  DatumMapRef(map2, SIZE2, true), DatumMapRef(map2c, SIZE2, false) },
-     { L_,  DatumMapRef(map3, SIZE3, true), DatumMapRef(map3c, SIZE3, false) },
+     { L_,  DatumMapRef(map1, SIZE1, true, false),
+                                     DatumMapRef(map1c, SIZE1, false, false) },
+     { L_,  DatumMapRef(map2, SIZE2, true, false),
+                                     DatumMapRef(map2c, SIZE2, false, false) },
+     { L_,  DatumMapRef(map3, SIZE3, true, false),
+                                     DatumMapRef(map3c, SIZE3, false, false) },
      };
 
                 const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
@@ -6236,7 +6306,11 @@ int main(int argc, char *argv[])
                                                       static_cast<int>(i) + 1);
                     entries[i] = DatumMapEntry(keys[i], value);
                 }
-                const DatumMapRef obj(entries.data(), NUM_ENTRIES, false);
+                const DatumMapRef obj(entries.data(),
+                                      NUM_ENTRIES,
+                                      false,
+                                      false);
+
                 for (size_t i = 0; i < NUM_ENTRIES; ++i) {
                     const Datum *value = obj.find(entries[i].key());
 
@@ -6257,7 +6331,11 @@ int main(int argc, char *argv[])
                                                       static_cast<int>(i) + 1);
                     entries[i] = DatumMapEntry(keys[i], value);
                 }
-                const DatumMapRef obj(entries.data(), NUM_ENTRIES, true);
+                const DatumMapRef obj(entries.data(),
+                                      NUM_ENTRIES,
+                                      true,
+                                      false);
+
                 for (size_t i = 0; i < NUM_ENTRIES; ++i) {
                     const Datum *value = obj.find(entries[i].key());
 
@@ -6281,10 +6359,10 @@ int main(int argc, char *argv[])
                 const DatumMapEntry *NULL_DME_PTR =
                                                static_cast<DatumMapEntry *>(0);
 
-                ASSERT_SAFE_PASS(DatumMapRef(NULL_DME_PTR, 0, false));
-                ASSERT_SAFE_FAIL(DatumMapRef(NULL_DME_PTR, 1, false));
-                ASSERT_SAFE_PASS(DatumMapRef(&TEMP,        0, false));
-                ASSERT_SAFE_PASS(DatumMapRef(&TEMP,        1, false));
+                ASSERT_SAFE_PASS(DatumMapRef(NULL_DME_PTR, 0, false, false));
+                ASSERT_SAFE_FAIL(DatumMapRef(NULL_DME_PTR, 1, false, false));
+                ASSERT_SAFE_PASS(DatumMapRef(&TEMP,        0, false, false));
+                ASSERT_SAFE_PASS(DatumMapRef(&TEMP,        1, false, false));
             }
 
             if (verbose) cout << "\tTesting 'operator[]'." << endl;
@@ -6296,7 +6374,7 @@ int main(int argc, char *argv[])
                     DatumMapEntry(KEY3, Datum::createNull())
                 };
 
-                const DatumMapRef obj(MAP, SIZE, false);
+                const DatumMapRef obj(MAP, SIZE, false, false);
 
                 ASSERT_SAFE_FAIL(obj[SIZE  ]);
                 ASSERT_SAFE_PASS(obj[SIZE-1]);
@@ -7303,7 +7381,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                ASSERT(Z.isBoolean());
+                ASSERT(true  == Z.isBoolean());
                 ASSERT(VALUE == Z.theBoolean());
 
                 const Datum X(Z);
@@ -7311,11 +7389,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isBoolean());
+                ASSERT(true == X.isBoolean());
                 ASSERTV(VALUE, VALUE == X.theBoolean());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isBoolean());
+                ASSERT(true  == Z.isBoolean());
                 ASSERT(VALUE == Z.theBoolean());
 
                 Datum::destroy(Z, &oa);
@@ -7347,7 +7425,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
-                ASSERT(Z.isDate());
+                ASSERT(true  == Z.isDate());
                 ASSERT(VALUE == Z.theDate());
 
                 const Datum X(Z);
@@ -7355,11 +7433,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBlocksInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isDate());
+                ASSERT(true == X.isDate());
                 ASSERTV(VALUE, VALUE == X.theDate());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isDate());
+                ASSERT(true  == Z.isDate());
                 ASSERT(VALUE == Z.theDate());
 
                 Datum::destroy(Z, &oa);
@@ -7391,7 +7469,7 @@ int main(int argc, char *argv[])
 
                 Int64 bytesInUse = oa.numBytesInUse();
 
-                ASSERT(Z.isDatetime());
+                ASSERT(true  == Z.isDatetime());
                 ASSERT(VALUE == Z.theDatetime());
 
                 const Datum X(Z);
@@ -7399,11 +7477,11 @@ int main(int argc, char *argv[])
                 ASSERT(bytesInUse == oa.numBytesInUse());
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isDatetime());
+                ASSERT(true == X.isDatetime());
                 ASSERTV(VALUE, VALUE == X.theDatetime());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isDatetime());
+                ASSERT(true  == Z.isDatetime());
                 ASSERT(VALUE == Z.theDatetime());
 
                 Datum::destroy(Z, &oa);
@@ -7446,7 +7524,7 @@ int main(int argc, char *argv[])
 
                 Int64 bytesInUse = oa.numBytesInUse();
 
-                ASSERT(Z.isDatetimeInterval());
+                ASSERT(true  == Z.isDatetimeInterval());
                 ASSERT(VALUE == Z.theDatetimeInterval());
 
                 const Datum X(Z);
@@ -7454,11 +7532,11 @@ int main(int argc, char *argv[])
                 ASSERT(bytesInUse == oa.numBytesInUse());
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isDatetimeInterval());
+                ASSERT(true == X.isDatetimeInterval());
                 ASSERTV(VALUE, VALUE == X.theDatetimeInterval());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isDatetimeInterval());
+                ASSERT(true  == Z.isDatetimeInterval());
                 ASSERT(VALUE == Z.theDatetimeInterval());
 
                 Datum::destroy(Z, &oa);
@@ -7509,7 +7587,7 @@ int main(int argc, char *argv[])
 
                 Int64 bytesInUse = oa.numBytesInUse();
 
-                ASSERT(Z.isDecimal64());
+                ASSERT(true == Z.isDecimal64());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDecimal64());
                 } else {
@@ -7521,7 +7599,7 @@ int main(int argc, char *argv[])
                 ASSERT(bytesInUse == oa.numBytesInUse());
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isDecimal64());
+                ASSERT(true == X.isDecimal64());
                 if (EQUAL) {
                     ASSERT(VALUE == X.theDecimal64());
                 } else {
@@ -7529,7 +7607,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isDecimal64());
+                ASSERT(true == Z.isDecimal64());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDecimal64());
                 } else {
@@ -7583,7 +7661,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-                ASSERT(Z.isDouble());
+                ASSERT(true == Z.isDouble());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDouble());
                 } else {
@@ -7595,7 +7673,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isDouble());
+                ASSERT(true == X.isDouble());
                 if (EQUAL) {
                     ASSERT(VALUE == X.theDouble());
                 } else {
@@ -7603,7 +7681,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isDouble());
+                ASSERT(true == Z.isDouble());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDouble());
                 } else {
@@ -7646,7 +7724,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-                ASSERT(Z.isError());                // *
+                ASSERT(true == Z.isError());
                 ASSERTV(ERROR, DatumError(ERROR) == Z.theError());
 
                 const Datum X(Z);
@@ -7654,11 +7732,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isError());
+                ASSERT(true == X.isError());
                 ASSERTV(ERROR, DatumError(ERROR) == X.theError());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isError());
+                ASSERT(true == Z.isError());
                 ASSERTV(ERROR, DatumError(ERROR) == Z.theError());
 
                 Datum::destroy(Z, &oa);
@@ -7683,7 +7761,7 @@ int main(int argc, char *argv[])
 
                     Int64 bytesInUse = oa.numBytesInUse();
 
-                    ASSERT(Z.isError());
+                    ASSERT(true == Z.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == Z.theError());
 
                     const Datum X(Z);
@@ -7691,11 +7769,11 @@ int main(int argc, char *argv[])
                     ASSERT(bytesInUse == oa.numBytesInUse());
 
                     // Verify the type and the value of the object.
-                    ASSERT(X.isError());
+                    ASSERT(true == X.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == X.theError());
 
                     // Verify that the value of 'Z' has not changed.
-                    ASSERT(Z.isError());
+                    ASSERT(true == Z.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == Z.theError());
 
                     Datum::destroy(Z, &oa);
@@ -7733,20 +7811,20 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-                ASSERT(Z.isInteger());
-                ASSERTV(VALUE,  VALUE == Z.theInteger());
+                ASSERT(true == Z.isInteger());
+                ASSERTV(VALUE, VALUE == Z.theInteger());
 
                 const Datum X(Z);
 
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isInteger());
-                ASSERTV(VALUE,  VALUE == X.theInteger());
+                ASSERT(true == X.isInteger());
+                ASSERTV(VALUE, VALUE == X.theInteger());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isInteger());
-                ASSERTV(VALUE,  VALUE == Z.theInteger());
+                ASSERT(true == Z.isInteger());
+                ASSERTV(VALUE, VALUE == Z.theInteger());
 
                 Datum::destroy(Z, &oa);
 
@@ -7789,8 +7867,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
-                ASSERT(Z.isInteger64());
-                ASSERT(VALUE == Z.theInteger64());
+                ASSERT(true  == Z.isInteger64());
+                ASSERTV(VALUE, VALUE == Z.theInteger64());
 
                 const Datum X(Z);
 
@@ -7801,12 +7879,12 @@ int main(int argc, char *argv[])
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isInteger64());
-                ASSERTV(VALUE,  VALUE == X.theInteger64());
+                ASSERT(true == X.isInteger64());
+                ASSERTV(VALUE, VALUE == X.theInteger64());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isInteger64());
-                ASSERTV(VALUE,  VALUE == Z.theInteger64());
+                ASSERT(true == Z.isInteger64());
+                ASSERTV(VALUE, VALUE == Z.theInteger64());
 
                 Datum::destroy(Z, &oa);
 
@@ -7822,17 +7900,17 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-            ASSERT(Z.isNull());
+            ASSERT(true == Z.isNull());
 
             const Datum X(Z);
 
             ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
             // Verify the type and the value of the object.
-            ASSERT(X.isNull());
+            ASSERT(true == X.isNull());
 
             // Verify that the value of 'Z' has not changed.
-            ASSERT(Z.isNull());
+            ASSERT(true == Z.isNull());
 
             Datum::destroy(Z, &oa);
 
@@ -7872,7 +7950,7 @@ int main(int argc, char *argv[])
 
                     Int64 bytesInUse = oa.numBytesInUse();
 
-                    ASSERT(Z.isString());
+                    ASSERT(true   == Z.isString());
                     ASSERT(STRING == Z.theString());
 
                     const Datum X(Z);
@@ -7880,11 +7958,11 @@ int main(int argc, char *argv[])
                     ASSERT(bytesInUse == oa.numBytesInUse());
 
                     // Verify the type and the value of the object.
-                    ASSERT(X.isString());
+                    ASSERT(true    == X.isString());
                     ASSERTV(STRING == X.theString());
 
                     // Verify that the value of 'Z' has not changed.
-                    ASSERT(Z.isString());
+                    ASSERT(true   == Z.isString());
                     ASSERT(STRING == Z.theString());
 
                     Datum::destroy(Z, &oa);
@@ -7917,7 +7995,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-                ASSERT(Z.isTime());
+                ASSERT(true  == Z.isTime());
                 ASSERT(VALUE == Z.theTime());
 
                 const Datum X(Z);
@@ -7925,11 +8003,11 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isTime());
+                ASSERT(true  == X.isTime());
                 ASSERT(VALUE == X.theTime());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isTime());
+                ASSERT(true  == Z.isTime());
                 ASSERT(VALUE == Z.theTime());
 
                 Datum::destroy(Z, &oa);
@@ -7951,7 +8029,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
-            ASSERT(Z.isUdt());
+            ASSERT(true  == Z.isUdt());
             ASSERT(VALUE == Z.theUdt());
 
             const Datum X(Z);
@@ -7959,11 +8037,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.numBytesInUse()); // non allocating type
 
             // Verify the type and the value of the object.
-            ASSERT(X.isUdt());
+            ASSERT(true  == X.isUdt());
             ASSERT(VALUE == X.theUdt());
 
             // Verify that the value of 'Z' has not changed.
-            ASSERT(Z.isUdt());
+            ASSERT(true  == Z.isUdt());
             ASSERT(VALUE == Z.theUdt());
 
             Datum::destroy(Z, &oa);
@@ -7991,20 +8069,20 @@ int main(int argc, char *argv[])
                 }
 #endif // BSLS_PLATFORM_CPU_64_BIT
 
-                ASSERT(Z.isBinary());
-                ASSERT(REF == Z.theBinary());
+                ASSERT(true == Z.isBinary());
+                ASSERT(REF  == Z.theBinary());
 
                 const Datum X(Z);
 
                 ASSERT(bytesInUse == oa.numBytesInUse());
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isBinary());
-                ASSERT(REF == X.theBinary());
+                ASSERT(true == X.isBinary());
+                ASSERT(REF  == X.theBinary());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isBinary());
-                ASSERT(REF == Z.theBinary());
+                ASSERT(true == Z.isBinary());
+                ASSERT(REF  == Z.theBinary());
 
                 Datum::destroy(Z, &oa);
 
@@ -8042,20 +8120,20 @@ int main(int argc, char *argv[])
                 }
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
-                ASSERT(Z.isString());
-                ASSERT(REF == Z.theString());
+                ASSERT(true == Z.isString());
+                ASSERT(REF  == Z.theString());
 
                 const Datum X(Z);
 
                 ASSERT(bytesInUse == oa.numBytesInUse());
 
                 // Verify the type and the value of the object.
-                ASSERT(X.isString());
-                ASSERT(REF == X.theString());
+                ASSERT(true == X.isString());
+                ASSERT(REF  == X.theString());
 
                 // Verify that the value of 'Z' has not changed.
-                ASSERT(Z.isString());
-                ASSERT(REF == Z.theString());
+                ASSERT(true == Z.isString());
+                ASSERT(REF  == Z.theString());
 
                 Datum::destroy(Z, &oa);
 

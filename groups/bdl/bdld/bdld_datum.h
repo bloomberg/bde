@@ -183,7 +183,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                        external   requires
 //  dataType              reference  allocation  Description
 //  --------              ---------  ----------  -----------
-//  e_UNINITIALIZED       no         no          uninitialized value
+//  e_UNINITIALIZED       no         no          uninitialized value (64-bit)
 //  e_NIL                 no         no          null value
 //  e_INTEGER             no         no          integer value
 //  e_REAL                no         no          double value
@@ -214,6 +214,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //: o *requires-allocation* - whether a 'Datum' refering to this type requires
 //:   memory allocation.  Note that for externally represented string or
 //:   arrays, meta-data may still need to be allocated.
+//
+// Note that the special type e_UNINITIALIZED exist only in the implementation
+// for 64-bit platforms and is used to catch uninitialized (and zero-filled)
+// Datum variables.  Such uninitialized variables can appear in the static data
+// sections or in not-previously-used stack frames (which are zero-filled by
+// the underlying operating system).
 //
 ///User Defined Data
 ///- - - - - - - - -
@@ -267,7 +273,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Next, we verify that the created object actually represents a string value
 // and verify that the value was set correctly:
 //..
-//  assert(cityName.isString());
+//  assert(true     == cityName.isString());
 //  assert("Boston" == cityName.theString());
 //..
 // Finally, we destroy the 'cityName' object to deallocate memory used to hold
@@ -460,7 +466,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Sequence sequence;
 //  const Datum datumS0 = Datum::createUdt(&sequence, e_SEQUENCE);
-//  assert(datumS0.isUdt());
+//  assert(true == datumS0.isUdt());
 //..
 // Next, we verify that the 'datumS0' refers to the external 'Sequence' object:
 //..
@@ -473,7 +479,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  enum { e_FATAL_ERROR = 100 };
 //  Datum datumError = Datum::createError(e_FATAL_ERROR, "Fatal error.", &oa);
-//  assert(datumError.isError());
+//  assert(true == datumError.isError());
 //  DatumError error = datumError.theError();
 //  assert(e_FATAL_ERROR == error.code());
 //  assert("Fatal error." == error.message());
@@ -484,7 +490,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  int buffer[] = { 1, 2, 3 };
 //  Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
 //  buffer[2] = 666;
-//  assert(datumBlob.isBinary());
+//  assert(true == datumBlob.isBinary());
 //  DatumBinaryRef blob = datumBlob.theBinary();
 //  assert(blob.size() == 3 * sizeof(int));
 //  assert(reinterpret_cast<const int*>(blob.data())[2] == 3);
@@ -653,17 +659,13 @@ class Datum {
     // object can be passed to 'destroy'.  The rest of those copies then become
     // invalid and it is undefined behavior to deep-copy or destroy them.
     // Although, these copies can be used on the left hand side of assignment.
-    // When copying a datum that has an array of datums, the values in the
-    // array are always cloned.  When copying a datum that has a map of datums,
-    // the values in the map are always cloned, but the keys are cloned only if
-    // the source datum has a map that owns the keys.
 
   public:
     // TYPES
     enum DataType {
         // Enumeration used to discriminate among the different externally-
         // exposed types of values that can be stored inside 'Datum'.
-        e_UNINITIALIZED          =  0  // uninitialized value
+        e_UNINITIALIZED          =  0  // uninitialized value (64-bit only)
         , e_NIL                  =  1  // null value
         , e_INTEGER              =  2  // integer value
         , e_REAL                 =  3  // double value
@@ -1849,6 +1851,20 @@ class DatumMutableArrayRef {
         // Return pointer to the length of the array.
 };
 
+                          // ======================
+                          // struct Datum_MapHeader
+                          // ======================
+
+struct Datum_MapHeader{
+    // This component-local class provides a layout of the meta-information
+    // stored in front of the Datum maps.
+
+    // DATA
+    Datum::SizeType d_size;      // size of the map
+    bool            d_sorted;    // sorted flag
+    bool            d_ownsKeys;  // owns keys flag
+};
+
                           // ========================
                           // class DatumMutableMapRef
                           // ========================
@@ -2180,20 +2196,27 @@ class DatumMapRef {
 
   private:
     // DATA
-    const DatumMapEntry *d_data_p;  // pointer to the array of 'DatumMapEntry'
-                                    // objects (not owned)
+    const DatumMapEntry *d_data_p;   // pointer to the array of 'DatumMapEntry'
+                                     // objects (not owned)
 
-    SizeType             d_size;    // length of the array
+    SizeType             d_size;     // length of the array
 
-    bool                 d_sorted;  // flag indicating whether the array is
-                                    // sorted or not
+    bool                 d_sorted;   // flag indicating whether the array is
+                                     // sorted or not
+
+    bool                 d_ownsKeys; // flag indicating whether the map owns
+                                     // the keys or not
 
   public:
     // CREATORS
-    DatumMapRef(const DatumMapEntry *data, SizeType size, bool sorted);
-        // Create a 'DatumMapRef' object having the specified 'data', 'size'
-        // and 'sorted'.  The behavior is undefined unless '0 != data' or
-        // '0 == size'.  Note that the pointer to the array is just copied.
+    DatumMapRef(const DatumMapEntry *data,
+                SizeType             size,
+                bool                 sorted,
+                bool                 ownsKeys);
+        // Create a 'DatumMapRef' object having the specified 'data' of the
+        // specified 'size' and the specified 'sorted' and 'ownsKeys' flags.
+        // The behavior is undefined unless '0 != data' or '0 == size'.  Note
+        // that the pointer to the array is just copied.
 
     //!~DatumMapRef() = default;
 
@@ -2207,6 +2230,10 @@ class DatumMapRef {
 
     bool isSorted() const;
         // Return 'true' if underlying map is sorted and 'false' otherwise.
+
+    bool ownsKeys() const;
+        // Return 'true' if underlying map owns the keys and 'false' otherwise.
+        // Note that 'false' is always returned for zero-sized 'DatumMapRef'.
 
     SizeType size() const;
         // Return the size of the map.
@@ -3347,13 +3374,16 @@ DatumMapRef Datum::theMap() const
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
     if (map) {
-        const DatumMapEntry *data = map + 1;
-        const SizeType       size =  *reinterpret_cast<const SizeType *>(map);
-        const bool           sorted = *reinterpret_cast<const bool *>(data);
+        // Map header takes first DatumMapEntry
+        const Datum_MapHeader *header =
+                                reinterpret_cast<const Datum_MapHeader *>(map);
 
-        return DatumMapRef(data + 1, size, sorted);                   // RETURN
+        return DatumMapRef(map + 1,
+                           header->d_size,
+                           header->d_sorted,
+                           header->d_ownsKeys);                       // RETURN
     }
-    return DatumMapRef(0, 0, false);
+    return DatumMapRef(0, 0, false, false);
 }
 
 inline
@@ -3738,12 +3768,17 @@ const Datum& DatumMapEntry::value() const
 inline
 DatumMapRef::DatumMapRef(const DatumMapEntry *data,
                          SizeType             size,
-                         bool                 sorted)
+                         bool                 sorted,
+                         bool                 ownsKeys)
 : d_data_p(data)
 , d_size(size)
 , d_sorted(sorted)
+, d_ownsKeys(ownsKeys)
 {
     BSLS_ASSERT_SAFE((size && data) || !size);
+    if (0 == size) {
+        d_ownsKeys = false;
+    }
 }
 
 // ACCESSORS
@@ -3764,6 +3799,12 @@ inline
 bool DatumMapRef::isSorted() const
 {
     return d_sorted;
+}
+
+inline
+bool DatumMapRef::ownsKeys() const
+{
+    return d_ownsKeys;
 }
 
 inline
