@@ -139,44 +139,50 @@ typedef balst::StackTracePrintUtil           PrintUtil;
 typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
 #if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
+    enum { e_FORMAT_ELF = 1, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
-    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=1, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=1, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_HPUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=1, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
 # else
 #   error unknown platform
 # endif
 
-#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1,
-                                                            FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0,
-                                                            FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
-#elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0,
-                                                            FORMAT_DWARF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
+#elif defined(BALST_OBJECTFILEe_FORMAT_RESOLVER_DLADDR)
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 1,
+                                                          e_FORMAT_DWARF = 0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=0 };
+#elif defined(BALST_OBJECTFILEe_FORMAT_RESOLVER_WINDOWS)
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 1, e_FORMAT_DLADDR = 0,
+                                                          e_FORMAT_DWARF = 0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=0,
+                                                                e_PLAT_WIN=1 };
+#elif defined(BALST_OBJECTFILEe_FORMAT_RESOLVER_XCOFF)
+    enum { e_FORMAT_ELF = 0, e_FORMAT_WINDOWS = 0, e_FORMAT_DLADDR = 0,
+                                                          e_FORMAT_DWARF = 0 };
+    enum { e_PLAT_SUN=0, e_PLAT_LINUX=0, e_PLAT_HP=0, e_PLAT_AIX=1,
+                                                                e_PLAT_WIN=0 };
 #else
 # error unknown object file format
 #endif
 
-#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
-    enum { FORMAT_DWARF = 1 };
+#ifdef BALST_OBJECTFILEe_FORMAT_RESOLVER_DWARF
+    enum { e_FORMAT_DWARF = 1 };
 #else
-    enum { FORMAT_DWARF = 0 };
+    enum { e_FORMAT_DWARF = 0 };
 #endif
 
 #ifdef BDE_BUILD_TARGET_DBG
-    enum { DEBUG_ON = 1 };
+    enum { e_DEBUG_ON = 1 };
 #else
-    enum { DEBUG_ON = 0 };
+    enum { e_DEBUG_ON = 0 };
 #endif
 
 
@@ -259,7 +265,7 @@ void checkOutput(const bsl::string&               str,
     bslma::TestAllocator localAllocator;
     bdlma::SequentialAllocator sa(&localAllocator);
 
-    if (PLAT_WIN && !DEBUG_ON) {
+    if (e_PLAT_WIN && !e_DEBUG_ON) {
         return;                                                       // RETURN
     }
 
@@ -298,8 +304,8 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-    if (!(FORMAT_ELF && !FORMAT_DWARF) && !FORMAT_DLADDR && !FORMAT_WINDOWS &&
-                                                                    DEBUG_ON) {
+    if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
+                                             !e_FORMAT_WINDOWS && e_DEBUG_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
@@ -362,7 +368,7 @@ extern "C" {
 
 BOOL CALLBACK phonyEnumWindowsProc(HWND, LPARAM)
 {
-    if (!DEBUG_ON) {
+    if (!e_DEBUG_ON) {
         return FALSE;                                                 // RETURN
     }
 
@@ -438,7 +444,7 @@ static int phonyCompare(const void *, const void *)
         { L_, false, "phonyCompare" },
         { L_, false, "qsort" },
         { L_, true,  " in " },
-        { L_, true,  FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
+        { L_, true,  e_FORMAT_DLADDR ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
     enum { NUM_STRINGS = sizeof STRINGS / sizeof *STRINGS };
 

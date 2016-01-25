@@ -152,24 +152,31 @@ typedef FU::FileDescriptor                    FD;
 
 template <class TYPE>
 int sz(const TYPE&)
+    // Effectively 'sizeof', except it returns an 'int' rather than a
+    // 'bsl::size_t'.
 {
     return static_cast<int>(sizeof(TYPE));
 }
 
 template <class TYPE>
 void setToMax(TYPE *value)
+    // Set the specified '*value' to the maximum value it is capable of
+    // representing.
 {
     *value = bsl::numeric_limits<TYPE>::max();
 }
 
 template <class TYPE>
 void setToMin(TYPE *value)
+    // Set the specified '*value' to the minimum value it is capable of
+    // representing.
 {
     *value = bsl::numeric_limits<TYPE>::min();
 }
 
 static
 void writeByte(FD fd, unsigned char u)
+    // Write the specified byte 'u' to the specified file descriptor 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
     ASSERT(sz(u) == rc);
@@ -177,6 +184,8 @@ void writeByte(FD fd, unsigned char u)
 
 static
 void writeShort(FD fd, unsigned short u)
+    // Write the specified 'unsigned short' 'u' to the specified file
+    // descriptor 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
     ASSERT(sz(u) == rc);
@@ -184,6 +193,8 @@ void writeShort(FD fd, unsigned short u)
 
 static
 void writeUnsigned(FD fd, unsigned u)
+    // Write the specified 'unsigned' 'u' to the specified file descriptor
+    // 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
     ASSERT(sz(u) == rc);
@@ -191,6 +202,7 @@ void writeUnsigned(FD fd, unsigned u)
 
 static
 void writeUint64(FD fd, Uint64 u)
+    // Write the specified 'Uint64' 'u' to the specified file descriptor 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
     ASSERT(sz(u) == rc);
@@ -198,6 +210,7 @@ void writeUint64(FD fd, Uint64 u)
 
 static
 void writeInt64(FD fd, Int64 u)
+    // Write the specified 'Int64' 'u' to the specified file descriptor 'fd'.
 {
     int rc = FU::write(fd, &u, sz(u));
     ASSERT(sz(u) == rc);
@@ -205,6 +218,8 @@ void writeInt64(FD fd, Int64 u)
 
 static
 void writeGarbage(FD fd, unsigned numBytes)
+    // Write the specified 'numBytes' bytes of garbage to the specified file
+    // descriptor 'fd'.
 {
     const char data[] = { "~`!@#$%^&*()_-+={}[]:;<>,.?/|\\"
                           "abcdefghijklmnopqrstuvwxyz0123456789" };
@@ -221,6 +236,8 @@ void writeGarbage(FD fd, unsigned numBytes)
 
 static
 void writeLEB128(FD fd, Int64 value)
+    // Write the specified 'value' according to the variable-length signed
+    // integer 'LEB128' format to the specified file descriptor 'fd'.
 {
     BSLMF_ASSERT((static_cast<Offset>(-1) >> 7) == -1);
 
@@ -243,6 +260,8 @@ void writeLEB128(FD fd, Int64 value)
 
 static
 void writeULEB128(FD fd, Uint64 value)
+    // Write the specified 'value' according to the variable-length unsigned
+    // integer 'ULEB128' format to the specified file descriptor 'fd'.
 {
     const char extBit = static_cast<char>(0x80);
     char byte;
@@ -259,6 +278,8 @@ void writeULEB128(FD fd, Uint64 value)
 
 static
 Offset getOffset(FD fd)
+    // Return the current offset in the file of the specified open file
+    // descriptor 'fd'.
 {
     return FU::seek(fd, 0, FU::e_SEEK_FROM_CURRENT);
 }
@@ -321,13 +342,23 @@ int main(int argc, char *argv[])
         // TESTING ENUM NAME METHODS
         //
         // Concerns:
-        //   That the enum name methods print reasonable names for all the
-        //   the enums they are meant to.
+        //   That the enum printing methods yield reasonable names.
+        //: 1 That the enum printing methods yield strings beginning with the
+        //:   appropriate prefix for the type of enum.
+        //: 2 That no two valid enum values result in the same string value for
+        //:   a given type of enum.
         //
         // Plan:
-        //   Call static methods for all possible value, store resulting
-        //   strings in a set to detect duplicates, verify that strings
-        //   returned don't contain '?'.
+        //: o For each enum type:
+        //:   1 Traverse the valid values of each enum type.  (Invalid values
+        //:     are skipped, because they result in an exit if 'u_TRACES' is
+        //:     enabled in the imp file).
+        //:   2 Call the 'stringFor*' method appropriate for the enum type.
+        //:   3 Check that the string yielded begins with the appropriate
+        //:     prefix.
+        //:   4 Accumulate all the strings into a set, confirming that the size
+        //:     of the set incremented with each string and therefore all the
+        //:     strings are unique.
         //
         // Testing:
         //   stringForAt(unsigned);
@@ -348,7 +379,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            bsl::string s = Obj::stringForAt(ii);
+            const bsl::string& s = Obj::stringForAt(ii);
             ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
             if (ii < Obj::e_DW_AT_signature) {
@@ -1819,17 +1850,31 @@ int main(int argc, char *argv[])
         // TEST 'readInitialLength' and 'readSectionOffset'
         //
         // Concerns:
-        //   That 'readInitialLength' correctly reads the intial length and
-        //   sets the offset size.
+        //: 1 That 'readInitialLength' correctly reads the intial length and
+        //:  sets the offset size.
+        //: 2 That 'offsetSize' correctly indicates the offset size.
+        //: 3 That 'readSectionOffset' correctly reads section offsets, and
+        //:   reads them of the appropriate size.
         //
         // Plan:
-        //   Set initial lengths of both types in a file, read them, and
-        //   observe 'offset' and reading offsets.
+        //: 1 Write an initial length (which will eventually be over written)
+        //:   to a file, followed by offsets of 'sizeof(unsigned)' followed by
+        //:   offsets of 'sizeof(Offset)'.
+        //: 2 Attempt to read a section offset prior to reading the initial
+        //:   length and verify that it fails without changing the offset.
+        //: 3 Read the initial length, which will set the offset size to
+        //:   'sizeof(unsigned)'.  Verify the length is as expected.
+        //: 4 Read 256 offsets that will all be 4 bytes long.
+        //: 5 Seek back and rewrite the initial length to set the offset size
+        //:   to 'sizeof(Offset)'.
+        //: 6 Seek back and read the initial length.  Verify the length is as
+        //:   expected.  Verify the offset size is now 'sizeof(Offset)'.
+        //: 7 Read 256 section offsets of size 'sizeof(Offset)', verify they
+        //:   are as expected.
         //
         // Testing:
         //   readInitialLength(Offset *dst);
         //   readSectionOffset(Offset *dst);
-        //   offset();
         //   offsetSize();
         // --------------------------------------------------------------------
 
@@ -1863,7 +1908,7 @@ int main(int argc, char *argv[])
 
         const Offset offsetStart = getOffset(fd);
 
-        for (Offset uu = 0; uu < INT_MAX; uu += (1 << 24)) {
+        for (Offset uu = 0; uu < INT_MAX; uu += (1LL << 56)) {
             writeInt64(fd, uu);
         }
 
@@ -1888,7 +1933,13 @@ int main(int argc, char *argv[])
         int rc = mX.init(&helper, buffer, sec, INT_MAX);
         ASSERT(0 == rc);
 
-        Offset iLen;
+        Offset iLen, x;
+
+        if (verbose) cout << "Attempt read section offset prior to init len\n";
+
+        rc = mX.readSectionOffset(&x);
+        ASSERT(0 != rc);                       // fails
+        ASSERT(X.offset() == sec.d_offset);    // reader's offset unchanged
 
         if (verbose) cout << "Test 32 bit initial length\n";
 
@@ -1901,7 +1952,6 @@ int main(int argc, char *argv[])
         rc = mX.skipTo(unsignedStart);
         ASSERT(0 == rc);
 
-        Offset x;
         for (Offset ii = 0; ii < INT_MAX; ii += (1 << 24)) {
             rc = mX.readSectionOffset(&x);
             ASSERTV(rc, ii, x, 0 == rc && ii == x);
@@ -1928,11 +1978,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(length == iLen);
         ASSERT(X.offset() == 0x111 + 12);
+        ASSERT(static_cast<int>(sizeof(Uint64)) == X.offsetSize());
 
         rc = mX.skipTo(offsetStart);
         ASSERT(0 == rc);
 
-        for (Offset ii = 0; ii < INT_MAX; ii += (1 << 24)) {
+        for (Offset ii = 0; ii < INT_MAX; ii += (1LL << 56)) {
             rc = mX.readSectionOffset(&x);
             ASSERTV(rc, ii, x, 0 == rc && ii == x);
         }
@@ -1942,17 +1993,34 @@ int main(int argc, char *argv[])
         // TEST 'readAddressSize', 'readAddress', 'addressSize'
         //
         // Concerns:
-        //   That the class successfully reads addresses through the 3 funcions
-        //   for that purpose, and that it sets 'addressSize' appropriately.
+        //: 1 That 'readAddress', passed a form, reads an address with the # of
+        //:   bytes indicated on the form.
+        //: 2 That 'readAddressSize' reads a single byte address size, and
+        //:   o That 'addressSize' then returns the size read.
+        //:   o That 'readAddress', when not passed a form, reads an address of
+        //:     the size read by the preceding 'readAddressSize' call.
         //
         // Plan:
-        //   Write addresses to a file in different formats, then use the
-        //   class to read them back
+        //: 1 Write a file with a 1-byte address field (which will be
+        //:   overwritten later with a different value) followed by address
+        //:   values of varying sizes, 256 values for each size.
+        //: 2 Call 'readAddress' with various forms to read all the addresses
+        //:   of different sizes.
+        //: 3 Skip back to the address size and read it with 'readAddressSize',
+        //:   verify with 'addressSize' that it's 'sizeof(int)'.
+        //: 4 Skip forward to where addresses of that size are, and read all
+        //:   the addresses of that size, verifying the values.
+        //: 5 Overwrite the address size with 'sizeof(UintPtr)'.
+        //: 6 Skip back to the address size and read it with 'readAddressSize',
+        //:   verify with 'addressSize' that it's 'sizeof(UintPtr)'.
+        //: 7 Skip forward to where addresses of that size are, and read all
+        //:   the addresses of that size, verifying the values.
         //
         // Testing:
         //   readAddress(UintPtr *dst, unsigned form);
         //   readAddressSize();
         //   readAddress(UintPtr *dst);
+        //   addressSize() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -2127,11 +2195,17 @@ int main(int argc, char *argv[])
         // TEST 'readValue'
         //
         // Concerns:
-        //   That the template member function 'readValue' works with a variety
-        //   of destination types.
+        //: 1 That 'readValue' returns 0 when it succeeds.
+        //: 2 That 'readValue' properly reads values from the file, for a
+        //    variety of destination types.
+        //: 3 That an attempt to read past the end of section will fail.
         //
         // Plan:
-        //   Write values to a file, then read them out.
+        //: 1 Write values of different types to a file.
+        //: 2 Read them out and verify that the read values match with the
+        //:   written values.
+        //: 3 Attempt to read a byte past the end of section, observe that it
+        //:   returns a failure return code with no change of state.
         //
         // Testing:
         //   readValue(TYPE *);
@@ -2284,14 +2358,25 @@ int main(int argc, char *argv[])
 
         ASSERT(X.atEndOfSection());
         ASSERT(X.offset() == endPos);
+
+        // Attempt to read past end of section, should fail
+
+        {
+            char x = 12;
+            rc = mX.readValue(&x);
+            ASSERT(0 != rc);    // fails
+            ASSERT(12 == x);    // unchanged
+            ASSERT(X.offset() == endPos);    // unchanged
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // TEST init, skipBytes, skipTo, atEndOfSection, offset
         //
         // Concerns:
-        //   That 'init', 'skipBytes', 'skipTo', 'atEndOfSection', and 'offset'
-        //   all function correction.
+        //   That the basic navigations functions in a dwarf reader can
+        //   navigate through a section.  Note that this is just navigation,
+        //   we don't actually parse anything that's in the file.
         //
         // Plan:
         //: 1 Initialize 'init' with a variety of inputs and observe its return
@@ -2465,7 +2550,7 @@ int main()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

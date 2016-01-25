@@ -20,9 +20,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class,
 // 'balst::StackTraceResolver_DwarfReader', that is optimized for reading
-// information from object files that is in the DWARF format.  The Elf object
+// information from object files that are the DWARF format.  The Elf object
 // file format is used on Linux, Solaris, and HP-UX platforms, and the DWARF
-// file format is used with it to encode source file name and line number
+// file format is used within it to encode source file name and line number
 // information.  The Elf format is described by documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
 //: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //: o 'http://dwarfstd.org'
 // and by the include file 'dwarf.h'.
 //
-// This code is built to handle version 4 of the DWARF standard, but it only
+// This code is built to process version 4 of the DWARF standard, but it only
 // assumes that 'dwarf.h' supports version 3.
 //
 ///Usage
@@ -111,7 +111,7 @@ class StackTraceResolver_DwarfReader {
 
     // PUBLIC CONSTANTS
     enum { k_SCRATCH_BUF_LEN = 32 * 1024 - 64 };
-        // length in bytes of d_buffer_p, 32K minus a little so we don't
+        // length in bytes of d_buffer_p; 32K minus a little so we don't
         // waste a page
 
     enum Dwarf4Enums {
@@ -145,16 +145,24 @@ class StackTraceResolver_DwarfReader {
     balst::StackTraceResolver_FileHelper
                                    *d_helper_p;      // filehelper for currentt
                                                      // segment
+
     char                           *d_buffer_p;      // buffer.
                                                      // k_SCRATCH_BUF_LEN long
+
     Offset                          d_offset;        // offset last read from
+
     Offset                          d_beginOffset;   // beg of current section
+
     Offset                          d_endOffset;     // end of current section
+
     const char                     *d_readPtr;       // current place to read
                                                      // from
+
     const char                     *d_endPtr;        // end of what's in buffer
+
     int                             d_offsetSize;    // offset size determined
                                                      // by 'readInitalLength'
+
     int                             d_addressSize;   // address read by
                                                      // 'getAddress' or set by
                                                      // 'setAddressSize'.
@@ -169,9 +177,10 @@ class StackTraceResolver_DwarfReader {
     // PRIVATE MANIPULATORS
     int needBytes(bsl::size_t numBytes);
         // Determine if we are able to read the specified 'numBytes' from
-        // 'd_buffer', and call 'reload' to reload the butter if necessary,
-        // and return an error if it 'reload' fails.  Return 0 on success and
-        // a non-zero value otherwise.
+        // 'd_buffer'.  If not, 'reload' is used to attempt to accomodate this
+        // 'needBytes' request.  Return 0 if we are able to read 'numBytes'
+        // from 'd_buffer' after this invocation of 'needBytes', and a non-zero
+        // value otherwise.
 
     int reload(bsl::size_t numBytes);
         // Reload the buffer to accomodate a read of at least the specified
@@ -240,33 +249,36 @@ class StackTraceResolver_DwarfReader {
         // Read the address size from a single unsigned byte, check it, and
         // assign 'd_addressSize' to it.  Return 0 on success and a non-zero
         // value otherwise.  It is an error if address size is not equal to the
-        // size of an unsigned int or of a 'void *'.
+        // size of an 'unsigned int' or of a 'void *'.
 
     int readInitialLength(Offset *dst);
         // Read the initial length of the object according to the DWARF doc to
-        // the specified '*dst'.  Read it first as a 4 byte value, if the value
-        // is below 0xfffffff0, then that means section offsets are to be read
-        // as 4 byte values from now on.  If the value is 0xffffffff, read the
-        // next 8 bytes into '*dst' and that indicates section offsets are to
-        // be 8 bytes from now on.  Initialize 'd_offsetSize' accordingly.
+        // the specified '*dst', which is an 8-byte value.  Read '*dst' first
+        // as a 4 byte value, setting the high-order 4 bytes to 0, and if the
+        // value is below 0xfffffff0, then that means section offsets are to be
+        // read as 4 byte values from now on.  If the value is 0xffffffff, read
+        // the next 8 bytes into '*dst' and that indicates section offsets are
+        // to be 8 bytes from now on.  Initialize 'd_offsetSize' accordingly.
         // Values in the range '[0xfffffff0, 0xffffffff)' are illegal for that
         // first 4 bytes.  Return 0 on success and a non-zero value otherwise.
 
     template <class TYPE>
     int readLEB128(TYPE *dst);
-        // Read a signed variable-length number into the specified '*dst'.
+        // Read a signed, variable-length number into the specified '*dst'.
         // Return 0 on success and a non-zero value otherwise.
 
     template <class TYPE>
     int readULEB128(TYPE *dst);
-        // Read an unsigned variable-length number into the specified '*dst'.
+        // Read an unsigned, variable-length number into the specified '*dst'.
         // Return 0 on success and a non-zero value otherwise.
 
     int readOffset(Offset      *dst,
                    bsl::size_t  offsetSize);
         // Read to the specified '*dst', where the specified 'offsetSize' is
-        // the number of bytes to store the offset.  Do not extend sign.
-        // Return 0 on success and a non-zero value otherwise.
+        // the number of low-order bytes to be read into the offset, where
+        // '*dst' is 8 bytes, and extra high-order bytes are to be set to 0.
+        // Do not extend sign.  Return 0 on success and a non-zero value
+        // otherwise.
 
     int readOffsetFromForm(Offset   *dst,
                            unsigned  form);
@@ -282,8 +294,8 @@ class StackTraceResolver_DwarfReader {
 
     int readString(bsl::string *dst = 0);
         // Read a null-terminated string to the specified '*dst'.  If no 'dst'
-        // is specified, skip over the string without copying it anywhere.
-        // This function will fail if the string length is greater than
+        // is specified, skip over the string without copying it.  This
+        // function will fail if the string length is greater than
         // 'k_SCRATCH_BUFFER_LEN - 1'.
 
     int readStringAt(bsl::string *dst, Offset offset);
@@ -305,12 +317,12 @@ class StackTraceResolver_DwarfReader {
     template <class TYPE>
     int readValue(TYPE *dst);
         // Read a value into the specified '*dst', assuming that it is
-        // represented by sizeof(*dst) bytes.
+        // represented by 'sizeof(*dst)' bytes.
 
     int setAddressSize(unsigned size);
         // Explicitly set the 'd_addressSize' of this reader to the specified
-        // 'size'.  The size must be the size of an 'unsigned' or the size of
-        // a 'UintPtr' or this function will fail.
+        // 'size'.  This function will fail unless the size is the size of an
+        // 'unsigned' or the size of a 'UintPtr'.
 
     int setEndOffset(Offset newOffset);
         // Set the end offset to the specified 'newOffset'.
@@ -319,7 +331,7 @@ class StackTraceResolver_DwarfReader {
         // Skip forward over the specified 'bytes' without reading them.
 
     int skipString();
-        // Skip over a null terminated string without copying it anywhere.
+        // Skip over a null terminated string without copying it.
 
     int skipForm(unsigned form);
         // Skip over data according to the specified 'form', which is an enum
@@ -331,8 +343,8 @@ class StackTraceResolver_DwarfReader {
         // value otherwise.
 
     int skipULEB128();
-        // Skip the variable-length int.  Not this will work for both LEB128's
-        // and ULEB128's.
+        // Skip a variable-length integer.  Note this will work for both
+        // LEB128's and ULEB128's.
 
     // ACCESSORS
     int addressSize() const;
@@ -355,8 +367,6 @@ class StackTraceResolver_DwarfReader {
 inline
 int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
 {
-    static const char rn[] = { "Reader::needBytes:" };    (void) rn;
-
     IntPtr diff = d_endPtr - d_readPtr;
 
     if (diff < static_cast<IntPtr>(numBytes)) {
@@ -371,8 +381,6 @@ int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
 template <class TYPE>
 int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 {
-    static const char rn[] = { "Reader::readLEB128:" };    (void) rn;
-
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);    // 'TYPE' must be signed
 
     int rc;
@@ -414,8 +422,6 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 template <class TYPE>
 int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
-    static const char rn[] = { "Reader::readULEB128:" };    (void) rn;
-
     int rc;
 
     *dst = 0;
@@ -459,8 +465,6 @@ int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 inline
 int StackTraceResolver_DwarfReader::skipBytes(Offset bytes)
 {
-    static const char rn[] = { "Reader::skipBytes:" };    (void) rn;
-
     BSLS_ASSERT_SAFE(bytes >= 0);
 
     if (bytes > d_endPtr - d_readPtr) {
@@ -536,7 +540,7 @@ StackTraceResolver_DwarfReader::offsetSize() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -131,10 +131,13 @@ struct ObjectFileFormat {
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
 # if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
-    // DWARF support on clang is problematic, see comment in
-    // balst_stacktraceresolverimpl_elf.cpp.
+    // DWARF support on clang is problematic and not currrently implemented,
+    // see comment in balst_stacktraceresolverimpl_elf.cpp.
 
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
+        // DWARF is not a complete object file format, it is a format for
+        // information embedded within ELF files to give source file name and
+        // line number information.
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)

@@ -33,13 +33,13 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_dwarfreader_cpp,"$Id$ $CSID$")
 // ============================================================================
 
 #undef  u_TRACES
-#define u_TRACES 1  // 0 == debugging traces off, u_eprintf and u_zprintf do
+#define u_TRACES 0  // 0 == debugging traces off, u_eprintf and u_zprintf do
                     // nothing
                     // 1 == debugging traces on, u_eprintf is like u_zprintf
                     // 2 == debugging traces on, u_eprintf prints & exits
 
 // u_zprintf: For non-error debug traces.  Traces:  0: null function
-//                                               >0: like printf
+//                                                 >0: like printf
 // u_eprintf: Called when errors occur in data.  Traces: 0: null function
 //                                                       1: like printf
 //                                                       2: printf, then exit 1
@@ -696,14 +696,10 @@ int StackTraceResolver_DwarfReader::readAddressSize()
     }
     d_addressSize = u;
 
-    // u_zprintf("%s addressSize: %u\n", rn, u);
-
     return 0;
 }
 
 int StackTraceResolver_DwarfReader::readInitialLength(Offset *dst)
-    // Read the initial length to '*dst', and set '*isShortInitialLength' to
-    // reflect whether that initial length was short or long.
 {
     static const char rn[] = { "Reader::readIniitialLength:" };    (void) rn;
 
@@ -1150,7 +1146,7 @@ int StackTraceResolver_DwarfReader::skipULEB128()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
