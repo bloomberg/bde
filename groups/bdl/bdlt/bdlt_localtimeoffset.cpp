@@ -23,7 +23,9 @@ namespace bdlt {
 // DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
 LocalTimeOffset::s_localTimeOffsetCallback_p =
-         { reinterpret_cast<void *>(LocalTimeOffset::localTimeOffsetDefault) };
+         { reinterpret_cast<void *>(
+                 reinterpret_cast<bsls::Types::IntPtr>(
+                     LocalTimeOffset::localTimeOffsetDefault)) };
 
 // CLASS METHODS
 
