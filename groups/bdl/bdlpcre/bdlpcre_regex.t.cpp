@@ -463,11 +463,11 @@ typedef RegEx Obj;
 // match subject strings against it.  In the event that 'prepare' fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
-// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDLPCRE_FLAG_CASELESS'
-// and 'bdepcre_RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the
-// pattern since Internet message headers contain case-insensitive content as
-// well as '\n' characters.  The 'prepare' method returns 0 on success, and a
-// non-zero value otherwise:
+// occurred, respectively).  Two flags, 'RegEx::BDLPCRE_FLAG_CASELESS' and
+// 'RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the pattern since
+// Internet message headers contain case-insensitive content as well as '\n'
+// characters.  The 'prepare' method returns 0 on success, and a non-zero value
+// otherwise:
 //..
         RegEx       regEx;
         bsl::string errorMessage;
@@ -978,7 +978,7 @@ int main(int argc, char *argv[])
             size_t      errorOffset;
 
             int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0);
-            LOOP3_ASSERT(LINE, errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
 
             const int NUM_SUBPATTERNS  = NUM_WORDS + 3;
             const int SP_PKG_INDEX     = 1;
@@ -1015,13 +1015,12 @@ int main(int argc, char *argv[])
                     T_ T_ P_(j) P(X.subpatternIndex(SPN_WORDJ))
                 }
 
-                LOOP3_ASSERT(LINE, j,          X.subpatternIndex(SPN_WORDJ),
-                             SP_WORD_INDEXJ == X.subpatternIndex(SPN_WORDJ));
+                ASSERTV(LINE, j, X.subpatternIndex(SPN_WORDJ),
+                               SP_WORD_INDEXJ == X.subpatternIndex(SPN_WORDJ));
 
                 bsl::string BAD_SPN_WORDJ(SPN_WORDJ);  BAD_SPN_WORDJ += "#%$";
 
-                ASSERTV(LINE,
-                            -1 == X.subpatternIndex(BAD_SPN_WORDJ.c_str()));
+                ASSERTV(LINE, -1 == X.subpatternIndex(BAD_SPN_WORDJ.c_str()));
             }
 
             if (veryVerbose) {
@@ -1087,8 +1086,8 @@ int main(int argc, char *argv[])
                     T_ T_ P_(lastElement.first) P(lastElement.second)
                 }
 
-                LOOP3_ASSERT(LINE, lastElement.first, lastElement.second,
-                             NOT_FOUND == lastElement);
+                ASSERTV(LINE, lastElement.first, lastElement.second,
+                                                     NOT_FOUND == lastElement);
             }
             else {
                 // Check that the last (unnamed) substring at the end was
@@ -2039,10 +2038,10 @@ int main(int argc, char *argv[])
 
                 if (subjectStart <= MATCH_OFFSET) {
                     ASSERTV(LINE, subjectStart, 0 == retCode);
-                    LOOP3_ASSERT(LINE, subjectStart, match.first,
-                                       MATCH_OFFSET == match.first);
-                    LOOP3_ASSERT(LINE, subjectStart, match.second,
-                                       MATCH_LENGTH == match.second);
+                    ASSERTV(LINE, subjectStart, match.first,
+                                                  MATCH_OFFSET == match.first);
+                    ASSERTV(LINE, subjectStart, match.second,
+                                                 MATCH_LENGTH == match.second);
                 }
                 else {
                     ASSERTV(LINE, subjectStart, 0 != retCode);
@@ -2052,10 +2051,10 @@ int main(int argc, char *argv[])
 
                 if (subjectStart <= MATCH_OFFSET) {
                     ASSERTV(LINE, subjectStart, 0 == retCode);
-                    LOOP3_ASSERT(LINE, subjectStart, vMatch[0].first,
-                                       MATCH_OFFSET == vMatch[0].first);
-                    LOOP3_ASSERT(LINE, subjectStart, vMatch[0].second,
-                                       MATCH_LENGTH == vMatch[0].second);
+                    ASSERTV(LINE, subjectStart, vMatch[0].first,
+                                              MATCH_OFFSET == vMatch[0].first);
+                    ASSERTV(LINE, subjectStart, vMatch[0].second,
+                                             MATCH_LENGTH == vMatch[0].second);
                 }
                 else {
                     ASSERTV(LINE, subjectStart, 0 != retCode);

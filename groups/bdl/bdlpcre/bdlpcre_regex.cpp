@@ -67,9 +67,7 @@ enum {
                              // -----------
 
 // CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Int
-        RegEx::s_depthLimit = {10000000}; // from pcre2 config.h
-                                          // MATCH_LIMIT value
+bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
 
 // CREATORS
 RegEx::RegEx(bslma::Allocator *basicAllocator)
@@ -84,7 +82,7 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
                                             &bdlpcre_malloc,
                                             &bdlpcre_free,
                                             static_cast<void*>(d_allocator_p));
-    BSLS_ASSERT(0 == d_pcre2Code_p);
+    BSLS_ASSERT(0 != d_pcre2Context_p);
 }
 
 // MANIPULATORS

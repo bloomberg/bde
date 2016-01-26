@@ -10,17 +10,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a mechanism for regular expression pattern matching.
 //
 //@CLASSES:
-//  bdepcre::RegEx: mechanism for compiling and matching regular expressions
+//  bdlpcre::RegEx: mechanism for compiling and matching regular expressions
 //
 //@SEE_ALSO: http://www.pcre.org/
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdepcre::RegEx', for
+//@DESCRIPTION: This component provides a mechanism, 'bdlpcre::RegEx', for
 // compiling (or "preparing") regular expressions, and subsequently matching
 // subject strings against a prepared expression.  The regular expressions
 // supported by this component correspond approximately with Perl 5.8.  See the
 // appendix entitled "Perl Compatibility" below for more information.
 //
-// Upon construction, a 'bdepcre::RegEx' object is initially not associated
+// Upon construction, a 'bdlpcre::RegEx' object is initially not associated
 // with a regular expression.  A regular expression pattern is compiled for use
 // by the object using the 'prepare' method.  Subject strings may then be
 // matched against the prepared pattern using the three overloaded 'match'
@@ -38,12 +38,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///"Prepared" State
 ///----------------
-// A 'bdepcre_RegEx' object must first be prepared with a valid regular
+// A 'bdlpcre::RegEx' object must first be prepared with a valid regular
 // expression before attempting to match subject strings.  We say that an
-// instance of 'bdepcre_RegEx' is in the "prepared" state if the object holds
+// instance of 'bdlpcre::RegEx' is in the "prepared" state if the object holds
 // a valid regular expression, in which case calls to the overloaded 'match'
 // methods of that instance are valid.  Otherwise, the object is in the
-// "unprepared" state.  Upon construction, an 'bdepcre_RegEx' object is in the
+// "unprepared" state.  Upon construction, an 'bdlpcre::RegEx' object is in the
 // "unprepared" state.  A successful call to the 'prepare' method puts the
 // object into the "prepared" state.  The 'clear' method, as well as an
 // unsuccessful call to 'prepare', puts the object into the "unprepared" state.
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///------------------
 // A set of flags may be optionally supplied to the 'prepare' method to affect
 // specific pattern matching behavior.  The flags recognized by 'prepare' are
-// defined in an enumeration declared within the 'bdepcre::RegEx'.  The
+// defined in an enumeration declared within the 'bdlpcre::RegEx'.  The
 // following describes these flags and their effects.
 //
 ///Case-Insensitive Matching
@@ -136,11 +136,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // match subject strings against it.  In the event that 'prepare' fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
-// occurred, respectively).  Two flags, 'bdepcre_RegEx::BDLPCRE_FLAG_CASELESS'
-// and 'bdepcre_RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the
-// pattern since Internet message headers contain case-insensitive content as
-// well as '\n' characters.  The 'prepare' method returns 0 on success, and a
-// non-zero value otherwise:
+// occurred, respectively).  Two flags, 'RegEx::BDLPCRE_FLAG_CASELESS' and
+// 'RegEx::BDLPCRE_FLAG_MULTILINE', are used in preparing the pattern since
+// Internet message headers contain case-insensitive content as well as '\n'
+// characters.  The 'prepare' method returns 0 on success, and a non-zero value
+// otherwise:
 //..
 //      RegEx       regEx;
 //      bsl::string errorMessage;
@@ -210,86 +210,153 @@ BSLS_IDENT("$Id$ $CSID$")
 //      assert(" This is the subject text" == subject);
 //  }
 //..
+//
 ///Appendix - Perl Compatibility
-///-----------------------------
-// This section describes the differences between Perl 5.8 regular expressions
-// and the regular expressions supported by this component.
+///- - - - - - - - - - - - - - -
+// This section describes the differences in the ways that PCRE2 and Perl
+// handle regular expressions.  The differences described here are with respect
+// to Perl versions 5.10 and above.
 //
-// 1) This component does not allow repeat quantifiers on lookahead assertions.
-// Perl permits them, but their meaning can be misleading.  For example,
-// '(?!a){3}' does not assert that the next three characters are not 'a'.  It
-// asserts three times that the next character is not 'a'.
+// 1) PCRE2 has only a subset of Perl's Unicode support.
 //
-// 2) Capturing sub-patterns that occur inside negative lookahead assertions
-// are counted, but their entries in the result vector returned by the 'match'
-// method are never set.  Perl sets its numerical variables from any such
-// patterns that are matched before the assertion fails to match something
-// (thereby succeeding), but only if the negative lookahead assertion contains
-// just one branch.
+// 2) PCRE2 allows repeat quantifiers only on parenthesized assertions, but
+// they do not mean what you might think.  For example, (?!a){3} does not
+// assert that the next three characters are not "a".  It just asserts that the
+// next character is not "a" three times (in principle: PCRE2 optimizes this to
+// run the assertion just once).  Perl allows repeat quantifiers on other
+// assertions such as \b, but these do not seem to have any use.
 //
-// 3) Although null characters are supported in the subject string, they are
-// not allowed in a pattern string because it is passed to the 'prepare' method
-// as a null-terminated C-style string.  The escape sequence '\0' can be used
-// in the pattern to represent a null character.
+// 3) Capturing subpatterns that occur inside negative lookahead assertions are
+// counted, but their entries in the offsets vector are never set.  Perl
+// sometimes (but not always) sets its numerical variables from inside negative
+// assertions.
 //
-// 4) The following Perl escape sequences are not supported: '\l', '\u', '\L',
-// '\U', and '\N'.  In fact, these are implemented by Perl's general
-// string-handling and are not part of its pattern-matching engine.  If any of
-// these are encountered by this component, an error is generated.
+// 4) The following Perl escape sequences are not supported: \l, \u, \L, \U,
+// and \N when followed by a character name or Unicode value.  (\N on its own,
+// matching a non-newline character, is supported.)  In fact these are
+// implemented by Perl's general string-handling and are not part of its
+// pattern matching engine.  If any of these are encountered by PCRE2, an error
+// is generated by default.
 //
-// 5) The Perl escape sequences '\p', '\P', and '\X' are supported only if the
-// underlying PCRE library is built with Unicode character property support
-// (which is not the case in this release).  The properties that can be tested
-// with '\p' and '\P' are limited to the general category properties such as
-// 'Lu' and 'Nd'.
+// 5) The Perl escape sequences \p, \P, and \X are supported only if PCRE2 is
+// built with Unicode support.  The properties that can be tested with \p and
+// \P are limited to the general category properties such as Lu and Nd, script
+// names such as Greek or Han, and the derived properties Any and L&.  PCRE2
+// does support the Cs (surrogate) property, which Perl does not; the Perl
+// documentation says "Because Perl hides the need for the user to understand
+// the internal representation of Unicode characters, there is no need to
+// implement the somewhat messy concept of surrogates."
 //
-// 6) This component does support the '\Q' ... '\E' escape for quoting
-// substrings.  Enclosed characters are treated as literals.  This is slightly
-// different from Perl in that '$' and '@' are also handled as literals inside
-// the quotes.  In Perl, they cause variable interpolation (but, of course,
-// this component does not have variable interpolation).  Note the following
-// examples:
-//..
-//  Pattern           'bdepcre_RegEx' matches     Perl matches
-//  - - - -           - - - - - - - - - - - -     - - - - - -
-//  \Qabc$xyz\E       abc$xyz              abc followed by the contents of $xyz
-//  \Qabc\$xyz\E      abc\$xyz                   abc\$xyz
-//  \Qabc\E\$\Qxyz\E  abc$xyz                    abc$xyz
-//..
-// The '\Q' ... '\E' sequence is recognized both inside and outside character
+// 6) PCRE2 does support the \Q...\E escape for quoting substrings.  Characters
+// in between are treated as literals.  This is slightly different from Perl in
+// that $ and @ are also handled as literals inside the quotes.  In Perl, they
+// cause variable interpolation (but of course PCRE2 does not have variables).
+// Note the following examples:
+//
+// Pattern            PCRE2 matches  Perl matches
+// ----------------   -------------  ------------------------------------
+// \Qabc$xyz\E        abc$xyz        abc followed by the contents of $xyz
+// \Qabc\$xyz\E       abc\$xyz       abc\$xyz
+// \Qabc\E\$\Qxyz\E   abc$xyz        abc$xyz
+//
+// The \Q...\E sequence is recognized both inside and outside character
 // classes.
 //
-// 7) This component does not support the '(?{code})' and '(?p{code})'
-// constructions.  However, there is support for recursive patterns using the
-// non-Perl items '(?R)', '(?number)', and '(?P>name)'.
+// 7) PCRE2 does not support the (?{code}) and (??{code}) constructions.
+// However, there is support for recursive patterns.  This is not available in
+// Perl 5.8, but it is in Perl 5.10.
 //
-// 8) There are some differences that are concerned with the settings of
+// 8) Subroutine calls (whether recursive or not) are treated as atomic groups.
+// Atomic recursion is like Python, but unlike Perl.  Captured values that are
+// set outside a subroutine call can be referenced from inside in PCRE2, but
+// not in Perl.
+//
+// 9) If any of the backtracking control verbs are used in a subpattern that is
+// called as a subroutine (whether or not recursively), their effect is
+// confined to that subpattern; it does not extend to the surrounding pattern.
+// This is not always the case in Perl.  In particular, if (*THEN) is present
+// in a group that is called as a subroutine, its action is limited to that
+// group, even if the group does not contain any | characters.  Note that such
+// subpatterns are processed as anchored at the point where they are tested.
+//
+// 10) If a pattern contains more than one backtracking control verb, the first
+// one that is backtracked onto acts.  For example, in the pattern
+// A(*COMMIT)B(*PRUNE)C a failure in B triggers (*COMMIT), but a failure in C
+// triggers (*PRUNE).  Perl's behaviour is more complex; in many cases it is
+// the same as PCRE2, but there are examples where it differs.
+//
+// 11) Most backtracking verbs in assertions have their normal actions. They
+// are not confined to the assertion.
+//
+// 12) There are some differences that are concerned with the settings of
 // captured strings when part of a pattern is repeated.  For example, matching
-// "aba" against the pattern '/^(a(b)?)+$/' in Perl leaves '$2' unset, but this
-// component sets it to "b".
+// "aba" against the pattern /^(a(b)?)+$/ in Perl leaves $2 unset, but in PCRE2
+// it is set to "b".
 //
-// This component provides the following extensions to the Perl 5.8 regular
-// expression facilities:
+// 13) PCRE2's handling of duplicate subpattern numbers and duplicate
+// subpattern names is not as general as Perl's.  This is a consequence of the
+// fact the  PCRE2  works  internally just with numbers, using an external
+// table to translate between numbers and names.  In particular, a pattern such
+// as (?|(?<a>A)|(?<b)B), where the two capturing parentheses have the same
+// number but different names, is not supported, and causes an error at compile
+// time.  If it were allowed, it would not be possible to distinguish which
+// parentheses matched, because both names map to capturing subpattern number
+// 1.  To avoid this confusing situation, an error is given at compile time.
 //
-// 1) Although look-behind assertions must match fixed length strings, each
-// alternative branch of a look-behind assertion can match a different length
-// of string.  Perl requires them all to have the same length.
+// 14) Perl recognizes comments in some places that PCRE2 does not, for
+// example, between the ( and ? at the start of a subpattern.  If the /x
+// modifier is set, Perl allows white space between ( and ? (though current
+// Perls warn that this is deprecated) but PCRE2 never does, even if the
+// PCRE2_EXTENDED option is set.
 //
-// 2) The '(?R)', '(?number)', and '(?P>name)' constructs allow for recursive
-// pattern matching.  Perl can do this using the '(?p{code})' construct, which
-// this component cannot support.
+// 15) Perl, when in warning mode, gives warnings for character classes such as
+// [A-\d] or [a-[:digit:]]. It then treats the hyphens as literals.  PCRE2 has
+// no warning features, so it gives an error in these cases because they are
+// almost certainly user mistakes.
 //
-// 3) This component supports named capturing substrings using Python syntax
-// (e.g., '?P<subpatternName>').
+// 16) In PCRE2, the upper/lower case character properties Lu and Ll are not
+// affected when case-independent matching is specified.  For example, \p{Lu}
+// always matches an upper case letter.
 //
-// 4) This component supports the possessive quantifier "++" syntax, taken from
-// Sun's Java package.
+// 17) PCRE2 provides some extensions to the Perl regular expression
+// facilities.  This list is with respect to Perl 5.10:
 //
-// 5) An '(R)' condition is supported for testing recursion.
+// (a) Although lookbehind assertions in PCRE2 must match fixed length strings,
+// each alternative branch of a lookbehind assertion can match a different
+// length of string.  Perl requires them all to have the same length.
+//
+// (b) If PCRE2_DOLLAR_ENDONLY is set and PCRE2_MULTILINE is not set, the $
+// meta-character matches only at the very end of the string.
+//
+// (c) A backslash followed by a letter with no special meaning is faulted.
+// (Perl can be made to issue a warning.)
+//
+// (d) If PCRE2_UNGREEDY is set, the greediness of the repetition quantifiers
+// is inverted, that is, by default they are not greedy, but if followed by a
+// question mark they are.
+//
+// (e) PCRE2_ANCHORED can be used at matching time to force a pattern to be
+// tried only at the first matching position in the subject string.
+//
+// (f) The PCRE2_NOTBOL, PCRE2_NOTEOL, PCRE2_NOTEMPTY, PCRE2_NOTEMPTY_ATSTART,
+// and PCRE2_NO_AUTO_CAPTURE options have no Perl equivalents.
+//
+// (g) The \R escape sequence can be restricted to match only CR, LF, or CRLF
+// by the PCRE2_BSR_ANYCRLF option.
+//
+// (h) The callout facility is PCRE2-specific.
+//
+// (i) The partial matching facility is PCRE2-specific.
+//
+// (j) The alternative matching function (pcre2_dfa_match() matches in a
+// different way and is not Perl-compatible.
+//
+// (k) PCRE2 recognizes some special sequences such as (*CR) at the start of a
+// pattern that set overall options that cannot be changed within the pattern.
 //
 ///Additional Copyright Notice
-///---------------------------
-// Copyright (c) 1997-2004 University of Cambridge
+///- - - - - - - - - - - - - -
+// Copyright (c) 1997-2015 University of Cambridge
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -302,7 +369,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
 //
-//    * Neither the name of the University of Cambridge nor the names of its
+//    * Neither the name of the University of Cambridge nor the names of any
 //      contributors may be used to endorse or promote products derived from
 //      this software without specific prior written permission.
 //
