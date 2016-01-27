@@ -38,6 +38,25 @@ using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
+// The component under test describes a mechanism, the 'dwarf reader', used for
+// reading DWARF data from files.  DWARF stores information in certain formats,
+// and the dwarf reader is able to interpret and translate that information.
+//
+// Most of these tests involve writing data to a file, either with
+// 'bdls_FilesystemUtil::write', or with 'write*' methods defined in this file,
+// and then reading them out again.  The test files are created within a test
+// directory.  The test directory lives in the local directory the test driver
+// is run in, and it's name includes the number of the test case and the
+// process id of the task, eliminating the likelihood that the test directory
+// name will match that of another test case and reducing the likelihood that
+// it will match that of a previous test run.  At the end of the test, the test
+// directory is recursively destroyed.  After the test directory is created,
+// the current context is changed to within the test directory, and then the
+// names of plain test files used within the tests can be simple since the test
+// directory name guards against the chance of collision.
+//
+// The only test case that doesn't involve creating a file and reading from it
+// again is TC 10, which translates forms to their string names.
 //-----------------------------------------------------------------------------
 // [10] stringForAt(unsigned);
 // [10] stringForForm(unsigned);
@@ -149,6 +168,9 @@ typedef FU::FileDescriptor                    FD;
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+namespace u {
 
 template <class TYPE>
 int sz(const TYPE&)
@@ -283,6 +305,9 @@ Offset getOffset(FD fd)
 {
     return FU::seek(fd, 0, FU::e_SEEK_FROM_CURRENT);
 }
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                            GLOBAL COMPILE TIME ASSERTS
@@ -483,12 +508,14 @@ int main(int argc, char *argv[])
         // TESTING OTHER SKIPFORM
         //
         // Concerns:
-        //   That 'skipForm' works for those forms not supported by
-        //   'readOffsetFromForm'.
+        //: 1 That 'skipForm' works for those forms not supported by
+        //:   'readOffsetFromForm'.
         //
         // Plan:
-        //   Write data to file, and skip over it, carefully ensuring that
-        //   it skips by the right amount.
+        //: 1 Write values to file, storing the offset after each value is
+        //:   written to a vector.
+        //: 2 Go back and skip over them, verifying that the cursor positions
+        //:   match the offsets in the vector.
         //
         // Testing:
         //   skipForm(unsigned);    (partial)
@@ -504,76 +531,76 @@ int main(int argc, char *argv[])
         FD fd = FU::open(fn, FU::e_CREATE, FU::e_READ_WRITE);
         ASSERT(FU::k_INVALID_FD != fd);
 
-        writeUnsigned(fd, 0);                // initial length (will overwrite
+        u::writeUnsigned(fd, 0);             // initial length (will overwrite
                                              // later
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeByte(fd, 4);                    // Address size
+        u::writeByte(fd, 4);                    // Address size
 
-        offsets.push_back(getOffset(fd));
-        offsets.push_back(getOffset(fd));    // e_DW_FORM_flag_present
+        offsets.push_back(u::getOffset(fd));
+        offsets.push_back(u::getOffset(fd));    // e_DW_FORM_flag_present
 
         for (int ii = 0; ii <= 56; ii += 8) {    // DW_FORM_ref_udata
-            writeULEB128(fd, 1ULL << ii);
-            offsets.push_back(getOffset(fd));
+            u::writeULEB128(fd, 1ULL << ii);
+            offsets.push_back(u::getOffset(fd));
         }
 
         const char str[] = { "woof woof woof\n" };    // DW_FORM_string
-        ASSERT(sz(str) == FU::write(fd, str, sz(str)));
+        ASSERT(u::sz(str) == FU::write(fd, str, u::sz(str)));
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeUnsigned(fd, 100);                 // DW_FORM_strp
+        u::writeUnsigned(fd, 100);                 // DW_FORM_strp
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeUnsigned(fd, 0xf0000);             // DW_FORM_addr 4
+        u::writeUnsigned(fd, 0xf0000);             // DW_FORM_addr 4
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeUnsigned(fd, 0xf000f);             // DW_FORM_ref_addr 4
+        u::writeUnsigned(fd, 0xf000f);             // DW_FORM_ref_addr 4
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        writeUint64(fd, 0xfULL << 32);          // DW_FORM_addr 8
+        u::writeUint64(fd, 0xfULL << 32);          // DW_FORM_addr 8
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeUint64(fd, 0xffULL << 32);         // DW_FORM_ref_addr 8
+        u::writeUint64(fd, 0xffULL << 32);         // DW_FORM_ref_addr 8
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 #endif
 
-        writeByte(fd, 20);                          // DW_FORM_block1
-        writeGarbage(fd, 20);
+        u::writeByte(fd, 20);                          // DW_FORM_block1
+        u::writeGarbage(fd, 20);
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeShort(fd, 1000);                       // DW_FORM_block2
-        writeGarbage(fd, 1000);
+        u::writeShort(fd, 1000);                       // DW_FORM_block2
+        u::writeGarbage(fd, 1000);
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeUnsigned(fd, 1001);                    // DW_FORM_block4
-        writeGarbage(fd, 1001);
+        u::writeUnsigned(fd, 1001);                    // DW_FORM_block4
+        u::writeGarbage(fd, 1001);
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeULEB128(fd, 1002);                     // DW_FORM_block
-        writeGarbage(fd, 1002);
+        u::writeULEB128(fd, 1002);                     // DW_FORM_block
+        u::writeGarbage(fd, 1002);
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
-        writeULEB128(fd, 1003);                     // e_DW_FORM_exprloc
-        writeGarbage(fd, 1003);
+        u::writeULEB128(fd, 1003);                     // e_DW_FORM_exprloc
+        u::writeGarbage(fd, 1003);
 
-        offsets.push_back(getOffset(fd));
+        offsets.push_back(u::getOffset(fd));
 
         ASSERT(0 == FU::seek(fd, 0, FU::e_SEEK_FROM_BEGINNING));
 
-        writeUnsigned(fd, static_cast<unsigned>(offsets.back() - 4));
+        u::writeUnsigned(fd, static_cast<unsigned>(offsets.back() - 4));
                                                     // Overwrite initial length
 
         int rc = FU::close(fd);
@@ -685,11 +712,22 @@ int main(int argc, char *argv[])
         // TESTING VARIOUS READOFFSET AND SOME SKIPFORM
         //
         // Concerns:
-        //   That 'readOffset' and 'readOffsetFromForm' work properly, along
-        //   with 'skipForm' for those forms supported by 'readOffsetFromForm'.
+        //: 1 That 'readOffset', which reads an offset of a specified number
+        //:   bytes, and assigns it, without sign-extension, to an 8-byte
+        //:   'Offset', works..
+        //: 2 That 'readOffsetFromForm' works, for all supported values of
+        //:   integral 'form'.
+        //: 3 That 'skipForm' works, for all supported values of integral
+        //:   'form'.  Note that 'skipForm' also supports some string forms,
+        //:   which shall be tested in a later test.
         //
         // Plan:
-        //   Write offsets of various lengths to a file, then read them back.
+        //: 1 Write values to a file, appropriate to be read by different
+        //:   forms.
+        //: 2 Read them back using 'readOffset' and 'readOffsetFromForm', and
+        //:   verify the values read were correct.
+        //: 3 Skip over the values with 'skipForm' and verify the cursor skips
+        //:   to the right position.
         //
         // Testing:
         //   readOffset(Offset *, bsl::size_t);
@@ -709,63 +747,63 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Writing Data\n";
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset charOffset = getOffset(fd);
+        const Offset charOffset = u::getOffset(fd);
 
         for (unsigned uu = 0; uu < 256; ++uu) {
             unsigned char u = static_cast<unsigned char>(uu);
 
-            writeByte(fd, u);
+            u::writeByte(fd, u);
         }
         unsigned char maxChar, minChar;
-        setToMax(&maxChar);
-        setToMin(&minChar);
+        u::setToMax(&maxChar);
+        u::setToMin(&minChar);
 
-        writeByte(fd, maxChar);
-        writeByte(fd, minChar);
+        u::writeByte(fd, maxChar);
+        u::writeByte(fd, minChar);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset shortOffset = getOffset(fd);
+        const Offset shortOffset = u::getOffset(fd);
 
         for (unsigned uu = 0; uu < (1 << 16); uu += (1 << 8)) {
             unsigned short u = static_cast<unsigned short>(uu);
 
-            writeShort(fd, u);
+            u::writeShort(fd, u);
         }
         unsigned short maxShort, minShort;
-        setToMax(&maxShort);
-        setToMin(&minShort);
+        u::setToMax(&maxShort);
+        u::setToMin(&minShort);
 
-        writeShort(fd, maxShort);
-        writeShort(fd, minShort);
+        u::writeShort(fd, maxShort);
+        u::writeShort(fd, minShort);
 
-        const Offset initialLengthOffset = getOffset(fd);
+        const Offset initialLengthOffset = u::getOffset(fd);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset unsignedOffset = getOffset(fd);
+        const Offset unsignedOffset = u::getOffset(fd);
 
         for (Uint64 uu = 0; uu < (1LL << 32); uu += (1 << 24)) {
             unsigned u = static_cast<unsigned>(uu);
 
-            writeUnsigned(fd, u);
+            u::writeUnsigned(fd, u);
         }
         unsigned maxUnsigned, minUnsigned;
-        setToMax(&maxUnsigned);
-        setToMin(&minUnsigned);
+        u::setToMax(&maxUnsigned);
+        u::setToMin(&minUnsigned);
 
-        writeUnsigned(fd, maxUnsigned);
-        writeUnsigned(fd, minUnsigned);
+        u::writeUnsigned(fd, maxUnsigned);
+        u::writeUnsigned(fd, minUnsigned);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset offsetOffset = getOffset(fd);
+        const Offset offsetOffset = u::getOffset(fd);
 
         Offset maxOffset, minOffset;
-        setToMax(&maxOffset);
-        setToMin(&minOffset);
+        u::setToMax(&maxOffset);
+        u::setToMin(&minOffset);
 
         ASSERT(Obj::s_maxOffset == maxOffset);
 
@@ -773,17 +811,17 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                writeInt64(fd, o);
+                u::writeInt64(fd, o);
             }
         }
-        writeInt64(fd, maxOffset);
-        writeInt64(fd, minOffset);
+        u::writeInt64(fd, maxOffset);
+        u::writeInt64(fd, minOffset);
 
-        const Offset indirectOffset = getOffset(fd);
+        const Offset indirectOffset = u::getOffset(fd);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset leb128Offset = getOffset(fd);
+        const Offset leb128Offset = u::getOffset(fd);
 
         ASSERT(indirectOffset ==
                       FU::seek(fd, indirectOffset, FU::e_SEEK_FROM_BEGINNING));
@@ -793,30 +831,30 @@ int main(int argc, char *argv[])
                 -400LL << 32 };
         BSLMF_ASSERT(11 == sizeof indirectData / sizeof *indirectData);
 
-        writeULEB128(fd, DW_FORM_data1);
-        writeByte(fd, static_cast<unsigned char>(indirectData[0]));
-        writeULEB128(fd, DW_FORM_ref1);
-        writeByte(fd, static_cast<unsigned char>(indirectData[1]));
-        writeULEB128(fd, DW_FORM_flag);
-        writeByte(fd, static_cast<unsigned char>(indirectData[2]));
-        writeULEB128(fd, DW_FORM_data2);
-        writeShort(fd, static_cast<unsigned short>(indirectData[3]));
-        writeULEB128(fd, DW_FORM_ref2);
-        writeShort(fd, static_cast<unsigned short>(indirectData[4]));
-        writeULEB128(fd, DW_FORM_data4);
-        writeUnsigned(fd, static_cast<unsigned>(indirectData[5]));
-        writeULEB128(fd, DW_FORM_ref4);
-        writeUnsigned(fd, static_cast<unsigned>(indirectData[6]));
-        writeULEB128(fd, DW_FORM_data8);
-        writeUint64(fd, indirectData[7]);
-        writeULEB128(fd, DW_FORM_ref8);
-        writeUint64(fd, indirectData[8]);
-        writeULEB128(fd, DW_FORM_udata);
-        writeULEB128(fd, indirectData[9]);
-        writeULEB128(fd, DW_FORM_sdata);
-        writeLEB128(fd, indirectData[10]);
+        u::writeULEB128(fd, DW_FORM_data1);
+        u::writeByte(fd, static_cast<unsigned char>(indirectData[0]));
+        u::writeULEB128(fd, DW_FORM_ref1);
+        u::writeByte(fd, static_cast<unsigned char>(indirectData[1]));
+        u::writeULEB128(fd, DW_FORM_flag);
+        u::writeByte(fd, static_cast<unsigned char>(indirectData[2]));
+        u::writeULEB128(fd, DW_FORM_data2);
+        u::writeShort(fd, static_cast<unsigned short>(indirectData[3]));
+        u::writeULEB128(fd, DW_FORM_ref2);
+        u::writeShort(fd, static_cast<unsigned short>(indirectData[4]));
+        u::writeULEB128(fd, DW_FORM_data4);
+        u::writeUnsigned(fd, static_cast<unsigned>(indirectData[5]));
+        u::writeULEB128(fd, DW_FORM_ref4);
+        u::writeUnsigned(fd, static_cast<unsigned>(indirectData[6]));
+        u::writeULEB128(fd, DW_FORM_data8);
+        u::writeUint64(fd, indirectData[7]);
+        u::writeULEB128(fd, DW_FORM_ref8);
+        u::writeUint64(fd, indirectData[8]);
+        u::writeULEB128(fd, DW_FORM_udata);
+        u::writeULEB128(fd, indirectData[9]);
+        u::writeULEB128(fd, DW_FORM_sdata);
+        u::writeLEB128(fd, indirectData[10]);
 
-        const Offset indirectEnd = getOffset(fd);
+        const Offset indirectEnd = u::getOffset(fd);
 
         ASSERT(indirectEnd < leb128Offset);
 
@@ -827,36 +865,36 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                writeLEB128(fd, o);
+                u::writeLEB128(fd, o);
             }
         }
-        writeLEB128(fd, maxOffset);
-        writeLEB128(fd, minOffset);
+        u::writeLEB128(fd, maxOffset);
+        u::writeLEB128(fd, minOffset);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset uleb128Offset = getOffset(fd);
+        const Offset uleb128Offset = u::getOffset(fd);
 
         {
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                writeULEB128(fd, o);
+                u::writeULEB128(fd, o);
             }
         }
-        writeULEB128(fd, maxOffset);
-        writeULEB128(fd, minOffset);
+        u::writeULEB128(fd, maxOffset);
+        u::writeULEB128(fd, minOffset);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        Offset endPos = getOffset(fd);
+        Offset endPos = u::getOffset(fd);
 
         const Offset initialLength = endPos - initialLengthOffset - 4;
 
         ASSERT(initialLengthOffset ==
                  FU::seek(fd, initialLengthOffset, FU::e_SEEK_FROM_BEGINNING));
 
-        writeUnsigned(fd, static_cast<unsigned>(initialLength));
+        u::writeUnsigned(fd, static_cast<unsigned>(initialLength));
 
         FH helper(fn);
 
@@ -1218,8 +1256,8 @@ int main(int argc, char *argv[])
         ASSERT(initialLengthOffset ==
                  FU::seek(fd, initialLengthOffset, FU::e_SEEK_FROM_BEGINNING));
 
-        writeUnsigned(fd, 0xffffffff);
-        writeUint64(fd, static_cast<unsigned>(initialLength - 8));
+        u::writeUnsigned(fd, 0xffffffff);
+        u::writeUint64(fd, static_cast<unsigned>(initialLength - 8));
 
         mX.disable();
 
@@ -1406,14 +1444,27 @@ int main(int argc, char *argv[])
         // TEST READULEB128
         //
         // Concerns:
-        //   Test that 'readULEB128' can accurate read variable-length unsigned
-        //   integral types.
+        //: 1 Test that 'readULEB128' can accurate read variable-length signed
+        //:   integral types, for signed integral types of size 1 through 8
+        //:   bytes.
         //
         // Plan:
-        //   Construct a table of signed values, along with the length in
-        //   bytes to store each value as a signed LEB128.  Write the values
-        //   to a file, then read them back and observe the values and the
-        //   number of bytes are correct.
+        //: 1 Write, in the test driver, 'writeULEB128' that will write an
+        //:   'Int64' to a file in its minimal ULEB128 form.
+        //: 2 Create a table of 'Int64' values couple with the anticipated
+        //:   lengths of those values when written in ULEB128 form.
+        //: 3 Open a file and iterate through the table, writing the values to
+        //:   the file in sequence.
+        //: 4 Create a 'Section' enveloping the whole file.
+        //: 5 Create a dwarf reader 'mX' on that 'Section'.
+        //: 6 Iterate through the original table.  For each iteration:
+        //:   o Calculate 'expectedOffset', the expected offset after reading
+        //:     the next ULEB128 in the file.
+        //:   o For each size in bytes at or above the length of the ULEB128
+        //:     written, read the ULEB128, verify the value read was correct,
+        //:     and skip back to the beginning of the ULEB128.
+        //:   o Call 'skipUULEB128' and verify the cursor is correctly
+        //:     positioned.
         //
         // Testing:
         //   readULEB128(TYPE *dst);
@@ -1448,19 +1499,19 @@ int main(int argc, char *argv[])
             const Uint64 VALUE  = DATA[ii].d_value;
             const int    LENGTH = DATA[ii].d_length;
 
-            offset = getOffset(fd);
+            offset = u::getOffset(fd);
 
             if (veryVerbose) cout << "VALUE: " << VALUE << ", LENGTH: "
                                                              << LENGTH << endl;
 
-            writeULEB128(fd, VALUE);
+            u::writeULEB128(fd, VALUE);
 
-            const Offset actualLength = getOffset(fd) - offset;
+            const Offset actualLength = u::getOffset(fd) - offset;
 
             ASSERTV(VALUE, LENGTH, actualLength, LENGTH == actualLength);
         }
 
-        offset = getOffset(fd);
+        offset = u::getOffset(fd);
 
         int rc = FU::close(fd);
         ASSERT(0 == rc);
@@ -1534,14 +1585,28 @@ int main(int argc, char *argv[])
         // TEST READLEB128
         //
         // Concerns:
-        //   Test that 'readLEB128' can accurate read variable-length signed
-        //   integral types.
+        //: 1 Test that 'readLEB128' can accurate read variable-length signed
+        //:   integral types, for signed integral types of size 1 through 8
+        //:   bytes.
+        //: 2 That 'skipULEB128' will skip any LEB128 number.
         //
         // Plan:
-        //   Construct a table of signed values, along with the length in
-        //   bytes to store each value as a signed LEB128.  Write the values
-        //   to a file, then read them back and observe the values and the
-        //   number of bytes are correct.
+        //: 1 Write, in the test driver, 'writeLEB128' that will write an
+        //:   'Int64' to a file in its minimal LEB128 form.
+        //: 2 Create a table of 'Int64' values couple with the anticipated
+        //:   lengths of those values when written in LEB128 form.
+        //: 3 Open a file and iterate through the table, writing the values to
+        //:   the file in sequence.
+        //: 4 Create a 'Section' enveloping the whole file.
+        //: 5 Create a dwarf reader 'mX' on that 'Section'.
+        //: 6 Iterate through the original table.  For each iteration:
+        //:   o Calculate 'expectedOffset', the expected offset after reading
+        //:     the next LEB128 in the file.
+        //:   o For each size in bytes at or above the length of the LEB128
+        //:     written, read the LEB128, verify the value read was correct,
+        //:     and skip back to the beginning of the LEB128.
+        //:   o Call 'skipULEB128' and verify the cursor is correctly
+        //:     positioned.
         //
         // Testing:
         //   readLEB128(TYPE *dst);
@@ -1578,19 +1643,19 @@ int main(int argc, char *argv[])
             const Int64 VALUE  = DATA[ii].d_value;
             const int   LENGTH = DATA[ii].d_length;
 
-            offset = getOffset(fd);
+            offset = u::getOffset(fd);
 
             if (veryVerbose) cout << ii << "VALUE: " << VALUE << ", LENGTH: "
                                                              << LENGTH << endl;
 
-            writeLEB128(fd, VALUE);
+            u::writeLEB128(fd, VALUE);
 
-            const Offset actualLength = getOffset(fd) - offset;
+            const Offset actualLength = u::getOffset(fd) - offset;
 
             ASSERTV(VALUE, LENGTH, actualLength, LENGTH == actualLength);
         }
 
-        offset = getOffset(fd);
+        offset = u::getOffset(fd);
 
         int rc = FU::close(fd);
         ASSERT(0 == rc);
@@ -1664,14 +1729,47 @@ int main(int argc, char *argv[])
         // TEST STRING FUNCTIONS
         //
         // Concerns:
-        //   All the methods that read strings work.
+        //: 1 'readString' works.
+        //: 2 'readStringAt' works.
+        //: 3 'readStringFromForm', which calls either 'readString' or
+        //:   'readStringAt', depending on the form enum passed, works.
+        //: 4 'skipString' works.
         //
         // Plan:
-        //   Create a file with two sections, a 'str' section and an 'info'
-        //   section.  The 'str' section will contain our target string.  The
-        //   info section will contain an 'initialLength' and short and long
-        //   offsets of the target string.  Call all permutations of the
-        //   string reading methods.
+        //: 1 Create a file with two sections, a 'str' section and an 'info'
+        //:   section.  The 'str' section will contain our target string.  The
+        //:   info section will contain an 'initialLength' and short and long
+        //:   offsets of the target string.
+        //: 2 Initialize two dwarf readers, one to access the 'str' section and
+        //:   one to access the 'info' section.
+        //: 3 Call 'readStringAt' on the 'str' reader to read the string and
+        //:   verify the result.
+        //: 4 Skip the 'str' reader to the offset of the beginning of hte
+        //:   strng.
+        //: 5 Call 'readString' on the 'str' reader to read the string and
+        //:   verify the result.
+        //: 6 Skip the 'str' reader to the beginning of the string.
+        //: 7 Call 'readStringFromForm' on the 'str' reader with a form of
+        //:   'DW_FORM_string' which should have the same effect as calling
+        //:   'readString', and verify the result.
+        //: 8 Skip the 'info' reader to the offset of the 4-byte initial length
+        //:   of the 'info' section, and call 'readInitialLength', and confirm
+        //:   that 'offsetSize' is 4 bytes.
+        //: 9 Skip the 'info' reader to the offset in the 'info' section of the
+        //:   4-byte offset of string in the 'str' section.
+        //: 10 Call 'readStringFromForm' on the 'info' reader passing it the
+        //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //: 11 Seek back to the initial length of the 'info' section and
+        //:    overwrite it with an 8-byte initial length.
+        //: 12 Re-initalize the 'info' reader, skip to the initial length,
+        //:    call 'readInitialLength', and verify 'offsetSize' is 8 bytes.
+        //: 13 Skip the 'info' reader to the offset in the 'info' section of
+        //:    the 8 byte offset of the string in the 'str' section.
+        //: 14 Call 'readStringFromForm' on the 'info' reader passing it the
+        //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //: 15 Skip the 'str' reader ot the beginning of the string.
+        //: 16 Call 'skipString' on the 'str' reader and verify the cursor is
+        //:    now positioned after the string.
         //
         // Testing:
         //   readString(bsl::string *);
@@ -1692,44 +1790,45 @@ int main(int argc, char *argv[])
 
         enum { k_GARBAGE_LENGTH = 1111 };
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset strOff = getOffset(fd);
+        const Offset strOff = u::getOffset(fd);
 
         {
-            int rc = FU::write(fd, str, sz(str));
-            ASSERT(sz(str) == rc);
+            int rc = FU::write(fd, str, u::sz(str));
+            ASSERT(u::sz(str) == rc);
         }
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset endStrSec = getOffset(fd);
+        const Offset endStrSec = u::getOffset(fd);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset initLengthOff = getOffset(fd);
+        const Offset initLengthOff = u::getOffset(fd);
 
-        writeUnsigned(fd, 0);
+        u::writeUnsigned(fd, 0);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset shortOffOff = getOffset(fd);
+        const Offset shortOffOff = u::getOffset(fd);
 
-        writeUnsigned(fd, static_cast<unsigned>(strOff));
+        u::writeUnsigned(fd, static_cast<unsigned>(strOff));
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset longOffOff = getOffset(fd);
+        const Offset longOffOff = u::getOffset(fd);
 
-        writeInt64(fd, strOff);
+        u::writeInt64(fd, strOff);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        const Offset endFile = getOffset(fd);
+        const Offset endFile = u::getOffset(fd);
 
         (void) FU::seek(fd, initLengthOff, FU::e_SEEK_FROM_BEGINNING);
 
-        writeUnsigned(fd, static_cast<unsigned>(endFile - initLengthOff - 4));
+        u::writeUnsigned(fd,
+                           static_cast<unsigned>(endFile - initLengthOff - 4));
 
         Section strSec, infoSec;
         strSec. reset(0, endStrSec);
@@ -1808,8 +1907,8 @@ int main(int argc, char *argv[])
 
         (void) FU::seek(fd, initLengthOff, FU::e_SEEK_FROM_BEGINNING);
 
-        writeUnsigned(fd, 0xffffffff);
-        writeInt64(fd, endFile - initLengthOff - 12);
+        u::writeUnsigned(fd, 0xffffffff);
+        u::writeInt64(fd, endFile - initLengthOff - 12);
 
         rc = FU::close(fd);
         ASSERT(0 == rc);
@@ -1843,7 +1942,7 @@ int main(int argc, char *argv[])
         rc = strReader.skipString();
         ASSERT(0 == rc);
 
-        ASSERT(strReader.offset() == strOff + sz(str));
+        ASSERT(strReader.offset() == strOff + u::sz(str));
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1889,32 +1988,32 @@ int main(int argc, char *argv[])
 
         enum { k_GARBAGE_LENGTH = 1111 };
 
-        writeGarbage(fd,  0x111);
+        u::writeGarbage(fd,  0x111);
 
-        writeUnsigned(fd, 0);
+        u::writeUnsigned(fd, 0);
 
-        writeGarbage(fd,  0x111);
-        const Offset unsignedStart = getOffset(fd);
+        u::writeGarbage(fd,  0x111);
+        const Offset unsignedStart = u::getOffset(fd);
 
         {
             bool firstTime = true;
             for (unsigned uu = 0; firstTime || 0 != uu; uu += (1 << 24)) {
                 firstTime = false;
-                writeUnsigned(fd, uu);
+                u::writeUnsigned(fd, uu);
             }
         }
 
-        writeGarbage(fd,  0x111);
+        u::writeGarbage(fd,  0x111);
 
-        const Offset offsetStart = getOffset(fd);
+        const Offset offsetStart = u::getOffset(fd);
 
         for (Offset uu = 0; uu < INT_MAX; uu += (1LL << 56)) {
-            writeInt64(fd, uu);
+            u::writeInt64(fd, uu);
         }
 
-        const Offset endData = getOffset(fd);
+        const Offset endData = u::getOffset(fd);
 
-        writeGarbage(fd,  0x111);
+        u::writeGarbage(fd,  0x111);
 
         (void) FU::seek(fd, 0x111, FU::e_SEEK_FROM_BEGINNING);
 
@@ -1922,7 +2021,7 @@ int main(int argc, char *argv[])
                      static_cast<unsigned>(endData - 0x111 - sizeof(unsigned));
         ASSERT(length < 0xffffffff);
 
-        writeUnsigned(fd, static_cast<unsigned>(length));
+        u::writeUnsigned(fd, static_cast<unsigned>(length));
 
         FH helper(fn);
 
@@ -1961,8 +2060,8 @@ int main(int argc, char *argv[])
 
         (void) FU::seek(fd, 0x111, FU::e_SEEK_FROM_BEGINNING);
 
-        writeUnsigned(fd, 0xffffffff);
-        writeUint64(fd, length);
+        u::writeUnsigned(fd, 0xffffffff);
+        u::writeUint64(fd, length);
 
         rc = FU::close(fd);
         ASSERT(0 == rc);
@@ -2036,47 +2135,47 @@ int main(int argc, char *argv[])
 
         enum { k_GARBAGE_LENGTH = 1111 };
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         for (unsigned uu = 0; uu < 256; ++uu) {
-            writeByte(fd, static_cast<unsigned char>(uu));
+            u::writeByte(fd, static_cast<unsigned char>(uu));
         }
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         for (unsigned uu = 0; uu < (1 << 16); uu += 256) {
-            writeShort(fd, static_cast<unsigned short>(uu));
+            u::writeShort(fd, static_cast<unsigned short>(uu));
         }
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
-        const Offset unsignedStart = getOffset(fd);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
+        const Offset unsignedStart = u::getOffset(fd);
 
         {
             bool firstTime = true;
             for (unsigned uu = 0; firstTime || 0 != uu; uu += (1 << 24)) {
                 firstTime = false;
-                writeUnsigned(fd, uu);
+                u::writeUnsigned(fd, uu);
             }
         }
 
         Offset uint64Start = -1;
         if (8 == sizeof(void *)) {
-            writeGarbage(fd, k_GARBAGE_LENGTH);
+            u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-            uint64Start = getOffset(fd);
+            uint64Start = u::getOffset(fd);
 
             {
                 bool firstTime = true;
                 for (Uint64 uu = 0; firstTime || 0 != uu; uu += (1ULL << 56)) {
                     firstTime = false;
-                    writeUint64(fd, uu);
+                    u::writeUint64(fd, uu);
                 }
             }
         }
 
-        Offset endPos = getOffset(fd);
+        Offset endPos = u::getOffset(fd);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         FH helper(fn);
 
@@ -2140,7 +2239,7 @@ int main(int argc, char *argv[])
 
         (void) FU::seek(fd, k_GARBAGE_LENGTH, FU::e_SEEK_FROM_BEGINNING);
 
-        writeByte(fd, static_cast<unsigned char>(sizeof(unsigned)));
+        u::writeByte(fd, static_cast<unsigned char>(sizeof(unsigned)));
 
         rc = mX.init(&helper, buffer, sec, endPos + k_GARBAGE_LENGTH);
         ASSERT(0 == rc);
@@ -2167,7 +2266,7 @@ int main(int argc, char *argv[])
 
         (void) FU::seek(fd, k_GARBAGE_LENGTH, FU::e_SEEK_FROM_BEGINNING);
 
-        writeByte(fd, static_cast<unsigned char>(sizeof(Uint64)));
+        u::writeByte(fd, static_cast<unsigned char>(sizeof(Uint64)));
 
         rc = mX.init(&helper, buffer, sec, endPos + k_GARBAGE_LENGTH);
         ASSERT(0 == rc);
@@ -2221,53 +2320,53 @@ int main(int argc, char *argv[])
 
         enum { k_GARBAGE_LENGTH = 1111 };
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         for (unsigned uu = 0; uu < 256; ++uu) {
             unsigned char u = static_cast<unsigned char>(uu);
 
-            writeByte(fd, u);
+            u::writeByte(fd, u);
         }
         unsigned char maxChar, minChar;
-        setToMax(&maxChar);
-        setToMin(&minChar);
+        u::setToMax(&maxChar);
+        u::setToMin(&minChar);
 
-        writeByte(fd, maxChar);
-        writeByte(fd, minChar);
+        u::writeByte(fd, maxChar);
+        u::writeByte(fd, minChar);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         for (unsigned uu = 0; uu < (1 << 16); uu += (1 << 8)) {
             unsigned short u = static_cast<unsigned short>(uu);
 
-            writeShort(fd, u);
+            u::writeShort(fd, u);
         }
         unsigned short maxShort, minShort;
-        setToMax(&maxShort);
-        setToMin(&minShort);
+        u::setToMax(&maxShort);
+        u::setToMin(&minShort);
 
-        writeShort(fd, maxShort);
-        writeShort(fd, minShort);
+        u::writeShort(fd, maxShort);
+        u::writeShort(fd, minShort);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         for (Uint64 uu = 0; uu < (1LL << 32); uu += (1 << 24)) {
             unsigned u = static_cast<unsigned>(uu);
 
-            writeUnsigned(fd, u);
+            u::writeUnsigned(fd, u);
         }
         unsigned maxUnsigned, minUnsigned;
-        setToMax(&maxUnsigned);
-        setToMin(&minUnsigned);
+        u::setToMax(&maxUnsigned);
+        u::setToMin(&minUnsigned);
 
-        writeUnsigned(fd, maxUnsigned);
-        writeUnsigned(fd, minUnsigned);
+        u::writeUnsigned(fd, maxUnsigned);
+        u::writeUnsigned(fd, minUnsigned);
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         Offset maxOffset, minOffset;
-        setToMax(&maxOffset);
-        setToMin(&minOffset);
+        u::setToMax(&maxOffset);
+        u::setToMin(&minOffset);
 
         ASSERT(Obj::s_maxOffset == maxOffset);
 
@@ -2275,13 +2374,13 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                writeInt64(fd, o);
+                u::writeInt64(fd, o);
             }
         }
-        writeInt64(fd, maxOffset);
-        writeInt64(fd, minOffset);
+        u::writeInt64(fd, maxOffset);
+        u::writeInt64(fd, minOffset);
 
-        Offset endPos = getOffset(fd);
+        Offset endPos = u::getOffset(fd);
 
         int rc = FU::close(fd);
         ASSERT(0 == rc);
@@ -2436,7 +2535,7 @@ int main(int argc, char *argv[])
 
         enum { k_GARBAGE_LENGTH = 1111 };
 
-        writeGarbage(fd, k_GARBAGE_LENGTH);
+        u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
         int rc = FU::close(fd);
         ASSERT(0 == rc);

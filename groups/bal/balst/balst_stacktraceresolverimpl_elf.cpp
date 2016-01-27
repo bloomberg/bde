@@ -815,22 +815,27 @@ int u_zprintf(const char *, ...)
     // Do nothing.
 #endif
 
+namespace BloombergLP {
+
+namespace {
+namespace u {
+
 static inline
-long long u_ll(long long value)
+long long ll(long long value)
     // Coerce the specied 'value' to a long long.
 {
     return value;
 }
 
 static inline
-long u_l(long value)
+long l(long value)
     // Coerce the specified 'value' to a long.
 {
     return value;
 }
 
 template <class TYPE>
-static TYPE u_approxAbs(TYPE x)
+static TYPE approxAbs(TYPE x)
     // Return approximately the absolute value of the specified 'x'.
 {
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);
@@ -844,50 +849,45 @@ static TYPE u_approxAbs(TYPE x)
     return x;
 }
 
-namespace BloombergLP {
-
-namespace {
-
-typedef bsls::Types::UintPtr                  u_UintPtr;
-typedef bsls::Types::IntPtr                   u_IntPtr;
-typedef bsls::Types::Uint64                   u_Uint64;
-typedef bdls::FilesystemUtil::Offset          u_Offset;
+typedef bsls::Types::UintPtr          UintPtr;
+typedef bsls::Types::Uint64           Uint64;
+typedef bdls::FilesystemUtil::Offset  Offset;
 
 #ifdef u_DWARF
-typedef balst::StackTraceResolver_DwarfReader u_Reader;
-typedef u_Reader::Section                     u_Section;
+typedef balst::StackTraceResolver_DwarfReader Reader;
+typedef u::Reader::Section                    Section;
 #endif
 
-static const u_Offset  u_maxOffset = LLONG_MAX;
-static const u_UintPtr u_minusOne  = ~static_cast<u_UintPtr>(0);
+static const u::Offset  maxOffset = LLONG_MAX;
+static const u::UintPtr minusOne  = ~static_cast<u::UintPtr>(0);
 
-BSLMF_ASSERT(sizeof(u_Uint64) == sizeof(u_Offset));
-BSLMF_ASSERT(sizeof(u_UintPtr) == sizeof(void *));
-BSLMF_ASSERT(static_cast<u_Offset>(-1) < 0);
-BSLMF_ASSERT(u_maxOffset > 0);
-BSLMF_ASSERT(u_maxOffset > INT_MAX);
-BSLMF_ASSERT(static_cast<u_Offset>(static_cast<u_Uint64>(u_maxOffset) + 1) <
+BSLMF_ASSERT(sizeof(u::Uint64) == sizeof(u::Offset));
+BSLMF_ASSERT(sizeof(u::UintPtr) == sizeof(void *));
+BSLMF_ASSERT(static_cast<u::Offset>(-1) < 0);
+BSLMF_ASSERT(u::maxOffset > 0);
+BSLMF_ASSERT(u::maxOffset > INT_MAX);
+BSLMF_ASSERT(static_cast<u::Offset>(static_cast<u::Uint64>(u::maxOffset) + 1) <
                                                                             0);
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-                                                          u_StackTraceResolver;
+                                                            StackTraceResolver;
 
                             // --------------------------
                             // Run-Time Platform Switches
                             // --------------------------
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
-enum { u_IS_LINUX = 1 };
+enum { e_IS_LINUX = 1 };
 #else
-enum { u_IS_LINUX = 0 };
+enum { e_IS_LINUX = 0 };
 #endif
 
 #if   defined(BSLS_PLATFORM_IS_BIG_ENDIAN)
-enum { u_IS_BIG_ENDIAN = 1,
-       u_IS_LITTLE_ENDIAN = 0 };
+enum { e_IS_BIG_ENDIAN = 1,
+       e_IS_LITTLE_ENDIAN = 0 };
 #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-enum { u_IS_BIG_ENDIAN = 0,
-       u_IS_LITTLE_ENDIAN = 1 };
+enum { e_IS_BIG_ENDIAN = 0,
+       e_IS_LITTLE_ENDIAN = 1 };
 #else
 # error endianness is undefined
 #endif
@@ -896,23 +896,23 @@ enum { u_IS_BIG_ENDIAN = 0,
 enum Dwarf4Enums {
     // DWARF 4 flags not necessarily defined in our dwarf.h.
 
-    u_DW_TAG_type_unit             = u_Reader::e_DW_TAG_type_unit,
-    u_DW_TAG_rvalue_reference_type = u_Reader::e_DW_TAG_rvalue_reference_type,
-    u_DW_TAG_template_alias        = u_Reader::e_DW_TAG_template_alias,
+    e_DW_TAG_type_unit             = u::Reader::e_DW_TAG_type_unit,
+    e_DW_TAG_rvalue_reference_type = u::Reader::e_DW_TAG_rvalue_reference_type,
+    e_DW_TAG_template_alias        = u::Reader::e_DW_TAG_template_alias,
 
-    u_DW_AT_signature              = u_Reader::e_DW_AT_signature,
-    u_DW_AT_main_subprogram        = u_Reader::e_DW_AT_main_subprogram,
-    u_DW_AT_data_bit_offset        = u_Reader::e_DW_AT_data_bit_offset,
-    u_DW_AT_const_expr             = u_Reader::e_DW_AT_const_expr,
-    u_DW_AT_enum_class             = u_Reader::e_DW_AT_enum_class,
-    u_DW_AT_linkage_name           = u_Reader::e_DW_AT_linkage_name,
+    e_DW_AT_signature              = u::Reader::e_DW_AT_signature,
+    e_DW_AT_main_subprogram        = u::Reader::e_DW_AT_main_subprogram,
+    e_DW_AT_data_bit_offset        = u::Reader::e_DW_AT_data_bit_offset,
+    e_DW_AT_const_expr             = u::Reader::e_DW_AT_const_expr,
+    e_DW_AT_enum_class             = u::Reader::e_DW_AT_enum_class,
+    e_DW_AT_linkage_name           = u::Reader::e_DW_AT_linkage_name,
 
-    u_DW_FORM_sec_offset           = u_Reader::e_DW_FORM_sec_offset,
-    u_DW_FORM_exprloc              = u_Reader::e_DW_FORM_exprloc,
-    u_DW_FORM_flag_present         = u_Reader::e_DW_FORM_flag_present,
-    u_DW_FORM_ref_sig8             = u_Reader::e_DW_FORM_ref_sig8,
+    e_DW_FORM_sec_offset           = u::Reader::e_DW_FORM_sec_offset,
+    e_DW_FORM_exprloc              = u::Reader::e_DW_FORM_exprloc,
+    e_DW_FORM_flag_present         = u::Reader::e_DW_FORM_flag_present,
+    e_DW_FORM_ref_sig8             = u::Reader::e_DW_FORM_ref_sig8,
 
-    u_DW_LNE_set_discriminator     = u_Reader::e_DW_LNE_set_discriminator
+    e_DW_LNE_set_discriminator     = u::Reader::e_DW_LNE_set_discriminator
 };
 #endif
 
@@ -920,15 +920,15 @@ enum Dwarf4Enums {
                                    // Constants
                                    // ---------
 
-enum { u_k_SCRATCH_BUF_LEN = 32 * 1024 - 64 };
+enum { k_SCRATCH_BUF_LEN = 32 * 1024 - 64 };
     // length in bytes of d_buffer_p, 32K minus a little so we don't waste a
     // page
 
 #ifdef u_DWARF
-BSLMF_ASSERT(static_cast<int>(u_k_SCRATCH_BUF_LEN) ==
-                                static_cast<int>(u_Reader::k_SCRATCH_BUF_LEN));
-    // u_Reader really needs the buffers passed to it to be at least
-    // 'u_Reader::k_SCRATCH_BUF_LEN' long.
+BSLMF_ASSERT(static_cast<int>(u::k_SCRATCH_BUF_LEN) ==
+                               static_cast<int>(u::Reader::k_SCRATCH_BUF_LEN));
+    // u::Reader really needs the buffers passed to it to be at least
+    // 'u::Reader::k_SCRATCH_BUF_LEN' long.
 #endif
 
                                 // ---------------
@@ -945,35 +945,33 @@ BSLMF_ASSERT(static_cast<int>(u_k_SCRATCH_BUF_LEN) ==
 // The following types are part of the ELF standard, and describe structs that
 // occur in the executable file / shared libraries.
 
-typedef u_SPLICE(Dyn)   u_ElfDynamic;        // The expression '&_DYNAMIC' is a
-                                             // 'void *' pointer to a an array
-                                             // of 'struct's of this type, used
-                                             // to find the link map on
-                                             // Solaris.
+typedef u_SPLICE(Dyn)   ElfDynamic;        // The expression '&_DYNAMIC' is a
+                                           // 'void *' pointer to a an array of
+                                           // 'struct's of this type, used to
+                                           // find the link map on Solaris.
 
-typedef u_SPLICE(Ehdr)  u_ElfHeader;         // The elf header is a standard
-                                             // header at the start of any ELF
-                                             // file
+typedef u_SPLICE(Ehdr)  ElfHeader;         // The elf header is a standard
+                                           // header at the start of any ELF
+                                           // file
 
-typedef u_SPLICE(Phdr)  u_ElfProgramHeader;  // Program headers are obtained
-                                             // from the link map.  We use them
-                                             // to find code segments.
+typedef u_SPLICE(Phdr)  ElfProgramHeader;  // Program headers are obtained from
+                                           // the link map.  We use them to
+                                           // find code segments.
 
-typedef u_SPLICE(Shdr)  u_ElfSectionHeader;  // Section headers are located
-                                             // from the U::ElfHeader, they
-                                             // tell us where the sections
-                                             // containing symbols and strings
-                                             // are
+typedef u_SPLICE(Shdr)  ElfSectionHeader;  // Section headers are located from
+                                           // the U::ElfHeader, they tell us
+                                           // where the sections containing
+                                           // symbols and strings are
 
-typedef u_SPLICE(Sym)   u_ElfSymbol;         // Describes one symbol in the
-                                             // symbol table.
+typedef u_SPLICE(Sym)   ElfSymbol;         // Describes one symbol in the
+                                           // symbol table.
 #undef u_SPLICE
 
                                     // --------
                                     // FrameRec
                                     // --------
 
-class u_FrameRec {
+class FrameRec {
     // A struct consisting of the things we want stored associated with a given
     // frame that will not be stored in the 'StackTraceFrame' itself.  We put
     // these into a vector and sort them by address so that later we can do
@@ -984,8 +982,8 @@ class u_FrameRec {
     const void             *d_address;            // == 'd_frame_p->address()'
     balst::StackTraceFrame *d_frame_p;            // held, not owned
 #ifdef u_DWARF
-    u_Offset                d_compileUnitOffset;
-    u_Offset                d_lineNumberOffset;
+    u::Offset               d_compileUnitOffset;
+    u::Offset               d_lineNumberOffset;
     bsl::string             d_compileUnitDir;
     bsl::string             d_compileUnitFileName;
 #endif
@@ -993,31 +991,31 @@ class u_FrameRec {
     bool                    d_isSymbolResolved;
 
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(u_FrameRec,
+    BSLALG_DECLARE_NESTED_TRAITS(u::FrameRec,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    u_FrameRec(const void             *address,
-               balst::StackTraceFrame *stackTraceFrame,
-               int                     index,
-               bslma::Allocator       *allocator);
-        // Create a 'u_FrameRec' referring to the specified 'address' and the
+    FrameRec(const void            *address,
+            balst::StackTraceFrame *stackTraceFrame,
+            int                     index,
+            bslma::Allocator       *allocator);
+        // Create a 'u::FrameRec' referring to the specified 'address' and the
         // specified 'framePtr'.
 
-    u_FrameRec(const u_FrameRec&  original,
-               bslma::Allocator  *allocator);
-        // Create a 'u_FrameRec' that uses the specified 'allocator' and is a
+    FrameRec(const u::FrameRec&  original,
+             bslma::Allocator   *allocator);
+        // Create a 'u::FrameRec' that uses the specified 'allocator' and is a
         // copy of the specified 'original'.
 
-    // ~u_FrameRec() = default;
+    // ~u::FrameRec() = default;
 
     // MANIPULATORS
-    // inline operator=(const u_FrameRec&) = default;
+    // inline operator=(const u::FrameRec&) = default;
 
     void setAddress(const void *value);
         // Set tthe 'address' field to the specified 'value'.
 
-    void setAddress(u_UintPtr value);
+    void setAddress(u::UintPtr value);
         // Set tthe 'address' field to the specified 'value'.
 
 #ifdef u_DWARF
@@ -1027,10 +1025,10 @@ class u_FrameRec {
     void setCompileUnitFileName(const bsl::string& value);
         // Set the compile unit file name to the specified 'value'.
 
-    void setCompileUnitOffset(const u_Offset value);
+    void setCompileUnitOffset(const u::Offset value);
         // Set tthe compilation unit offset field to the specified 'value'.
 
-    void setLineNumberOffset(u_Offset value);
+    void setLineNumberOffset(u::Offset value);
         // Set tthe line number offset field to the specified 'value'.
 #endif
 
@@ -1038,7 +1036,7 @@ class u_FrameRec {
         // Set this frame as being done.
 
     // ACCESSORS
-    bool operator<(const u_FrameRec& rhs) const;
+    bool operator<(const u::FrameRec& rhs) const;
         // Return 'true' if the address field of this object is less than the
         // address field of 'rhs'.
 
@@ -1052,10 +1050,10 @@ class u_FrameRec {
     const bsl::string& compileUnitFileName() const;
         // Return the compile unit file name.
 
-    u_Offset compileUnitOffset() const;
+    u::Offset compileUnitOffset() const;
         // Return the compile unit offset field.
 
-    u_Offset lineNumberOffset() const;
+    u::Offset lineNumberOffset() const;
         // Return the line number offset field.
 #endif
 
@@ -1071,20 +1069,20 @@ class u_FrameRec {
         // Return 'true' if this frame is done and 'false' otherwise.
 };
 
-                                // ----------------
-                                // class u_FrameRec
-                                // ----------------
+                                // --------------
+                                // class FrameRec
+                                // --------------
 
 // CREATORS
-u_FrameRec::u_FrameRec(const void             *address,
-                       balst::StackTraceFrame *stackTraceFrame,
-                       int                     index,
-                       bslma::Allocator       *allocator)
+FrameRec::FrameRec(const void             *address,
+                   balst::StackTraceFrame *stackTraceFrame,
+                   int                     index,
+                   bslma::Allocator       *allocator)
 : d_address(address)
 , d_frame_p(stackTraceFrame)
 #ifdef u_DWARF
-, d_compileUnitOffset(u_maxOffset)
-, d_lineNumberOffset( u_maxOffset)
+, d_compileUnitOffset(u::maxOffset)
+, d_lineNumberOffset( u::maxOffset)
 , d_compileUnitDir(allocator)
 , d_compileUnitFileName(allocator)
 #endif
@@ -1093,8 +1091,8 @@ u_FrameRec::u_FrameRec(const void             *address,
 {
 }
 
-u_FrameRec::u_FrameRec(const u_FrameRec&  original,
-                       bslma::Allocator  *allocator)
+FrameRec::FrameRec(const FrameRec&    original,
+                   bslma::Allocator  *allocator)
 : d_address(            original.d_address)
 , d_frame_p(            original.d_frame_p)
 #ifdef u_DWARF
@@ -1110,157 +1108,161 @@ u_FrameRec::u_FrameRec(const u_FrameRec&  original,
 
 // MANIPULATORS
 inline
-void u_FrameRec::setAddress(const void *value)
+void FrameRec::setAddress(const void *value)
 {
     d_address = value;
 }
 
 inline
-void u_FrameRec::setAddress(u_UintPtr value)
+void FrameRec::setAddress(u::UintPtr value)
 {
     d_address = reinterpret_cast<const void *>(value);
 }
 
 #ifdef u_DWARF
 inline
-void u_FrameRec::setCompileUnitDir(const bsl::string& value)
+void FrameRec::setCompileUnitDir(const bsl::string& value)
 {
     d_compileUnitDir = value;
 }
 
 inline
-void u_FrameRec::setCompileUnitFileName(const bsl::string& value)
+void FrameRec::setCompileUnitFileName(const bsl::string& value)
 {
     d_compileUnitFileName = value;
 }
 
 inline
-void u_FrameRec::setCompileUnitOffset(const u_Offset value)
+void FrameRec::setCompileUnitOffset(const u::Offset value)
 {
     d_compileUnitOffset = value;
 }
 
 inline
-void u_FrameRec::setLineNumberOffset(u_Offset value)
+void FrameRec::setLineNumberOffset(u::Offset value)
 {
     d_lineNumberOffset = value;
 }
 #endif
 
 inline
-void u_FrameRec::setSymbolResolved()
+void FrameRec::setSymbolResolved()
 {
     d_isSymbolResolved = true;
 }
 
 // ACCESSORS
 inline
-bool u_FrameRec::operator<(const u_FrameRec& rhs) const
+bool FrameRec::operator<(const FrameRec& rhs) const
 {
     return d_address < rhs.d_address;
 }
 
 inline
-const void *u_FrameRec::address() const
+const void *FrameRec::address() const
 {
     return d_address;
 }
 
 #if u_DWARF
 inline
-const bsl::string& u_FrameRec::compileUnitDir() const
+const bsl::string& FrameRec::compileUnitDir() const
 {
     return d_compileUnitDir;
 }
 
 inline
-const bsl::string& u_FrameRec::compileUnitFileName() const
+const bsl::string& FrameRec::compileUnitFileName() const
 {
     return d_compileUnitFileName;
 }
 
 inline
-u_Offset u_FrameRec::compileUnitOffset() const
+u::Offset FrameRec::compileUnitOffset() const
 {
     return d_compileUnitOffset;
 }
 
 inline
-u_Offset u_FrameRec::lineNumberOffset() const
+u::Offset FrameRec::lineNumberOffset() const
 {
     return d_lineNumberOffset;
 }
 #endif
 
 inline
-balst::StackTraceFrame& u_FrameRec::frame() const
+balst::StackTraceFrame& FrameRec::frame() const
 {
     return *d_frame_p;
 }
 
 inline
-int u_FrameRec::index() const
+int FrameRec::index() const
 {
     return d_index;
 }
 
 inline
-bool u_FrameRec::isSymbolResolved() const
+bool FrameRec::isSymbolResolved() const
 {
     return d_isSymbolResolved;
 }
 
-typedef bsl::vector<u_FrameRec>  u_FrameRecVec;     // Vector of 'u_FrameRec's.
-typedef u_FrameRecVec::iterator  u_FrameRecVecIt;   // Iterator of
-                                                    // 'u_FrameRecVec'.
+typedef bsl::vector<u::FrameRec>  FrameRecVec;     // Vector of 'u::FrameRec's.
+typedef u::FrameRecVec::iterator  FrameRecVecIt;   // Iterator of
+                                                   // 'u::FrameRecVec'.
 
-struct u_AddressRange {
+                                // ============
+                                // AddressRange
+                                // ============
+
+struct AddressRange {
     // This 'struct' specifies a range of addresses over
     // '[ d_address, d_address + d_size )'.
 
-    u_UintPtr d_address;
-    u_UintPtr d_size;
+    u::UintPtr d_address;
+    u::UintPtr d_size;
 
     // ACCESSORS
     bool contains(const void *address) const;
         // Return 'true' if this address range contains the specified 'address'
         // and 'false' otherwise.
 
-    bool contains(u_UintPtr address) const;
+    bool contains(u::UintPtr address) const;
         // Return 'true' if this address range contains the specified 'address'
         // and 'false' otherwise.
 
-    bool overlaps(const u_AddressRange& other) const;
+    bool overlaps(const AddressRange& other) const;
         // Return 'true' if this address range overlaps the specified
         // u_AddressRange 'other' and 'false' otherwise.  Note that if the
         // boundaries of the addresses ranges merely 'touch', that does not
         // count as an overlap.
 };
 
-                                // --------------
-                                // u_AddressRange
-                                // --------------
+                                // ------------
+                                // AddressRange
+                                // ------------
 
 // ACCESSORS
-bool u_AddressRange::contains(const void *address) const
+bool u::AddressRange::contains(const void *address) const
 {
-    u_UintPtr a = reinterpret_cast<u_UintPtr>(address);
+    u::UintPtr a = reinterpret_cast<u::UintPtr>(address);
     return d_address <= a && a < d_address + d_size;
 }
 
-bool u_AddressRange::contains(u_UintPtr address) const
+bool u::AddressRange::contains(u::UintPtr address) const
 {
     return d_address <= address && address < d_address + d_size;
 }
 
-bool u_AddressRange::overlaps(const u_AddressRange& other) const
+bool u::AddressRange::overlaps(const AddressRange& other) const
 {
     return d_address <= other.d_address
            ? d_address + d_size > other.d_address
            : other.d_address + other.d_size > d_address;
 }
 
-class u_FreeGuard {
+class FreeGuard {
     // This 'class' will manage a buffer, which was allocated by 'malloc' and
     // is returned by '__cxa_demangle'.
 
@@ -1270,12 +1272,12 @@ class u_FreeGuard {
   public:
     // CREATORS
     explicit
-    u_FreeGuard(char *buffer)
+    FreeGuard(char *buffer)
     : d_buffer(buffer)
         // Create a 'FreeGuard' object that manages the specified 'buffer'.
     {}
 
-    ~u_FreeGuard()
+    ~FreeGuard()
         // If 'd_buffer' is non-null, free it.
     {
         if (d_buffer) {
@@ -1284,21 +1286,18 @@ class u_FreeGuard {
     }
 };
 
+                      // ---------------------------------------
+                      // free functions in the unnamed namespace
+                      // ---------------------------------------
 
-}  // close unnamed namespace
-
-                              // ----------------
-                              // static functions
-                              // ----------------
-
-static int u_cleanupString(bsl::string *str, bslma::Allocator *alloc)
+static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
     // Eliminate all instances of "/./" from the specified '*str', and also as
     // many instances of "/../" as possible.  Do not resolve symlinks.  Use the
     // specified 'alloc' for memory allocation of temporaries.  Return 0 unless
     // "*str" does not represent an acceptable full path for a source file, and
     // a non-zero value otherwise.
 {
-    static const char rn[] = { "cleanupString:" };
+    static const char rn[] = { "u::cleanupString:" };
 
     const bsl::size_t npos = bsl::string::npos;
 
@@ -1359,12 +1358,12 @@ static int u_cleanupString(bsl::string *str, bslma::Allocator *alloc)
 }
 
 #ifdef u_DWARF
-static int u_dumpBinary(u_Reader *reader, int numRows)
+static int dumpBinary(u::Reader *reader, int numRows)
     // Dump out the specified 'numRows' of 16 byte rows of the binary about to
     // be read by the specified 'reader'.  Note that this function is called
     // for debugging when we encounter unexpected things in the binary.
 {
-    static const char rn[] = { "u_dumpBinary:" };    (void) rn;
+    static const char rn[] = { "u::dumpBinary:" };    (void) rn;
 
     if (0 == u_TRACES) {
         return -1;                                                    // RETURN
@@ -1372,7 +1371,7 @@ static int u_dumpBinary(u_Reader *reader, int numRows)
 
     int rc;
 
-    u_Offset o = reader->offset();
+    u::Offset o = reader->offset();
     for (int ii = 0; ii < numRows; ++ii) {
         for (int jj = 0; jj < 16; ++jj) {
             unsigned char uc;
@@ -1399,7 +1398,7 @@ static int u_dumpBinary(u_Reader *reader, int numRows)
 #endif
 
 static
-int checkElfHeader(u_ElfHeader *elfHeader)
+int checkElfHeader(u::ElfHeader *elfHeader)
     // Return 0 if the magic numbers in the specified 'elfHeader' are correct
     // and a non-zero value otherwise.
 {
@@ -1412,7 +1411,7 @@ int checkElfHeader(u_ElfHeader *elfHeader)
 
     // this code can only read native-endian ELF files
 
-    if ((u_IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB) !=
+    if ((u::e_IS_BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB) !=
                                                  elfHeader->e_ident[EI_DATA]) {
         return -1;                                                    // RETURN
     }
@@ -1427,11 +1426,14 @@ int checkElfHeader(u_ElfHeader *elfHeader)
     return 0;
 }
 
-                      // -------------------------------
-                      // u_StackTraceResolver::HiddenRec
-                      // -------------------------------
+}  // close namespace u
+}  // close unnamed namespace
 
-struct u_StackTraceResolver::HiddenRec {
+                      // --------------------------------
+                      // u::StackTraceResolver::HiddenRec
+                      // --------------------------------
+
+struct u::StackTraceResolver::HiddenRec {
     // This 'struct' contains information for the stack trace resolver that is
     // hidden from the .h file.  Thus, we avoid having to expose
     // balst_stacktraceresolver_dwarfreader.h' in the .h, and we can use types
@@ -1444,54 +1446,54 @@ struct u_StackTraceResolver::HiddenRec {
 
     StackTrace    *d_stackTrace_p;      // the stack trace we are resolving
 
-    u_AddressRange d_addressRange;      // address range of the current segment
+    u::AddressRange d_addressRange;     // address range of the current segment
 
-    u_FrameRecVec  d_frameRecs;         // Vector of address frame pairs for
+    u::FrameRecVec  d_frameRecs;        // Vector of address frame pairs for
                                         // fast lookup of addresses.  Not local
                                         // to current segment -- initialized
                                         // once per resolve, and sorted by
                                         // address.
 
-    u_FrameRecVecIt                     // This begin, end pair indicates the
+    u::FrameRecVecIt                    // This begin, end pair indicates the
                    d_frameRecsBegin;    // range of frame records that pertain
-    u_FrameRecVecIt                     // to the current segment at a given
+    u::FrameRecVecIt                    // to the current segment at a given
                    d_frameRecsEnd;      // time.
 
-    u_UintPtr      d_adjustment;        // adjustment between addresses
+    u::UintPtr      d_adjustment;       // adjustment between addresses
                                         // expressed in object file and actual
                                         // addresses in memory for current
                                         // segment
 
-    u_Offset       d_symTableOffset;    // symbol table section (symbol table
-    u_Offset       d_symTableSize;      // does not contain symbol names, just
+    u::Offset       d_symTableOffset;   // symbol table section (symbol table
+    u::Offset       d_symTableSize;     // does not contain symbol names, just
                                         // offsets into string table) from the
                                         // beginning of the executable or
                                         // library file
 
-    u_Offset       d_stringTableOffset; // string table offset from the
-    u_Offset       d_stringTableSize;   // beginning of the file
+    u::Offset       d_stringTableOffset;// string table offset from the
+    u::Offset       d_stringTableSize;  // beginning of the file
 
 #ifdef u_DWARF
-    u_Section      d_abbrevSec;         // .debug_abbrev section
-    u_Reader       d_abbrevReader;      // reader for that section
+    u::Section      d_abbrevSec;        // .debug_abbrev section
+    u::Reader       d_abbrevReader;     // reader for that section
 
-    u_Section      d_arangesSec;        // .debug_aranges section
-    u_Reader       d_arangesReader;     // reader for that section
+    u::Section      d_arangesSec;       // .debug_aranges section
+    u::Reader       d_arangesReader;    // reader for that section
 
-    u_Section      d_infoSec;           // .debug_info section
-    u_Reader       d_infoReader;        // reader for that section
+    u::Section      d_infoSec;          // .debug_info section
+    u::Reader       d_infoReader;       // reader for that section
 
-    u_Section      d_lineSec;           // .debug_line section
-    u_Reader       d_lineReader;        // reader for that section
+    u::Section      d_lineSec;          // .debug_line section
+    u::Reader       d_lineReader;       // reader for that section
 
-    u_Section      d_rangesSec;         // .debug_ranges section
-    u_Reader       d_rangesReader;      // reader for that section
+    u::Section      d_rangesSec;        // .debug_ranges section
+    u::Reader       d_rangesReader;     // reader for that section
 
-    u_Section      d_strSec;            // .debug_str section
-    u_Reader       d_strReader;         // reader for that section
+    u::Section      d_strSec;           // .debug_str section
+    u::Reader       d_strReader;        // reader for that section
 #endif
 
-    u_Offset       d_libraryFileSize;   // size of the current library or
+    u::Offset       d_libraryFileSize;  // size of the current library or
                                         // executable file
 
     char          *d_scratchBufA_p;     // crratch buffer A (from resolver)
@@ -1520,7 +1522,7 @@ struct u_StackTraceResolver::HiddenRec {
   public:
     // CREATORS
     explicit
-    HiddenRec(u_StackTraceResolver *resolver);
+    HiddenRec(u::StackTraceResolver *resolver);
         // Create this 'Seg' object, initialize 'd_numFrames' to 'numFrames',
         // and initialize all other fields to 0.
 
@@ -1528,9 +1530,9 @@ struct u_StackTraceResolver::HiddenRec {
 #ifdef u_DWARF
 # if u_DWARF_CHECK_ADDRESSES
     int dwarfCheckRanges(bool          *isMatch,
-                         u_UintPtr      addressToMatch,
-                         u_UintPtr      baseAddress,
-                         u_Offset       offset);
+                         u::UintPtr     addressToMatch,
+                         u::UintPtr     baseAddress,
+                         u::Offset      offset);
         // Read a ranges section and determine if an address matches.
 # endif
 
@@ -1541,8 +1543,8 @@ struct u_StackTraceResolver::HiddenRec {
         // Read the .debug_aranges section.  Return the number of frames
         // matched.
 
-    int dwarfReadCompileOrPartialUnit(u_FrameRec *frameRec,
-                                      bool       *addressMatched);
+    int dwarfReadCompileOrPartialUnit(u::FrameRec *frameRec,
+                                      bool        *addressMatched);
         // Read a compile or partial unit for the given 'frameRec', assuming
         // that 'd_infoReader' is positioned right after the tag & children
         // info, and 'd_abbrevReader' is positioned right after the tag index,
@@ -1554,7 +1556,7 @@ struct u_StackTraceResolver::HiddenRec {
     int dwarfReadDebugInfo();
         // Read the .debug_info and .debug_abbrev sections.
 
-    int dwarfReadDebugInfoFrameRec(u_FrameRec *frameRec);
+    int dwarfReadDebugInfoFrameRec(u::FrameRec *frameRec);
         // Read the dwarf info for a single compilation unit for a single
         // frame.  Return
         //..
@@ -1566,22 +1568,10 @@ struct u_StackTraceResolver::HiddenRec {
     int dwarfReadDebugLine();
         // Read the .debug_line section.
 
-    int dwarfReadDebugLineFrameRec(u_FrameRec *frameRec);
+    int dwarfReadDebugLineFrameRec(u::FrameRec *frameRec);
         // Read the .debug_line section pertaining to the specified
         // '*frameRec', and populate the source file name and line number
         // information.
-
-#if 0
-    int dwarfReadForeignFunctionFileIdx(u_FrameRec *frameRec);
-        // Read children of the current compile unit and store the information
-        // found in the specified '*frameRec'.
-        //
-        // Called by 'dwarfReadCompileOrPartialUnit' to traverse children,
-        // looking for the declaration of the subroutine to find out if the
-        // subroutine is declared in a separate file (i.e. if it's inline or a
-        // template function).  This function assumes that 'd_abbrevReader' and
-        // 'd_infoReader' are positioned right after reading the compile unit.
-#endif
 #endif
 
     void reset();
@@ -1589,7 +1579,7 @@ struct u_StackTraceResolver::HiddenRec {
 };
 
 // CREATORS
-u_StackTraceResolver::HiddenRec::HiddenRec(u_StackTraceResolver *resolver)
+u::StackTraceResolver::HiddenRec::HiddenRec(u::StackTraceResolver *resolver)
 : d_helper_p(0)
 , d_stackTrace_p(resolver->d_stackTrace_p)
 , d_frameRecs(&resolver->d_hbpAlloc)
@@ -1620,10 +1610,10 @@ u_StackTraceResolver::HiddenRec::HiddenRec(u_StackTraceResolver *resolver)
     d_frameRecs.reserve(d_numTotalUnmatched);
     for (int ii = 0; ii < d_numTotalUnmatched; ++ii) {
         balst::StackTraceFrame& frame = (*resolver->d_stackTrace_p)[ii];
-        d_frameRecs.push_back(u_FrameRec(frame.address(),
-                                         &frame,
-                                         ii,
-                                         &resolver->d_hbpAlloc));
+        d_frameRecs.push_back(u::FrameRec(frame.address(),
+                                          &frame,
+                                          ii,
+                                          &resolver->d_hbpAlloc));
     }
     bsl::sort(d_frameRecs.begin(), d_frameRecs.end());
 }
@@ -1637,13 +1627,13 @@ u_StackTraceResolver::HiddenRec::HiddenRec(u_StackTraceResolver *resolver)
 // to scan all the compile units and use this code to find which one
 // matches on that platform.
 
-int u_StackTraceResolver::HiddenRec::dwarfCheckRanges(
-                                                 bool          *isMatch,
-                                                 u_UintPtr      addressToMatch,
-                                                 u_UintPtr      baseAddress,
-                                                 u_Offset       offset)
+int u::StackTraceResolver::HiddenRec::dwarfCheckRanges(
+                                                    bool       *isMatch,
+                                                    u::UintPtr  addressToMatch,
+                                                    u::UintPtr  baseAddress,
+                                                    u::Offset   offset)
 {
-    static const char rn[] = { "dwarfCheckRanges:" };
+    static const char rn[] = { "HiddenRec::dwarfCheckRanges:" };
     int rc;
 
     *isMatch = false;
@@ -1653,7 +1643,7 @@ int u_StackTraceResolver::HiddenRec::dwarfCheckRanges(
 
     bool firstTime = true;
     while (true) {
-        u_UintPtr loAddress, hiAddress;
+        u::UintPtr loAddress, hiAddress;
         rc = d_rangesReader.readAddress(&loAddress);
         u_ASSERT_BAIL(0 == rc && "read loAddress failed");
         rc = d_rangesReader.readAddress(&hiAddress);
@@ -1668,28 +1658,28 @@ int u_StackTraceResolver::HiddenRec::dwarfCheckRanges(
         if (firstTime) {
             firstTime = false;
 
-            const u_UintPtr baseIndicator =
-                      static_cast<int>(sizeof(u_UintPtr)) ==
+            const u::UintPtr baseIndicator =
+                      static_cast<int>(sizeof(u::UintPtr)) ==
                                                    d_rangesReader.addressSize()
-                      ? u_minusOne
+                      ? u::minusOne
                       : 0xffffffffUL;
 
             if (baseIndicator == loAddress) {
                 baseAddress = hiAddress;
             }
             else {
-                if (u_minusOne == baseAddress) {
+                if (u::minusOne == baseAddress) {
                     baseAddress = d_adjustment;
                 }
 
                 u_TRACES && u_zprintf("%s base address not in .debug_ranges,"
                                      " loAddress: %llx, baseAddress: 0x%llx\n",
-                                       rn, u_ll(loAddress), u_ll(baseAddress));
+                                     rn, u::ll(loAddress), u::ll(baseAddress));
             }
             if (addressToMatch < baseAddress) {
                 u_TRACES && u_zprintf("%s address to match 0x%llx below base"
                                               " address 0x%llx -- not a bug\n",
-                                  rn, u_ll(addressToMatch), u_ll(baseAddress));
+                                rn, u::ll(addressToMatch), u::ll(baseAddress));
 
                 return 0;                                             // RETURN
             }
@@ -1704,9 +1694,9 @@ int u_StackTraceResolver::HiddenRec::dwarfCheckRanges(
         if (loAddress <= addressToMatch && addressToMatch < hiAddress) {
             u_TRACES && u_zprintf("%s .debug_ranges matched address 0x%llx in"
                                                          " [0x%llx, 0x%llx)\n",
-                                        rn, u_ll(addressToMatch + baseAddress),
-                                                 u_ll(loAddress + baseAddress),
-                                                u_ll(hiAddress + baseAddress));
+                                       rn, u::ll(addressToMatch + baseAddress),
+                                                u::ll(loAddress + baseAddress),
+                                               u::ll(hiAddress + baseAddress));
             *isMatch = true;
             return 0;                                                 // RETURN
         }
@@ -1714,9 +1704,9 @@ int u_StackTraceResolver::HiddenRec::dwarfCheckRanges(
 }
 #endif
 
-int u_StackTraceResolver::HiddenRec::dwarfReadAll()
+int u::StackTraceResolver::HiddenRec::dwarfReadAll()
 {
-    static const char rn[] = { "dwarfReadAll:" };    (void) rn;
+    static const char rn[] = { "HiddenRec::dwarfReadAll:" };    (void) rn;
 
     u_TRACES && u_zprintf("%s starting\n", rn);
 
@@ -1750,15 +1740,15 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAll()
     return 0;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
+int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
 {
-    static const char rn[] = { "dwarfReadAranges:" };    (void) rn;
+    static const char rn[] = { "HiddenRec::dwarfReadAranges:" };    (void) rn;
 
     // Buffer use: this function usee only scratch buf A.
 
     int rc;
 
-    const u_FrameRecVecIt end = d_frameRecsEnd;
+    const u::FrameRecVecIt end = d_frameRecsEnd;
     const int toMatch = static_cast<int>(end - d_frameRecsBegin);
     BSLS_ASSERT(toMatch > 0);       // otherwise we should not have been called
     int matched = 0;
@@ -1769,15 +1759,15 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
 
-    u_AddressRange addressRange, prevRange = { 0, 0 }; (void) prevRange;
-    u_FrameRec dummyFrameRec(0, 0, 0, d_allocator_p);
+    u::AddressRange addressRange, prevRange = { 0, 0 }; (void) prevRange;
+    u::FrameRec dummyFrameRec(0, 0, 0, d_allocator_p);
 
     while (!d_arangesReader.atEndOfSection()) {
-        u_Offset      rangeLength;
+        u::Offset      rangeLength;
         int rc = d_arangesReader.readInitialLength(&rangeLength);
         u_ASSERT_BAIL(0 == rc && "read initial length failed");
 
-        u_Offset endOffset = d_arangesReader.offset() + rangeLength;
+        u::Offset endOffset = d_arangesReader.offset() + rangeLength;
         // 'endOffset has already been checked to fit within the section.
 
         unsigned short version;
@@ -1785,7 +1775,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
         u_ASSERT_BAIL(0 == rc && "read version failed");
         u_ASSERT_BAIL(2 == version || u_P(version));
 
-        u_Offset debugInfoOffset;
+        u::Offset debugInfoOffset;
         rc = d_arangesReader.readSectionOffset(&debugInfoOffset);
         u_ASSERT_BAIL(0 == rc);
         u_ASSERT_BAIL(0 <= debugInfoOffset || u_PH(debugInfoOffset));
@@ -1819,7 +1809,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
 
         bool foundZeroes = false;
         while (d_arangesReader.offset() < endOffset) {
-            if (sizeof(u_UintPtr) == sizeof(unsigned int)) {
+            if (sizeof(u::UintPtr) == sizeof(unsigned int)) {
                 rc =  d_arangesReader.readValue(&addressRange);
             }
             else {
@@ -1852,36 +1842,36 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
                 // Sometimes the address ranges are just garbage.
 
                 u_TRACES && u_zprintf("Garbage address range (0x%lx, 0x%lx)\n",
-                        u_l(addressRange.d_address), u_l(addressRange.d_size));
+                      u::l(addressRange.d_address), u::l(addressRange.d_size));
                 continue;
             }
 
             if (u_TRACES && prevRange.overlaps(addressRange)) {
                 u_eprintf("%s overlapping ranges (0x%lx, 0x%lx)"
                                                        " (0x%lx, 0x%lx)\n", rn,
-                               u_l(prevRange.d_address), u_l(prevRange.d_size),
-                        u_l(addressRange.d_address), u_l(addressRange.d_size));
+                             u::l(prevRange.d_address), u::l(prevRange.d_size),
+                      u::l(addressRange.d_address), u::l(addressRange.d_size));
             }
 
             prevRange = addressRange;
 
             // u_TRACES && u_zprintf("%s range:[0x%lx, 0x%lx)\n",
-            //                                 rn, u_l(addressRange.d_address),
-            //                                       u_l(addressRange.d_size));
+            //                                rn, u::l(addressRange.d_address),
+            //                                      u::l(addressRange.d_size));
 
             dummyFrameRec.setAddress(addressRange.d_address);
-            u_FrameRecVecIt begin =
+            u::FrameRecVecIt begin =
                         bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
-            for (u_FrameRecVecIt it = begin; it < end &&
+            for (u::FrameRecVecIt it = begin; it < end &&
                                   addressRange.contains(it->address()); ++it) {
                 const bool isRedundant =
-                                        u_maxOffset != it->compileUnitOffset();
+                                       u::maxOffset != it->compileUnitOffset();
                 u_TRACES && u_zprintf("%s%s range (0x%lx, 0x%lx) matches"
                                      " frame %d, address: %p, offset 0x%llx\n",
                                            rn, isRedundant ? " redundant" : "",
-                         u_l(addressRange.d_address), u_l(addressRange.d_size),
+                       u::l(addressRange.d_address), u::l(addressRange.d_size),
                                                                    it->index(),
-                                         it->address(), u_ll(debugInfoOffset));
+                                        it->address(), u::ll(debugInfoOffset));
                 if (isRedundant) {
                     continue;
                 }
@@ -1907,11 +1897,11 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAranges()
     return matched;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
-                                                    u_FrameRec *frameRec,
-                                                    bool       *addressMatched)
+int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
+                                                   u::FrameRec *frameRec,
+                                                   bool        *addressMatched)
 {
-    static const char rn[] = { "dwarfReadCompileOrPartialUnit:" };
+    static const char rn[] = { "HiddenRec::dwarfReadCompileOrPartialUnit:" };
 
     int rc;
 
@@ -1930,16 +1920,16 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     *addressMatched = false;
 
 #if u_DWARF_CHECK_ADDRESSES
-    const u_UintPtr addressToMatch =
-                              reinterpret_cast<u_UintPtr>(frameRec->address());
-    u_UintPtr loPtr = u_minusOne, hiPtr = 0;
+    const u::UintPtr addressToMatch =
+                             reinterpret_cast<u::UintPtr>(frameRec->address());
+    u::UintPtr loPtr = u::minusOne, hiPtr = 0;
 #endif
 
     const int index = frameRec->index(); (void) index;
 
     bsl::string baseName(d_allocator_p), dirName(d_allocator_p);
     dirName.reserve(200);
-    u_Offset lineNumberInfoOffset;
+    u::Offset lineNumberInfoOffset;
 
     do {
         unsigned int attr;
@@ -1958,13 +1948,13 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             break;
         }
 
-        u_TRACES && u_zprintf("%s %s %s\n", rn, u_Reader::stringForAt(attr),
-                                                u_Reader::stringForForm(form));
+        u_TRACES && u_zprintf("%s %s %s\n", rn, u::Reader::stringForAt(attr),
+                                               u::Reader::stringForForm(form));
 
         switch (attr) {
 #if u_DWARF_CHECK_ADDRESSES
           case DW_AT_low_pc: {                            // DWARF doc 3.1.1.1
-            u_ASSERT_BAIL(u_minusOne == loPtr);
+            u_ASSERT_BAIL(u::minusOne == loPtr);
 
             rc = d_infoReader.readAddress(&loPtr, form);
             u_ASSERT_BAIL(0 == rc);
@@ -1975,7 +1965,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                 loPtr += d_adjustment;
             }
 
-            u_TRACES && u_zprintf("%s loPtr: 0x%llx\n", rn, u_ll(loPtr));
+            u_TRACES && u_zprintf("%s loPtr: 0x%llx\n", rn, u::ll(loPtr));
 
             if (0 != hiPtr) {
                 if (loPtr <= addressToMatch && addressToMatch < hiPtr) {
@@ -1997,12 +1987,12 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             if (DW_FORM_addr != form) {
                 // this was not in the doc, just guessing
 
-                hiPtr += u_minusOne != loPtr ? loPtr : d_adjustment;
+                hiPtr += u::minusOne != loPtr ? loPtr : d_adjustment;
             }
 
-            u_TRACES && u_zprintf("%s hiPtr: 0x%llx\n", rn, u_ll(hiPtr));
+            u_TRACES && u_zprintf("%s hiPtr: 0x%llx\n", rn, u::ll(hiPtr));
 
-            if (u_minusOne != loPtr) {
+            if (u::minusOne != loPtr) {
                 if (loPtr <= addressToMatch && addressToMatch < hiPtr) {
                     u_TRACES && u_zprintf("%s loHiMatch on hi\n", rn);
                     obtained |= k_OBTAINED_ADDRESS_MATCH;
@@ -2014,16 +2004,16 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             }
           } break;
           case DW_AT_ranges: {                            // DWARF doc 3.1.1.1
-            u_Offset rangesOffset;
+            u::Offset rangesOffset;
             rc = d_infoReader.readOffsetFromForm(&rangesOffset, form);
             u_ASSERT_BAIL(0 == rc && "trouble reading ranges offset");
             u_ASSERT_BAIL(rangesOffset < d_rangesSec.d_size);
             bool isMatch;
             rc = dwarfCheckRanges(
-                              &isMatch,
-                              reinterpret_cast<u_UintPtr>(frameRec->address()),
-                              loPtr,
-                              rangesOffset);
+                             &isMatch,
+                             reinterpret_cast<u::UintPtr>(frameRec->address()),
+                             loPtr,
+                             rangesOffset);
             u_ASSERT_BAIL(0 == rc && "dwarfCheckRanges failed");
 
             if (isMatch) {
@@ -2055,7 +2045,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             rc = d_infoReader.readOffsetFromForm(&lineNumberInfoOffset, form);
             u_ASSERT_BAIL(0 == rc && "trouble reading line offset");
             u_TRACES && u_zprintf("%s found line offset %lld\n",
-                                               rn, u_ll(lineNumberInfoOffset));
+                                              rn, u::ll(lineNumberInfoOffset));
 
             obtained |= k_OBTAINED_LINE_OFFSET;
           } break;
@@ -2085,7 +2075,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
           case DW_AT_identifier_case:                     // DWARF doc 3.1.1.8
           case DW_AT_base_types:                          // DWARF doc 3.1.1.9
           case DW_AT_use_UTF8:                            // DWARF doc 3.1.1.10
-          case u_DW_AT_main_subprogram:                   // DWARF doc 3.1.1.11
+          case u::e_DW_AT_main_subprogram:                // DWARF doc 3.1.1.11
           case DW_AT_description:
           case DW_AT_segment: {
             rc = d_infoReader.skipForm(form);
@@ -2121,7 +2111,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     u_ASSERT_BAIL(!baseName.empty());
     u_ASSERT_BAIL(!dirName.empty());
 
-    (void) u_cleanupString(&dirName, d_allocator_p);
+    (void) u::cleanupString(&dirName, d_allocator_p);
     frameRec->setCompileUnitDir(     dirName);
     frameRec->setCompileUnitFileName(baseName);
     frameRec->setLineNumberOffset(lineNumberInfoOffset);
@@ -2129,18 +2119,18 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     return 0;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
+int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
 {
-    static const char rn[] = { "dwarfDebugInfo:" };    (void) rn;
+    static const char rn[] = { "HiddenRec::dwarfDebugInfo:" };    (void) rn;
 
-    const u_FrameRecVecIt end = d_frameRecsEnd;
-    for (u_FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
+    const u::FrameRecVecIt end = d_frameRecsEnd;
+    for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
                                                              prev = it, ++it) {
-        // Because the 'u_FrameRec's are sorted by address, those referring to
+        // Because the 'u::FrameRec's are sorted by address, those referring to
         // the same compilation unit are going to be adjacent.
 
         if (end != prev && d_arangesSec.d_size &&
-                        u_maxOffset != it->compileUnitOffset() &&
+                        u::maxOffset != it->compileUnitOffset() &&
                         prev->compileUnitOffset() == it->compileUnitOffset()) {
             u_TRACES && u_zprintf("%s frames %d and %d are from the same"
                                                      " compilation unit\n", rn,
@@ -2172,10 +2162,11 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
     return 0;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
-                                                          u_FrameRec *frameRec)
+int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
+                                                         u::FrameRec *frameRec)
 {
-    static const char rn[] = { "dwarfDebugInfoFrameRec:" };    (void) rn;
+    static const char rn[] = { "HiddenRec::dwarfDebugInfoFrameRec:" };
+    (void) rn;
 
     int rc;
     const int index = frameRec->index(); (void) index;
@@ -2203,8 +2194,8 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
     bool addressMatched;
 
-    u_Offset nextCompileUnitOffset = d_infoSec.d_offset;
-    if (d_arangesSec.d_size && u_maxOffset != frameRec->compileUnitOffset()) {
+    u::Offset nextCompileUnitOffset = d_infoSec.d_offset;
+    if (d_arangesSec.d_size && u::maxOffset != frameRec->compileUnitOffset()) {
         nextCompileUnitOffset += frameRec->compileUnitOffset();
     }
 
@@ -2213,7 +2204,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
         u_ASSERT_BAIL(0 == rc && "skipTo failed");
 
         {
-            u_Offset compileUnitLength;
+            u::Offset compileUnitLength;
             rc = d_infoReader.readInitialLength(&compileUnitLength);
             u_ASSERT_BAIL(0 == rc);
 
@@ -2230,7 +2221,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
         // This is the compilation unit headers as outlined in 7.5.1.1
 
         {
-            u_Offset abbrevOffset;
+            u::Offset abbrevOffset;
             rc = d_infoReader.readSectionOffset(&abbrevOffset);
             u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
 
@@ -2244,7 +2235,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
         d_rangesReader.setAddressSize(d_infoReader.addressSize());
 
         {
-            u_Offset readTagIdx;
+            u::Offset readTagIdx;
 
             // These tag indexes were barely, vaguely mentioned by the doc,
             // with some implication that they'd be '1' before the first tag we
@@ -2255,13 +2246,13 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
             u_ASSERT_BAIL(0 == rc);
             (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
                                        "%s strange .debug_info tag idx %llx\n",
-                                                         rn, u_ll(readTagIdx));
+                                                        rn, u::ll(readTagIdx));
 
             rc = d_abbrevReader.readULEB128(&readTagIdx);
             u_ASSERT_BAIL(0 == rc);
             (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
                                      "%s strange .debug_abbrev tag idx %llx\n",
-                                                         rn, u_ll(readTagIdx));
+                                                        rn, u::ll(readTagIdx));
         }
 
         unsigned int tag;
@@ -2301,14 +2292,14 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     return 0;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadDebugLine()
+int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 {
-    static const char rn[] = { "dwarfDebugLine:" };    (void) rn;
+    static const char rn[] = { "HiddenRec::dwarfDebugLine:" };    (void) rn;
 
-    const u_FrameRecVecIt end = d_frameRecsEnd;
-    for (u_FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
+    const u::FrameRecVecIt end = d_frameRecsEnd;
+    for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
                                                              prev = it, ++it) {
-        // Because the 'u_FrameRec's are sorted by address, those referring to
+        // Because the 'u::FrameRec's are sorted by address, those referring to
         // the same address are going to be adjacent.
 
         if (end != prev && prev->frame().address() == it->frame().address()) {
@@ -2337,10 +2328,11 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLine()
     return 0;
 }
 
-int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
-                                                          u_FrameRec *frameRec)
+int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
+                                                         u::FrameRec *frameRec)
 {
-    static const char rn[] = { "dwarfDebugLineFrameRec:" };    (void) rn;
+    static const char rn[] = { "HiddenRec:dwarfDebugLineFrameRec:" };
+    (void) rn;
 
     int rc;
 
@@ -2352,9 +2344,9 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                          "%s Symbol: %s, frame %d, lineNumberOffset: 0x%llx\n",
                                     rn, frameRec->frame().symbolName().c_str(),
                                                              frameRec->index(),
-                                           u_ll(frameRec->lineNumberOffset()));
+                                          u::ll(frameRec->lineNumberOffset()));
 
-    if (u_maxOffset == frameRec->lineNumberOffset()) {
+    if (u::maxOffset == frameRec->lineNumberOffset()) {
         u_TRACES && u_zprintf("%s no line number information for frame %d,"
                                    " cannot proceed\n", rn, frameRec->index());
 
@@ -2365,14 +2357,14 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                                                  frameRec->lineNumberOffset());
     u_ASSERT_BAIL(0 == rc);
 
-    u_Offset debugLineLength;
+    u::Offset debugLineLength;
     rc = d_lineReader.readInitialLength(&debugLineLength);
     u_ASSERT_BAIL(0 == rc);
 
     rc = d_lineReader.setEndOffset(d_lineReader.offset() + debugLineLength);
     u_ASSERT_BAIL(0 == rc);
 
-    u_Offset endOfHeader;
+    u::Offset endOfHeader;
     {
         unsigned short version;
         d_lineReader.readValue(&version);
@@ -2382,7 +2374,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         u_ASSERT_BAIL(0 == rc);
 
         u_TRACES && u_zprintf("%s version: %u, header len: %llu\n",
-                                               rn, version, u_ll(endOfHeader));
+                                              rn, version, u::ll(endOfHeader));
 
         endOfHeader += d_lineReader.offset();
     }
@@ -2396,10 +2388,10 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     u_ASSERT_BAIL(0 == rc);
 
     u_TRACES && u_zprintf("%s debugLineLength: %lld minInst: %u maxOp: %u\n",
-                                                     rn, u_ll(debugLineLength),
+                                                    rn, u::ll(debugLineLength),
                              minInstructionLength, maxOperationsPerInsruction);
 
-    0 && u_dumpBinary(&d_lineReader, 8);
+    0 && u::dumpBinary(&d_lineReader, 8);
 
 #if 0
     // Both the version 2 and version 4 specs say this field should be there,
@@ -2528,7 +2520,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
         if (0 && u_TRACES) {
             u_zprintf("%s fileNames[%u]: %s dirIdx %lld:\n", rn, ii,
-                                  fileNames[ii].c_str(), u_ll(dirIndexes[ii]));
+                                 fileNames[ii].c_str(), u::ll(dirIndexes[ii]));
         }
 
         rc = d_lineReader.skipULEB128();    // mod time, ignored
@@ -2546,9 +2538,9 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                                                  // cmd, in which case
                                                  // 'fileIdx' will be -1.
 
-    u_UintPtr    addressToMatch =
-                      reinterpret_cast<u_UintPtr>(frameRec->frame().address());
-    u_UintPtr    address = 0, prevAddress = 0;
+    u::UintPtr    addressToMatch =
+                     reinterpret_cast<u::UintPtr>(frameRec->frame().address());
+    u::UintPtr    address = 0, prevAddress = 0;
     unsigned int opIndex = 0;
     int          fileIdx = 0;
     unsigned int line = 1, prevLine = 1;        // The spec says to begin line
@@ -2556,22 +2548,22 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                                                 // out right this way.
 
     {
-        u_Offset toSkip = endOfHeader - d_lineReader.offset();
+        u::Offset toSkip = endOfHeader - d_lineReader.offset();
         u_TRACES && u_zprintf("%s Symbol %s, %ld dirs, %ld files, skip: %lld,"
                                " addrToMatch: 0x%lx, minLength: %u, maxOps: %u"
                                  " lineBase: %d, lineRange: %d, initLen: %lld,"
                                                                " opBase: %u\n",
-              rn, frameRec->frame().symbolName().c_str(), u_l(dirPaths.size()),
-                      u_l(fileNames.size()), u_ll(toSkip), u_l(addressToMatch),
+             rn, frameRec->frame().symbolName().c_str(), u::l(dirPaths.size()),
+                   u::l(fileNames.size()), u::ll(toSkip), u::l(addressToMatch),
                               minInstructionLength, maxOperationsPerInsruction,
-                                    lineBase, lineRange, u_ll(debugLineLength),
+                                   lineBase, lineRange, u::ll(debugLineLength),
                                                                    opcodeBase);
 
         u_ASSERT_BAIL(0 <= toSkip);
         d_lineReader.skipBytes(toSkip);
     }
 
-    0 && u_dumpBinary(&d_lineReader, 24);
+    0 && u::dumpBinary(&d_lineReader, 24);
 
     bool nullPrevStatement = true;
     bool endOfSequence = false;
@@ -2588,13 +2580,14 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             const int          opAdjust = opcode - opcodeBase;
             const unsigned int opAdvance = opAdjust / lineRange;
-            const u_UintPtr    addressAdvance = minInstructionLength *
+            const u::UintPtr    addressAdvance = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
             const int          lineAdvance = lineBase + opAdjust % lineRange;
 
             u_TRACES && u_zprintf("%s special opcode %u, opAdj: %u, opAdv: %u,"
                                             " addrAdv: %lu, lineAdv: %u\n", rn,
-                opcode, opAdjust, opAdvance, u_l(addressAdvance), lineAdvance);
+                                                   opcode, opAdjust, opAdvance,
+                                            u::l(addressAdvance), lineAdvance);
 
             statement = true;
 
@@ -2607,7 +2600,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             if (opcode <= DW_LNS_set_isa) {
                 u_zprintf("%s standard opcode %s\n", rn,
-                                               u_Reader::stringForLNS(opcode));
+                                              u::Reader::stringForLNS(opcode));
             }
             else {
                 u_zprintf("%s unrecognized standard opcode %u\n", rn, opcode);
@@ -2618,15 +2611,15 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 statement = true;
               } break;
               case DW_LNS_advance_pc: {    // 2
-                u_UintPtr opAdvance;
+                u::UintPtr opAdvance;
                 rc = d_lineReader.readULEB128(&opAdvance);
                 u_ASSERT_BAIL(0 == rc);
 
-                u_UintPtr advanceBy = minInstructionLength *
+                u::UintPtr advanceBy = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
 
                 u_TRACES && u_zprintf("%s advance@By: %lu\n",
-                                                           rn, u_l(advanceBy));
+                                                          rn, u::l(advanceBy));
 
                 statement = true;
                 address += advanceBy;
@@ -2638,7 +2631,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
                 rc = d_lineReader.readLEB128(&lineAdvance);
                 u_ASSERT_BAIL(0 == rc);
-                u_ASSERT_BAIL(u_approxAbs(lineAdvance) <  10 * 1000 * 1000);
+                u_ASSERT_BAIL(u::approxAbs(lineAdvance) <  10 * 1000 * 1000);
 
                 u_TRACES && u_zprintf("%s advanceLnBy: %d\n", rn, lineAdvance);
 
@@ -2727,11 +2720,11 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             }
 
             u_zprintf("%s extended opcode %s\n",
-                                           rn, u_Reader::stringForLNE(opcode));
+                                          rn, u::Reader::stringForLNE(opcode));
 
             switch (opcode) {
               case DW_LNE_end_sequence: {    // 1
-                0 && u_dumpBinary(&d_lineReader, 8);
+                0 && u::dumpBinary(&d_lineReader, 8);
 
                 // There was an extra byte there in the example, but it's not
                 // described in the spec, so its function is unknown.
@@ -2771,14 +2764,14 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
                 line = prevLine = 1;
               } break;
-              case u_DW_LNE_set_discriminator: {
+              case u::e_DW_LNE_set_discriminator: {
                 rc = d_lineReader.skipULEB128();    // ignored
                 u_ASSERT_BAIL(0 == rc);
               } break;
               default: {
                 u_zprintf("%s unrecognized extended opcode %u\n", rn, opcode);
 
-                (void) u_dumpBinary(&d_lineReader, 8);
+                (void) u::dumpBinary(&d_lineReader, 8);
 
                 u_ASSERT_BAIL(u_P(opcode) && "unrecognized extended opcode");
               }
@@ -2787,7 +2780,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
         if (statement) {
             u_TRACES && u_zprintf("%s stmt: addr: 0x%lx, line: %u\n",
-                                                       rn, u_l(address), line);
+                                                      rn, u::l(address), line);
 
             if (!nullPrevStatement &&
                    addressToMatch <= address && prevAddress < addressToMatch) {
@@ -2795,15 +2788,15 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_TRACES && u_zprintf(
                                      "%s stmt match: @'s(0x%lx, 0x%lx, 0x%lx),"
                                                              " line(%d, %d)\n",
-                                     rn, u_l(prevAddress), u_l(addressToMatch),
-                                                 u_l(address), prevLine, line);
+                                   rn, u::l(prevAddress), u::l(addressToMatch),
+                                                u::l(address), prevLine, line);
 
                 frameRec->frame().setLineNumber(line);
                 if (-1 == fileIdx) {
                     if ('/' != definedFile.c_str()[0]) {
                         definedFile.insert(0, dirPaths[definedDirIndex]);
                     }
-                    (void) u_cleanupString(&definedFile, d_allocator_p);
+                    (void) u::cleanupString(&definedFile, d_allocator_p);
                     frameRec->frame().setSourceFileName(definedFile);
                 }
                 else {
@@ -2818,7 +2811,7 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                         sfn.insert(0, dir);
                     }
 
-                    (void) u_cleanupString(&sfn, d_allocator_p);
+                    (void) u::cleanupString(&sfn, d_allocator_p);
 
                     frameRec->frame().setSourceFileName(sfn);
                 }
@@ -2859,14 +2852,14 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
 #endif // u_DWARF
 
-void u_StackTraceResolver::HiddenRec::reset()
+void u::StackTraceResolver::HiddenRec::reset()
 {
     // Note that 'd_frameRecs' and 'd_numTotalUnmatched' are not to be cleared
     // or reinitialized, they have a lifetime of the length of the resolve.
 
     d_helper_p           = 0;
-    d_frameRecsBegin     = u_FrameRecVecIt();
-    d_frameRecsEnd       = u_FrameRecVecIt();
+    d_frameRecsBegin     = u::FrameRecVecIt();
+    d_frameRecsEnd       = u::FrameRecVecIt();
     d_adjustment         = 0;
     d_symTableOffset     = 0;
     d_symTableSize       = 0;
@@ -2890,25 +2883,25 @@ void u_StackTraceResolver::HiddenRec::reset()
 }
 
      // -----------------------------------------------------------------
-     // class balst::u_StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-     //                 == class U::u_StackTraceResolver
+     // class balst::u::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
+     //                 == class U::u::StackTraceResolver
      // -----------------------------------------------------------------
 
 // PRIVATE CREATORS
-u_StackTraceResolver::StackTraceResolverImpl(
+u::StackTraceResolver::StackTraceResolverImpl(
                                     balst::StackTrace *stackTrace,
                                     bool               demanglingPreferredFlag)
 : d_hbpAlloc()
 , d_stackTrace_p(stackTrace)
 , d_scratchBufA_p(static_cast<char *>(
-                                     d_hbpAlloc.allocate(u_k_SCRATCH_BUF_LEN)))
+                                    d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 , d_scratchBufB_p(static_cast<char *>(
-                                     d_hbpAlloc.allocate(u_k_SCRATCH_BUF_LEN)))
+                                    d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 #ifdef u_DWARF
 , d_scratchBufC_p(static_cast<char *>(
-                                     d_hbpAlloc.allocate(u_k_SCRATCH_BUF_LEN)))
+                                    d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 , d_scratchBufD_p(static_cast<char *>(
-                                     d_hbpAlloc.allocate(u_k_SCRATCH_BUF_LEN)))
+                                    d_hbpAlloc.allocate(u::k_SCRATCH_BUF_LEN)))
 #endif
 , d_hidden(*(new (d_hbpAlloc) HiddenRec(this)))    // must be after scratch
                                                    // buffers
@@ -2916,30 +2909,30 @@ u_StackTraceResolver::StackTraceResolverImpl(
 {
 }
 
-u_StackTraceResolver::~StackTraceResolverImpl()
+u::StackTraceResolver::~StackTraceResolverImpl()
 {
     // Don't free anything, the heap bypass allocator will free it all when
     // it's destroyed.
 }
 
 // PRIVATE MANIPULATORS
-int u_StackTraceResolver::loadSymbols(int matched)
+int u::StackTraceResolver::loadSymbols(int matched)
 {
     char *symbolBuf = d_scratchBufA_p;
     char *stringBuf = d_scratchBufB_p;
 
-    const int      symSize = static_cast<int>(sizeof(u_ElfSymbol));
-    const u_Offset maxSymbolsPerPass = u_k_SCRATCH_BUF_LEN / symSize;
-    const u_Offset numSyms = d_hidden.d_symTableSize / symSize;
-    u_Offset       sourceFileNameOffset = u_maxOffset;
+    const int      symSize = static_cast<int>(sizeof(u::ElfSymbol));
+    const u::Offset maxSymbolsPerPass = u::k_SCRATCH_BUF_LEN / symSize;
+    const u::Offset numSyms = d_hidden.d_symTableSize / symSize;
+    u::Offset       sourceFileNameOffset = u::maxOffset;
 
-    u_UintPtr      numSymsThisTime;
-    for (u_Offset symIndex = 0; symIndex < numSyms;
+    u::UintPtr      numSymsThisTime;
+    for (u::Offset symIndex = 0; symIndex < numSyms;
                                                  symIndex += numSymsThisTime) {
-        numSymsThisTime = static_cast<u_UintPtr>(
+        numSymsThisTime = static_cast<u::UintPtr>(
                               bsl::min(numSyms - symIndex, maxSymbolsPerPass));
 
-        const u_Offset offsetToRead = d_hidden.d_symTableOffset +
+        const u::Offset offsetToRead = d_hidden.d_symTableOffset +
                                                             symIndex * symSize;
         int          rc = d_hidden.d_helper_p->readExact(
                                                      symbolBuf,
@@ -2948,16 +2941,16 @@ int u_StackTraceResolver::loadSymbols(int matched)
         if (rc) {
             u_eprintf(
                      "failed to read %lu symbols from offset %llu, errno %d\n",
-                    u_l(numSymsThisTime),
-                    u_ll(offsetToRead),
+                    u::l(numSymsThisTime),
+                    u::ll(offsetToRead),
                     errno);
             return -1;                                                // RETURN
         }
 
-        const u_ElfSymbol *symBufStart = static_cast<u_ElfSymbol *>(
+        const u::ElfSymbol *symBufStart = static_cast<u::ElfSymbol *>(
                                                static_cast<void *>(symbolBuf));
-        const u_ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
-        for (const u_ElfSymbol *sym = symBufStart; sym < symBufEnd; ++sym) {
+        const u::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
+        for (const u::ElfSymbol *sym = symBufStart; sym < symBufEnd; ++sym) {
             switch (ELF32_ST_TYPE(sym->st_info)) {
               case STT_FILE: {
                 sourceFileNameOffset = sym->st_name;
@@ -2969,21 +2962,21 @@ int u_StackTraceResolver::loadSymbols(int matched)
                     const void *endSymbolAddress =
                                      static_cast<const char *>(symbolAddress) +
                                                                   sym->st_size;
-                    const u_FrameRecVecIt begin =
+                    const u::FrameRecVecIt begin =
                                 bsl::lower_bound(d_hidden.d_frameRecsBegin,
                                                  d_hidden.d_frameRecsEnd,
-                                                 u_FrameRec(symbolAddress,
+                                                 u::FrameRec(symbolAddress,
                                                             0,
                                                             0,
                                                             &d_hbpAlloc));
-                    const u_FrameRecVecIt end =
+                    const u::FrameRecVecIt end =
                              bsl::lower_bound(d_hidden.d_frameRecsBegin,
                                               d_hidden.d_frameRecsEnd,
-                                              u_FrameRec(endSymbolAddress,
+                                              u::FrameRec(endSymbolAddress,
                                                          0,
                                                          0,
                                                          &d_hbpAlloc));
-                    for (u_FrameRecVecIt it = begin; it < end; ++it) {
+                    for (u::FrameRecVecIt it = begin; it < end; ++it) {
                         if (it->isSymbolResolved()) {
                             continue;
                         }
@@ -2999,13 +2992,13 @@ int u_StackTraceResolver::loadSymbols(int matched)
 
                         if (d_hidden.d_isMainExecutable
                            && STB_LOCAL == ELF32_ST_BIND(sym->st_info)
-                           && u_maxOffset != sourceFileNameOffset) {
+                           && u::maxOffset != sourceFileNameOffset) {
                             frame.setSourceFileName(
                                       d_hidden.d_helper_p->loadString(
                                            d_hidden.d_stringTableOffset +
                                                           sourceFileNameOffset,
                                            stringBuf,
-                                           u_k_SCRATCH_BUF_LEN,
+                                           u::k_SCRATCH_BUF_LEN,
                                            &d_hbpAlloc));
                         }
 
@@ -3014,12 +3007,12 @@ int u_StackTraceResolver::loadSymbols(int matched)
                                            d_hidden.d_stringTableOffset +
                                                                   sym->st_name,
                                            stringBuf,
-                                           u_k_SCRATCH_BUF_LEN,
+                                           u::k_SCRATCH_BUF_LEN,
                                            &d_hbpAlloc));
                         if (frame.isMangledSymbolNameKnown()) {
                             setFrameSymbolName(&frame,
                                                stringBuf,
-                                               u_k_SCRATCH_BUF_LEN);
+                                               u::k_SCRATCH_BUF_LEN);
 
                             it->setSymbolResolved();
 
@@ -3051,7 +3044,7 @@ int u_StackTraceResolver::loadSymbols(int matched)
     return 0;
 }
 
-int u_StackTraceResolver::processLoadedImage(const char *fileName,
+int u::StackTraceResolver::processLoadedImage(const char *fileName,
                                              const void *programHeaders,
                                              int         numProgramHeaders,
                                              void       *textSegPtr,
@@ -3060,7 +3053,7 @@ int u_StackTraceResolver::processLoadedImage(const char *fileName,
     // Also note that it assumes that both scratch buffers are available for
     // writing.
 {
-    static const char rn[] = { "processLoadedImage" };    (void) rn;
+    static const char rn[] = { "Resolver::processLoadedImage" };    (void) rn;
 
     BSLS_ASSERT(!textSegPtr || !baseAddress);
 
@@ -3074,14 +3067,14 @@ int u_StackTraceResolver::processLoadedImage(const char *fileName,
 #else
     const char *name = 0;
     if (fileName && fileName[0]) {
-        if (u_IS_LINUX) {
+        if (u::e_IS_LINUX) {
             d_hidden.d_isMainExecutable = false;
         }
 
         name = fileName;
     }
     else {
-        if (u_IS_LINUX) {
+        if (u::e_IS_LINUX) {
             d_hidden.d_isMainExecutable = true;
         }
         else {
@@ -3095,9 +3088,9 @@ int u_StackTraceResolver::processLoadedImage(const char *fileName,
         const int numChars = static_cast<int>(
                                            readlink("/proc/self/exe",
                                                     d_scratchBufA_p,
-                                                    u_k_SCRATCH_BUF_LEN));
+                                                    u::k_SCRATCH_BUF_LEN));
         if (numChars > 0) {
-            u_ASSERT_BAIL(numChars < u_k_SCRATCH_BUF_LEN);
+            u_ASSERT_BAIL(numChars < u::k_SCRATCH_BUF_LEN);
             d_scratchBufA_p[numChars] = 0;
             name = d_scratchBufA_p;
         }
@@ -3115,14 +3108,14 @@ int u_StackTraceResolver::processLoadedImage(const char *fileName,
                                          " main:%d numHdrs:%d unmatched:%ld\n",
                         fileName ? fileName : "(null)", name ? name : "(null)",
                                  static_cast<int>(d_hidden.d_isMainExecutable),
-                          numProgramHeaders, u_l(d_hidden.d_frameRecs.size()));
+                         numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
     balst::StackTraceResolver_FileHelper helper(name);
     d_hidden.d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
-        const u_ElfProgramHeader *ph =
-                   static_cast<const u_ElfProgramHeader *>(programHeaders) + i;
+        const u::ElfProgramHeader *ph =
+                  static_cast<const u::ElfProgramHeader *>(programHeaders) + i;
         // if (ph->p_type == PT_LOAD && ph->p_offset == 0) {
 
         if    (PT_LOAD == ph->p_type) {
@@ -3161,9 +3154,9 @@ int u_StackTraceResolver::processLoadedImage(const char *fileName,
     return -1;
 }
 
-int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
+int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
                                          void       *segmentPtr,
-                                         u_UintPtr     segmentSize,
+                                         u::UintPtr     segmentSize,
                                          const char *libraryFileName)
 {
     int rc;
@@ -3173,7 +3166,7 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // Then 'readDwarfAll' trasnes both A and B
 
     d_hidden.d_addressRange.d_address =
-                                       reinterpret_cast<u_UintPtr>(segmentPtr);
+                                      reinterpret_cast<u::UintPtr>(segmentPtr);
     d_hidden.d_addressRange.d_size    = segmentSize;
 
     const char *sp = static_cast<char *>(segmentPtr);
@@ -3181,13 +3174,13 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
     d_hidden.d_frameRecsBegin = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
                                                  d_hidden.d_frameRecs.end(),
-                                                 u_FrameRec(sp,
+                                                 u::FrameRec(sp,
                                                             0,
                                                             0,
                                                             &d_hbpAlloc));
     d_hidden.d_frameRecsEnd   = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
                                                  d_hidden.d_frameRecs.end(),
-                                                 u_FrameRec(se,
+                                                 u::FrameRec(se,
                                                             0,
                                                             0,
                                                             &d_hbpAlloc));
@@ -3212,9 +3205,9 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
                                                               libraryFileName);
 
     bsl::string libName(libraryFileName, &d_hbpAlloc);
-    int cleanupRc = u_cleanupString(&libName, &d_hbpAlloc);
+    int cleanupRc = u::cleanupString(&libName, &d_hbpAlloc);
 
-    u_FrameRecVecIt it, end  = d_hidden.d_frameRecsEnd;
+    u::FrameRecVecIt it, end  = d_hidden.d_frameRecsEnd;
     for (it = d_hidden.d_frameRecsBegin; it < end; ++it) {
         u_TRACES && u_zprintf("address %p MATCH\n", it->address());
         it->frame().setLibraryFileName(0 == cleanupRc ? libName.c_str()
@@ -3223,52 +3216,52 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
     // read the elf header
 
-    u_ElfHeader elfHeader;
+    u::ElfHeader elfHeader;
     rc = d_hidden.d_helper_p->readExact(&elfHeader,
-                                        sizeof(u_ElfHeader),
+                                        sizeof(u::ElfHeader),
                                         0);
     if (0 != rc) {
         return -1;                                                    // RETURN
     }
 
-    if (0 != checkElfHeader(&elfHeader)) {
+    if (0 != u::checkElfHeader(&elfHeader)) {
         return -1;                                                    // RETURN
     }
 
-    d_hidden.d_adjustment = reinterpret_cast<u_UintPtr>(segmentBaseAddress);
+    d_hidden.d_adjustment = reinterpret_cast<u::UintPtr>(segmentBaseAddress);
 
     // find the section headers we're interested in, that is, .symtab and
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
 
-    u_ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    bsl::memset(&symTabHdr, 0, sizeof(u_ElfSectionHeader));
-    bsl::memset(&strTabHdr, 0, sizeof(u_ElfSectionHeader));
-    bsl::memset(&dynSymHdr, 0, sizeof(u_ElfSectionHeader));
-    bsl::memset(&dynStrHdr, 0, sizeof(u_ElfSectionHeader));
+    u::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
+    bsl::memset(&symTabHdr, 0, sizeof(u::ElfSectionHeader));
+    bsl::memset(&strTabHdr, 0, sizeof(u::ElfSectionHeader));
+    bsl::memset(&dynSymHdr, 0, sizeof(u::ElfSectionHeader));
+    bsl::memset(&dynStrHdr, 0, sizeof(u::ElfSectionHeader));
 
     // Possible speedup: read all the section headers at once instead of one at
     // a time.
 
     int     numSections = elfHeader.e_shnum;
-    u_UintPtr sectionHeaderSize = elfHeader.e_shentsize;
-    u_UintPtr sectionHeaderOffset = elfHeader.e_shoff;
-    if (u_k_SCRATCH_BUF_LEN < sectionHeaderSize) {
+    u::UintPtr sectionHeaderSize = elfHeader.e_shentsize;
+    u::UintPtr sectionHeaderOffset = elfHeader.e_shoff;
+    if (u::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
         return -1;                                                    // RETURN
     }
-    u_ElfSectionHeader *sec = static_cast<u_ElfSectionHeader *>(
+    u::ElfSectionHeader *sec = static_cast<u::ElfSectionHeader *>(
                                          static_cast<void *>(d_scratchBufA_p));
 
     // read the string table that is used for section names
 
     int     stringSectionIndex = elfHeader.e_shstrndx;
-    u_UintPtr stringSectionHeaderOffset =
+    u::UintPtr stringSectionHeaderOffset =
                   sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
     if (0 != d_hidden.d_helper_p->readExact(sec,
                                             sectionHeaderSize,
                                             stringSectionHeaderOffset)) {
         return -1;                                                    // RETURN
     }
-    u_UintPtr headerStringsOffset = sec->sh_offset;
+    u::UintPtr headerStringsOffset = sec->sh_offset;
 
     for (int i = 0; i < numSections; ++i) {
         if (0 != d_hidden.d_helper_p->readExact(sec,
@@ -3335,11 +3328,11 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     }
 
     u_TRACES && u_zprintf("symtab:(0x%llx, 0x%llx), strtab:(0x%llx, 0x%llx)\n",
-            u_ll(symTabHdr.sh_offset), u_ll(symTabHdr.sh_size),
-            u_ll(strTabHdr.sh_offset), u_ll(strTabHdr.sh_size));
+            u::ll(symTabHdr.sh_offset), u::ll(symTabHdr.sh_size),
+            u::ll(strTabHdr.sh_offset), u::ll(strTabHdr.sh_size));
     u_TRACES && u_zprintf("dynsym:(0x%llx, %llu), dynstr:(0x%llx, %llu)\n",
-            u_ll(dynSymHdr.sh_offset), u_ll(dynSymHdr.sh_size),
-            u_ll(dynStrHdr.sh_offset), u_ll(dynStrHdr.sh_size));
+            u::ll(dynSymHdr.sh_offset), u::ll(dynSymHdr.sh_size),
+            u::ll(dynStrHdr.sh_offset), u::ll(dynStrHdr.sh_size));
 
     if (0 != strTabHdr.sh_size && 0 != symTabHdr.sh_size) {
         // use the full symbol table if it is available
@@ -3365,27 +3358,27 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 
     u_TRACES && u_zprintf(
                    "Sym table:(0x%llx, 0x%llx) string table:(0x%llx 0x%llx)\n",
-            u_ll(d_hidden.d_symTableOffset),
-            u_ll(d_hidden.d_symTableSize),
-            u_ll(d_hidden.d_stringTableOffset),
-            u_ll(d_hidden.d_stringTableSize));
+            u::ll(d_hidden.d_symTableOffset),
+            u::ll(d_hidden.d_symTableSize),
+            u::ll(d_hidden.d_stringTableOffset),
+            u::ll(d_hidden.d_stringTableSize));
 
 #ifdef u_DWARF
     u_TRACES && u_zprintf("abbrev:(0x%llx, 0x%llx) aranges:(0x%llx, 0x%llx)"
             " info:(0x%llx 0x%llx) line::(0x%llx 0x%llx)"
             " ranges:(0x%llx, 0x%llx) str:(0x%llx, 0x%llx)\n",
-            u_ll(d_hidden.d_abbrevSec.d_offset),
-            u_ll(d_hidden.d_abbrevSec.d_size),
-            u_ll(d_hidden.d_arangesSec.d_offset),
-            u_ll(d_hidden.d_arangesSec.d_size),
-            u_ll(d_hidden.d_infoSec.d_offset),
-            u_ll(d_hidden.d_infoSec.d_size),
-            u_ll(d_hidden.d_lineSec.d_offset),
-            u_ll(d_hidden.d_lineSec.d_size),
-            u_ll(d_hidden.d_rangesSec.d_offset),
-            u_ll(d_hidden.d_rangesSec.d_size),
-            u_ll(d_hidden.d_strSec.d_offset),
-            u_ll(d_hidden.d_strSec.d_size));
+            u::ll(d_hidden.d_abbrevSec.d_offset),
+            u::ll(d_hidden.d_abbrevSec.d_size),
+            u::ll(d_hidden.d_arangesSec.d_offset),
+            u::ll(d_hidden.d_arangesSec.d_size),
+            u::ll(d_hidden.d_infoSec.d_offset),
+            u::ll(d_hidden.d_infoSec.d_size),
+            u::ll(d_hidden.d_lineSec.d_offset),
+            u::ll(d_hidden.d_lineSec.d_size),
+            u::ll(d_hidden.d_rangesSec.d_offset),
+            u::ll(d_hidden.d_rangesSec.d_size),
+            u::ll(d_hidden.d_strSec.d_offset),
+            u::ll(d_hidden.d_strSec.d_size));
 #endif
 
     // Note that 'loadSymbols' trashes scratchBufA and scratchBufB.
@@ -3415,7 +3408,7 @@ int u_StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
 }
 
 // PRIVATE ACCESSORS
-void u_StackTraceResolver::setFrameSymbolName(
+void u::StackTraceResolver::setFrameSymbolName(
                                        balst::StackTraceFrame *frame,
                                        char                   *buffer,
                                        bsl::size_t             bufferLen) const
@@ -3424,8 +3417,10 @@ void u_StackTraceResolver::setFrameSymbolName(
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // Linux or Sun g++ or HPUX
 
+    (void) buffer;    // silence 'unused' warning
+    (void) bufferLen; // silence 'unused' warning
+
     int          status = -1;
-    char        *demangled = 0;
     if (d_demangle) {
         // note the demangler uses 'malloc' to allocate its result
 
@@ -3441,7 +3436,7 @@ void u_StackTraceResolver::setFrameSymbolName(
                                             0,
                                             &status);
 #endif
-        u_FreeGuard guard(demangled);
+        u::FreeGuard guard(demangled);
         frame->setSymbolName(demangled ? demangled : "");
     }
     if (0 != status || frame->symbolName().empty()) {
@@ -3488,8 +3483,8 @@ int linkmapCallback(struct dl_phdr_info *info,
 {
     (void) size;
 
-    u_StackTraceResolver *resolver =
-                                reinterpret_cast<u_StackTraceResolver *>(data);
+    u::StackTraceResolver *resolver =
+                               reinterpret_cast<u::StackTraceResolver *>(data);
 
     // If we have completed resolving, there is no way to signal the caller to
     // stop iterating through the shared libs, but we aren't allowed to throw
@@ -3529,18 +3524,18 @@ extern "C" void *_DYNAMIC;    // global pointer that leads to the link map
 #endif
 
 // CLASS METHODS
-int u_StackTraceResolver::resolve(
+int u::StackTraceResolver::resolve(
                                     balst::StackTrace *stackTrace,
                                     bool               demanglingPreferredFlag)
 {
-    static const char rn[] = { "resolve" };    (void) rn;
+    static const char rn[] = { "Resolver::resolve" };    (void) rn;
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
 
     int rc;
 
-    u_StackTraceResolver resolver(stackTrace,
-                                  demanglingPreferredFlag);
+    u::StackTraceResolver resolver(stackTrace,
+                                   demanglingPreferredFlag);
 
     // The HPUX compiler, 'aCC', doesn't accept the -Bstatic option, suggesting
     // we are never statically linked on HPUX, so 'shl_get_r' should always
@@ -3554,10 +3549,10 @@ int u_StackTraceResolver::resolve(
     // encounter.  The max is the number of program headers that will fit in
     // the allcoated segment.
 
-    u_ElfProgramHeader *programHeaders = 0;
+    u::ElfProgramHeader *programHeaders = 0;
     int maxNumProgramHeaders = 0;
 
-    u_ElfHeader elfHeader;
+    u::ElfHeader elfHeader;
     for (int i = -1;
                 0 < resolver.numUnmatchedFrames() && -1 != shl_get_r(i, &desc);
                                                                          ++i) {
@@ -3578,22 +3573,22 @@ int u_StackTraceResolver::resolve(
 
             // note this will be opened twice, here and in 'processLoadedImage'
 
-            balst::u_StackTraceResolver_FileHelper helper(desc.filename);
+            balst::StackTraceResolver_FileHelper helper(desc.filename);
 
             rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
             u_ASSERT_BAIL(0 == rc);
 
             numProgramHeaders = elfHeader.e_phnum;
             if (numProgramHeaders > maxNumProgramHeaders) {
-                programHeaders = static_cast<u_ElfProgramHeader *>(
+                programHeaders = static_cast<u::ElfProgramHeader *>(
                        resolver.d_hbpAlloc.allocate(
-                         numProgramHeaders * sizeof(u_ElfProgramHeader)));
+                         numProgramHeaders * sizeof(u::ElfProgramHeader)));
                 maxNumProgramHeaders = numProgramHeaders;
             }
 
             rc = helper.readExact(
                            programHeaders,
-                           numProgramHeaders * sizeof(u_ElfProgramHeader),
+                           numProgramHeaders * sizeof(u::ElfProgramHeader),
                            elfHeader.e_phoff);
             u_ASSERT_BAIL(0 == rc);
         }
@@ -3609,7 +3604,7 @@ int u_StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 
-    u_StackTraceResolver resolver(stackTrace,
+    u::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     // 'dl_iterate_phdr' will iterate over all loaded files, the executable and
@@ -3620,7 +3615,7 @@ int u_StackTraceResolver::resolve(
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    u_StackTraceResolver resolver(stackTrace,
+    u::StackTraceResolver resolver(stackTrace,
                                        demanglingPreferredFlag);
 
     struct link_map *linkMap = 0;
@@ -3636,7 +3631,7 @@ int u_StackTraceResolver::resolve(
 #else
     // This method was adopted as superior to the above (commented out) method.
 
-    u_ElfDynamic *dynamic = reinterpret_cast<u_ElfDynamic *>(&_DYNAMIC);
+    u::ElfDynamic *dynamic = reinterpret_cast<u::ElfDynamic *>(&_DYNAMIC);
     u_ASSERT_BAIL(dynamic);
 
     for (; true; ++dynamic) {
@@ -3657,15 +3652,15 @@ int u_StackTraceResolver::resolve(
 
     for (int i = 0; 0 < resolver.numUnmatchedFrames() && linkMap;
                                               ++i, linkMap = linkMap->l_next) {
-        u_ElfHeader *elfHeader = reinterpret_cast<u_ElfHeader *>(
+        u::ElfHeader *elfHeader = reinterpret_cast<u::ElfHeader *>(
                                                               linkMap->l_addr);
 
-        if (0 != checkElfHeader(elfHeader)) {
+        if (0 != u::checkElfHeader(elfHeader)) {
             return -1;
         }
 
-        u_ElfProgramHeader *programHeaders =
-                 reinterpret_cast<u_ElfProgramHeader *>(
+        u::ElfProgramHeader *programHeaders =
+                 reinterpret_cast<u::ElfProgramHeader *>(
                      reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff);
         int numProgramHeaders = elfHeader->e_phnum;
 
@@ -3693,7 +3688,7 @@ int u_StackTraceResolver::resolve(
 }
 
 // PUBLIC ACCESSOR
-int u_StackTraceResolver::numUnmatchedFrames() const
+int u::StackTraceResolver::numUnmatchedFrames() const
 {
     return static_cast<int>(d_hidden.d_numTotalUnmatched);
 }
