@@ -1097,7 +1097,6 @@ const char *Datum::dataTypeToAscii(DataType type)
 {
 #define CASE(X) case(e_##X): return #X;
     switch (type) {
-        CASE(UNINITIALIZED);
         CASE(NIL);
         CASE(INTEGER);
         CASE(REAL);
