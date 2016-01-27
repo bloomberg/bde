@@ -167,7 +167,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
 //
 //  assert(mapObj->isMap());
-//  assert(DatumMapRef(datumMap, 2, false) == mapObj->theMap());
+//  assert(DatumMapRef(datumMap, 2, false, false) == mapObj->theMap());
 //..
 // Then, we create a 'Datum' object and assign its ownership to a
 // 'ManagedDatum' object and verify that the ownership was transferred:

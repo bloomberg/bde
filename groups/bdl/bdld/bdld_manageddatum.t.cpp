@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
 
     ASSERT(mapObj->isMap());
-    ASSERT(DatumMapRef(datumMap, 2, false) == mapObj->theMap());
+    ASSERT(DatumMapRef(datumMap, 2, false, false) == mapObj->theMap());
 //..
 // Then, we create a 'Datum' object and assign its ownership to a
 // 'ManagedDatum' object and verify that the ownership was transferred:
@@ -1348,6 +1348,7 @@ int main(int argc, char *argv[])
             // copy constructor
 
             Datum firstCopy(*MD);
+
             ASSERT(Datum::e_INTEGER == firstCopy.type());
             ASSERT(true             == firstCopy.isInteger());
             ASSERT(1                == firstCopy.theInteger());
@@ -1355,9 +1356,8 @@ int main(int argc, char *argv[])
             // assignment
 
             Datum secondCopy;
-            ASSERT(Datum::e_INTEGER != secondCopy.type());
-
             secondCopy = *MD;
+
             ASSERT(Datum::e_INTEGER == secondCopy.type());
             ASSERT(true             == secondCopy.isInteger());
             ASSERT(1                == secondCopy.theInteger());
