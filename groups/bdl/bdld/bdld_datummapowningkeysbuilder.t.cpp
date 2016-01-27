@@ -809,7 +809,7 @@ int main(int argc, char *argv[])
             const size_t             KEYS_CAPACITY       = 20;
             const bsls::Types::Int64 NUM_ALLOCATED_BYTES =
                        bsls::AlignmentUtil::roundUpToMaximalAlignment(
-                       (CAPACITY + 2) * sizeof(DatumMapEntry) + KEYS_CAPACITY);
+                       (CAPACITY + 1) * sizeof(DatumMapEntry) + KEYS_CAPACITY);
 
             if (verbose) cout <<
                           "\tTesting constructor with null initial capacities."

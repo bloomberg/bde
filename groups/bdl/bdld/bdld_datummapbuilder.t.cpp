@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
         {
             const size_t CAPACITY            = 10;
             const size_t NUM_ALLOCATED_BYTES =
-                                        (CAPACITY + 2) * sizeof(DatumMapEntry);
+                                        (CAPACITY + 1) * sizeof(DatumMapEntry);
 
 
             if (verbose) cout << "\tTesting constructor with parameters."
