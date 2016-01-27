@@ -47,7 +47,7 @@ using namespace bsl;
 //  4) Create a properly null-terminated string on the output whenever there
 //     is room to write anything at all to the output.
 //
-//  5) Correctly convert every one-character value, of however many
+//  5) Correctly convert single code points, of however many
 //     bytes/words (in each direction).
 //
 //  6) (a) Correctly recognize every possible type of input string error
@@ -55,17 +55,17 @@ using namespace bsl;
 //     write the given error indicator into the output string.  (Note that
 //     2a, 2b, and 2c apply here especially, since the error indicator's
 //     presence or absence will change the write-counts.)  (b) Verify that
-//     the preceding and subsequent characters are handled properly.
+//     the preceding and subsequent bytes/words are handled properly.
 //
-//  7) Considering all characters that require a given encoding (2-byte,
+//  7) Considering all code points that require a given encoding (2-byte,
 //     single-word, etc.) to represent an equivalence class for that coding
 //     sequence, handle all the possible 'digraphs' and 'trigraphs' of those
 //     equivalence classes, and possibly larger sequences.  The test should
-//     use varying characters (bit patterns) within each encoding class.
+//     use varying code points (bit patterns) within each encoding class.
 //
 //  8) As in (7), but adding the various types of input string error to the
 //     set of equivalence classes.  (A 2-byte encoding cut short before
-//     another character is not the same as a 3-byte encoding cut short at the
+//     another sequence is not the same as a 3-byte encoding cut short at the
 //     end of the string, etc.)  This creates a very large 'alphabet' on which
 //     to test strings, but it is important to test that re-sync works
 //     properly and that every case consumes at least one input byte or word so
@@ -265,54 +265,6 @@ static const bdlde::ByteOrder::Enum e_BACKWARDS =
 // ============================================================================
 //                           CUSTOM TEST APPARATUS
 // ----------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------
-// Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-// ----------------------------------------------------------------------------
-
-#if 0
-void fourByteUtf8Val(unsigned val)
-{
-    unsigned bs[4];
-
-    ASSERT(0 == (val & ~((1 << 21) - 1)));
-
-    bs[0] = ((val &  (7 << 18)) >> 18) | 0xf0;
-    bs[1] = ((val & (63 << 12)) >> 12) | 0x80;
-    bs[2] = ((val & (63 <<  6)) >>  6) | 0x80;
-    bs[3] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << ", " << bs[3] << endl;
-}
-
-void threeByteUtf8Val(unsigned val)
-{
-    unsigned bs[3];
-
-    ASSERT(0 == (val & ~((1 << 16) - 1)));
-
-    bs[0] = ((val & (15 << 12)) >> 12) | 0xe0;
-    bs[1] = ((val & (63 <<  6)) >>  6) | 0x80;
-    bs[2] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << endl;
-}
-
-void twoByteUtf8Val(unsigned val)
-{
-    unsigned bs[3];
-
-    ASSERT(0 == (val & ~((1 << 16) - 1)));
-
-    bs[0] = ((val & (31 <<  6)) >>  6) | 0xc0;
-    bs[1] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << endl;
-}
-#endif
 
 void *hc(unsigned char c)
 {
@@ -644,16 +596,16 @@ bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
 // conversion buffers are unchanged.  In C++09, this might be described with a
 // concept.  Here it is sufficient that the type provide these:
 //    typename value_type
-//        The (character) type to be copied out and checked
+//        The (byte or word) type to be copied out and checked
 //    [integral type] size() [const]
-//        Returns the total number of characters to be copied out or checked
-//        (no null assumed).
+//        Returns the total number of bytes or words to be copied out or
+//        checked (no null assumed).
 //    void copy(value_type *toBuffer) [const]
-//        Copies the character sequence that it stores or generates into
+//        Copies the code point sequence that it stores or generates into
 //        the array beginning at 'toBuffer'
 //    bool check(value_type const *checkBuffer) [const]
-//        Returns 'true' if the character sequence in the array beginning at
-//        'checkBuffer' equals the character sequence represented by this
+//        Returns 'true' if the code point sequence in the array beginning at
+//        'checkBuffer' equals the code point sequence represented by this
 //        object, and false otherwise.
 
 // Generate/Check built from an ArrayRange
@@ -684,7 +636,7 @@ struct GenCheckArrRange {
 
     // 'value_type' may be a const type, which would prevent us from using it
     // as the parameter in 'fill()' So 'fill()' is a template on the copy-to
-    // type, and we verify that they are comparable by doing one character's
+    // type, and we verify that they are comparable by doing one code point's
     // copy by assignment.
 
     template<class TO_TYPE>
@@ -701,7 +653,7 @@ struct GenCheckArrRange {
 
     // We also have to pun signed and unsigned types against each other.  Thus
     // we play the template game for the 'check' method just as for 'fill()'.
-    // Note that in order to prevent signed/unsigned promotions on characters
+    // Note that in order to prevent signed/unsigned promotions on 'char's
     // and 'short's from messing up the tests, we have to force a static cast
     // to the value type in the equality comparison.
 
@@ -720,34 +672,25 @@ struct GenCheckArrRange {
     }
 };
 
-#if 0
-template struct GenCheckArrRange<ArrayRange<char> >;
-template struct GenCheckArrRange<ArrayRange<const char> >;
-template struct GenCheckArrRange<ArrayRange<unsigned short> >;
-template struct GenCheckArrRange<ArrayRange<const unsigned short> >;
-void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
-{ a.fill(c); }
-#endif
-
 // ----------------------------------------------------------------------------
 //    deChar: Print and evaluate 'char's and 'unsigned char's as 'int's.
 // ----------------------------------------------------------------------------
 
 //  Template and overloads: 'deChar'
-//      Character types get printed as characters; this is undesirable because
-//      not all are printable and because we are working with the coding of
-//      octets so we WANT to see the numeric format.  But we can't go putting
-//      conversions blindly into templates that handle a variety of types,
-//      including some that are not numeric.  The function template and
-//      overloads on the 'deChar' function will leave unchanged anything that
-//      is not the exact type of the overloads (char and unsigned char) but
-//      will convert those two to 'unsigned int' without sign extension.
+//     Code point types get printed as code points; this is undesirable because
+//     not all are printable and because we are working with the coding of
+//     octets so we WANT to see the numeric format.  But we can't go putting
+//     conversions blindly into templates that handle a variety of types,
+//     including some that are not numeric.  The function template and
+//     overloads on the 'deChar' function will leave unchanged anything that
+//     is not the exact type of the overloads (char and unsigned char) but
+//     will convert those two to 'unsigned int' without sign extension.
 //
-//      The template must use a reference parameter to avoid copying a
-//      who-knows-what.
+//     The template must use a reference parameter to avoid copying a
+//     who-knows-what.
 //
-//      When we get to C++09, with char, signed char, and unsigned char
-//      as distinct types, we'll need another overload.
+//     When we get to C++09, with char, signed char, and unsigned char
+//     as distinct types, we'll need another overload.
 
 template<class SOURCE>
 inline
@@ -1028,15 +971,15 @@ struct HighBit {
 };
 
 template<bsl::size_t N_CHARS_P,
-                 int FROM_SIZE_P,
-                 int TO_SIZE_P,
-                 int MARGIN_P>
+         int         FROM_SIZE_P,
+         int         TO_SIZE_P,
+         int         MARGIN_P>
 struct BufferSizes {
     // Calculate the sizes needed for various buffers.  Compile-time
     // metaprogramming.  There need be no instances of this object, as all its
     // products are enums.
 
-    enum { N_CHARS   = N_CHARS_P,    // Number of characters, of whatever size
+    enum { N_CHARS   = N_CHARS_P,    // Number of code points, of whatever size
            FROM_SIZE = FROM_SIZE_P,  // Bytes or words per input char
            TO_SIZE   = TO_SIZE_P,    // Bytes or words per output char
            MARGIN    = MARGIN_P      // Bytes or words in the security buffer
@@ -1066,7 +1009,7 @@ struct BufferSizes {
 
 struct ConvRslt {
     int         d_retVal;   // Return value
-    bsl::size_t d_symbols;  // Characters of whatever size
+    bsl::size_t d_symbols;  // Code Points of whatever size
     bsl::size_t d_units;    // No. of bytes/words written, including the null
 
     ConvRslt()
@@ -1118,7 +1061,7 @@ ostream& operator<<(ostream& os, const ConvRslt& cvr);
 //             SrcSpec: bundle parameters to a conversion test.
 // ----------------------------------------------------------------------------
 
-// SrcSpec gives the source data, error character, and output buffer size to
+// SrcSpec gives the source data, error code point, and output buffer size to
 // use for a test.  It does not contain the expected return and
 // return-by-argument values, which are stored in ConvRslt.
 
@@ -1262,17 +1205,17 @@ static
 int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
                          bsl::size_t             dstCapacity,
                          const char             *srcBuffer,
-                         bsl::size_t            *numCharsWritten,
+                         bsl::size_t            *numCodePointsWritten,
                          bsl::size_t            *numWordsWritten,
-                         unsigned short          errorCharacter,
+                         unsigned short          errorWord,
                          bdlde::ByteOrder::Enum  byteOrder)
 {
     return Util::utf8ToUtf16(dstBuffer,
                              dstCapacity,
                              srcBuffer,
-                             numCharsWritten,
+                             numCodePointsWritten,
                              numWordsWritten,
-                             errorCharacter,
+                             errorWord,
                              byteOrder);
 }
 
@@ -1449,11 +1392,6 @@ struct FourWayRunner {
     int checkFinalNull(int n)
     { return d_wp.checkFinalNull(d_outBuf[n]); }
 
-#if 0
-    int checkForInnerNulls(int n)
-    { return d_wp.checkForInnerNulls(d_outBuf[n]); }
-#endif
-
     ArrayRange<TO_CHAR> begin(int n)
     {
         return ArrayRange<TO_CHAR>(d_wp.begin(d_outBuf[n]),
@@ -1483,45 +1421,45 @@ struct FourWayRunner {
 // in case 2.
 
 enum {
-    SUCCESS                 = 0,
-    OK                      = 0,
-    INVALID_INPUT_CHARACTER = 1,
-    BADC                    = 1,
-    OUTPUT_BUFFER_TOO_SMALL = 2,
-    OBTS                    = 2,
-    BOTH                    = 3
+    SUCCESS                  = 0,
+    OK                       = 0,
+    INVALID_INPUT_CODE_POINT = 1,
+    BADC                     = 1,
+    OUTPUT_BUFFER_TOO_SMALL  = 2,
+    OBTS                     = 2,
+    BOTH                     = 3
 };
 
-// Some useful multi-octet characters:
+// Some useful multi-octet code points:
 
-    // The 2 lowest 2-octet characters.
+    // The 2 lowest 2-octet code points.
     #define U8_00080  "\xc2\x80"
     #define U8_00081  "\xc2\x81"
 
-    // A traditional "interesting" character, 0xff.
+    // A traditional "interesting" code point, 0xff.
     #define U8_000ff  "\xc3\xbf"
 
-    // The 2 highest 2-octet characters.
+    // The 2 highest 2-octet code points.
     #define U8_007fe  "\xdf\xbe"
     #define U8_007ff  "\xdf\xbf"
 
-    // The 2 lowest 3-octet characters.
+    // The 2 lowest 3-octet code points.
     #define U8_00800  "\xe0\xa0\x80"
     #define U8_00801  "\xe0\xa0\x81"
 
-    // The 2 highest 3-octet characters.
+    // The 2 highest 3-octet code points.
     #define U8_0fffe  "\xef\xbf\xbe"
     #define U8_0ffff  "\xef\xbf\xbf"
 
-    // The 2 lowest 4-octet characters.
+    // The 2 lowest 4-octet code points.
     #define U8_10000  "\xf0\x80\x80\x80"
     #define U8_10001  "\xf0\x80\x80\x81"
 
-    // The 2 highest 4-octet characters.
+    // The 2 highest 4-octet code points.
     #define U8_10fffe "\xf7\xbf\xbf\xbe"
     #define U8_10ffff "\xf7\xbf\xbf\xbf"
 
-// We will try all combinations of the 'PRECOMPUTED_DATA' characters up to
+// We will try all combinations of the 'PRECOMPUTED_DATA' code points up to
 // 'exhaustiveSearchDepth' in length.
 
 const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
@@ -1532,26 +1470,26 @@ const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
 // 'buildUpAndTestStringsU2ToU8'.
 
 const struct PrecomputedData {
-    const char           *d_utf8Character;
-    const bsl::size_t     d_utf8CharacterLength;
-    const unsigned short  d_utf16Character;
+    const char           *d_utf8CodePoint;
+    const bsl::size_t     d_utf8CodePointLength;
+    const unsigned short  d_utf16Word;
 } PRECOMPUTED_DATA[] =
 {
-    // valid 1-octet characters:
+    // valid 1-octet code points:
 
     { "\x1",    1, 0x0001 },
     { "\x21",   1, 0x0021 },
     { "\x7e",   1, 0x007e },
     { "\x7f",   1, 0x007f },
 
-    // valid 2-octet characters:
+    // valid 2-octet code points:
 
     { U8_00080, 2, 0x0080 },
     { U8_00081, 2, 0x0081 },
     { U8_007fe, 2, 0x07fe },
     { U8_007ff, 2, 0x07ff },
 
-    // valid 3-octet characters:
+    // valid 3-octet code points:
 
     { U8_00800, 3, 0x0800 },
     { U8_00801, 3, 0x0801 },
@@ -1570,8 +1508,8 @@ bsl::size_t precomputedDataCount = sizeof PRECOMPUTED_DATA
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
                                              bsl::size_t     totalOutputLength,
-                                             unsigned short *characterSizes,
-                                             bsl::size_t     characterCount,
+                                             unsigned short *codePointSizes,
+                                             bsl::size_t     codePointCount,
                                              int             verbose,
                                              int             veryVerbose);
 
@@ -1586,21 +1524,22 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
                                  char           *outputBuffer,
-                                 unsigned short *characterSizes,
+                                 unsigned short *codePointSizes,
                                  bsl::size_t     totalOutputLength,
-                                 bsl::size_t     characterCount,
+                                 bsl::size_t     codePointCount,
                                  unsigned short *inputCursor,
                                  char           *outputCursor,
                                  int             verbose,
                                  int             veryVerbose);
 
-// *Break* a copy of the input, manipulating the bits to make each character in
-// turn , and validating the reported 'numCharsWritten' and output string.
+// *Break* a copy of the input, manipulating the bits to make each code point
+// in turn, and validating the reported 'numCodePointsWritten' and output
+// string.
 
 struct PerturbationDesc {
     unsigned char   d_octetToConvertTo;
     bool            d_isNewValid;
-    unsigned short  d_newCharacter;
+    unsigned short  d_newCodePoint;
     int             d_extraInvalidBefore;
     int             d_extraInvalidAfter;
 };
@@ -1614,7 +1553,7 @@ void testSingleOctetPerturbation(const char             *input,
                                  const unsigned short   *origExpectedOutput,
                                  bsl::size_t,
                                  unsigned short         *,
-                                 bsl::size_t             characterCount,
+                                 bsl::size_t             codePointCount,
                                  const PerturbationDesc &perturb,
                                  int,
                                  int                     veryVerbose)
@@ -1629,50 +1568,50 @@ void testSingleOctetPerturbation(const char             *input,
     int after  = perturb.d_extraInvalidAfter;
     int pos    = (int)perturbationChar;
 
-    // Increment characterCount to account for additional error characters
+    // Increment 'codePointCount' to account for additional error code points
     // before and after 'pos' and for the null terminator.
 
-    characterCount += before + after + 1;
+    codePointCount += before + after + 1;
 
     unsigned short outputBuffer[256] = { 0 };
-    bsl::size_t charsWritten = 0;
+    bsl::size_t    codePointsWritten = 0;
 
     // Make sure conversions where 'outputBuffer' is too small result in the
     // correct errors AND a null-terminated output
 
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(outputBuffer,
-                                                   characterCount - 1,
+                                                   codePointCount - 1,
                                                    inputBuffer,
-                                                   &charsWritten);
+                                                   &codePointsWritten);
 
     LOOP3_ASSERT( L_, OBTS,   retVal,
                       OBTS == retVal || BOTH == retVal );
 
-    LOOP3_ASSERT( L_, 0,   outputBuffer[characterCount-2],
-                      0 == outputBuffer[characterCount-2]);
+    LOOP3_ASSERT( L_, 0,   outputBuffer[codePointCount-2],
+                      0 == outputBuffer[codePointCount-2]);
 
     retVal = bdlde::CharConvertUtf16::utf8ToUtf16(outputBuffer,
-                                               characterCount,
+                                               codePointCount,
                                                inputBuffer,
-                                               &charsWritten);
+                                               &codePointsWritten);
 
     if (veryVerbose) {
         cout << "PERTURBING:"
              << "\n\tinputBuffer       =";
         printStr(inputBuffer);
         cout << "\n\toutputBuffer      =" << prHexRange(outputBuffer,
-                                                              characterCount)
+                                                              codePointCount)
              << "\n\tperturbation      = { '"
              <<            perturb.d_octetToConvertTo
              << "', '" << (perturb.d_isNewValid?"Y":"N")
-             << "', '" <<  perturb.d_newCharacter
+             << "', '" <<  perturb.d_newCodePoint
              << "', "  <<  perturb.d_extraInvalidBefore
              << "', "  <<  perturb.d_extraInvalidAfter
              << "}"
              << "\n\torigInput         =";
         printStr(input);
         cout << "\n\torigExpectedOutput="
-             << prHexRange(origExpectedOutput, characterCount)
+             << prHexRange(origExpectedOutput, codePointCount)
              << endl;
     }
 
@@ -1681,18 +1620,18 @@ void testSingleOctetPerturbation(const char             *input,
                           SUCCESS == retVal );
     }
     else {
-        LOOP3_ASSERT( L_, INVALID_INPUT_CHARACTER,   retVal,
-                          INVALID_INPUT_CHARACTER == retVal );
+        LOOP3_ASSERT( L_, INVALID_INPUT_CODE_POINT,   retVal,
+                          INVALID_INPUT_CODE_POINT == retVal );
     }
 
-    ASSERT ( charsWritten == characterCount );
+    ASSERT ( codePointsWritten == codePointCount );
 
-    // Adjust the position in the output of the character we changed by adding
+    // Adjust the position in the output of the code point we changed by adding
     // 'before'.
 
     pos += before;
 
-    for (int i = 0; i < (int) characterCount; ++i) {
+    for (int i = 0; i < (int) codePointCount; ++i) {
         if (i < pos - before) {
             LOOP3_ASSERT(i, outputBuffer[i],   origExpectedOutput[i],
                             outputBuffer[i] == origExpectedOutput[i]);
@@ -1704,10 +1643,10 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == '?');
         }
         else if (i == pos) {
-            // This is the perturbed character position.
+            // This is the perturbed code point position.
 
-            LOOP3_ASSERT(i, outputBuffer[i],   perturb.d_newCharacter,
-                            outputBuffer[i] == perturb.d_newCharacter);
+            LOOP3_ASSERT(i, outputBuffer[i],   perturb.d_newCodePoint,
+                            outputBuffer[i] == perturb.d_newCodePoint);
         }
         else if (after && i >  pos && i <= pos + after) {
             // We have introduced 'after' new '?'(s) after 'pos'
@@ -1726,15 +1665,15 @@ void testSingleOctetPerturbation(const char             *input,
     }
 }
 
-// This utility function perturbs each octet of each UTF-8 character in 'input'
-// into each possible alternative character class, making sure that the correct
-// errors are detected.
+// This utility function perturbs each octet of each UTF-8 code point in
+// 'input' into each possible alternative code point class, making sure that
+// the correct errors are detected.
 
 void perturbUtf8AndCheckConversionFailures(const char     *input,
                                            unsigned short *expected_output,
                                            bsl::size_t     totalInputLength,
-                                           unsigned short *characterSizes,
-                                           bsl::size_t     characterCount,
+                                           unsigned short *codePointSizes,
+                                           bsl::size_t     codePointCount,
                                            int             verbose,
                                            int             veryVerbose)
 {
@@ -1743,13 +1682,13 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
              <<  "\n\tinput             =";
         printStr(input);
         cout << ",\n\texpected_output   ="
-             << prHexRange(expected_output, characterCount+1)
+             << prHexRange(expected_output, codePointCount+1)
              << ",\n\ttotalInputLength  ="
              << totalInputLength
-             << ",\n\tcharacterSizes    ="
-             << prHexRange(characterSizes, characterCount)
-             << ",\n\tcharacterCount    ="
-             << characterCount
+             << ",\n\tcodePointSizes    ="
+             << prHexRange(codePointSizes, codePointCount)
+             << ",\n\tcodePointCount    ="
+             << codePointCount
              << ");\n";
     }
 
@@ -1757,17 +1696,18 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
         return;                                                       // RETURN
     }
 
-    // The perturbations we can apply to each UTF-8 input character will depend
-    // on its number of octets.  Depending on what permutation we apply to each
-    // octet in a character, some number of previously valid characters will
-    // become '?' error indicators or new valid characters, and additional
-    // error indicators may be created either before, after, or both before and
-    // after the perturbed octet.  For example, changing the middle octet of a
-    // 3-octet character to a '!' character changes the result from some valid
-    // character to an error, then a '!' character, then another error.
+    // The perturbations we can apply to each UTF-8 input code point will
+    // depend on its number of octets.  Depending on what permutation we apply
+    // to each octet in a code point, some number of previously valid code
+    // points will become '?' error indicators or new valid code points, and
+    // additional error indicators may be created either before, after, or both
+    // before and after the perturbed octet.  For example, changing the middle
+    // octet of a 3-octet code point to a '!' code point changes the result
+    // from some valid code point to an error, then a '!' code point, then
+    // another error.
     //
     //    +----------+-----------+-------------------+----------------------+
-    //    | CharLen  | Which     | Convert to        |       # of chars     |
+    //    | CdPtLen  | Which     | Convert to        |       # of bytes     |
     //    |          | Octet     |                   | becoming   | extra ? |
     //    |          |           |                   |            | bef/aft |
     //    +----------+-----------+-------------------+------------+---------+
@@ -1810,16 +1750,16 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     //    |          |           | 4-octet octet 1   |          ? |   1   0 |
     //    +----------+-----------+-------------------+------------+---------+
 
-    for (int currentChar = 0; currentChar < (int) characterCount;
-                                                               ++currentChar) {
-        int currentCharStart = 0;
-        for (int i=0; i < currentChar; ++i) {
-            currentCharStart += characterSizes[i];
+    for (int currentCodePoint = 0; currentCodePoint < (int) codePointCount;
+                                                          ++currentCodePoint) {
+        int currentCodePointStart = 0;
+        for (int i=0; i < currentCodePoint; ++i) {
+            currentCodePointStart += codePointSizes[i];
         }
 
-        switch (characterSizes[currentChar]) {
+        switch (codePointSizes[currentCodePoint]) {
           case 1: {
-            // perturbing 1-octet character
+            // perturbing 1-octet code point
 
             static const PerturbationDesc oneOctetCharOctetOne[] = {
                 { 0xff, false, '?', 0, 0 },  // Illegal 1-octet
@@ -1833,12 +1773,12 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
             for (int i = 0; i < (int) testCount; ++i) {
                 testSingleOctetPerturbation(input,
-                                            currentCharStart,
-                                            currentChar,
+                                            currentCodePointStart,
+                                            currentCodePoint,
                                             expected_output,
                                             totalInputLength,
-                                            characterSizes,
-                                            characterCount,
+                                            codePointSizes,
+                                            codePointCount,
                                             oneOctetCharOctetOne[i],
                                             verbose,
                                             veryVerbose);
@@ -1846,7 +1786,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
           } break;
 
           case 2: {
-            // perturbing 2-octet character, octet 1
+            // perturbing 2-octet code point, octet 1
 
             {
                 static const PerturbationDesc twoOctetCharOctetOne[] = {
@@ -1862,19 +1802,19 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
                 for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
-                                                currentCharStart,
-                                                currentChar,
+                                                currentCodePointStart,
+                                                currentCodePoint,
                                                 expected_output,
                                                 totalInputLength,
-                                                characterSizes,
-                                                characterCount,
+                                                codePointSizes,
+                                                codePointCount,
                                                 twoOctetCharOctetOne[i],
                                                 verbose,
                                                 veryVerbose);
                 }
             }
 
-            // perturbing 2-octet character, octet 2
+            // perturbing 2-octet code point, octet 2
 
             {
                 static const PerturbationDesc twoOctetCharOctetTwo[] = {
@@ -1890,12 +1830,12 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
                 for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
-                                                currentCharStart + 1,
-                                                currentChar,
+                                                currentCodePointStart + 1,
+                                                currentCodePoint,
                                                 expected_output,
                                                 totalInputLength,
-                                                characterSizes,
-                                                characterCount,
+                                                codePointSizes,
+                                                codePointCount,
                                                 twoOctetCharOctetTwo[i],
                                                 verbose,
                                                 veryVerbose);
@@ -1904,7 +1844,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
           } break;
 
           case 3: {
-            // perturbing 3-octet character, octet 1
+            // perturbing 3-octet code point, octet 1
 
             {
                 static const PerturbationDesc threeOctetCharOctetOne[] = {
@@ -1919,39 +1859,39 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
                 for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
-                                                currentCharStart,
-                                                currentChar,
+                                                currentCodePointStart,
+                                                currentCodePoint,
                                                 expected_output,
                                                 totalInputLength,
-                                                characterSizes,
-                                                characterCount,
+                                                codePointSizes,
+                                                codePointCount,
                                                 threeOctetCharOctetOne[i],
                                                 verbose,
                                                 veryVerbose);
                 }
 
                 // Changing this byte to a "2-octet char 1" can't be
-                // data-driven since we must compute the resulting character.
+                // data-driven since we must compute the resulting code point.
 
                 const unsigned short newChar = static_cast<unsigned short>(
-                                           ((0xc2 & 0x1f) << 6 )
-                                         | (input[currentCharStart+1] & 0x3f));
+                                      ((0xc2 & 0x1f) << 6 )
+                                    | (input[currentCodePointStart+1] & 0x3f));
                 const PerturbationDesc perturb =
                                              { 0xc2,  true, newChar, 0, 1 };
 
                 testSingleOctetPerturbation(input,
-                                            currentCharStart,
-                                            currentChar,
+                                            currentCodePointStart,
+                                            currentCodePoint,
                                             expected_output,
                                             totalInputLength,
-                                            characterSizes,
-                                            characterCount,
+                                            codePointSizes,
+                                            codePointCount,
                                             perturb,
                                             verbose,
                                             veryVerbose);
             }
 
-            // perturbing 3-octet character, octet 2
+            // perturbing 3-octet code point, octet 2
             {
                 static const PerturbationDesc threeOctetCharOctetTwo[] = {
                     { 0xff, false, '?', 1, 1 },  // Illegal 1-octet
@@ -1965,39 +1905,39 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
                 for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
-                                                currentCharStart + 1,
-                                                currentChar,
+                                                currentCodePointStart + 1,
+                                                currentCodePoint,
                                                 expected_output,
                                                 totalInputLength,
-                                                characterSizes,
-                                                characterCount,
+                                                codePointSizes,
+                                                codePointCount,
                                                 threeOctetCharOctetTwo[i],
                                                 verbose,
                                                 veryVerbose);
                 }
 
                 // Changing this byte to a "2-octet char 1" can't be
-                // data-driven since we must compute the resulting character.
+                // data-driven since we must compute the resulting code point.
                 const
                 unsigned short newChar = static_cast<unsigned short>(
-                                         ((0xc2 & 0x1f) << 6 )
-                                       | (input[currentCharStart+2] & 0x3f));
+                                      ((0xc2 & 0x1f) << 6 )
+                                    | (input[currentCodePointStart+2] & 0x3f));
                 const
                 PerturbationDesc perturb = { 0xc2,  true, newChar, 1, 0 };
 
                 testSingleOctetPerturbation(input,
-                                            currentCharStart + 1,
-                                            currentChar,
+                                            currentCodePointStart + 1,
+                                            currentCodePoint,
                                             expected_output,
                                             totalInputLength,
-                                            characterSizes,
-                                            characterCount,
+                                            codePointSizes,
+                                            codePointCount,
                                             perturb,
                                             verbose,
                                             veryVerbose);
             }
 
-            // perturbing 3-octet character, octet 3
+            // perturbing 3-octet code point, octet 3
 
             {
                 static const PerturbationDesc threeOctetCharOctetThree[] = {
@@ -2013,12 +1953,12 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
                 for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
-                                                currentCharStart + 2,
-                                                currentChar,
+                                                currentCodePointStart + 2,
+                                                currentCodePoint,
                                                 expected_output,
                                                 totalInputLength,
-                                                characterSizes,
-                                                characterCount,
+                                                codePointSizes,
+                                                codePointCount,
                                                 threeOctetCharOctetThree[i],
                                                 verbose,
                                                 veryVerbose);
@@ -2026,7 +1966,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
             }
           } break;
 
-          default:// not perturbing 4-octet characters
+          default:// not perturbing 4-octet code points
           break;
         }
     }
@@ -2040,8 +1980,8 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                              unsigned short *expected_output,
                                              bsl::size_t     totalInputLength,
-                                             unsigned short *characterSizes,
-                                             bsl::size_t     characterCount,
+                                             unsigned short *codePointSizes,
+                                             bsl::size_t     codePointCount,
                                              int             verbose,
                                              int             veryVerbose)
 {
@@ -2052,13 +1992,13 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
              <<  "\n\tinput             =";
         printStr(input);
         cout << ",\n\texpected_output   ="
-             << prHexRange(expected_output, characterCount+1)
+             << prHexRange(expected_output, codePointCount+1)
              << ",\n\ttotalInputLength  ="
              << totalInputLength
-             << ",\n\tcharacterSizes    ="
-             << prHexRange(characterSizes, characterCount)
-             << ",\n\tcharacterCount    ="
-             << characterCount
+             << ",\n\tcodePointSizes    ="
+             << prHexRange(codePointSizes, codePointCount)
+             << ",\n\tcodePointCount    ="
+             << codePointCount
              << ");\n";
     }
 
@@ -2069,48 +2009,48 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
     perturbUtf8AndCheckConversionFailures(input,
                                           expected_output,
                                           totalInputLength,
-                                          characterSizes,
-                                          characterCount,
+                                          codePointSizes,
+                                          codePointCount,
                                           verbose,
                                           veryVerbose);
 
-    for (int bufSize = 0; bufSize < (int) characterCount; ++bufSize) {
+    for (int bufSize = 0; bufSize < (int) codePointCount; ++bufSize) {
         unsigned short outputBuffer[256] = { 0 };
-        bsl::size_t charsWritten = 0;
+        bsl::size_t codePointsWritten = 0;
 
         retVal = bdlde::CharConvertUtf16::utf8ToUtf16(
                 outputBuffer,
                 bufSize,
                 input,
-                &charsWritten);
+                &codePointsWritten);
 
         LOOP5_ASSERT(L_, OUTPUT_BUFFER_TOO_SMALL,   retVal,
-                         bufSize,                   characterCount,
+                         bufSize,                   codePointCount,
                          OUTPUT_BUFFER_TOO_SMALL == retVal);
-        LOOP3_ASSERT(L_, charsWritten,   bufSize,
-                         (int) charsWritten == bufSize);
+        LOOP3_ASSERT(L_, codePointsWritten,   bufSize,
+                         (int) codePointsWritten == bufSize);
     }
 
     unsigned short outputBuffer[256] = { 0 };
-    bsl::size_t charsWritten = 0;
+    bsl::size_t codePointsWritten = 0;
 
     retVal = bdlde::CharConvertUtf16::utf8ToUtf16(outputBuffer,
-                                               characterCount + 1,
+                                               codePointCount + 1,
                                                input,
-                                               &charsWritten);
+                                               &codePointsWritten);
 
     LOOP3_ASSERT(L_, SUCCESS,   retVal,
                      SUCCESS == retVal);
-    LOOP3_ASSERT(L_, charsWritten,   1 + characterCount,
-                     1 + characterCount == charsWritten);
+    LOOP3_ASSERT(L_, codePointsWritten,   1 + codePointCount,
+                     1 + codePointCount == codePointsWritten);
 
-    LOOP5_ASSERT(L_, characterCount + 1,
-                     charsWritten,
-                     prHexRange(outputBuffer,    characterCount + 1),
-                     prHexRange(expected_output, charsWritten),
+    LOOP5_ASSERT(L_, codePointCount + 1,
+                     codePointsWritten,
+                     prHexRange(outputBuffer,    codePointCount + 1),
+                     prHexRange(expected_output, codePointsWritten),
                      0 == memcmp(outputBuffer,
                                  expected_output,
-                                 charsWritten * sizeof *outputBuffer));
+                                 codePointsWritten * sizeof *outputBuffer));
 }
 
 // This utility function for testing 'utf8ToUtf16' will *recursively* build up
@@ -2124,9 +2064,9 @@ void buildUpAndTestStringsU8ToU2(int             idx,
                                  int             depth,
                                  char           *inputBuffer,
                                  unsigned short *outputBuffer,
-                                 unsigned short *characterSizes,
+                                 unsigned short *codePointSizes,
                                  bsl::size_t     totalOutputLength,
-                                 bsl::size_t     characterCount,
+                                 bsl::size_t     codePointCount,
                                  char           *inputCursor,
                                  unsigned short *outputCursor,
                                  int             verbose,
@@ -2140,8 +2080,8 @@ void buildUpAndTestStringsU8ToU2(int             idx,
     checkForExpectedConversionResultsU8ToU2(inputBuffer,
             outputBuffer,
             totalOutputLength,
-            characterSizes,
-            characterCount,
+            codePointSizes,
+            codePointCount,
             verbose,
             veryVerbose);
 
@@ -2151,25 +2091,25 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
 
-    strcpy(inputCursor,      d.d_utf8Character);
-    inputCursor           += d.d_utf8CharacterLength;
+    strcpy(inputCursor,      d.d_utf8CodePoint);
+    inputCursor           += d.d_utf8CodePointLength;
 
-    *outputCursor++        = d.d_utf16Character;
+    *outputCursor++        = d.d_utf16Word;
     *outputCursor          = 0;
 
-    totalOutputLength += d.d_utf8CharacterLength;
+    totalOutputLength += d.d_utf8CodePointLength;
 
-    characterSizes[characterCount++] = static_cast<unsigned short>(
-                                                      d.d_utf8CharacterLength);
+    codePointSizes[codePointCount++] = static_cast<unsigned short>(
+                                                      d.d_utf8CodePointLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
                                     depth - 1,
                                     inputBuffer,
                                     outputBuffer,
-                                    characterSizes,
+                                    codePointSizes,
                                     totalOutputLength,
-                                    characterCount,
+                                    codePointCount,
                                     inputCursor,
                                     outputCursor,
                                     verbose,
@@ -2280,7 +2220,7 @@ struct Permuter {
     }
 
     int advance()
-        // Returns true if the movement of the permuter which it has just
+        // Returns true if the movement of the permuter that it has just
         // executed has NOT returned the permuter to the starting position,
         // false otherwise.  (In other words, keep going while 'advance()'
         // returns true.)
@@ -2396,7 +2336,7 @@ unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
                                               '\x2c', '\x2d', '\x2e', '\x2f',
                                             };
     // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce characters in the (forbidden) lower
+    // octet header, these will produce code points in the (forbidden) lower
     // reserved range.
 
 const
@@ -2406,7 +2346,7 @@ unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
                                               '\x3c', '\x3d', '\x3e', '\x3f',
                                             };
     // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce characters in the (forbidden) upper
+    // octet header, these will produce code points in the (forbidden) upper
     // reserved range.
 
 const
@@ -2416,8 +2356,8 @@ unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x70, 0x80, 0xc0, 0xd0, 0x100, 0x180,
                                      0x1c0, 0x200, 0x300, 0x380, 0x3ff,
                                    };
-    // Used as the content part of the upper and lower words of 2-word utf-16
-    // characters.
+    // Used as the content part of the upper and lower words of 2-word UTF-16
+    // code points.
 
 typedef ArrayRange<const unsigned char> AvCharList;
     // 'AvCharList' provides an stl-like iterator to walk the lists of octet
@@ -2455,8 +2395,8 @@ bool testOneErrorCharConversion(int                          line,
     // data surrounding the output buffer are unchanged) and that the source
     // buffer is unchanged.  It performs this verification for the error
     // sequence alone in a string and for the sequence surrounded by two
-    // single-octet characters, and with and without error replacement
-    // characters (a total of four tests).  It returns 'true' if all the tests
+    // single-octet code points, and with and without error replacement
+    // code points (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any test or tests fail.
 
 template<class TO_CHAR,
@@ -2564,7 +2504,7 @@ CHAR_TYPE *vEnd(  bsl::vector<CHAR_TYPE>& v)
     return &v.front() + v.size();
 }
 
-template <class UTF16_CHAR, unsigned UTF16_CHAR_SIZE = sizeof(UTF16_CHAR)>
+template <class UTF16_CHAR, bsl::size_t UTF16_CHAR_SIZE = sizeof(UTF16_CHAR)>
 struct SwapInPlace_Helper;
 
 template <>
@@ -2601,9 +2541,9 @@ void swapInPlace(UTF16_CHAR *word)
 
 //-----------------------------------------------------------------------------
 // The following is a sample of Multilingual UTF-8.  It is an amalgamation of
-// prose in Chinese, Hindi, French, and Greek, taken from Wikipedia pages.
+// prose in Chinese, Hindi, French, and Greek.
 //     It was discovered that none of this natural language sample contained
-// any four byte utf-8 encodings, so several were added on the end by hand.
+// any four byte UTF-8 encodings, so several were added on the end by hand.
 //-----------------------------------------------------------------------------
 
 unsigned char utf8MultiLang[] = {
@@ -4483,9 +4423,9 @@ unsigned char utf8MultiLang[] = {
 const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
 
-template <class UTF16_CHAR>
+template <class UTF16_WORD>
 static
-int localUtf16Cmp(const UTF16_CHAR *a, const UTF16_CHAR *b)
+int localUtf16Cmp(const UTF16_WORD *a, const UTF16_WORD *b)
 {
     int diff;
     while (0 == (diff = *a - *b) && *a) {
@@ -4496,11 +4436,11 @@ int localUtf16Cmp(const UTF16_CHAR *a, const UTF16_CHAR *b)
     return diff;
 }
 
-template <class UTF16_CHAR>
+template <class UTF16_WORD>
 static
-bsl::size_t localUtf16Len(const UTF16_CHAR *str)
+bsl::size_t localUtf16Len(const UTF16_WORD *str)
 {
-    const UTF16_CHAR *pws = str;
+    const UTF16_WORD *pws = str;
     while (*pws) {
         ++pws;
     }
@@ -4538,111 +4478,117 @@ int main(int argc, char**argv)
 // 'bdlde::CharConvertUtf16' struct's utility functions, first converting from
 // UTF-8 to UTF-16, and then converting back to make sure the round trip
 // returns the same value, translating to STL containers in both directions.
-
+//
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
-// and quadruple-octet characters:
-
+// and quadruple-octet code points:
+//..
     const char utf8MultiLang[] = {
         "Hello"                                         // -- ASCII
         "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
         "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
-
-// Then, we declare an 'enum' summarizing the counts of characters in the
+//..
+// Then, we declare an 'enum' summarizing the counts of code points in the
 // string and verify that the counts add up to the length of the string:
-
-    enum { NUM_ASCII_CHARS   = 5,
-           NUM_GREEK_CHARS   = 3,
-           NUM_CHINESE_CHARS = 2,
-           NUM_HINDI_CHARS   = 2,
-           NUM_QUAD_CHARS    = 2 };
-
-    ASSERT(1 * NUM_ASCII_CHARS +
-           2 * NUM_GREEK_CHARS +
-           3 * NUM_CHINESE_CHARS +
-           3 * NUM_HINDI_CHARS +
-           4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
-
+//..
+    enum { NUM_ASCII_CODE_POINTS   = 5,
+           NUM_GREEK_CODE_POINTS   = 3,
+           NUM_CHINESE_CODE_POINTS = 2,
+           NUM_HINDI_CODE_POINTS   = 2,
+           NUM_QUAD_CODE_POINTS    = 2 };
+//
+    ASSERT(1 * NUM_ASCII_CODE_POINTS +
+           2 * NUM_GREEK_CODE_POINTS +
+           3 * NUM_CHINESE_CODE_POINTS +
+           3 * NUM_HINDI_CODE_POINTS +
+           4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
+//..
 // Next, we declare the vector where our UTF-16 output will go, and a variable
-// into which the number of characters (characters, not bytes or words) written
-// will be stored.  It is not necessary to initialize 'utf16CharsWritten':
-
+// into which the number of code points (not bytes or words) written will be
+// stored.  It is not necessary to initialize 'utf16CodePointsWritten':
+//..
     bsl::vector<unsigned short> v16;
-    bsl::size_t utf16CharsWritten;
-
+    bsl::size_t utf16CodePointsWritten;
+//..
 // Note that for performance, we should 'v16.reserve(sizeof(utf8MultiLang))',
 // but it's not strictly necessary -- the vector will automatically be grown to
 // the correct size.  Also note that if 'v16' were not empty, that wouldn't be
 // a problem -- any contents will be discarded.
-
+//
 // Then, we do the translation to UTF-16:
-
+//..
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(&v16,
-                                                     utf8MultiLang,
-                                                     &utf16CharsWritten);
-
+                                                      utf8MultiLang,
+                                                      &utf16CodePointsWritten);
+//
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v16.back());    // verify null terminated
-
-// Next, we verify that the number of characters (characters, not bytes or
-// words) that was returned is correct:
-
-    enum { EXPECTED_CHARS_WRITTEN =
-                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
-                        NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
-    ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
-
+//..
+// Next, we verify that the number of code points (not bytes or words) that was
+// returned is correct:
+//..
+    enum { EXPECTED_CODE_POINTS_WRITTEN =
+                        NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
+                        NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
+                        NUM_QUAD_CODE_POINTS  + 1 };
+//
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == utf16CodePointsWritten);
+//..
 // Then, we verify that the number of 16-bit words written was correct.  The
-// quad octet characters each require 2 'short' words of output:
-
+// quad octet code points each require 2 'short' words of output:
+//..
     enum { EXPECTED_UTF16_WORDS_WRITTEN =
-                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
-                        NUM_HINDI_CHARS + NUM_QUAD_CHARS * 2 + 1 };
-
+                        NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
+                        NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
+                        NUM_QUAD_CODE_POINTS * 2 + 1 };
+//
     ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
-
+//..
 // Next, we calculate and confirm the difference between the number of UTF-16
-// words output and the number of bytes input.  The ASCII characters will take
-// 1 16-bit word apiece, the Greek characters are double octets that will
-// become single 'short' values, the Chinese characters are encoded as UTF-8
+// words output and the number of bytes input.  The ASCII code points will take
+// 1 16-bit word apiece, the Greek code points are double octets that will
+// become single 'short' values, the Chinese code points are encoded as UTF-8
 // triple octets that will turn into single 16-bit words, the same for the
-// Hindi characters, and the quad characters are quadruple octets that will
+// Hindi code points, and the quad code points are quadruple octets that will
 // turn into double 'short' values:
-
-    enum { SHRINKAGE = NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
-                       NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
-                       NUM_QUAD_CHARS    * (4-2) };
-
+//..
+    enum { SHRINKAGE = NUM_ASCII_CODE_POINTS   * (1-1) +
+                       NUM_GREEK_CODE_POINTS   * (2-1) +
+                       NUM_CHINESE_CODE_POINTS * (3-1) +
+                       NUM_HINDI_CODE_POINTS   * (3-1) +
+                       NUM_QUAD_CODE_POINTS    * (4-2) };
+//
     ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
-
+//..
 // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.  We
 // declare a 'bsl::string' for our output, and a variable to count the number
-// of characters (characters, not bytes or words) translated:
-
+// of code points (not bytes or words) translated:
+//..
     bsl::string s;
-    bsl::size_t utf8CharsWritten;
-
+    bsl::size_t uf8CodePointsWritten;
+//..
 // Again, note that for performance, we should ideally
 // 's.reserve(3 * v16.size())' but it's not really necessary.
-
+//
 // Now, we do the reverse transform:
-
+//..
     retVal = bdlde::CharConvertUtf16::utf16ToUtf8(&s,
-                                                 v16.begin(),
-                                                 &utf8CharsWritten);
-
+                                                  v16.begin(),
+                                                  &uf8CodePointsWritten);
+//..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
-// number of characters translated was as expected:
-
+// number of code points translated was as expected:
+//..
     ASSERT(0 == retVal);
     ASSERT(utf8MultiLang == s);
-    ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
-
-    ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
-    ASSERT(utf16CharsWritten      == utf8CharsWritten);
+    ASSERT(s.length() + 1               == sizeof(utf8MultiLang));
+//
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == uf8CodePointsWritten);
+    ASSERT(utf16CodePointsWritten       == uf8CodePointsWritten);
+//..
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -4652,43 +4598,43 @@ int main(int argc, char**argv)
         if (verbose) cout << "USAGE EXAMPLE 1\n"
                              "===============\n";
 
-// In this example, we will translate a string containing a non-ASCII character
-// from UTF-16 to UTF-8 and back using fixed-length buffers.
-
+// In this example, we will translate a string containing a non-ASCII code
+// point from UTF-16 to UTF-8 and back using fixed-length buffers.
+//
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
 // with '0xc9', a non-ASCII 'e' with an accent over it:
-
+//..
     unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
-
+//..
 // Then, we create a byte buffer to store the UTF-8 result of the translation
-// in, and variables to monitor counts of characters and bytes translated:
-
+// in, and variables to monitor counts of code points and bytes translated:
+//..
     char utf8String[7];
-    bsl::size_t numChars, numBytes;
-    numChars = numBytes = -1;    // garbage
-
+    bsl::size_t numCodePoints, numBytes;
+    numCodePoints = numBytes = -1;    // garbage
+//..
 // Next, we call 'utf16ToUtf8' to do the translation:
-
+//..
     int rc = bdlde::CharConvertUtf16::utf16ToUtf8(utf8String,
-                                                 sizeof(utf8String),
-                                                 utf16String,
-                                                 &numChars,
-                                                 &numBytes);
-
+                                                  sizeof(utf8String),
+                                                  utf16String,
+                                                  &numCodePoints,
+                                                  &numBytes);
+//..
 // Then, we observe that no errors or warnings occurred, and that the numbers
-// of characters and bytes were as expected.  Note that both 'numChars' and
-// 'numBytes' include the terminating 0:
-
+// of code points and bytes were as expected.  Note that both 'numCodePoints'
+// and 'numBytes' include the terminating 0:
+//..
     ASSERT(0 == rc);
-    ASSERT(6 == numChars);
+    ASSERT(6 == numCodePoints);
     ASSERT(7 == numBytes);
-
+//..
 // Next, we examine the length of the translated string:
-
+//..
     ASSERT(numBytes - 1 == bsl::strlen(utf8String));
-
+//..
 // Then, we examine the individual bytes of the translated UTF-8:
-
+//..
     ASSERT((char)0xc3 == utf8String[0]);
     ASSERT((char)0x89 == utf8String[1]);
     ASSERT('c' ==        utf8String[2]);
@@ -4696,45 +4642,46 @@ int main(int argc, char**argv)
     ASSERT('l' ==        utf8String[4]);
     ASSERT('e' ==        utf8String[5]);
     ASSERT(0   ==        utf8String[6]);
-
+//..
 // Next, in preparation for translation back to UTF-16, we create a buffer of
 // 'short' values and the variable 'numWords' to track the number of UTF-16
 // words occupied by the result:
-
+//..
     unsigned short secondUtf16String[6];
     bsl::size_t numWords;
-    numChars = numWords = -1;    // garbage
-
+    numCodePoints = numWords = -1;    // garbage
+//..
 // Then, we do the reverse translation:
-
+//..
     rc = bdlde::CharConvertUtf16::utf8ToUtf16(secondUtf16String,
-                                             6,
-                                             utf8String,
-                                             &numChars,
-                                             &numWords);
-
+                                              6,
+                                              utf8String,
+                                              &numCodePoints,
+                                              &numWords);
+//..
 // Next, we observe that no errors or warnings were reported, and that the
-// number of characters and words were as expected.  Note that 'numChars' and
-// 'numWords' both include the terminating 0:
-
+// number of code points and words were as expected.  Note that 'numCodePoints'
+// and 'numWords' both include the terminating 0:
+//..
     ASSERT(0 == rc);
-    ASSERT(6 == numChars);
+    ASSERT(6 == numCodePoints);
     ASSERT(6 == numWords);
-
+//..
 // Now, we observe that our output is identical to the original UTF-16 string:
-
+//..
     ASSERT(0 == bsl::memcmp(utf16String,
                             secondUtf16String,
                             sizeof(utf16String)));
-
+//..
 // Finally, we examine the individual words of the reverse translation:
-
+//..
     ASSERT(0xc9 == secondUtf16String[0]);
     ASSERT('c'  == secondUtf16String[1]);
     ASSERT('o'  == secondUtf16String[2]);
     ASSERT('l'  == secondUtf16String[3]);
     ASSERT('e'  == secondUtf16String[4]);
     ASSERT(0    == secondUtf16String[5]);
+//..
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -4980,17 +4927,17 @@ int main(int argc, char**argv)
         ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_QUAD],    utf8s[k_QUAD]));
         ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_ZERO],    utf8s[k_ZERO]));
 
-        const bsl::size_t numChars[] = { 5, 3, 2, 2, 2, 1 };
+        const bsl::size_t numCodePoints[] = { 5, 3, 2, 2, 2, 1 };
 
         for (int ti = 0; ti < k_NUM_SNIPPETS; ++ti) {
             ASSERT(! utf8s[ ti].empty());
-            ASSERT(utf8s[ti].length() >= numChars[ti]);
+            ASSERT(utf8s[ti].length() >= numCodePoints[ti]);
             ASSERT(! utf16s[ti].empty());
             if (k_QUAD != ti) {
-                ASSERT(utf16s[ti].length() == numChars[ti]);
+                ASSERT(utf16s[ti].length() == numCodePoints[ti]);
             }
             else {
-                ASSERT(utf16s[ti].length() == 2 * numChars[ti]);
+                ASSERT(utf16s[ti].length() == 2 * numCodePoints[ti]);
             }
         }
 
@@ -5009,9 +4956,10 @@ int main(int argc, char**argv)
                                 P_(ti) P_(tj) P_(tk) P_(tm) P(tn);
                             }
 
-                            const bsl::size_t NUM_CHARS = 1 + numChars[ti] +
-                                                  numChars[tj] + numChars[tk] +
-                                                  numChars[tm] + numChars[tn];
+                            const bsl::size_t NUM_CODE_POINTS = 1 +
+                                        numCodePoints[ti] + numCodePoints[tj] +
+                                        numCodePoints[tk] + numCodePoints[tm] +
+                                                             numCodePoints[tn];
 
                             const bsl::string utf8In = utf8s[ti] + utf8s[tj] +
                                              utf8s[tk] + utf8s[tm] + utf8s[tn];
@@ -5032,15 +4980,15 @@ int main(int argc, char**argv)
                             bsl::size_t nc = -1;
                             ASSERT(0 == Obj::utf8ToUtf16(&utf16, utf8In, &nc));
                             ASSERT(expectedUtf16 == utf16);
-                            LOOP7_ASSERT(nc, NUM_CHARS, ti, tj, tk, tm, tn,
-                                                              NUM_CHARS == nc);
+                            LOOP7_ASSERT(nc, NUM_CODE_POINTS, ti, tj, tk, tm,
+                                                    tn, NUM_CODE_POINTS == nc);
 
                             bsl::string utf8Out;
                             nc = -1;
                             ASSERT(0 == Obj::utf16ToUtf8(&utf8Out, utf16,&nc));
                             ASSERT(utf8In == utf8Out);
-                            LOOP7_ASSERT(nc, NUM_CHARS, ti, tj, tk, tm, tn,
-                                                              NUM_CHARS == nc);
+                            LOOP7_ASSERT(nc, NUM_CODE_POINTS, ti, tj, tk, tm,
+                                                    tn, NUM_CODE_POINTS == nc);
 
                             // Broken glass test, just making sure embedded
                             // zeros at certain places don't cause segfaults or
@@ -5146,24 +5094,24 @@ int main(int argc, char**argv)
                     for (wchar_t *start = START; start < END; ++start) {
                         for (wchar_t *end = start; end <= END; ++end) {
                             for (int e = 0; e < 2; ++e) {
-                                const char errorChar = 0 == e ? '?' : 0;
+                                const char errorByte = 0 == e ? '?' : 0;
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
         nc = (bsl::size_t) -1;
         int rc = Util::utf16ToUtf8(&dstVec,
                                    bslstl::StringRefWide(start, end),
                                    &nc,
-                                   errorChar);
+                                   errorByte);
         ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_INPUT_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
-        if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+        if (!dstVec.empty() && errorByte &&
+                     (rc & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5175,7 +5123,7 @@ int main(int argc, char**argv)
         int rc2 = Util::utf16ToUtf8(&dstStr,
                                     bslstl::StringRefWide(start, end),
                                     &nc2,
-                                    errorChar);
+                                    errorByte);
         ASSERT(rc2 == rc);
         ASSERT(dstVec.size() == dstStr.length() + 1);
         ASSERT(0 == bsl::memcmp(dstVec.begin(),
@@ -5192,7 +5140,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStr,
                                 start,
                                 &nc2,
-                                errorChar);
+                                errorByte);
         ASSERT(rc2 == rc);
         ASSERT(dstVec.size() == dstStr.length() + 1);
         ASSERT(0 == bsl::memcmp(dstVec.begin(),
@@ -5204,7 +5152,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStrB,
                                 start,
                                 &nc2,
-                                errorChar);
+                                errorByte);
         ASSERT(rc2 == rc);
         ASSERT(dstStr == dstStrB);
         LOOP2_ASSERT(nc2, nc, nc2 == nc);
@@ -5221,7 +5169,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstVec,
                                 srcVec.begin(),
                                 &nc2,
-                                errorChar);
+                                errorByte);
         ASSERT(rc2 == rc);
         LOOP2_ASSERT(dstVec.size(), dstCap, dstVec.size() == dstCap);
         ASSERT(0 == bsl::memcmp(dstVec.begin(),
@@ -5233,7 +5181,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStr,
                                 srcVec.begin(),
                                 &nc2,
-                                errorChar);
+                                errorByte);
         ASSERT(rc2 == rc);
         ASSERT(dstStr.length() + 1 == dstCap);
         ASSERT(0 == bsl::memcmp(dstVec.begin(),
@@ -5255,7 +5203,7 @@ int main(int argc, char**argv)
                                     bslstl::StringRefWide(start, end),
                                     &nc,
                                     &nw,
-                                    errorChar);
+                                    errorByte);
             ASSERT((cap < dstCap) ==
                     !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
@@ -5265,8 +5213,8 @@ int main(int argc, char**argv)
             ASSERT((char) -1 == dstVec[nw]);
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
-            if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+            if (0 != nw && errorByte &&
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5280,15 +5228,15 @@ int main(int argc, char**argv)
                                     srcVec.begin(),
                                     &nc2,
                                     &nw2,
-                                    errorChar);
+                                    errorByte);
             ASSERT((cap < dstCap) ==
                     !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
-            if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+            if (0 != nw2 && errorByte &&
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5345,7 +5293,7 @@ int main(int argc, char**argv)
                     for (wchar_t *start = START; start < END; ++start) {
                         for (wchar_t *end = start; end <= END; ++end) {
                             for (int e = 0; e < 2; ++e) {
-                                const char errorChar = 0 == e ? '?' : 0;
+                                const char errorByte = 0 == e ? '?' : 0;
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
 
@@ -5358,18 +5306,18 @@ int main(int argc, char**argv)
         int rc = Util::utf16ToUtf8(&dstVec,
                                    bslstl::StringRefWide(start, end),
                                    &nc,
-                                   errorChar,
+                                   errorByte,
                                    e_BACKWARDS);
         ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(start > START || end < END || (ii < 6 && jj < 6 && kk < 6) ||
-                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_INPUT_BIT == rc);
         ASSERT(start > START || end < END || ii >= 4 || jj >= 4 || kk >= 4 ||
                                                                       0 == rc);
         ASSERT(ii >= 3 || jj >= 3 || kk >= 3 || 0 == rc);
         ASSERT(nc <= dstVec.size());
         const char *found = bsl::find(dstVec.begin(), dstVec.end(), '?');
-        if (!dstVec.empty() && errorChar &&
-                     (rc & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+        if (!dstVec.empty() && errorByte &&
+                     (rc & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
             ASSERT(found <  dstVec.end());
         }
         else {
@@ -5381,7 +5329,7 @@ int main(int argc, char**argv)
         int rc2 = Util::utf16ToUtf8(&dstStr,
                                     bslstl::StringRefWide(start, end),
                                     &nc2,
-                                    errorChar,
+                                    errorByte,
                                     e_BACKWARDS);
         ASSERT(rc2 == rc);
         ASSERT(dstVec.size() == dstStr.length() + 1);
@@ -5399,7 +5347,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStr,
                                 start,
                                 &nc2,
-                                errorChar,
+                                errorByte,
                                 e_BACKWARDS);
         ASSERT(rc2 == rc);
         ASSERT(dstVec.size() == dstStr.length() + 1);
@@ -5412,7 +5360,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStrB,
                                 start,
                                 &nc2,
-                                errorChar,
+                                errorByte,
                                 e_BACKWARDS);
         ASSERT(rc2 == rc);
         ASSERT(dstStr == dstStrB);
@@ -5431,7 +5379,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstVec,
                                 srcVec.begin(),
                                 &nc2,
-                                errorChar,
+                                errorByte,
                                 e_BACKWARDS);
         ASSERT(rc2 == rc);
         LOOP5_ASSERT(ii, jj, kk, dstVec.size(), dstCap,
@@ -5445,7 +5393,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf16ToUtf8(&dstStr,
                                 srcVec.begin(),
                                 &nc2,
-                                errorChar,
+                                errorByte,
                                 e_BACKWARDS);
         ASSERT(rc2 == rc);
         ASSERT(dstStr.length() + 1 == dstCap);
@@ -5468,7 +5416,7 @@ int main(int argc, char**argv)
                                     bslstl::StringRefWide(start, end),
                                     &nc,
                                     &nw,
-                                    errorChar,
+                                    errorByte,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
                     !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
@@ -5479,8 +5427,8 @@ int main(int argc, char**argv)
             ASSERT((char) -1 == dstVec[nw]);
             ASSERT(!cap || (nw && nc && 0 == dstVec[nw - 1]));
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw, '?');
-            if (0 != nw && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+            if (0 != nw && errorByte &&
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw);
             }
             else {
@@ -5494,7 +5442,7 @@ int main(int argc, char**argv)
                                     srcVec.begin(),
                                     &nc2,
                                     &nw2,
-                                    errorChar,
+                                    errorByte,
                                     e_BACKWARDS);
             ASSERT((cap < dstCap) ==
                     !!(rc2 & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
@@ -5502,8 +5450,8 @@ int main(int argc, char**argv)
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
             found = bsl::find(dstVec.begin(), dstVec.begin() + nw2, '?');
-            if (0 != nw2 && errorChar &&
-                    (rc2 & bdlde::CharConvertStatus::k_INVALID_CHARS_BIT)) {
+            if (0 != nw2 && errorByte &&
+                    (rc2 & bdlde::CharConvertStatus::k_INVALID_INPUT_BIT)) {
                 ASSERT(found <  dstVec.begin() + nw2);
             }
             else {
@@ -5599,7 +5547,7 @@ int main(int argc, char**argv)
             const char *ISTRING = DATA[i].d_string;
 
             for (int j = 0; j < 2; ++j) {
-                const unsigned short errorChar = 0 == j ? '?' : 0;
+                const unsigned short errorWord = 0 == j ? '?' : 0;
 
                 for (int k = 0; k < NUM_DATA; ++k) {
                     const char *KSTRING = DATA[k].d_string;
@@ -5622,10 +5570,10 @@ int main(int argc, char**argv)
         int rc = Util::utf8ToUtf16(&dst,
                                    bslstl::StringRef(start, end),
                                    &nc,
-                                   errorChar);
+                                   errorWord);
         LOOP4_ASSERT(rc, i, k, m, INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                       bdlde::CharConvertStatus::k_INVALID_CHARS_BIT == rc);
+                       bdlde::CharConvertStatus::k_INVALID_INPUT_BIT == rc);
         ASSERT(0 == (rc & bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT));
         ASSERT(nc <= dst.size());
 
@@ -5634,7 +5582,7 @@ int main(int argc, char**argv)
         const unsigned short *found = bsl::find(dst.begin(),
                                                 dst.end(),
                                                 (unsigned short) '?');
-        ASSERT(errorChar && rc ? found < dst.end() : found == dst.end());
+        ASSERT(errorWord && rc ? found < dst.end() : found == dst.end());
 
         char save = *end;
         *end = 0;
@@ -5642,7 +5590,7 @@ int main(int argc, char**argv)
         int rc2 = Util::utf8ToUtf16(&dstB,
                                     start,
                                     &nc2,
-                                    errorChar);
+                                    errorWord);
         ASSERT(rc2 == rc);
         ASSERT(dstB == dst);
         ASSERT(nc2 == nc);
@@ -5652,12 +5600,12 @@ int main(int argc, char**argv)
         found = bsl::find(dstB.begin(),
                           dstB.end(),
                           (unsigned short) '?');
-        ASSERT(errorChar && rc ? found < dstB.end() : found == dstB.end());
+        ASSERT(errorWord && rc ? found < dstB.end() : found == dstB.end());
 
         rc2 = Util::utf8ToUtf16(&wStr,
                                 bslstl::StringRef(start, end),
                                 &nc2,
-                                (wchar_t) errorChar);
+                                (wchar_t) errorWord);
         ASSERT(rc2 == rc);
         ASSERT(nc2 == nc);
 
@@ -5673,19 +5621,19 @@ int main(int argc, char**argv)
         rc2 = Util::utf8ToUtf16(&wStrB,
                                 start,
                                 &nc2,
-                                (wchar_t) errorChar);
+                                (wchar_t) errorWord);
         ASSERT(rc2 == rc);
         ASSERT(nc2 == nc);
         ASSERT(wStrB == wStr);
 
         // Don't test 'rc2', the implanted '\0' might have inflicted invalid
-        // characters.
+        // code points.
 
         nc2 = (bsl::size_t) -1;
         rc2 = Util::utf8ToUtf16(&dstB,
                                 bslstl::StringRef(start, END),
                                 &nc2,
-                                errorChar);
+                                errorWord);
         ASSERT(END == end ? nc2 == nc : nc2 > nc);
         ASSERT((END == end) == (dstB == dst));
 
@@ -5693,7 +5641,7 @@ int main(int argc, char**argv)
         rc2 = Util::utf8ToUtf16(&wStrB,
                                 bslstl::StringRef(start, END),
                                 &nc2,
-                                errorChar);
+                                errorWord);
         ASSERT(END == end ? nc2 == nc : nc2 > nc);
         ASSERT((END == end) == (wStrB == wStr));
 
@@ -5725,7 +5673,7 @@ int main(int argc, char**argv)
                                    bslstl::StringRef(start, end),
                                    &nc,
                                    &nw,
-                                   errorChar);
+                                   errorWord);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
             ASSERT(nw <= dstCap);
@@ -5737,7 +5685,7 @@ int main(int argc, char**argv)
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_INPUT_BIT & rc));
             bsl::fill(dst.begin(), dst.end(), (unsigned short) -1);
 
             save = *end;
@@ -5749,7 +5697,7 @@ int main(int argc, char**argv)
                                    start,
                                    &nc,
                                    &nw,
-                                   errorChar);
+                                   errorWord);
             ASSERT(nc <= nw);
             ASSERT(nw <= cap);
             ASSERT(nw <= dstCap);
@@ -5761,7 +5709,7 @@ int main(int argc, char**argv)
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
-                      (bdlde::CharConvertStatus::k_INVALID_CHARS_BIT & rc));
+                      (bdlde::CharConvertStatus::k_INVALID_INPUT_BIT & rc));
 
             *end = save;
 
@@ -5776,7 +5724,7 @@ int main(int argc, char**argv)
                                     bslstl::StringRef(start, end),
                                     &nc2,
                                     &nw2,
-                                    errorChar);
+                                    errorWord);
             ASSERT(rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
@@ -5798,7 +5746,7 @@ int main(int argc, char**argv)
                                     start,
                                     &nc2,
                                     &nw2,
-                                    errorChar);
+                                    errorWord);
             ASSERT(rc2 == rc);
             ASSERT(nc2 == nc);
             ASSERT(nw2 == nw);
@@ -5870,7 +5818,7 @@ int main(int argc, char**argv)
                                             : start + 1;
             for (; end <= utf8BrokenEnd; ++end) {
                 for (int i = 0; i < 2; ++i) {
-                    const unsigned short errorChar = 0 == i ? '?' : 0;
+                    const unsigned short errorWord = 0 == i ? '?' : 0;
 
                     char save = *end;
                     *end = 0;
@@ -5878,7 +5826,7 @@ int main(int argc, char**argv)
                     bdlde::CharConvertUtf16::utf8ToUtf16(&dstVec,
                                                         start,
                                                         0,
-                                                        errorChar);
+                                                        errorWord);
 
                     *end = save;
 
@@ -5887,7 +5835,7 @@ int main(int argc, char**argv)
                                                        bslstl::StringRef(start,
                                                                          end),
                                                        0,
-                                                       errorChar);
+                                                       errorWord);
 
                     ASSERT(dstVec == dstVecB);
                 }
@@ -5902,7 +5850,7 @@ int main(int argc, char**argv)
                                             : start + 1;
             for (; end <= utf8BrokenEnd; ++end) {
                 for (int i = 0; i < 2; ++i) {
-                    const unsigned short errorChar = 0 == i ? '?' : 0;
+                    const unsigned short errorWord = 0 == i ? '?' : 0;
 
                     char save = *end;
                     *end = 0;
@@ -5910,7 +5858,7 @@ int main(int argc, char**argv)
                     bdlde::CharConvertUtf16::utf8ToUtf16(&dstWstring,
                                                         start,
                                                         0,
-                                                        errorChar);
+                                                        errorWord);
 
                     *end = save;
 
@@ -5919,7 +5867,7 @@ int main(int argc, char**argv)
                                                        bslstl::StringRef(start,
                                                                          end),
                                                        0,
-                                                       errorChar);
+                                                       errorWord);
 
                     ASSERT(dstWstring == dstWstringB);
                 }
@@ -5954,7 +5902,7 @@ int main(int argc, char**argv)
         // TESTING ERROR SEQUENCES IN UTF8
         //
         // Concerns:
-        //   That sequences with error characters are handled correctly.
+        //   That sequences with error code points are handled correctly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Error Sequences\n"
@@ -5984,16 +5932,16 @@ int main(int argc, char**argv)
                                                     sizeof *errorUtf16InOrig };
 
         for (int e = 0; e < 2; ++e) {
-            char errorChar = 0 == e ? 'x' : 0;
+            char errorWord = 0 == e ? 'x' : 0;
 
-            bsl::size_t numExpectedChars =
-                      errorChar ? NUM_EXPECTED_UTF16 : NUM_EXPECTED_UTF16_ZERO;
+            bsl::size_t numExpectedWords =
+                      errorWord ? NUM_EXPECTED_UTF16 : NUM_EXPECTED_UTF16_ZERO;
             const bsl::wstring expectedW(
-                    errorChar ? expectedUtf16
+                    errorWord ? expectedUtf16
                               : expectedUtf16Zero,
-                    errorChar ? expectedUtf16 +     NUM_EXPECTED_UTF16     -1
+                    errorWord ? expectedUtf16 +     NUM_EXPECTED_UTF16     -1
                               : expectedUtf16Zero + NUM_EXPECTED_UTF16_ZERO-1);
-            ASSERT(expectedW.length() + 1 == numExpectedChars);
+            ASSERT(expectedW.length() + 1 == numExpectedWords);
 
             bsl::vector<unsigned short> expectedV;
             {
@@ -6005,16 +5953,16 @@ int main(int argc, char**argv)
             bsl::wstring utf16Wstring;
 
             {
-                bsl::size_t nChars;
+                bsl::size_t nCodePoints;
                 int rc = Util::utf8ToUtf16(&utf16Wstring,
                                            (const char *) errorUnsignedIn,
-                                           &nChars,
-                                           errorChar);
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                LOOP2_ASSERT(nChars, numExpectedChars,
-                                                   numExpectedChars == nChars);
-                LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
-                                utf16Wstring.length() + 1 == numExpectedChars);
+                                           &nCodePoints,
+                                           errorWord);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                LOOP2_ASSERT(nCodePoints, numExpectedWords,
+                                              numExpectedWords == nCodePoints);
+                LOOP2_ASSERT(utf16Wstring.length(), numExpectedWords,
+                                utf16Wstring.length() + 1 == numExpectedWords);
 
                 ASSERT(expectedW == utf16Wstring);
                 if    (expectedW != utf16Wstring) {
@@ -6030,34 +5978,34 @@ int main(int argc, char**argv)
                 }
 
                 utf16Wstring.clear();
-                nChars = -1;
+                nCodePoints = -1;
                 rc = Util::utf8ToUtf16(
                           &utf16Wstring,
                           bslstl::StringRef((const char *) errorUnsignedIn,
                                             (int) sizeof(errorUnsignedIn) - 1),
-                          &nChars,
-                          errorChar);
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                LOOP2_ASSERT(nChars, numExpectedChars,
-                                                   numExpectedChars == nChars);
-                LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
-                                numExpectedChars == utf16Wstring.length() + 1);
+                          &nCodePoints,
+                          errorWord);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                LOOP2_ASSERT(nCodePoints, numExpectedWords,
+                                              numExpectedWords == nCodePoints);
+                LOOP2_ASSERT(utf16Wstring.length(), numExpectedWords,
+                                numExpectedWords == utf16Wstring.length() + 1);
 
                 ASSERT(expectedW == utf16Wstring);
             }
 
             {
                 bsl::vector<unsigned short> utf16Vec;
-                bsl::size_t nChars;
+                bsl::size_t nCodePoints;
                 int rc = Util::utf8ToUtf16(&utf16Vec,
                                            (const char *) errorUnsignedIn,
-                                           &nChars,
-                                           errorChar);
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                LOOP2_ASSERT(nChars, numExpectedChars,
-                                                   numExpectedChars == nChars);
-                LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
-                                          numExpectedChars == utf16Vec.size());
+                                           &nCodePoints,
+                                           errorWord);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                LOOP2_ASSERT(nCodePoints, numExpectedWords,
+                                              numExpectedWords == nCodePoints);
+                LOOP2_ASSERT(utf16Vec.size(), numExpectedWords,
+                                          numExpectedWords == utf16Vec.size());
                 LOOP2_ASSERT(expectedV.size(), utf16Vec.size(),
                                           expectedV.size() == utf16Vec.size());
                 ASSERT(expectedV == utf16Vec);
@@ -6074,18 +6022,18 @@ int main(int argc, char**argv)
                 }
 
                 utf16Vec.clear();
-                nChars = -1;
+                nCodePoints = -1;
                 rc = Util::utf8ToUtf16(
                           &utf16Vec,
                           bslstl::StringRef((const char *) errorUnsignedIn,
                                             (int) sizeof(errorUnsignedIn) - 1),
-                          &nChars,
-                          errorChar);
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                LOOP2_ASSERT(nChars, numExpectedChars,
-                                                   numExpectedChars == nChars);
-                LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
-                                          numExpectedChars == utf16Vec.size());
+                          &nCodePoints,
+                          errorWord);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                LOOP2_ASSERT(nCodePoints, numExpectedWords,
+                                              numExpectedWords == nCodePoints);
+                LOOP2_ASSERT(utf16Vec.size(), numExpectedWords,
+                                          numExpectedWords == utf16Vec.size());
                 LOOP2_ASSERT(expectedV.size(), utf16Vec.size(),
                                           expectedV.size() == utf16Vec.size());
                 ASSERT(expectedV == utf16Vec);
@@ -6099,39 +6047,39 @@ int main(int argc, char**argv)
         }
 
         for (int e = 0; e < 2; ++e) {
-            char errorChar = 0 == e ? 'x' : 0;
+            char errorByte = 0 == e ? 'x' : 0;
 
-            const char *expected = errorChar ? "axbxcxxdxxe" : "abcde";
-            const bsl::size_t expectedChars = bsl::strlen(expected) + 1;
+            const char *expected = errorByte ? "axbxcxxdxxe" : "abcde";
+            const bsl::size_t expectedCodePoints = bsl::strlen(expected) + 1;
 
             {
                 bsl::vector<char> utf8Vec;
-                bsl::size_t nChars;
+                bsl::size_t nCodePoints;
                 int rc = Util::utf16ToUtf8(&utf8Vec,
                                            errorUtf16InOrig,
-                                           &nChars,
-                                           errorChar);
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                ASSERT(expectedChars == nChars);
-                ASSERT(expectedChars == utf8Vec.size());
+                                           &nCodePoints,
+                                           errorByte);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                ASSERT(expectedCodePoints == nCodePoints);
+                ASSERT(expectedCodePoints == utf8Vec.size());
 
                 ASSERT(0 == bsl::strcmp(&utf8Vec[0], expected));
             }
 
             {
                 bsl::string utf8String;
-                bsl::size_t nChars, nBytes;
+                bsl::size_t nCodePoints, nBytes;
                 const unsigned short *errorUtf16In = errorUtf16InOrig;
                 int rc = Util::utf16ToUtf8(&utf8String,
                                            errorUtf16In,
-                                           &nChars,
-                                           errorChar);
+                                           &nCodePoints,
+                                           errorByte);
                 nBytes = utf8String.length() + 1;
 
-                ASSERT(Status::k_INVALID_CHARS_BIT == rc);
-                ASSERT(expectedChars == nChars);
-                ASSERT(expectedChars == nBytes);
-                ASSERT(expectedChars == utf8String.length() + 1);
+                ASSERT(Status::k_INVALID_INPUT_BIT == rc);
+                ASSERT(expectedCodePoints == nCodePoints);
+                ASSERT(expectedCodePoints == nBytes);
+                ASSERT(expectedCodePoints == utf8String.length() + 1);
 
                 ASSERT(0 == bsl::strcmp(utf8String.c_str(), expected));
             }
@@ -6158,12 +6106,12 @@ int main(int argc, char**argv)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
         wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
 
-        bsl::size_t numChars16 = 0, numWords16S = 0, numWords16W = 0;
+        bsl::size_t numCodePoints16 = 0, numWords16S = 0, numWords16W = 0;
 
         int rc = Util::utf8ToUtf16(utf16S,
                                    CAPACITY,
                                    (const char *) utf8MultiLang,
-                                   &numChars16,
+                                   &numCodePoints16,
                                    &numWords16S);
         ASSERT(0 == rc);
 
@@ -6175,7 +6123,7 @@ int main(int argc, char**argv)
                                &numWords16W);
         ASSERT(0 == rc);
         ASSERT(numWords16S == numWords16W);
-        ASSERT(numChars16 == nc);
+        ASSERT(numCodePoints16 == nc);
         for (int i = 0; i < (int) numWords16S; ++i) {
             ASSERT(utf16W[i] == (wchar_t) utf16S[i]);
         }
@@ -6183,7 +6131,7 @@ int main(int argc, char**argv)
         rc = Util::utf8ToUtf16(utf16S,
                                CAPACITY,
                                bslstl::StringRef((const char *) utf8MultiLang),
-                               &numChars16,
+                               &numCodePoints16,
                                &numWords16S);
         ASSERT(0 == rc);
         ASSERT(numWords16S == numWords16W);
@@ -6194,7 +6142,7 @@ int main(int argc, char**argv)
         rc = Util::utf8ToUtf16(utf16W,
                                CAPACITY,
                                bslstl::StringRef((const char *) utf8MultiLang),
-                               &numChars16,
+                               &numCodePoints16,
                                &numWords16W);
         ASSERT(0 == rc);
         ASSERT(numWords16S == numWords16W);
@@ -6205,14 +6153,14 @@ int main(int argc, char**argv)
         {
             bsl::vector<unsigned short> utf16Vec(&ta);
 
-            bsl::size_t numChars16Vec = 0;
+            bsl::size_t numCodePoints16Vec = 0;
 
             rc = Util::utf8ToUtf16(&utf16Vec,
                                    (const char *) utf8MultiLang,
-                                   &numChars16Vec);
+                                   &numCodePoints16Vec);
             ASSERT(0 == rc);
 
-            ASSERT(numChars16Vec == numChars16);
+            ASSERT(numCodePoints16Vec == numCodePoints16);
             ASSERT(numWords16S   == utf16Vec.size());
 
             unsigned short *z16Ptr =
@@ -6227,10 +6175,10 @@ int main(int argc, char**argv)
             rc = Util::utf8ToUtf16(
                                &utf16Vec,
                                bslstl::StringRef((const char *) utf8MultiLang),
-                               &numChars16Vec);
+                               &numCodePoints16Vec);
             ASSERT(0 == rc);
 
-            ASSERT(numChars16Vec == numChars16);
+            ASSERT(numCodePoints16Vec == numCodePoints16);
             ASSERT(numWords16S   == utf16Vec.size());
 
             z16Ptr = bsl::find(utf16Vec.begin(), utf16Vec.end(), 0);
@@ -6245,28 +6193,28 @@ int main(int argc, char**argv)
         {
             bsl::wstring utf16Wstring(&ta);
 
-            bsl::size_t numChars16Wstring = 0;
+            bsl::size_t numCodePoints16Wstring = 0;
 
             rc = Util::utf8ToUtf16(&utf16Wstring,
                                    (const char *) utf8MultiLang,
-                                   &numChars16Wstring);
+                                   &numCodePoints16Wstring);
             ASSERT(0 == rc);
 
-            ASSERT(numChars16Wstring == numChars16);
+            ASSERT(numCodePoints16Wstring == numCodePoints16);
             ASSERT(numWords16S       == utf16Wstring.length() + 1);
             ASSERT(localUtf16Len(utf16Wstring.c_str()) ==
                                                         utf16Wstring.length());
 
             ASSERT(utf16W == utf16Wstring);
 
-            numChars16Wstring = -1;
+            numCodePoints16Wstring = -1;
             rc = Util::utf8ToUtf16(
                                &utf16Wstring,
                                bslstl::StringRef((const char *) utf8MultiLang),
-                               &numChars16Wstring);
+                               &numCodePoints16Wstring);
             ASSERT(0 == rc);
 
-            ASSERT(numChars16Wstring == numChars16);
+            ASSERT(numCodePoints16Wstring == numCodePoints16);
             ASSERT(numWords16S       == utf16Wstring.length() + 1);
             ASSERT(localUtf16Len(utf16Wstring.c_str()) ==
                                                         utf16Wstring.length());
@@ -6277,28 +6225,28 @@ int main(int argc, char**argv)
         {
             bsl::vector<char> utf8Vec(&ta);
             {
-                bsl::size_t numChars8 = 0;
+                bsl::size_t numCodePoints8 = 0;
 
                 rc = Util::utf16ToUtf8(&utf8Vec,
                                        utf16S,
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
 
-                ASSERT(numChars8 == numChars16);
+                ASSERT(numCodePoints8 == numCodePoints16);
                 ASSERT(sizeof(utf8MultiLang) == utf8Vec.size());
 
                 ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
                 ASSERT(!bsl::strcmp(utf8Vec.begin(), charUtf8MultiLang));
             }
             {
-                bsl::size_t numChars8 = 0;
+                bsl::size_t numCodePoints8 = 0;
 
                 rc = Util::utf16ToUtf8(&utf8Vec,
                                        utf16W,
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
 
-                ASSERT(numChars8 == numChars16);
+                ASSERT(numCodePoints8 == numCodePoints16);
                 ASSERT(sizeof(utf8MultiLang) == utf8Vec.size());
 
                 ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
@@ -6311,26 +6259,26 @@ int main(int argc, char**argv)
                                        bslstl::StringRefWide(
                                                          utf16W,
                                                          (int)numWords16W - 1),
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
 
-                ASSERT(numChars8 == numChars16);
+                ASSERT(numCodePoints8 == numCodePoints16);
                 ASSERT(utf8VecB == utf8Vec);
             }
 
             {
                 bsl::string utf8String(&ta);
 
-                bsl::size_t numChars8 = 0;
+                bsl::size_t numCodePoints8 = 0;
 
                 rc = Util::utf16ToUtf8(&utf8String,
                                        utf16S,
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
 
                 bsl::size_t numBytes8 = utf8String.length() + 1;
 
-                ASSERT(numChars8 == numChars16);
+                ASSERT(numCodePoints8 == numCodePoints16);
                 ASSERT(numBytes8 == sizeof(utf8MultiLang));
 
                 ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
@@ -6339,16 +6287,16 @@ int main(int argc, char**argv)
             {
                 bsl::string utf8String(&ta);
 
-                bsl::size_t numChars8 = 0;
+                bsl::size_t numCodePoints8 = 0;
 
                 rc = Util::utf16ToUtf8(&utf8String,
                                        utf16W,
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
 
                 bsl::size_t numBytes8 = utf8String.length() + 1;
 
-                ASSERT(numChars8 == numChars16);
+                ASSERT(numCodePoints8 == numCodePoints16);
                 ASSERT(numBytes8 == sizeof(utf8MultiLang));
 
                 ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
@@ -6361,7 +6309,7 @@ int main(int argc, char**argv)
                                        bslstl::StringRefWide(
                                                         utf16W,
                                                         (int) numWords16W - 1),
-                                       &numChars8);
+                                       &numCodePoints8);
                 ASSERT(0 == rc);
                 ASSERT(utf8String == utf8StringB);
             }
@@ -6427,96 +6375,96 @@ int main(int argc, char**argv)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
         wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
 
-        bsl::size_t numChars16 = 0, numWords16S = 0, numWords16W = 0;
+        bsl::size_t numCodePoints16 = 0, numWords16S = 0, numWords16W = 0;
 
         int rc = Util::utf8ToUtf16(utf16S,
                                    CAPACITY,
                                    charUtf8MultiLang,
-                                   &numChars16,
+                                   &numCodePoints16,
                                    &numWords16S);
 
         if (verbose) {
             Q(utf8ToUtf16:);
-            P_(rc) P_(numChars16) P(numWords16S);
+            P_(rc) P_(numCodePoints16) P(numWords16S);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
         ASSERT(numWords16S < sizeof(utf8MultiLang));
-        ASSERT(numWords16S >= numChars16);
+        ASSERT(numWords16S >= numCodePoints16);
 
         rc = Util::utf8ToUtf16(utf16S,
                                CAPACITY,
                                bslstl::StringRef(charUtf8MultiLang),
-                               &numChars16,
+                               &numCodePoints16,
                                &numWords16S);
 
         if (verbose) {
             Q(utf8ToUtf16:);
-            P_(rc) P_(numChars16) P(numWords16S);
+            P_(rc) P_(numCodePoints16) P(numWords16S);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
         ASSERT(numWords16S < sizeof(utf8MultiLang));
-        ASSERT(numWords16S >= numChars16);
+        ASSERT(numWords16S >= numCodePoints16);
 
         rc = Util::utf8ToUtf16(utf16W,
                                CAPACITY,
                                charUtf8MultiLang,
-                               &numChars16,
+                               &numCodePoints16,
                                &numWords16W);
 
         if (verbose) {
             Q(utf8ToUtf16:);
-            P_(rc) P_(numChars16) P(numWords16W);
+            P_(rc) P_(numCodePoints16) P(numWords16W);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
         ASSERT(numWords16W < sizeof(utf8MultiLang));
-        ASSERT(numWords16W >= numChars16);
+        ASSERT(numWords16W >= numCodePoints16);
         ASSERT(numWords16W == numWords16S);
 
         rc = Util::utf8ToUtf16(utf16W,
                                CAPACITY,
                                bslstl::StringRef(charUtf8MultiLang),
-                               &numChars16,
+                               &numCodePoints16,
                                &numWords16W);
 
         if (verbose) {
             Q(utf8ToUtf16:);
-            P_(rc) P_(numChars16) P(numWords16W);
+            P_(rc) P_(numCodePoints16) P(numWords16W);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
         ASSERT(numWords16W < sizeof(utf8MultiLang));
-        ASSERT(numWords16W >= numChars16);
+        ASSERT(numWords16W >= numCodePoints16);
         ASSERT(numWords16W == numWords16S);
 
-        bsl::size_t numChars8 = 0, numBytes8 = 0;
+        bsl::size_t numCodePoints8 = 0, numBytes8 = 0;
 
         char *utf8 = (char *) ta.allocate(CAPACITY);
 
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
                                utf16S,
-                               &numChars8,
+                               &numCodePoints8,
                                &numBytes8);
 
         if (verbose) {
             Q(utf16ToUtf8:);
-            P_(rc) P_(numChars8) P(numBytes8);
+            P_(rc) P_(numCodePoints8) P(numBytes8);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16 == numChars8);
+        ASSERT(numCodePoints16 == numCodePoints8);
         ASSERT(numBytes8  == sizeof(utf8MultiLang));
         ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
 
-        numChars8 = 0;
+        numCodePoints8 = 0;
         numBytes8 = 0;
 
         bsl::memset(utf8, 0, CAPACITY);
@@ -6524,16 +6472,16 @@ int main(int argc, char**argv)
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
                                utf16W,
-                               &numChars8,
+                               &numCodePoints8,
                                &numBytes8);
 
         if (verbose) {
             Q(utf16ToUtf8:);
-            P_(rc) P_(numChars8) P(numBytes8);
+            P_(rc) P_(numCodePoints8) P(numBytes8);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16 == numChars8);
+        ASSERT(numCodePoints16 == numCodePoints8);
         ASSERT(numBytes8  == sizeof(utf8MultiLang));
         ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
@@ -6544,16 +6492,17 @@ int main(int argc, char**argv)
                                CAPACITY,
                                bslstl::StringRefWide(utf16W,
                                                      (int) numWords16W - 1),
-                               &numChars8,
+                               &numCodePoints8,
                                &numBytes8);
 
         if (verbose) {
             Q(utf16ToUtf8:);
-            P_(rc) P_(numChars8) P(numBytes8);
+            P_(rc) P_(numCodePoints8) P(numBytes8);
         }
 
         ASSERT(0 == rc);
-        LOOP2_ASSERT(numChars16, numChars8, numChars16 == numChars8);
+        LOOP2_ASSERT(numCodePoints16, numCodePoints8,
+                                            numCodePoints16 == numCodePoints8);
         LOOP2_ASSERT(numBytes8, sizeof(utf8MultiLang),
                                            numBytes8 == sizeof(utf8MultiLang));
         LOOP2_ASSERT(bsl::strlen(utf8) + 1, numBytes8,
@@ -6576,8 +6525,8 @@ int main(int argc, char**argv)
         // Plan:
         //   Guided by one or more 'coding-case strings' indicating the various
         //   coding cases (single-octet, two-octet ... single-word, two-word),
-        //   generate character sequences that have all possible coding-case
-        //   trigraphs--not trigraphs on the characters themselves, but on the
+        //   generate code point sequences that have all possible coding-case
+        //   trigraphs--not trigraphs on the code points themselves, but on the
         //   coding cases.  Start and end of string are treated as a coding
         //   type and are represented in the trigraphs (but only at the
         //   beginning or end) and coding case trigraphs consisting of a single
@@ -6598,12 +6547,12 @@ int main(int argc, char**argv)
         //
         // Testing:
         //   A set of control sequences governs the test, which creates strings
-        //   of UTF-8 characters according to their coding.  The control
+        //   of UTF-8 code points according to their coding.  The control
         //   sequences ensure that all coding-case trigraphs are tested,
         //   including those that include beginning-of-string and end-of-
         //   string.  This test is run three-to-the-fourth times five factorial
         //   times: three-to-the-fourth because three different values are used
-        //   for the single-octet character and each of the header content
+        //   for the single-octet code point and each of the header content
         //   fields; five factorial because in each combination of single-octet
         //   and header contents, all permutations of five different
         //   continuation octets are used.  (Actually, six are needed, but the
@@ -6619,13 +6568,14 @@ int main(int argc, char**argv)
         }
 
         const char* u8CodingCases[] ={
-            // The characters 'a', 'b', 'c', and 'd' in these strings represent
-            // not themselves but any valid single-, two-, three-, or four-
-            // octet character, respectively.  These strings together contain
-            // all coding-case trigraphs: trigraphs of Begin-/End-of-String,
-            // 'a', 'b', 'c', and 'd', except for the single-character
-            // Begin-'a'-End, Begin-'b'-End, etc.  And of course Begin and End
-            // occur only at the beginning and end, respectively.
+            // The code points 'a', 'b', 'c', and 'd' in these strings
+            // represent not themselves but any valid single-, two-, three-, or
+            // four-octet code point, respectively.  These strings together
+            // contain all coding-case trigraphs: trigraphs of
+            // Begin-/End-of-String, 'a', 'b', 'c', and 'd', except for the
+            // single-code point Begin-'a'-End, Begin-'b'-End, etc.  And of
+            // course Begin and End occur only at the beginning and end,
+            // respectively.
             //
             // This sequence list was generated with the aid of the manual
             // version of the 'ng' program (ng13.cpp).  A copy of ng13.cpp is
@@ -6655,7 +6605,7 @@ int main(int argc, char**argv)
                                          // of length of n-graph -- five to the
                                          // third.  In fact, it's NOT all one
                                          // string, but several (null
-                                         // characters the place of the
+                                         // code points the place of the
                                          // string-breaks) and and omits some
                                          // the break-letter- break trigraphs.
                                          // This allocation is safe and not
@@ -6665,13 +6615,13 @@ int main(int argc, char**argv)
                                                    // four octet char.  But
                                                    // this is safe and cheap.
                MAX_NWORDS = MAX_NCHARS * 2 + 1     // Excess again, only
-                                                   // 4-octet UTF-8 characters
+                                                   // 4-octet UTF-8 code points
                                                    // will translate to UTF-16.
         };
 
         // The test sets are created in two stages, using a four-wheel
         // OdomIter, three places per wheel, one wheel for the single-byte
-        // character and one for each of the headers, and a Permuter with five
+        // code point and one for each of the headers, and a Permuter with five
         // places to shift the continuation parts around.  Since we need six
         // different continuation contents but the permuter only permutes five
         // (to keep the execution time reasonable) we re-use one permuter value
@@ -6769,7 +6719,7 @@ int main(int argc, char**argv)
                         switch (*ccase) {
                           case 'a': {
 
-                            // One-byte character:
+                            // One-byte code point:
                             *genp++ = single;
                             *imgp++ = single;
 
@@ -6777,7 +6727,7 @@ int main(int argc, char**argv)
 
                           } break;
                           case 'b': {
-                            // Two-byte character:
+                            // Two-byte code point:
                             *genp++ = static_cast<unsigned short>(
                                                       0xc0 | twoHdr);
                             *genp++ = static_cast<unsigned short>(
@@ -6790,7 +6740,7 @@ int main(int argc, char**argv)
                           } break;
                           case 'c': {
 
-                            // Three-byte character:
+                            // Three-byte code point:
                             *genp++ = static_cast<unsigned short>(
                                                           0xe0 | threeHdr);
                             *genp++ = static_cast<unsigned short>(
@@ -6806,7 +6756,7 @@ int main(int argc, char**argv)
                           } break;
                           case 'd': {
 
-                            // four-byte character:
+                            // four-byte code point:
                             *genp++ = 0xf0 | fourHdr;
                             *genp++ = 0x80 | fourContin1;
                             *genp++ = 0x80 | fourContin2;
@@ -6827,7 +6777,7 @@ int main(int argc, char**argv)
                           } break;
                           default:
                             cerr << "Internal error in Test 5: "
-                                    "Invalid case coding character "
+                                    "Invalid case coding code point "
                                   << deChar(*ccase) << endl;
                             exit(1);
                         }
@@ -6966,90 +6916,6 @@ int main(int argc, char**argv)
         //   from scratch.
         // --------------------------------------------------------------------
 
-#if 0
-        Conversion<unsigned short, char>
-                                u8ToU16(bdlde::CharConvertUtf16::utf8ToUtf16);
-        Conversion<char, unsigned short>
-                                u16ToU8(bdlde::CharConvertUtf16::utf16ToUtf8);
-        enum { BUFFER_ZONE = 32  // Fill and check 32 memory units around
-                                 // the TO-string.
-        };
-
-        //  The nine disallowed octets, all at once.
-        struct DisallowedOctet {
-            const char* caseMessage[2];
-            unsigned char octet;
-        } disallowed [] ={
-            { { "\nTest 4a1: disallowed octet 0xff",
-                "\n===============================" },
-              0xff },
-            { { "\nTest 4a2: disallowed octet 0xfe "
-                      "(header for 7-octet character)",
-                "\n================================"
-                      "==============================" },
-              0xfe },
-            { { "\nTest 4a3: disallowed octet 0xfc "
-                      "(header for 6-octet character + 0)",
-                "\n================================"
-                      "==================================" },
-              0xfc },
-            { { "\nTest 4a4: disallowed octet 0xfd "
-                      "(header for 6-octet character + 1)",
-                "\n================================"
-                      "==================================" },
-              0xfd },
-            { { "\nTest 4a5: disallowed octet 0xf8 "
-                      "(header for 5-octet character + 0)",
-                "\n================================"
-                      "==================================" },
-              0xf8 },
-            { { "\nTest 4a6: disallowed octet 0xf9 "
-                      "(header for 5-octet character + 1)",
-                "\n================================"
-                      "==================================" },
-              0xf9 },
-            { { "\nTest 4a7: disallowed octet 0xfa "
-                      "(header for 5-octet character + 2)",
-                "\n================================"
-                      "==================================" },
-              0xfa },
-            { { "\nTest 4a8: disallowed octet 0xfb "
-                      "(header for 5-octet character + 3)",
-                "\n================================"
-                      "==================================" },
-              0xfb },
-        };
-
-        for (DisallowedOctet* disI = disallowed;
-                disI < disallowed + sizeof(disallowed)/sizeof(disallowed[0]);
-                                                                    ++disI) {
-            if (verbose) {
-                cout << disI->caseMessage[0] << disI->caseMessage[1] << endl;
-            }
-
-            typedef BufferSizes<3,  // Up to three input octets
-                                1,  // Input characters are each one byte.
-                                1,  // Output characters should be single-word.
-                                    // Margin of 32 words on the output buffer.
-                                BUFFER_ZONE> Sizes;
-
-            char           u8[Sizes::FROM_BUF_SIZE];
-            unsigned short u16[Sizes::TO_BUF_SIZE];
-
-            ArrayRange<char>           u8Range(u8);
-            ArrayRange<unsigned short> u16Range(u16);
-
-            char source[1] ={ disI->octet };
-
-            ArrayRange<char> sourceList(source);
-            GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-            testOneErrorCharConversion(__LINE__,
-                                       u16Range,
-                                       u8Range,
-                                       genCheck);
-        }
-#endif
-
         {
             if (verbose) cout << "Disallowed Octets:\n";
 
@@ -7097,49 +6963,6 @@ int main(int argc, char**argv)
             }
         }
 
-#if 0
-        // Test 4a9: Continuation octets out of place.
-        if (verbose) {
-            cout << "\nTest 4a9: Continuation octets out of place."
-                    "\n===========================================" << endl;
-        }
-
-        AvCharList contins(u8ContinByteCases);
-        for (AvCharList::iterator continIter = contins.begin();
-                                contins.end() != continIter; ++continIter) {
-
-            typedef BufferSizes<3,  // Up to three input octets
-                                1,  // Input characters are each one byte.
-                                1,  // Output characters should be single-word.
-                                    // Margin of 32 words on the output buffer.
-                                BUFFER_ZONE> Sizes;
-
-            char           u8[Sizes::FROM_BUF_SIZE];
-            unsigned short u16[Sizes::TO_BUF_SIZE];
-
-            unsigned char header = 0x80 | *continIter;
-
-            ArrayRange<char>           u8Range(u8);
-            ArrayRange<unsigned short> u16Range(u16);
-
-            char source[1] ={ header };
-
-            if (veryVerbose) {
-                cout << hex << "Continuation octet " << deChar(header)
-                            << ", contents "         << deChar(*continIter)
-                     << dec << endl;
-            }
-
-            ArrayRange<char> sourceList(source);
-            GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-
-            testOneErrorCharConversion(__LINE__,
-                                       u16Range,
-                                       u8Range,
-                                       genCheck);
-        }
-#endif
-
         {
             if (verbose) cout << "Continuation Octets out of place:\n";
 
@@ -7163,219 +6986,6 @@ int main(int argc, char**argv)
         }
 
         // The above code covers all cases covered below
-
-#if 0
-        // Tests 4a10 through 4a12 -- multi-octet headers without continuations
-
-        struct OctetListTests {
-            const char          *caseMessage[2];
-            const unsigned char *octetSet;
-            unsigned char        headerTag;
-            unsigned             octetSetLen;
-        } cutShortAtOne[] ={
-          { { "\nTest 4a10: Two-octet character cut short after header",
-              "\n=====================================================", },
-              u8TwoByteHdrCases,
-              0xc0,
-              sizeof(u8TwoByteHdrCases)/sizeof(u8TwoByteHdrCases[0]),
-          },
-          { { "\nTest 4a11: Three-octet character cut short after header",
-              "\n=======================================================", },
-              u8ThreeByteHdrCases,
-              0xe0,
-              sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
-          },
-          { { "\nTest 4a12: Four-octet character cut short after header",
-              "\n======================================================", },
-              u8FourByteHdrCases,
-              0xf0,
-              sizeof(u8FourByteHdrCases)/sizeof(u8FourByteHdrCases[0]),
-          },
-        };
-
-        for (int oltI = 0;
-                 oltI < (int) (sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]));
-                                                                    ++oltI) {
-            OctetListTests& olt = cutShortAtOne[oltI];
-
-            if (verbose) {
-                cout << olt.caseMessage[0] << olt.caseMessage[1] << endl;
-            }
-
-            AvCharList headers(olt.octetSet, olt.octetSetLen);
-
-            for (AvCharList::iterator hdrIter = headers.begin();
-                                headers.end() != hdrIter; ++hdrIter) {
-
-                unsigned char header = olt.headerTag | *hdrIter;
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*hdrIter) << endl;
-                }
-
-                typedef BufferSizes<3,  // Up to three input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[1] ={ header };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Tests 4a13 and 4a14: Multi-octet characters incomplete
-        //                     after one continuation octet.
-
-        struct OctetListTests cutShortAtTwo[] ={
-          { { "\nTest 4a13: Three-octet character cut short "
-              "after one continuation",
-              "\n==========================================="
-              "======================", },
-              u8ThreeByteHdrCases,
-              0xe0,
-              sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
-          },
-          { { "\nTest 4a14: Four-octet character cut short "
-              "after one continuation",
-              "\n=========================================="
-              "======================", },
-              u8FourByteHdrCases,
-              0xf0,
-              sizeof(u8FourByteHdrCases)/sizeof(u8FourByteHdrCases[0]),
-          },
-        };
-
-        for (int oltI = 0;
-                 oltI < (int) (sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]));
-                                                                    ++oltI) {
-            OctetListTests& olt = cutShortAtTwo[oltI];
-
-            if (verbose) {
-                cout << olt.caseMessage[0] << olt.caseMessage[1] << endl;
-            }
-
-            AvCharList headers(olt.octetSet, olt.octetSetLen);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins, };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                unsigned char header = olt.headerTag | *wheelIters[0];
-                unsigned char contin = 0x80 | *wheelIters[1];
-
-                typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation octet " << deChar(contin)
-                                << ", Content " << deChar(*wheelIters[1])
-                         << dec << endl;
-                    cout << " - Error alone, no replacement char" << endl;
-                }
-
-                char source[2] ={ header, contin };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a15: Four-octet header cut short
-        //                 after the second continuation.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a15: Four-octet character cut short "
-                        "after two continuations"
-                     << "\n=========================================="
-                        "=======================" << endl;
-            }
-
-            AvCharList headers(u8FourByteHdrCases);
-            AvCharList contin1s(u8ContinByteCases);
-            AvCharList contin2s(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contin1s, &contin2s, };
-
-            OdomIter<AvCharList::iterator, 3> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                unsigned char header  = 0xf8 | *wheelIters[0];
-                unsigned char contin1 = 0x80 | *wheelIters[1];
-                unsigned char contin2 = 0x80 | *wheelIters[2];
-
-                typedef BufferSizes<5,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation octet1 " << deChar(contin1)
-                                << ", Content " << deChar(*wheelIters[1])
-                                << "\n Continuation octet2 " << deChar(contin2)
-                                << ", Content " << deChar(*wheelIters[2])
-                         << dec << endl;
-                }
-
-                char source[3] ={ header, contin1, contin2 };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-#endif
 
         if (verbose) cout << "Missing continuation octets\n";
 
@@ -7419,664 +7029,6 @@ int main(int argc, char**argv)
             }
         }
 
-#if 0
-MARK
-        // Test case 4a16: Single-octet char coded as a two-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a16: Single-octet character "
-                        "coded as a two-octet character"
-                     << "\n=================================="
-                        "==============================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[2] ={ static_cast<char>(0xc0 | octet >> 6),
-                                  static_cast<char>(0x80 | (octet & 0x3f)) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << (octet >> 6)
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(octet)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a17: Single-octet char coded as a three-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a17: Single-octet character "
-                        "coded as a three-octet character"
-                     << "\n=================================="
-                        "================================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ static_cast<char>(0xe0),
-                                  static_cast<char>((0x80 | octet >> 6)),
-                                  static_cast<char>((0x80 | (octet & 0x3f))) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(octet >> 6)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(octet &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a18: Single-octet char coded as a four-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a18: Single-octet character "
-                        "coded as a four-octet character"
-                     << "\n=================================="
-                        "===============================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0),
-                                  static_cast<char>(0x80),
-                                  static_cast<char>(0x80 | octet >> 6),
-                                  static_cast<char>(0x80 | (octet & 0x3f)) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(octet >> 6)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(octet & 0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a19 two-octet char coded as three-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a19: Two-octet character "
-                        "coded as a three-octet character"
-                     << "\n==============================="
-                        "================================" << endl;
-            }
-
-            AvCharList headers(u8TwoByteHdrCases);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                unsigned short character =
-                                        ((unsigned short) *wheelIters[0] << 6)
-                                       | *wheelIters[1];
-
-                unsigned char contin1 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin2 = 0x80 | (character & 0x3f);
-
-                typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ static_cast<char>(0xe0),
-                                  contin1,
-                                  contin2 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(character &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a20 two-octet char coded as four-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a20: Two-octet character "
-                        "coded as a four-octet character"
-                     << "\n==============================="
-                        "===============================" << endl;
-            }
-
-            AvCharList headers(u8TwoByteHdrCases);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                unsigned int character =
-                                        ((unsigned short) *wheelIters[0] << 6)
-                                       | *wheelIters[1];
-
-                unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
-                    // 'contin1' should end up as 0x80.
-                unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (character & 0x3f);
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0),
-                                  contin1,
-                                  contin2,
-                                  contin3 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(character >> 12 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(character & 0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a21 three-octet char coded as four-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a21: Three-octet character "
-                        "coded as a four-octet character"
-                     << "\n================================="
-                        "===============================" << endl;
-            }
-
-            AvCharList headers(u8ThreeByteHdrCases);
-            AvCharList contin1s(u8ContinByteCases);
-            AvCharList contin2s(u8ContinByteCases);
-
-            // The character must be a valid 3-octet character, which means
-            // that we have to skip some of the combinations that the test data
-            // will give us (those in which the content of the three-byte
-            // header is zero and the content of the first continuation is less
-            // than THREE_BYTE_ZERO_NEEDS.  It looks a bit less expensive to
-            // do this with an outer and inner loop (see test 3a3) but the
-            // extra cost of turning a wheel and skipping the case seems
-            // small compared to the costs we bear when we don't skip.  This
-            // seems to justify the simpler-to-code version here.
-
-            AvCharList *wheels[] ={ &headers, &contin1s, &contin2s };
-
-            OdomIter<AvCharList::iterator, 3> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                if (0 == *wheelIters[0]
-                 && *wheelIters[1] < THREE_BYTE_ZERO_NEEDS) {
-                    continue;
-                }
-
-                // Assemble a three-octet character.
-                unsigned int character =
-                                        ((unsigned short) *wheelIters[0] << 12)
-                                      | ((unsigned short) *wheelIters[1] << 6)
-                                      | *wheelIters[2];
-
-                // Break it up as a four-octet character.
-                unsigned char header  = 0xf0 | (character >> 18);
-                    // 'header' should end up as 0xf0.
-                unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
-                unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (character & 0x3f);
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ header,
-                                  contin1,
-                                  contin2,
-                                  contin3 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(character >> 12 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(character &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a22, 4a23 three-octet char with a value
-        // in the lower and upper reserved ranges
-
-        struct ReservedRangeOctetSet {
-            const char*          caseMessage[2];
-            const unsigned char* octetSet;
-            unsigned             octetSetLen;
-        } reservedRangeOctetSets[] ={
-        { { "\nTest 4a22: Three-octet char in the lower "
-              "reserved range",
-              "\n========================================"
-              "==============", },
-              u8ReservedRangeLowerContin,
-              sizeof(u8ReservedRangeLowerContin)/
-              sizeof(u8ReservedRangeLowerContin[0]),
-          },
-          { { "\nTest 4a23: Three-octet char in the upper "
-              "reserved range",
-              "\n=========================================="
-              "==============", },
-              u8ReservedRangeUpperContin,
-              sizeof(u8ReservedRangeUpperContin)/
-              sizeof(u8ReservedRangeUpperContin[0]),
-          }
-        };
-
-        for (int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
-                                            sizeof(reservedRangeOctetSets[0]));
-                                                             ++iOctSet) {
-            ReservedRangeOctetSet& octSet = reservedRangeOctetSets[iOctSet];
-
-            if (verbose) {
-                cout << octSet.caseMessage[0] << octSet.caseMessage[1] << endl;
-            }
-
-            AvCharList contin1s(octSet.octetSet, octSet.octetSetLen);
-            AvCharList contin2s(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &contin1s, &contin2s };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                // Assemble an illegal three-octet character.
-                unsigned char header  = 0xe0 | 0xd;
-                unsigned char contin1 = 0x80 | *wheelIters[0];
-                unsigned char contin2 = 0x80 | *wheelIters[1];
-
-                typedef BufferSizes<5,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ header,
-                                  contin1,
-                                  contin2 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0xed
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*wheelIters[1])
-                                << "\nCharacter " << ( 0xd << 12
-                                                     | *wheelIters[0] << 6
-                                                     | *wheelIters[1] )
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4a24 part 1: Out-of-range 4-octet character, header contents 4,
-        // first continuation 0x10 or above.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a24: Four-octet char out of iso10646 range "
-                        "(part 1: header content 4)"
-                     << "\n================================================="
-                        "=========================="
-                     << endl;
-            }
-
-            // The header octet is a four-octet header with content 4.  The
-            // first continuation octet is 0x10 or above.
-
-            AvCharList contin1(u8ContinInvalidFourByteMaxCases);
-            AvCharList contin2(u8ContinByteCases);
-            AvCharList contin3(u8ContinByteCases);
-
-            AvCharList *wheels[3] ={ &contin1, &contin2, &contin3, };
-
-            OdomIter<AvCharList::iterator, 3> continIter(wheels);
-
-            for (; continIter ; continIter.next()) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] = { static_cast<char>(0xf0 | 4),
-                                   static_cast<char>(0x80 | *continIter[0]),
-                                   static_cast<char>(0x80 | *continIter[1]),
-                                   static_cast<char>(0x80 | *continIter[2]) };
-
-                if (veryVerbose) {
-                    cout << hex << "Octet " << deChar(source[0])
-                                << ", Content " << deChar(source[0] & ~0xf8)
-                                << ", Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*continIter[0])
-                                << "\n   Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*continIter[1])
-                                << ", Continuation " << deChar(source[3])
-                                << ", Content " << deChar(*continIter[2])
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4a24 part 2: Out-of-range 4-octet character, header
-        // contents in the closed interval [ 5, 7 ]
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a24: Four-octet char out of iso10646 range "
-                        "(part 2: header content 5-7)"
-                     << "\n================================================="
-                        "============================"
-                     << endl;
-            }
-
-            // The header octet is a four-octet header with content 4.  The
-            // first continuation octet is 0x10 or above.
-
-            AvCharList header(u8InvalidFourByteHdrCases);
-            AvCharList contin1(u8ContinByteCases);
-            AvCharList contin2(u8ContinByteCases);
-            AvCharList contin3(u8ContinByteCases);
-
-            AvCharList *wheels[4] ={ &header, &contin1, &contin2, &contin3, };
-
-            OdomIter<AvCharList::iterator, 4> charIter(wheels);
-
-            for (; charIter ; charIter.next()) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0 | *charIter[0]),
-                                  static_cast<char>(0x80 | *charIter[1]),
-                                  static_cast<char>(0x80 | *charIter[2]),
-                                  static_cast<char>(0x80 | *charIter[3]) };
-
-                if (veryVerbose) {
-                    cout << hex << "Octet " << deChar(source[0])
-                                << ", Content " << deChar(*charIter[0])
-                                << ", Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*charIter[1])
-                                << "\n   Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*charIter[2])
-                                << ", Continuation " << deChar(source[3])
-                                << ", Content " << deChar(*charIter[3])
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4b1 2-word character cut short after the first word, and
-        // Test 4b2 2-word character without the first word.
-
-        struct TwoWordCase {
-            const char*          caseMessage[2];
-            const unsigned short header;
-        } twoWordCases[] ={
-        { { "\nTest 4b1: Two-word character cut short after "
-            "the first word",
-            "\n============================================="
-            "==============", },
-            0xd800,
-          },
-          { { "\nTest 4b2: Two-word character without "
-             "the first word",
-             "\n======================================="
-             "==============", },
-              0xdc00,
-          }
-        };
-
-        for (int iTwoWordCase = 0 ; iTwoWordCase <
-                         (int) (sizeof(twoWordCases)/sizeof(twoWordCases[0]));
-                                                             ++iTwoWordCase) {
-            TwoWordCase& testCase = twoWordCases[iTwoWordCase];
-
-            if (verbose) {
-                cout << testCase.caseMessage[0]
-                     << testCase.caseMessage[1] << endl;
-            }
-
-            avWordList contents(u16UpperAndLower);
-            for (avWordList::iterator contentIter = contents.begin();
-                                contents.end() != contentIter; ++contentIter) {
-
-                typedef BufferSizes<3,  // Up to three input words
-                                    1,  // Input characters are each one word.
-                                    1,  // Output characters are single-byte.
-                                        // Margin of 32 bytes on the
-                                        // output buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                unsigned short u16[Sizes::FROM_BUF_SIZE];
-                char           u8[Sizes::TO_BUF_SIZE];
-
-                unsigned short charWord = testCase.header | *contentIter;
-
-                ArrayRange<unsigned short> u16Range(u16);
-                ArrayRange<char>           u8Range(u8);
-
-                unsigned short source[1] ={ charWord, };
-
-                if (veryVerbose) {
-                    cout << hex << "Word " << deChar(source[0])
-                                << ", Content " << *contentIter
-                         << dec << endl;
-                }
-
-                ArrayRange<unsigned short> sourceList(source);
-                GenCheckArrRange<ArrayRange<unsigned short> >
-                                                        genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u8Range,
-                                           u16Range,
-                                           genCheck);
-            }
-        }
-#endif
         if (verbose) {
             cout << "\nTest 4 complete." << endl;
         }
@@ -8088,7 +7040,7 @@ MARK
         //
         // Concerns:
         //   Ability to convert UTF-8 to UTF-16 correctly.  This test uses
-        //   runs of characters, each of the same size.  Mixing sizes and
+        //   runs of code points, each of the same size.  Mixing sizes and
         //   introducing errors come in higher level tests.
         //
         // Plan:
@@ -8100,7 +7052,7 @@ MARK
 
         int nEightToSixteen = 0;
         int nSixteenToEight = 0;
-            // Totals kept on characters processed.  We'll check that we have
+            // Totals kept on code points processed.  We'll check that we have
             // done enough to cover the whole range.
 
         enum { BUFFER_ZONE = 128   // These tests create a space of BUFFER_ZONE
@@ -8112,8 +7064,8 @@ MARK
                                    // the tests.
         };
 
-        // Test 3a1: utf-8 => UTF-16, one-octet characters.  A string of all
-        // legal one-octet characters is converted from utf-8 to utf-16 and
+        // Test 3a1: UTF-8 => UTF-16, one-octet code points.  A string of all
+        // legal one-octet code points is converted from UTF-8 to UTF-16 and
         // checked.
 
         if (verbose) {
@@ -8122,7 +7074,7 @@ MARK
         }
 
         {
-            typedef BufferSizes<127,    // Source characters
+            typedef BufferSizes<127,    // Source code points
                                 1,      // Source char size
                                 1,      // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8133,8 +7085,8 @@ MARK
             char           u8[Sizes::FROM_BUF_SIZE];
             unsigned short u16[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal single-octet u8
-            // characters.
+            // Create a code point string with all legal single-octet u8
+            // code points.
 
             for (unsigned u8c = 1 ; u8c < 0x80 ; ++u8c ) {
                 u8[u8c - 1] = static_cast<char>(u8c);
@@ -8164,16 +7116,10 @@ MARK
                 }
 
                 if (! EXPECTED_GOT('\0', u8[0x80 - 1])) {
-                    cout << "\tNull character missing at end of source string."
-                         << endl;
+                    cout << "\tNull code point missing at end of source"
+                            " string.\n";
                 }
             }
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8182,7 +7128,7 @@ MARK
         }
 
         {
-            typedef BufferSizes<0x800 - 0x80,   // Source characters
+            typedef BufferSizes<0x800 - 0x80,   // Source code points
                                 2,              // Source char size
                                 1,              // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8198,8 +7144,8 @@ MARK
             char           u8[Sizes::FROM_BUF_SIZE];
             unsigned short u16[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal two-octet u8
-            // characters.
+            // Create a code point string with all legal two-octet u8
+            // code points.
 
             for (unsigned u8c = 0x80 ; u8c < 0x800 ; ++u8c ) {
                 unsigned pos = u8c - 128;
@@ -8246,13 +7192,6 @@ MARK
                     cout << "\tat "; P(2 * (0x800 - 80));
                 }
             }
-// cout << "Output range: " << prHexRange(wp.begin(u16), wp.end(u16)) << endl ;
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8269,7 +7208,8 @@ MARK
                    CONTIN_LIM = 1 << 6             // Six content bits in a
                                                    // continuation octet
             };
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source code
+                                                           // points
                                 3,                         // Source char size
                                 1,                         // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8306,9 +7246,9 @@ MARK
                 u8[pos] = 0;
 // cout << R_(iFirst) << prHexRange(u8, pos) << endl ;
 
-                int nchar = pos / 3 + 1; // All the characters we built, plus
+                int nchar = pos / 3 + 1; // All the code points we built, plus
                                          // the null.  Note that all the 16-bit
-                                         // characters will be single-word.
+                                         // code points will be single-word.
 
                 SrcSpec<char> source(u8, 0, nchar);
                 ConvRslt expected(0, nchar, nchar);
@@ -8328,10 +7268,6 @@ MARK
                     cout << "\t" << R(iFirst) << endl ;
                 }
                 else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
                     pos = 0;
                     for (unsigned iSecond = rangeStart ; iSecond < rangeLimit;
                                                                 ++iSecond) {
@@ -8350,19 +7286,19 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                             if (! EXPECTED_GOT(0xe0 | iFirst,
                                                deChar(u8[3 * at + 0]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 0 << endl;
                             }
 
                             if (! EXPECTED_GOT(0x80 | iSecond,
                                                deChar(u8[3 * at + 1]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 1 << endl;
                             }
 
                             if (! EXPECTED_GOT(0x80 | iThird,
                                                deChar(u8[3 * at + 2]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 2 << endl;
                             }
                         }
@@ -8373,11 +7309,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8393,7 +7324,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                    // continuation octet
             };
 
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source code points
                                 4,                        // Source char size
                                 2,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8429,9 +7360,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                     u8[pos] = 0;
 
-                    int nchar = pos / 4 + 1; // All the characters we built,
+                    int nchar = pos / 4 + 1; // All the code points we built,
                                              // plus the null.  All our
-                                             // characters, except for the
+                                             // code points, except for the
                                              // null, will require two words.
                     SrcSpec<char> source(u8, 0, nchar * 2 - 1);
                     ConvRslt expected(0, nchar, nchar * 2 - 1); // The null is
@@ -8453,10 +7384,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\t" << R(iFirst) << endl ;
                     }
                     else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
                         unsigned at = 0;
                         for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM;
                                                                     ++iThird) {
@@ -8490,25 +7417,25 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                                 if (! EXPECTED_GOT(0xf0 | iFirst,
                                                    deChar(u8[2 * at + 0]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 0 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iSecond,
                                                    deChar(u8[2 * at + 1]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 1 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iThird,
                                                    deChar(u8[2 * at + 2]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 2 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iFourth,
                                                    deChar(u8[2 * at + 3]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 3 << endl;
                                 }
 
@@ -8518,20 +7445,15 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         }
 
                         if (! EXPECTED_GOT(0, deChar(u8[2 * at]))) {
-                            cout << "\tdamaged source character at"
+                            cout << "\tdamaged source code point at"
                                  << 2 * at << endl;
                         }
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
-        // Test 3b1: UTF-16 => UTF-8, one-octet characters.
+        // Test 3b1: UTF-16 => UTF-8, one-octet code points.
 
         if (verbose) {
             cout << "\nTest 3b1: UTF-16 => UTF-8, single-octet"
@@ -8539,7 +7461,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         }
 
         {
-            typedef BufferSizes<127,    // Source characters
+            typedef BufferSizes<127,    // Source code points
                                 1,      // Source char size
                                 1,      // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8550,8 +7472,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
             unsigned short u16[Sizes::FROM_BUF_SIZE];
             char           u8[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal single-octet u8
-            // characters.
+            // Create a code point string with all legal single-octet u8
+            // code points.
 
             for (unsigned u16c = 1 ; u16c < 0x80 ; ++u16c ) {
                 u16[u16c - 1] = static_cast<unsigned short>(u16c);
@@ -8578,12 +7500,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8592,7 +7508,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         }
 
         {
-            typedef BufferSizes<0x800 - 0x80,   // Source characters
+            typedef BufferSizes<0x800 - 0x80,   // Source code points
                                 1,              // Source char size
                                 2,              // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8642,13 +7558,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-// cout << "Output range: " << prHexRange(wp.begin(u8), wp.end(u8)) << endl ;
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8665,7 +7574,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                    CONTIN_LIM = 1 << 6             // Six content bits in a
                                                    // continuation octet
             };
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source code
+                                                           // points
                                 1,                         // Source char size
                                 3,                         // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8704,9 +7614,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                 u16[pos] = 0;
 
-                int nchar = pos + 1; // All the characters we built, plus
-                                         // the null.  Note that all the 16-bit
-                                         // characters will be single-word.
+                int nchar = pos + 1; // All the code points we built, plus the
+                                     // null.  Note that all the 16-bit code
+                                     // points will be single-word.
 
                 SrcSpec<unsigned short> source(u16, 0, 3 * pos + 1);
                 ConvRslt expected(0, nchar, pos * 3 + 1);
@@ -8726,11 +7636,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     cout << "\t" << R(iFirst) << endl ;
                 }
                 else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
-
                     pos = 0;
 
                     for (unsigned iSecond = rangeStart ; iSecond < rangeLimit ;
@@ -8761,11 +7666,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 // cout << R(iFirst) << " " << prHexRange(u8, pos) << endl ;
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8781,7 +7681,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                    // continuation octet
             };
 
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source code points
                                 2,                        // Source char size
                                 4,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8823,9 +7723,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     u16[pos] = 0;
 // cout << R_(iFirst) << prHexRange(u8, pos) << endl ;
 
-                    int nchar = pos / 2 + 1; // All the characters we built,
+                    int nchar = pos / 2 + 1; // All the code points we built,
                                              // plus the null.  All our
-                                             // characters, except for the
+                                             // code points, except for the
                                              // null, will require two words.
                     SrcSpec<unsigned short> source(u16,
                                                    0,
@@ -8849,11 +7749,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\t" << R(iFirst) << endl ;
                     }
                     else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
-
                         unsigned at = 0;
                         for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM;
                                                                     ++iThird) {
@@ -8892,11 +7787,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8931,27 +7821,28 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         //   - That the conversion functions properly null-terminate the string
         //     in the output buffer whenever there is room to do so: (4).
         //   - That the conversion functions return the correct values,
-        //     both by the value of the expression and via the character
+        //     both by the value of the expression and via the code point
         //     count and byte/word count pointer parameters: (2)
         //   - That the conversion functions can correctly handle all single
-        //     character values (whether single- or multi-byte/word): (5)
+        //     code point values (whether single- or multi-byte/word): (5)
         //
         // Plan:
         //   For UTF-8 to UTF-16 and for UTF-16 to UTF-8, generate all legal
-        //   characters (in the iso10646 domain supported by UTF-8 and UTF-16)
-        //   one at a time.  Place each character (of however many bytes/words)
-        //   in a source string and apply the conversion functions.
-        //   Convert the string.  Verify the converted output as well as the
-        //   return values generated.  (This will necessarily verify that
-        //   each input character's encoding was correctly recognized, and
-        //   that each output character received the correct encoding).
+        //   code points (in the iso10646 domain supported by UTF-8 and UTF-16)
+        //   one at a time.  Place each code point (of however many
+        //   bytes/words) in a source string and apply the conversion
+        //   functions.  Convert the string.  Verify the converted output as
+        //   well as the return values generated.  (This will necessarily
+        //   verify that each input code point's encoding was correctly
+        //   recognized, and that each output code point received the correct
+        //   encoding).
         //
         // Note:
         //
         // Testing:
         //   ............
         // --------------------------------------------------------------------
-        // Run intense testing on a selected group of characters.
+        // Run intense testing on a selected group of code points.
 
         enum { BUFFER_ZONE = 32,   // These tests create a space of BUFFER_ZONE
                                    // memory units (bytes or words) around the
@@ -8979,7 +7870,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
         if (verbose) {
             cout << "\nTest 2a1: UTF-8 => UTF-16, selected "
-                    "single-octet chars individually, four ways."
+                    "single-octet code points individually, four ways."
                  << "\n===================================="
                     "===========================================" << endl;
         }
@@ -9010,16 +7901,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                   expected);
                 RUN_FOUR_WAYS(runner);
                 EXPECTED_GOT(*c1i, runner.begin(0)[0]);
-
-#if 0
-cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 
@@ -9027,7 +7908,7 @@ cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
 
         if (verbose) {
             cout << "\nTest 2a2: UTF-8 => UTF-16, selected "
-                    "two-octet chars individually, four ways."
+                    "two-octet code points individually, four ways."
                  << "\n===================================="
                  << "========================================" << endl;
         }
@@ -9069,23 +7950,13 @@ cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
                 unsigned int low = deChar(*cCi);
 
                 EXPECTED_GOT((high << 6 | low), runner.begin(0)[0]);
-#if 0
-cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
- << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "Two-octet cases done." << endl ;
 
         if (verbose) {
             cout << "\nTest 2a3: UTF-8 => UTF-16, selected "
-                    "three-octet chars individually, four ways."
+                    "three-octet code points individually, four ways."
                  << "\n===================================="
                  << "==========================================" << endl;
         }
@@ -9125,10 +7996,6 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
                     u8[1] = *cC2i | 0x80;
                     u8[2] = *cC3i | 0x80;
                     u8[3] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                     SrcSpec<char> source(u8, 0, 2);
                     ConvRslt expected(0, 2, 2);
@@ -9147,16 +8014,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
                     EXPECTED_GOT((high << 12 | mid << 6 | low),
                                  runner.begin(0)[0]);
-#if 0
-cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i << " four ways." << endl ;
-#endif
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl ;
-                    }
-#endif
                 }
             }
         }
@@ -9164,7 +8021,7 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
 
         if (verbose) {
             cout << "\nTest 2a4: UTF-8 => UTF-16, selected "
-                    "four-octet chars individually, four ways."
+                    "four-octet code points individually, four ways."
                  << "\n===================================="
                     "=========================================" << endl;
         }
@@ -9207,10 +8064,6 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
                         u8[2] = *cC3i | 0x80;
                         u8[3] = *cC4i | 0x80;
                         u8[4] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                         SrcSpec<char> source(u8, 0, 3);
                         ConvRslt expected(0, 2, 3);
@@ -9245,19 +8098,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                      runner.begin(0)[0]);
                         EXPECTED_GOT((utf16Conv & 0x3ff) | 0xdc00,
                                      runner.begin(0)[1]);
-#if 0
-cout << hex << "[0] " << runner.begin(0)[0] << "; [1] "
-     << runner.begin(0)[1] << endl ;
-cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i
- << ", "   << (unsigned) *cC4i << " four ways." << endl ;
-#endif
-
-#if 0
-                        if (veryVerbose) {
-                            cout << " done." << endl ;
-                        }
-#endif
                 }
             }
         }
@@ -9265,7 +8105,7 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
 
         if (verbose) {
             cout << "\nTest 2b1: UTF-16 => UTF-8, selected "
-                    "single-octet chars individually, four ways."
+                    "single-octet code points individually, four ways."
                  << "\n===================================="
                  << "===========================================" << endl;
         }
@@ -9296,20 +8136,13 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                                                   expected);
                 RUN_FOUR_WAYS(runner);
                 EXPECTED_GOT(*c1i, runner.begin(0)[0]);
-// cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "One-octet UTF-16=>UTF-8 case done." << endl ;
 
         if (verbose) {
             cout << "\nTest 2b2: UTF-16 => UTF-8, selected "
-                    "two-octet chars individually, four ways."
+                    "two-octet code points individually, four ways."
                  << "\n===================================="
                  << "========================================" << endl;
         }
@@ -9355,23 +8188,13 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                              (unsigned) deChar(runner.begin(0)[0]));
                 EXPECTED_GOT((unsigned) deChar(0x80 | *cCi),
                              (unsigned) deChar(runner.begin(0)[1]));
-#if 0
-cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
- << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "Two-octet UTF-16=>UTF-8 cases done." << endl ;
 
         if (verbose) {
             cout << "\nTest 2b3: UTF-16 => UTF-8, selected "
-                    "three-octet chars individually, four ways."
+                    "three-octet code points individually, four ways."
                  << "\n===================================="
                     "==========================================" << endl;
         }
@@ -9410,10 +8233,6 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
                     u16[0] = static_cast<unsigned short>(
                                               *c3i << 12 | *cC2i << 6 | *cC3i);
                     u16[1] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                     SrcSpec<unsigned short> source(u16, 0, 4);
                     ConvRslt expected(0, 2, 4);
@@ -9432,19 +8251,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                  (unsigned) deChar(runner.begin(0)[1]));
                     EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
                                  (unsigned) deChar(runner.begin(0)[2]));
-
-// cout << hex << "source " << u16[0] << " "
-//      << prHexRange(&runner.begin(0)[0], 4) << dec << endl ;
-#if 0
-// cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i << " four ways." << endl ;
-#endif
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl ;
-                    }
-#endif
                 }
             }
         }
@@ -9452,7 +8258,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         if (verbose) {
             cout << "\nTest 2b4: UTF-16 => UTF-8, selected "
-                    "four-octet chars individually, four ways."
+                    "four-octet code points individually, four ways."
                  << "\n===================================="
                     "=========================================" << endl;
         }
@@ -9536,15 +8342,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     EXPECTED_GOT((unsigned) deChar(0x80 | *cC4i),
                                  (unsigned) deChar(runner.begin(0)[3]));
                     nCases++;
-
-// cout << hex << "source " << u16[0] << ", " << u16[1] << " "
-//      << prHexRange(&runner.begin(0)[0], 5) << dec << endl ;
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl;
-                    }
-#endif
                 }
             }
             if (verbose) {
@@ -9572,7 +8369,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
         //   - That the conversion functions properly null-terminate the string
         //     in the output buffer whenever there is room to do so: (4).
         //   - That the conversion functions return the correct values,
-        //     both by the value of the expression and via the character
+        //     both by the value of the expression and via the code point
         //     count and byte/word count pointer parameters: (2)
         //
         // Plan:
@@ -9620,7 +8417,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         // "... 1 on invalid input, ..."
 
-        ASSERT(1 == INVALID_INPUT_CHARACTER);
+        ASSERT(1 == INVALID_INPUT_CODE_POINT);
         ASSERT(1 == BADC);
 
         // "...  2 if 'dstCapacity' is insufficient to hold the complete
@@ -9631,7 +8428,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         // "and 3 if both types of error occur."
 
-        ASSERT(3 == (OUTPUT_BUFFER_TOO_SMALL | INVALID_INPUT_CHARACTER));
+        ASSERT(3 == (OUTPUT_BUFFER_TOO_SMALL | INVALID_INPUT_CODE_POINT));
         ASSERT(3 == BOTH);
 
         if (verbose) {
@@ -9668,7 +8465,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                      << endl;
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9702,7 +8499,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                      << endl;
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9737,7 +8534,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     "UTF-8 => UTF-16, null string, no room for the null ...\n";
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9771,7 +8568,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     "UTF-16 => UTF-8, null string, no room for the null ...\n";
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9842,24 +8639,6 @@ ostream &operator <<(ostream &os, const HexPrImpl<T> &t)
     return os << " ]";
 }
 
-#if 0
-template <>
-ostream &operator <<(ostream &os, const HexPrImpl<char> &t)
-{
-    const ios_base::fmtflags flags = os.flags();
-    const char fill = os.fill();
-    os << hex << bsl::internal << "[";
-    for (int i = 0; i < t.d_av.size(); ++i) {
-        os << " "
-           << bsl::setw(6)
-           << unsigned((unsigned char)t.d_av[i]);
-    }
-    os.fill(fill);
-    os.flags(flags);
-    return os << " ]";
-}
-#endif
-
 template <class T>
 MixedPrImpl<T> prMixedRange(const T* ptr, size_t size)
 {
@@ -9880,12 +8659,12 @@ ostream &operator <<(ostream &os, const MixedPrImpl<T> &t)
 
     os << hex << bsl::right << bsl::showbase << "[";
 
-    // The tricky part here is that we want to print graphic characters as
-    // characters and everything else as hex.  The settings have to be
+    // The tricky part here is that we want to print graphic code points as
+    // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
-    // non-graphic characters; that's probably excessive.  Other things are
+    // non-graphic code points; that's probably excessive.  Other things are
     // restored at the end.  ('graphic' means ( 'printable' and not the space
-    // character ).)
+    // code point ).)
 
 // @@@@ MaT --- should adjust width to bit-size of type.
 
@@ -9960,8 +8739,8 @@ void printStr(const unsigned short *p)
 
 // strcmp() on arbitrary types.  It's concerned only with equality; it does not
 // define a partial order or a partitioning.  It requires that the end of the
-// string be marked by a sentinel which compares equal to zero.  Returns true
-// if the two strings are equal, false otherwise.
+// string be marked by a sentinel that compares equal to zero.  Returns true if
+// the two strings are equal, false otherwise.
 
 template<class CHAR_TYPE>
 int strEq(const CHAR_TYPE *lhs,
@@ -10005,21 +8784,16 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runAndCheck(int bufN, int line)
     return !failed;
 }
 
-#if 0
-template <> bool FourWayRunner<char, unsigned short>::runAndCheck(int, int);
-template <> bool FourWayRunner<unsigned short, char>::runAndCheck(int, int);
-#endif
-
 template <class TO_CHAR, class FROM_CHAR>
 bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 {
     // A rough guide to the 'runFourWays' function:
     //   The "four ways" are (a) with valid pointers for both the number of
-    //   characters and the number of memory units, (b) with a valid pointer
-    //   for the number of characters and a null for the number memory units,
-    //   (c) with a null for the number of characters (symbols) and a valid
-    //   pointer for the number of memory units, and (d) with nulls for both
-    //   the number of characters and the number of memory units.
+    //   code points and the number of memory units, (b) with a valid pointer
+    //   for the number of code points and a null for the number of memory
+    //   units, (c) with a null for the number of code points (symbols) and a
+    //   valid pointer for the number of memory units, and (d) with nulls for
+    //   both the number of code points and the number of memory units.
     //
     //   For each of these cases, a clean copy of the expected 'ConvRslt' is
     //   made and the 'runAndCheck' function is run, with the second parameter
@@ -10103,11 +8877,6 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
     return !failed;
 }
 
-#if 0
-template <> bool FourWayRunner<char, unsigned short>::runFourWays(int);
-template <> bool FourWayRunner<unsigned short, char>::runFourWays(int);
-#endif
-
 // @+@+@+@ Not necessarily FixedVector<>() ... but it must act like an array
 // Given a FixedVector of arrays of (CHAR_TYPE*), compare them for equality and
 // construct a set of equivalence classes on them.  Return the set of classes
@@ -10170,8 +8939,8 @@ void equivClasses( FixedVector<FixedVector<int, N_WAY>, N_WAY > *retVal,
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
                                              bsl::size_t     totalOutputLength,
-                                             unsigned short *characterSizes,
-                                             bsl::size_t     characterCount,
+                                             unsigned short *codePointSizes,
+                                             bsl::size_t     codePointCount,
                                              int,
                                              int             veryVerbose)
 {
@@ -10180,15 +8949,15 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
     if (veryVerbose) {
         cout << "checkForExpectedConversionResultsU2ToU8("
              <<  "\n\tinput             ="
-             << prHexRange(input, characterCount+1)
+             << prHexRange(input, codePointCount+1)
              << ",\n\texpected_output   =";
         printStr(expected_output);
         cout << ",\n\ttotalOutputLength ="
              << totalOutputLength
-             << ",\n\tcharacterSizes    ="
-             << prHexRange(characterSizes, characterCount)
-             << ",\n\tcharacterCount    ="
-             << characterCount
+             << ",\n\tcodePointSizes    ="
+             << prHexRange(codePointSizes, codePointCount)
+             << ",\n\tcodePointCount    ="
+             << codePointCount
              << ");\n";
     }
 
@@ -10199,39 +8968,39 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
     for (int bufSize = 0; bufSize < (int) totalOutputLength; ++bufSize) {
         char outputBuffer[256] = { 0 };
         bsl::size_t bytesWritten = 0;
-        bsl::size_t charsWritten = 0;
+        bsl::size_t codePointsWritten = 0;
 
         retVal = bdlde::CharConvertUtf16::utf16ToUtf8(
                 outputBuffer,
                 bufSize,
                 input,
-                &charsWritten,
+                &codePointsWritten,
                 &bytesWritten);
 
         LOOP5_ASSERT(L_, OUTPUT_BUFFER_TOO_SMALL,   retVal,
                          bufSize,                   totalOutputLength,
                          OUTPUT_BUFFER_TOO_SMALL == retVal);
-        LOOP3_ASSERT(L_, charsWritten,   characterCount,
-                         charsWritten <= characterCount);
+        LOOP3_ASSERT(L_, codePointsWritten,   codePointCount,
+                         codePointsWritten <= codePointCount);
         LOOP3_ASSERT(L_, bytesWritten,   totalOutputLength,
                          bytesWritten <= totalOutputLength);
     }
 
     char outputBuffer[256] = { 0 };
     bsl::size_t bytesWritten = 0;
-    bsl::size_t charsWritten = 0;
+    bsl::size_t codePointsWritten = 0;
 
     retVal = bdlde::CharConvertUtf16::utf16ToUtf8(
                                     outputBuffer,
                                     totalOutputLength + 1,
                                     input,
-                                    &charsWritten,
+                                    &codePointsWritten,
                                     &bytesWritten);
 
     LOOP3_ASSERT(L_, SUCCESS,   retVal,
                      SUCCESS == retVal);
-    LOOP3_ASSERT(L_, charsWritten,   1 + characterCount,
-                     1 + characterCount == charsWritten);
+    LOOP3_ASSERT(L_, codePointsWritten,   1 + codePointCount,
+                     1 + codePointCount == codePointsWritten);
     LOOP3_ASSERT(L_, bytesWritten,   1 + totalOutputLength,
                      1 + totalOutputLength == bytesWritten);
 
@@ -10246,9 +9015,9 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
                                  char           *outputBuffer,
-                                 unsigned short *characterSizes,
+                                 unsigned short *codePointSizes,
                                  bsl::size_t     totalOutputLength,
-                                 bsl::size_t     characterCount,
+                                 bsl::size_t     codePointCount,
                                  unsigned short *inputCursor,
                                  char           *outputCursor,
                                  int             verbose,
@@ -10262,8 +9031,8 @@ void buildUpAndTestStringsU2ToU8(int             idx,
     checkForExpectedConversionResultsU2ToU8(inputBuffer,
             outputBuffer,
             totalOutputLength,
-            characterSizes,
-            characterCount,
+            codePointSizes,
+            codePointCount,
             verbose,
             veryVerbose);
 
@@ -10273,27 +9042,27 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
 
-    *inputCursor++         = d.d_utf16Character;
+    *inputCursor++         = d.d_utf16Word;
 
     // Null-terminate input:
 
     *inputCursor           = 0;
 
-    strcpy(outputCursor,    d.d_utf8Character);
-    outputCursor         += d.d_utf8CharacterLength;
-    totalOutputLength    += d.d_utf8CharacterLength;
+    strcpy(outputCursor,    d.d_utf8CodePoint);
+    outputCursor         += d.d_utf8CodePointLength;
+    totalOutputLength    += d.d_utf8CodePointLength;
 
-    characterSizes[characterCount++] =
-                          static_cast<unsigned short>(d.d_utf8CharacterLength);
+    codePointSizes[codePointCount++] =
+                          static_cast<unsigned short>(d.d_utf8CodePointLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
                                     depth - 1,
                                     inputBuffer,
                                     outputBuffer,
-                                    characterSizes,
+                                    codePointSizes,
                                     totalOutputLength,
-                                    characterCount,
+                                    codePointCount,
                                     inputCursor,
                                     outputCursor,
                                     verbose,
@@ -11478,7 +10247,7 @@ int runPlainTextPerformanceTest(void)
 
     unsigned short *utf16Buffer_p = new unsigned short[prideLen];
     char           *utf8Buffer_p = new char[prideLen];
-    bsl::size_t     charsWritten = 0;
+    bsl::size_t     codePointsWritten = 0;
     bsl::size_t     bytesWritten = 0;
 
     const int       iterLimit    = 1000;
@@ -11489,31 +10258,31 @@ int runPlainTextPerformanceTest(void)
 
     for (int i = 0; i < iterLimit; ++i) {
         ASSERT(SUCCESS == bdlde::CharConvertUtf16::utf8ToUtf16(
-                                                            utf16Buffer_p,
-                                                            prideLen,
-                                                            prideAndPrejudice,
-                                                            &charsWritten));
-        ASSERT(charsWritten == prideLen);
+                                                          utf16Buffer_p,
+                                                          prideLen,
+                                                          prideAndPrejudice,
+                                                          &codePointsWritten));
+        ASSERT(codePointsWritten == prideLen);
 
         ASSERT(SUCCESS == bdlde::CharConvertUtf16::utf8ToUtf16(
                                           utf16Buffer_p,
                                           prideLen,
                                           bslstl::StringRef(prideAndPrejudice),
-                                          &charsWritten));
-        ASSERT(charsWritten == prideLen);
+                                          &codePointsWritten));
+        ASSERT(codePointsWritten == prideLen);
 
         ASSERT(0 == bdlde::CharConvertUtf16::utf16ToUtf8(utf8Buffer_p,
                                                         prideLen,
                                                         utf16Buffer_p,
-                                                        &charsWritten,
+                                                        &codePointsWritten,
                                                         &bytesWritten));
-        ASSERT(charsWritten == prideLen);
+        ASSERT(codePointsWritten == prideLen);
         ASSERT(bytesWritten == prideLen);
     }
 
     s.stop();
 
-    cout << "Performance test, converted " << prideLen << " characters "
+    cout << "Performance test, converted " << prideLen << " code points "
          << "back and forth " << iterLimit << " times in " << s.elapsedTime()
          << " seconds." << endl;
 
@@ -11593,12 +10362,12 @@ ostream& operator<<(ostream&                     os,
     char fill = os.fill( ' ' );
     os << bsl::right << "[";
 
-    // The tricky part here is that we want to print graphic characters as
-    // characters and everything else as hex.  The settings have to be
+    // The tricky part here is that we want to print graphic code points as
+    // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
-    // non-graphic characters; that's probably excessive.  Other things are
+    // non-graphic code points; that's probably excessive.  Other things are
     // restored at the end.  ('graphic' means ( 'printable' and not the space
-    // character ).)
+    // code point ).)
 
     for (const CHAR_TYPE* cp = sv.d_arrayr; *cp;) {
         for (; *cp
@@ -11640,8 +10409,8 @@ bool testOneErrorCharConversion(int                          line,
     // that the data surrounding the output buffer are unchanged) and that the
     // source buffer is unchanged.  It performs this verification for the error
     // sequence alone in a string and for the sequence surrounded by two
-    // single-octet characters, and with and without error replacement
-    // characters (a total of four tests).  It returns 'true' if all the tests
+    // single-octet code points, and with and without error replacement
+    // code points (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any have failed.
 {
     enum {
@@ -11761,7 +10530,7 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    // Third, by itself, nothing around it, replacement character '$'.
+    // Third, by itself, nothing around it, replacement code point '$'.
 
     if (veryVerbose) {
         cout << " - Single octet, replacement char '$'" << endl;
@@ -11967,459 +10736,6 @@ Permuter<N>::print(ostream& os) const
             os << " " << d_val[i];
     return os << " )";
 }
-
-//  ===========================================================================
-//  Below is the ng13.cpp version of ng.cpp which was used (manually) to
-//  generate the case strings for test 5.  Note that it does not have a save-
-//  to-file command; the output was saved by screen copy off the terminal
-//  window.  Note also that it uses 'X' as the sequence-break character, and
-//  that it does not understand the special properties, so if you generate
-//  another set of strings, you will have to edit them (add the initial 'aa',
-//  break into strings on the X's, etc.
-//  ===========================================================================
-//  //
-//  //  Experiments in finding a string composed of C characters, each
-//  //  occurring C^N times, containing all n-graph (digraph, trigraph, ...)
-//  //  instances as substrings.  Is it guaranteed to be possible?  I don't
-//  //  know.  Is there an algorithm, short of (intractable) exhaustive search?
-//  //  I don't know.  For the case of C=5, K=3 I can use some help, and that's
-//  //  where I'll start; with data structures and statistics that will help
-//  //  me do it manually.  For C=31 (26 error cases, 4 good cases, end of
-//  //  string) it's hopeless without a decently efficient machine solution.
-//  //  (The brute-force search space is (31^3)!/(31!)^3 .)  (I'm only
-//  //  interested in k=3, BTW)
-//
-//  #include <iostream>
-//  #include <map>
-//  #include <vector>
-//  #include <string>
-//  #include <sstream>
-//  #include <iomanip>
-//
-//  #include <ctype.h>
-//
-//  using namespace bsl;
-//
-//  #define R(X) #X ": " << X
-//  #define R_(X) #X ": " << X << " "
-//
-//
-//  struct CharMap {
-//      // The visible characters (char names) are mapped into small integers
-//      // (their values).
-//
-//    private:
-//      typedef map<char, int> ValueTab;
-//
-//      vector<char> d_names;   // Indexed by value.
-//      ValueTab d_values;      // Map name to value.
-//
-//    public:
-//      CharMap()
-//      { }
-//
-//      CharMap(const char* newNameList)
-//      {
-//      add(newNameList);
-//      }
-//
-//      int add(char newName);  // Returns new value, or -1 if char
-//                              // is already present.
-//      void add(const char *newNameList);
-//
-//      char name(int v) const  // Lookup name by value.
-//      {
-//      return (unsigned) v < size() ? d_names[v] : ~0 ;
-//      }
-//
-//      int value(char) const;
-//
-//      int size() const
-//      {
-//      return d_names.size();
-//      }
-//  };
-//
-//
-//  struct DigraphRec {
-//      // A DigraphRec holds the successor paths (one per available character)
-//      // for each digraph.  (Gee, we could be about (N-1)-graphs here!)  It
-//      // also keeps some information t help us find a path through the graph.
-//
-//      struct NextRec
-//      {
-//      int d_step;     // The step at which this char, following the
-//                      // DigraphRec's digraph, is used to extend the
-//                      // string (counting from 1; 0 means that it
-//                      // does not extend the string TEY).
-//      DigraphRec* d_next;  // A bit faster than vector<>[i][j]
-//      };
-//
-//      char d_entry[2];        // The characters that brought us in.
-//
-//      vector<NextRec> d_next;  // Indexed by char value.
-//
-//      int d_nextsFree;             // Number of next[*] that are unused
-//      int d_nextsUnblocked;    // Number of next[*] that are
-//                           // unused and unblocked.
-//      int d_pathsAvail;            // Sum of nextsUnblocked in our successors
-//      int d_maxPathsAvail;     // Highest of nextsUnblocked in our successors
-//  };
-//
-//
-//  struct      DigraphTab
-//      // A CxC table of DigraphRecs.  When this is set up the number of
-//      // character names must be known and fixed.  (They are known to this
-//      // table by their values, not their names.)
-//  {
-//      explicit DigraphTab(int nChar);
-//      ~DigraphTab();
-//
-//      // There's lots to do in here.   ...
-//
-//      ostream& print(ostream& os, int cursorI, int cursorJ) const;
-//      // Print varying the first subscript faster so the next digraph formed
-//      // is grouped by its leading character.
-//
-//      ostream& printLine(ostream& os, int cursorI, int cursorJ) const;
-//
-//      vector<vector<DigraphRec*> > d_table;  // Indexed first by value of
-//                                         // earlier char, then by value
-//                                         // of later char.
-//  };
-//
-//
-//  struct      Path
-//      // The Path records the current (complete or incomplete) character
-//      // sequence.  (It may get other duties in the future.)
-//  {
-//      struct  Element
-//      {
-//      int d_ch;       // Character value
-//      };
-//
-//      vector<int> d_used;     // Indexed by char value; for each char, how
-//                      // many of that char appear in the path.
-//
-//      vector<Element> d_p;
-//      int d_cursor;   // Where the next character (next step in
-//
-//      Path()
-//      : d_cursor(0)
-//      { }
-//
-//      void init(int nChars)
-//      {
-//      d_used.resize(nChars);
-//      d_p.resize(nChars * nChars * nChars);
-//      d_cursor = 0;
-//      }
-//
-//      // Functions to push char on and take char off
-//
-//      int size() const
-//      {
-//      return d_cursor;
-//      }
-//
-//      int top() const
-//      {
-//      return d_p[d_cursor - 1].d_ch;
-//      }
-//
-//      int operator[](int i) const
-//      {
-//      return d_p[i].d_ch;
-//      }
-//
-//      void push(int ch)
-//      {
-//      d_p[d_cursor++].d_ch = ch;
-//      ++d_used[ch];
-//      }
-//
-//      int pop()
-//      {
-//      --d_used[d_p[--d_cursor].d_ch];
-//      return d_p[d_cursor].d_ch;
-//      }
-//
-//      ostream& print(ostream&) const;
-//                      // the sequence) will go.
-//  };
-//
-//  template<class T> struct input {
-//      T& d_ref;
-//
-//      input(T& target)
-//      : d_ref(target)
-//      { }
-//
-//      istream& get(istream&);
-//
-//  #if 1
-//      friend istream& operator>>(istream& is, input& in)
-//      {
-//      return in.get(is);
-//      }
-//  #endif
-//  };
-//
-//  #if 0
-//  template< class T >
-//  istream&
-//  operator>>( istream& is, input< T >& in )
-//  {
-//      return in.get( is );
-//  }
-//  #endif
-//
-//  CharMap charMap;
-//  Path path;
-//
-//
-//  int
-//  main()
-//  {
-//      charMap.add("abcdX");
-//
-//      DigraphTab digraphs(charMap.size());
-//
-//      digraphs.print(cout, 0, 0) << endl;
-//
-//      path.init(charMap.size());
-//      path.print(cout) << endl;
-//
-//      char c;
-//
-//      DigraphRec* dr = digraphs.d_table[0][0];
-//
-//      input<char> ic(c);
-//      while(cin >> ic) {
-//      if (c == '=') {
-//          digraphs.print(cout, 0, 0) << endl;
-//          path.print(cout) << endl;
-//          continue;
-//      }
-//
-//      if (c == '<') {
-//          if (path.size() <= 0) {
-//              cout << "Path is empty; can't pop." << endl;
-//              continue;
-//          }
-//
-//          // Back off and adjust
-//          char oldTop = path.top();
-//          path.pop();
-//          int s = path.size();
-//          dr = digraphs.d_table[s > 1 ? path[s - 2] : 0]
-//                                                  [s > 0 ? path[s - 1] : 0];
-//          dr->d_next[oldTop].d_step = 0;
-//          ++dr->d_nextsFree;
-//          digraphs.print(cout, dr->d_entry[0], dr->d_entry[1] ) << endl;
-//          path.print(cout);
-//          continue;
-//      }
-//
-//      int v = charMap.value(c);
-//      if (v == -1) {
-//          cout << c << " is not a valid character in this system."
-//               << endl;
-//          continue;
-//      }
-//
-//      // Go forward (if we can) and adjust
-//      if (dr->d_next[v].d_step) {
-//          cout << "Path through " << c << " is in use." << endl;
-//          path.print(cout) << endl;
-//          continue;
-//      }
-//      dr->d_next[v].d_step = path.size() + 1;
-//      dr->d_nextsFree--;
-//      path.push(v);
-//      dr = dr->d_next[v].d_next;
-//
-//      digraphs.print(cout, dr->d_entry[0], dr->d_entry[1] ) << endl;
-//      path.print(cout) << endl;
-//      }
-//
-//      return 0;
-//  }
-//
-//  int
-//  CharMap::add(char newName)
-//  {
-//      int place = d_names.size();     // Where it will go in the names table
-//                              // if we insert it.
-//
-//      pair<ValueTab::iterator, bool> r =
-//                      d_values.insert(ValueTab::value_type(newName, place));
-//
-//      if (! r.second)
-//      return -1;
-//
-//      d_names.push_back(newName);
-//
-//      return place;
-//  }
-//
-//
-//  void
-//  CharMap::add(const char* newNameList)
-//  {
-//      for (const char* cp = newNameList; *cp; ++cp) {
-//      add(*cp);
-//      }
-//  }
-//
-//  int
-//  CharMap::value(char name) const
-//  {
-//      ValueTab::const_iterator r = d_values.find(name);
-//      return r == d_values.end() ? -1 : r->second;
-//  }
-//
-//
-//  DigraphTab::DigraphTab(int nChar)
-//  : d_table(nChar)
-//  {
-//      for (int i = 0; i < nChar; ++i) {
-//      d_table[i].resize(nChar);
-//
-//      for (int j = 0; j < nChar; ++j) {
-//          DigraphRec* dgr = new DigraphRec;
-//
-//          d_table[i][j] = dgr;
-//
-//          dgr->d_entry[0] = i;
-//          dgr->d_entry[1] = j;
-//
-//          dgr->d_next.resize(nChar);
-//      }
-//      }
-//
-//      for (int i = 0; i < nChar; ++i) {
-//      for (int j = 0; j < nChar; ++j) {
-//          DigraphRec* dgr = d_table[i][j];
-//
-//          for (int k = 0; k < nChar; ++k) {
-//              dgr->d_next[k].d_step = 0;
-//              dgr->d_next[k].d_next = d_table[j][k];
-//          }
-//
-//          dgr->d_nextsFree = nChar;
-//          dgr->d_nextsUnblocked = nChar;
-//          dgr->d_pathsAvail = nChar * nChar;
-//          dgr->d_maxPathsAvail = nChar;
-//      }
-//      }
-//  }
-//
-//
-//  DigraphTab::~DigraphTab()
-//  {
-//      for (int i = 0; i < d_table.size(); ++i) {
-//      for (int j = 0; j < d_table.size(); ++j) {
-//          delete d_table[i][j];
-//      }
-//      }
-//  }
-//
-//
-//  ostream&
-//  DigraphTab::print(ostream& os,int cursI,int cursJ) const
-//  {
-//      for (int j = 0; j < d_table.size(); ++j) {
-//      for (int i = 0; i < d_table.size(); ++i) {
-//          if (i == cursI
-//           && j == cursJ) {
-//              os << "===================="
-//                    "===================="
-//                    "===================="
-//                    "===================" << endl;
-//          }
-//
-//          printLine(os, i, j) << endl;
-//
-//          if (i == cursI
-//           && j == cursJ) {
-//              os << "===================="
-//                    "===================="
-//                    "===================="
-//                    "===================" << endl;
-//          }
-//      }
-//      }
-//
-//      return os;
-//  }
-//
-//
-//  ostream&
-//  DigraphTab::printLine(ostream& os, int cursI, int cursJ) const
-//  {
-//      DigraphRec* dgr = d_table[cursI][cursJ];
-//
-//      os << charMap.name(dgr->d_entry[0])
-//         << charMap.name(dgr->d_entry[1]) << "  " ;
-//
-//      // Need to print charMap.size() names.  We have already spent 5
-//      // spaces out of an assumed 80.  Ultimately we'll have to squeeze stats
-//      // in here somewhere.
-//
-//      int printwidth = 74 / charMap.size();
-//
-//      for (int k = 0 ; k < dgr->d_next.size(); ++k) {
-//          char nm = charMap.name(k);
-//          os << (char)( dgr->d_next[k].d_step ? tolower(nm)
-//                                              : toupper(nm));
-//          os << setw(4) << dgr->d_next[k].d_next->d_nextsFree;
-//          for (int l = 4; l < printwidth; ++l)
-//              os << " " ;
-//      }
-//
-//      return os;
-//  }
-//
-//
-//  ostream&
-//  Path::print(ostream& os) const
-//  {
-//      for (int i = 0; ; ++i) {
-//      os << charMap.name(i) << ": " << d_used[i];
-//
-//      if (i >= d_used.size() - 1)
-//          break;
-//
-//      os << "    ";
-//      }
-//
-//      for (int i = 0; i < d_cursor; ++i) {
-//      if (i % 79 == 0)
-//          os << endl;
-//      os << charMap.name(d_p[i].d_ch);
-//      }
-//
-//      return os << endl;
-//  }
-//
-//
-//  template<class T>
-//  istream& input<T>::get(istream& is)
-//  {
-//      string s;
-//
-//      while(getline(is, s)) {
-//      istringstream iss( s );
-//
-//      if (iss >> d_ref)
-//          break;
-//      }
-//
-//      return is;
-//  }
-
-// ============================================================================
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

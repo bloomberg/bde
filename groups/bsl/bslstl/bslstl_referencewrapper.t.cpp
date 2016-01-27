@@ -28,8 +28,8 @@
 // [ 1] reference_wrapper<T> ref(T&);
 // [ 1] reference_wrapper<T> ref(reference_wrapper<T>);
 // ----------------------------------------------------------------------------
-// [ 1] BASIC TESTS
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 2] TYPE TRAITS
 
 // ============================================================================
 //                  STANDARD BSL ASSERT TEST FUNCTION
@@ -74,19 +74,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-
-// ============================================================================
-//                       GLOBAL TEST VALUES
-// ----------------------------------------------------------------------------
-
-static bool             verbose;
-static bool         veryVerbose;
-static bool     veryVeryVerbose;
-static bool veryVeryVeryVerbose;
-
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+struct NonBitwiseDummy {
+    // Test class that is not bitwise moveable
+    int d_data;
+
+    explicit NonBitwiseDummy(int v = 0) : d_data(v) { }
+    NonBitwiseDummy(const NonBitwiseDummy& rhs) : d_data(rhs.d_data) {}
+};
 
 // ============================================================================
 //                               TEST FACILITIES
@@ -104,6 +102,14 @@ bool isConst(const Dummy&) { return true; }
 // ============================================================================
 //              USAGE EXAMPLE CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
+
+// Disable specific bde_verify warnings where practice of usage example may
+// differ.
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
+// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a '//' comment
+
 
 namespace TEST_CASE_USAGE {
 
@@ -155,22 +161,24 @@ namespace TEST_CASE_USAGE {
 //..
 }  // close namespace TEST_CASE_USAGE
 
+// BDE_VERIFY pragma: pop
+
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -195,6 +203,13 @@ int main(int argc, char *argv[])
 
         using namespace TEST_CASE_USAGE;
 
+// Disable specific bde_verify warnings where practice of usage example may
+// differ.
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
+// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a '//' comment
+
 //..
 // We can call 'sortTwoItems' on wrappers representing 'Canary' objects
 // without need to move actual, large 'Canary' objects about.  In the call to
@@ -204,6 +219,7 @@ int main(int argc, char *argv[])
 // applied implicitly:
 //..
     Canary canaries[2];
+
     bsl::reference_wrapper<Canary> canaryA = bsl::ref(canaries[1]);
     bsl::reference_wrapper<Canary> canaryB = bsl::ref(canaries[0]);
     sortTwoItems(canaryA, canaryB);
@@ -211,6 +227,42 @@ int main(int argc, char *argv[])
     ASSERT(&canaryA.get() == canaries);
     ASSERT(&canaryB.get() == canaries + 1);
 //..
+
+// BDE_VERIFY pragma: pop
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TYPE TRAITS
+        //
+        // Concerns:
+        //: 1 'bslmf::IsBitwiseMoveable<reference_wrapper<T>>::value' is
+        //:   true regardless of the type of 'T'.
+        //
+        // Plan:
+        //: 1 For concern 1, instantiate 'reference_wrapper' with both bitwise
+        //:   moveable and non-bitwise moveable types and verify that the
+        //:   'bslmf::isBitwiseMovable' trait is true for both cases.
+        //
+        // Testing:
+        //    TYPE TRAITS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTYPE TRAITS"
+                            "\n===========\n");
+
+        using BloombergLP::bslmf::IsBitwiseMoveable;
+        using bsl::reference_wrapper;
+
+        // First, verify that we have one bitwise movable type and one not
+        // bitwise moveable type.
+        ASSERT(  IsBitwiseMoveable<int>::value);
+        ASSERT(! IsBitwiseMoveable<NonBitwiseDummy>::value);
+
+        // Now test that 'reference_wrapper' is bitwise moveable in either
+        // case.
+        ASSERT(IsBitwiseMoveable<reference_wrapper<int> >::value);
+        ASSERT(IsBitwiseMoveable<reference_wrapper<NonBitwiseDummy> >::value);
 
       } break;
       case 1: {
@@ -252,48 +304,49 @@ int main(int argc, char *argv[])
             printf("\nBASIC TESTS"
                    "\n===========\n");
         }
-        Dummy a;
+
+        Dummy       a;
         const Dummy b = {};
 
         ASSERT(!isConst(a) && isConst(b));  // Test 'isConst'.
 
-        bsl::reference_wrapper<Dummy> rwa(a);
+        bsl::reference_wrapper<      Dummy> rwa (a);
         bsl::reference_wrapper<const Dummy> rwca(a);
         bsl::reference_wrapper<const Dummy> rwcb(b);
 
-        bsl::reference_wrapper<Dummy> copyrwa(rwa);
+        bsl::reference_wrapper<      Dummy> copyrwa (rwa );
         bsl::reference_wrapper<const Dummy> copyrwca(rwca);
         bsl::reference_wrapper<const Dummy> copyrwcb(rwcb);
 
         ASSERT(!isConst(rwa));  //  Check conversion to ref type, constness.
-        ASSERT(isConst(rwca));  //  Likewise.
-        ASSERT(isConst(rwcb));
+        ASSERT( isConst(rwca)); //  Likewise.
+        ASSERT( isConst(rwcb));
 
-        copyrwa = a;  // Assign from raw reference.
-        copyrwca = a;  // Likewise.
+        copyrwa  = a;   // Assign from raw reference.
+        copyrwca = a;   // Likewise.
         copyrwcb = b;
 
-        copyrwa = rwa;  // Assign from other 'reference_wrapper'.
-        copyrwca = rwca;   // Likewise.
+        copyrwa  = rwa;     // Assign from other 'reference_wrapper'.
+        copyrwca = rwca;    // Likewise.
         copyrwcb = rwcb;
 
-        Dummy& rax = rwa;  // Initialize from 'reference_wrapper'.
-        const Dummy& rcax = rwca;  // Likewise.
+        Dummy&       rax  = rwa;    // Initialize from 'reference_wrapper'.
+        const Dummy& rcax = rwca;   // Likewise.
         const Dummy& rcbx = rwcb;
 
-        Dummy& ray = bsl::ref(a);   // Initialize from ref result.
-        const Dummy& rcay = bsl::cref(a);  // Likewise.
+        Dummy&       ray  = bsl::ref(a);    // Initialize from ref result.
+        const Dummy& rcay = bsl::cref(a);   // Likewise.
         const Dummy& rcby = bsl::cref(b);
 
-        ASSERT(!isConst(bsl::ref(a)));
-        ASSERT(isConst(bsl::cref(a)));
-        ASSERT(isConst(bsl::cref(b)));
+        ASSERT(!isConst(bsl::ref (a)));
+        ASSERT( isConst(bsl::cref(a)));
+        ASSERT( isConst(bsl::cref(b)));
 
-        ASSERT(!isConst(bsl::ref(rwa)));
-        ASSERT(isConst(bsl::cref(rwca)));
-        ASSERT(isConst(bsl::cref(rwcb)));
+        ASSERT(!isConst(bsl::ref (rwa )));
+        ASSERT( isConst(bsl::cref(rwca)));
+        ASSERT( isConst(bsl::cref(rwcb)));
 
-        bsl::reference_wrapper<Dummy> copyrwaz(bsl::ref(rwa));
+        bsl::reference_wrapper<      Dummy> copyrwaz (bsl::ref(rwa ));
         bsl::reference_wrapper<const Dummy> copyrwcaz(bsl::ref(rwca));
         bsl::reference_wrapper<const Dummy> copyrwcbz(bsl::ref(rwcb));
 
@@ -301,10 +354,12 @@ int main(int argc, char *argv[])
         bsl::reference_wrapper<const Dummy> copyrwcbzc(bsl::cref(rwcb));
 
         Dummy c;
+
         bsl::reference_wrapper<Dummy> assrwaz(bsl::ref(rwa));
         assrwaz = a;
         assrwaz = c;
         assrwaz = rwa;
+
         bsl::reference_wrapper<const Dummy> assrwcaz(bsl::ref(rwca));
         assrwcaz = b;
         assrwcaz = c;
@@ -318,7 +373,7 @@ int main(int argc, char *argv[])
         ASSERT(copyrwcaz.get().localAddressOf() == a.localAddressOf());
         ASSERT(copyrwcbz.get().localAddressOf() == b.localAddressOf());
 
-            // These do not test much, but they seem preferable to "void(e)":
+        // These do not test much, but they seem preferable to "void(e)":
 
         ASSERT(rax.localAddressOf() == a.localAddressOf());
         ASSERT(rcax.localAddressOf() == a.localAddressOf());
