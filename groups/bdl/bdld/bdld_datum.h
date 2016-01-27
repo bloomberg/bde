@@ -183,7 +183,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //                        external   requires
 //  dataType              reference  allocation  Description
 //  --------              ---------  ----------  -----------
-//  e_UNINITIALIZED       no         no          uninitialized value (64-bit)
 //  e_NIL                 no         no          null value
 //  e_INTEGER             no         no          integer value
 //  e_REAL                no         no          double value
@@ -215,11 +214,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   memory allocation.  Note that for externally represented string or
 //:   arrays, meta-data may still need to be allocated.
 //
-// Note that the special type e_UNINITIALIZED exist only in the implementation
-// for 64-bit platforms and is used to catch uninitialized (and zero-filled)
-// Datum variables.  Such uninitialized variables can appear in the static data
-// sections or in not-previously-used stack frames (which are zero-filled by
-// the underlying operating system).
+// Note that the zero-filled Datums that may appear when a Datum was not
+// properly initialized with any supported value is invalid on 64-bit
+// platforms.  Such uninitialized (zero-filled) variables can appear in the
+// static data sections or in not-previously-used stack frames (which are
+// zero-filled by the underlying operating system).
 //
 ///User Defined Data
 ///- - - - - - - - -
@@ -665,24 +664,23 @@ class Datum {
     enum DataType {
         // Enumeration used to discriminate among the different externally-
         // exposed types of values that can be stored inside 'Datum'.
-        e_UNINITIALIZED          =  0  // uninitialized value (64-bit only)
-        , e_NIL                  =  1  // null value
-        , e_INTEGER              =  2  // integer value
-        , e_REAL                 =  3  // double value
-        , e_STRING               =  4  // string value
-        , e_BOOLEAN              =  5  // boolean value
-        , e_ERROR                =  6  // error value
-        , e_DATE                 =  7  // date value
-        , e_TIME                 =  8  // time value
-        , e_DATETIME             =  9  // datetime value
-        , e_DATETIME_INTERVAL    = 10  // datetime interval value
-        , e_INTEGER64            = 11  // 64-bit integer value
-        , e_USERDEFINED          = 12  // pointer to a user-defined object
-        , e_ARRAY                = 13  // array reference
-        , e_MAP                  = 14  // map reference
-        , e_BINARY               = 15  // pointer to the binary data
-        , e_DECIMAL64            = 16  // Decimal64
-        , k_NUM_TYPES            = 17  // number of distinct enumerated types
+        e_NIL                    =  0  // null value
+        , e_INTEGER              =  1  // integer value
+        , e_REAL                 =  2  // double value
+        , e_STRING               =  3  // string value
+        , e_BOOLEAN              =  4  // boolean value
+        , e_ERROR                =  5  // error value
+        , e_DATE                 =  6  // date value
+        , e_TIME                 =  7  // time value
+        , e_DATETIME             =  8  // datetime value
+        , e_DATETIME_INTERVAL    =  9  // datetime interval value
+        , e_INTEGER64            = 10  // 64-bit integer value
+        , e_USERDEFINED          = 11  // pointer to a user-defined object
+        , e_ARRAY                = 12  // array reference
+        , e_MAP                  = 13  // map reference
+        , e_BINARY               = 14  // pointer to the binary data
+        , e_DECIMAL64            = 15  // Decimal64
+        , k_NUM_TYPES            = 16  // number of distinct enumerated types
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -3467,7 +3465,7 @@ Datum::DataType Datum::type() const
     return convert[type];
 #else  // BSLS_PLATFORM_CPU_32_BIT
     static const DataType convert[] = {
-        e_UNINITIALIZED                    // e_INTERNAL_UNINITIALIZED     = 0
+        e_REAL                             // e_INTERNAL_UNINITIALIZED     = 0
       , e_REAL                             // e_INTERNAL_INF               = 1
       , e_NIL                              // e_INTERNAL_NIL               = 2
       , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3
@@ -3493,7 +3491,11 @@ Datum::DataType Datum::type() const
       , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 23
     };
 
-    return convert[internalType()];
+    const InternalDataType type = internalType();
+
+    BSLS_ASSERT_SAFE(e_INTERNAL_UNINITIALIZED != type);
+
+    return convert[type];
 #endif // BSLS_PLATFORM_CPU_32_BIT
 }
 
@@ -3668,7 +3670,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         visitor(theDecimal64());
         break;
       case e_INTERNAL_UNINITIALIZED:
-        BSLS_ASSERT(!"Uninitilized Datum!!");
+        BSLS_ASSERT(!"Uninitialized Datum!!");
         break;
       default:
         BSLS_ASSERT_SAFE(!"Unknown type!!");

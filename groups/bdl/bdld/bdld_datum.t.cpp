@@ -2093,7 +2093,6 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // LINE  ENUMERATOR VALUE             EXPECTED OUTPUT
             // ----  ---------------------------  -------------------
-            {  L_,   Datum::e_UNINITIALIZED,      "UNINITIALIZED"     },
             {  L_,   Datum::e_NIL,                "NIL"               },
             {  L_,   Datum::e_INTEGER,            "INTEGER"           },
             {  L_,   Datum::e_REAL,               "REAL"              },
@@ -9792,6 +9791,21 @@ int main(int argc, char *argv[])
                 Datum::destroy(fakeUdt, &ta);
                 Datum::destroy(realUdt, &ta);
             }
+            if (verbose) cout << "\tTesting zero-filled 'Datum'." << endl;
+            {
+                Datum temp;
+
+                memset(static_cast<void *>(&temp), 0, sizeof(Datum));
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+                ASSERT_SAFE_PASS(temp.type());
+                ASSERT_SAFE_PASS(temp.isDouble());
+#else   // BSLS_PLATFORM_CPU_32_BIT
+                ASSERT_SAFE_FAIL(temp.type());
+                ASSERT_SAFE_FAIL(temp.isDouble());
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+            }
         }
 
         ASSERT(0 == da.numAllocations());
@@ -9874,8 +9888,8 @@ int main(int argc, char *argv[])
                 const Int64 VALUE = Int64(DATA[i].d_value);
                 const bool  VALID = DATA[i].d_isValid;
 
-                short high16;
-                int   low32;
+                short high16 = 0;
+                int   low32  = 0;
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(VALUE) P(VALID)
