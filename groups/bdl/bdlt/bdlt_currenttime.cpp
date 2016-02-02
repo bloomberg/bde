@@ -18,8 +18,10 @@ namespace bdlt {
 
 // DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
-CurrentTime::s_currenttimeCallback_p =
-                 { reinterpret_cast<void *>(CurrentTime::currentTimeDefault) };
+    CurrentTime::s_currenttimeCallback_p =
+        { reinterpret_cast<void *>(
+                reinterpret_cast<bsls::Types::IntPtr>(
+                    CurrentTime::currentTimeDefault)) };
 
 // CLASS METHODS
 DatetimeTz CurrentTime::asDatetimeTz()
