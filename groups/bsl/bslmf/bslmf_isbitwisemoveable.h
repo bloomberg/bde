@@ -664,8 +664,10 @@ struct IsBitwiseMoveable_Imp<TYPE, false>
             && (  native_std::is_trivially_copyable<TYPE>::value
                || k_NestedBitwiseMoveableTrait);
 
+#if 0
     static_assert(! (value && !k_ValueWithoutOnebyteHeuristic),
                   "False positive IsBitwiseMoveable for one-byte type");
+#endif
 #endif
 };
 

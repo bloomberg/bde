@@ -398,10 +398,10 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1> {
     enum {
         k_BYTES_PER_INT = sizeof(int),
         k_BITS_PER_INT  = 8 * sizeof(int),
-        k_BITSETSIZE  = N ? (N - 1) / k_BITS_PER_INT + 1 : 1
+        BITSETSIZE  = N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1
     };
 
-    typedef Bitset_ImpBase<k_BITSETSIZE> Base;
+    typedef Bitset_ImpBase<BITSETSIZE> Base;
     using Base::d_data;
 
     // FRIENDS
@@ -472,11 +472,11 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1> {
                                                    ALLOCATOR>::size_type pos,
                     typename  bsl::basic_string<CHAR_TYPE,
                                                    TRAITS,
-                                                   ALLOCATOR>::size_type N,
+                                                   ALLOCATOR>::size_type n,
                    CHAR_TYPE zeroChar, CHAR_TYPE oneChar);
         // Assign to the first 'M' bit of this object a value corresponding to
         // the characters in the specified 'pos' of the specified 'str'. 'M' is
-        // the smaller of the parameterized 'N' and 'str.length()'. If
+        // the smaller of the specified 'N' and 'str.length()'. If
         // 'M < N' the remaining bit positions are left unchanged.
         // Characters with the value 'zeroChar' correspond to an unset bit and
         // characters with the value 'oneChar' correspond to a set bit.
