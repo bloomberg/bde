@@ -1,15 +1,17 @@
 // bdld_datummapbuilder.cpp                                           -*-C++-*-
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$ $CSID$")
-
 #include <bdld_datummapbuilder.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdld_datummapbuilder.cpp,"$Id$ $CSID$")
+
 #include <bdld_datum.h>
+#include <bslma_default.h>
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsl_algorithm.h>
+#include <bsl_cstring.h>
 #include <bsl_memory.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace bdld {
@@ -22,36 +24,37 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
     // specified 'size' for the datum map having the specified 'capacity'.
 {
     // Maximum number of map elements supported (theoretical limit)
-    static const bsl::size_t MAX_BYTES    = ~bsl::size_t(0) / 2;
-    static const bsl::size_t MAX_MAP_SIZE = MAX_BYTES / sizeof(DatumMapEntry);
 
-    if (size >= MAX_MAP_SIZE / 2) {
-        capacity = MAX_MAP_SIZE;
+    static const bsl::size_t k_MAX_BYTES    = ~bsl::size_t(0) / 2;
+    static const bsl::size_t k_MAX_MAP_SIZE =
+                                           k_MAX_BYTES / sizeof(DatumMapEntry);
+
+    if (size >= k_MAX_MAP_SIZE / 2) {
+        capacity = k_MAX_MAP_SIZE;
     }
     else {
-        capacity += !capacity; // get to 1 from 0 (no op afterwards)
+        capacity += !capacity;    // get to 1 from 0 (no op afterwards)
         while (capacity < size) { // get higher than 1
             capacity *= 2;
         }
     }
 
     // Verify capacity at outer size limits.
+
     BSLS_ASSERT(capacity >= size);
 
     return capacity;
 }
 
-static void createMapStorage(DatumMapRef            *mapping,
+static void createMapStorage(DatumMutableMapRef     *mapping,
                              bsls::Types::size_type  capacity,
                              bslma::Allocator       *basicAllocator)
-    // Load the specified 'mapping' with a reference to newly created
-    // datum map having the specified 'capacity', using the specified
-    // 'basicAllocator'.
+    // Load the specified 'mapping' with a reference to newly created datum map
+    // having the specified 'capacity', using the specified 'basicAllocator'.
 {
-    Datum::createUninitializedMap(mapping,
-                                  capacity,
-                                  basicAllocator);
+    Datum::createUninitializedMap(mapping, capacity, basicAllocator);
     // Initialize the memory.
+
     bsl::uninitialized_fill_n(mapping->data(), capacity, DatumMapEntry());
 }
 
@@ -76,28 +79,19 @@ static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
                           // ---------------------
                           // class DatumMapBuilder
                           // ---------------------
+// TRAITS
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapBuilder>::value);
 
 // CREATORS
-DatumMapBuilder::DatumMapBuilder(bslma::Allocator *basicAllocator)
-: d_capacity(0)
-, d_sorted(false)
-, d_allocator_p(basicAllocator)
-{
-    BSLS_ASSERT(basicAllocator);
-    // Do not create a datum map.  Defer this to the first call to 'pushBack'
-    // or 'append'.
-}
-
 DatumMapBuilder::DatumMapBuilder(SizeType          initialCapacity,
                                  bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)
 , d_sorted(false)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(basicAllocator);
-
     // Do not create a datum map, if 'initialCapacity' is 0.  Defer this to the
     // first call to 'pushBack' or 'append'.
+
     if (initialCapacity) {
         createMapStorage(&d_mapping, d_capacity, d_allocator_p);
     }
@@ -114,41 +108,37 @@ DatumMapBuilder::~DatumMapBuilder()
 }
 
 // MANIPULATORS
-void DatumMapBuilder::pushBack(const bslstl::StringRef& key,
-                               const Datum&             value)
-{
-    DatumMapEntry entry(key, value);
-    append(&entry, 1);
-}
-
 void DatumMapBuilder::append(const DatumMapEntry *entries,
                              SizeType             size)
 {
-    BSLS_ASSERT(0 == d_capacity || 0 != d_mapping.data());
+    BSLS_ASSERT(0 != entries && 0 != size);
 
     // Get the new map capacity.
+
     SizeType newCapacity = d_capacity ?
                       getNewCapacity(d_capacity, *d_mapping.size() + size) :
                       getNewCapacity(d_capacity, size);
 
     // If the initial capacity was zero, create an empty map with the new
     // capacity.
+
     if (!d_capacity) {
         d_capacity = newCapacity;
         createMapStorage(&d_mapping, d_capacity, d_allocator_p);
         *d_mapping.sorted() = d_sorted;
     }
-
-    // Capacity has to be increased.
     if (newCapacity != d_capacity) {
         // Capacity has to be increased.
+
         d_capacity = newCapacity;
 
         // Create a new map with the higher capacity.
-        DatumMapRef mapping;
+
+        DatumMutableMapRef mapping;
         createMapStorage(&mapping, d_capacity, d_allocator_p);
 
         // Copy the existing data and dispose the old map.
+
         *mapping.size() = *d_mapping.size();
         bsl::memcpy(mapping.data(),
                     d_mapping.data(),
@@ -158,6 +148,7 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
     }
 
     // Copy the new elements.
+
     bsl::memcpy(d_mapping.data() + *d_mapping.size(),
                 entries,
                 sizeof(DatumMapEntry) * size);
@@ -167,17 +158,25 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
 Datum DatumMapBuilder::commit()
 {
     // Make sure the map is sorted.
-    BSLS_ASSERT_SAFE(!d_capacity ||
-                     !*d_mapping.sorted() ||
+
+    BSLS_ASSERT_SAFE(0 == d_capacity ||
+                     false == *d_mapping.sorted() ||
                      bsl::adjacent_find(d_mapping.data(),
                                         d_mapping.data() + *d_mapping.size(),
                                         compareGreater)
                          == d_mapping.data() + *d_mapping.size());
 
     Datum result = Datum::adoptMap(d_mapping);
-    d_mapping = DatumMapRef();
+    d_mapping = DatumMutableMapRef();
     d_capacity = 0;
     return result;
+}
+
+void DatumMapBuilder::pushBack(const bslstl::StringRef& key,
+                               const Datum&             value)
+{
+    DatumMapEntry entry(key, value);
+    append(&entry, 1);
 }
 
 void DatumMapBuilder::setSorted(bool value)
@@ -186,7 +185,7 @@ void DatumMapBuilder::setSorted(bool value)
         *d_mapping.sorted() = value;
     }
     else {
-        d_sorted = true;
+        d_sorted = false;
     }
 }
 
@@ -207,8 +206,8 @@ DatumMapBuilder::SizeType DatumMapBuilder::capacity() const
     return d_capacity;
 }
 
-}  // close bdld namespace
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

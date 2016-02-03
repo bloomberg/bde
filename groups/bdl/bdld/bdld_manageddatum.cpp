@@ -1,13 +1,11 @@
 // bdld_manageddatum.cpp                                              -*-C++-*-
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$ $CSID$")
-
 #include <bdld_manageddatum.h>
-#include <bslmf_assert.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdld_manageddatum_cpp,"$Id$ $CSID$")
+
 #include <bsl_ostream.h>
+#include <bslmf_assert.h>
 
 namespace BloombergLP {
 namespace bdld {
@@ -16,10 +14,9 @@ namespace bdld {
                             // class ManagedDatum
                             // ------------------
 
-BSLMF_ASSERT((bslalg::HasTrait<ManagedDatum,
-                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
-BSLMF_ASSERT((bslalg::HasTrait<ManagedDatum,
-                               bslalg::TypeTraitBitwiseMoveable>::VALUE));
+BSLMF_ASSERT(bsl::is_trivially_copyable<ManagedDatum>::value);
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<ManagedDatum>::value);
+BSLMF_ASSERT(bslmf::IsBitwiseMoveable<ManagedDatum>::value);
 
 // ACCESSORS
 bsl::ostream& ManagedDatum::print(bsl::ostream& stream,
@@ -29,15 +26,8 @@ bsl::ostream& ManagedDatum::print(bsl::ostream& stream,
     return d_data.print(stream, level, spacesPerLevel);
 }
 
-}  // close bdld namespace
-
-// FREE OPERATORS
-bsl::ostream& bdld::operator<<(bsl::ostream& output, const ManagedDatum& rhs)
-{
-    return (output << rhs.datum());
-}
-
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

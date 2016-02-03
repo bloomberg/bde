@@ -1,15 +1,25 @@
 // bdld_manageddatum.t.cpp                                            -*-C++-*-
 #include <bdld_manageddatum.h>
 
+#include <bdlt_date.h>
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
+#include <bdlt_time.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
+
+#include <bslim_testutil.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -22,144 +32,111 @@ using namespace BloombergLP::bdld;
 //                                 Overview
 //                                 --------
 // The component under test is an full *value-semantic* class that represents
-// general purpose values and their datums. Our testing concerns are
-// limited to creating 'ManagedDatum' objects with different types of
-// values, retrieving the type and actual value within these objects, copying
-// these objects, assigning to these objects, streaming these objects and
-// finally destroying them. At the end of these operations, the same amount of
-// memory should be deallocated as was allocated while performing these
-// operations.
+// general purpose values and their datums.  Our testing concerns are limited
+// to creating 'ManagedDatum' objects with different types of values,
+// retrieving the type and actual value within these objects, copying these
+// objects, assigning to these objects, streaming these objects and finally
+// destroying them.  At the end of these operations, the same amount of memory
+// should be deallocated as was allocated while performing these operations.
 //
-// Primary Manipulators:
-//: o void adopt(const Datum&)
-//: o void copy(const Datum&)
-//: o void makeNull();
-//: o Datum release();
-//
-// Basic Accessors:
-//: o Datum datum() const;
-//
-// Global Concerns:
-//: o No memory is leaked.
-//
-// Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//
+// Note that 'ManagedDatum' behavior is independent of held 'Datum' object's
+// type or value, so we don't need to test component methods with all possible
+// 'Datum' types, but at least with one of them.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [ 2] ManagedDatum(bslma::Allocator *);
+// [ 5] ManagedDatum(bslma::Allocator *basicAllocator);
+// [ 5] ManagedDatum(const Datum& value);
 // [ 2] ManagedDatum(const Datum&, bslma::Allocator *);
-// [ 7] ManagedDatum(const ManagedDatum&, bslma::Allocator *);
+// [ 5] ManagedDatum(const ManagedDatum&, bslma::Allocator *);
 // [ 2] ~ManagedDatum();
 //
 // MANIPULATORS
 // [ 9] ManagedDatum& operator=(const ManagedDatum&);
-// [ 3] void adopt(const Datum&);
-// [ 3] void copy(const Datum&);
-// [ 3] Datum release();
-// [ 3] void makeNull();
-// [ 8] void swap(ManagedDatum&);
+// [ 8] void adopt(const Datum&);
+// [ 8] void clone(const Datum& value);
+// [ 8] Datum release();
+// [ 8] void makeNull();
+// [ 7] void swap(ManagedDatum& other);
 //
 // ACCESSORS
-// [ 2] Datum datum() const;
-// [ 2] const Datum *operator->() const;
-// [ 5] const Datum *operator->() const;
+// [ 4] const Datum& datum() const;
+// [ 4] bslma::Allocator *allocator() const;
+// [ 4] const Datum *operator->() const;
+// [ 4] const Datum& operator*() const;
+// [11] bsl::ostream& print(bsl::ostream&, int, int) const;
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const ManagedDatum&, const ManagedDatum&);
 // [ 6] bool operator!=(const ManagedDatum&, const ManagedDatum&);
-// [11] bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
-// ---------------------------------------------------------------------------
+// [10] bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
+//
+// TRAITS
+// [12] bslmf::IsBitwiseEqualityComparable
+// [12] bslma::UsesBslmaAllocator
+// [12] bsl::is_trivially_copyable
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [ 3] TEST APPARATUS
+// [13] USAGE EXAMPLE
 
 // ============================================================================
-//                        STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && 100 >= testStatus) {
+
+        if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
         }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-// ----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP0_ASSERT ASSERT
-#define LOOP1_ASSERT LOOP_ASSERT
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE VARIADIC ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
-#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                       SEMI-STANDARD TEST OUTPUT MACROS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
-//                      NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                    GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-void assertHandler(const char *text, const char *file, int line)
-{
-    bsl::cout << "Error " << file << "(" << line << "): " << text
-              << "    (assert)" << bsl::endl;
-
-    int *i = 0;
-    // cppcheck-suppress nullPointer
-    *i = 0;
-}
-
 typedef ManagedDatum Obj;
 typedef bsls::Types::Int64 Int64;
 
@@ -172,215 +149,74 @@ const double k_DBL_NEGINF  = -1 * k_DBL_INF;
 const double k_DBL_ZERO    = 0.0;
 const double k_DBL_NEGZERO = 1 / k_DBL_NEGINF;
 
+const int    UDT_TYPE      = 2;
 // ============================================================================
 //                              TEST APPARATUS
 // ----------------------------------------------------------------------------
-
-#define   PV(X)         if (verbose) cout << endl << X << endl;
-#define  PVV(X)     if (veryVerbose) cout << endl << X << endl;
-#define PVVV(X) if (veryVeryVerbose) cout << endl << X << endl;
-
-class TestVisitor {
-    // This class provides a visitor to visit and store the type of
-    // 'ManagedDatum' object with which it was called.
-
-private:
-    // INSTANCE DATA
-    Datum::DataType d_type;  // type of the 'ManagedDatum' object
-
-public:
-    // CREATORS
-    TestVisitor();
-        // Create a 'TestVisitor' object.
-
-    // MANIPULATORS
-    void operator()(bslmf::Nil v);
-        // Store 'Datum::e_NIL' in 'd_type'.
-
-    void operator()(const bdlt::Date& v);
-        // Store 'Datum::e_DATE' in 'd_type'.
-
-    void operator()(const bdlt::Datetime& v);
-        // Store 'Datum::e_DATETIME' in 'd_type'.
-
-    void operator()(const bdlt::DatetimeInterval& v);
-        // Store 'Datum::e_DATETIME_INTERVAL' in 'd_type'.
-
-    void operator()(const bdlt::Time& v);
-        // Store 'Datum::e_TIME' in 'd_type'.
-
-    void operator()(bslstl::StringRef v);
-        // Store 'Datum::e_STRING' in 'd_type'.
-
-    void operator()(bool v);
-        // Store 'Datum::e_BOOLEAN' in 'd_type'.
-
-    void operator()(bsls::Types::Int64 v);
-        // Store 'Datum::e_INTEGER64' in 'd_type'.
-
-    void operator()(double v);
-        // Store 'Datum::e_REAL' in 'd_type'.
-
-    void operator()(Error v);
-        // Store 'Datum::e_ERROR_VALUE' in 'd_type'.
-
-    void operator()(int v);
-        // Store 'Datum::e_INTEGER' in 'd_type'.
-
-    void operator()(Udt v);
-        // Store 'Datum::e_USERDEFINED' in 'd_type'.
-
-    void operator()(ConstDatumArrayRef v);
-        // Store 'Datum::e_ARRAY' in 'd_type'.
-
-    void operator()(ConstDatumMapRef v);
-        // Store 'Datum::e_MAP' in 'd_type'.
-
-    // ACCESSORS
-    Datum::DataType type() const;
-        // Return the type of 'ManagedDatum' object with which this visitor was
-        // called.
-};
-
-TestVisitor::TestVisitor()
+Datum createArray(bslma::Allocator *allocator)
+    // Create a fixed size array of 'Datum' objects with different value types
+    // using the specified 'allocator'.
 {
-    d_type = Datum::k_NUM_TYPES;
-}
-
-void TestVisitor::operator()(bslmf::Nil v)
-{
-    d_type = Datum::e_NIL;
-}
-
-void TestVisitor::operator()(const bdlt::Date& v)
-{
-    d_type = Datum::e_DATE;
-}
-
-void TestVisitor::operator()(const bdlt::Datetime& v)
-{
-    d_type = Datum::e_DATETIME;
-}
-
-void TestVisitor::operator()(const bdlt::DatetimeInterval& v)
-{
-    d_type = Datum::e_DATETIME_INTERVAL;
-}
-
-void TestVisitor::operator()(const bdlt::Time& v)
-{
-    d_type = Datum::e_TIME;
-}
-
-void TestVisitor::operator()(bslstl::StringRef v)
-{
-    d_type = Datum::e_STRING;
-}
-
-void TestVisitor::operator()(bool v)
-{
-    d_type = Datum::e_BOOLEAN;
-}
-
-void TestVisitor::operator()(bsls::Types::Int64 v)
-{
-    d_type = Datum::e_INTEGER64;
-}
-
-void TestVisitor::operator()(double v)
-{
-    d_type = Datum::e_REAL;
-}
-
-void TestVisitor::operator()(Error v)
-{
-    d_type = Datum::e_ERROR_VALUE;
-}
-
-void TestVisitor::operator()(int v)
-{
-    d_type = Datum::e_INTEGER;
-}
-
-void TestVisitor::operator()(Udt v)
-{
-    d_type = Datum::e_USERDEFINED;
-}
-
-void TestVisitor::operator()(ConstDatumArrayRef v)
-{
-    d_type = Datum::e_ARRAY;
-}
-
-void TestVisitor::operator()(ConstDatumMapRef v)
-{
-    d_type = Datum::e_MAP;
-}
-
-Datum::DataType TestVisitor::type() const
-{
-    return d_type;
-}
-
-bool operator==(bslmf::Nil lhs, bslmf::Nil rhs)
-{
-    return true;
-}
-
-Datum createArray(bslma::Allocator *alloc)
-{
-    DatumArrayRef array;
+    DatumMutableArrayRef         array;
     const bsls::Types::size_type arraySize = 6;
     Datum::createUninitializedArray(&array,
                                     arraySize,
-                                    alloc);
+                                    allocator);
     array.data()[0] = Datum::createInteger(0);
     array.data()[1] = Datum::createDouble(-3.1416);
-    array.data()[2] = Datum::copyString("A long string", alloc);
-    array.data()[3] = Datum::copyString("Abc", alloc);
+    array.data()[2] = Datum::copyString("A very long string", allocator);
+    array.data()[3] = Datum::copyString("Abc", allocator);
     array.data()[4] = Datum::createDate(bdlt::Date(2010, 1, 5));
     array.data()[5] = Datum::createDatetime(
                             bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
-                            alloc);
+                            allocator);
     *(array.length()) = arraySize;
     return Datum::adoptArray(array);
 }
 
 Datum createEmptyArray()
+    // Create an empty array of 'Datum' objects.
 {
-    DatumArrayRef array;
+    DatumMutableArrayRef array;
     return Datum::adoptArray(array);
 }
 
 Datum createEmptyMap()
+    // Create an empty map of 'Datum' objects.
 {
-    DatumMapRef map;
+    DatumMutableMapRef map;
     return Datum::adoptMap(map);
 }
 
-Datum createMap(bslma::Allocator *alloc)
+Datum createMap(bslma::Allocator *allocator)
+    // Create a fixed size map of 'Datum' objects with different value types
+    // keyed by string values using the specified 'allocator'.
 {
-    DatumMapRef map;
+    DatumMutableMapRef           map;
     const bsls::Types::size_type mapSize = 6;
     Datum::createUninitializedMap(&map,
                                   mapSize,
-                                  alloc);
-    map.data()[0] = DatumMapEntry(StringRef("first", strlen("first")),
-                                  Datum::createInteger(0));
-    map.data()[1] = DatumMapEntry(StringRef("second", strlen("second")),
-                                  Datum::createDouble(-3.1416));
-    map.data()[2] = DatumMapEntry(StringRef("third", strlen("third")),
-                                  Datum::copyString("A long string",
-                                  alloc));
-    map.data()[3] = DatumMapEntry(StringRef("fourth", strlen("fourth")),
-                                  Datum::copyString("Abc",
-                                                    alloc));
-    map.data()[4] = DatumMapEntry(StringRef("fifth", strlen("fifth")),
-                                  Datum::createDate(bdlt::Date(2010, 1, 5)));
-    map.data()[5] = DatumMapEntry(StringRef("sixth", strlen("sixth")),
-                                  Datum::createDatetime(
+                                  allocator);
+    map.data()[0] = DatumMapEntry(
+                         StringRef("first", static_cast<int>(strlen("first"))),
+                         Datum::createInteger(0));
+    map.data()[1] = DatumMapEntry(
+                       StringRef("second", static_cast<int>(strlen("second"))),
+                       Datum::createDouble(-3.1416));
+    map.data()[2] = DatumMapEntry(
+                         StringRef("third", static_cast<int>(strlen("third"))),
+                         Datum::copyString("A very long string", allocator));
+    map.data()[3] = DatumMapEntry(
+                       StringRef("fourth", static_cast<int>(strlen("fourth"))),
+                       Datum::copyString("Abc", allocator));
+    map.data()[4] = DatumMapEntry(
+                         StringRef("fifth", static_cast<int>(strlen("fifth"))),
+                         Datum::createDate(bdlt::Date(2010, 1, 5)));
+    map.data()[5] = DatumMapEntry(
+                         StringRef("sixth", static_cast<int>(strlen("sixth"))),
+                         Datum::createDatetime(
                                     bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
-                                    alloc));
+                                    allocator));
     *(map.size()) = mapSize;
     return Datum::adoptMap(map);
 }
@@ -388,156 +224,233 @@ Datum createMap(bslma::Allocator *alloc)
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    // CONCERN: In no case does memory come from the default allocator.
 
-    bsls::Assert::setFailureHandler(assertHandler);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    bdlt::Date udt;
-    const int UDT_TYPE = 2;
-    bdlt::Date udt1;
+    // CONCERN: In no case does memory come from the global allocator.
 
-    typedef bsls::Types::size_type size_type;
-
-    const size_type arraySize  = 6;
-    bslma::TestAllocator arrayAlloc(false);
-    Datum array[arraySize] = {
-        Datum::createInteger(0),
-        Datum::createDouble(-3.1416),
-        Datum::copyString("A long string", &arrayAlloc),
-        Datum::copyString("Abc", &arrayAlloc),
-        Datum::createDate(bdlt::Date(2010, 1, 5)),
-        Datum::createDatetime(bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
-                                  &arrayAlloc),
-    };
-
-    const size_type mapSize  = 6;
-    bslma::TestAllocator mapAlloc(false);
-    DatumMapEntry map[mapSize] = {
-        DatumMapEntry(StringRef("first", strlen("first")),
-                      Datum::createInteger(0)),
-        DatumMapEntry(StringRef("second", strlen("second")),
-                      Datum::createDouble(-3.1416)),
-        DatumMapEntry(StringRef("third", strlen("third")),
-                      Datum::copyString("A long string", &mapAlloc)),
-        DatumMapEntry(StringRef("fourth", strlen("fourth")),
-                      Datum::copyString("Abc", &mapAlloc)),
-        DatumMapEntry(StringRef("fifth", strlen("fifth")),
-                      Datum::createDate(bdlt::Date(2010, 1, 5))),
-        DatumMapEntry(StringRef("sixth", strlen("sixth")),
-                      Datum::createDatetime(
-                                     bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
-                                     &mapAlloc))
-    };
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
-        //---------------------------------------------------------------------
-        // USAGE EXAMPLE:
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //    The usage example provided in the component header file must
-        //    compile, link, and run on all platforms.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //    Incorporate usage example from header into the test driver,
-        //    remove leading comment characters, and replace 'assert' with
-        //    'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
-        //---------------------------------------------------------------------
-
+        // --------------------------------------------------------------------
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-        bslma::Allocator *allocator = bslma::Default::defaultAllocator();
-        const ManagedDatum realObj(Datum::createDouble(-3.457),
-                                       allocator);
-        ASSERT(realObj->isDouble());
-        ASSERT(-3.457 == realObj->theDouble());
+// The following snippets of code illustrate how to create and use a
+// 'ManagedDatum' object.
+//
+// First, create a 'ManagedDatum' object that holds a double value and verify
+// that it has the same double value inside it:
+//..
+    bslma::TestAllocator ta("test", veryVeryVerbose);
 
-        const char *str = "This is a string";
-        const ManagedDatum strObj(Datum::copyString(str, &ta), &ta);
-        ASSERT(strObj->isString());
-        ASSERT(str == strObj->theString());
-        const ManagedDatum strObj1 = strObj;
-        ASSERT(strObj == strObj1);
-        const ManagedDatum strObj2(strObj, &ta);
-        ASSERT(strObj == strObj2);
+    const ManagedDatum realObj(Datum::createDouble(-3.4375), &ta);
+    ASSERT(realObj->isDouble());
+    ASSERT(-3.4375 == realObj->theDouble());
+//..
+// Next, we create a 'ManagedDatum' object that holds a string value and verify
+// that it has the same string value inside it:
+//..
+    const char         *str = "This is a string";
+    const ManagedDatum  strObj(Datum::copyString(str, &ta), &ta);
+    ASSERT(strObj->isString());
+    ASSERT(str == strObj->theString());
+//..
+// Then, assign this 'ManagedDatum' object to another object and verify both
+// objects have the same value:
+//..
+    ManagedDatum strObj1(&ta);
+    strObj1 = strObj;
+    ASSERT(strObj == strObj1);
+//..
+// Next, copy-construct this 'ManagedDatum' object and verify that the copy has
+// the same value as the original:
+//..
+    const ManagedDatum strObj2(strObj, &ta);
+    ASSERT(strObj == strObj2);
+//..
+// Then, we create a 'ManagedDatum' object that holds an opaque pointer to a
+// 'bdlt::Date' object and verify that it has the same user-defined value
+// inside it:
+//..
+    bdlt::Date   udt;
+    ManagedDatum udtObj(Datum::createUdt(&udt, UDT_TYPE), &ta);
+    ASSERT(udtObj->isUdt());
+    ASSERT(&udt == udtObj->theUdt().data());
+    ASSERT(UDT_TYPE == udtObj->theUdt().type());
+//..
+// Next, we assign a boolean value to this 'ManagedDatum' object and verify
+// that it has the new value:
+//..
+    udtObj.adopt(Datum::createBoolean(true));
+    ASSERT(udtObj->isBoolean());
+    ASSERT(true == udtObj->theBoolean());
+//..
+// Then, we create a 'ManagedDatum' object having an array and verify that it
+// has the same array value:
+//..
+    const Datum datumArray[2] = {
+        Datum::createInteger(12),
+        Datum::copyString("A long string", &ta)
+    };
 
-        ManagedDatum udtObj(Datum::createUdt(&udt, UDT_TYPE),
-                                allocator);
-        ASSERT(udtObj->isUdt());
-        ASSERT(&udt == udtObj->theUdt().data());
-        ASSERT(UDT_TYPE == udtObj->theUdt().type());
-        udtObj.adopt(Datum::createBoolean(true));
-        ASSERT(udtObj->isBoolean());
-        ASSERT(true == udtObj->theBoolean());
+    DatumMutableArrayRef arr;
+    Datum::createUninitializedArray(&arr, 2 , &ta);
+    for (int i = 0; i < 2; ++i) {
+        arr.data()[i] = datumArray[i];
+    }
+    *(arr.length()) = 2;
+    const ManagedDatum arrayObj(Datum::adoptArray(arr), &ta);
+    ASSERT(arrayObj->isArray());
+    ASSERT(DatumArrayRef(datumArray, 2) == arrayObj->theArray());
+//..
+// Next, we create a 'ManagedDatum' object having a map and verify that it has
+// the same map value:
+//..
+    const DatumMapEntry datumMap[2] = {
+        DatumMapEntry(StringRef("first", static_cast<int>(strlen("first"))),
+                      Datum::createInteger(12)),
+        DatumMapEntry(StringRef("second", static_cast<int>(strlen("second"))),
+                      Datum::copyString("A very long string", &ta))
+    };
 
-        const Datum datumArray[2] = {
-            Datum::createInteger(12),
-            Datum::copyString("A long string", &ta)
-        };
-        DatumArrayRef arr;
-        Datum::createUninitializedArray(&arr, 2 , &ta);
-        for (int i = 0; i < 2; ++i) {
-            arr.data()[i] = datumArray[i];
-        }
-        *(arr.length()) = 2;
-        const ManagedDatum arrayObj(Datum::adoptArray(arr),
-                                    &ta);
-        ASSERT(arrayObj->isArray());
-        ASSERT(ConstDatumArrayRef(datumArray, 2) == arrayObj->theArray());
+    DatumMutableMapRef mp;
+    Datum::createUninitializedMap(&mp, 2 , &ta);
+    for (int i = 0; i < 2; ++i) {
+        mp.data()[i] = datumMap[i];
+    }
+    *(mp.size()) = 2;
+    const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
+    ASSERT(mapObj->isMap());
+    ASSERT(DatumMapRef(datumMap, 2, false) == mapObj->theMap());
+//..
+// Then, we create a 'Datum' object and assign its ownership to a
+// 'ManagedDatum' object and verify that the ownership was transferred:
+//..
+    const Datum  rcObj = Datum::copyString("This is a string", &ta);
+    ManagedDatum obj(Datum::createInteger(1), &ta);
+    obj.adopt(rcObj);
+    ASSERT(obj.datum() == rcObj);
+//..
+// Next, we release the 'Datum' object inside the 'ManagedDatum' object and
+// verify that it was released:
+//..
+    const Datum internalObj = obj.release();
+    ASSERT(obj->isNull());
+    ASSERT(internalObj == rcObj);
+//..
+// Finally, we destroy the released 'Datum' object:
+//..
+    Datum::destroy(internalObj, obj.allocator());
+//..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING TRAITS
+        //
+        // Concerns:
+        //: 1 bslmf::IsBitwiseMoveable is true for ManagedDatum.
+        //:
+        //: 2 bslma::UsesBslmaAllocator is true for ManagedDatum.
+        //:
+        //: 3 bsl::is_trivially_copyable is true for ManagedDatum.
+        //
+        // Plan:
+        //: 1 Assert each trait.  (C-1..3)
+        //
+        // Testing:
+        //   bslmf::IsBitwiseEqualityComparable
+        //   bslma::UsesBslmaAllocator
+        //   bsl::is_trivially_copyable
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING TRAITS" << endl
+                          << "==============" << endl;
 
-        const DatumMapEntry datumMap[2] = {
-            DatumMapEntry(StringRef("first", strlen("first")),
-                          Datum::createInteger(12)),
-            DatumMapEntry(StringRef("second", strlen("second")),
-                          Datum::copyString("A long string",
-                                            &ta))
-        };
-        DatumMapRef mp;
-        Datum::createUninitializedMap(&mp, 2 , &ta);
-        for (int i = 0; i < 2; ++i) {
-            mp.data()[i] = datumMap[i];
-        }
-        *(mp.size()) = 2;
-        const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
-        ASSERT(mapObj->isMap());
-        ASSERT(ConstDatumMapRef(datumMap, 2, false) == mapObj->theMap());
+        ASSERT(bslmf::IsBitwiseMoveable<Obj>::value);
+        ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+        ASSERT(bsl::is_trivially_copyable<Obj>::value);
+      } break;
+      case 11: {
+        //---------------------------------------------------------------------
+        // TESTING 'PRINT' METHOD
+        //
+        // Concerns:
+        //: 1 The 'print' method should print held 'Datum' object to the
+        //:   specified 'stream' in the appropriate format.
+        //
+        // Plan:
+        //: 1 Use two different 'ostringstreams' to 'print' held value and
+        //:   object. Compare the contents of different streams.  (C-1)
+        //
+        // Testing:
+        //   bsl::ostream& print(bsl::ostream&, int, int) const;
+        //---------------------------------------------------------------------
 
-        const Datum rcObj = Datum::copyString("This is a string", &ta);
-        ManagedDatum obj(Datum::createInteger(1), &ta);
-        obj.adopt(rcObj);
-        ASSERT(obj.datum() == rcObj);
-        const Datum internalObj = obj.release();
-        ASSERT(obj->isNull());
-        ASSERT(internalObj == rcObj);
-        Datum::destroy(internalObj, obj.allocator());
+        if (verbose) cout << endl << "TESTING 'PRINT' METHOD" << endl
+                                  << "======================" << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+
+        ostringstream datumStream;
+        ostringstream managedDatumStream;
+
+        Datum      intDatum = Datum::createInteger(1);
+        Obj        mMD(intDatum, &ta);
+        const Obj& MD = mMD;
+
+        const int  LVL = 0;  // indentation level
+        const int  SPL = 0;  // spaces per level
+
+        intDatum.print(datumStream, LVL, SPL);
+        MD.print(managedDatumStream, LVL, SPL);
+
+        ASSERT(datumStream.str() == managedDatumStream.str());
+        ASSERT(0                 == ta.numBytesInUse());
       } break;
       case 10: {
         //---------------------------------------------------------------------
-        // TESTING STREAMING OPERATOR:
+        // TESTING STREAMING OPERATOR
         //
         // Concerns:
-        //    The output streaming operator should print to the specified
-        //    'stream' in the appropriate format.
+        //: 1 The output streaming operator prints held 'Datum' object to the
+        //:   specified 'stream'.
         //
         // Plan:
-        //    Verify that the output streaming operator produces the desired
-        //    result when invoked with 'Datum' objects holding different
-        //    types of values.
+        //: 1 Verify that the output streaming operator produces the same
+        //:   result as the output streaming operator of the held 'Datum'
+        //:   object.  (C-1)
         //
         // Testing:
         //   bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
@@ -546,390 +459,314 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING STREAMING OPERATOR" << endl
                                   << "==========================" << endl;
 
-        ostringstream infString;
-        infString << k_DBL_INF;
+        bslma::TestAllocator ta("test", veryVeryVerbose);
 
-        ostringstream nanString;
-        nanString << k_DBL_QNAN2;
+        const Datum        D = Datum::copyString("A very long string", &ta);
+        const ManagedDatum MD(D, &ta);
 
-        ostringstream udtString;
-        udtString << "user-defined(" << &udt << "," << UDT_TYPE << ")";
+        {
+            // Temporary resetting default allocator because we construct
+            // temporary strings in this test
+            bslma::TestAllocator         sa("stream", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&sa);
 
-        ostringstream arrayString;
-        arrayString << "[ 0 -3.1416 \"A long string\" \"Abc\" 05JAN2010";
-        arrayString << " 05JAN2010_16:45:32.012 ]";
+            ostringstream datumStream;
+            ostringstream managedDatumStream;
 
-        ostringstream mapString;
-        mapString << "[";
-        mapString << " [ first = 0 ] [ second = -3.1416 ]";
-        mapString << " [ third = \"A long string\" ]";
-        mapString << " [ fourth = \"Abc\" ] [ fifth = 05JAN2010 ]";
-        mapString << " [ sixth = 05JAN2010_16:45:32.012 ]";
-        mapString << " ]";
+            datumStream << D;
+            managedDatumStream << MD;
 
-        struct StreamHelper {
-            Obj    d_obj;
-            string d_streamStr;
-            string d_message;
-        };
-
-        const StreamHelper datumArray[] = {
-            {
-                Obj(),
-                "[nil]",
-                "null"
-            },
-            {
-                Obj(Datum::createInteger(3423), &ta),
-                "3423",
-                "integer"
-            },
-            {
-                Obj(Datum::createBoolean(true), &ta),
-                "true",
-                "boolean"
-            },
-            {
-                Obj(Datum::createError(5), &ta),
-                "error(5)",
-                "Error"
-            },
-            {
-                Obj(Datum::createError(5, "some error", &ta), &ta),
-                    "error(5,'some error')",
-                    "Error"
-            },
-            {
-                Obj(Datum::copyString("This is a string", &ta), &ta),
-                "\"This is a string\"",
-                "string"
-            },
-            {
-                Obj(Datum::createDate(bdlt::Date(2010, 1, 5)), &ta),
-                "05JAN2010",
-                "Date"
-            },
-            {
-                Obj(Datum::createTime(bdlt::Time(16, 45, 32, 12)), &ta),
-                "16:45:32.012",
-                "Time"
-            },
-            {
-                Obj(Datum::createDatetime(
-                         bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta),
-                "05JAN2010_16:45:32.012",
-                "DateTime"
-            },
-            {
-                Obj(Datum::createDatetimeInterval(
-                         bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta), &ta),
-                "+34_16:45:32.012",
-                "DatetimeInterval"
-            },
-            {
-                Obj(Datum::createInteger64(9223372036854775807LL, &ta), &ta),
-                "9223372036854775807",
-                "Int64"
-            },
-            {
-                Obj(Datum::createDouble(-3.1416), &ta),
-                "-3.1416",
-                "double"
-            },
-            {
-                Obj(Datum::createDouble(k_DBL_INF), &ta),
-                infString.str(),
-                "infinity double"
-            },
-            {
-                Obj(Datum::createDouble(k_DBL_QNAN2), &ta),
-                nanString.str(),
-                "NaN double"
-            },
-            {
-                Obj(Datum::createUdt(&udt, UDT_TYPE), &ta),
-                udtString.str(),
-                "User defined"
-            },
-            {
-                Obj(createArray(&ta), &ta),
-                arrayString.str(),
-                "array"
-            },
-            {
-                Obj(createEmptyArray(), &ta),
-                "[ ]",
-                "array"
-            },
-            {
-                Obj(createMap(&ta), &ta),
-                mapString.str(),
-                "map"
-            },
-            {
-                Obj(createEmptyMap(), &ta),
-                "[ ]",
-                "map"
-            }
-        };
-        const int SIZE = sizeof(datumArray) / sizeof(StreamHelper);
-
-        for (int i = 0; i < SIZE; ++i) {
-            PVV((i + 1) << ". Streaming 'ManagedDatum' with '"
-                        << datumArray[i].d_message
-                        << "' value.")
-            ostringstream out;
-            out << datumArray[i].d_obj;
-            LOOP3_ASSERT(i, out.str(), datumArray[i].d_streamStr,
-                         datumArray[i].d_streamStr == out.str());
+            ASSERT(datumStream.str() == managedDatumStream.str());
         }
-
       } break;
       case 9: {
         //---------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
+        // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //    The assignment operator should destroy the existing
-        //    'Datum' object held onto by this 'Datum' and release
-        //    any dynamically allocated memory held inside the 'Datum'
-        //    object. A new 'Datum' object should be created out of the
-        //    passed in object. Dynamic memory should be only allocated when
-        //    needed. The currently stored allocator should be used to allocate
-        //    any memory. Copy-assigning the same 'Datum' object should be
-        //    a no-op. The object that is assigned, should not be modified.
+        //: 1 The assignment operator destroys the existing 'Datum'
+        //:   object held onto by this 'Datum' and release any dynamically
+        //:   allocated memory held inside the 'Datum' object.
+        //:
+        //: 2 A new 'Datum' object is created out of the passed in object.
+        //:   Dynamic memory is only allocated when needed.
+        //:
+        //: 3 The currently stored allocator is used to allocate any memory.
+        //:
+        //: 4 The object that is assigned, should not be modified.
         //
         // Plan:
-        //    Create 'Datum' object with a sufficiently long string value,
-        //    so as to trigger a dynamic memory allocation. Assign const
-        //    'Datum' objects with each of the different types of values.
-        //    Verify that previously held 'Datum' object is destroyed
-        //    and its memory is released. Verify that both both objects have
-        //    the same value. Verify that no memory was allocated when the
-        //    copied object did not have any dynamically allocated memory.
-        //    Verify that self-assignment is a no-op. Finally destroy these
-        //    objects and verify that no memory was leaked. Display steps of
-        //    operation frequently in verbose mode.
+        //: 1 Create 'ManagedDatum' object holding 'Datum' object with integer
+        //:   value.  Create another 'ManagedDatum' object holding 'Datum'
+        //:   object with sufficiently long string value, so as to trigger a
+        //:   dynamic memory allocation.  Assign second one to first one.
+        //:   Verify, that 'ManagedDatum' objects are equal.  Verify that
+        //:   first object's allocator has been used to allocate memory for
+        //:   string value.  Verify that second object hasn't been changed.
+        //:   (C-1..4)
+        //:
+        //: 2 Create 'ManagedDatum' object holding 'Datum' object with
+        //:   sufficiently long string value, so as to trigger a dynamic memory
+        //:   allocation.  Create another 'ManagedDatum' object holding 'Datum'
+        //:   object with integer value.  Assign second one to first one.
+        //:   Verify, that 'ManagedDatum' objects are equal.  Verify, that
+        //:   memory for holding string value has been released.  Verify that
+        //:   second object hasn't been changed.  (C-1..4)
         //
         // Testing:
         //   ManagedDatum& operator=(const ManagedDatum&);
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "ASSIGNMENT OPERATOR" << endl
-                                  << "===================" << endl;
+        if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
+                                  << "===========================" << endl;
 
-        // Allocator for object that is to be copy-assigned.
-        bslma::TestAllocator assignAlloc(false);
-        bslma::Allocator *aa(&assignAlloc);
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+        bslma::TestAllocator aa("assignment", veryVeryVeryVerbose);
 
-        enum DynamicMemory {
-            DYNAMIC_MEMORY__NO    = 0
-          , DYNAMIC_MEMORY__YES   = 1
-          , DYNAMIC_MEMORY__MAYBE = 2
-        };
+        if (verbose) cout << "\nTesting memory allocation." << endl;
+        {
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == aa.numBytesInUse());
 
-        struct AssignHelper {
-            Datum         d_obj;
-            string        d_message;
-            DynamicMemory d_dynamicMemory;
-        };
+            Obj mMDLeft(Datum::createInteger(1), &ta);
+            Obj mMDRight(Datum::copyString("A very long string", &aa), &aa);
 
-        const AssignHelper datumArray[] = {
-            {
-                Datum::createNull(),
-                "null",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createInteger(1),
-                "integer",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createBoolean(true),
-                "boolean",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createError(5),
-                "Error",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createDate(bdlt::Date(2010, 1, 5)),
-                "Date",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createTime(bdlt::Time(16, 45, 32, 12)),
-                "Time",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::copyString("Abc", aa),
-                "short string",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::copyString("Another long string", aa),
-                "long string",
-                DYNAMIC_MEMORY__YES
-            },
-            {
-                Datum::createDatetime(
-                               bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), aa),
-                "DateTime",
-                DYNAMIC_MEMORY__MAYBE
-            },
-            {
-                Datum::createDatetimeInterval(
-                               bdlt::DatetimeInterval(34, 16, 45, 32, 12), aa),
-                "DatetimeInterval",
-                DYNAMIC_MEMORY__MAYBE
-            },
-            {
-                Datum::createInteger64(9223372036854775807LL, aa),
-                "Int64",
-                DYNAMIC_MEMORY__MAYBE
-            },
-            {
-                Datum::createUdt(&udt, UDT_TYPE),
-                "user defined",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                Datum::createDouble(-3.14),
-                "double",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                createArray(aa),
-                "array",
-                DYNAMIC_MEMORY__YES
-            },
-            {
-                createEmptyArray(),
-                "array",
-                DYNAMIC_MEMORY__NO
-            },
-            {
-                createMap(aa),
-                "map",
-                DYNAMIC_MEMORY__YES
-            },
-            {
-                createEmptyMap(),
-                "map",
-                DYNAMIC_MEMORY__NO
-            }
-        };
-        const int SIZE  = sizeof(datumArray) / sizeof(AssignHelper);
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 != aa.numBytesInUse());
 
-        for (int i = 0; i < SIZE; ++i) {
+            const Int64 NUM_BYTES_IN_USE = aa.numBytesInUse();
 
-            bool hasDynamicMemory;
-            switch (datumArray[i].d_dynamicMemory) {
-              case DYNAMIC_MEMORY__NO: {
-                hasDynamicMemory = false;
+            mMDLeft = mMDRight;
 
-              } break;
-              case DYNAMIC_MEMORY__YES: {
-                hasDynamicMemory = true;
+            ASSERT(mMDLeft          == mMDRight);
+            ASSERT(true             == mMDRight->isString());
+            ASSERT(0                != ta.numBytesInUse());
+            ASSERT(NUM_BYTES_IN_USE == aa.numBytesInUse());
+        }
 
-              } break;
-              case DYNAMIC_MEMORY__MAYBE: {
-                // We trust the Datum::clone() does the right thing, because
-                // it must have been tested in the bdld_datum.t.  Therefore we
-                // can use the Datum::clone to detect if dynamic memory was
-                // allocated.
-                int na = assignAlloc.numAllocations();
-                bdld::Datum temp = datumArray[i].d_obj.clone(&assignAlloc);
-                hasDynamicMemory = na != assignAlloc.numAllocations();
-                bdld::Datum::destroy(temp, &assignAlloc);
+        if (verbose) cout << "\nTesting memory deallocation." << endl;
+        {
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == aa.numBytesInUse());
 
-              } break;
-              default:
-                ASSERT(!"unknown value");
-            }
+            Obj mMDLeft(Datum::copyString("A very long string", &ta), &ta);
+            Obj mMDRight(Datum::createInteger(1), &aa);
 
-            char idx = 'a';
-            PVV((i + 1) << ". Testing assignment with "
-                        << datumArray[i].d_message
-                        << " type ManagedDatum.");
+            ASSERT(0 != ta.numBytesInUse());
+            ASSERT(0 == aa.numBytesInUse());
 
-            PVVV('\t' << idx++
-                      << ". Create ManagedDatum with a string value.");
-            ManagedDatum obj(Datum::copyString("A long string constant", &ta),
-                             &ta);
+            mMDLeft = mMDRight;
 
-            PVVV('\t' << idx++
-                      << ". Assign a ManagedDatum with "
-                      << datumArray[i].d_message
-                      << " value and verify that the previous object "
-                      << "is destroyed.");
-            const ManagedDatum aObj(datumArray[i].d_obj, aa);
-
-            Int64 numCurrAllocs = ta.numAllocations();
-            const Int64 numCurrDeallocs = ta.numDeallocations();
-            const Int64 numAssignAllocs = assignAlloc.numAllocations();
-
-            obj = aObj;
-            LOOP_ASSERT(i, ta.numDeallocations() > numCurrDeallocs);
-            LOOP_ASSERT(i, assignAlloc.numAllocations() == numAssignAllocs);
-
-            if (hasDynamicMemory) {
-                LOOP_ASSERT(i, ta.numAllocations() > numCurrAllocs);
-            }
-            else {
-                LOOP_ASSERT(i, ta.numAllocations() == numCurrAllocs);
-            }
-
-            PVVV('\t' << idx++
-                      << ". Verify that both objects have the same value.");
-            LOOP_ASSERT(i, obj == aObj);
-
-            PVVV('\t' << idx++ << ". Test for self-assignment.");
-            numCurrAllocs = ta.numAllocations();
-            obj = obj;
-            LOOP_ASSERT(i, obj == aObj);
-            LOOP_ASSERT(i, ta.numAllocations() == numCurrAllocs);
+            ASSERT(mMDLeft == mMDRight);
+            ASSERT(true == mMDRight->isInteger());
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == aa.numBytesInUse());
         }
 
         ASSERT(0 == ta.status());
-        ASSERT(0 == assignAlloc.status());
-
+        ASSERT(0 == aa.status());
       } break;
       case 8: {
         //---------------------------------------------------------------------
-        // TESTING SWAP FUNCTION:
+        // TESTING MANIPULATORS
         //
         // Concerns:
-        //    The swap function should swap the corresponding (underlying)
-        //    'Datum' objects.
+        //: 1 The manipulators should destroy the existing 'Datum'
+        //:   object held onto by this 'Datum' object and release any
+        //:   dynamically allocated memory held inside the 'Datum'
+        //:   object.
+        //:
+        //: 2 A new 'Datum' object should be created out of the
+        //:   value passed to the manipulator.
+        //:
+        //: 3 Dynamic memory is allocated only when needed.
+        //:
+        //: 4 The currently stored allocator is used to allocate and release
+        //:   any memory.
+        //:
+        //: 5 Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //    Create 'Datum' object with a sufficiently long string value,
-        //    so as to trigger a dynamic memory allocation. Create 'Datum'
-        //    objects with each of the different types of values and swap
-        //    them with the first object and verify that the objects were
-        //    indeed swapped and there were no memory allocations or
-        //    deallocations (in the process). Swap these objects back and
-        //    verify that they in their original state. Display steps of
-        //    operation frequently in verbose mode.
+        //: 1 Create 'Datum' object with a sufficiently long string value,
+        //:   so as to trigger a dynamic memory allocation. Call manipulator.
+        //:   Confirm that previously held 'Datum' object is destroyed and its
+        //:   memory is released.  (C-1)
+        //:
+        //: 2 Use the basic accessors to verify that the type and value inside
+        //:   the 'Datum' objects are as expected.  (C-2)
+        //:
+        //: 3 Verify that memory allocations are as expected.  (C-3..4)
+        //:
+        //: 4 Finally destroy these objects and verify that no memory has
+        //:   leaked.  (C-4)
+        //:
+        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-5)
         //
         // Testing:
-        //   void swap(Datum&);
+        //   void makeNull();
+        //   void adopt(const Datum&);
+        //   void clone(const Datum& value);
+        //   Datum release();
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING SWAP FUNCION" << endl
+        if (verbose) cout << endl << "TESTING MANIPULATORS" << endl
                                   << "====================" << endl;
 
-        struct SwapHelper {
-            Datum  d_obj;
-            string d_message;
-        };
+        bslma::TestAllocator ta("test", veryVeryVerbose);
 
-        const SwapHelper datumArray[] = {
+        if (verbose) cout << "\nTesting 'makeNull'." << endl;
+        {
+            // Create 'ManagedDatum' with a string value.
+
+            Obj        mMD(Datum::copyString("A long string", &ta), &ta);
+            const Obj& MD = mMD;
+            // Call 'makeNull' and verify that the object is destroyed.
+
+            mMD.makeNull();
+            ASSERT(true == MD->isNull());
+        }
+
+        // Verify no memory was leaked.
+
+        ASSERT(0 == ta.status());
+
+        if (verbose) cout << "\nTesting adopting a Datum object." << endl;
+        {
+            // Create ManagedDatum with a string value.
+
+            Obj        mMD(Datum::copyString("A very long string", &ta), &ta);
+            const Obj& MD = mMD;
+
+            // Adopt a Datum object and verify that the previous object is
+            // destroyed and the new object is adopted and not copied.
+
+            const Datum D = Datum::copyString("Another very long string", &ta);
+            Int64       numDeallocs = ta.numDeallocations();
+            const Int64 numAllocs = ta.numAllocations();
+
+            mMD.adopt(D);
+
+            ASSERT(D           == MD.datum());
+            ASSERT(numDeallocs <= ta.numDeallocations());
+            ASSERT(numAllocs   == ta.numAllocations());
+        }
+
+        // Verify no memory was leaked.
+
+        ASSERT(0 == ta.status());
+
+        if (verbose) cout << "\nTesting cloning a Datum object." << endl;
+        {
+            // Create ManagedDatum with a string value.
+
+            Obj        mMD(Datum::copyString("A very long string", &ta), &ta);
+            const Obj& MD = mMD;
+
+            // Clone a Datum object and verify that the previous object is
+            // destroyed and the new object is copied.
+
+            const Datum D = Datum::copyString("Another very long string", &ta);
+            Int64       numDeallocs = ta.numDeallocations();
+            Int64       numAllocs = ta.numAllocations();
+
+            mMD.clone(D);
+
+            ASSERT(D           == MD.datum());
+            ASSERT(numDeallocs <= ta.numDeallocations());
+            ASSERT(numAllocs   <  ta.numAllocations());
+
+            Datum::destroy(D, &ta);
+        }
+
+        // Verify no memory was leaked.
+
+        ASSERT(0 == ta.status());
+
+        if (verbose) cout << "\nTesting releasing a Datum object." << endl;
+        {
+            // Create ManagedDatum with a string value.
+
+            Obj         mMD(Datum::copyString("A very long string", &ta), &ta);
+            const Obj&  MD = mMD;
+            const Datum DInternal = MD.datum();
+
+            // Call release on the object and verify that the previous value is
+            // returned and it is not destroyed.  Also verify that the object
+            // does not have any value.
+
+            const Int64 NUM_DEALLOCATIONS = ta.numDeallocations();
+
+            const Datum DResult = mMD.release();
+
+            ASSERT(true              == MD->isNull());
+            ASSERT(DInternal         == DResult);
+            ASSERT(NUM_DEALLOCATIONS == ta.numDeallocations());
+
+            // Destroy the released 'Datum' object.
+
+            Datum::destroy(DResult, &ta);
+        }
+
+        // Verify no memory was leaked.
+
+        ASSERT(0 == ta.status());
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            // Adopt an object already stored inside.
+
+            Obj        mMD(Datum::copyString("A very long string", &ta), &ta);
+            const Obj& MD = mMD;
+
+            ASSERT_SAFE_FAIL(mMD.adopt(MD.datum()));
+            ASSERT_SAFE_PASS(mMD.adopt(
+                                  Datum::copyString("Another very long string",
+                                  &ta)));
+        }
+        // Verify no memory was leaked.
+
+        ASSERT(0 == ta.status());
+      } break;
+      case 7: {
+        //---------------------------------------------------------------------
+        // TESTING SWAP FUNCTION
+        //
+        // Concerns:
+        //: 1 The 'swap' function should swap the corresponding (underlying)
+        //:   'Datum' objects.
+        //:
+        //: 2 The 'swap' function does't allocate any additional memory.
+        //
+        // Plan:
+        //: 1 Create 'Datum' object with a sufficiently long string value, so
+        //:   as to trigger a dynamic memory allocation. Create 'Datum' objects
+        //:   with each of the different types of values and swap them with the
+        //:   first object and verify that the objects were indeed swapped and
+        //:   there were no memory allocations or deallocations (in the
+        //:   process). Swap these objects back and verify that they in their
+        //:   original state. Display steps of operation frequently in verbose
+        //:   mode.  (C-1..2)
+        //
+        // Testing:
+        //   void swap(ManagedDatum& other);
+        //---------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SWAP FUNCTION" << endl
+                          << "=====================" << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+        bdlt::Date           udt;
+
+        const struct {
+            Datum  d_obj;      // object for exchange
+            string d_message;  // log message
+        } DATA[] = {
             {
                 Datum::createNull(),
                 "null"
@@ -959,17 +796,17 @@ int main(int argc, char *argv[])
                 "short string"
             },
             {
-                Datum::copyString("Another long string", &ta),
+                Datum::copyString("A very long string", &ta),
                 "long string"
             },
             {
                 Datum::createDatetime(
-                               bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta),
+                              bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta),
                 "DateTime"
             },
             {
                 Datum::createDatetimeInterval(
-                               bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta),
+                              bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta),
                 "DatetimeInterval"
             },
             {
@@ -986,1085 +823,764 @@ int main(int argc, char *argv[])
             },
             {
                 createArray(&ta),
-                "array",
+                "array"
             },
             {
                 createEmptyArray(),
-                "array",
+                "array"
             },
             {
                 createMap(&ta),
-                "map",
+                "map"
             },
             {
                 createEmptyMap(),
-                "map",
+                "map"
             }
         };
-        const int SIZE  = sizeof(datumArray) / sizeof(SwapHelper);
 
-        const char *str = "A very long string";
+        const int NUM_DATA = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
 
-        for (int i = 0; i < SIZE; ++i) {
-            char idx = 'a';
-            if (verbose) cout << "\n"
-                              << (i + 1)
-                              << ". Testing swap with "
-                              << datumArray[i].d_message
-                              << " type ManagedDatum."
-                              << endl;
+        for (int i = 0; i < NUM_DATA; ++i) {
 
-            if (verbose) cout << "\t"
-                              << idx++
-                              << ". Swap two ManagedDatum objects and verify that"
-                              << " there were no memory allocations or "
-                              << "deallocations."
-                              << endl;
-            ManagedDatum obj1(Datum::copyString(str, &ta), &ta);
-            ManagedDatum obj2(datumArray[i].d_obj, &ta);
+            if (veryVerbose) {
+                T_ P_(i) P(DATA[i].d_message)
+            }
+            const char* str = "Another very long string";
+            // Swap two ManagedDatum objects and verify that there were no
+            // memory allocations or deallocations.
+
+            Obj        mMD1(Datum::copyString(str, &ta),
+                            &ta);
+            const Obj& MD1 = mMD1;
+            Obj        mMD2(DATA[i].d_obj, &ta);
+            const Obj& MD2 = mMD2;
 
             const Int64 numCurrAllocs = ta.numAllocations();
             const Int64 numCurrDeallocs = ta.numDeallocations();
-            obj1.swap(obj2);
-            LOOP_ASSERT(i, ta.numAllocations() == numCurrAllocs);
-            LOOP_ASSERT(i, ta.numDeallocations() == numCurrDeallocs);
 
-            if (verbose) cout << "\t"
-                              << idx++
-                              << ". Verify that both objects have expected "
-                              << "values."
-                              << endl;
-            LOOP_ASSERT(i, obj2->isString() && str == obj2->theString());
-            LOOP_ASSERT(i, obj1.datum() == datumArray[i].d_obj);
+            mMD1.swap(mMD2);
 
-            if (verbose) cout << "\t"
-                              << idx++
-                              << ". Swap them back and verify the values."
-                              << endl;
-            obj2.swap(obj1);
-            LOOP_ASSERT(i, ta.numAllocations() == numCurrAllocs);
-            LOOP_ASSERT(i, ta.numDeallocations() == numCurrDeallocs);
-            LOOP_ASSERT(i, obj1->isString() && str == obj1->theString());
-            LOOP_ASSERT(i, obj2.datum() == datumArray[i].d_obj);
+            ASSERTV(i, numCurrAllocs == ta.numAllocations());
+            ASSERTV(i, numCurrDeallocs == ta.numDeallocations());
+
+            // Verify that both objects have expected values.
+
+            ASSERTV(i, MD2->isString() && str == MD2->theString());
+            ASSERTV(i, MD1.datum() == DATA[i].d_obj);
+
+           // Swap them back and verify the values.
+
+            mMD2.swap(mMD1);
+
+            ASSERTV(i, ta.numAllocations() == numCurrAllocs);
+            ASSERTV(i, ta.numDeallocations() == numCurrDeallocs);
+            ASSERTV(i, MD1->isString() && str == MD1->theString());
+            ASSERTV(i, DATA[i].d_obj == MD2.datum());
         }
 
         ASSERT(0 == ta.status());
-
-      } break;
-      case 7: {
-        //---------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR:
-        //
-        // Concerns:
-        //    'Datum' objects should be copy-constructed without affecting
-        //    passed in argument. Both the objects should compare equal. No
-        //    dynamic memory should be allocated when the object that is
-        //    copied does not have dynamically allocated memory. Memory should
-        //    should only be allocated from the passed in allocator (or the
-        //    default allocator, in case no allocator is passed) and the
-        //    allocator of the source object should not be used.
-        //
-        // Plan:
-        //    Create 'Datum' objects with different types of values. Create
-        //    other 'Datum' objects by copying the original ones. Verify
-        //    that both objects have the same value. Verify that no memory
-        //    was allocated when the copied object did not have any
-        //    dynamically allocated memory. Verify no memory was leaked on .
-        //    destruction. Verify that allocator of the source object is not
-        //    used and only the passed in allocator is used to allocate memory.
-        //
-        // Testing:
-        //   ManagedDatum(const ManagedDatum&, bslma::Allocator *);
-        //---------------------------------------------------------------------
-
-        if (verbose) cout << endl << "TESTING COPY CONSTRUCTOR" << endl
-                                  << "========================" << endl;
-
-        // Allocator for copy-construction of new objects.
-        bslma::TestAllocator copyAlloc;
-
-        struct CopyHelper {
-            Datum  d_obj;
-            string d_message;
-            bool   d_hasDynamicMemory;
-        };
-
-        const CopyHelper datumArray[] = {
-            {
-                Datum::createNull(),
-                "null",
-                false
-            },
-            {
-                Datum::createInteger(1),
-                "integer",
-                false
-            },
-            {
-                Datum::createBoolean(true),
-                "boolean",
-                false
-            },
-            {
-                Datum::createError(5),
-                "Error",
-                false
-            },
-            {
-                Datum::createDouble(-3.1416),
-                "regular double",
-                false
-            },
-            {
-                Datum::createDouble(k_DBL_INF),
-                "infinity double",
-                false
-            },
-            {
-                Datum::createDouble(k_DBL_QNAN2),
-                "NaN double",
-                false
-            },
-            {
-                Datum::createDate(bdlt::Date(2010, 1, 5)),
-                "Date",
-                false
-            },
-            {
-                Datum::createTime(bdlt::Time(16, 45, 32, 12)),
-                "Time",
-                false
-            },
-            {
-                Datum::copyString("Abc", &ta),
-                "short string",
-                false
-            },
-            {
-                Datum::copyString("This is a long string", &ta),
-                "long string",
-                true
-            },
-            {
-                Datum::createDatetime(
-                               bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta),
-                "DateTime",
-                true
-            },
-            {
-                Datum::createDatetimeInterval(
-                               bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta),
-                "DatetimeInterval",
-                true
-            },
-            {
-                Datum::createInteger64(9223372036854775807LL, &ta),
-                "Int64",
-                true
-            },
-            {
-                Datum::createUdt(&udt, UDT_TYPE),
-                "user defined",
-                false
-            },
-            {
-                createArray(&ta),
-                "array",
-                true
-            },
-            {
-                createEmptyArray(),
-                "array",
-                true
-            },
-            {
-                createMap(&ta),
-                "map",
-                true
-            },
-            {
-                createEmptyMap(),
-                "map",
-                true
-            }
-        };
-        const int SIZE  = sizeof(datumArray) / sizeof(CopyHelper);
-
-        for (int i = 0; i < SIZE; ++i) {
-            char idx = 'a';
-            if (verbose) cout << "\n"
-                              << (i + 1)
-                              << ". Copying ManagedDatum with a "
-                              << datumArray[i].d_message
-                              << " value."
-                              << endl;
-
-            if (verbose) cout << "\t"
-                              << idx++
-                              << ". Copy-construct a ManagedDatum."
-                              << endl;
-            const Int64 numCurrAllocs = ta.numAllocations();
-            ManagedDatum obj(datumArray[i].d_obj, &ta);
-            const ManagedDatum cObj(obj, &copyAlloc);
-
-            if (verbose) cout << "\t"
-                              << idx++
-                              << ". Verify that both objects have the same "
-                              << "value."
-                              << endl;
-            if (obj == obj) {
-                LOOP_ASSERT(i, cObj == obj);
-            }
-            else { // NaN
-                LOOP_ASSERT(i, cObj != obj);
-            }
-
-            if (datumArray[i].d_hasDynamicMemory) {
-                if (verbose) cout << "\t"
-                                  << idx++
-                                  << ". Verify that memory was allocated from"
-                                  << " the copy allocator while copying."
-                                  << endl;
-                ASSERT(ta.numAllocations() == numCurrAllocs);
-                ASSERT(0 != copyAlloc.numAllocations());
-            }
-            else {
-                if (verbose) cout << "\t"
-                                  << idx++
-                                  << ". Verify that no memory was allocated "
-                                  << "while copying."
-                                  << endl;
-                ASSERT(ta.numAllocations() == numCurrAllocs);
-                LOOP_ASSERT(i, 0 == copyAlloc.status());
-            }
-        }
-
-        ASSERT(0 == ta.status());
-        ASSERT(0 == copyAlloc.status());
 
       } break;
       case 6: {
         //---------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS:
+        // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //    Any variation in value or type of 'Datum' object must be
-        //    detected by the equality operators.
+        //: 1 Two objects compare equal if and only if their corresponding
+        //:   contained 'Datum' objects compare equal.
+        //:
+        //: 2 Comparison is symmetric.
+        //:
+        //: 3 Non-modifiable objects can be compared (i.e., objects or
+        //:   references providing only non-modifiable access).
+        //:
+        //: 4 The equality-comparison operators' signatures and return types
+        //:   are standard.
         //
         // Plan:
-        //    Create 'Datum' objects of different types. Also create
-        //    'Datum' objects of the same type but with subtle variations
-        //    in values. Verify the correctness of 'operator==' and
-        //    'operator!='.
+        //: 1 Create 'Datum' objects of different types. Also create 'Datum'
+        //:   objects of the same type but with subtle variations in values.
+        //:   Verify the correctness of 'operator==' and 'operator!='.
+        //:   (C-1..3)
+        //:
+        //: 2 Use the respective addresses of 'operator==' and 'operator!=' to
+        //:   initialize function pointers having the appropriate signatures
+        //:   and return types for the two homogeneous, free equality-
+        //:   comparison operators defined in this component.  (C-4)
         //
         // Testing:
         //   bool operator==(const ManagedDatum&, const ManagedDatum&);
         //   bool operator!=(const ManagedDatum&, const ManagedDatum&);
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Equality Operators" << endl
+        if (verbose) cout << endl << "TESTING EQUALITY OPERATORS" << endl
                                   << "==========================" << endl;
 
-        PVV("1. Create some ManagedDatum objects of different types.");
+        bslma::TestAllocator ta("test", veryVeryVerbose);
 
-        Obj datumArray[] = {
-            Obj(),
-            Obj(Datum::createInteger(0), &ta),
-            Obj(Datum::createInteger(1), &ta),
-            Obj(Datum::createBoolean(true), &ta),
-            Obj(Datum::createBoolean(false), &ta),
-            Obj(Datum::createError(0), &ta),
-            Obj(Datum::createError(1, "some error", &ta), &ta),
-            Obj(Datum::createDate(bdlt::Date(2010, 1, 5)), &ta),
-            Obj(Datum::createDate(bdlt::Date(1, 1, 1)), &ta),
-            Obj(Datum::createTime(bdlt::Time(16, 45, 32, 12)), &ta),
-            Obj(Datum::createTime(bdlt::Time(1, 1, 1, 1)), &ta),
-            Obj(Datum::createDatetime(
+        if (verbose) cout << "\nComparison testing." << endl;
+        {
+            // Creating data for comparison.
+
+            bdlt::Date udt;
+            bdlt::Date udt1;
+
+            const Obj datumArray[] = {
+                Obj(),
+                Obj(Datum::createInteger(0), &ta),
+                Obj(Datum::createInteger(1), &ta),
+                Obj(Datum::createBoolean(true), &ta),
+                Obj(Datum::createBoolean(false), &ta),
+                Obj(Datum::createError(0), &ta),
+                Obj(Datum::createError(1, "some error", &ta), &ta),
+                Obj(Datum::createDate(bdlt::Date(2010, 1, 5)), &ta),
+                Obj(Datum::createDate(bdlt::Date(1, 1, 1)), &ta),
+                Obj(Datum::createTime(bdlt::Time(16, 45, 32, 12)), &ta),
+                Obj(Datum::createTime(bdlt::Time(1, 1, 1, 1)), &ta),
+                Obj(Datum::createDatetime(
                         bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta),
-            Obj(Datum::createDatetime(
-                        bdlt::Datetime(1, 1, 1, 1, 1, 1, 1), &ta), &ta),
-            Obj(Datum::createDatetimeInterval(
+                Obj(Datum::createDatetime(
+                            bdlt::Datetime(1, 1, 1, 1, 1, 1, 1), &ta), &ta),
+                Obj(Datum::createDatetimeInterval(
                         bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta), &ta),
-            Obj(Datum::createDatetimeInterval(
-                        bdlt::DatetimeInterval(1, 1, 1, 1, 1), &ta), &ta),
-            Obj(Datum::createInteger64(9223372036854775807LL, &ta), &ta),
-            Obj(Datum::createInteger64(1229782938247303441LL, &ta), &ta),
-            Obj(Datum::copyString("A long string", &ta), &ta),
-            Obj(Datum::copyString("A very long string", &ta), &ta),
-            Obj(Datum::copyString("abc", &ta), &ta),
-            Obj(Datum::copyString("Abc", &ta), &ta),
-            Obj(Datum::createDouble(1.0), &ta),
-            Obj(Datum::createDouble(1.2345), &ta),
-            Obj(Datum::createDouble(-1.2346), &ta),
-            Obj(Datum::createDouble(k_DBL_MIN2), &ta),
-            Obj(Datum::createDouble(k_DBL_MAX2), &ta),
-            Obj(Datum::createDouble(k_DBL_INF), &ta),
-            Obj(Datum::createDouble(k_DBL_NEGINF), &ta),
-            // This test will take care of 0.0 as -0.0 == 0.0.
-            Obj(Datum::createDouble(k_DBL_NEGZERO), &ta),
-            Obj(Datum::createUdt(&udt, UDT_TYPE), &ta),
-            Obj(Datum::createUdt(&udt, 1), &ta),
-            Obj(Datum::createUdt(&udt1, UDT_TYPE), &ta),
-            // Treat NaNs specially as value == value is false for NaN.
-            Obj(Datum::createDouble(k_DBL_QNAN2), &ta),
-            Obj(Datum::createDouble(k_DBL_SNAN), &ta),
-            Obj(createArray(&ta), &ta),
-            Obj(createEmptyArray(), &ta),
-            Obj(createMap(&ta), &ta),
-            Obj(createEmptyMap(), &ta)
-        };
-        const int datumArraySize = sizeof(datumArray) / sizeof(*datumArray);
+                Obj(Datum::createDatetimeInterval(
+                            bdlt::DatetimeInterval(1, 1, 1, 1, 1), &ta), &ta),
+                Obj(Datum::createInteger64(9223372036854775807LL, &ta), &ta),
+                Obj(Datum::createInteger64(1229782938247303441LL, &ta), &ta),
+                Obj(Datum::copyString("A long string", &ta), &ta),
+                Obj(Datum::copyString("A very long string", &ta), &ta),
+                Obj(Datum::copyString("abc", &ta), &ta),
+                Obj(Datum::copyString("Abc", &ta), &ta),
+                Obj(Datum::createDouble(1.0), &ta),
+                Obj(Datum::createDouble(1.2345), &ta),
+                Obj(Datum::createDouble(-1.2346), &ta),
+                Obj(Datum::createDouble(k_DBL_MIN2), &ta),
+                Obj(Datum::createDouble(k_DBL_MAX2), &ta),
+                Obj(Datum::createDouble(k_DBL_INF), &ta),
+                Obj(Datum::createDouble(k_DBL_NEGINF), &ta),
 
-        if (verbose) cout << "\n2. Compare ManagedDatum objects" << endl;
-        for (int i = 0; i < datumArraySize; ++i) {
-            for (int j = 0; j < datumArraySize; ++j) {
-                if (i == j) {
-                    if (datumArray[i]->isDouble() &&
-                            datumArray[i]->theDouble() !=
-                                datumArray[i]->theDouble()) {
-                        LOOP2_ASSERT(i,
-                                     j,
-                                     datumArray[i] != datumArray[j]);
+                // This test will take care of 0.0 as -0.0 == 0.0.
+
+                Obj(Datum::createDouble(k_DBL_NEGZERO), &ta),
+                Obj(Datum::createUdt(&udt, UDT_TYPE), &ta),
+                Obj(Datum::createUdt(&udt, 1), &ta),
+                Obj(Datum::createUdt(&udt1, UDT_TYPE), &ta),
+
+                // Treat NaNs specially as value == value is false for NaN.
+
+                Obj(Datum::createDouble(k_DBL_QNAN2), &ta),
+                Obj(Datum::createDouble(k_DBL_SNAN), &ta),
+                Obj(createArray(&ta), &ta),
+                Obj(createEmptyArray(), &ta),
+                Obj(createMap(&ta), &ta),
+                Obj(createEmptyMap(), &ta)
+            };
+
+            const int datumArraySize = static_cast<int>(
+                                     sizeof(datumArray) / sizeof(*datumArray));
+
+            // Comparing ManagedDatum objects.
+
+            for (int i = 0; i < datumArraySize; ++i) {
+                for (int j = 0; j < datumArraySize; ++j) {
+                    if (i == j) {
+                        if (datumArray[i]->isDouble() &&
+                                datumArray[i]->theDouble() !=
+                                    datumArray[i]->theDouble()) {
+                            // Treat NaNs specially.
+
+                            ASSERTV(i, j, datumArray[i] != datumArray[j]);
+                            ASSERTV(i, j, datumArray[j] != datumArray[i]);
+
+                        }
+                        else {
+                            ASSERTV(i, j, datumArray[i] == datumArray[j]);
+                            ASSERTV(i, j, datumArray[j] == datumArray[i]);
+                        }
                     }
                     else {
-                        LOOP2_ASSERT(i,
-                                     j,
-                                     datumArray[i] == datumArray[j]);
+                        ASSERTV(i, j, datumArray[i] != datumArray[j]);
+                        ASSERTV(i, j, datumArray[j] != datumArray[i]);
                     }
-                }
-                else {
-                    LOOP2_ASSERT(i, j, datumArray[i] != datumArray[j]);
                 }
             }
         }
+        if (verbose) cout << "\nTesting operators format." << endl;
+        {
+            typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorEq = bdld::operator==;
+            operatorPtr operatorNe = bdld::operator!=;
+
+            (void)operatorEq;  // quash potential compiler warnings
+            (void)operatorNe;
+        }
       } break;
       case 5: {
-        //---------------------------------------------------------------------
-        // BASIC ACCESSORS:
+        // --------------------------------------------------------------------
+        // TESTING OTHER CONSTRUCTORS
         //
         // Concerns:
-        //    Confirm that we can invoke 'isXXX' functions (where XXX is a
-        //    particular type) on 'Datum' objects using 'operator->()', and
-        //    that they return 'true' for the correct type of 'Datum'
-        //    object and 'false' otherwise.
+        //: 1 The constructors bind object with passed allocator so it will be
+        //:   used to allocate all necessary dynamic memory.
+        //:
+        //: 2 The Constructors use default values if expected parameters aren't
+        //:   passed.
+        //:
+        //: 3 The constructors create a shallow copy of the passed 'Datum'
+        //:   value without affecting it.
+        //:
+        //: 4 The constructors create a deep copy of the passed 'ManagedDatum'
+        //:   value.
         //
         // Plan:
-        //    Create 'Datum' objects with each of the different creators.
-        //    Verify that the created 'Datum' objects are of the correct
-        //    type and are not of any other type also.
+        //: 1 Create several 'ManagedDatum' objects using different
+        //:   combinations of default and user-defined parameter values.
+        //:
+        //: 2 Verify that correct values are set up in created objects.
+        //:   (C-1..3)
+        //:
+        //: 3 Create 'ManagedDatum object'.  Create it's copy, using copy
+        //:   constructor.  Let the copy go out the scope.  Verify that origin
+        //:   object isn't affected.  (C-4)
         //
         // Testing:
+        //   ManagedDatum(bslma::Allocator *basicAllocator);
+        //   ManagedDatum(const Datum& value);
+        //   ManagedDatum(const ManagedDatum&, bslma::Allocator *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING OTHER CONSTRUCTORS" << endl
+                          << "==========================" << endl;
+
+        bslma::TestAllocator da("default", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+
+        if (verbose) cout << "\nTesting constructor with no arguments."
+                          << endl;
+        {
+            bslma::DefaultAllocatorGuard guard(&da);
+
+            Obj        mMD;
+            const Obj& MD = mMD;
+
+            // Check if object has a nil value.
+
+            ASSERT(true == MD.datum().isNull());
+
+            // Check if the right allocator has been tied with an object.
+
+            ASSERT(&da  == MD.allocator());
+
+            // Verify that no memory was allocated.
+
+            ASSERT(0 == da.status());
+        }
+
+        if (verbose) cout << "\nTesting constructor with allocator only."
+                          << endl;
+        {
+            bslma::DefaultAllocatorGuard guard(&da);
+
+            Obj        mMD(&ta);
+            const Obj& MD = mMD;
+
+            // Check if object has a nil value.
+
+            ASSERT(true == MD.datum().isNull());
+
+            // Check if the right allocator has been tied with an object.
+
+            ASSERT(&ta  == MD.allocator());
+
+            // Verify that no memory was allocated.
+
+            ASSERT(0 == ta.status());
+            ASSERT(0 == da.status());
+        }
+
+        if (verbose) cout <<
+             "\nTesting constructor with 'Datum' object and default allocator."
+                          << endl;
+        {
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            {
+                bslma::DefaultAllocatorGuard guard(&da);
+
+                const Datum D = Datum::copyString("A very long string", &da);
+                Obj         mMD(D);
+                const Obj&  MD = mMD;
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+
+                bslma::TestAllocator ada("another default",
+                                         veryVeryVeryVerbose);
+                {
+                    // Another default allocator and 'ManagedDatum' object.
+
+                    bslma::DefaultAllocatorGuard guard(&ada);
+
+                    const Datum DA = Datum::copyString("A very long string",
+                                                       &ada);
+                    Obj         mMDA(DA);
+                    const Obj&  MDA = mMDA;
+
+                    ASSERT(true                 == DA.isString());
+                    ASSERT("A very long string" == DA.theString());
+                    ASSERT(DA                   == MDA.datum());
+                    ASSERT(&ada                 == MDA.allocator());
+                }
+
+                // Other than another 'ManagedDatum' object.
+
+                const Datum DOta = Datum::copyString("A very long string",
+                                                     &da);
+                Obj         mMDOta(DOta);
+                const Obj&  MDOta = mMDOta;
+
+                ASSERT(0    != da.numBytesInUse());
+                ASSERT(0    == ada.numBytesInUse());
+                ASSERT(DOta == MDOta.datum());
+                ASSERT(&da  == MDOta.allocator());
+            }
+            ASSERT(0 == da.numBytesInUse());
+        }
+
+        if (verbose) cout <<
+                           "\nTesting copy constructor with default allocator."
+                          << endl;
+        {
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            {
+                bslma::DefaultAllocatorGuard guard(&da);
+
+                const Datum D = Datum::copyString("A very long string", &da);
+                Obj         mMD(D);
+                const Obj&  MD = mMD;
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+
+                const Int64 NUM_BYTES_IN_USE = da.numBytesInUse();
+
+                bslma::TestAllocator ada("another default",
+                                         veryVeryVeryVerbose);
+                {
+                    // Another default allocator and 'ManagedDatum' object.
+
+                    bslma::DefaultAllocatorGuard guard(&ada);
+
+                    Obj         mMDCopy(MD);
+                    const Obj&  MDCopy = mMDCopy;
+
+                    ASSERT(true                 == D.isString());
+                    ASSERT("A very long string" == D.theString());
+                    ASSERT(MD.datum()           == MDCopy.datum());
+                    ASSERT(&ada                 == MDCopy.allocator());
+                    ASSERT(NUM_BYTES_IN_USE     == da.numBytesInUse());
+
+                    // Let the object go out the scope to call destructor.
+                }
+
+                // Verify that copy destruction doesn't affect origin object.
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+            }
+            ASSERT(0 == da.numBytesInUse());
+        }
+
+        if (verbose) cout <<
+                      "\nTesting copy constructor with user-defined allocator."
+                          << endl;
+        {
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&da);
+            {
+                const Datum D = Datum::copyString("A very long string", &da);
+                Obj         mMD(D);
+                const Obj&  MD = mMD;
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+
+                const Int64 NUM_BYTES_IN_USE = da.numBytesInUse();
+
+                {
+                   // Creating copy of 'ManagedDatum' object with user-defined
+                   // allocator.
+
+                    ASSERT(0   == ta.numBytesInUse());
+
+                    Obj         mMDCopy(MD, &ta);
+                    const Obj&  MDCopy = mMDCopy;
+
+                    ASSERT(true                 == D.isString());
+                    ASSERT("A very long string" == D.theString());
+                    ASSERT(MD.datum()           == MDCopy.datum());
+                    ASSERT(&ta                  == MDCopy.allocator());
+                    ASSERT(0                    != ta.numBytesInUse());
+                    ASSERT(NUM_BYTES_IN_USE     == da.numBytesInUse());
+
+                    // Let the object go out the scope to call destructor.
+                }
+
+                // Verify that copy destruction doesn't affect origin object.
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+            }
+            ASSERT(0 == ta.numBytesInUse());
+            ASSERT(0 == da.numBytesInUse());
+        }
+      } break;
+      case 4: {
+        //---------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //
+        // Concerns:
+        //: 1 'datum' method returns a constant reference to the 'Datum' object
+        //:    held inside this object.
+        //:
+        //: 2 'allocator' method returns a pointer providing modifiable access
+        //:   to the allocator associated with this 'ManagedDatum'.
+        //:
+        //: 3 Dereference operator returns a pointer providing non-modifiable
+        //:   access to the 'Datum' object held inside this object.
+        //:
+        //: 4 Indirection operator returns a reference providing non-modifiable
+        //:   access to the 'Datum' object held inside this object.
+        //
+        // Plan:
+        //: 1 Create 'ManagedDatum' object and verify that held Datum object
+        //    and associated allocator are accessible through tested methods.
+        //:   (C-1..4)
+        //
+        // Testing:
+        //   const Datum& datum() const;
+        //   bslma::Allocator *allocator() const;
         //   const Datum *operator->() const;
+        //   const Datum& operator*() const;
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl << "BASIC ACCESSORS" << endl
                                   << "===============" << endl;
 
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+
+        if (verbose) cout << "\nTesting 'datum'" << endl;
         {
-            PVV("1. Testing isNull()");
+            Datum intDatum = Datum::createInteger(1);
+            Obj        mMD(intDatum, &ta);
+            const Obj& MD = mMD;
 
-            PVVV("\ta. Create ManagedDatum with a nil value.");
-            const Obj obj;
-
-            PVVV("\tb. Check if object has only a nil value.");
-            ASSERT(obj->isNull());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
+            ASSERT(intDatum == MD.datum());
         }
 
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\nTesting 'allocator'" << endl;
         {
-            PVV("2. Testing isInteger()");
+            Obj        mMD(Datum::createInteger(1), &ta);
+            const Obj& MD = mMD;
 
-            PVVV("\ta. Create ManagedDatum with an integer value.");
-            const Obj obj(Datum::createInteger(1), &ta);
-
-            PVVV("\tb. Check if object has only an integer value.");
-            ASSERT(obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
+            ASSERT(&ta == MD.allocator());
         }
 
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\nTesting 'operator->'" << endl;
         {
-            PVV("3. Testing isBoolean()");
+            Obj        mMD(Datum::createInteger(1), &ta);
+            const Obj& MD = mMD;
 
-            PVVV("\ta. Create ManagedDatum with a boolean value.");
-            const Obj obj(Datum::createBoolean(true), &ta);
-
-            PVVV("\tb. Check if object has only a boolean value.");
-            ASSERT(obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
+            ASSERT(Datum::e_INTEGER == MD->type());
+            ASSERT(true             == MD->isInteger());
+            ASSERT(1                == MD->theInteger());
         }
 
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\nTesting 'operator*'" << endl;
         {
-            PVV("4. Testing isError()");
+            Obj        mMD(Datum::createInteger(1), &ta);
+            const Obj& MD = mMD;
 
-            PVVV("\ta. Create ManagedDatum with an Error value.");
-            const Obj obj(Datum::createError(5, "some error", &ta), &ta);
+            // copy constructor
 
-            PVVV("\tb. Check if object has only an Error value");
-            ASSERT(obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
+            Datum firstCopy(*MD);
+            ASSERT(Datum::e_INTEGER == firstCopy.type());
+            ASSERT(true             == firstCopy.isInteger());
+            ASSERT(1                == firstCopy.theInteger());
+
+            // assignment
+
+            Datum secondCopy;
+            ASSERT(Datum::e_INTEGER != secondCopy.type());
+
+            secondCopy = *MD;
+            ASSERT(Datum::e_INTEGER == secondCopy.type());
+            ASSERT(true             == secondCopy.isInteger());
+            ASSERT(1                == secondCopy.theInteger());
         }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("5. Testing isDate()");
-
-            PVVV("\ta. Create ManagedDatum with a Date value.");
-            const Obj obj(Datum::createDate(bdlt::Date(2010, 1, 5)), &ta);
-
-            PVVV("\tb. Check if object has only a date value.");
-            ASSERT(obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("6. Testing isTime()");
-
-            PVVV("\ta. Create ManagedDatum with a Time value.");
-            const Obj obj(Datum::createTime(bdlt::Time(16, 45, 32, 12)), &ta);
-
-            PVVV("\tb. Check if object has only a time value.");
-            ASSERT(obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("7. Testing isDatetime()");
-
-            PVVV("\ta. Create ManagedDatum with a date+time value.");
-            const Obj obj(Datum::createDatetime(
-                         bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta);
-
-            PVVV("\tb. Check if object has only a date+time value.");
-            ASSERT(obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("8. Testing isDatetimeInterval()");
-
-            PVVV("\ta. Create Datum with a date+time interval value.");
-            const Obj obj(Datum::createDatetimeInterval(
-                         bdlt::DatetimeInterval(34, 16, 45, 32, 12), &ta), &ta);
-
-            PVVV("\tb. Check if object has only a date+time interval value.");
-            ASSERT(obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVVV("9. Testing isInteger64()");
-
-            PVVV("\a. Create ManagedDatum with an Int64 value.");
-            const Obj obj(Datum::createInteger64(9223372036854775807LL, &ta),
-                          &ta);
-
-            PVVV("\tb. Check if object has only an Int64 value.");
-            ASSERT(obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        PVV("10. Testing isString()");
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\ta. Create ManagedDatum with a long string value.");
-            const Obj obj(Datum::copyString("A long string", &ta), &ta);
-
-            PVVV("\tb. Check if object has only a string value.");
-            ASSERT(obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\td. Create ManagedDatum with a short string value.");
-            const Obj obj(Datum::copyString("abc", &ta), &ta);
-
-            PVVV("\te. Check if object has only a string value.");
-            ASSERT(obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        PVV("11. Testing isDouble()");
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\ta. Create ManagedDatum with the minimum double value.");
-            const Obj obj(Datum::createDouble(k_DBL_MIN2), &ta);
-
-            PVVV("\tb. Check if object has only a double value.");
-            ASSERT(obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\tc. Create ManagedDatum with the maximum double value.");
-            const Obj obj(Datum::createDouble(k_DBL_MAX2), &ta);
-
-            PVVV("\td. Check if object has only a double value.");
-            ASSERT(obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\te. Create ManagedDatum with the double value of infinity.");
-            const Obj obj(Datum::createDouble(k_DBL_INF), &ta);
-
-            PVVV("\tf. Check if object has only a double value");
-            ASSERT(obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-        {
-            PVVV("\tk. Create ManagedDatum with the double value of quiet NaN.");
-            const Obj obj(Datum::createDouble(k_DBL_QNAN2), &ta);
-
-            PVVV("\tl. Check if object has only a double value.");
-            ASSERT(obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("12. Testing isUdt()");
-
-            PVVV("\ta. Create ManagedDatum with a user defined object");
-            const Obj obj(Datum::createUdt(&udt, UDT_TYPE), &ta);
-
-            PVVV("\tb. Check if object has only a user defined object");
-            ASSERT(obj->isUdt());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("13. Testing isArray()");
-
-            PVVV("\ta. Create ManagedDatum with an array value.");
-            const Obj obj(createArray(&ta), &ta);
-
-            PVVV("\tb. Check if object has only an array value.");
-            ASSERT(obj->isArray());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-            ASSERT(!obj->isMap());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        {
-            PVV("14. Testing isMap()");
-
-            PVVV("\ta. Create ManagedDatum with a map value.");
-            const Obj obj(createMap(&ta), &ta);
-
-            PVVV("\tb. Check if object has only a map value.");
-            ASSERT(obj->isMap());
-            ASSERT(!obj->isArray());
-            ASSERT(!obj->isUdt());
-            ASSERT(!obj->isDouble());
-            ASSERT(!obj->isString());
-            ASSERT(!obj->isInteger64());
-            ASSERT(!obj->isDatetimeInterval());
-            ASSERT(!obj->isDatetime());
-            ASSERT(!obj->isTime());
-            ASSERT(!obj->isDate());
-            ASSERT(!obj->isError());
-            ASSERT(!obj->isBoolean());
-            ASSERT(!obj->isInteger());
-            ASSERT(!obj->isNull());
-        }
-
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING TEST APPARATUS:
-        //    Nothing to test.
-        // --------------------------------------------------------------------
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS:
+        // TESTING TEST APPARATUS
         //
         // Concerns:
-        //    The manipulators should destroy the existing 'Datum'
-        //    object held onto by this 'Datum' object and release any
-        //    dynamically allocated memory held inside the 'Datum'
-        //    object. A new 'Datum' object should be created out of the
-        //    value passed to the manipulator. Dynamic memory should be only
-        //    allocated when needed. The currently stored allocator should be
-        //    used to allocate any memory. Assigning the value of an object to
-        //    that same object should be the same as assigning a different
-        //    value to that object.
+        //: 1 All auxiliary functions create expected objects.
         //
         // Plan:
-        //    Create 'Datum' object with a sufficiently long string value,
-        //    so as to trigger a dynamic memory allocation. Assign each of the
-        //    different types of values. Confirm that previously held
-        //    'Datum' object is destroyed and its memory is released.
-        //    Use the basic accessors to verify that the type and value inside
-        //    the 'Datum' objects is as expected. Verify that memory
-        //    allocations are as expected. Finally destroy these objects and
-        //    verify that no memory was leaked. Verify that assigning the value
-        //    of an object to that same object triggers destruction of
-        //    previously held object. Display steps of operation frequently in
-        //    verbose mode.
+        //: 1 Call all auxiliary and verify their results.  (C-1)
         //
         // Testing:
-        //   void adopt(const Datum&);
-        //   void copy(const Datum&);
-        //   Datum release();
-        //   void makeNull();
+        //   TEST APPARATUS
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl << "TESTING TEST APPARATUS" << endl
+                                  << "======================" << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVerbose);
+
+        if (verbose) cout << "\nTesting 'createArray'." << endl;
+        {
+            Datum array = createArray(&ta);
+            ASSERT(true == array.isArray());
+
+            DatumArrayRef arrayRef = array.theArray();
+            ASSERT(6 == arrayRef.length());
+
+            ASSERT(true == arrayRef[0].isInteger());
+            ASSERT(true == arrayRef[1].isDouble());
+            ASSERT(true == arrayRef[2].isString());
+            ASSERT(true == arrayRef[3].isString());
+            ASSERT(true == arrayRef[4].isDate());
+            ASSERT(true == arrayRef[5].isDatetime());
+
+            Datum::destroy(array, &ta);
+        }
+
+        if (verbose) cout << "\nTesting 'createEmptyArray'." << endl;
+        {
+            Datum array = createEmptyArray();
+            ASSERT(true == array.isArray());
+
+            DatumArrayRef arrayRef = array.theArray();
+            ASSERT(0 == arrayRef.length());
+
+            Datum::destroy(array, &ta);
+        }
+
+        if (verbose) cout << "\nTesting 'createMap'." << endl;
+        {
+            Datum map = createMap(&ta);
+            ASSERT(true  == map.isMap());
+
+            DatumMapRef mapRef = map.theMap();
+            ASSERT(6     == mapRef.size());
+            ASSERT(false == mapRef.isSorted());
+
+            ASSERT(true  == mapRef[0].value().isInteger());
+            ASSERT(true  == mapRef[1].value().isDouble());
+            ASSERT(true  == mapRef[2].value().isString());
+            ASSERT(true  == mapRef[3].value().isString());
+            ASSERT(true  == mapRef[4].value().isDate());
+            ASSERT(true  == mapRef[5].value().isDatetime());
+
+            Datum::destroy(map, &ta);
+        }
+
+        if (verbose) cout << "\nTesting 'createEmptyMap'." << endl;
+        {
+            Datum map = createEmptyMap();
+
+            ASSERT(true  == map.isMap());
+
+            DatumMapRef mapRef = map.theMap();
+
+            ASSERT(0     == mapRef.size());
+            ASSERT(false == mapRef.isSorted());
+
+            Datum::destroy(map, &ta);
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS
+        //
+        // Concerns:
+        //: 1 The constructor creates a shallow copy of the passed 'Datum'
+        //:   value.
+        //:
+        //: 2 The constructor binds object with passed allocator so it will be
+        //:   used to allocate all necessary dynamic memory.
+        //:
+        //: 3 The destructor triggers a deallocation of any dynamically
+        //:    allocated memory.
+        //:
+        //: 4 Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create a 'ManagedDatum' object and verify that 'Datum' object,
+        //:   held inside, is equal to the passed one.  (C-1)
+        //:
+        //: 2 Verify, that object stores reference to the passed allocator.
+        //:   (C-2)
+        //:
+        //: 3 Create a 'ManagedDatum' object.  Let it go out the scope.  Verify
+        //:   that all allocated memory (even on held 'Datum' object creation)
+        //:   is released.  (C-3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
+        //
+        // Testing:
+        //   ManagedDatum(const Datum&, bslma::Allocator *);
+        //   ~ManagedDatum();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PRIMARY MANIPULATORS" << endl
                                   << "====================" << endl;
 
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        bslma::TestAllocator ta("test", veryVeryVerbose);
 
-        PVV("1. Testing 'makeNull'.");
+
+        if (verbose) cout << "\nTesting constructor." << endl;
         {
-            PVVV("\ta. Create 'ManagedDatum' with a string value.");
-            Obj obj(Datum::copyString("A long string", &ta), &ta);
+            // Create ManagedDatum with a Datum value.
 
-            PVVV("\tb. Call 'makeNull' and verify that the object is destroyed.");
-            obj.makeNull();
-            ASSERT(0 == ta.status());
-            ASSERT(obj->isNull());
-        }
-        if (verbose) cout << "\tc. Verify no memory was leaked." << endl;
-        ASSERT(0 == ta.status());
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("2. Testing adopting a Datum object.");
-        {
-            PVVV("\ta. Create ManagedDatum with a string value.");
-            Obj obj(Datum::copyString("A long string", &ta), &ta);
-
-            PVVV("\tb. Adopt a Datum object and verify "
-                 "that the previous object is destroyed and "
-                 "the new object is adopted and not copied.");
-            const Datum rcObj = Datum::copyString("This is a string", &ta);
-            Int64 numDeallocs = ta.numDeallocations();
-            const Int64 numAllocs = ta.numAllocations();
-            obj.adopt(rcObj);
-            ASSERT(numDeallocs <= ta.numDeallocations());
-            ASSERT(numAllocs == ta.numAllocations());
-            ASSERT(obj.datum() == rcObj);
-
-            PVVV("\tc. Adopt object already stored inside and "
-                 "verify the state of the object.");
-            numDeallocs = ta.numDeallocations();
-            obj.adopt(obj.datum());
-            ASSERT(numDeallocs == ta.numDeallocations());
-            ASSERT(obj.datum() == rcObj);
-        }
-        PVVV("\td. Verify no memory was leaked.");
-        ASSERT(0 == ta.status());
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("3. Testing copying a Datum object.");
-        {
-            PVVV("\ta. Create ManagedDatum with a string value.");
-            Obj obj(Datum::copyString("A long string", &ta), &ta);
-
-            PVVV("\tb. Copy a Datum object and verify "
-                 "that the previous object is destroyed and "
-                 "the new object is copied.");
-            const Datum rcObj = Datum::copyString("This is a string",
-                                                          &ta);
-            Int64 numDeallocs = ta.numDeallocations();
-            Int64 numAllocs = ta.numAllocations();
-            obj.clone(rcObj);
-            ASSERT(numDeallocs <= ta.numDeallocations());
-            ASSERT(numAllocs < ta.numAllocations());
-            ASSERT(obj.datum() == rcObj);
-
-            PVVV("\tc. Copy object already stored inside and "
-                 "verify the state of the object.");
-            numDeallocs = ta.numDeallocations();
-            numAllocs = ta.numAllocations();
-            obj.adopt(obj.datum());
-            ASSERT(numDeallocs == ta.numDeallocations());
-            ASSERT(numAllocs == ta.numAllocations());
-            ASSERT(obj.datum() == rcObj);
-
-            Datum::destroy(rcObj, &ta);
-        }
-        PVVV("\td. Verify no memory was leaked.");
-        ASSERT(0 == ta.status());
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("4. Testing releasing a Datum object.");
-        {
-            PVVV("\ta. Create ManagedDatum with a string value.");
-            Obj obj(Datum::copyString("A long string", &ta), &ta);
-            const Datum internalObj = obj.datum();
-
-            PVVV("\tb. Call release on the object and verify "
-                 "that the previous value is returned and it "
-                 "is not destroyed. Also verify that the "
-                 "object does not have any value.");
-            const Int64 numDeallocs = ta.numDeallocations();
-            const Datum rcObj = obj.release();
-            ASSERT(internalObj == rcObj);
-            ASSERT(numDeallocs == ta.numDeallocations());
-            ASSERT(obj.datum().isNull());
-
-            PVVV("\tc. Destroy the released 'Datum' object.");
-            Datum::destroy(rcObj, &ta);
-        }
-        PVVV("\td. Verify no memory was leaked.");
-        ASSERT(0 == ta.status());
-
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // CREATORS:
-        //
-        // Concerns:
-        //    The constructors should correctly forward the passed in fields
-        //    to the underlying 'Datum' and thus create 'datumArray'
-        //    having the correct type and holding the correct value. Dynamic
-        //    memory should be only allocated when needed. If no allocator is
-        //    passed in, the currently installed default allocator should be
-        //    used to allocate any dynamically allocated memory. The destructor
-        //    should trigger a deallocation of any dynamically allocated
-        //    memory.
-        //
-        // Plan:
-        //    Create 'Datum' objects with each of the different
-        //    constructors using different values of the same type. Use the
-        //    basic accessors to verify that the type and value inside the
-        //    'Datum' objects is as expected. Verify that memory
-        //    allocations are as expected. Finally destroy these objects and
-        //    verify that no memory was leaked. Display steps of operation
-        //    frequently in verbose mode.
-        //
-        // Testing:
-        //   ManagedDatum(bslma::Allocator *);
-        //   ManagedDatum(const Datum&, bslma::Allocator *);
-        //   ~ManagedDatum();
-        //   const Datum& datum() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "CREATORS" << endl
-                                  << "========" << endl;
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("1. Testing constructor with no arguments.")
-        {
-            PVVV("\ta. Create ManagedDatum with a nil value.");
-            const ManagedDatum obj(&ta);
-
-            PVV("\tb. Check if object has a nil value.")
-            ASSERT(obj.datum().isNull());
-
-            PVV("\tc. Verify that no memory was allocated.")
-            ASSERT(0 == ta.status());
-        }
-
-        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        PVV("2. Testing constructor with Datum argument.")
-        {
-            PVVV("\ta. Create ManagedDatum with a Datum value.")
-            const Datum rcObj =
-                Datum::copyString("A long string", &ta);
+            const Datum D = Datum::copyString("A very long string", &ta);
             const Int64 numCurrBytesInUse = ta.numBytesInUse();
-            const ManagedDatum obj(rcObj, &ta);
 
-            PVVV("\tb. Check if object has the same Datum value.")
-            ASSERT(rcObj == obj.datum());
+            Obj         mMD(D, &ta);
+            const Obj&  MD = mMD;
 
-            PVVV("\tc. Verify that no memory was allocated.")
+            // Check if object has the same Datum value.
+
+            ASSERT(D == MD.datum());
+
+            // Check if the right allocator has been tied with an object.
+
+            ASSERT(&ta == MD.allocator());
+
+            //Verify that no memory was allocated.
+
             ASSERT(numCurrBytesInUse == ta.numBytesInUse());
         }
 
+        if (verbose) cout << "\nTesting destructor." << endl;
+        {
+            ASSERT(0 == ta.numBytesInUse());
+
+            // Create ManagedDatum with a Datum value.
+
+            {
+                const Datum D = Datum::copyString("A very long string", &ta);
+
+                ASSERT(0  != ta.numBytesInUse());
+
+                Obj         mMD(D, &ta);
+                const Obj&  MD = mMD;
+
+                // Check if the right allocator has been tied with an object.
+
+                ASSERT(&ta == MD.allocator());
+
+                // Let the object go out the scope to call destructor.
+            }
+            //Verify that all memory was deallocated.
+
+            ASSERT(0  == ta.numBytesInUse());
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_FAIL(Obj(Datum::createInteger(1),
+                                 static_cast<bslma::Allocator *>(0)));
+            ASSERT_SAFE_PASS(Obj(Datum::createInteger(1), &ta));
+        }
+
+        ASSERT(0    == ta.numBytesInUse());
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //
         // Concerns:
-        //    Exercise a broad cross-section of full value-semantic
-        //    functionality before beginning testing in earnest. Probe the
-        //    functionality systematically and incrementally to discover
-        //    basic errors in isolation.
+        //: 1 Exercise a broad cross-section of full value-semantic
+        //:   functionality before beginning testing in earnest. Probe the
+        //:   functionality systematically and incrementally to discover
+        //:   basic errors in isolation.
         //
         // Plan:
-        //    Create 'Datum' objects with integer, string and double
-        //    values. Verify that they have the correct type of value and the
-        //    correct value stored in them. Compare all the 'Datum'
-        //    objects. Assign a string value to the 'Datum' object holding
-        //    integer value. Now assign an integer value to the 'Datum'
-        //    object holding a string value and verify that no memory was
-        //    leaked. Create a 'Datum' object with a date+time value. Copy
-        //    construct another object from it. Verify both objects are equal.
-        //    Destroy all the objects and verify that no memory was leaked.
+        //: 1 Create 'Datum' objects with integer, string and double
+        //:   values. Verify that they have the correct type of value and the
+        //:   correct value stored in them. Compare all the 'Datum'
+        //:   objects. Assign a string value to the 'Datum' object holding
+        //:   integer value. Now assign an integer value to the 'Datum'
+        //:   object holding a string value and verify that no memory was
+        //:   leaked. Create a 'Datum' object with a date+time value. Copy
+        //:   construct another object from it. Verify both objects are equal.
+        //:   Destroy all the objects and verify that no memory was leaked.
+        //:   (C-1)
         //
         // Testing:
-        //     This test case exercises basic full value-semantic
-        //     functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVerbose);
         {
-            PVV("1. Create few ManagedDatum objects.");
-            Obj obj1(Datum::createInteger(5), &ta);
-            Obj obj2(Datum::copyString("This is a string", &ta), &ta);
-            const Obj obj3(Datum::createDouble(5.0), &ta);
+            // Create few ManagedDatum objects.
 
-            PVV("2. Verify that the objects are of correct "
-                "type and have the correct value.");
-            ASSERT(obj1->isInteger());
-            ASSERT(5 == obj1->theInteger());
-            ASSERT(obj2->isString());
-            ASSERT("This is a string" == obj2->theString());
-            ASSERT(obj3->isDouble());
-            ASSERT(5.0 == obj3->theDouble());
+            Obj        mMD1(Datum::createInteger(5), &ta);
+            const Obj& MD1 = mMD1;
+            Obj        mMD2(Datum::copyString("This is a string", &ta), &ta);
+            const Obj& MD2 = mMD2;
+            Obj        mMD3(Datum::createDouble(5.0), &ta);
+            const Obj& MD3 = mMD3;
+            // Verify that the objects are of correct type and have the correct
+            // value.
 
-            PVV("3. Compare these objects.");
-            ASSERT(obj1 != obj3);
-            ASSERT(obj1 != obj2);
+            ASSERT(MD1->isInteger());
+            ASSERT(5 == MD1->theInteger());
+            ASSERT(MD2->isString());
+            ASSERT("This is a string" == MD2->theString());
+            ASSERT(MD3->isDouble());
+            ASSERT(5.0 == MD3->theDouble());
 
-            PVV("4. Assign different values to existing "
-                "objects and verify no memory is leaked.");
-            obj1.adopt(Datum::copyString("This is a string", &ta));
-            ASSERT(obj1 == obj2);
+            // Compare these objects.
+
+            ASSERT(MD1 != MD3);
+            ASSERT(MD1 != MD2);
+
+            // Assign different values to existing objects and verify no memory
+            // is leaked.
+
+            mMD1.adopt(Datum::copyString("This is a string", &ta));
+            ASSERT(MD1 == MD2);
             const Int64 numCurrBytesInUse = ta.numBytesInUse();
-            obj2.adopt(Datum::createInteger(5));
+            mMD2.adopt(Datum::createInteger(5));
             ASSERT(ta.numBytesInUse() < numCurrBytesInUse);
 
-            PVV("5. Copy construct an object. Verify it is"
-                " equal to the existing object.");
-            const Obj obj4(Datum::createDatetime(
-                         bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta);
-            const Obj obj5(obj4, &ta);
-            ASSERT(obj4 == obj5);
+            //Copy construct an object. Verify it is equal to the existing
+            //object.
+
+            Obj        mMD4(Datum::createDatetime(
+                        bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12), &ta), &ta);
+            const Obj& MD4 = mMD4;
+            Obj        mMD5(MD4, &ta);
+            const Obj& MD5 = mMD5;
+
+            ASSERT(MD4 == MD5);
         }
-        PVV("6. Verify that no memory was leaked.");
+        // Verify that no memory was leaked.
         ASSERT(0 == ta.status());
 
       } break;
@@ -2074,13 +1590,13 @@ int main(int argc, char *argv[])
       }
     }
 
-    for (int i = 0; i < arraySize; ++i) {
-        Datum::destroy(array[i], &arrayAlloc);
-    }
+    // CONCERN: In no case does memory come from the default allocator.
 
-    for (int i = 0; i < mapSize; ++i) {
-        Datum::destroy(map[i].value(), &mapAlloc);
-    }
+    ASSERT(dam.isTotalSame());
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERT(gam.isTotalSame());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
