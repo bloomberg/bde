@@ -1,5 +1,8 @@
 bdld_datum
 bdld_datumarraybuilder
+bdld_datumbinaryref
+bdld_datumerror
 bdld_datummapbuilder
 bdld_datummapowningkeysbuilder
+bdld_datumudt
 bdld_manageddatum

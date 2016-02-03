@@ -1,14 +1,12 @@
 // bdld_datumarraybuilder.cpp                                         -*-C++-*-
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$ $CSID$")
-
 #include <bdld_datumarraybuilder.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdld_datumarraybuilder_cpp,"$Id$ $CSID$")
+
 #include <bdld_datum.h>
 #include <bsls_assert.h>
-
+#include <bsl_cstring.h>
 #include <bsl_memory.h>
 
 namespace BloombergLP {
@@ -41,7 +39,7 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
     return capacity;
 }
 
-static void createArrayStorage(DatumArrayRef          *array,
+static void createArrayStorage(DatumMutableArrayRef   *array,
                                bsls::Types::size_type  capacity,
                                bslma::Allocator       *basicAllocator)
     // Load the specified 'array' with a reference to newly created datum array
@@ -60,24 +58,13 @@ static void createArrayStorage(DatumArrayRef          *array,
                           // -----------------------
 
 // CREATORS
-DatumArrayBuilder::DatumArrayBuilder(bslma::Allocator *basicAllocator)
-: d_capacity(0)
-, d_allocator_p(basicAllocator)
-{
-    BSLS_ASSERT(basicAllocator);
-    // Do not create a datum array.  Defer this to the first call to
-    // 'pushBack' or 'append'.
-}
-
 DatumArrayBuilder::DatumArrayBuilder(SizeType          initialCapacity,
                                      bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)
-, d_allocator_p(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT(basicAllocator);
-
-    // Do not create a datum array, if 'initialCapacity' is 0.  Defer it to the
-    // first call to 'pushBack' or 'append'.
+    // If 'initialCapacity' is 0, defer allocation of the array storage until
+    // the first call to 'pushBack' or 'append'.
     if (initialCapacity) {
         createArrayStorage(&d_array, d_capacity, d_allocator_p);
     }
@@ -94,13 +81,7 @@ DatumArrayBuilder::~DatumArrayBuilder()
 }
 
 // MANIPULATORS
-void DatumArrayBuilder::pushBack(const Datum& value)
-{
-    append(&value, 1);
-}
-
-void DatumArrayBuilder::append(const Datum *values,
-                               SizeType     length)
+void DatumArrayBuilder::append(const Datum *values, SizeType length)
 {
     BSLS_ASSERT(0 == d_capacity || 0 != d_array.data());
 
@@ -111,16 +92,13 @@ void DatumArrayBuilder::append(const Datum *values,
 
     // If the initial capacity was zero, create an array with the new capacity.
     if (!d_capacity) {
+        createArrayStorage(&d_array, newCapacity, d_allocator_p);
         d_capacity = newCapacity;
-        createArrayStorage(&d_array, d_capacity, d_allocator_p);
     }
     else if (d_capacity < newCapacity) {
-        // Capacity has to be increased.
-        d_capacity = newCapacity;
-
         // Create a new array with the higher capacity.
-        DatumArrayRef array;
-        createArrayStorage(&array, d_capacity, d_allocator_p);
+        DatumMutableArrayRef array;
+        createArrayStorage(&array, newCapacity, d_allocator_p);
 
         // Copy the existing data and dispose the old array.
         *array.length() = *d_array.length();
@@ -128,7 +106,9 @@ void DatumArrayBuilder::append(const Datum *values,
                     d_array.data(),
                     sizeof(Datum) * (*d_array.length()));
         Datum::disposeUninitializedArray(d_array, d_allocator_p);
+
         d_array = array;
+        d_capacity = newCapacity;
     }
 
     // Copy the new elements.
@@ -141,9 +121,14 @@ void DatumArrayBuilder::append(const Datum *values,
 Datum DatumArrayBuilder::commit()
 {
     Datum result = Datum::adoptArray(d_array);
-    d_array = DatumArrayRef();
+    d_array = DatumMutableArrayRef();
     d_capacity = 0;
     return result;
+}
+
+void DatumArrayBuilder::pushBack(const Datum& value)
+{
+    append(&value, 1);
 }
 
 // ACCESSORS
@@ -152,8 +137,8 @@ DatumArrayBuilder::SizeType DatumArrayBuilder::capacity() const
     return d_capacity;
 }
 
-}  // close bdld namespace
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

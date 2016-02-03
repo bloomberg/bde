@@ -10,20 +10,19 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a utility to build 'Datum' object holding an array.
 //
 //@CLASSES:
-//   DatumArrayBuilder: utility to build an array of 'Datum' objects
-//
-//@AUTHOR: Rishi Wani (pwani)
+//  bdld::DatumArrayBuilder: utility to build 'Datum' object holding an array
 //
 //@SEE ALSO: bdld_datum
 //
-//@DESCRIPTION: This component provides a utility 'class' to build 'Datum'
-// object holding an array of 'Datum' objects.  This 'class' is especially
-// useful when the length of the array to be constructed is not known in
-// advance.  The user can append elements to the datum array.  When the length
-// of the datum array exceeds its capacity, the datum array grows.  The user
-// can indicate that it does not have more elements to append, and the datum
-// array is then adopted into a 'Datum' object and returned to the user.  The
-// user should not try to append any more elements to the datum array then.
+//@DESCRIPTION: This component defines an utility class
+// 'bdld::DatumArrayBuilder' to build 'Datum' object holding an array of
+// 'Datum' objects.  This class is especially useful when the length of the
+// array to be constructed is not known in advance.  The user can append
+// elements to the datum array.  When the length of the datum array exceeds its
+// capacity, the datum array grows.  The user can indicate that it does not
+// have more elements to append, and the datum array is then adopted into a
+// 'Datum' object and returned to the user.  The user should not try to append
+// any more elements to the datum array then.
 //
 ///Usage
 ///-----
@@ -59,7 +58,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return nextIndex;
 //  }
 //
-//  Datum convertToDatum(const bsl::string& value,
+//  Datum convertToDatum(const bsl::string&  value,
 //                       bslma::Allocator   *basicAllocator);
 //      // Convert the specified 'value' into the appropriate type of scalar
 //      // value and then create and return a 'Datum' object using that value.
@@ -154,6 +153,22 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datum.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -175,14 +190,14 @@ class DatumArrayBuilder {
   public:
     // TYPES
     typedef bsls::Types::size_type SizeType;
-        // 'SizeType' is an alias for a signed value, representing the capacity
-        // or length of a datum array.
+        // 'SizeType' is an alias for an unsigned integral value, representing
+        // the capacity or length of a datum array.
 
   private:
     // DATA
-    DatumArrayRef     d_array;        // mutable access to the datum array
-    SizeType          d_capacity;     // capacity of the datum array
-    bslma::Allocator *d_allocator_p;  // allocator for memory
+    DatumMutableArrayRef  d_array;        // mutable access to the datum array
+    SizeType              d_capacity;     // capacity of the datum array
+    bslma::Allocator     *d_allocator_p;  // allocator for memory
 
   private:
     // NOT IMPLEMENTED
@@ -190,20 +205,17 @@ class DatumArrayBuilder {
     DatumArrayBuilder& operator=(const DatumArrayBuilder&);
 
   public:
-    // CREATORS
-    explicit DatumArrayBuilder(bslma::Allocator *basicAllocator);
-        // Create a 'DatumArrayBuilder' object.  Note that this holds a copy of
-        // the specified 'basicAllocator' pointer, but does not allocate any
-        // memory.  A datum array will be created and memory will be allocated
-        // when pushBack/append is called.  The behavior is undefined unless
-        // '0 != basicAllocator'.
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayBuilder,
+                                   bslma::UsesBslmaAllocator);
 
-    DatumArrayBuilder(SizeType          initialCapacity,
-                      bslma::Allocator *basicAllocator);
-        // Create a 'DatumArrayBuilder' object. This constructor creates a
-        // datum array having the specified 'initialCapacity' using the
-        // specified 'basicAllocator'.  The behavior is undefined unless
-        // '0 < initialCapacity' and '0 != basicAllocator'.
+    // CREATORS
+    explicit DatumArrayBuilder(SizeType          initialCapacity = 0,
+                               bslma::Allocator *basicAllocator  = 0);
+        // Create a 'DatumArrayBuilder' object having the optionally specified
+        // 'initialCapacity' and optionally specified 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently-installed
+        // default allocator is used.
 
     ~DatumArrayBuilder();
         // Destroy this object.  If this object is holding a datum array that
@@ -211,15 +223,6 @@ class DatumArrayBuilder {
         // destroying each of its elements.
 
     // MANIPULATORS
-    void pushBack(const Datum& value);
-        // Append the specified 'value' to the end of the held datum array.  If
-        // the datum array is full, a new datum array with larger capacity is
-        // allocated and any previous datum array is disposed after copying its
-        // elements.  The behavior is undefined if 'value' needs dynamic memory
-        // and it was allocated using a different allocator than the one used
-        // to construct this object.  The behavior is also undefined if
-        // 'commit' has already been called on this object.
-
     void append(const Datum *values, SizeType length);
         // Append the specified array 'values' having the specified 'length' to
         // the end of the held datum array.  Note that if the datum array is
@@ -238,14 +241,23 @@ class DatumArrayBuilder {
         // appended.  It is undefined behavior to call any method of this
         // object, other than the destructor, after 'commit' has been called.
 
+    void pushBack(const Datum& value);
+        // Append the specified 'value' to the end of the held datum array.  If
+        // the datum array is full, a new datum array with larger capacity is
+        // allocated and any previous datum array is disposed after copying its
+        // elements.  The behavior is undefined if 'value' needs dynamic memory
+        // and it was allocated using a different allocator than the one used
+        // to construct this object.  The behavior is also undefined if
+        // 'commit' has already been called on this object.
+
     // ACCESSORS
     SizeType capacity() const;
-        // Return the capacity.  The behavior is undefined if 'commit' has
-        // already been called on this object.
+        // Return the capacity of the held datum array.  The behavior is
+        // undefined if 'commit' has already been called on this object.
 };
 
-}  // close bdld namespace
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

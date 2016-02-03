@@ -1,15 +1,16 @@
 // bdld_datummapowningkeysbuilder.cpp                                 -*-C++-*-
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$ $CSID$")
-
 #include <bdld_datummapowningkeysbuilder.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdld_datummapowningkeysbuilder.cpp,"$Id$ $CSID$")
+
 #include <bdld_datum.h>
+#include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsl_algorithm.h>
 #include <bsl_memory.h>
+#include <bsl_cstring.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace bdld {
@@ -18,12 +19,13 @@ namespace {
 
 static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
                                              bsls::Types::size_type size)
-    // Calculate the new capacity needed to accommodate data/keys having
-    // the specified 'size' for the datum-key-owning map having the specified
+    // Calculate the new capacity needed to accommodate data/keys having the
+    // specified 'size' for the datum-key-owning map having the specified
     // 'capacity' as its capacity/'keys-capacity'.
 {
-    // Maximum size/keys-size of map that is supported. Half is reserved
-    // for the data section of the map and half for the keys section.
+    // Maximum size/keys-size of map that is supported. Half is reserved for
+    // the data section of the map and half for the keys section.
+    //
     static const bsl::size_t MAX_BYTES    = ~bsl::size_t(0) / 4;
     static const bsl::size_t MAX_MAP_SIZE = MAX_BYTES / sizeof(DatumMapEntry);
 
@@ -31,31 +33,33 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
         capacity = MAX_MAP_SIZE;
     }
     else {
-        capacity += !capacity; // get to 1 from 0 (no op afterwards)
+        capacity += !capacity;    // get to 1 from 0 (no op afterwards)
         while (capacity < size) { // get higher than 1
             capacity *= 2;
         }
     }
 
     // Verify capacity at outer size limits.
+
     BSLS_ASSERT(capacity >= size);
 
     return capacity;
 }
 
-static void createMapStorage(DatumMapOwningKeysRef  *mapping,
-                             bsls::Types::size_type  capacity,
-                             bsls::Types::size_type  keysCapacity,
-                             bslma::Allocator       *basicAllocator)
+static void createMapStorage(DatumMutableMapOwningKeysRef *mapping,
+                             bsls::Types::size_type        capacity,
+                             bsls::Types::size_type        keysCapacity,
+                             bslma::Allocator             *basicAllocator)
     // Load the specified 'mapping' with a reference to newly created
     // datum-key-owning map having the specified 'capacity' and 'keysCapacity'
     // using the specified 'basicAllocator'.
 {
-    Datum::createUninitializedMapOwningKeys(mapping,
-                                            capacity,
-                                            keysCapacity,
-                                            basicAllocator);
+    Datum::createUninitializedMap(mapping,
+                                  capacity,
+                                  keysCapacity,
+                                  basicAllocator);
     // Initialize the memory.
+
     bsl::uninitialized_fill_n(mapping->data(), capacity, DatumMapEntry());
     bsl::uninitialized_fill_n(mapping->keys(), keysCapacity, char());
 }
@@ -78,37 +82,41 @@ static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 
 }  // close unnamed namespace
 
-                      // -------------------------------
-                      // class DatumMapOwningKeysBuilder
-                      // -------------------------------
+                       // -------------------------------
+                       // class DatumMapOwningKeysBuilder
+                       // -------------------------------
+// TRAITS
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapOwningKeysBuilder>::value);
 
 // CREATORS
 DatumMapOwningKeysBuilder::DatumMapOwningKeysBuilder(
-                                             bslma::Allocator *basicAllocator)
+                                              bslma::Allocator *basicAllocator)
 : d_capacity(0)
 , d_keysCapacity(0)
 , d_sorted(false)
 , d_allocator_p(basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
+
     // Do not create a datum map.  Defer this to the first call to 'pushBack'
     // or 'append'.
 }
 
 DatumMapOwningKeysBuilder::DatumMapOwningKeysBuilder(
-                                        SizeType          initialCapacity,
-                                        SizeType          initialKeysCapacity,
-                                        bslma::Allocator *basicAllocator)
+                                         SizeType          initialCapacity,
+                                         SizeType          initialKeysCapacity,
+                                         bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)
 , d_keysCapacity(initialKeysCapacity)
 , d_sorted(false)
 , d_allocator_p(basicAllocator)
 {
-    BSLS_ASSERT(basicAllocator);
+    BSLS_ASSERT(0 != basicAllocator);
 
     // Do not create a datum map, if 'initialCapacity' and
     // 'initialKeysCapacity' are both 0.  Defer this to the first call to
     // 'pushBack' or 'append'.
+
     if (initialCapacity && initialKeysCapacity) {
         createMapStorage(&d_mapping,
                          d_capacity,
@@ -123,26 +131,18 @@ DatumMapOwningKeysBuilder::~DatumMapOwningKeysBuilder()
         for (SizeType i = 0; i < *d_mapping.size(); ++i) {
             Datum::destroy(d_mapping.data()[i].value(), d_allocator_p);
         }
-        Datum::disposeUninitializedMapOwningKeys(d_mapping,
-                                                 d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
     }
 }
 
 // MANIPULATORS
-void DatumMapOwningKeysBuilder::pushBack(const bslstl::StringRef& key,
-                                         const Datum&             value)
-{
-    DatumMapEntry entry(key, value);
-    append(&entry, 1);
-}
-
 void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
                                        SizeType             size)
 {
-    BSLS_ASSERT((0 == d_capacity && 0 == d_keysCapacity)
-                || 0 != d_mapping.data());
+    BSLS_ASSERT(0 != entries && 0 != size);
 
     // Get the new map capacity.
+
     SizeType newCapacity = d_capacity ?
                          getNewCapacity(d_capacity, *d_mapping.size() + size) :
                          getNewCapacity(d_capacity, size);
@@ -161,6 +161,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
     }
 
     // Get the new keys-capacity for the map.
+
     SizeType newKeysCapacity = d_keysCapacity ?
               getNewCapacity(d_keysCapacity,
                              totalSizeOfCurrentKeys + totalSizeOfNewKeys) :
@@ -168,6 +169,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
 
     // If the initial capacity was zero, create an empty map with the new
     // capacities.
+
     if (!d_capacity && !d_keysCapacity) {
         d_capacity = newCapacity;
         d_keysCapacity = newKeysCapacity;
@@ -178,44 +180,55 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
         *d_mapping.sorted() = d_sorted;
     }
 
-    // Either of the two capacities or both have to be increased.
+    // Either one of the two capacities or both have to be increased.
+
     if (newCapacity != d_capacity || newKeysCapacity != d_keysCapacity) {
         // Capacity(s) has to be increased.
+
         d_capacity = newCapacity;
         d_keysCapacity = newKeysCapacity;
 
         // Create a new map with the higher capacity(s).
-        DatumMapOwningKeysRef mapping;
+
+        DatumMutableMapOwningKeysRef mapping;
+
         createMapStorage(&mapping, d_capacity, d_keysCapacity, d_allocator_p);
 
-        // Copy the existing data and dispose the old map.
-        // Copy all the keys in a single operation.
+        // Copy the existing data and dispose the old map.  Copy all the keys
+        // in a single operation.
+
         bsl::memcpy(mapping.keys(), d_mapping.keys(), totalSizeOfCurrentKeys);
 
         *mapping.size() = *d_mapping.size();
 
         char *keyBegin = mapping.keys();
         for (SizeType i = 0; i < *mapping.size(); ++i) {
-            bslstl::StringRef key(keyBegin,
-                                  d_mapping.data()[i].key().length());
-            const Datum value = d_mapping.data()[i].value();
+            const int KEY_LENGTH =
+                          static_cast<int>(d_mapping.data()[i].key().length());
+            bslstl::StringRef key(keyBegin, KEY_LENGTH);
+            const Datum       value = d_mapping.data()[i].value();
             mapping.data()[i] = DatumMapEntry(key, value);
+
             // Determine the position where the next key was inserted by
             // computing the size of the current key.
+
             keyBegin += key.length();
         }
 
-        Datum::disposeUninitializedMapOwningKeys(d_mapping, d_allocator_p);
+        Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
         d_mapping = mapping;
     }
 
     // Copy the new elements.
+
     char *nextKeyPos = d_mapping.keys() + totalSizeOfCurrentKeys;
     for (SizeType i = 0; i < size; ++i) {
         bsl::memcpy(nextKeyPos,
                     entries[i].key().data(),
                     entries[i].key().length());
-        bslstl::StringRef newKey(nextKeyPos, entries[i].key().length());
+
+        bslstl::StringRef newKey(nextKeyPos,
+                                 static_cast<int>(entries[i].key().length()));
         d_mapping.data()[*d_mapping.size() + i] =
                                      DatumMapEntry(newKey, entries[i].value());
         nextKeyPos += entries[i].key().length();
@@ -226,6 +239,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
 Datum DatumMapOwningKeysBuilder::commit()
 {
     // Make sure the map is sorted.
+
     BSLS_ASSERT_SAFE(!d_capacity ||
                      !*d_mapping.sorted() ||
                      bsl::adjacent_find(d_mapping.data(),
@@ -233,11 +247,18 @@ Datum DatumMapOwningKeysBuilder::commit()
                                         compareGreater)
                          == d_mapping.data() + *d_mapping.size());
 
-    Datum result = Datum::adoptMapOwningKeys(d_mapping);
-    d_mapping = DatumMapOwningKeysRef();
+    Datum result = Datum::adoptMap(d_mapping);
+    d_mapping = DatumMutableMapOwningKeysRef();
     d_capacity = 0;
     d_keysCapacity = 0;
     return result;
+}
+
+void DatumMapOwningKeysBuilder::pushBack(const bslstl::StringRef& key,
+                                         const Datum&             value)
+{
+    DatumMapEntry entry(key, value);
+    append(&entry, 1);
 }
 
 void DatumMapOwningKeysBuilder::setSorted(bool value)
@@ -261,20 +282,8 @@ Datum DatumMapOwningKeysBuilder::sortAndCommit()
     return commit();
 }
 
-// ACCESSORS
-DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::capacity() const
-{
-    return d_capacity;
-}
-
-DatumMapOwningKeysBuilder::SizeType DatumMapOwningKeysBuilder::keysCapacity()
-                                                                          const
-{
-    return d_keysCapacity;
-}
-
-}  // close bdld namespace
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

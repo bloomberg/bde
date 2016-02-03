@@ -10,178 +10,93 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a utility to build a 'Datum' object holding map.
 //
 //@CLASSES:
-//   DatumMapBuilder: utility to build map of 'Datum' objects
-//
-//@AUTHOR: Rishi Wani (pwani)
+//  bdld::DatumMapBuilder: utility to build map of 'Datum' objects
 //
 //@SEE ALSO: bdld_datum, bdld_datummapref
 //
-//@DESCRIPTION: This component provides a utility 'class' to build a 'Datum'
-// object holding a map of 'Datum' objects that is keyed by string keys.  This
-// 'class' is especially useful when the size of the map to be constructed is
-// not known in advance.  The user can append elements to the datum map.  When
-// the size of the datum map exceeds its capacity, the datum map grows.  The
-// user can indicate that it does not have more elements to append (by calling
-// 'commit'), and the datum map is then adopted into a 'Datum' object and
-// returned to the user.  The user should not try to append any more elements
-// to the datum map then.  The user can indicate that the elements need to be
-// sorted (by keys) by calling 'sortAndCommit' and the elements will be sorted
-// before the map is adopted into a 'Datum' object.  The user can also insert
-// elements in a sorted order and tag the map as sorted.  It is undefined
-// behavior to tag the map as sorted unless all of the elements are added in
-// ascending order.
-//
+//@DESCRIPTION: This component provides a utility 'bdld::DatumMapBuilder' to
+// build a 'Datum' object holding a map of 'Datum' objects that is keyed by
+// string keys.  This 'class' is especially useful when the size of the map to
+// be constructed is not known in advance.  The user can append elements to the
+// datum map.  When the size of the datum map exceeds its capacity, the datum
+// map grows.  The user can indicate that it does not have more elements to
+// append (by calling 'commit'), and the datum map is then adopted into a
+// 'Datum' object and returned to the user.  The user should not try to append
+// any more elements to the datum map then.  The user can indicate that the
+// elements need to be sorted (by keys) by calling 'sortAndCommit' and the
+// elements will be sorted before the map is adopted into a 'Datum' object.
+// The user can also insert elements in a sorted order and tag the map as
+// sorted.  It is undefined behavior to tag the map as sorted unless all of the
+// elements are added in ascending order.
 //
 ///Usage
 ///-----
-// Suppose we receive a string that is constructed by streaming multiple key
-// and value pairs together in the format shown below:
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// Suppose we need a map for some personal data.  And the values in that map
+// can be different types.   The following code illustrates how to use
+// 'bdld::DatumMapBuilder' to create such map easily.
+//
+// First, we need data to fill our map:
 //..
-//  "(first,2.34),(second,4),(third,hi there),(fourth,true)"
+//  bslma::TestAllocator ta("test", veryVeryVerbose);
+//
+//  DatumMapEntry bartData[] = {
+//      DatumMapEntry(StringRef("firstName"),
+//                    Datum:: createStringRef("Bart", &ta)),
+//      DatumMapEntry(StringRef("lastName"),
+//                    Datum:: createStringRef("Simpson", &ta)),
+//      DatumMapEntry(StringRef("sex"), Datum::createStringRef("male", &ta)),
+//      DatumMapEntry(StringRef("age"), Datum::createInteger(10))
+//  };
+//
+//  const size_t DATA_SIZE  = sizeof(bartData) / sizeof(DatumMapEntry);
 //..
-// Notice that the values are separated by a ','.  Also note that a ',' is not
-// allowed to be part of a string value to simplify the implementation of the
-// utility that parses this string.  The following code snippets illustrate how
-// to create a 'Datum' object that holds a map of 'Datum' objects constructed
-// using the streamed values.
+// Next, we create an object of 'DatumMapBuilder' class with initial capacity
+// sufficient for storing all our data:
 //..
-//  bsl::size_t nextEntry(bsl::string        *key,
-//                        bsl::string        *value,
-//                        const bsl::string&  input);
-//     // Extract the next key and value pair from a list of comma separated
-//     // entries in the specified 'input' string.  Load the key into the
-//     // specified 'key' and value in the specified 'value'. Return the index
-//     // of the next entry within 'input'.
-//
-//  bsl::size_t nextEntry(bsl::string        *key,
-//                        bsl::string        *value,
-//                        const bsl::string&  input)
-//  {
-//      if (input.empty() || input[0] != '(') {
-//        return bsl::string::npos;                                   // RETURN
-//    }
-//
-//    const bsl::size_t start = 0;
-//    const bsl::size_t nextIndex = input.find(')', start);
-//    if (bsl::string::npos == nextIndex) {
-//        return bsl::string::npos;                                   // RETURN
-//    }
-//
-//    const bsl::size_t keyIndex = start + 1;
-//    const bsl::size_t valueIndex = input.find(',', keyIndex);
-//    if (valueIndex >= nextIndex) {
-//        return bsl::string::npos;                                   // RETURN
-//    }
-//
-//    *key = input.substr(keyIndex, valueIndex - keyIndex);
-//    *value = input.substr(valueIndex + 1, nextIndex - valueIndex - 1);
-//    return nextIndex == (input.size() - 1) ?
-//                                bsl::string::npos : nextIndex + 1;
-//    }
+//  DatumMapBuilder builder(DATA_SIZE, &ta);
+//..
+// Then, we load our builder with these data:
+//..
+//  for (size_t i = 0; i < DATA_SIZE; ++i) {
+//      builder.pushBack(bartData[i].key(), bartData[i].value());
 //  }
+//..
+// Next, we adopt the map, held by our builder, by newly created 'Datum'
+// object:
+//..
+//  Datum bart = builder.commit();
+//..
+// Now, we can check that all data have been correctly added to the map at the
+// required order:
+//..
+//  assert(true == bart.isMap());
+//  assert(DATA_SIZE == bart.theMap().size());
 //
-//  Datum convertToDatum(const bsl::string&  value,
-//                       bslma::Allocator   *basicAllocator);
-//      // Convert the specified 'value' into the appropriate type of scalar
-//      // value and then create and return a 'Datum' object using that value.
-//      // Use the specified 'basicAllocator' to allocate memory.
+//  assert("firstName" == bart.theMap()[0].key());
+//  assert(true        == bart.theMap()[0].value().isString());
+//  assert("Bart"      == bart.theMap()[0].value().theString());
 //
-//  Datum convertToDatum(const bsl::string&  value,
-//                       bslma::Allocator   *basicAllocator)
-//  {
-//      bool isInteger = true;
-//      bool isDouble = false;
-//      bool isBoolean = false;
-//      for (int i = 0; i < value.size(); ++i) {
-//          if (!isdigit(value[i])) {
-//              if ('.' == value[i] && !isDouble) {
-//                  isDouble = true;
-//                  isInteger = false;
-//                  continue;
-//              }
-//              isInteger = false;
-//              isDouble = false;
-//              break;
-//          }
-//      }
+//  assert("lastName"  == bart.theMap()[1].key());
+//  assert(true        == bart.theMap()[1].value().isString());
+//  assert("Simpson"   == bart.theMap()[1].value().theString());
 //
-//      if (!isInteger && !isDouble) {
-//          if ("true" == value || "false" == value) {
-//              isBoolean = true;
-//          }
-//      }
+//  assert("sex"       == bart.theMap()[2].key());
+//  assert(true        == bart.theMap()[2].value().isString());
+//  assert("male"      == bart.theMap()[2].value().theString());
 //
-//      if (isInteger) { // integer value
-//          return Datum::createInteger(atoi(value.c_str()));
-//      }
-//      else if (isDouble) { // double value
-//          return Datum::createDouble(atof(value.c_str()));
-//      }
-//      else if (isBoolean) { // boolean value
-//          return Datum::createBoolean(
-//              "true" == value ? true : false);
-//      }
-//      else { // string value
-//          return Datum::copyString(value, basicAllocator);
-//      }
-//  }
-//
-//  // Create a test allocator.
-//  bslma::TestAllocator defaultAlloc(1);
-//  bslma::Allocator *alloc = &defaultAlloc;
-//
-//  const bsl::string input(
-//      "(first,2.34),(second,4),(third,hi there),(fourth,true)", alloc);
-//
-//  // Create a builder object.
-//  DatumMapBuilder builder(alloc);
-//
-//  bsl::string str(input, alloc);
-//  bsl::vector<const char *> keys(alloc);
-//
-//  bsl::string key;
-//  bsl::string value;
-//  int numEntries = 0;
-//  bsl::size_t nextIndex;
-//  do {
-//      nextIndex = nextEntry(&key, &value, str);
-//      char *keyCopy = new char[key.size()];
-//      strncpy(keyCopy, key.c_str(), key.size());
-//      keys.push_back(keyCopy);
-//      builder.pushBack(bslstl::StringRef(keys[numEntries],
-//                                         bsl::strlen(keys[numEntries])),
-//                       convertToDatum(value, alloc));
-//      ++numEntries;
-//      if (bsl::string::npos == nextIndex) {
-//          break;
-//      }
-//      str = str.substr(nextIndex + 1);
-//  } while (bsl::string::npos != nextIndex);
-//
-//  Datum result = builder.commit();
-
-//  assert(result.isMap());
-//  assert(numEntries == result.theMap().size());
-//  assert(keys[0] == bsl::string(result.theMap()[0].key()));
-//  assert(result.theMap()[0].value().isDouble());
-//  assert(2.34 == result.theMap()[0].value().theDouble());
-//  assert(keys[1] == bsl::string(result.theMap()[1].key()));
-//  assert(result.theMap()[1].value().isInteger());
-//  assert(4 == result.theMap()[1].value().theInteger());
-//  assert(keys[2] == bsl::string(result.theMap()[2].key()));
-//  assert(result.theMap()[2].value().isString());
-//  assert("hi there" == result.theMap()[2].value().theString());
-//  assert(keys[3] == bsl::string(result.theMap()[3].key()));
-//  assert(result.theMap()[3].value().isBoolean());
-//  assert(true == result.theMap()[3].value().theBoolean());
-//
-//  // Destroy the 'Datum' object.
-//  Datum::destroy(result, alloc);
-//
-//  // Destroy the keys.
-//  for (int i = 0; i < keys.size(); ++i) {
-//      delete[] const_cast<char *>(keys[i]);
-//  }
+//  assert("age"       == bart.theMap()[3].key());
+//  assert(true        == bart.theMap()[3].value().isInteger());
+//  assert(10          == bart.theMap()[3].value().theInteger());
+//..
+// Finally, we destroy the 'Datum' object to release all allocated memory
+// correctly:
+//..
+//  Datum::destroy(bart, &ta);
+//  assert(0 == ta.numBytesInUse());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -190,6 +105,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -213,14 +132,15 @@ class DatumMapBuilder {
   public:
     // TYPES
     typedef bsls::Types::size_type SizeType;
-        // 'SizeType' is an alias for a signed value, representing the capacity
-        // or size of a datum map.
+        // 'SizeType' is an alias for a unsigned integral value, representing
+        // the capacity or size of a datum map.
+
   private:
     // DATA
-    DatumMapRef       d_mapping;      // mutable access to the datum map
-    SizeType          d_capacity;     // capacity of the datum map
-    bool              d_sorted;       // underlying map is sorted or not
-    bslma::Allocator *d_allocator_p;  // allocator for memory
+    DatumMutableMapRef  d_mapping;      // mutable access to the datum map
+    SizeType            d_capacity;     // capacity of the datum map
+    bool                d_sorted;       // underlying map is sorted or not
+    bslma::Allocator   *d_allocator_p;  // allocator for memory
 
   private:
     // NOT IMPLEMENTED
@@ -229,19 +149,12 @@ class DatumMapBuilder {
 
   public:
     // CREATORS
-    explicit DatumMapBuilder(bslma::Allocator *basicAllocator);
-        // Create a 'DatumMapBuilder' object.  Note that this holds a copy of
-        // the specified 'basicAllocator' pointer, but does not allocate any
-        // memory.  A datum map will be created and memory will be allocated
-        // when pushBack/append is called.  The behavior is undefined unless
-        // '0 != basicAllocator'.
-
-    DatumMapBuilder(SizeType          initialCapacity,
-                    bslma::Allocator *basicAllocator);
-        // Create a 'DatumMapBuilder' object. This constructor creates a datum
-        // map having the specified 'initialCapacity' using the specified
-        // 'basicAllocator'.  The behavior is undefined unless
-        // '0 < initialCapacity' and '0 != basicAllocator'.
+    explicit DatumMapBuilder(SizeType          initialCapacity = 0,
+                             bslma::Allocator *basicAllocator  = 0);
+        // Create a 'DatumMapBuilder' object having the optionally specified
+        // 'initialCapacity' and optionally specified 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently-installed
+        // default allocator is used.
 
     ~DatumMapBuilder();
         // Destroy this object. If this object is holding a datum map that has
@@ -264,7 +177,7 @@ class DatumMapBuilder {
         // the end of the held datum map.  Note that if the datum map is full,
         // a new datum map with larger capacity is allocated and the previous
         // datum map is disposed after copying its elements.  The behavior is
-        // undefined unless '0 != length' and '0 != entries' and each element
+        // undefined unless and '0 != entries && 0 != size'  and each element
         // in 'entries' that needs dynamic memory, is allocated with the same
         // allocator that was used to construct this object.  The behavior is
         // undefined if 'commit' or 'sortAndCommit' has already been called on
@@ -274,8 +187,8 @@ class DatumMapBuilder {
         // Return a 'Datum' object holding a map of 'Datum' objects built using
         // 'pushBack' or 'append'.  This method indicates that the caller is
         // finished building the datum map and no further values shall be
-        // appended.  It is undefined behavior to call any method of this
-        // object, other than its destructor, after 'commit' has been called.
+        // appended.  The behavior is undefined if any method of this object,
+        // other than its destructor, is called after 'commit' invocation.
 
     void setSorted(bool value);
         // Indicate that the underlying map is sorted if the specified 'value'
@@ -287,18 +200,22 @@ class DatumMapBuilder {
         // Return a 'Datum' object holding a map of 'Datum' objects build using
         // 'pushBack' or 'append'.  Sort the elements of the map.  This method
         // indicates that the caller is finished building the datum map and no
-        // further values shall be appended.  It is undefined behavior to call
-        // any method of this object, other than its destructor, after
-        // 'sortAndCommit' has been called.
+        // further values shall be appended.  The behavior is undefined if any
+        // method of this object, other than its destructor, is called after
+        // 'sortAndCommit' invocation.
 
     // ACCESSORS
     SizeType capacity() const;
         // Return the capacity.  The behavior is undefined if 'commit' or
         // 'sortAndCommit' has already been called on this object.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapBuilder, bslma::UsesBslmaAllocator);
+        // 'DatumMapBuilder' objects use 'bslma::Allocator'.
 };
 
-}  // close bdld namespace
-}  // close BloombergLP namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

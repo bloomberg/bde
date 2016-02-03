@@ -14,13 +14,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bdld_datum, bdld_error, bdld_udt
 //
-//@AUTHOR: Rishi Wani (pwani)
-//
-//@DESCRIPTION: This component defines a full *value-semantic* type
-// 'ManagedDatum', capable of efficiently representing general-purpose values
-// and their aggregates.  All the types that can be represented are listed
-// below.  This class wraps a 'Datum' and an optional 'bslma::Allocator' and
-// creates a full *value-semantic* type.
+//@DESCRIPTION: This component implements a value-semantic type,
+// 'bdld::ManagedDatum', capable of efficiently representing general-purpose
+// values and their aggregates.  All the types that can be represented are
+// listed below.  This class wraps a 'Datum' and an optional 'bslma::Allocator'
+// and creates a full value-semantic type.
 //
 // 'ManagedDatum' can hold the following types of values:
 //     * boolean (bool)
@@ -43,106 +41,107 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following snippets of code illustrate how to create and use a
 // 'ManagedDatum' object.
 //
-// First create a 'ManagedDatum' object that holds a double value and verify
-// that it has the same double value inside it.
+// First, create a 'ManagedDatum' object that holds a double value and verify
+// that it has the same double value inside it:
 //..
-//  const ManagedDatum realObj(-3.457);
+//  bslma::TestAllocator ta("test", veryVeryVerbose);
+//
+//  const ManagedDatum realObj(Datum::createDouble(-3.4375), &ta);
 //  assert(realObj->isDouble());
-//  assert(-3.457 == realObj->theDouble());
+//  assert(-3.4375 == realObj->theDouble());
 //..
-// Next we create a 'ManagedDatum' object that holds a string value and verify
-// that it has the same string value inside it.
+// Next, we create a 'ManagedDatum' object that holds a string value and verify
+// that it has the same string value inside it:
 //..
-//  bslma::TestAllocator defaultAlloc = bslma::TestAllocator(false);
-//  const char *str = "This is a string";
-//  const ManagedDatum strObj(str, &defaultAlloc);
+//  const char         *str = "This is a string";
+//  const ManagedDatum  strObj(Datum::copyString(str, &ta), &ta);
 //  assert(strObj->isString());
-//  assert(bslstl::StringRef(str, bsl::strlen(str)) == strObj->theString());
+//  assert(str == strObj->theString());
 //..
-// Then assign this 'ManagedDatum' object to another object and verify both
-// objects have the same value.
+// Then, assign this 'ManagedDatum' object to another object and verify both
+// objects have the same value:
 //..
-//  const ManagedDatum strObj1 = strObj;
+//  ManagedDatum strObj1(&ta);
+//  strObj1 = strObj;
 //  assert(strObj == strObj1);
 //..
-// Next copy-construct this 'ManagedDatum' object and verify that the copy has
-// the same value as the original.
+// Next, copy-construct this 'ManagedDatum' object and verify that the copy has
+// the same value as the original:
 //..
-//  const ManagedDatum strObj2(strObj, &defaultAlloc);
+//  const ManagedDatum strObj2(strObj, &ta);
 //  assert(strObj == strObj2);
 //..
-// Then we create a 'ManagedDatum' object that holds an opaque pointer to a
-// 'bdlt::Date' object and verify that it has the same user-defined value inside
-// it.
+// Then, we create a 'ManagedDatum' object that holds an opaque pointer to a
+// 'bdlt::Date' object and verify that it has the same user-defined value
+// inside it:
 //..
-//  const bdlt::Date dt;
-//  ManagedDatum udtObj(Udt(&dt, 1));
+//  bdlt::Date   udt;
+//  ManagedDatum udtObj(Datum::createUdt(&udt, UDT_TYPE), &ta);
 //  assert(udtObj->isUdt());
-//  assert(&dt == udtObj->theUdt().data());
-//  assert(1 == udtObj->theUdt().type());
+//  assert(&udt == udtObj->theUdt().data());
+//  assert(UDT_TYPE == udtObj->theUdt().type());
 //..
-// Next we assign a boolean value to this 'ManagedDatum' object and verify that
-// it has the new value.
+// Next, we assign a boolean value to this 'ManagedDatum' object and verify
+// that it has the new value:
 //..
 //  udtObj.adopt(Datum::createBoolean(true));
 //  assert(udtObj->isBoolean());
 //  assert(true == udtObj->theBoolean());
 //..
-// Then we create a 'ManagedDatum' object having an array and verify that it
-// has the same array value.
+// Then, we create a 'ManagedDatum' object having an array and verify that it
+// has the same array value:
 //..
 //  const Datum datumArray[2] = {
 //      Datum::createInteger(12),
-//      Datum::copyString("A long string", &defaultAlloc)
+//      Datum::copyString("A long string", &ta)
 //  };
-//  DatumArrayRef arr;
+//
+//  DatumMutableArrayRef arr;
 //  Datum::createUninitializedArray(&arr, 2 , &ta);
 //  for (int i = 0; i < 2; ++i) {
 //      arr.data()[i] = datumArray[i];
 //  }
 //  *(arr.length()) = 2;
-//  const ManagedDatum arrayObj(Datum::adoptArray(arr),
-//                              &ta);
-//  assert(arrayObj.isArray());
-//  assert(ConstDatumArrayRef(datumArray, 2) == arrayObj.theArray());
+//  const ManagedDatum arrayObj(Datum::adoptArray(arr), &ta);
+//  assert(arrayObj->isArray());
+//  assert(DatumArrayRef(datumArray, 2) == arrayObj->theArray());
 //..
-// Next we create a 'ManagedDatum' object having a map and verify that it has
-// the same map value.
+// Next, we create a 'ManagedDatum' object having a map and verify that it has
+// the same map value:
 //..
 //  const DatumMapEntry datumMap[2] = {
-//      DatumMapEntry(bslstl::StringRef("first", bsl::strlen("first")),
+//      DatumMapEntry(StringRef("first", static_cast<int>(strlen("first"))),
 //                    Datum::createInteger(12)),
-//      DatumMapEntry(bslstl::StringRef("second", bsl::strlen("second")),
-//                    Datum::copyString("A long string",
-//                                      &defaultAlloc))
+//      DatumMapEntry(StringRef("second", static_cast<int>(strlen("second"))),
+//                    Datum::copyString("A very long string", &ta))
 //  };
-//  DatumMapRef mp;
+//
+//  DatumMutableMapRef mp;
 //  Datum::createUninitializedMap(&mp, 2 , &ta);
 //  for (int i = 0; i < 2; ++i) {
 //      mp.data()[i] = datumMap[i];
 //  }
 //  *(mp.size()) = 2;
 //  const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
-//  assert(mapObj.isMap());
-//  assert(ConstDatumMapRef(datumMap, 2) == mapObj.theMap());
+//  assert(mapObj->isMap());
+//  assert(DatumMapRef(datumMap, 2, false) == mapObj->theMap());
 //..
-// Then we create a 'Datum' object and assign its ownership to a 'ManagedDatum'
-// object and verify that the ownership was transferred.
+// Then, we create a 'Datum' object and assign its ownership to a
+// 'ManagedDatum' object and verify that the ownership was transferred:
 //..
-//  const Datum rcObj = Datum::copyString("This is a string",
-//                                        &defaultAlloc);
-//  ManagedDatum obj(1, &defaultAlloc);
-//  obj.adoptDatum(rcObj);
+//  const Datum  rcObj = Datum::copyString("This is a string", &ta);
+//  ManagedDatum obj(Datum::createInteger(1), &ta);
+//  obj.adopt(rcObj);
 //  assert(obj.datum() == rcObj);
 //..
-// Next we release the 'Datum' object inside the 'ManagedDatum' object and
-// verify that it was released.
+// Next, we release the 'Datum' object inside the 'ManagedDatum' object and
+// verify that it was released:
 //..
 //  const Datum internalObj = obj.release();
 //  assert(obj->isNull());
 //  assert(internalObj == rcObj);
 //..
-// Finally we destroy the released 'Datum' object.
+// Finally, we destroy the released 'Datum' object:
 //..
 //  Datum::destroy(internalObj, obj.allocator());
 //..
@@ -155,8 +154,16 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datum.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
@@ -201,13 +208,20 @@ class ManagedDatum {
         // needed).  Note that if 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
-    ManagedDatum(const Datum&      value,
-                 bslma::Allocator *basicAllocator);
-        // Create a 'ManagedDatum' assuming ownership of the specified 'value'.
-        // Note that the caller must not destroy 'value' after after creating
-        // 'ManagedDatum' object using this constructor.  The behavior is
-        // undefined unless '0 != basicAllocator' and 'value' was allocated
-        // using the specified 'basicAllocator'.
+    explicit ManagedDatum(const Datum& value);
+        // Create a 'ManagedDatum' assuming ownership of the specified 'value',
+        // created using default allocator.  Note that the caller must not
+        // change default allocator or destroy 'value' after creating
+        // 'ManagedDatum' object.  The behavior is undefined unless 'value' was
+        // allocated using the current default allocator.
+
+    explicit ManagedDatum(const Datum&      value,
+                          bslma::Allocator *basicAllocator);
+        // Create a 'ManagedDatum' assuming ownership of the specified 'value',
+        // created with the specified 'basicAllocator'.  Note that the caller
+        // must not destroy 'value' after after creating 'ManagedDatum' object
+        // using this constructor.  The behavior is undefined unless '0 !=
+        // basicAllocator' and 'value' was allocated using 'basicAllocator'.
 
     ManagedDatum(const ManagedDatum&  original,
                  bslma::Allocator    *basicAllocator = 0);
@@ -254,37 +268,41 @@ class ManagedDatum {
 
     // ACCESSORS
     const Datum *operator->() const;
-        // Return the address of the 'Datum' object held inside this object.
+        // Return a pointer providing non-modifiable access to the 'Datum'
+        // object held inside this object.
 
     const Datum& operator*() const;
         // Return a reference providing non-modifiable access to the 'Datum'
         // object held inside this object.
 
     bslma::Allocator *allocator() const;
-        // Return the allocator associated with this 'ManagedDatum'.
+        // Return a pointer providing modifiable access to the allocator
+        // associated with this 'ManagedDatum'.
 
     const Datum& datum() const;
-        // Return the 'Datum' object stored inside this object.
+        // Return a reference providing non-modifiable access to the 'Datum'
+        // object held inside this object.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the (absolute
         // value of) the optionally specified indentation 'level' and return a
-        // reference to 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
+        // reference to the modifiable 'stream'.  If 'level' is specified,
+        // optionally specify 'spacesPerLevel', the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // 'level' is negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // 'level').  If 'stream' is not valid on entry, this operation has no
+        // effect.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(ManagedDatum,
-                                  bslalg::TypeTraitUsesBslmaAllocator,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
         // 'ManagedDatum' objects use 'bslma::Allocator' and they are bitwise
-        // movable.
+        // movable and trivially copyable.
 };
 
 // FREE OPERATORS
@@ -304,24 +322,24 @@ bool operator!=(const ManagedDatum& lhs, const ManagedDatum& rhs);
     // inequality of 'Datum' objects, refer to the documentation of operator
     // '==' defined for 'Datum'.
 
-bsl::ostream& operator<<(bsl::ostream& output, const ManagedDatum& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const ManagedDatum& rhs);
     // Write the specified 'rhs' value to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.  Note that this method
     // invokes the operator '<<' defined for 'Datum'.  For a detailed
     // explanation of the format of the output, refer to the documentation of
     // operator '<<' defined for 'Datum'.  The function will have no effect if
-    // the specified 'stream' is not valid.
+    // 'stream' is not valid.
 
 // FREE FUNCTIONS
-void swap(ManagedDatum& lhs, ManagedDatum& rhs);
-    // Swap contents of 'lhs' 'ManagedDatum' object with the contents of the
-    // specified 'rhs' 'ManagedDatum' object.  It is undefined behavior to swap
-    // two 'ManagedDatum' objects that are allocated using different
-    // allocators.
+void swap(ManagedDatum& a , ManagedDatum& b);
+    // Swap contents of the specified 'a' 'ManagedDatum' object with the
+    // contents of the specified 'b' 'ManagedDatum' object.  It is undefined
+    // behavior to swap two 'ManagedDatum' objects that are allocated using
+    // different allocators.
 
-// ===========================================================================
-//                       INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
 
                             // ------------------
                             // class ManagedDatum
@@ -336,6 +354,13 @@ ManagedDatum::ManagedDatum(bslma::Allocator *basicAllocator)
 }
 
 inline
+ManagedDatum::ManagedDatum(const Datum& value)
+: d_data(value)
+, d_allocator_p(bslma::Default::allocator(0))
+{
+}
+
+inline
 ManagedDatum::ManagedDatum(const Datum&      value,
                            bslma::Allocator *basicAllocator)
 : d_data(value)
@@ -345,11 +370,11 @@ ManagedDatum::ManagedDatum(const Datum&      value,
 }
 
 inline
-ManagedDatum::ManagedDatum(const ManagedDatum&  value,
+ManagedDatum::ManagedDatum(const ManagedDatum&  original,
                            bslma::Allocator    *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    d_data = value.d_data.clone(d_allocator_p);
+    d_data = original.d_data.clone(d_allocator_p);
 }
 
 inline
@@ -362,28 +387,23 @@ ManagedDatum::~ManagedDatum()
 inline
 ManagedDatum& ManagedDatum::operator=(const ManagedDatum& rhs)
 {
-    if (this != &rhs) { // check against self-assignment
-        ManagedDatum copy(rhs, d_allocator_p);
-        swap(copy);
-    }
+    ManagedDatum copy(rhs, d_allocator_p);
+    swap(copy);
     return *this;
 }
 
 inline
 void ManagedDatum::adopt(const Datum& obj)
 {
-    if (&obj != &d_data) {
-        ManagedDatum(obj, d_allocator_p).swap(*this);
-    }
+    BSLS_ASSERT(&obj != &d_data);
+    ManagedDatum(obj, d_allocator_p).swap(*this);
 }
 
 inline
 void ManagedDatum::clone(const Datum& value)
 {
-    if (&value != &d_data) {
-        Datum data = value.clone(d_allocator_p);
-        ManagedDatum(data, d_allocator_p).swap(*this);
-    }
+    Datum data = value.clone(d_allocator_p);
+    ManagedDatum(data, d_allocator_p).swap(*this);
 }
 
 inline
@@ -433,7 +453,7 @@ const Datum& ManagedDatum::datum() const
     return d_data;
 }
 
-}  // close bdld namespace
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -448,14 +468,20 @@ bool bdld::operator!=(const ManagedDatum& lhs, const ManagedDatum& rhs)
     return (lhs.datum() != rhs.datum());
 }
 
-// FREE FUNCTIONS
 inline
-void bdld::swap(ManagedDatum& lhs, ManagedDatum& rhs)
+bsl::ostream& bdld::operator<<(bsl::ostream& stream, const ManagedDatum& rhs)
 {
-    lhs.swap(rhs);
+    return (stream << rhs.datum());
 }
 
-}  // close BloombergLP namespace
+// FREE FUNCTIONS
+inline
+void bdld::swap(ManagedDatum& a, ManagedDatum& b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
 
 #endif
 
