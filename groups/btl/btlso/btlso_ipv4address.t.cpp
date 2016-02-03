@@ -388,7 +388,26 @@ int main(int argc, char *argv[])
                 { L_,  "325.3.5.7"        ,  false  },
                 { L_,  "5.7.0x10000"      ,  false  },
                 { L_,  "5.0x1000000"      ,  false  },
-                { L_,  "akjfa;kdfjask"    ,  false  }
+                { L_,  "akjfa;kdfjask"    ,  false  },
+
+                // Per DRQS 76925158: Additional test values.
+
+                { L_,  ""                 ,  false  },
+                { L_,  "."                ,  false  },
+                { L_,  ".."               ,  false  },
+                { L_,  "..."              ,  false  },
+
+                { L_,  "1."               ,  false  },
+                { L_,  "1.."              ,  false  },
+                { L_,  "1..."             ,  false  },
+
+                { L_,  "1.2."             ,  false  },
+                { L_,  "1.2.."            ,  false  },
+                { L_,  "1.2.3."           ,  false  },
+
+                { L_,  "1.2..4"           ,  false  },
+                { L_,  "1..3.4"           ,  false  },
+                { L_,  ".2.3.4"           ,  false  }
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;

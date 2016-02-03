@@ -65,6 +65,34 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 #endif
 }
 
+bool IPv4Address::isPassesInitialVet(const char *address)
+{
+    if        ('\0' == *address) {                              // empty string
+        return false;                                                 // RETURN
+
+    } else if ('.' == *address) {                                 // leadng dot
+        return false;                                                 // RETURN
+
+    } else if ('.' == address[bsl::strlen(address) - 1]){       // trailing dot
+        return false;                                                 // RETURN
+
+    } else {
+        for (const char *startSearch = address, *foundDot = 0;
+                         startSearch;
+                         startSearch = foundDot) {
+            if (foundDot = bsl::strchr(startSearch, '.')) {
+                if ('.' == foundDot[1]) {                      // adjacent dots
+                    return false;                                     // RETURN
+                } else {
+                    ++foundDot;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 // CLASS METHODS
 int IPv4Address::isLocalBroadcastAddress(const char *addr)
     // Windows XP currently does not support the inet_aton function as
