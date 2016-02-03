@@ -203,6 +203,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_IOSFWD
 #endif
 
+#ifndef INCLUDED_STRING_H
+#include <string.h>
+#define INCLUDED_STRING_H
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_STDEXCEPT
@@ -244,7 +249,7 @@ void Bitset_ImpUtil::defaultInit(unsigned int *data,
                                  size_t size,
                                  unsigned long val)
 {
-    std::memset(data, 0, size * k_BYTES_PER_INT);
+    ::memset(data, 0, size * k_BYTES_PER_INT);
     if (val == 0) {
       return;
     }
@@ -267,17 +272,17 @@ void Bitset_ImpUtil::defaultInit(unsigned int *data,
                           // class Bitset_ImpBase
                           // ====================
 template <std::size_t BITSETSIZE,
-          std::size_t NUM_INIT = BITSETSIZE < sizeof(long) / sizeof(int)
+          std::size_t NUM_INIT =  (BITSETSIZE < sizeof(long) / sizeof(int))
                                  ? BITSETSIZE : sizeof(long) / sizeof(int)>
 class Bitset_ImpBase;
     // This component private 'class' template describes the basic data and
-    // initialization semantics needed in order to implement a C++11 'bitset' class.
-    // The 'BITSETSIZE' template parameter specifies the size of the underlying
-    // data array, 'd_data'. The 'NUM_INIT' template parameter specifies the
-    // number of elements in 'd_data' needed to use when storing a value of type
-    // unsigned long. Partial class template specializations of 'Bitset_ImpBase'
-    // are provided for 'NUM_INIT == 1' and 'NUM_INIT == 2'. No other values of
-    // 'NUM_INIT' are supported.
+    // initialization semantics needed in order to implement a C++11 'bitset'
+    // class.  The 'BITSETSIZE' template parameter specifies the size of the
+    // underlying data array, 'd_data'. The 'NUM_INIT' template parameter
+    // specifies the number of elements in 'd_data' needed to use when storing
+    // a value of type 'unsigned long'. Partial class template specializations
+    // of 'Bitset_ImpBase' are provided for 'NUM_INIT == 1' and
+    // 'NUM_INIT == 2'.  No other values of 'NUM_INIT' are supported.
 
 #if __cplusplus >= 201103L
 template <std::size_t BITSETSIZE, std::size_t NUM_INIT>
@@ -299,17 +304,17 @@ class Bitset_ImpBase<BITSETSIZE, 1> {
 
     // CREATORS
     BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
-        // Create a Bitset_ImpBase with each bit in 'd_data' initialized to zero.
-        // In C++11 this constructor can be used in a constant expression.
+        // Create a 'Bitset_ImpBase' with each bit in 'd_data' initialized to
+        // zero. In C++11 this constructor can be used in a constant expression.
 
     BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long val);
         // Create a 'Bitset_ImpBase' with the first 'N' bit positions of 'd_data'
         // corresponding to the first 'N' bit positions of the specified 'val'
-        // after converting it to an 'unsigned int'. Where 'N' is
-        // 'CHAR_BIT * sizeof(int)'. The remaining bits in 'd_data' are
-        // initialized to zero. The behavior is undefined unless
-        // 'sizeof(long) / sizeof(int) == 1' or 'BITSETSIZE == 1'. In C++11
-        // this constructor can be used in a constant expression.
+        // after conversion to 'unsigned int'. 'N' is 'CHAR_BIT * sizeof(int)'.
+        // The remaining bits in 'd_data' are initialized to zero.
+        // The behavior is undefined unless 'sizeof(long) / sizeof(int) == 1'
+        // or 'BITSETSIZE == 1'. In C++11 this constructor can be used in a
+        // constant expression.
 };
 
 
@@ -319,7 +324,6 @@ Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
   : d_data()
 {
 }
-
 
 template <std::size_t BITSETSIZE>
 inline BSLS_CPP11_CONSTEXPR
@@ -380,10 +384,10 @@ Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long val)
                         // =================
 
 template <std::size_t N>
-class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
+class bitset : Bitset_ImpBase<N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1> {
     // This class template provides an STL-compliant 'bitset'.  For the
     // requirements of a 'bitset' class, consult the second revision of the
-    // ISO/IEC 14882 Programming Language c++ (2003).
+    // ISO/IEC 14882 Programming Language c++ (2011).
     //
     // In addition to the methods defined in the standard, this class also
     // provides an extra constructor that takes a 'bsl::basic_string'.  This
@@ -394,10 +398,10 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
     enum {
         k_BYTES_PER_INT = sizeof(int),
         k_BITS_PER_INT  = 8 * sizeof(int),
-        BITSETSIZE  = N ? (N - 1) / k_BITS_PER_INT + 1 : 1
+        k_BITSETSIZE  = N ? (N - 1) / k_BITS_PER_INT + 1 : 1
     };
 
-    typedef Bitset_ImpBase<BITSETSIZE> Base;
+    typedef Bitset_ImpBase<k_BITSETSIZE> Base;
     using Base::d_data;
 
     // FRIENDS
@@ -413,24 +417,36 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
         friend class bitset;
 
         // DATA
-        unsigned int *d_int_p;   // pointer to the int inside the bitset.
+        unsigned int *d_int_p;   // pointer to the 'int' inside the 'bitset'.
         unsigned int  d_offset;  // bit offset to 'd_int'.
 
         // PRIVATE CREATORS
         reference(unsigned int *i, unsigned int offset);
+            // Create a 'reference' object that refers to the bit at the
+            // specified 'offset' of the 'int' pointed to by 'i'.
+            // 'i' shall point to an 'int' inside a 'bsl::bitset'.
 
       public:
         // MANIPULATORS
         reference& operator=(bool x);
+            // Assign to the bit referenced by this object the specified value
+            // 'x' and return a modifiable reference to this object.
 
         reference& operator=(const reference& x);
+            // Assign this object to refer to the same bit as the specified 'x'
+            // and return a modifiable reference to this object.
 
         reference& flip();
+            // Invert the value of the bit referenced by this object and return
+            // a modifiable reference to this object.
 
         // ACCESSORS
         operator bool() const;
+            //  Return the value of the bit referenced by this object.
 
         bool operator~() const;
+            // Return the inverted value of the bit referenced by this object.
+            // Note the value of the specied bit remains unchanged.
     };
 
   private:
@@ -456,8 +472,16 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
                                                    ALLOCATOR>::size_type pos,
                     typename  bsl::basic_string<CHAR_TYPE,
                                                    TRAITS,
-                                                   ALLOCATOR>::size_type n,
+                                                   ALLOCATOR>::size_type N,
                    CHAR_TYPE zeroChar, CHAR_TYPE oneChar);
+        // Assign to the first 'M' bit of this object a value corresponding to
+        // the characters in the specified 'pos' of the specified 'str'. 'M' is
+        // the smaller of the parameterized 'N' and 'str.length()'. If
+        // 'M < N' the remaining bit positions are left unchanged.
+        // Characters with the value 'zeroChar' correspond to an unset bit and
+        // characters with the value 'oneChar' correspond to a set bit.
+        // The behavior is undefined if any characters in 'str' is neither the
+        // specified 'zeroChar' nor the specified 'oneChar'.
 
     void clearUnusedBits();
         // Clear the bits unused by the bitset in 'd_data', namely, bits
@@ -476,7 +500,7 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
   public:
     // CREATORS
     BSLS_CPP11_CONSTEXPR bitset();
-        // Create a bitset with all bits initialized to 0.
+        // Create a 'bitset' with all bits initialized to '0'.
 
     BSLS_CPP11_CONSTEXPR bitset(unsigned long val);
         // Create a bitset with its first 'M' bit positions correspond to bit
@@ -494,15 +518,14 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
                           basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
            CHAR_TYPE zeroChar = CHAR_TYPE('0'),
            CHAR_TYPE oneChar = CHAR_TYPE('1'));
-        // Create a bitset with its first 'M' bit positions corresponding to 0 the
+        // Create a bitset with its first 'M' bit positions corresponding to the
         // characters in the specified 'pos' of the specified 'str'. 'M' is
         // the smaller of the parameterized 'N' and 'str.length()'. If
         // 'M < N', the remaining bit positions are initialized to 0.
         // Characters with the value 'zeroChar' correspond to an unset bit and
         // characters with the value 'oneChar' correspond to a set bit.
-        // The behavior is undefined if the characters in the specified 'str' is
-        // not the specified 'zeroChar' and not the specified 'oneChar'
-
+        // The behavior is undefined if any characters in 'str' is neither the
+        // specified 'zeroChar' nor the specified 'oneChar'.
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit
@@ -609,7 +632,8 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
                                             CHAR_TYPE zero = CHAR_TYPE('0'),
                                             CHAR_TYPE one = CHAR_TYPE('1')) const;
         // Return a 'basic_string' representation of this bitset, where the
-        // bits are now represented by the specified characters.  The
+        // zero-bits are represented by the specified 'zero' character and
+        // the one-bits are represented by the specified 'one' character.
         // most-significant bit is placed at the beginning of the string, and
         // the least-significant bit is placed at the end of the string.
 
@@ -638,7 +662,8 @@ class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
 
     bool none() const;
         // Return 'true' if all the bits in this bitset has the value of 0 and
-        // 'false' otherwise.
+        // 'false' otherwise.  Note that 'all()' and 'none()' are both true
+        // for bitsets of size 0.
 
     BSLS_CPP11_CONSTEXPR std::size_t size() const;
         // Return the number of bits this bitset holds.

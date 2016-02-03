@@ -170,11 +170,12 @@ void aSsErT(int c, const char *s, int i) {
 
 
 template <class StringType>
-void changeBitString(StringType& str, char zeroChar, char oneChar)
+void changeBitString(StringType* str, char zeroChar, char oneChar)
 {
-    for (size_t i = 0; i < str.size(); ++i) {
-      char newChar = str[i] == '0' ? zeroChar : oneChar;
-      str[i] = newChar;
+    StringType& strRef = *str;
+    for (size_t i = 0; i < strRef.size(); ++i) {
+        char newChar = strRef[i] == '0' ? zeroChar : oneChar;
+        strRef[i] = newChar;
     }
 }
 
@@ -295,10 +296,8 @@ void testCase2(bool verbose, bool /* veryVerbose */, bool /* veryVeryVerbose */)
     ASSERT(TESTSIZE == v.size());
     ASSERT(v.none());
     ASSERT(!v.any());
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-    static_assert(TESTSIZE == v.size(), "");
-    static_assert(0 == v[0], "");
-#endif
+    BSLMF_ASSERT(TESTSIZE == v.size());
+    BSLMF_ASSERT(0 == v[0]);
 #endif
   }
 }
@@ -317,10 +316,8 @@ void testCase3Imp(bool verbose, bool veryVerbose)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
     ASSERT(verifyBitset(mX2, VALUE, verbose));
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-    static_assert(mX2.size() == TESTSIZE, "");
-    static_assert(verifyBitsetConstexpr(mX2, VALUE), "");
-#endif
+    BSLMF_ASSERT(mX2.size() == TESTSIZE);
+    BSLMF_ASSERT(verifyBitsetConstexpr(mX2, VALUE));
 #endif
 };
 
@@ -831,7 +828,7 @@ int main(int argc, char *argv[])
               const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
               native_std::string sY(STRING);
-              changeBitString(sY, ZERO_CHAR, ONE_CHAR);
+              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
               Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
               const Obj& Y = mY;
               if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -875,7 +872,7 @@ int main(int argc, char *argv[])
               const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
               bsl::string sY(STRING);
-              changeBitString(sY, ZERO_CHAR, ONE_CHAR);
+              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
               Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
               const Obj& Y = mY;
               if (veryVeryVerbose) { T_ T_ P(Y) }
