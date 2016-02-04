@@ -56,9 +56,9 @@ namespace bdlpcre {
 // CONSTANTS
 
 enum {
-    BDLPCRE_SUCCESS           =  0,
-    BDLPCRE_DEPTHLIMITFAILURE =  1,
-    BDLPCRE_FAILURE           = -1
+    k_SUCCESS           =  0,
+    k_DEPTHLIMITFAILURE =  1,
+    k_FAILURE           = -1
 };
     // Return values for this API.
 
@@ -74,6 +74,7 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre2Context_p(0)
+, d_matchContext_p(0)
 , d_pcre2Code_p(0)
 , d_depthLimit(RegEx::defaultDepthLimit())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -83,6 +84,12 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
                                             &bdlpcre_free,
                                             static_cast<void*>(d_allocator_p));
     BSLS_ASSERT(0 != d_pcre2Context_p);
+
+    // Pre-create match context
+    d_matchContext_p = pcre2_match_context_create(d_pcre2Context_p);
+    BSLS_ASSERT(0 != d_matchContext_p);
+
+    pcre2_set_match_limit(d_matchContext_p, d_depthLimit);
 }
 
 // MANIPULATORS
@@ -120,7 +127,7 @@ int RegEx::prepare(bsl::string *errorMessage,
                                                              d_pcre2Context_p);
 
     if (0 == compileContext) {
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     pcre2_code *pcre2Code = pcre2_compile(
@@ -153,7 +160,7 @@ int RegEx::prepare(bsl::string *errorMessage,
             *errorOffset = errorOffsetFromPcre2;
         }
 
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     // Set the data members and set the object to the "prepared" state.
@@ -161,7 +168,7 @@ int RegEx::prepare(bsl::string *errorMessage,
     d_pattern      = pattern;
     d_pcre2Code_p  = pcre2Code;
 
-    return BDLPCRE_SUCCESS;
+    return k_SUCCESS;
 }
 
 // ACCESSORS
@@ -173,23 +180,13 @@ int RegEx::match(const char *subject,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    int result = BDLPCRE_SUCCESS;
-
-    pcre2_match_context *matchContext = pcre2_match_context_create(
-                                                             d_pcre2Context_p);
-
-    if (0 == matchContext) {
-        return BDLPCRE_FAILURE;                                       // RETURN
-    }
-
-    pcre2_set_match_limit(matchContext, d_depthLimit);
+    int result = k_SUCCESS;
 
     pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
                                                              d_pcre2Code_p, 0);
 
     if (0 == matchData) {
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     const unsigned char* actualSubject =
@@ -201,16 +198,15 @@ int RegEx::match(const char *subject,
                                   subjectOffset,
                                   0,
                                   matchData,
-                                  matchContext);
+                                  d_matchContext_p);
 
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        result = BDLPCRE_DEPTHLIMITFAILURE;
+        result = k_DEPTHLIMITFAILURE;
     } else if (0 > returnValue) {
-        result = BDLPCRE_FAILURE;
+        result = k_FAILURE;
     }
 
     pcre2_match_data_free(matchData);
-    pcre2_match_context_free(matchContext);
 
     return result;
 }
@@ -225,22 +221,11 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    pcre2_match_context *matchContext = pcre2_match_context_create(
-                                                             d_pcre2Context_p);
-
-    if (0 == matchContext) {
-        return BDLPCRE_FAILURE;                                       // RETURN
-    }
-
-    pcre2_set_match_limit(matchContext, d_depthLimit);
-
-
     pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
                                                             d_pcre2Code_p, 0);
 
     if (0 == matchData) {
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     const unsigned char* actualSubject =
@@ -252,16 +237,14 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                                   subjectOffset,
                                   0,
                                   matchData,
-                                  matchContext);
+                                  d_matchContext_p);
 
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
         pcre2_match_data_free(matchData);
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_DEPTHLIMITFAILURE;                             // RETURN
+        return k_DEPTHLIMITFAILURE;                                   // RETURN
     } else if (0 > returnValue) {
         pcre2_match_data_free(matchData);
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
@@ -276,9 +259,8 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     *result = bsl::make_pair(offset, length);
 
     pcre2_match_data_free(matchData);
-    pcre2_match_context_free(matchContext);
 
-    return BDLPCRE_SUCCESS;
+    return k_SUCCESS;
 }
 
 int
@@ -292,22 +274,11 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     BSLS_ASSERT(subjectOffset <= subjectLength);
     BSLS_ASSERT(isPrepared());
 
-    pcre2_match_context *matchContext = pcre2_match_context_create(
-                                                             d_pcre2Context_p);
-
-    if (0 == matchContext) {
-        return BDLPCRE_FAILURE;                                       // RETURN
-    }
-
-    pcre2_set_match_limit(matchContext, d_depthLimit);
-
-
     pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
                                                             d_pcre2Code_p, 0);
 
     if (0 == matchData) {
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     const unsigned char* actualSubject =
@@ -319,16 +290,14 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
                                   subjectOffset,
                                   0,
                                   matchData,
-                                  matchContext);
+                                  d_matchContext_p);
 
     if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
         pcre2_match_data_free(matchData);
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_DEPTHLIMITFAILURE;                             // RETURN
+        return k_DEPTHLIMITFAILURE;                                   // RETURN
     } else if (0 > returnValue) {
         pcre2_match_data_free(matchData);
-        pcre2_match_context_free(matchContext);
-        return BDLPCRE_FAILURE;                                       // RETURN
+        return k_FAILURE;                                             // RETURN
     }
 
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
@@ -345,9 +314,8 @@ RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
     }
 
     pcre2_match_data_free(matchData);
-    pcre2_match_context_free(matchContext);
 
-    return BDLPCRE_SUCCESS;
+    return k_SUCCESS;
 }
 
 int RegEx::numSubpatterns() const
