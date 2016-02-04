@@ -214,12 +214,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   memory allocation.  Note that for externally represented string or
 //:   arrays, meta-data may still need to be allocated.
 //
-// Note that the zero-filled Datums that may appear when a Datum was not
-// properly initialized with any supported value is invalid on 64-bit
-// platforms.  Such uninitialized (zero-filled) variables can appear in the
-// static data sections or in not-previously-used stack frames (which are
-// zero-filled by the underlying operating system).
-//
 ///User Defined Data
 ///- - - - - - - - -
 // 'Datum' exposes a type 'DatumUdt' with which a user can arbitrarily expand
@@ -1537,17 +1531,6 @@ class Datum {
         // Return a datum holding a "deep-copy" of this object, using the
         // specified 'basicAllocator' to allocate memory.
 
-    bool isExternalReference() const;
-        // Return 'true' if this object represents a reference to an externally
-        // managed array, string or user-defined object and 'false' otherwise.
-        // If this method returns 'false', calling 'destroy' on this object
-        // will release the memory used by the array, string, or used-defined
-        // object as well as any meta-data directly used by this datum (e.g.,
-        // length information); otherwise (if this method returns 'true')
-        // calling 'destroy' on this object will release any allocated
-        // meta-data, but will not impact the externally managed array, string,
-        // or user-defined object.
-
                                // Type-Identifiers
 
     bool isArray() const;
@@ -1585,6 +1568,17 @@ class Datum {
     bool isError() const;
         // Return 'true' if this object represents a 'DatumError' value and
         // 'false' otherwise.
+
+    bool isExternalReference() const;
+        // Return 'true' if this object represents a reference to an externally
+        // managed array, string or user-defined object and 'false' otherwise.
+        // If this method returns 'false', calling 'destroy' on this object
+        // will release the memory used by the array, string, or used-defined
+        // object as well as any meta-data directly used by this datum (e.g.,
+        // length information); otherwise (if this method returns 'true')
+        // calling 'destroy' on this object will release any allocated
+        // meta-data, but will not impact the externally managed array, string,
+        // or user-defined object.
 
     bool isInteger() const;
         // Return 'true' if this object represents an integer value and 'false'
@@ -3465,7 +3459,7 @@ Datum::DataType Datum::type() const
     return convert[type];
 #else  // BSLS_PLATFORM_CPU_32_BIT
     static const DataType convert[] = {
-        e_REAL                             // e_INTERNAL_UNINITIALIZED     = 0
+        e_ERROR                            // e_INTERNAL_UNINITIALIZED; invalid
       , e_REAL                             // e_INTERNAL_INF               = 1
       , e_NIL                              // e_INTERNAL_NIL               = 2
       , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3

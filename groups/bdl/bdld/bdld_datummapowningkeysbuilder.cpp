@@ -28,13 +28,14 @@ static DatumMapOwningKeysBuilder::SizeType getNewCapacity(
     static const DatumMapOwningKeysBuilder::SizeType MAX_BYTES =
                bsl::numeric_limits<DatumMapOwningKeysBuilder::SizeType>::max();
 
-    capacity += !capacity;    // get to 1 from 0 (no op afterwards)
-    while (capacity < size && capacity < MAX_BYTES/4) { // get higher than 1
+    BSLS_ASSERT(size < MAX_BYTES/2);
+
+    capacity = capacity ? capacity : 1;
+    while (capacity < size) {
         capacity *= 2;
     }
 
     // Verify capacity at outer size limits.
-
     BSLS_ASSERT(capacity >= size);
 
     return capacity;

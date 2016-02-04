@@ -114,11 +114,11 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // * On 32-bit platforms, NaN value is stored as a separate type and cannot be
 //   directly retrieved as a 'double' value.
 //
-// * On 64-bit platforms, zero-initialized Datums are not mapped to any valid
-//   Datum value.  Zero-initialized Datums may appear in uninitialized
-//   static variables.  This behaviour is implemented specifically to help
-//   finding such unitialized static Datums.  On 32-bit platforms similar
-//   mechanism have some performance implications and is not implemented.
+// * On 64-bit platforms, zero-initialized Datums are not a valid Datum value.
+//   This behaviour is implemented specifically to help identify the accidental
+//   use of uninitialized datum values, which are often 0 initialized for
+//   static data.  A similar mechanism is not implemented for 32-bit platforms
+//   because of negative performance implications.
 //
 // * DatumMapRef::find() does a binary search if the map is sorted.  Otherwise
 //   it does a linear search.
