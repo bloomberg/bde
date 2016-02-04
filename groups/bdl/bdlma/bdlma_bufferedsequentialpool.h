@@ -360,16 +360,17 @@ class BufferedSequentialPool {
     // attempt to deallocate the external buffer.
 
     // DATA
-    char                *d_initialBuffer_p;  // external buffer supplied at
-                                             // construction
+    char                   *d_initialBuffer_p;  // external buffer supplied at
+                                                // construction
 
-    int                  d_initialSize;      // size of external buffer
+    bsls::Types::size_type  d_initialSize;      // size of external buffer
 
-    BufferManager        d_buffer;           // memory manager for current
-                                             // buffer
+    BufferManager           d_buffer;           // memory manager for current
+                                                // buffer
 
-    SequentialPool       d_pool;             // memory manager for allocations
-                                             // not from the buffer
+    SequentialPool          d_pool;             // memory manager for
+                                                // allocations not from the
+                                                // buffer
 
   private:
     // NOT IMPLEMENTED
@@ -378,19 +379,19 @@ class BufferedSequentialPool {
 
   public:
     // CREATORS
-    BufferedSequentialPool(char             *buffer,
-                           int               size,
-                           bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialPool(char                   *buffer,
+                           bsls::Types::size_type  size,
+                           bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
+                           bsls::Types::size_type       size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialPool(char                      *buffer,
-                           int                        size,
+                           bsls::Types::size_type     size,
                            bsls::Alignment::Strategy  alignmentStrategy,
                            bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
+                           bsls::Types::size_type       size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bsls::Alignment::Strategy    alignmentStrategy,
                            bslma::Allocator            *basicAllocator = 0);
@@ -413,23 +414,23 @@ class BufferedSequentialPool {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialPool(char             *buffer,
-                           int               size,
-                           int               maxBufferSize,
-                           bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialPool(char                   *buffer,
+                           bsls::Types::size_type  size,
+                           bsls::Types::size_type  maxBufferSize,
+                           bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
+                           bsls::Types::size_type       size,
+                           bsls::Types::size_type       maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialPool(char                      *buffer,
-                           int                        size,
-                           int                        maxBufferSize,
+                           bsls::Types::size_type     size,
+                           bsls::Types::size_type     maxBufferSize,
                            bsls::Alignment::Strategy  alignmentStrategy,
                            bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
+                           bsls::Types::size_type       size,
+                           bsls::Types::size_type       maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bsls::Alignment::Strategy    alignmentStrategy,
                            bslma::Allocator            *basicAllocator = 0);
@@ -647,7 +648,7 @@ void operator delete(void *, BloombergLP::bdlma::BufferedSequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

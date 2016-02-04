@@ -22,16 +22,16 @@ namespace bdlma {
                            // -------------------
 
 // MANIPULATORS
-int BufferManager::expand(void *address, int size)
+bsls::Types::size_type BufferManager::expand(void                   *address,
+                                             bsls::Types::size_type  size)
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(d_buffer_p);
-    BSLS_ASSERT(0 <= d_cursor);
     BSLS_ASSERT(d_cursor <= d_bufferSize);
 
     if (static_cast<char *>(address) + size == d_buffer_p + d_cursor) {
-        const int newSize = size + d_bufferSize - d_cursor;
+        const bsls::Types::size_type newSize = size + d_bufferSize - d_cursor;
         d_cursor = d_bufferSize;
 
         return newSize;                                               // RETURN
@@ -40,12 +40,13 @@ int BufferManager::expand(void *address, int size)
     return size;
 }
 
-int BufferManager::truncate(void *address, int originalSize, int newSize)
+bsls::Types::size_type BufferManager::truncate(
+                                          void                   *address,
+                                          bsls::Types::size_type  originalSize,
+                                          bsls::Types::size_type  newSize)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= newSize);
     BSLS_ASSERT(newSize <= originalSize);
-    BSLS_ASSERT(0 <= d_cursor);
     BSLS_ASSERT(d_cursor <= d_bufferSize);
 
     if (static_cast<char *>(address) + originalSize == d_buffer_p + d_cursor) {
@@ -60,7 +61,7 @@ int BufferManager::truncate(void *address, int originalSize, int newSize)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

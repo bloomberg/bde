@@ -1,6 +1,8 @@
 // bdlma_sequentialpool.t.cpp                                         -*-C++-*-
 #include <bdlma_sequentialpool.h>
 
+#include <bdlb_bitutil.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -746,10 +748,9 @@ int main(int argc, char *argv[])
             Obj mX;
 
             {
-                ASSERT_SAFE_PASS(mX.reserveCapacity( 1));
+                ASSERT_SAFE_PASS(mX.reserveCapacity(1));
 
-                ASSERT_SAFE_FAIL(mX.reserveCapacity( 0));
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
+                ASSERT_SAFE_FAIL(mX.reserveCapacity(0));
             }
         }
       } break;
@@ -1006,41 +1007,37 @@ int main(int argc, char *argv[])
             // ----     -----       -----------       -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,   k_DEFAULT_SIZE * 2 - 1           },
-            {  L_,      NAT,           2,   k_DEFAULT_SIZE * 2 - 2           },
-            {  L_,      NAT,           3,   k_DEFAULT_SIZE * 2 - 3           },
-            {  L_,      NAT,           4,   k_DEFAULT_SIZE * 2 - 4           },
-            {  L_,      NAT,           7,   k_DEFAULT_SIZE * 2 - 7           },
-            {  L_,      NAT,           8,   k_DEFAULT_SIZE * 2 - 8           },
-            {  L_,      NAT,          15,   k_DEFAULT_SIZE * 2 - 15          },
-            {  L_,      NAT,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      NAT,         100,   k_DEFAULT_SIZE * 2 - 100         },
-            {  L_,      NAT,         510,   k_DEFAULT_SIZE * 2 - 510         },
-            {  L_,      NAT,         511,   k_DEFAULT_SIZE * 2 - 511         },
+            {  L_,      NAT,           1,   k_DEFAULT_SIZE - 1           },
+            {  L_,      NAT,           2,   k_DEFAULT_SIZE - 2           },
+            {  L_,      NAT,           3,   k_DEFAULT_SIZE - 3           },
+            {  L_,      NAT,           4,   k_DEFAULT_SIZE - 4           },
+            {  L_,      NAT,           7,   k_DEFAULT_SIZE - 7           },
+            {  L_,      NAT,           8,   k_DEFAULT_SIZE - 8           },
+            {  L_,      NAT,          15,   k_DEFAULT_SIZE - 15          },
+            {  L_,      NAT,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      NAT,         100,   k_DEFAULT_SIZE - 100         },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           2,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           3,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           4,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           7,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,           8,   k_DEFAULT_SIZE * 2 - k_MAX_ALIGN },
-            {  L_,      MAX,          15,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,         108,   k_DEFAULT_SIZE * 2 - 112         },
+            {  L_,      MAX,           1,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           2,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           3,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           4,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           7,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           8,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,          15,   k_DEFAULT_SIZE - 16          },
+            {  L_,      MAX,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      MAX,         108,   k_DEFAULT_SIZE - 112         },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,   k_DEFAULT_SIZE * 2 - 1           },
-            {  L_,      BYT,           2,   k_DEFAULT_SIZE * 2 - 2           },
-            {  L_,      BYT,           3,   k_DEFAULT_SIZE * 2 - 3           },
-            {  L_,      BYT,           4,   k_DEFAULT_SIZE * 2 - 4           },
-            {  L_,      BYT,           7,   k_DEFAULT_SIZE * 2 - 7           },
-            {  L_,      BYT,           8,   k_DEFAULT_SIZE * 2 - 8           },
-            {  L_,      BYT,          15,   k_DEFAULT_SIZE * 2 - 15          },
-            {  L_,      BYT,          16,   k_DEFAULT_SIZE * 2 - 16          },
-            {  L_,      BYT,         100,   k_DEFAULT_SIZE * 2 - 100         },
-            {  L_,      BYT,         510,   k_DEFAULT_SIZE * 2 - 510         },
-            {  L_,      BYT,         511,   k_DEFAULT_SIZE * 2 - 511         },
+            {  L_,      BYT,           1,   k_DEFAULT_SIZE - 1           },
+            {  L_,      BYT,           2,   k_DEFAULT_SIZE - 2           },
+            {  L_,      BYT,           3,   k_DEFAULT_SIZE - 3           },
+            {  L_,      BYT,           4,   k_DEFAULT_SIZE - 4           },
+            {  L_,      BYT,           7,   k_DEFAULT_SIZE - 7           },
+            {  L_,      BYT,           8,   k_DEFAULT_SIZE - 8           },
+            {  L_,      BYT,          15,   k_DEFAULT_SIZE - 15          },
+            {  L_,      BYT,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      BYT,         100,   k_DEFAULT_SIZE - 100         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1069,8 +1066,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             void *addr1 = mX.allocate(INITIALSIZE);
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             bsls::Types::size_type size = 1;
@@ -1091,8 +1087,7 @@ int main(int argc, char *argv[])
             ASSERT(EXPUSED == (int)size);
 
             // Check for no new allocations.
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             // Check that new allocations causes dynamic memory allocations.
@@ -1109,8 +1104,7 @@ int main(int argc, char *argv[])
 
             bsls::Types::size_type size = 1;
             mX.allocateAndExpand(&size);
-            ASSERT(blockSize(k_DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             mX.allocate(1);
@@ -1565,23 +1559,38 @@ int main(int argc, char *argv[])
                             mX.allocate(ALLOC_SIZE);
                             mY.allocate(ALLOC_SIZE);
 
-                            if (ALLOC_SIZE <= INITIAL_SIZE) {
+                            int actualInitialSize = INITIAL_SIZE;
+                            if (bsls::BlockGrowth::BSLS_GEOMETRIC
+                                                                 == STRATEGY) {
+                                actualInitialSize =
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                           static_cast<bsls::Types::size_type>(
+                                                                INITIAL_SIZE));
+                            }
+
+                            if (ALLOC_SIZE <= actualInitialSize) {
                                 LOOP_ASSERT(i, NA == ta.numBytesInUse());
                                 LOOP_ASSERT(i, NB == tb.numBytesInUse());
                                 LOOP_ASSERT(i, NC == tc.numBytesInUse());
                                 LOOP_ASSERT(i, ND == td.numBytesInUse());
                             }
                             else {
-                                if (ALLOC_SIZE < MAX_SIZE) {
-                                    int nextSize = calculateNextSize(
-                                                     INITIAL_SIZE, ALLOC_SIZE);
-                                    LOOP_ASSERT(i, NA + blockSize(nextSize)
+                                if (ALLOC_SIZE <= MAX_SIZE) {
+                                    int size =
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                           static_cast<bsls::Types::size_type>(
+                                                                INITIAL_SIZE));
+                                    while (size < ALLOC_SIZE) {
+                                        size *= 2;
+                                    }
+
+                                    LOOP_ASSERT(i, NA + size
                                                         == ta.numBytesInUse());
-                                    LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                    LOOP_ASSERT(i, NB + size
                                                         == tb.numBytesInUse());
-                                    LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                    LOOP_ASSERT(i, NC + size
                                                         == tc.numBytesInUse());
-                                    LOOP_ASSERT(i, ND + blockSize(nextSize)
+                                    LOOP_ASSERT(i, ND + size
                                                         == td.numBytesInUse());
                                 }
                                 else {
@@ -1791,13 +1800,11 @@ int main(int argc, char *argv[])
                 Obj mA;
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mA.allocate(k_DEFAULT_SIZE + 1);
-                addr1 = mA.allocate(k_DEFAULT_SIZE + 1);  // triggers alloc.
+                void *addr1 = mA.allocate(k_DEFAULT_SIZE);
+                addr1 = mA.allocate(k_DEFAULT_SIZE);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(k_DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
-                                                   k_DEFAULT_SIZE + 1))
+                ASSERT(3 * k_DEFAULT_SIZE
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1806,13 +1813,11 @@ int main(int argc, char *argv[])
                 Obj mB(NAT);
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mB.allocate(k_DEFAULT_SIZE + 1);
-                addr1 = mB.allocate(k_DEFAULT_SIZE + 1);  // triggers alloc.
+                void *addr1 = mB.allocate(k_DEFAULT_SIZE);
+                addr1 = mB.allocate(k_DEFAULT_SIZE);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(k_DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
-                                                   k_DEFAULT_SIZE + 1))
+                ASSERT(3 * k_DEFAULT_SIZE
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1821,16 +1826,12 @@ int main(int argc, char *argv[])
                 Obj mC(INITIAL_SIZE);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mC.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1838,16 +1839,12 @@ int main(int argc, char *argv[])
                 Obj mD(INITIAL_SIZE, NAT);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mD.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1855,16 +1852,12 @@ int main(int argc, char *argv[])
                 Obj mE(INITIAL_SIZE, MAX_BUFFER);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mE.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1872,16 +1865,12 @@ int main(int argc, char *argv[])
                 Obj mF(INITIAL_SIZE, MAX_BUFFER, MAX);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mF.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
@@ -1993,16 +1982,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            mX.allocate(k_DEFAULT_SIZE + 1);
-            mX.allocate(k_DEFAULT_SIZE + 1);  // triggers allocation
+            mX.allocate(k_DEFAULT_SIZE);
+            mX.allocate(k_DEFAULT_SIZE);  // triggers allocation
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            int totalSize = blockSize(k_DEFAULT_SIZE * 2) +
-                            blockSize(calculateNextSize(k_DEFAULT_SIZE * 2,
-                                                        k_DEFAULT_SIZE + 1));
+            int totalSize = k_DEFAULT_SIZE * 3;
 
             LOOP2_ASSERT(totalSize, objectAllocator.numBytesInUse(),
                                  totalSize == objectAllocator.numBytesInUse());
@@ -2095,7 +2082,6 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1, CON));
 
                 ASSERT_FAIL_RAW(Obj( 0, CON));
-                ASSERT_FAIL_RAW(Obj(-1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, AS, *ba)'" << endl;
@@ -2103,7 +2089,6 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 0, MAX));
-                ASSERT_FAIL_RAW(Obj(-1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, AS, *ba)'" << endl;
@@ -2111,7 +2096,6 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1, CON, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 0, CON, MAX));
-                ASSERT_FAIL_RAW(Obj(-1, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, *ba)'" << endl;
@@ -2119,12 +2103,10 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1,  8));
 
                 ASSERT_FAIL_RAW(Obj( 0,  8));
-                ASSERT_FAIL_RAW(Obj(-1,  8));
 
                 ASSERT_PASS(Obj( 2,  2));
 
                 ASSERT_FAIL_RAW(Obj( 2,  1));
-                ASSERT_FAIL_RAW(Obj( 2, -2));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, *ba)'" << endl;
@@ -2132,12 +2114,10 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1,  8, CON));
 
                 ASSERT_FAIL_RAW(Obj( 0,  8, CON));
-                ASSERT_FAIL_RAW(Obj(-1,  8, CON));
 
                 ASSERT_PASS(Obj( 2,  2, CON));
 
                 ASSERT_FAIL_RAW(Obj( 2,  1, CON));
-                ASSERT_FAIL_RAW(Obj( 2, -2, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, AS, *ba)'" << endl;
@@ -2145,12 +2125,10 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1,  8, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 0,  8, MAX));
-                ASSERT_FAIL_RAW(Obj(-1,  8, MAX));
 
                 ASSERT_PASS(Obj( 2,  2, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 2,  1, MAX));
-                ASSERT_FAIL_RAW(Obj( 2, -2, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, AS, *ba)'" << endl;
@@ -2158,12 +2136,10 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Obj( 1,  8, CON, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 0,  8, CON, MAX));
-                ASSERT_FAIL_RAW(Obj(-1,  8, CON, MAX));
 
                 ASSERT_PASS(Obj( 2,  2, CON, MAX));
 
                 ASSERT_FAIL_RAW(Obj( 2,  1, CON, MAX));
-                ASSERT_FAIL_RAW(Obj( 2, -2, CON, MAX));
             }
         }
 

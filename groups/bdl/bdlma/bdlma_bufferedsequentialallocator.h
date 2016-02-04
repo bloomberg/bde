@@ -239,21 +239,21 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 
   public:
     // CREATORS
-    BufferedSequentialAllocator(char             *buffer,
-                                int               size,
-                                bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialAllocator(char                   *buffer,
+                                bsls::Types::size_type  size,
+                                bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
+                              bsls::Types::size_type       size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialAllocator(char                      *buffer,
-                                int                        size,
+                                bsls::Types::size_type     size,
                                 bsls::Alignment::Strategy  alignmentStrategy,
                                 bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
+                              bsls::Types::size_type       size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bsls::Alignment::Strategy    alignmentStrategy,
                               bslma::Allocator            *basicAllocator = 0);
@@ -275,25 +275,25 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialAllocator(char             *buffer,
-                                int               size,
-                                int               maxBufferSize,
-                                bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialAllocator(char                   *buffer,
+                                bsls::Types::size_type  size,
+                                bsls::Types::size_type  maxBufferSize,
+                                bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
+                              bsls::Types::size_type       size,
+                              bsls::Types::size_type       maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialAllocator(char                      *buffer,
-                                int                        size,
-                                int                        maxBufferSize,
+                                bsls::Types::size_type     size,
+                                bsls::Types::size_type     maxBufferSize,
                                 bsls::Alignment::Strategy  alignmentStrategy,
                                 bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
+                              bsls::Types::size_type       size,
+                              bsls::Types::size_type       maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bsls::Alignment::Strategy    alignmentStrategy,
                               bslma::Allocator            *basicAllocator = 0);
@@ -365,9 +365,9 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 // CREATORS
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
-                                              char             *buffer,
-                                              int               size,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bslma::Allocator       *basicAllocator)
 : d_pool(buffer, size, basicAllocator)
 {
 }
@@ -375,7 +375,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                    char                        *buffer,
-                                   int                          size,
+                                   bsls::Types::size_type       size,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, growthStrategy, basicAllocator)
@@ -385,7 +385,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                   char                      *buffer,
-                                  int                        size,
+                                  bsls::Types::size_type     size,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, alignmentStrategy, basicAllocator)
@@ -395,7 +395,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                 char                        *buffer,
-                                int                          size,
+                                bsls::Types::size_type       size,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)
@@ -405,10 +405,10 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
-                                              char             *buffer,
-                                              int               size,
-                                              int               maxBufferSize,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bsls::Types::size_type  maxBufferSize,
+                                        bslma::Allocator       *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, basicAllocator)
 {
 }
@@ -416,8 +416,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                    char                        *buffer,
-                                   int                          size,
-                                   int                          maxBufferSize,
+                                   bsls::Types::size_type       size,
+                                   bsls::Types::size_type       maxBufferSize,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, growthStrategy, basicAllocator)
@@ -427,8 +427,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                   char                      *buffer,
-                                  int                        size,
-                                  int                        maxBufferSize,
+                                  bsls::Types::size_type     size,
+                                  bsls::Types::size_type     maxBufferSize,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, alignmentStrategy, basicAllocator)
@@ -438,8 +438,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                 char                        *buffer,
-                                int                          size,
-                                int                          maxBufferSize,
+                                bsls::Types::size_type       size,
+                                bsls::Types::size_type       maxBufferSize,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)

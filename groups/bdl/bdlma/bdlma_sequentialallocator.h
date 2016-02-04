@@ -257,10 +257,8 @@ class SequentialAllocator : public ManagedAllocator {
     // CREATORS
     explicit
     SequentialAllocator(bslma::Allocator *basicAllocator = 0);
-    explicit
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    explicit
     SequentialAllocator(bsls::Alignment::Strategy  alignmentStrategy,
                         bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
@@ -278,15 +276,17 @@ class SequentialAllocator : public ManagedAllocator {
         // that no limit is imposed on the size of the internal buffers when
         // geometric growth is used.
 
+    SequentialAllocator(int initialSize);
     explicit
-    SequentialAllocator(int initialSize, bslma::Allocator *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
+    SequentialAllocator(bsls::Types::size_type  initialSize,
+                        bslma::Allocator       *basicAllocator = 0);
+    SequentialAllocator(bsls::Types::size_type       initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                        initialSize,
+    SequentialAllocator(bsls::Types::size_type     initialSize,
                         bsls::Alignment::Strategy  alignmentStrategy,
                         bslma::Allocator          *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
+    SequentialAllocator(bsls::Types::size_type       initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -308,19 +308,19 @@ class SequentialAllocator : public ManagedAllocator {
         // internal buffers will always be the same as the
         // implementation-defined value.
 
-    SequentialAllocator(int               initialSize,
-                        int               maxBufferSize,
-                        bslma::Allocator *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
+    SequentialAllocator(bsls::Types::size_type  initialSize,
+                        bsls::Types::size_type  maxBufferSize,
+                        bslma::Allocator       *basicAllocator = 0);
+    SequentialAllocator(bsls::Types::size_type       initialSize,
+                        bsls::Types::size_type       maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                        initialSize,
-                        int                        maxBufferSize,
+    SequentialAllocator(bsls::Types::size_type     initialSize,
+                        bsls::Types::size_type     maxBufferSize,
                         bsls::Alignment::Strategy  alignmentStrategy,
                         bslma::Allocator          *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
+    SequentialAllocator(bsls::Types::size_type       initialSize,
+                        bsls::Types::size_type       maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -384,7 +384,7 @@ class SequentialAllocator : public ManagedAllocator {
         // this call that was obtained from this object before this call is
         // undefined.
 
-    void reserveCapacity(int numBytes);
+    void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
         // dynamic allocation).  If 'numBytes' is 0, no memory is reserved.
@@ -394,7 +394,9 @@ class SequentialAllocator : public ManagedAllocator {
         // 'numBytes' of memory will be used for allocation before triggering
         // dynamic allocation.
 
-    int truncate(void *address, int originalSize, int newSize);
+    bsls::Types::size_type truncate(void                   *address,
+                                    bsls::Types::size_type  originalSize,
+                                    bsls::Types::size_type  newSize);
         // Reduce the amount of memory allocated at the specified 'address' of
         // the specified 'originalSize' (in bytes) to the specified 'newSize'.
         // Return 'newSize' after truncating, or 'originalSize' if the memory
@@ -451,8 +453,16 @@ SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int               initialSize,
-                    bslma::Allocator *basicAllocator)
+SequentialAllocator(int initialSize)
+: d_sequentialPool(initialSize)
+{
+    BSLS_ASSERT_SAFE(0 < initialSize);
+}
+
+inline
+SequentialAllocator::
+SequentialAllocator(bsls::Types::size_type  initialSize,
+                    bslma::Allocator       *basicAllocator)
 : d_sequentialPool(initialSize, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -460,7 +470,7 @@ SequentialAllocator(int               initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                          initialSize,
+SequentialAllocator(bsls::Types::size_type       initialSize,
                     bsls::BlockGrowth::Strategy  growthStrategy,
                     bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, growthStrategy, basicAllocator)
@@ -470,7 +480,7 @@ SequentialAllocator(int                          initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                        initialSize,
+SequentialAllocator(bsls::Types::size_type     initialSize,
                     bsls::Alignment::Strategy  alignmentStrategy,
                     bslma::Allocator          *basicAllocator)
 : d_sequentialPool(initialSize, alignmentStrategy, basicAllocator)
@@ -480,7 +490,7 @@ SequentialAllocator(int                        initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                          initialSize,
+SequentialAllocator(bsls::Types::size_type       initialSize,
                     bsls::BlockGrowth::Strategy  growthStrategy,
                     bsls::Alignment::Strategy    alignmentStrategy,
                     bslma::Allocator            *basicAllocator)
@@ -494,9 +504,9 @@ SequentialAllocator(int                          initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int               initialSize,
-                    int               maxBufferSize,
-                    bslma::Allocator *basicAllocator)
+SequentialAllocator(bsls::Types::size_type  initialSize,
+                    bsls::Types::size_type  maxBufferSize,
+                    bslma::Allocator       *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 < initialSize);
@@ -505,8 +515,8 @@ SequentialAllocator(int               initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                          initialSize,
-                    int                          maxBufferSize,
+SequentialAllocator(bsls::Types::size_type       initialSize,
+                    bsls::Types::size_type       maxBufferSize,
                     bsls::BlockGrowth::Strategy  growthStrategy,
                     bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, growthStrategy, basicAllocator)
@@ -517,8 +527,8 @@ SequentialAllocator(int                          initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                        initialSize,
-                    int                        maxBufferSize,
+SequentialAllocator(bsls::Types::size_type     initialSize,
+                    bsls::Types::size_type     maxBufferSize,
                     bsls::Alignment::Strategy  alignmentStrategy,
                     bslma::Allocator          *basicAllocator)
 : d_sequentialPool(initialSize,
@@ -532,8 +542,8 @@ SequentialAllocator(int                        initialSize,
 
 inline
 SequentialAllocator::
-SequentialAllocator(int                          initialSize,
-                    int                          maxBufferSize,
+SequentialAllocator(bsls::Types::size_type       initialSize,
+                    bsls::Types::size_type       maxBufferSize,
                     bsls::BlockGrowth::Strategy  growthStrategy,
                     bsls::Alignment::Strategy    alignmentStrategy,
                     bslma::Allocator            *basicAllocator)
@@ -577,7 +587,10 @@ void SequentialAllocator::rewind()
 }
 
 inline
-int SequentialAllocator::truncate(void *address, int originalSize, int newSize)
+bsls::Types::size_type SequentialAllocator::truncate(
+                                          void                   *address,
+                                          bsls::Types::size_type  originalSize,
+                                          bsls::Types::size_type  newSize)
 {
     return d_sequentialPool.truncate(address, originalSize, newSize);
 }
@@ -588,7 +601,7 @@ int SequentialAllocator::truncate(void *address, int originalSize, int newSize)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

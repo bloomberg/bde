@@ -292,10 +292,10 @@ class BufferManager {
     char                   *d_buffer_p;          // external buffer (held, not
                                                  // owned)
 
-    int                     d_bufferSize;        // size (in bytes) of external
+    bsls::Types::size_type  d_bufferSize;        // size (in bytes) of external
                                                  // buffer
 
-    int                     d_cursor;            // offset to next available
+    bsls::Types::size_type  d_cursor;            // offset to next available
                                                  // byte in buffer
 
     bsls::Types::size_type  d_alignmentAndMask;  // a mask used during the
@@ -323,7 +323,7 @@ class BufferManager {
 
     BufferManager(
           char                      *buffer,
-          int                        bufferSize,
+          bsls::Types::size_type     bufferSize,
           bsls::Alignment::Strategy  strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks from the
         // specified external 'buffer' having the specified 'bufferSize' (in
@@ -363,7 +363,7 @@ class BufferManager {
         // effect as the 'deleteObjectRaw' method (since no deallocation is
         // involved), and exists for consistency with a pool interface.
 
-    int expand(void *address, int size);
+    bsls::Types::size_type expand(void *address, bsls::Types::size_type size);
         // Increase the amount of memory allocated at the specified 'address'
         // from the original 'size' (in bytes) to also include the maximum
         // amount remaining in the buffer.  Return the amount of memory
@@ -376,7 +376,7 @@ class BufferManager {
         // 'address' is 'size', and 'release' was not called after allocating
         // the memory at 'address'.
 
-    char *replaceBuffer(char *newBuffer, int newBufferSize);
+    char *replaceBuffer(char *newBuffer, bsls::Types::size_type newBufferSize);
         // Replace the buffer currently managed by this object with the
         // specified 'newBuffer' of the specified 'newBufferSize' (in bytes);
         // return the address of the previously held buffer, or 0 if this
@@ -400,7 +400,9 @@ class BufferManager {
         // of this object with no effect on the outstanding allocated memory
         // blocks.
 
-    int truncate(void *address, int originalSize, int newSize);
+    bsls::Types::size_type truncate(void                   *address,
+                                    bsls::Types::size_type  originalSize,
+                                    bsls::Types::size_type  newSize);
         // Reduce the amount of memory allocated at the specified 'address' of
         // the specified 'originalSize' (in bytes) to the specified 'newSize'
         // (in bytes).  Return 'newSize' after truncating, or 'originalSize' if
@@ -419,7 +421,7 @@ class BufferManager {
         // currently managed by this object, or 0 if this object currently
         // manages no buffer.
 
-    int bufferSize() const;
+    bsls::Types::size_type bufferSize() const;
         // Return the size (in bytes) of the buffer currently managed by this
         // object, or 0 if this object currently manages no buffer.
 
@@ -431,7 +433,7 @@ class BufferManager {
         // allocation of the specified 'size'.  The behavior is undefined
         // unless '0 < size'.
 
-    bool hasSufficientCapacity(int size) const;
+    bool hasSufficientCapacity(bsls::Types::size_type size) const;
         // Return 'true' if there is sufficient memory space in the buffer to
         // allocate a contiguous memory block of the specified 'size' (in
         // bytes) after taking the alignment strategy into consideration, and
@@ -464,7 +466,7 @@ BufferManager::BufferManager(bsls::Alignment::Strategy strategy)
 
 inline
 BufferManager::BufferManager(char                      *buffer,
-                             int                        bufferSize,
+                             bsls::Types::size_type     bufferSize,
                              bsls::Alignment::Strategy  strategy)
 : d_buffer_p(buffer)
 , d_bufferSize(bufferSize)
@@ -483,7 +485,6 @@ BufferManager::BufferManager(char                      *buffer,
 inline
 BufferManager::~BufferManager()
 {
-    BSLS_ASSERT_SAFE(0        <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
     BSLS_ASSERT_SAFE(   (0 != d_buffer_p && 0 <  d_bufferSize)
                      || (0 == d_buffer_p && 0 == d_bufferSize));
@@ -494,14 +495,14 @@ inline
 void *BufferManager::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT_SAFE(0        <  size);
-    BSLS_ASSERT_SAFE(0        <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;
 
-    int offset = calculateAlignmentOffsetFromSize(address, size);
+    bsls::Types::size_type offset = calculateAlignmentOffsetFromSize(address,
+                                                                     size);
 
-    int cursor = d_cursor + offset + size;
+    bsls::Types::size_type cursor = d_cursor + offset + size;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(cursor <= d_bufferSize)) {
         d_cursor = cursor;
         return address + offset;
@@ -514,7 +515,6 @@ inline
 void *BufferManager::allocateRaw(bsls::Types::size_type size)
 {
     BSLS_ASSERT_SAFE(0        <  size);
-    BSLS_ASSERT_SAFE(0        <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
     BSLS_ASSERT_SAFE(d_buffer_p);
 
@@ -547,7 +547,8 @@ void BufferManager::deleteObject(const TYPE *object)
 }
 
 inline
-char *BufferManager::replaceBuffer(char *newBuffer, int newBufferSize)
+char *BufferManager::replaceBuffer(char                   *newBuffer,
+                                   bsls::Types::size_type  newBufferSize)
 {
     BSLS_ASSERT_SAFE(newBuffer);
     BSLS_ASSERT_SAFE(0 < newBufferSize);
@@ -582,7 +583,7 @@ char *BufferManager::buffer() const
 }
 
 inline
-int BufferManager::bufferSize() const
+bsls::Types::size_type BufferManager::bufferSize() const
 {
     return d_bufferSize;
 }
@@ -594,22 +595,21 @@ int BufferManager::calculateAlignmentOffsetFromSize(
 {
     BSLS_ASSERT_SAFE(0 < size);
 
-    int alignment = static_cast<int>((size & d_alignmentAndMask)
-                                                          | d_alignmentOrMask);
+    bsls::Types::size_type alignment = (size & d_alignmentAndMask)
+                                                           | d_alignmentOrMask;
 
     alignment &= -alignment;  // clear all but lowest order set bit
 
-    return static_cast<int>(  (alignment
-                                      - reinterpret_cast<std::size_t>(address))
-                            & (alignment - 1));
+    return static_cast<int>(
+                (alignment - reinterpret_cast<bsls::Types::size_type>(address))
+              & (alignment - 1));
 }
 
 inline
-bool BufferManager::hasSufficientCapacity(int size) const
+bool BufferManager::hasSufficientCapacity(bsls::Types::size_type size) const
 {
     BSLS_ASSERT_SAFE(0 < size);
     BSLS_ASSERT_SAFE(d_buffer_p);
-    BSLS_ASSERT_SAFE(0 <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;

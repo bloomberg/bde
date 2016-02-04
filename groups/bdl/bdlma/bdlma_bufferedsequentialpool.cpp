@@ -15,9 +15,9 @@ namespace bdlma {
 
 // CREATORS
 BufferedSequentialPool::BufferedSequentialPool(
-                                              char             *buffer,
-                                              int               size,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bslma::Allocator       *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
@@ -34,7 +34,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                    char                        *buffer,
-                                   int                          size,
+                                   bsls::Types::size_type       size,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
@@ -53,7 +53,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                   char                      *buffer,
-                                  int                        size,
+                                  bsls::Types::size_type     size,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_initialBuffer_p(buffer)
@@ -72,7 +72,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                 char                        *buffer,
-                                int                          size,
+                                bsls::Types::size_type       size,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)
@@ -91,10 +91,10 @@ BufferedSequentialPool::BufferedSequentialPool(
 }
 
 BufferedSequentialPool::BufferedSequentialPool(
-                                              char             *buffer,
-                                              int               size,
-                                              int               maxBufferSize,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bsls::Types::size_type  maxBufferSize,
+                                        bslma::Allocator       *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
@@ -112,8 +112,8 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                  char                        *buffer,
-                                 int                          size,
-                                 int                          maxBufferSize,
+                                 bsls::Types::size_type       size,
+                                 bsls::Types::size_type       maxBufferSize,
                                  bsls::BlockGrowth::Strategy  growthStrategy,
                                  bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
@@ -133,8 +133,8 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                   char                      *buffer,
-                                  int                        size,
-                                  int                        maxBufferSize,
+                                  bsls::Types::size_type     size,
+                                  bsls::Types::size_type     maxBufferSize,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_initialBuffer_p(buffer)
@@ -154,8 +154,8 @@ BufferedSequentialPool::BufferedSequentialPool(
 
 BufferedSequentialPool::BufferedSequentialPool(
                                 char                        *buffer,
-                                int                          size,
-                                int                          maxBufferSize,
+                                bsls::Types::size_type       size,
+                                bsls::Types::size_type       maxBufferSize,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)
@@ -178,7 +178,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

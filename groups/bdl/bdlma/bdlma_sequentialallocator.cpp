@@ -17,7 +17,7 @@ SequentialAllocator::~SequentialAllocator()
 }
 
 // MANIPULATORS
-void *SequentialAllocator::allocateAndExpand(size_type *size)
+void *SequentialAllocator::allocateAndExpand(bsls::Types::size_type *size)
 {
     BSLS_ASSERT(size);
 
@@ -29,10 +29,8 @@ void *SequentialAllocator::allocateAndExpand(size_type *size)
     return d_sequentialPool.allocateAndExpand(size);
 }
 
-void SequentialAllocator::reserveCapacity(int numBytes)
+void SequentialAllocator::reserveCapacity(bsls::Types::size_type numBytes)
 {
-    BSLS_ASSERT(0 <= numBytes);
-
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == numBytes)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
@@ -45,7 +43,7 @@ void SequentialAllocator::reserveCapacity(int numBytes)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
