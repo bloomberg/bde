@@ -177,11 +177,11 @@ class DatumMapOwningKeysBuilder {
 
     // CREATORS
     explicit DatumMapOwningKeysBuilder(bslma::Allocator *basicAllocator);
-        // Create a 'DatumMapOwningKeysBuilder' object managing the ownership
-        // of 'Datum' map (owning keys) using the specified 'basicAllocator' to
-        // supply memory.  Note that no memory is allocated until 'append' or
-        // 'pushBack' methods are called on this object.  The behavior is
-        // undefined unless '0 != basicAllocator'.
+        // Create a 'DatumMapOwningKeysBuilder' object that will administer the
+        // process of building a 'Datum' map (owning keys) using the specified
+        // 'basicAllocator' to supply memory.  Note that no memory is allocated
+        // until 'append' or 'pushBack' methods are called on this object.  The
+        // behavior is undefined unless '0 != basicAllocator'.
 
     DatumMapOwningKeysBuilder(SizeType          initialCapacity,
                               SizeType          initialKeysCapacity,
@@ -208,7 +208,7 @@ class DatumMapOwningKeysBuilder {
         // been called on this object.
 
     Datum commit();
-        // Return a 'Datum' map (owning key) value holding the elements
+        // Return a 'Datum' map (owning keys) value holding the elements
         // supplied to 'pushBack' or 'append'.  The caller is responsible for
         // releasing the resources of the returned 'Datum' object.  Calling
         // this method indicates that the caller is finished building the
@@ -225,10 +225,16 @@ class DatumMapOwningKeysBuilder {
         // already been called on this object.
 
     void setSorted(bool value);
-        // Indicate that the 'Datum' map (owning keys) being built is sorted if
-        // the specified 'value' is 'true' and unsorted otherwise.  The
-        // behavior is undefined if 'commit'or 'sortAndCommit' has already been
-        // called on this object.  Note that the map is unsorted by default.
+        // Mark the Datum map (owning keys) being built by this object as
+        // sorted if the specified 'value' is 'true' and mark it unsorted
+        // otherwise.  This function does not sort the map entries, or mark
+        // them to be sorted later; the function should be used to indicate if
+        // the entries are being appended in sorted order.  The behavior is
+        // undefined if 'commit' or 'sortAndCommit' has already been called on
+        // this object.  The behavior is also undefined if the map being
+        // constructed is marked sorted, but the entries are not appended in
+        // sorted order.  Note also that the map being constructed is marked
+        // unsorted by default.
 
     Datum sortAndCommit();
         // Return a 'Datum' map (owning keys) value holding the elements

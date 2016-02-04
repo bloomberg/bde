@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide a smart-pointer like manager for 'Datum' object.
+//@PURPOSE: Provide a smart-pointer like manager for a 'Datum' object.
 //
 //@CLASSES:
 //  bdld::ManagedDatum: a smart-pointer like manager for a 'Datum' object

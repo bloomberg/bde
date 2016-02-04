@@ -227,12 +227,13 @@ class DatumArrayBuilder {
     // CREATORS
     explicit DatumArrayBuilder(SizeType          initialCapacity = 0,
                                bslma::Allocator *basicAllocator  = 0);
-        // Create a 'DatumArrayBuilder' object managing the ownership of
-        // 'Datum' array.  Optionally specify an 'initialCapacity' for the
-        // array.  If 'initialCapacity' is not supplied, the initial capacity
-        // of the array is 0.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create a 'DatumArrayBuilder' object that will administer the process
+        // of building a 'Datum' array.  Optionally specify an
+        // 'initialCapacity' for the array.  If 'initialCapacity' is not
+        // supplied, the initial capacity of the array is 0.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~DatumArrayBuilder();
         // Destroy this object.  If this object is holding a 'Datum' array that

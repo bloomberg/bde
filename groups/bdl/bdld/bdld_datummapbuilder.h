@@ -14,7 +14,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE ALSO: bdld_datum, bdld_datummapowningkeysbuilder
 //
-//@DESCRIPTION: This component defined a mechanism, 'bdld::DatumMapBuilder',
+//@DESCRIPTION: This component defines a mechanism, 'bdld::DatumMapBuilder',
 // used to populate a 'Datum' map value in an exception-safe manner.  In
 // addition to providing exception safety, a 'DatumMapBuilder' is particularly
 // useful when the size of the map to be constructed is not known in advance.
@@ -27,6 +27,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // sorted.  Also note that the user can insert elements in a (ascending) sorted
 // order and tag the map as sorted.  The behaviour is undefined if unsorted map
 // is tagged sorted.
+//
+// The only difference between this component and
+// 'bdld_datummapowningkeysbuilder' is that this component does not make a copy
+// of the map entries keys and the resulting 'Datum' object does not own memory
+// for the map entries keys.
 //
 ///Usage
 ///-----
@@ -155,12 +160,12 @@ class DatumMapBuilder {
     // CREATORS
     explicit DatumMapBuilder(SizeType          initialCapacity = 0,
                              bslma::Allocator *basicAllocator  = 0);
-        // Create a 'DatumMapBuilder' object managing the ownership of 'Datum'
-        // map.  Optionally specify an 'initialCapacity' for the map.  If
-        // 'initialCapacity' is not supplied, the initial capacity of the map
-        // is 0.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create a 'DatumMapBuilder' object that will administer the process
+        // of building a 'Datum' map.  Optionally specify an 'initialCapacity'
+        // for the map.  If 'initialCapacity' is not supplied, the initial
+        // capacity of the map is 0.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     ~DatumMapBuilder();
         // Destroy this object. If this object is holding a datum map that has
@@ -195,10 +200,16 @@ class DatumMapBuilder {
         // already been called on this object.
 
     void setSorted(bool value);
-        // Indicate that the underlying map is sorted if the specified 'value'
-        // is 'true' and unsorted otherwise.  The behavior is undefined if
+        // Mark the Datum map being built by this object as sorted if the
+        // specified 'value' is 'true' and mark it unsorted otherwise.  This
+        // function does not sort the map entries, or mark them to be sorted
+        // later; the function should be used to indicate if the entries are
+        // being appended in sorted order.  The behavior is undefined if
         // 'commit' or 'sortAndCommit' has already been called on this object.
-        // Note that the map is unsorted by default.
+        // The behavior is also undefined if the map being constructed is
+        // marked sorted, but the entries are not appended in sorted order.
+        // Note also that the map being constructed is marked unsorted by
+        // default.
 
     Datum sortAndCommit();
         // Return a 'Datum' map value holding the elements supplied to
