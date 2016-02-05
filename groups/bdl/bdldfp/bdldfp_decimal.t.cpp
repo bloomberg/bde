@@ -8,6 +8,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_strstream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_climits.h> // CHAR_BIT
@@ -715,6 +716,9 @@ void TestDriver::testCase4()
     //:
     //:10 That the output using 's << obj' is the same as
     //:   'obj.print(s, 0, -1)'.
+    //:
+    //:11 That 'operator<<' sets the fail and errors bit if the memory buffer
+    //:   in the supplied output stream is not large enough.
     //
     // Note that this is not (yet) a complete set of concerns (or test) for
     // this function.
@@ -723,7 +727,11 @@ void TestDriver::testCase4()
     //  1 Create a test table, where each element contains a decimal value, a
     //    set of formatting flags, and an expected output.  Iterate over the
     //    test table for 'Decimal32', 'Decimal64', and 'Decimal128' types, and
-    //    ensure the streamed output matches the expected value
+    //    ensure the streamed output matches the expected value.
+    //
+    //  2 Stream out a value to an output stream with a fixed memory buffer
+    //    that is not large enough.  Make sure that the bad and fail bits are
+    //    set in the output stream.
     //
     // Testing:
     //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal32 );
@@ -931,6 +939,7 @@ void TestDriver::testCase4()
             bsl::string ACTUAL = outdec.str();
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+            ASSERTV(outdec.good());
         }
 
         // Test with Decimal64.
@@ -950,6 +959,7 @@ void TestDriver::testCase4()
             bsl::string ACTUAL = outdec.str();
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+            ASSERTV(outdec.good());
         }
 
         // Test with print
@@ -988,9 +998,43 @@ void TestDriver::testCase4()
             bsl::string ACTUAL = outdec.str();
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+            ASSERTV(outdec.good());
         }
+    }
 
-
+    {
+        {
+            char buffer[4];
+            bsl::ostrstream out(buffer, 4);
+            BDEC::Decimal64 value = DFP(-1.0);
+            out << value;
+            ASSERTV(out.fail(), !out.fail());
+            ASSERTV(out.bad(), !out.bad());
+        }
+        {
+            char buffer[4];
+            bsl::ostrstream out(buffer, 3);
+            BDEC::Decimal32 value = DFP(-1.0);
+            out << value;
+            ASSERTV(out.fail(), out.fail());
+            ASSERTV(out.bad(), out.bad());
+        }
+        {
+            char buffer[4];
+            bsl::ostrstream out(buffer, 3);
+            BDEC::Decimal64 value = DFP(-1.0);
+            out << value;
+            ASSERTV(out.fail(), out.fail());
+            ASSERTV(out.bad(), out.bad());
+        }
+        {
+            char buffer[4];
+            bsl::ostrstream out(buffer, 3);
+            BDEC::Decimal128 value = DFP(-1.0);
+            out << value;
+            ASSERTV(out.fail(), out.fail());
+            ASSERTV(out.bad(), out.bad());
+        }
     }
 #undef DFP
 }
