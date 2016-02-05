@@ -568,10 +568,11 @@ class TimerEventScheduler {
 
     void stop();
         // Stop dispatching events on this scheduler, but do not remove any
-        // pending event.  Block until all pending jobs are finished, then
-        // terminate the dispatcher thread and return.  If this scheduler is
-        // already stopped then this invocation has no effect.  The behavior is
-        // undefined if this function is called by a job enqueued to the
+        // pending event.  If the dispatcher thread is in the middle of
+        // dispatching some events, block until those events are disptached.
+        // Then terminate the dispatcher thread and return.  If this scheduler
+        // is already stopped then this invocation has no effect.  The behavior
+        // is undefined if this function is called by a job enqueued to the
         // scheduler that is to be stopped.  This scheduler can be restarted by
         // invoking 'start'.
 
