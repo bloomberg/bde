@@ -271,13 +271,13 @@ class Category {
     const ThresholdAggregate& thresholdLevels() const;
         // Return the aggregate threshold levels of this category.
 
-    const int threshold() const;
+    int threshold() const;
         // Return the current maximum threshold (i.e., the lowest severity)
         // between the 'recordLevel', 'passLevel', 'triggerLevel', and
         // 'triggerAllLevel'.  Note that this is the threshold at which a log
         // record having this severity will need to be acted upon.
 
-    const int ruleThreshold() const;
+    int ruleThreshold() const;
         // Return the current maximum threshold (i.e., the lowest severity) for
         // any logging rule associated with this category.  Note that the rule
         // having this threshold may not be active given the current thread's
@@ -473,13 +473,13 @@ const ThresholdAggregate& Category::thresholdLevels() const
 }
 
 inline
-const int Category::threshold() const
+int Category::threshold() const
 {
     return d_threshold;
 }
 
 inline
-const int Category::ruleThreshold() const
+int Category::ruleThreshold() const
 {
     return d_ruleThreshold;
 }
