@@ -165,6 +165,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslma {
