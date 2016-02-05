@@ -10,23 +10,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mapping from integral constants to unique types.
 //
 //@CLASSES:
-// bsl::integral_constant<TYPE,VAL>: A compile-time type representing 'VAL'
-// bsl::false_type: 'typedef' for 'integral_constant<bool, false>'
-// bsl::true_type: 'typedef' for 'integral_constant<bool, true>'
+// bsl::integral_constant: A type representing a specific integer value
+//        bsl::false_type: 'typedef' for 'integral_constant<bool, false>'
+//         bsl::true_type: 'typedef' for 'integral_constant<bool, true>'
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component describes a simple class template,
-// 'integral_constant', that is used to map an integer constant to a C++ type.
-// 'integral_constant<TYPE, VAL>' generates a unique type for each distinct
-// compile-time integral 'TYPE' and constant integer 'VAL' parameter.  That
-// is, instantiations with different integer types and values form distinct
-// types, so that 'integral_constant<int, 0>' is a different type from
+// 'bsl::integral_constant', that is used to map an integer constant to a C++
+// type.  'integral_constant<TYPE, VAL>' generates a unique type for each
+// distinct compile-time integral 'TYPE' and constant integer 'VAL' parameter.
+// That is, instantiations with different integer types and values form
+// distinct types, so that 'integral_constant<int, 0>' is a different type from
 // 'integral_constant<int, 1>', which is also distinct from
 // 'integral_constant<unsigned, 1>', and so on.  This mapping of integer values
 // to types allows for "overloading by value", i.e., multiple functions with
 // the same name can be overloaded on the "value" of an 'integral_constant'
-// argument, provided that the value is known at compile-time.
+// argument, provided that the value is known at compile-time.  The typedefs
+// 'bsl::true_type' and 'bsl::false_type' map the predicate values 'true' and
+// 'false' to C++ types that are frequently useful for compile-time algorithms.
 //
 ///Usage
 ///-----
@@ -111,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // The value 'IsFloatingPoint<int>::value' is false and
 // 'IsFloatingPoint<double>::value' is true.  The 'integral_constant' base
 // class has a member type, 'type', that refers to itself and is inherited by
-// 'IsFloatingPoint'. Thus 'IsFloatingPoint<float>::type' is 'true_type' and
+// 'IsFloatingPoint'.  Thus 'IsFloatingPoint<float>::type' is 'true_type' and
 // 'IsFloatingPoint<char>::type' is 'false_type'.  'IsFloatingPoint' is an a
 // member of a common category of metafunctions known as "type traits" because
 // they express certain properties (traits) of a type.  Using this
@@ -147,6 +149,30 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+
+// Detect need for compiler workarounds
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
+# define BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR  1
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 template <int> struct MetaInt;
@@ -159,6 +185,45 @@ namespace bsl {
                         // class template integral_constant
                         // ================================
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+template <class TYPE, TYPE VAL>
+struct integral_constant : ::native_std::integral_constant<TYPE, VAL> {
+    typedef integral_constant type;
+
+#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
+    operator TYPE() const { return this->value; }
+#endif
+};
+
+template <>
+struct integral_constant<bool, false> : ::native_std::false_type
+{
+    typedef integral_constant type;
+
+    // COMPATIBILITY MEMBERS
+    typedef BloombergLP::bslmf::MetaInt<false> Type;
+    static const bool VALUE = false;
+
+#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
+    operator bool() const { return false; }
+#endif
+};
+
+template <>
+struct integral_constant<bool, true> : ::native_std::true_type
+{
+    typedef integral_constant type;
+
+    // COMPATIBILITY MEMBERS
+    typedef BloombergLP::bslmf::MetaInt<true> Type;
+    static const bool VALUE = true;
+
+#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
+    operator bool() const { return true; }
+#endif
+};
+
+#else
 template <class TYPE, TYPE VAL>
 struct integral_constant {
     // Generate a unique type for the given 'TYPE' and 'VAL'.  This 'struct'
@@ -208,6 +273,7 @@ struct integral_constant<bool, VAL> {
     typedef BloombergLP::bslmf::MetaInt<VAL> Type;
     static const bool VALUE = VAL;
 };
+#endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
                         // ===============
                         // type false_type
@@ -227,6 +293,7 @@ typedef integral_constant<bool, true> true_type;
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // STATIC MEMBER VARIABLES
 template <class TYPE, TYPE VAL>
 const TYPE bsl::integral_constant<TYPE, VAL>::value;
@@ -250,6 +317,7 @@ bsl::integral_constant<bool, VAL>::operator bool() const
 {
     return VAL;
 }
+#endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 

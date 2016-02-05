@@ -28,38 +28,73 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//              PLATFORM DETECTION MACROS TO SUPPORT TESTING
+//-----------------------------------------------------------------------------
+
+//# define BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS 1
+#if !defined(BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS)
+
+# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
+  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
+// The xlC compiler matches function types with trailing cv-qualifiers as being
+// cv-qualified themselves.  However, in such cases the cv-qualifier applies to
+// the (hidden) 'this' pointer, as these function types exist only to be the
+// result-type of a pointer-to-member type.  By definition no function type can
+// ever be cv-qualified.  The Microsoft compiler cannot parse such types at
+// all.
+//
+// Note that we could obtain the correct answer by testing 'is_function', and
+// simply returning the original type in such cases.  However, that simply
+// exposes that our current implementation of 'is_function' does not detect
+// such types either.
+# define BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES
+#endif
+
+#endif // BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -80,15 +115,19 @@ struct TestType {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    (void) veryVerbose;
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -106,7 +145,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE\n"
+        if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
 ///Usage
@@ -137,7 +176,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_volatile::type'
+        // TESTING 'bsl::remove_volatile<T>::type'
         //   Ensure that the 'typedef' 'type' of 'bsl::remove_volatile' has the
         //   correct type for a variety of template parameter types.
         //
@@ -156,8 +195,8 @@ int main(int argc, char *argv[])
         //   bsl::remove_volatile::type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::remove_volatile::type'\n"
-                            "\n============================\n");
+        if (verbose) printf("\nTESTING 'bsl::remove_volatile<T>::type'"
+                            "\n=======================================\n");
 
         // C-1
         ASSERT((is_same<remove_volatile<int>::type, int>::value));
@@ -185,6 +224,18 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<void>::type, void>::value));
         ASSERT((is_same<remove_volatile<const void>::type,
                                         const void>::value));
+
+        ASSERT((is_same<remove_volatile<volatile int TestType::*>::type,
+                                        volatile int TestType::*>::value));
+
+#ifndef BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES
+        ASSERT((is_same<remove_volatile<volatile int() volatile>::type,
+                                        volatile int() volatile>::value));
+
+        ASSERT((is_same<
+                       remove_volatile<volatile int() const volatile>::type,
+                                       volatile int() const volatile>::value));
+#endif
 
         // C-2
         ASSERT((is_same<remove_volatile<int volatile>::type, int>::value));
@@ -217,6 +268,13 @@ int main(int argc, char *argv[])
                                                  void>::value));
         ASSERT((is_same<remove_volatile<const volatile void>::type,
                                         const          void>::value));
+
+        ASSERT((is_same<
+                   remove_volatile<volatile int TestType::* volatile>::type,
+                                   volatile int TestType::*         >::value));
+        ASSERT((is_same<
+             remove_volatile<volatile int TestType::* const volatile>::type,
+                             volatile int TestType::* const         >::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

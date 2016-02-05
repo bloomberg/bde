@@ -92,9 +92,10 @@ class NonTypicalOverloadsTestType {
         // defined only on the Microsoft platform, because we in general do not
         // support types that overrides 'operator&' in our standard containers
         // implementation except on Windows.  See the component-level
-        // documentation of bsls_util for more information.  Note that this
-        // method is deliverable *not* declared as 'const' in order to increase
-        // the opportunities to provoke issues at the time of compilation.
+        // documentation of 'bsls_util' for more information.  Note that this
+        // method is deliberately *not* declared as 'const' in order to
+        // increase the opportunities to provoke issues at the time of
+        // compilation.
 #endif
 
   public:

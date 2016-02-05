@@ -55,8 +55,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCLASS
+#include <bslmf_isclass.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -73,10 +81,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
 #endif
 
 namespace BloombergLP {
@@ -116,6 +120,13 @@ struct IsEnum_AnyArithmeticType {
         // ambiguous.
 };
 
+template <class COMPLETE_TYPE>
+struct IsEnum_TestConversions
+     : bsl::integral_constant<bool,
+       bsl::is_convertible<COMPLETE_TYPE, IsEnum_AnyArithmeticType>::value
+        && !IsConvertibleToAny<COMPLETE_TYPE>::value>::type {
+};
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -127,13 +138,12 @@ namespace bsl {
 
 template <class TYPE>
 struct is_enum
-    : integral_constant<
-        bool,
+    : conditional<
         !is_fundamental<TYPE>::value
         && !is_reference<TYPE>::value
-        && is_convertible<TYPE,
-                        BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value
-        && !BloombergLP::bslmf::IsConvertibleToAny<TYPE>::value> {
+        && !is_class<TYPE>::value,
+        BloombergLP::bslmf::IsEnum_TestConversions<TYPE>,
+        false_type>::type {
     // This 'struct' template implements the 'is_enum' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
@@ -147,6 +157,11 @@ struct is_enum<TYPE *> : false_type {
     // partial specialization, but the convertability tests can trigger ADL
     // such that the compiler will want TYPE to be complete, breaking some
     // desirable usages involving forward-declarations.
+};
+
+template <>
+struct is_enum<void>
+    : bsl::false_type {
 };
 
 // Additional partial specializations for cv-qualified types ensure that the
@@ -168,11 +183,6 @@ struct is_enum<volatile TYPE>
 template <class TYPE>
 struct is_enum<const volatile TYPE>
     : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
-};
-
-template <>
-struct is_enum<void>
-    : bsl::false_type {
 };
 
 }  // close namespace bsl

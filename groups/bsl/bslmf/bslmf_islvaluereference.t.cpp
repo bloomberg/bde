@@ -300,6 +300,11 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(
                      bsl::is_lvalue_reference, FunctionPtrTestType,      true);
 
+        ASSERT( bsl::is_lvalue_reference<int  (&)(int )>::value );
+        ASSERT( bsl::is_lvalue_reference<void (&)(void)>::value );
+        ASSERT( bsl::is_lvalue_reference<int  (&)(void)>::value );
+        ASSERT( bsl::is_lvalue_reference<void (&)(int )>::value );
+
         // C-5
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_lvalue_reference, int  (int),  false);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_lvalue_reference, void (void), false);
