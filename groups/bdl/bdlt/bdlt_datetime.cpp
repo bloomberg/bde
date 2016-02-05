@@ -46,6 +46,7 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
 
     int rc = printToBuffer(buffer, k_BUFFER_SIZE);
 
+    (void)rc;
     BSLS_ASSERT(22 == rc);  // The datetime format contains 22 characters.
 
     bslim::Printer printer(&stream, level, spacesPerLevel);

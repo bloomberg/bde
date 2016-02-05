@@ -381,7 +381,7 @@ int PackedIntArrayImp<STORAGE>::
 
     bsl::size_t endIndex = index + numElements;
 
-    int requiredBytesPerElement = 1;
+    unsigned int requiredBytesPerElement = 1;
     switch (d_bytesPerElement) {
       case 1: {
       } break;
@@ -389,7 +389,7 @@ int PackedIntArrayImp<STORAGE>::
         typename STORAGE::TwoByteStorageType *s =
               static_cast<typename STORAGE::TwoByteStorageType *>(d_storage_p);
         for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
+            unsigned int rbpe = STORAGE::requiredBytesPerElement(
                                                static_cast<ElementType>(s[i]));
             if (requiredBytesPerElement < rbpe) {
                 requiredBytesPerElement = rbpe;
@@ -401,7 +401,7 @@ int PackedIntArrayImp<STORAGE>::
         typename STORAGE::FourByteStorageType *s =
              static_cast<typename STORAGE::FourByteStorageType *>(d_storage_p);
         for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
+            unsigned int rbpe = STORAGE::requiredBytesPerElement(
                                                static_cast<ElementType>(s[i]));
             if (requiredBytesPerElement < rbpe) {
                 requiredBytesPerElement = rbpe;
@@ -415,7 +415,7 @@ int PackedIntArrayImp<STORAGE>::
         typename STORAGE::EightByteStorageType *s =
             static_cast<typename STORAGE::EightByteStorageType *>(d_storage_p);
         for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
+            unsigned int rbpe = STORAGE::requiredBytesPerElement(
                                                static_cast<ElementType>(s[i]));
             if (requiredBytesPerElement < rbpe) {
                 requiredBytesPerElement = rbpe;
