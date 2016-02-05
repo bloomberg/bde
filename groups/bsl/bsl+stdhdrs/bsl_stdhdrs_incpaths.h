@@ -176,6 +176,11 @@ BSLS_IDENT("$Id: $")
 #else /* ! __cplusplus */
 
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   if defined(_MSC_VER) && _MSC_VER >= 1900
+#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../ucrt/filename>
+#   else
+#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
+#   endif
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #endif /* __cplusplus */
