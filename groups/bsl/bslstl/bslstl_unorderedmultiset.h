@@ -1016,9 +1016,8 @@ class unordered_multiset
         // container.
 
     size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this map having the
-        // specified 'key'.  Note that since an unordered set maintains unique
-        // keys, the returned value will be either 0 or 1.
+        // Return the number of 'value_type' objects within this set having the
+        // specified 'key'.
 
     bool empty() const;
         // Return 'true' if multi-set contains no elements, and 'false'
