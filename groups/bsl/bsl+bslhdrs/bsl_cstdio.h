@@ -52,7 +52,10 @@ namespace bsl
     using native_std::getchar;
     using native_std::putc;
     using native_std::putchar;
-#if __cplusplus <= 201103L       // std::gets has been removed in C++14
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900) \
+    // std::gets has been removed in C++11, although Visual C++ does not yet
+    // update the language version macro.
+#elif  __cplusplus <= 201103L
     using native_std::gets;
 #endif
     using native_std::perror;

@@ -28,6 +28,7 @@
 
 
 #include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_exception.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>

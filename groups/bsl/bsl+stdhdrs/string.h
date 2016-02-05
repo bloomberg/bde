@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <string.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(string.h)
+#     include BSL_NATIVE_OS_RTL_HEADER(string.h)
 #   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <string.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(string.h)
+#     include BSL_NATIVE_OS_RTL_HEADER(string.h)
 #   endif
 
 // This native header does not define any symbols in namespace 'std' to import,
