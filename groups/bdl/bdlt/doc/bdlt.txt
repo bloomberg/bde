@@ -168,7 +168,7 @@
   Datetime [0001/01/01_00:00:00.000 ..  9999/12/31_23:59:59.999 ]
 ..
  Further note that:
-: o The date values follow the proleptic Gregorian calendar.
+: o The date values follow the Unix (POSIX) calendar (see {'bdlt_date'}.
 : o The definition of 'bdlt::Datetime' does *not* allow for leap seconds.
 
  The above classes define values representing points on a timeline (e.g., dates

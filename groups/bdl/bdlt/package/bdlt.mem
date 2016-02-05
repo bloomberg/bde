@@ -20,6 +20,8 @@ bdlt_iso8601utilconfiguration
 bdlt_localtimeoffset
 bdlt_monthofyear
 bdlt_packedcalendar
+bdlt_posixdateimputil
+bdlt_prolepticdateimputil
 bdlt_serialdateimputil
 bdlt_time
 bdlt_timetz

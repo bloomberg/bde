@@ -2046,80 +2046,76 @@ int main(int argc, char *argv[])
         //   LOW-LEVEL LOGGING
         // --------------------------------------------------------------------
 
-        // TBD: The bsls_log integration is being disabled for BDE 2.23 (see
-        // 64382709).
+        if (verbose)
+            cout << endl << "TESTING LOW-LEVEL LOGGING" << endl
+                         << "=========================" << endl;
 
-//      if (verbose)
-//          cout << endl << "TESTING LOW-LEVEL LOGGING" << endl
-//                       << "=========================" << endl;
-//
-//
-//      // Saving low-level handler
-//      const bsls::Log::LogMessageHandler oldBslsHandler =
-//                                              bsls::Log::logMessageHandler();
-//      {
-//          if (verbose) cout << "\tCreate the test observer." << endl;
-//          ball::TestObserver testObserver(cout);
-//
-//          if (verbose) cout << "\tCreate scoped guard." << endl;
-//          ball::LoggerManagerConfiguration configuration;
-//          ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
-//
-//          const int oldNumCategories =
-//                        ball::LoggerManager::singleton().numCategories();
-//
-//          if (verbose) cout << "\tConfirm new low-level handler." << endl;
-//          ASSERT(bsls::Log::logMessageHandler() != oldBslsHandler);
-//
-//          if (verbose) cout << "\tWrite a low-level log message." << endl;
-//          const char * const file    = "TestFile.cpp";
-//          const int          line    = 507;
-//          const char * const message = "Some test message.";
-//          bsls::Log::logMessage(file, line, message);
-//
-//          if (verbose) cout << "\tConfirm a new category created." << endl;
-//          LOOP2_ASSERT(oldNumCategories + 1,
-//                       ball::LoggerManager::singleton().numCategories(),
-//                       oldNumCategories + 1
-//                        == ball::LoggerManager::singleton().numCategories());
-//
-//          if(verbose) cout << "\tConfirm record passed directly." << endl;
-//          LOOP_ASSERT(testObserver.numPublishedRecords(),
-//                      1 == testObserver.numPublishedRecords());
-//
-//          if(verbose) cout << "\tConfirm values in record." << endl;
-//          const ball::Record& record = testObserver.lastPublishedRecord();
-//          const ball::RecordAttributes& attributes = record.fixedFields();
-//
-//          LOOP2_ASSERT("BSLS.LOG", attributes.category(),
-//                      0 == strcmp("BSLS.LOG", attributes.category()));
-//
-//          LOOP2_ASSERT(ball::Severity::e_ERROR,
-//                       attributes.severity(),
-//                       ball::Severity::e_ERROR == attributes.severity());
-//
-//          LOOP2_ASSERT(file,
-//                       attributes.fileName(),
-//                       0 == strcmp(file, attributes.fileName()));
-//
-//          LOOP2_ASSERT(line,
-//                       attributes.lineNumber(),
-//                       line == attributes.lineNumber());
-//
-//          LOOP2_ASSERT(message,
-//                       attributes.message(),
-//                       0 == strcmp(message, attributes.message()));
-//
-//          if(veryVerbose) cout << "Message: " << attributes.message()<< endl;
-//
-//          if(verbose) cout << "\tDestroy scoped guard." << endl;
-//          // Let guard fall out of this scope
-//      }
-//
-//      {
-//          if(verbose) cout << "\tConfirm old handler restored." << endl;
-//          ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
-//      }
+        // Saving low-level handler
+        const bsls::Log::LogMessageHandler oldBslsHandler =
+                                                bsls::Log::logMessageHandler();
+        {
+            if (verbose) cout << "\tCreate the test observer." << endl;
+            ball::TestObserver testObserver(cout);
+
+            if (verbose) cout << "\tCreate scoped guard." << endl;
+            ball::LoggerManagerConfiguration configuration;
+            ball::LoggerManagerScopedGuard guard(&testObserver, configuration);
+
+            const int oldNumCategories =
+                          ball::LoggerManager::singleton().numCategories();
+
+            if (verbose) cout << "\tConfirm new low-level handler." << endl;
+            ASSERT(bsls::Log::logMessageHandler() != oldBslsHandler);
+
+            if (verbose) cout << "\tWrite a low-level log message." << endl;
+            const char * const file    = "TestFile.cpp";
+            const int          line    = 507;
+            const char * const message = "Some test message.";
+            bsls::Log::logMessage(file, line, message);
+
+            if (verbose) cout << "\tConfirm a new category created." << endl;
+            LOOP2_ASSERT(oldNumCategories + 1,
+                         ball::LoggerManager::singleton().numCategories(),
+                         oldNumCategories + 1
+                          == ball::LoggerManager::singleton().numCategories());
+
+            if(verbose) cout << "\tConfirm record passed directly." << endl;
+            LOOP_ASSERT(testObserver.numPublishedRecords(),
+                        1 == testObserver.numPublishedRecords());
+
+            if(verbose) cout << "\tConfirm values in record." << endl;
+            const ball::Record& record = testObserver.lastPublishedRecord();
+            const ball::RecordAttributes& attributes = record.fixedFields();
+
+            LOOP2_ASSERT("BSLS.LOG", attributes.category(),
+                        0 == strcmp("BSLS.LOG", attributes.category()));
+
+            LOOP2_ASSERT(ball::Severity::e_ERROR,
+                         attributes.severity(),
+                         ball::Severity::e_ERROR == attributes.severity());
+
+            LOOP2_ASSERT(file,
+                         attributes.fileName(),
+                         0 == strcmp(file, attributes.fileName()));
+
+            LOOP2_ASSERT(line,
+                         attributes.lineNumber(),
+                         line == attributes.lineNumber());
+
+            LOOP2_ASSERT(message,
+                         attributes.message(),
+                         0 == strcmp(message, attributes.message()));
+
+            if(veryVerbose) cout << "Message: " << attributes.message()<< endl;
+
+            if(verbose) cout << "\tDestroy scoped guard." << endl;
+            // Let guard fall out of this scope
+        }
+
+        {
+            if(verbose) cout << "\tConfirm old handler restored." << endl;
+            ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
+        }
       } break;
       case 18: {
         // --------------------------------------------------------------------

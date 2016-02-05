@@ -526,15 +526,11 @@ void LoggerManager::initSingletonImpl(
 
         s_singleton_p = singleton;
 
-
         // Configure 'bsls_log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
 
-        // TBD: The bsls_log integration is being disabled for BDE 2.23 (see
-        // 64382709).
-        //
-        // bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
-        // bsls::Log::setLogMessageHandler(&bslsLogMessage);
+        bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+        bsls::Log::setLogMessageHandler(&bslsLogMessage);
 
     }
     else {
@@ -589,11 +585,9 @@ void LoggerManager::shutDownSingleton()
             // lock is necessary to ensure that the singleton is not destroyed
             // while a 'bsls_log' record is being published.
 
-            // TBD: The bsls_log integration is being disabled for BDE 2.23
-            // (see 64382709).
-            // bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
-            // bsls::Log::setLogMessageHandler(
-            //                      &bsls::Log::platformDefaultMessageHandler);
+            bslmt::QLockGuard qLockGuard(&s_bslsLogLock);
+            bsls::Log::setLogMessageHandler(
+                                    &bsls::Log::platformDefaultMessageHandler);
         }
 
         // Clear the singleton pointer as early as possible to minimize the

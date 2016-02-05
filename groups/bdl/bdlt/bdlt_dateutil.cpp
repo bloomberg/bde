@@ -43,12 +43,12 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     BSLS_ASSERT_SAFE(28 == original.day() || 29 == original.day());
 
     const int newYear = original.year() + numYears;
-    const int eom     = SerialDateImpUtil::isLeapYear(original.year()) ? 29
-                                                                       : 28;
+    const int eom     = SerialDateImpUtil::isLeapYear(original.year())
+                        ? 29
+                        : 28;
 
     if (original.day() == eom) {
         const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;
-
         return Date(newYear, original.month(), newEom);               // RETURN
     }
 
@@ -73,7 +73,8 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
 
     const int eom    = SerialDateImpUtil::lastDayOfMonth(original.year(),
                                                          original.month());
-    const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
+    const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear,
+                                                         newMonth);
 
     if (original.day() == eom) {
         return Date(newYear, newMonth, newEom);                       // RETURN

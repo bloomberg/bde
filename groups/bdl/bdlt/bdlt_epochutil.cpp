@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-
 namespace BloombergLP {
 namespace bdlt {
 
@@ -23,8 +22,24 @@ namespace bdlt {
 // that adheres to those restrictions without C++11 'constexpr' constructors.
 // (In C, a union can be used to type pun, but not in C++.)
 
+
+
+#ifdef BDE_USE_PROLEPTIC_DATES
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
+
+const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135596800LL;
+                                                 // January    1, 0001 00:00:00
+#else
+static const int epochData[2] = { 719165, 0 };
+                                 // 719165 is 1970/01/01 in POSIX
+
+const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
+                                                 // January    1, 0001 00:00:00
+#endif
+
+const EpochUtil::TimeT64 EpochUtil::s_latestAsTimeT64   = 253402300799LL;
+                                                 // December  31, 9999 23:59:59
 
                             // ----------------
                             // struct EpochUtil
