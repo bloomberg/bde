@@ -79,6 +79,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if !defined(BSLMF_REMOVEVOLATILE_SHOW_COMPILER_ERRORS)
 
 # if defined(BSLS_PLATFORM_CMP_IBM)                                           \
+  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
   ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
 // The xlC compiler matches function types with trailing cv-qualifiers as being
 // cv-qualified themselves.  However, in such cases the cv-qualifier applies to
