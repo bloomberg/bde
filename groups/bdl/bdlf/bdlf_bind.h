@@ -279,7 +279,7 @@ BSLS_IDENT("$Id: $")
 //  void bindTest4(bslma::Allocator *allocator = 0) {
 //      marker = 0;
 //      callBinderWithSideEffects1(bdlf::BindUtil::bind(
-//                                                &singleArgumentFunction, 2));
+//                                               &singleArgumentFunction, _2));
 //..
 // In the above snippets of code, 'singleArgumentFunction' will be called with
 // only the second argument (14) specified to the binder at invocation time in
