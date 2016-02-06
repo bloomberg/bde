@@ -21,7 +21,6 @@
 #include <bsl_string.h>
 #include <bsl_ctime.h>
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -180,7 +179,6 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 #endif
 
 EarlyEpochCopier earlyEpochCopier INITATTR;
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -2209,6 +2207,11 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
+#ifdef BDE_USE_PROLEPTIC_DATES
+       int adjust = 0;
+#else
+       int adjust = 2 * 24 * 60 * 60; // two days in seconds
+#endif
 
         enum { FAILURE = 1 };
 
@@ -2234,7 +2237,8 @@ int main(int argc, char *argv[])
 
                 //lin year mon day hou min sec msec           result   ld =
                 //--- ---- --- --- --- --- --- ----  --------------    Leap Day
-                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
                 { L_, 1869, 12, 31, 23, 59, 59, 999,    -3155673601LL },
                 { L_, 1879, 12, 31, 23, 59, 59, 999,    -2840140801LL },
                 { L_, 1883, 10, 20, 12, 49, 20, 123,    -2720171440LL },
@@ -2324,7 +2328,8 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec          result
                 //--- ---- --- --- --- --- --- ----  --------------
-                { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
+                { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2453,11 +2458,18 @@ int main(int argc, char *argv[])
                 { L_,  LLONG_LIMITS.min(),
                                       FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_,  LLONG_MIN + 1, FAILURE,0,  0,  0,  0,  0,  0 },
-                { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
-                { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
-                { L_, -62135596800LL, 0,      1,  1,  1,  0,  0,  0 },
-                { L_, -62135596799LL, 0,      1,  1,  1,  0,  0,  1 },
-                { L_, -62135596798LL, 0,      1,  1,  1,  0,  0,  2 },
+
+                { L_, -62135596802LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596801LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596800LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  0 },
+                { L_, -62135596799LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  1 },
+                { L_, -62135596798LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  2 },
+
                 { L_,  -3155673601LL, 0,   1869, 12, 31, 23, 59, 59 },
                 { L_,  -2840140801LL, 0,   1879, 12, 31, 23, 59, 59 },
                 { L_,  -2720171440LL, 0,   1883, 10, 20, 12, 49, 20 },

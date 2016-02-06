@@ -397,11 +397,15 @@ struct FilesystemUtil {
     };
 
     enum {
-        k_ERROR_LOCKING_CONFLICT =  1, // value representing a failure to
-                                       // obtain a lock on a file
+        k_ERROR_LOCKING_CONFLICT    =  1,  // value representing a failure to
+                                           // obtain a lock on a file
 
-        k_BAD_FILE_DESCRIPTOR    = -1  // value indicating a bad file
-                                       // descriptor was supplied
+        k_ERROR_LOCKING_INTERRUPTED =  2,  // value representing a failure to
+                                           // obtain a lock on a file due to
+                                           // interruption by a signal
+
+        k_BAD_FILE_DESCRIPTOR       = -1   // value indicating a bad file
+                                           // descriptor was supplied
     };
 
     enum FileOpenPolicy {

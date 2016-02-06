@@ -369,7 +369,7 @@ UserFields::ConstIterator UserFields::end() const
 inline
 int UserFields::length() const
 {
-    return d_values.size();
+    return static_cast<int>(d_values.size());
 }
 
 inline

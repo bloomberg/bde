@@ -18,7 +18,6 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-
 #undef SEC
 
 using namespace BloombergLP;
@@ -592,7 +591,6 @@ bool containsOnlyDigits(const char *string)
     return true;
 }
 
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -607,7 +605,6 @@ int main(int argc, char *argv[])
 
     (void)veryVeryVerbose;  // eliminate unused variable warning
     (void)veryVeryVeryVerbose;
-
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

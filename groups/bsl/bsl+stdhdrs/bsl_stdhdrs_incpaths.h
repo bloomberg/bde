@@ -51,6 +51,13 @@ BSLS_IDENT("$Id: $")
 //                                      standard library (e.g., '<stdio.h>').
 //                                      Note that this will *not* work for
 //                                      'errno.h'
+//  BSL_NATIVE_OS_RTL_HEADER            Headers that are part of the C
+//                                      standard library (e.g., '<stdio.h>')
+//                                      but accessed through a special platform
+//                                      directory on Windows, unrelated to the
+//                                      compiler version, starting with Visual
+//                                      C++ 2015.  Note that this will *not*
+//                                      work for 'errno.h'
 //..
 // Note that 'BSL_NATIVE_C_LIB_HEADER' cannot be used to include the native
 // version of 'errno.h' because 'errno' is '#define'd as a macro by several
@@ -80,7 +87,8 @@ BSLS_IDENT("$Id: $")
 //  #include BSL_NATIVE_CPP_LIB_HEADER(vector)
 //  #include BSL_NATIVE_CPP_DEPRECATED_HEADER(strstream)
 //  #include BSL_NATIVE_CPP_C_HEADER(cstring)
-//  #include BSL_NATIVE_C_LIB_HEADER(stdio.h)
+//  #include BSL_NATIVE_C_LIB_HEADER(setjmp.h)
+//  #include BSL_NATIVE_OS_RTL_HEADER(stdio.h)
 //..
 // Note that the macros used for '<new>' is different from that used for
 // '<vector>' because '<new>' is one of the headers that is closely related to
@@ -107,6 +115,7 @@ BSLS_IDENT("$Id: $")
   //
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
 
 #   if !defined(BDE_BUILD_TARGET_STLPORT)
@@ -139,8 +148,19 @@ BSLS_IDENT("$Id: $")
 #   define BSL_NATIVE_CPP_C_HEADER(filename) <../include_std/filename>
 #   define BSL_NATIVE_CISO646_HEADER(filename) <../include_std/filename>
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
+  // Visual C++ 2015 and later splits the C library over two directories
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../ucrt/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 #else
   // Most other compilers
 #   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
@@ -149,12 +169,18 @@ BSLS_IDENT("$Id: $")
 #   define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_CISO646_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 #endif
 
 #else /* ! __cplusplus */
 
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   if defined(_MSC_VER) && _MSC_VER >= 1900
+#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../ucrt/filename>
+#   else
+#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
+#   endif
 #   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #endif /* __cplusplus */

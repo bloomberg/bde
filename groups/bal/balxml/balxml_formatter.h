@@ -237,6 +237,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_time.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>       // bsl::min
+#endif
+
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
@@ -569,9 +573,10 @@ class Formatter {
 inline
 balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& tag,
                                            WhitespaceType            ws)
-: d_ws(ws), d_tagLen(bsl::min(tag.length(), 255))
+: d_ws(ws)
+, d_tagLen(bsl::min<bsl::size_t>(tag.length(), 255))
 {
-    int len = bsl::min(int(k_TRUNCATED_TAG_LEN), tag.length());
+    bsl::size_t len = bsl::min<bsl::size_t>(k_TRUNCATED_TAG_LEN, tag.length());
     bsl::memcpy(d_tag, tag.data(), len);
 }
 #else

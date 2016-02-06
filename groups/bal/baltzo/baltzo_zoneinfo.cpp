@@ -7,9 +7,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
-#include <bdlt_date.h>
-#include <bdlt_datetimeinterval.h>
-#include <bdlt_serialdateimputil.h>
+#include <bdlt_epochutil.h>
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
 
@@ -66,7 +64,7 @@ baltzo::ZoneinfoTransition::print(bsl::ostream& stream,
     bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
 
     bdlt::Datetime utcDatetime;
-    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime, d_utcTime);
+    int rc = bdlt::EpochUtil::convertFromTimeT64(&utcDatetime, d_utcTime);
     stream << "time = ";
     if (!rc) {
         stream << utcDatetime;
@@ -102,7 +100,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
     stream << "[ ";
 
     bdlt::Datetime utcDatetime;
-    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime,
+    int rc = bdlt::EpochUtil::convertFromTimeT64(&utcDatetime,
                                                  object.utcTime());
     if (!rc) {
         stream << utcDatetime << " ";
@@ -141,44 +139,6 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
                                // --------------
 
 // CLASS METHODS
-bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
-                                                const bdlt::Datetime& datetime)
-{
-    int elaspedDays =
-            bdlt::SerialDateImpUtil::ymdToSerial(datetime.year(),
-                                                 datetime.month(),
-                                                 datetime.day()) -
-            bdlt::SerialDateImpUtil::ymdToSerial(1970, 1, 1);
-
-    return elaspedDays * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY +
-        (datetime.hour() * 60 + datetime.minute()) * 60 + datetime.second();
-}
-
-int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
-                                         bdlt::EpochUtil::TimeT64  time)
-{
-    typedef bdlt::SerialDateImpUtil DateUtil;
-    if ( -62135596800LL > time || 253402300799LL < time) {
-        // December  31, 9999 23:59:59
-
-        return 1;                                                     // RETURN
-    }
-
-    time += DateUtil::ymdToSerial(1970, 1, 1) *
-            bdlt::TimeUnitRatio::k_SECONDS_PER_DAY;
-
-    int serialDate = int(time / bdlt::TimeUnitRatio::k_SECONDS_PER_DAY);
-    int seconds    = int(time % bdlt::TimeUnitRatio::k_SECONDS_PER_DAY);
-
-    int year, month, day;
-    DateUtil::serialToYmd(&year, &month, &day, serialDate);
-    *result = bdlt::Datetime(
-        bdlt::Date(year, month, day),
-        bdlt::Time(0) + bdlt::DatetimeInterval(0, 0, 0,seconds));
-    return 0;
-}
-
-
 
 // CREATORS
 baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
@@ -248,11 +208,12 @@ baltzo::Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
     BSLS_ASSERT_SAFE(d_transitions.front().utcTime() <=
-                                                    convertToTimeT64(utcTime));
+                                   bdlt::EpochUtil::convertToTimeT64(utcTime));
 
     LocalTimeDescriptor dummyDescriptor;
 
-    const bdlt::EpochUtil::TimeT64 utcTimeT64 = convertToTimeT64(utcTime);
+    const bdlt::EpochUtil::TimeT64 utcTimeT64 =
+                                    bdlt::EpochUtil::convertToTimeT64(utcTime);
     TransitionConstIterator it = bsl::upper_bound(
                                      d_transitions.begin(),
                                      d_transitions.end(),

@@ -110,7 +110,7 @@ class CountingAllocator : public bslma::Allocator {
     // documentation.
 
     // DATA
-    int               d_byteCount;    // byte count
+    size_type         d_byteCount;    // byte count
     bslma::Allocator *d_allocator_p;  // holds (but does not own) allocator
 
     // NOT IMPLEMENTED
@@ -152,7 +152,7 @@ class CountingAllocator : public bslma::Allocator {
         // 0.
 
     // ACCESSORS
-    int numBytesTotal() const;
+    size_type numBytesTotal() const;
         // Return the byte count maintained by this counting allocator.
         // The precise definition of byte count is described in the "Byte
         // Count" section of the component-level documentation.
@@ -203,7 +203,7 @@ void CountingAllocator::resetNumBytesTotal()
 
 // ACCESSORS
 inline
-int CountingAllocator::numBytesTotal() const
+CountingAllocator::size_type CountingAllocator::numBytesTotal() const
 {
     return d_byteCount;
 }

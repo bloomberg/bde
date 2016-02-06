@@ -59,9 +59,8 @@ namespace bsl {
     using native_std::tuple_cat;
     using native_std::get;
     using native_std::ignore;
-}  // close package namespace
+}  // close namespace bsl
 #endif
-
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

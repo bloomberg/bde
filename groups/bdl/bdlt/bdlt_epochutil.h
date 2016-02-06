@@ -134,7 +134,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -170,10 +169,6 @@ struct EpochUtil {
     // alias-safe, thread-safe, and exception-neutral.  Functions are provided
     // for returning converted values by value or through a result pointer.
 
-  private:
-    // CLASS DATA
-    static const Datetime *s_epoch_p;  // pointer to epoch time value
-
   public:
     // TYPES
     typedef bsls::Types::Int64 TimeT64;
@@ -183,6 +178,13 @@ struct EpochUtil {
         // 'Datetime' values that are less than the epoch (corresponding to
         // negative 'TimeT64' values).
 
+  private:
+    // CLASS DATA
+    static const Datetime *s_epoch_p;            // pointer to epoch time value
+    static const TimeT64   s_earliestAsTimeT64;  // January   1, 0001 00:00:00
+    static const TimeT64   s_latestAsTimeT64;    // December 31, 9999 23:59:59
+
+  public:
     // CLASS METHODS
     static const Datetime& epoch();
         // Return a reference providing non-modifiable access to the epoch
@@ -412,12 +414,11 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
-    BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
+    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time);
+    BSLS_ASSERT_SAFE(                       time <= s_latestAsTimeT64);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
-
 
     return datetime;
 }
@@ -427,14 +428,12 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-    if (-62135596800LL > time ||  // January    1, 0001 00:00:00
-        253402300799LL < time) {  // December  31, 9999 23:59:59
+    if (time < s_earliestAsTimeT64 || time > s_latestAsTimeT64) {
         return 1;                                                     // RETURN
     }
 
     *result = epoch();
     result->addSeconds(time);
-
 
     return 0;
 }

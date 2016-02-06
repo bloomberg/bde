@@ -6,14 +6,12 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
 #include <bsl_ostream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf'
-
 
 namespace BloombergLP {
 namespace bdlt {
@@ -28,7 +26,6 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
-
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)
 {
@@ -39,7 +36,6 @@ int Date::addDaysIfValid(int numDays)
     if (!Date::isValidSerial(tmpSerialDate)) {
         return k_FAILURE;                                             // RETURN
     }
-
 
     d_serialDate = tmpSerialDate;
 
@@ -78,9 +74,6 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  this,
                  d_serialDate);
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        BSLS_LOG("'bdlt::Date' precondition violated: %s.", buffer);
-#endif
         BSLS_ASSERT_SAFE(
                  !"'bdlt::Date::print' attempted on date with invalid state.");
     }
