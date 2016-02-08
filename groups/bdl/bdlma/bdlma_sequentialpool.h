@@ -375,7 +375,8 @@ class SequentialPool {
     Block                         *d_head_p;         // address of 1st block of
                                                      // memory (or 0)
 
-    Block                        **d_reuseHead_p;    // address of the pointer
+    Block                        **d_freeListPrevAddr_p;
+                                                     // address of the pointer
                                                      // to the next block of
                                                      // memory available for
                                                      // use (which may be 0)
@@ -397,7 +398,7 @@ class SequentialPool {
                                                      // unavailable for
                                                      // suppling memory
 
-    Block                         *d_largeBlockHead_p;
+    Block                         *d_largeBlockList_p;
                                                      // address of 1st block of
                                                      // memory used to satsify
                                                      // allocations not handled
@@ -420,19 +421,6 @@ class SequentialPool {
         // memory of the specified 'size' (in bytes) according to the alignment
         // strategy specified at construction from this buffer.  The behavior
         // is undefined unless '0 < size'.
-
-    void replaceBufferConstantGrowth();
-        // Use the allocator supplied at construction to allocate a new
-        // internal buffer, or possibly reuse and existing buffer, that has a
-        // contiguous block of memory of the 'd_minSize' (in bytes) and replace
-        // the buffer in 'd_bufferManager' with this obtained buffer.
-
-    void replaceBufferNonConstantGrowth(bsls::Types::size_type size);
-        // Use the allocator supplied at construction to allocate a new
-        // internal buffer, or possibly reuse and existing buffer, that has a
-        // contiguous block of memory of the specified 'size' (in bytes) and
-        // replace the buffer in 'd_bufferManager' with this obtained buffer.
-        // The behavior is undefined unless '0 < size'.
 
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
