@@ -20,7 +20,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                         bslma::Allocator       *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size)
+, d_bufferManager(buffer, size)
 , d_pool(size,
          INT_MAX,
          bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -39,7 +39,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                    bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size)
+, d_bufferManager(buffer, size)
 , d_pool(size,
          INT_MAX,
          growthStrategy,
@@ -58,7 +58,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                   bslma::Allocator          *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size, alignmentStrategy)
+, d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
          INT_MAX,
          bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -78,7 +78,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                 bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size, alignmentStrategy)
+, d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
          INT_MAX,
          growthStrategy,
@@ -97,7 +97,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                         bslma::Allocator       *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size)
+, d_bufferManager(buffer, size)
 , d_pool(size,
          maxBufferSize,
          bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -118,7 +118,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                  bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size)
+, d_bufferManager(buffer, size)
 , d_pool(size,
          maxBufferSize,
          growthStrategy,
@@ -139,7 +139,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                   bslma::Allocator          *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size, alignmentStrategy)
+, d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
          maxBufferSize,
          bsls::BlockGrowth::BSLS_GEOMETRIC,
@@ -161,7 +161,7 @@ BufferedSequentialPool::BufferedSequentialPool(
                                 bslma::Allocator            *basicAllocator)
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
-, d_buffer(buffer, size, alignmentStrategy)
+, d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
          maxBufferSize,
          growthStrategy,

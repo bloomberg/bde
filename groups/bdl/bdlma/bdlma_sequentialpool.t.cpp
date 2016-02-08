@@ -5,6 +5,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -62,17 +63,18 @@ using namespace bsl;
 // [ 3] bdlma::SequentialPool(AS a, bslma::Allocator *a = 0);
 // [ 3] bdlma::SequentialPool(GS g, AS a, bslma::Allocator *a = 0);
 //
-// [ 3] bdlma::SequentialPool(int i, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, GS g, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, AS a, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(int initSize);
+// [ 3] bdlma::SequentialPool(initSize, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, GS g, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, AS a, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, GS g, AS a, *a = 0);
 //
-// [ 3] bdlma::SequentialPool(int i, int m, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, GS g, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, GS g, AS a, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, AS a, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, AS a, *a = 0);
 //
-// [ 3] bdlma::SequentialPool(int i, int m, GS g, AS a, bool aIB, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, AS a, bool aIB, *a = 0);
 //
 // [  ] ~bdlma::SequentialPool();
 //
@@ -201,24 +203,6 @@ static int blockSize(int numBytes)
     }
 
     return numBytes;
-}
-
-//-----------------------------------------------------------------------------
-
-static int calculateNextSize(int currSize, int size)
-{
-    ASSERT(0 < currSize);
-    ASSERT(0 < size);
-
-    if (0 == currSize) {
-        return 0;                                                     // RETURN
-    }
-
-    do {
-        currSize *= 2;
-    } while (currSize < size);
-
-    return currSize;
 }
 
 //=============================================================================
@@ -525,7 +509,7 @@ int main(int argc, char *argv[])
         //:   'rewind'.  (C-2)
         //:
         //: 3 Allow the object to go out-of-scope and verify all memory has
-        //:   been returned to the underlying allocator.          
+        //:   been returned to the underlying allocator.
         //
         // Testing:
         //   void rewind();
@@ -556,7 +540,6 @@ int main(int argc, char *argv[])
         const bsl::size_t numAllocationSize = sizeof  allocationSize
                                             / sizeof *allocationSize;
 
-          
         for (bsl::size_t growthIndex = 0;
              growthIndex < numGrowthStrategy;
              ++growthIndex) {
@@ -564,7 +547,7 @@ int main(int argc, char *argv[])
             for (bsl::size_t alignmentIndex = 0;
                  alignmentIndex < numAlignmentStrategy;
                  ++alignmentIndex) {
-                  
+
                 for (bsl::size_t allocationMaxIndex = 0;
                      allocationMaxIndex < numAllocationSize;
                      ++allocationMaxIndex) {
@@ -659,9 +642,6 @@ int main(int argc, char *argv[])
         //   3) That 'reserveCapacity' can override the maximum buffer size
         //      parameter supplied to the pool at construction.
         //
-        //   4) QoI: Asserted precondition violations are detected when
-        //      enabled.
-        //
         // Plan:
         //   Create a 'bdlma::SequentialPool' using a test allocator and
         //   specify an initial size and maximum buffer size.
@@ -679,9 +659,6 @@ int main(int argc, char *argv[])
         //   Then, for concern 3, invoke 'reserveCapacity' with a size
         //   larger than the maximum buffer size.  Repeat verification for
         //   concern 2.
-        //
-        //   Finally, for concern 4, verify that in appropriate build modes,
-        //   defensive checks are triggered.
         //
         // Testing:
         //   void reserveCapacity(int numBytes);
@@ -738,20 +715,6 @@ int main(int argc, char *argv[])
 
             mX.allocate(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            {
-                ASSERT_SAFE_PASS(mX.reserveCapacity(1));
-
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(0));
-            }
         }
       } break;
       case 8: {
@@ -1126,18 +1089,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(mX.allocateAndExpand(    0));
             }
-
-            if (veryVerbose) cout << "\t'0 < *size'" << endl;
-            {
-                Obj mX;
-                bsls::Types::size_type size = 1;
-
-                ASSERT_SAFE_PASS(mX.allocateAndExpand(&size));
-
-                size = 0;
-
-                ASSERT_SAFE_FAIL(mX.allocateAndExpand(&size));
-            }
         }
 
 #undef NAT
@@ -1327,9 +1278,6 @@ int main(int argc, char *argv[])
         //      from the internal block list if the they cannot be satisfied by
         //      the pool's internal buffer.
         //
-        //   3) QoI: Asserted precondition violations are detected when
-        //      enabled.
-        //
         // Plan:
         //   For concerns 1 and 2, construct objects 'mV', 'mW', 'mX', and 'mY'
         //   with default, maximum, natural, and 1-byte alignment allocation
@@ -1338,9 +1286,6 @@ int main(int argc, char *argv[])
         //   pass a test allocator to the constructor to monitor the memory
         //   allocations by the pool.  Confirm the bytes allocated by the
         //   objects are as expected.
-        //
-        //   For concern 3, verify that, in appropriate build modes, defensive
-        //   checks are triggered.
         //
         // Testing:
         //   void *allocate(size_type size);
@@ -1351,7 +1296,7 @@ int main(int argc, char *argv[])
 
         const int DATA[]   = { 2, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
                                63, 64, 65, 66, 127, 128, 129, 255, 256,
-                               511, 512, 1023, 1024, 1025 };
+                               257, 511, 512, 513, 1023, 1024, 1025 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Strat MAX = bsls::Alignment::BSLS_MAXIMUM;
@@ -1382,27 +1327,38 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                if (SIZE <= k_DEFAULT_SIZE * 2) {
-                    LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == ta.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == tb.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == tc.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                          blockSize(k_DEFAULT_SIZE * 2) == td.numBytesInUse());
+                if (SIZE <= k_DEFAULT_SIZE) {
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == ta.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == tb.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == tc.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == td.numBytesInUse());
                 }
                 else {
-                    int nextSize = calculateNextSize(k_DEFAULT_SIZE, SIZE);
-                    LOOP4_ASSERT(i, SIZE, blockSize(nextSize),
+                    bsls::Types::size_type size =
+                              bdlb::BitUtil::roundUpToBinaryPower(
+                                    static_cast<bsls::Types::size_type>(SIZE));
+                    LOOP4_ASSERT(i,
+                                 SIZE,
+                                 size,
                                  ta.numBytesInUse(),
-                                 blockSize(nextSize) == ta.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == tb.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == tc.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == td.numBytesInUse());
+                                 size == ta.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == tb.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == tc.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == td.numBytesInUse());
                 }
             }
         }
@@ -1458,27 +1414,36 @@ int main(int argc, char *argv[])
                     mX.allocate(SIZE);
                     mY.allocate(SIZE);
 
-                    if (SIZE <= bsl::abs(INITIAL_SIZE)) {
+                    int actualInitialSize = INITIAL_SIZE;
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRATEGY) {
+                        actualInitialSize =
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                           static_cast<bsls::Types::size_type>(
+                                                                INITIAL_SIZE));
+                    }
+
+                    if (SIZE <= actualInitialSize) {
                         LOOP_ASSERT(i, NA == ta.numBytesInUse());
                         LOOP_ASSERT(i, NB == tb.numBytesInUse());
                         LOOP_ASSERT(i, NC == tc.numBytesInUse());
                         LOOP_ASSERT(i, ND == td.numBytesInUse());
                     }
                     else {
-                        int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
-
-                        if (veryVerbose) {
-                            T_ P_(nextSize) P(blockSize(nextSize));
+                        int size = bdlb::BitUtil::roundUpToBinaryPower(
+                                           static_cast<bsls::Types::size_type>(
+                                                                INITIAL_SIZE));
+                        while (size < SIZE) {
+                            size *= 2;
                         }
 
-                        LOOP_ASSERT(i, NA + blockSize(nextSize)
-                                                        == ta.numBytesInUse());
-                        LOOP_ASSERT(i, NB + blockSize(nextSize)
-                                                        == tb.numBytesInUse());
-                        LOOP_ASSERT(i, NC + blockSize(nextSize)
-                                                        == tc.numBytesInUse());
-                        LOOP_ASSERT(i, ND + blockSize(nextSize)
-                                                        == td.numBytesInUse());
+                        if (veryVerbose) {
+                            T_ P(size);
+                        }
+
+                        LOOP_ASSERT(i, NA + size == ta.numBytesInUse());
+                        LOOP_ASSERT(i, NB + size == tb.numBytesInUse());
+                        LOOP_ASSERT(i, NC + size == tc.numBytesInUse());
+                        LOOP_ASSERT(i, ND + size == td.numBytesInUse());
                     }
                 }
             }
@@ -1575,15 +1540,14 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(i, ND == td.numBytesInUse());
                             }
                             else {
-                                if (ALLOC_SIZE <= MAX_SIZE) {
-                                    int size =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                int size = bdlb::BitUtil::roundUpToBinaryPower(
                                            static_cast<bsls::Types::size_type>(
                                                                 INITIAL_SIZE));
-                                    while (size < ALLOC_SIZE) {
-                                        size *= 2;
-                                    }
+                                while (size < ALLOC_SIZE) {
+                                    size *= 2;
+                                }
 
+                                if (size <= MAX_SIZE) {
                                     LOOP_ASSERT(i, NA + size
                                                         == ta.numBytesInUse());
                                     LOOP_ASSERT(i, NB + size
@@ -1607,21 +1571,6 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
-            }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(0 < size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate(1));
-
-                ASSERT_SAFE_FAIL(mX.allocate(0));
             }
         }
       } break;
@@ -1672,17 +1621,18 @@ int main(int argc, char *argv[])
         //   bdlma::SequentialPool(AS a, bslma::Allocator *a = 0);
         //   bdlma::SequentialPool(GS g, AS a, bslma::Allocator *a = 0);
         //
-        //   bdlma::SequentialPool(int i, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, GS g, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, AS a, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(int initSize);
+        //   bdlma::SequentialPool(initSize, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, GS g, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, AS a, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, GS g, AS a, *a = 0);
         //
-        //   bdlma::SequentialPool(int i, int m, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, int m, GS g, bslma::Allocator *a= 0);
-        //   bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a= 0);
-        //   bdlma::SequentialPool(int, int, GS g, AS a, *a= 0);
+        //   bdlma::SequentialPool(initSize, int m, *a = 0);
+        //   bdlma::SequentialPool(initSize, int m, GS g, *a = 0);
+        //   bdlma::SequentialPool(initSize, int m, AS a, *a = 0);
+        //   bdlma::SequentialPool(initSize, int, GS g, AS a, *a = 0);
         //
-        //   bdlma::SequentialPool(int, int, GS g, AS a, bool aIB, *a= 0);
+        //   bdlma::SequentialPool(initSize, int, GS g, AS a, bool aIB, *a= 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR TEST" << endl
@@ -1725,7 +1675,13 @@ int main(int argc, char *argv[])
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
 
-            Obj mE(INITIAL_SIZE);                           mE.allocate(1);
+            Obj mEI(INITIAL_SIZE);                          mEI.allocate(1);
+            ASSERT(0   == objectAllocator.numBlocksTotal());
+            ASSERT(++x == defaultAllocator.numBlocksTotal());
+            ASSERT(0   == globalAllocator.numBlocksTotal());
+
+            Obj mE(INITIAL_SIZE, static_cast<bslma::Allocator *>(0));
+                                                            mE.allocate(1);
             ASSERT(0   == objectAllocator.numBlocksTotal());
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
@@ -1765,7 +1721,7 @@ int main(int argc, char *argv[])
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
 
-            ASSERT(12 == x);  // 12 variations
+            ASSERT(13 == x);  // 13 variations
         }
         ASSERT(0 == objectAllocator.numBlocksTotal());
         ASSERT(0 == defaultAllocator.numBytesInUse());

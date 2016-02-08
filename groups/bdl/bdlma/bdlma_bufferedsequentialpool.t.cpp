@@ -3,6 +3,8 @@
 
 #include <bdlma_bufferimputil.h>
 
+#include <bdlb_bitutil.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -540,7 +542,7 @@ int main(int argc, char *argv[])
         //:   'rewind'.  (C-2)
         //:
         //: 3 Allow the object to go out-of-scope and verify all memory has
-        //:   been returned to the underlying allocator.          
+        //:   been returned to the underlying allocator.
         //
         // Testing:
         //   void rewind();
@@ -571,7 +573,6 @@ int main(int argc, char *argv[])
         const bsl::size_t numAllocationSize = sizeof  allocationSize
                                             / sizeof *allocationSize;
 
-          
         for (bsl::size_t growthIndex = 0;
              growthIndex < numGrowthStrategy;
              ++growthIndex) {
@@ -579,7 +580,7 @@ int main(int argc, char *argv[])
             for (bsl::size_t alignmentIndex = 0;
                  alignmentIndex < numAlignmentStrategy;
                  ++alignmentIndex) {
-                  
+
                 for (bsl::size_t allocationMaxIndex = 0;
                      allocationMaxIndex < numAllocationSize;
                      ++allocationMaxIndex) {
@@ -928,9 +929,6 @@ int main(int argc, char *argv[])
         //   4) The 'maxBufferSize' constructor argument caps the internal
         //      buffer growth during allocation.
         //
-        //   5) QoI: Asserted precondition violations are detected when
-        //      enabled.
-        //
         // Plan:
         //   1) Supply an aligned static buffer with a constant amount of
         //      memory (64 bytes).  Any memory requests that do not exceed 64
@@ -952,9 +950,6 @@ int main(int argc, char *argv[])
         //   4) Using the test allocator, verify the memory used no longer
         //      increases geometrically once the maximum buffer size is used.
         //
-        //   5) Verify that, in appropriate build modes, defensive checks are
-        //      triggered.
-        //
         // Testing:
         //   void *allocate(size_type size);
         // --------------------------------------------------------------------
@@ -974,12 +969,12 @@ int main(int argc, char *argv[])
             bsls::AlignmentUtil::MaxAlignedType dummy;
         };
 
-        char      *buffer;
-        const int  bufferSize = k_STATIC_BUFFER_SIZE;
-        char      *cBuffer;
-        Strat      NAT = bsls::Alignment::BSLS_NATURAL;
-        Strat      MAX = bsls::Alignment::BSLS_MAXIMUM;
-        Strat      BYT = bsls::Alignment::BSLS_BYTEALIGNED;
+        char                         *buffer;
+        const bsls::Types::size_type  bufferSize = k_STATIC_BUFFER_SIZE;
+        char                         *cBuffer;
+        Strat                         NAT = bsls::Alignment::BSLS_NATURAL;
+        Strat                         MAX = bsls::Alignment::BSLS_MAXIMUM;
+        Strat                         BYT = bsls::Alignment::BSLS_BYTEALIGNED;
 
         // Move the buffer to the interior.
         buffer = majorBuffer + 128;
@@ -1051,11 +1046,12 @@ int main(int argc, char *argv[])
                 Obj mX(buffer, bufferSize, NAT, &objectAllocator);
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
-                int numBytes = 65;
-                int newSize  = calculateNextSize(bufferSize, numBytes);
+                bsls::Types::size_type numBytes = 65;
+                bsls::Types::size_type newSize =
+                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
@@ -1063,7 +1059,7 @@ int main(int argc, char *argv[])
 
                 cBuffer = (char *)mY.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
@@ -1071,7 +1067,7 @@ int main(int argc, char *argv[])
 
                 cBuffer = (char *)mZ.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
             }
             {
@@ -1081,11 +1077,12 @@ int main(int argc, char *argv[])
                 Obj mX(buffer, bufferSize, NAT, &objectAllocator);
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
-                int numBytes = 66;
-                int newSize  = calculateNextSize(bufferSize, numBytes);
+                bsls::Types::size_type numBytes = 66;
+                bsls::Types::size_type newSize =
+                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mX.release();
 
                 Obj mY(buffer, bufferSize, MAX, &objectAllocator);
@@ -1093,7 +1090,7 @@ int main(int argc, char *argv[])
 
                 cBuffer = (char *)mY.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mY.release();
 
                 Obj mZ(buffer, bufferSize, BYT, &objectAllocator);
@@ -1101,7 +1098,7 @@ int main(int argc, char *argv[])
 
                 cBuffer = (char *)mZ.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize)  == objectAllocator.numBytesInUse());
+                ASSERT(newSize  == objectAllocator.numBytesInUse());
                 mZ.release();
             }
             {
@@ -1127,9 +1124,10 @@ int main(int argc, char *argv[])
                 ASSERT(0       == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mX.allocate(1);
-                int newSize = calculateNextSize(bufferSize, 1);
+                bsls::Types::size_type newSize =
+                               bdlb::BitUtil::roundUpToBinaryPower(bufferSize);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
+                ASSERT(newSize == objectAllocator.numBytesInUse());
 
                 bsls::Types::Int64 bytesUsed = objectAllocator.numBytesInUse();
 
@@ -1156,9 +1154,8 @@ int main(int argc, char *argv[])
                 ASSERT(0       == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mY.allocate(1);
-                newSize = calculateNextSize(bufferSize, 1);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
+                ASSERT(newSize == objectAllocator.numBytesInUse());
 
                 bytesUsed  = objectAllocator.numBytesInUse();
                 tBuffer    = cBuffer;
@@ -1200,9 +1197,8 @@ int main(int argc, char *argv[])
                 ASSERT(0       == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mZ.allocate(1);
-                newSize = calculateNextSize(bufferSize, 1);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
+                ASSERT(newSize == objectAllocator.numBytesInUse());
 
                 bytesUsed  = objectAllocator.numBytesInUse();
                 tBuffer    = cBuffer;
@@ -1281,9 +1277,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 cBuffer     = (char *)mX.allocate(64);
-                int newSize = calculateNextSize(bufferSize, 64);
+                bsls::Types::size_type newSize =
+                               bdlb::BitUtil::roundUpToBinaryPower(bufferSize);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
-                ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
+                ASSERT(newSize == objectAllocator.numBytesInUse());
 
                 buffer -= 63;
                 // Reset buffer to correct alignment.
@@ -1343,25 +1340,25 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 oldNC = 0;
                 bsls::Types::Int64 oldND = 0;
 
-                for (; j * bufferSize + 1 <= MAXBUFFERSIZE; j <<= 1) {
-                    mV.allocate(j * bufferSize + 1);
-                    mW.allocate(j * bufferSize + 1);
-                    mX.allocate(j * bufferSize + 1);
-                    mY.allocate(j * bufferSize + 1);
+                for (; j * bufferSize <= MAXBUFFERSIZE; j <<= 1) {
+                    mV.allocate(j * bufferSize);
+                    mW.allocate(j * bufferSize);
+                    mX.allocate(j * bufferSize);
+                    mY.allocate(j * bufferSize);
 
                     nA = ta.numBytesInUse();
                     nB = tb.numBytesInUse();
                     nC = tc.numBytesInUse();
                     nD = td.numBytesInUse();
 
-                    LOOP3_ASSERT(nA, oldNA, j,
-                                 nA == oldNA + blockSize(bufferSize * j * 2));
-                    LOOP3_ASSERT(nB, oldNB, j,
-                                 nB == oldNB + blockSize(bufferSize * j * 2));
-                    LOOP3_ASSERT(nC, oldNC, j,
-                                 nC == oldNC + blockSize(bufferSize * j * 2));
-                    LOOP3_ASSERT(nD, oldND, j,
-                                 nD == oldND + blockSize(bufferSize * j * 2));
+                    bsls::Types::size_type size =
+                                          bdlb::BitUtil::roundUpToBinaryPower(
+                                                              bufferSize * j);
+
+                    LOOP3_ASSERT(nA, oldNA, j, nA == oldNA + size);
+                    LOOP3_ASSERT(nB, oldNB, j, nB == oldNB + size);
+                    LOOP3_ASSERT(nC, oldNC, j, nC == oldNC + size);
+                    LOOP3_ASSERT(nD, oldND, j, nD == oldND + size);
 
                     oldNA = nA;
                     oldNB = nB;
@@ -1379,11 +1376,9 @@ int main(int argc, char *argv[])
                 nC = tc.numBytesInUse();
                 nD = td.numBytesInUse();
 
-                // Should no longer double in size.  Note that unlike inside
-                // the loop, 'bufferSize * j' is not multiplied by 2.
+                bsls::Types::size_type size = blockSize(bufferSize * j);
 
-                LOOP3_ASSERT(nA, oldNA, blockSize(bufferSize * j),
-                             nA == oldNA + blockSize(bufferSize * j));
+                LOOP3_ASSERT(nA, oldNA, size, nA == oldNA + size);
             }
         }
 
@@ -1393,29 +1388,12 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == objectAllocator.numBytesInUse());
 
-            int numBytes = 65;
+            bsls::Types::size_type numBytes = 65;
             cBuffer = (char *)mX.allocate(numBytes);
-            int newSize = calculateNextSize(bufferSize, 65);
-            ASSERT(blockSize(newSize) == objectAllocator.numBytesInUse());
+            bsls::Types::size_type size =
+                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
+            ASSERT(size == objectAllocator.numBytesInUse());
         }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            char *buffer = bufferStorage.buffer();
-
-            Obj mX(buffer, k_BUFFER_SIZE);
-
-            if (veryVerbose) cout << "\t'allocate(0 < size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate(1));
-
-                ASSERT_SAFE_FAIL(mX.allocate(0));
-            }
-        }
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1661,8 +1639,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(k_BUFFER_SIZE + 1);
 
-                ASSERT(blockSize(k_BUFFER_SIZE * 2)
-                                          == defaultAllocator.numBytesInUse());
+                ASSERT(k_BUFFER_SIZE * 2 == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1690,8 +1667,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(k_BUFFER_SIZE + 1);
 
-                ASSERT(blockSize(k_BUFFER_SIZE * 2)
-                                          == defaultAllocator.numBytesInUse());
+                ASSERT(k_BUFFER_SIZE * 2 == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1701,8 +1677,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(k_BUFFER_SIZE + 1);
 
-                ASSERT(blockSize(k_BUFFER_SIZE * 2)
-                                          == defaultAllocator.numBytesInUse());
+                ASSERT(k_BUFFER_SIZE * 2 == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
@@ -1724,7 +1699,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, GS, *ba)'" << endl;
@@ -1733,7 +1707,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, CON));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, AS, *ba)'" << endl;
@@ -1742,7 +1715,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, GS, AS, *ba)'" << endl;
@@ -1751,7 +1723,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, CON, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, *ba)'" << endl;
@@ -1760,12 +1731,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, *ba)'" << endl;
@@ -1774,12 +1743,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, CON));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, AS, *ba)'" << endl;
@@ -1788,12 +1755,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, MAX));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, MAX));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, AS, *ba)'"
@@ -1803,12 +1768,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, CON, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON, MAX));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON, MAX));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON, MAX));
             }
         }
 
@@ -1992,7 +1955,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

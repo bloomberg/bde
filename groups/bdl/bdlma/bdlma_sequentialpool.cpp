@@ -8,8 +8,8 @@
 #include <bsl_cstring.h>
 
 enum {
-    k_INITIAL_SIZE      =  256,  // default constant growth strategy allocation size
-                                 // (in bytes)
+    k_INITIAL_SIZE      =  256  // default constant growth strategy allocation
+                                // size (in bytes)
 };
 
 namespace BloombergLP {
@@ -70,7 +70,7 @@ void SequentialPool::replaceBufferNonConstantGrowth(
                                (bdlb::BitUtil::roundUpToBinaryPower(size) - 1);
 
     int index = bdlb::BitUtil::numTrailingUnsetBits(~unavailable);
-    
+
     // Update 'd_bufferManager'.
 
     if (index < k_NUM_GEOMETRIC_BIN) {
@@ -527,7 +527,10 @@ void SequentialPool::release()
 
 void SequentialPool::reserveCapacity(bsls::Types::size_type numBytes)
 {
-    BSLS_ASSERT(0 < numBytes);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == numBytes)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return;                                                       // RETURN
+    }
 
     // If 'd_bufferManager.bufferSize()' is 0, 'd_bufferManager' is not
     // currently managing a buffer.

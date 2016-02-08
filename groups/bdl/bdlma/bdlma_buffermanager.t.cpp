@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                     const int offset    =
                       bsls::AlignmentUtil::calculateAlignmentOffset(a,
                                                                     alignment);
-                    
+
                     const Obj bm(bsls::Alignment::BSLS_NATURAL);
 
                     ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
                     const int offset    =
                       bsls::AlignmentUtil::calculateAlignmentOffset(a,
                                                                     alignment);
-                    
+
                     const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
 
                     ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
                     const int offset    =
                       bsls::AlignmentUtil::calculateAlignmentOffset(a,
                                                                     alignment);
-                    
+
                     const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
 
                     ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
@@ -836,7 +836,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.expand(addr,  1));
 
                 ASSERT_SAFE_FAIL(mX.expand(addr,  0));
-                ASSERT_SAFE_FAIL(mX.expand(addr, -1));
             }
         }
 
@@ -979,7 +978,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.hasSufficientCapacity( 1));
 
                 ASSERT_SAFE_FAIL(mX.hasSufficientCapacity( 0));
-                ASSERT_SAFE_FAIL(mX.hasSufficientCapacity(-1));
             }
 
             if (veryVerbose) cout << "\t'0 != buffer()'" << endl;
@@ -1243,7 +1241,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.replaceBuffer(buffer,  1));
 
                 ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer,  0));
-                ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer, -1));
             }
         }
 
@@ -1865,7 +1862,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj(buffer,  1));
 
                 ASSERT_SAFE_FAIL(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL(Obj(buffer, -1));
             }
         }
       } break;
@@ -1937,7 +1933,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

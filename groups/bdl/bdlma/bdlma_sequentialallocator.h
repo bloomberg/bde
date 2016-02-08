@@ -345,7 +345,7 @@ class SequentialAllocator : public ManagedAllocator {
         // allocator is released.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  If 'size' is 0, no memory is allocated and 0 is
@@ -354,7 +354,7 @@ class SequentialAllocator : public ManagedAllocator {
         // supplied at construction to allocate a new internal buffer, then
         // allocate memory from the new buffer.
 
-    void *allocateAndExpand(size_type *size);
+    void *allocateAndExpand(bsls::Types::size_type *size);
         // Return the address of a contiguous block of memory of at least the
         // specified '*size' (in bytes), and load the actual amount of memory
         // allocated into '*size'.  If '*size' is 0, return 0 with no effect.
@@ -377,22 +377,21 @@ class SequentialAllocator : public ManagedAllocator {
         // obtained from this object before this call is undefined.
 
     virtual void rewind();
-        // Release all memory allocated through this pool.  No memory is
-        // returned to the construction-time supplied allocator.  At least one
-        // block from the constuction-time supplied allocator will be used to
-        // satisfy subsequent allocations.  The effect of using a pointer after
-        // this call that was obtained from this object before this call is
-        // undefined.
+        // Release all memory allocated through this pool.  Only memory
+        // allocated outside of the constant and geometric growth strategies
+        // (e.g., large blocks) are returned to the construction-time supplied
+        // allocator.  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of using a pointer after this call that was
+        // obtained from this object before this call is undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
         // dynamic allocation).  If 'numBytes' is 0, no memory is reserved.
-        // This method ignores 'maxBufferSize' even if it is supplied at
-        // construction.  The behavior is undefined unless '0 <= numBytes'.
-        // Note that, due to alignment effects, it is possible that not all
-        // 'numBytes' of memory will be used for allocation before triggering
-        // dynamic allocation.
+        // Note that, when the 'numBytes' is distributed over multiple
+        // 'allocate' requests - due to alignment effects - it is possible that
+        // not all 'numBytes' of memory will be used for allocation before
+        // triggering dynamic allocation.
 
     bsls::Types::size_type truncate(void                   *address,
                                     bsls::Types::size_type  originalSize,
@@ -400,12 +399,12 @@ class SequentialAllocator : public ManagedAllocator {
         // Reduce the amount of memory allocated at the specified 'address' of
         // the specified 'originalSize' (in bytes) to the specified 'newSize'.
         // Return 'newSize' after truncating, or 'originalSize' if the memory
-        // at 'address' cannot be truncated.  This method can only 'truncate'
-        // the memory block returned by the most recent 'allocate' request from
-        // this allocator, and otherwise has no effect.  The behavior is
-        // undefined unless the memory at 'address' was originally allocated by
-        // this allocator, the size of the memory block at 'address' is
-        // 'originalSize', 'newSize <= originalSize', '0 <= newSize', and
+        // block at 'address' cannot be truncated.  This method can only
+        // 'truncate' the memory block returned by the most recent 'allocate'
+        // request from this allocator, and otherwise has no effect.  The
+        // behavior is undefined unless the memory block at 'address' was
+        // originally allocated by this allocator, the size of the memory block
+        // at 'address' is 'originalSize', 'newSize <= originalSize', and
         // 'release' was not called after allocating the memory block at
         // 'address'.
 };
@@ -559,14 +558,15 @@ SequentialAllocator(bsls::Types::size_type       initialSize,
 
 // MANIPULATORS
 inline
-void *SequentialAllocator::allocate(size_type size)
+void *SequentialAllocator::allocate(bsls::Types::size_type size)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;                                                     // RETURN
-    }
-
     return d_sequentialPool.allocate(size);
+}
+
+inline
+void *SequentialAllocator::allocateAndExpand(bsls::Types::size_type *size)
+{
+    return d_sequentialPool.allocateAndExpand(size);
 }
 
 inline
@@ -578,6 +578,12 @@ inline
 void SequentialAllocator::release()
 {
     d_sequentialPool.release();
+}
+
+inline
+void SequentialAllocator::reserveCapacity(bsls::Types::size_type numBytes)
+{
+    d_sequentialPool.reserveCapacity(numBytes);
 }
 
 inline

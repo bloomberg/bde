@@ -365,7 +365,7 @@ class BufferedSequentialPool {
 
     bsls::Types::size_type  d_initialSize;      // size of external buffer
 
-    BufferManager           d_buffer;           // memory manager for current
+    BufferManager           d_bufferManager;    // memory manager for current
                                                 // buffer
 
     SequentialPool          d_pool;             // memory manager for
@@ -460,10 +460,10 @@ class BufferedSequentialPool {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining free
+        // construction.  If 'size' is 0, no memory is allocated and 0 is
+        // returned.  If the allocation request exceeds the remaining free
         // memory space in the external buffer supplied at construction, use
-        // memory obtained from the allocator supplied at construction.  The
-        // behavior is undefined unless '0 < size'.
+        // memory obtained from the allocator supplied at construction.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
@@ -488,12 +488,12 @@ class BufferedSequentialPool {
         // this object before this call is undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  No memory is
-        // returned to the construction-time supplied allocator.  At least one
-        // block from the constuction-time supplied allocator will be used to
-        // satisfy subsequent allocations.  The effect of using a pointer after
-        // this call that was obtained from this object before this call is
-        // undefined.
+        // Release all memory allocated through this pool.  Only memory
+        // allocated outside of the constant and geometric growth strategies
+        // (e.g., large blocks) are returned to the construction-time supplied
+        // allocator.  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of using a pointer after this call that was
+        // obtained from this object before this call is undefined.
 };
 
 }  // close package namespace
@@ -582,9 +582,12 @@ BufferedSequentialPool::~BufferedSequentialPool()
 inline
 void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 < size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
+    }
 
-    void *result = d_buffer.allocate(size);
+    void *result = d_bufferManager.allocate(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
         return result;                                                // RETURN
     }
@@ -615,7 +618,8 @@ void BufferedSequentialPool::deleteObject(const TYPE *object)
 inline
 void BufferedSequentialPool::release()
 {
-    d_buffer.release();  // Reset the internal cursor in the current block.
+    d_bufferManager.release();  // Reset the internal cursor in the current
+                                // block.
 
     d_pool.release();
 }
@@ -623,7 +627,8 @@ void BufferedSequentialPool::release()
 inline
 void BufferedSequentialPool::rewind()
 {
-    d_buffer.release();  // Reset the internal cursor in the current block.
+    d_bufferManager.release();  // Reset the internal cursor in the current
+                                // block.
 
     d_pool.rewind();
 }

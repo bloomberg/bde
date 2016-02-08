@@ -364,8 +364,8 @@ class SequentialPool {
     };
 
     enum {
-        k_NUM_GEOMETRIC_BIN =   56   // number of bins available for
-                                     // geometric growth strategy
+        k_NUM_GEOMETRIC_BIN =   56   // number of bins available for geometric
+                                     // growth strategy
     };
 
     // DATA
@@ -375,32 +375,39 @@ class SequentialPool {
     Block                         *d_head_p;         // address of 1st block of
                                                      // memory (or 0)
 
-    Block                        **d_reuseHead_p;    // address of the pointer to
-                                                     // the next block of memory
-                                                     // available for use (which
-                                                     // may be 0)
+    Block                        **d_reuseHead_p;    // address of the pointer
+                                                     // to the next block of
+                                                     // memory available for
+                                                     // use (which may be 0)
 
     char                          *d_geometricBin[k_NUM_GEOMETRIC_BIN];
                                                      // memory allocated for
-                                                     // geometric growth strategy
+                                                     // geometric growth
+                                                     // strategy
 
     bsls::Types::size_type         d_alwaysUnavailable;
                                                      // bitmask of bins never
-                                                     // available to supply memory (reflects the effects of 'initialSize' and 'maxBufferSize')
+                                                     // available to supply
+                                                     // memory (reflects the
+                                                     // effects of
+                                                     // 'initialSize' and
+                                                     // 'maxBufferSize')
 
-    bsls::Types::size_type         d_unavailable;    // bitmask of bins unavailable
-                                                     // for suppling memory
+    bsls::Types::size_type         d_unavailable;    // bitmask of bins
+                                                     // unavailable for
+                                                     // suppling memory
 
     Block                         *d_largeBlockHead_p;
                                                      // address of 1st block of
                                                      // memory used to satsify
                                                      // allocations not handled
-                                                     // by other strategies (or 0)
+                                                     // by other strategies (or
+                                                     // 0)
 
     const bsls::Types::size_type   d_minSize;        // minimum available size
-                                                     // from an allocated block;
-                                                     // 0 when using geometric
-                                                     // growth
+                                                     // from an allocated
+                                                     // block; 0 when using
+                                                     // geometric growth
 
     bslma::Allocator              *d_allocator_p;    // memory allocator (held,
                                                      // not owned)
@@ -417,8 +424,8 @@ class SequentialPool {
     void replaceBufferConstantGrowth();
         // Use the allocator supplied at construction to allocate a new
         // internal buffer, or possibly reuse and existing buffer, that has a
-        // contiguous block of memory of the 'd_minSize' (in bytes) and
-        // replace the buffer in 'd_bufferManager' with this obtained buffer.
+        // contiguous block of memory of the 'd_minSize' (in bytes) and replace
+        // the buffer in 'd_bufferManager' with this obtained buffer.
 
     void replaceBufferNonConstantGrowth(bsls::Types::size_type size);
         // Use the allocator supplied at construction to allocate a new
@@ -552,20 +559,20 @@ class SequentialPool {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining free
+        // construction.  If 'size' is 0, no memory is allocated and 0 is
+        // returned.  If the allocation request exceeds the remaining free
         // memory space in the current internal buffer, use the allocator
         // supplied at construction to allocate a new internal buffer, then
-        // allocate memory from the new buffer.  The behavior is undefined
-        // unless '0 < size'.
+        // allocate memory from the new buffer.
 
     void *allocateAndExpand(bsls::Types::size_type *size);
         // Return the address of a contiguous block of memory of at least the
         // specified '*size' (in bytes), and load the actual amount of memory
-        // allocated in '*size'.  If the allocation request exceeds the
-        // remaining free memory space in the current internal buffer, use the
-        // allocator supplied at construction to allocate a new internal
-        // buffer, then allocate memory from the new buffer.  The behavior is
-        // undefined unless '0 < *size'.
+        // allocated in '*size'.  If '*size' is 0, return 0 with no effect.  If
+        // the allocation request exceeds the remaining free memory space in
+        // the current internal buffer, use the allocator supplied at
+        // construction to allocate a new internal buffer, then allocate memory
+        // from the new buffer.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
@@ -588,18 +595,20 @@ class SequentialPool {
         // undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Only memory allocated outside of the constant and geometric growth strategies (e.g., large blocks) are
-        // returned to the construction-time supplied allocator.  All retained memory will be used to
-        // satisfy subsequent allocations.  The effect of using a pointer after
-        // this call that was obtained from this object before this call is
-        // undefined.
+        // Release all memory allocated through this pool.  Only memory
+        // allocated outside of the constant and geometric growth strategies
+        // (e.g., large blocks) are returned to the construction-time supplied
+        // allocator.  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of using a pointer after this call that was
+        // obtained from this object before this call is undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
-        // dynamic allocation).  The behavior is undefined unless
-        // '0 < numBytes'.  Note that, when the 'numBytes' is distributed over multiple 'allocate' requests - due to alignment effects - it is possible
-        // that not all 'numBytes' of memory will be used for allocation before
+        // dynamic allocation).  If 'numBytes' is 0, no memory is reserved.
+        // Note that, when the 'numBytes' is distributed over multiple
+        // 'allocate' requests - due to alignment effects - it is possible that
+        // not all 'numBytes' of memory will be used for allocation before
         // triggering dynamic allocation.
 
     bsls::Types::size_type truncate(void                   *address,
@@ -611,11 +620,11 @@ class SequentialPool {
         // block at 'address' cannot be truncated.  This method can only
         // 'truncate' the memory block returned by the most recent 'allocate'
         // request from this memory pool, and otherwise has no effect.  The
-        // behavior is undefined unless the memory at 'address' was originally
-        // allocated by this memory pool, the size of the memory block at
-        // 'address' is 'originalSize', 'newSize <= originalSize',
-        // '0 <= newSize', and 'release' was not called after allocating the
-        // memory block at 'address'.
+        // behavior is undefined unless the memory block at 'address' was
+        // originally allocated by this memory pool, the size of the memory
+        // block at 'address' is 'originalSize', 'newSize <= originalSize', and
+        // 'release' was not called after allocating the memory block at
+        // 'address'.
 };
 
 }  // close package namespace
@@ -702,7 +711,10 @@ SequentialPool::~SequentialPool()
 inline
 void *SequentialPool::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 < size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
+    }
 
     void *result = d_bufferManager.allocate(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
@@ -716,10 +728,12 @@ inline
 void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
 {
     BSLS_ASSERT_SAFE(size);
-    BSLS_ASSERT_SAFE(0 < *size);
 
     void *result = allocate(*size);
-    *size = d_bufferManager.expand(result, *size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        *size = d_bufferManager.expand(result, *size);
+    }
+
     return result;
 }
 

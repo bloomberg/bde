@@ -16,29 +16,6 @@ SequentialAllocator::~SequentialAllocator()
 {
 }
 
-// MANIPULATORS
-void *SequentialAllocator::allocateAndExpand(bsls::Types::size_type *size)
-{
-    BSLS_ASSERT(size);
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == *size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;                                                     // RETURN
-    }
-
-    return d_sequentialPool.allocateAndExpand(size);
-}
-
-void SequentialAllocator::reserveCapacity(bsls::Types::size_type numBytes)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == numBytes)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return;                                                       // RETURN
-    }
-
-    d_sequentialPool.reserveCapacity(numBytes);
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
