@@ -14,6 +14,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -1048,7 +1049,8 @@ int main(int argc, char *argv[])
 
                 bsls::Types::size_type numBytes = 65;
                 bsls::Types::size_type newSize =
-                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                              static_cast<uint64_t>(numBytes));
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
@@ -1079,7 +1081,8 @@ int main(int argc, char *argv[])
 
                 bsls::Types::size_type numBytes = 66;
                 bsls::Types::size_type newSize =
-                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                              static_cast<uint64_t>(numBytes));
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
@@ -1125,7 +1128,8 @@ int main(int argc, char *argv[])
 
                 cBuffer = (char *)mX.allocate(1);
                 bsls::Types::size_type newSize =
-                               bdlb::BitUtil::roundUpToBinaryPower(bufferSize);
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                            static_cast<uint64_t>(bufferSize));
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1278,7 +1282,8 @@ int main(int argc, char *argv[])
 
                 cBuffer     = (char *)mX.allocate(64);
                 bsls::Types::size_type newSize =
-                               bdlb::BitUtil::roundUpToBinaryPower(bufferSize);
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                            static_cast<uint64_t>(bufferSize));
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1352,8 +1357,8 @@ int main(int argc, char *argv[])
                     nD = td.numBytesInUse();
 
                     bsls::Types::size_type size =
-                                          bdlb::BitUtil::roundUpToBinaryPower(
-                                                              bufferSize * j);
+                                   bdlb::BitUtil::roundUpToBinaryPower(
+                                        static_cast<uint64_t>(bufferSize * j));
 
                     LOOP3_ASSERT(nA, oldNA, j, nA == oldNA + size);
                     LOOP3_ASSERT(nB, oldNB, j, nB == oldNB + size);
@@ -1390,8 +1395,8 @@ int main(int argc, char *argv[])
 
             bsls::Types::size_type numBytes = 65;
             cBuffer = (char *)mX.allocate(numBytes);
-            bsls::Types::size_type size =
-                                 bdlb::BitUtil::roundUpToBinaryPower(numBytes);
+            bsls::Types::size_type size = bdlb::BitUtil::roundUpToBinaryPower(
+                                              static_cast<uint64_t>(numBytes));
             ASSERT(size == objectAllocator.numBytesInUse());
         }
       } break;

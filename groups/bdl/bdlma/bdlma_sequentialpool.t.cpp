@@ -1344,7 +1344,7 @@ int main(int argc, char *argv[])
                 else {
                     bsls::Types::size_type size =
                               bdlb::BitUtil::roundUpToBinaryPower(
-                                    static_cast<bsls::Types::size_type>(SIZE));
+                                                  static_cast<uint64_t>(SIZE));
                     LOOP4_ASSERT(i,
                                  SIZE,
                                  size,
@@ -1417,9 +1417,8 @@ int main(int argc, char *argv[])
                     int actualInitialSize = INITIAL_SIZE;
                     if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRATEGY) {
                         actualInitialSize =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
-                                           static_cast<bsls::Types::size_type>(
-                                                                INITIAL_SIZE));
+                                    bdlb::BitUtil::roundUpToBinaryPower(
+                                          static_cast<uint64_t>(INITIAL_SIZE));
                     }
 
                     if (SIZE <= actualInitialSize) {
@@ -1430,8 +1429,7 @@ int main(int argc, char *argv[])
                     }
                     else {
                         int size = bdlb::BitUtil::roundUpToBinaryPower(
-                                           static_cast<bsls::Types::size_type>(
-                                                                INITIAL_SIZE));
+                                          static_cast<uint64_t>(INITIAL_SIZE));
                         while (size < SIZE) {
                             size *= 2;
                         }
@@ -1528,9 +1526,8 @@ int main(int argc, char *argv[])
                             if (bsls::BlockGrowth::BSLS_GEOMETRIC
                                                                  == STRATEGY) {
                                 actualInitialSize =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
-                                           static_cast<bsls::Types::size_type>(
-                                                                INITIAL_SIZE));
+                                      bdlb::BitUtil::roundUpToBinaryPower(
+                                          static_cast<uint64_t>(INITIAL_SIZE));
                             }
 
                             if (ALLOC_SIZE <= actualInitialSize) {
@@ -1541,8 +1538,7 @@ int main(int argc, char *argv[])
                             }
                             else {
                                 int size = bdlb::BitUtil::roundUpToBinaryPower(
-                                           static_cast<bsls::Types::size_type>(
-                                                                INITIAL_SIZE));
+                                          static_cast<uint64_t>(INITIAL_SIZE));
                                 while (size < ALLOC_SIZE) {
                                     size *= 2;
                                 }
