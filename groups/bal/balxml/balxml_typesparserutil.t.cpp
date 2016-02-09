@@ -23,6 +23,8 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
+#include <bdldfp_decimalutil.h>
+
 #include <bdlt_datetime.h>
 
 #include <bsl_cstdlib.h>
@@ -1963,6 +1965,56 @@ int main(int argc, char *argv[])
 
                 if (bdlb::Float::isNan(EXPECTED_RESULT)) {
                     LOOP2_ASSERT(LINE, X, bdlb::Float::isNan(X));
+                }
+                else {
+                    LOOP2_ASSERT(LINE, X, EXPECTED_RESULT == X);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nUsing 'Decimal64'." << endl;
+        {
+            typedef bdldfp::Decimal64 Type;
+
+            Type posInf = bsl::numeric_limits<Type>::infinity();
+            Type qNaN   = bsl::numeric_limits<Type>::quiet_NaN();
+            Type sNaN   = bsl::numeric_limits<Type>::signaling_NaN();
+
+            static const struct {
+                int         d_lineNum;
+                const char *d_input;
+                Type        d_result;
+            } DATA[] = {
+                //line    input        result
+                //----    -----        ------
+                { L_,     "-1X",       BDLDFP_DECIMAL_DD(-1.0),     },
+                { L_,     "-0.1X",     BDLDFP_DECIMAL_DD(-0.1),     },
+                { L_,     "0X",        BDLDFP_DECIMAL_DD(0.0),      },
+                { L_,     "0.1X",      BDLDFP_DECIMAL_DD(0.1),      },
+                { L_,     "1X",        BDLDFP_DECIMAL_DD(1.0),      },
+                { L_,     "123.4X",    BDLDFP_DECIMAL_DD(123.4),    },
+                { L_,     "0.005X",    BDLDFP_DECIMAL_DD(0.005),    },
+                { L_,     "9.99E306X", BDLDFP_DECIMAL_DD(9.99E306), },
+                { L_,     "+INFX",     posInf,                      },
+                { L_,     "-INFX",     -posInf,                     },
+                { L_,     "NaNX",      qNaN                         },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE            = DATA[i].d_lineNum;
+                const char *INPUT           = DATA[i].d_input;
+                const int   INPUT_LENGTH    = bsl::strlen(INPUT)-1;
+                const Type  EXPECTED_RESULT = DATA[i].d_result;
+
+                Type mX;  const Type& X = mX;
+
+                int retCode = Util::parseDefault(&mX, INPUT, INPUT_LENGTH);
+
+                LOOP2_ASSERT(LINE, retCode, 0 == retCode);
+
+                if (bdldfp::DecimalUtil::isNan(EXPECTED_RESULT)) {
+                    LOOP2_ASSERT(LINE, X, bdldfp::DecimalUtil::isNan(X));
                 }
                 else {
                     LOOP2_ASSERT(LINE, X, EXPECTED_RESULT == X);

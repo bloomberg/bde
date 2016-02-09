@@ -2426,6 +2426,7 @@ int main(int argc, char *argv[])
         XSDNAME_TST(float                    , DEC    , "decimal"          );
         XSDNAME_TST(double                   , DEFAULT, "double"           );
         XSDNAME_TST(double                   , DEC    , "decimal"          );
+        XSDNAME_TST(bdldfp::Decimal64        , DEFAULT, "precisionDecimal" );
         XSDNAME_TST(bsl::string              , DEFAULT, "string"           );
         XSDNAME_TST(bsl::string              , TEXT   , "string"           );
         XSDNAME_TST(bsl::string              , BASE64 , "base64Binary"     );
@@ -2474,6 +2475,7 @@ int main(int argc, char *argv[])
         NAME_TST(bsls::Types::Uint64            , "Uint64"                   );
         NAME_TST(float                          , "float"                    );
         NAME_TST(double                         , "double"                   );
+        NAME_TST(bdldfp::Decimal64              , "bdldfp::Decimal64"        );
         NAME_TST(bsl::string                    , "string"                   );
         NAME_TST(const char*                    , "const char*"              );
         NAME_TST(const signed char*             , "const signed char*"       );
@@ -2543,6 +2545,7 @@ int main(int argc, char *argv[])
         CLASSNAME_TST(bsls::Types::Uint64               , 0                  );
         CLASSNAME_TST(float                             , 0                  );
         CLASSNAME_TST(double                            , 0                  );
+        CLASSNAME_TST(bdldfp::Decimal64                 , 0                  );
         CLASSNAME_TST(bsl::string                       , 0                  );
         CLASSNAME_TST(const char*                       , 0                  );
         CLASSNAME_TST(const signed char*                , 0                  );
