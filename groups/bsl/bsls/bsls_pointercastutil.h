@@ -88,8 +88,8 @@ struct PointerCastUtil {
     // allows casting between function and data pointers.
 
     // CLASS METHODS
-    template <class To, class From>
-    static To cast(From from);
+    template <class TO, class FROM>
+    static TO cast(FROM from);
         // Return the specifed 'from' cast to type 'To', casting it in two
         // steps, first to an integer type the size of a pointer and then to
         // the target type.  This function is intended to be used to cast
@@ -100,13 +100,13 @@ struct PointerCastUtil {
 
 }  // close package namespace
 
-template <class To, class From>
+template <class TO, class FROM>
 inline
-To bsls::PointerCastUtil::cast(From from)
+TO bsls::PointerCastUtil::cast(FROM from)
 {
-    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(From));
-    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(To));
-    return reinterpret_cast<To>(reinterpret_cast<bsls::Types::IntPtr>(from));
+    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(FROM));
+    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(TO));
+    return reinterpret_cast<TO>(reinterpret_cast<bsls::Types::IntPtr>(from));
 }
 
 }  // close enterprise namespace
