@@ -148,6 +148,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #endif
 
+#ifndef INCLUDED_BSLS_POINTERCASTUTIL
+#include <bsls_pointercastutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
                          // ==========================
                          // BSLS_LOG Macro Definitions
                          // ==========================
@@ -288,9 +296,8 @@ inline
 void Log::setLogMessageHandler(Log::LogMessageHandler handler)
 {
     BSLS_ASSERT_SAFE(handler);
-
-    bsls::AtomicOperations::setPtrRelease(&s_logMessageHandler,
-                                          reinterpret_cast<void*>(handler));
+    bsls::AtomicOperations::setPtrRelease(
+        &s_logMessageHandler, PointerCastUtil::cast<void *>(handler));
 }
 
 }  // close package namespace
