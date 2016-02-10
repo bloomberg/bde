@@ -22,7 +22,7 @@ using namespace std;
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -70,6 +70,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bsls::PointerCastUtil Util;
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -*
+
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -107,7 +110,7 @@ typedef bsls::PointerCastUtil Util;
         void handle(void *closure) {
              bsls::PointerCastUtil::cast<void(*)()>(closure)();
         }
-    } mh;
+    };
 //..
 // Next, we will set up a sample service and our handler function:
 //..
@@ -115,6 +118,8 @@ typedef bsls::PointerCastUtil Util;
     static int counter = 0;
     void event() { ++counter; }
 //..
+
+// BDE_VERIFY pragma: pop
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -149,16 +154,22 @@ int main(int argc, char *argv[])
       if (verbose) printf("\nUSAGE EXAMPLE"
                           "\n=============\n");
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -*
+
 // Finally, we will register our handler and then trigger events to verify that
 // our handler is recording them correctly.  To register the function pointer
 // as a closure object, we must cast it to a data pointer.  Again, we can use
 // 'bsls::PointerCastUtil::cast' to accomplish this:
 //..
-    aService.registerHandler(&mh, bsls::PointerCastUtil::cast<void *>(event));
+    MyHandler ah;
+    aService.registerHandler(&ah, bsls::PointerCastUtil::cast<void *>(event));
     aService.eventOccurred();
     aService.eventOccurred();
     ASSERT(counter == 2);
 //..
+
+// BDE_VERIFY pragma: pop
       } break;
       case 1: {
       // --------------------------------------------------------------------
@@ -181,9 +192,10 @@ int main(int argc, char *argv[])
                           "\n==============\n");
 
       typedef void (*assert_t)(bool, const char *, int);
-      const assert_t original = aSsErT;
-      void *as_void_p = Util::cast<void *>(original);
-      const assert_t restored = Util::cast<assert_t>(as_void_p);
+
+      const assert_t  original = aSsErT;
+      void           *as_void_p = Util::cast<void *>(original);
+      const assert_t  restored = Util::cast<assert_t>(as_void_p);
 
       ASSERT(aSsErT == original);
       ASSERT(aSsErT == restored);
