@@ -182,13 +182,6 @@ class IPv4Address {
         // different platforms.  See {Valid String Representations of IPv4
         // Addresses} under {DESCRIPTION} for details of valid string
         // representations of IP addresses.
- 
-    static bool isPassesInitialVet(const char *address);
-        // Return 'true' if the specified Internet host 'address' passes
-        // several checks of proper numbers-and-dots syntax, and 'false'
-        // otherwise.  Note that the system-level checks of 'address' have been
-        // found to be less strict on ibm platforms than on others and these
-        // checks added to provide a uniform view of address validity.
 
   public:
     // TRAITS
@@ -392,15 +385,6 @@ inline
 bool IPv4Address::isValidAddress(const char *address)
 {
     BSLS_ASSERT_SAFE(address);
-
-#if defined(BSLS_PLATFORM_OS_AIX)
-    if ('\0' == *address) {                                     // empty string
-        return false;                                                 // RETURN
-    }
-    if (!isPassesInitialVet(address)) {
-        return false;                                                 // RETURN
-    }
-#endif
 
     int addr;
     return 0 != machineIndependentInetPtonIPv4(&addr, address);

@@ -20,6 +20,8 @@ BSLS_IDENT_RCSID(btlso_ipv4address_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_ostream.h>
 
+#include <bsl_iostream.h> // XXX
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <mstcpip.h>
 #include <Winsock2.h>
@@ -34,9 +36,7 @@ namespace btlso {
                        // class IPv4Address
                        // -----------------
 
-
 // PRIVATE CLASS METHODS
-
 int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -55,6 +55,25 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 
 #else
 
+#if defined(BSLS_PLATFORM_OS_AIX)
+    // The system-level checks of 'address' are less strict on AIX than on
+    // other platforms.  Per DRQS-76925158, these pre-checks were added to
+    // provide a uniform view of address validity.
+
+    if        ('\0' == *address) {                              // empty string
+        return false;                                                 // RETURN
+
+    } else if ('.'  == *address) {                                // leadng dot
+        return false;                                                 // RETURN
+
+    } else if ('.'  == address[bsl::strlen(address) - 1]){      // trailing dot
+        return false;                                                 // RETURN
+
+    } else if (bsl::strstr(address, "..")) {                   // adjacent dots
+        return false;                                                 // RETURN
+    }
+#endif
+
     in_addr inaddr;
     int     errorcode = inet_aton(address, &inaddr);
 
@@ -63,34 +82,6 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
     return errorcode;
 
 #endif
-}
-
-bool IPv4Address::isPassesInitialVet(const char *address)
-{
-    if        ('\0' == *address) {                              // empty string
-        return false;                                                 // RETURN
-
-    } else if ('.' == *address) {                                 // leadng dot
-        return false;                                                 // RETURN
-
-    } else if ('.' == address[bsl::strlen(address) - 1]){       // trailing dot
-        return false;                                                 // RETURN
-
-    } else {
-        for (const char *startSearch = address, *foundDot = 0;
-                         startSearch;
-                         startSearch = foundDot) {
-            if (foundDot = bsl::strchr(startSearch, '.')) {
-                if ('.' == foundDot[1]) {                      // adjacent dots
-                    return false;                                     // RETURN
-                } else {
-                    ++foundDot;
-                }
-            }
-        }
-    }
-
-    return true;
 }
 
 // CLASS METHODS
