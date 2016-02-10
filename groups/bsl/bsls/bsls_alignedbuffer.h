@@ -156,7 +156,7 @@ union AlignedBuffer_Data {
         // Note that to allow the union to access this typedef it must be
         // declared with public access.
 
-#if defined(BSLS_COMPILERFEATURES_ALIGNAS)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
     // The C++11 implementation uses the 'alignas' keyword to ensure the
     // alignment of 'd_buffer'.
 
@@ -170,7 +170,7 @@ union AlignedBuffer_Data {
 #endif
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_COMPILERFEATURES_ALIGNAS)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
 // We provide template specializations for MSVC using __declspec(align).
 // Note that MSVC does not enforce the alignment of (at least) 'double'
 // variables on the stack.  (internal issue 64140445).
