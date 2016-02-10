@@ -391,23 +391,58 @@ int main(int argc, char *argv[])
                 { L_,  "akjfa;kdfjask"    ,  false  },
 
                 // Per DRQS 76925158: Additional test values.
-
-                { L_,  ""                 ,  false  },
-                { L_,  "."                ,  false  },
-                { L_,  ".."               ,  false  },
-                { L_,  "..."              ,  false  },
-
-                { L_,  "1."               ,  false  },
-                { L_,  "1.."              ,  false  },
-                { L_,  "1..."             ,  false  },
-
-                { L_,  "1.2."             ,  false  },
-                { L_,  "1.2.."            ,  false  },
-                { L_,  "1.2.3."           ,  false  },
-
-                { L_,  "1.2..4"           ,  false  },
-                { L_,  "1..3.4"           ,  false  },
-                { L_,  ".2.3.4"           ,  false  }
+                //  Empty fields                       // Binary analog
+                { L_,  ""                 ,  false },  // 0
+                { L_,  "1"                ,  true  },  // 1
+               
+                { L_,  "."                ,  false },  // 00
+                { L_,  ".1"               ,  false },  // 01
+                { L_,  "1."               ,  false },  // 10
+                { L_,  "1.1"              ,  true  },  // 11
+                
+                { L_,  ".."               ,  false },  // 000
+                { L_,  "..1"              ,  false },  // 001
+                { L_,  ".1."              ,  false },  // 010
+                { L_,  ".1.1"             ,  false },  // 011
+                { L_,  "1.."              ,  false },  // 100
+                { L_,  "1..1"             ,  false },  // 101
+                { L_,  "1.1."             ,  false },  // 110
+                { L_,  "1.1.1"            ,  true  },  // 111
+                
+                { L_,  "..."              ,  false },  // 0000
+                { L_,  "...1"             ,  false },  // 0001
+                { L_,  "..1."             ,  false },  // 0010
+                { L_,  "..1.1"            ,  false },  // 0011
+                { L_,  ".1.."             ,  false },  // 0100
+                { L_,  ".1..1"            ,  false },  // 0101
+                { L_,  ".1.1."            ,  false },  // 0110
+                { L_,  ".1.1.1"           ,  false },  // 0111
+                { L_,  "1..."             ,  false },  // 1000
+                { L_,  "1...1"            ,  false },  // 1001
+                { L_,  "1..1."            ,  false },  // 1010
+                { L_,  "1..1.1"           ,  false },  // 1011
+                { L_,  "1.1.."            ,  false },  // 1100
+                { L_,  "1.1..1"           ,  false },  // 1101
+                { L_,  "1.1.1."           ,  false },  // 1110
+                { L_,  "1.1.1.1"          ,  true  },  // 1111
+                
+                //  Leading/trailing dots
+                { L_,  "1"                ,  true  },  // none
+                { L_,  "1.2"              ,  true  },  // none
+                { L_,  "1.2.3"            ,  true  },  // none
+                { L_,  "1.2.3.4"          ,  true  },  // none
+                { L_,  ".1"               ,  false },  // leading
+                { L_,  ".1.2"             ,  false },  // leading
+                { L_,  ".1.2.3"           ,  false },  // leading
+                { L_,  ".1.2.3.4"         ,  false },  // leading
+                { L_,  "1."               ,  false },  // trailing
+                { L_,  "1.2."             ,  false },  // trailing
+                { L_,  "1.2.3."           ,  false },  // trailing
+                { L_,  "1.2.3.4."         ,  false },  // trailing
+                { L_,  ".1."              ,  false },  // both
+                { L_,  ".1.2."            ,  false },  // both
+                { L_,  ".1.2.3."          ,  false },  // both
+                { L_,  ".1.2.3.4."        ,  false }   // both
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
