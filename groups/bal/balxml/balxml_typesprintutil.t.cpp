@@ -1714,6 +1714,48 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nUsing 'Decimal64'." << endl;
+        {
+            typedef bdldfp::Decimal64 Type;
+
+            const struct {
+                int         d_lineNum;
+                Type        d_input;
+                const char *d_result;
+            } DATA[] = {
+                //LINE  VALUE  RESULT
+                //----  -----  ------
+
+                { L_,   BDLDFP_DECIMAL_DD(0.0),   "0.0" },
+                { L_,   BDLDFP_DECIMAL_DD(1.13),  "1.13" },
+                { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
+                  "-9.876543210987654e+307" },
+                { L_,   bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
+                  "INF" },
+                { L_,  -bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
+                  "-INF" },
+                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::signaling_NaN(),
+                  "NaN" },
+                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN(),
+                  "NaN" },
+
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE   = DATA[i].d_lineNum;
+                const Type  INPUT  = DATA[i].d_input;
+                const char *RESULT = DATA[i].d_result;
+
+                bsl::stringstream ss;
+
+                Util::printDefault(ss, INPUT);
+
+                LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
+            }
+        }
+
         // TBD: Currently this test case is commented out till the
         // implementation uses the encoderOptions that are passed in.
 #if 0

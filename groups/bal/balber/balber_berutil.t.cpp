@@ -24,6 +24,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bdldfp_decimalutil.h>
+
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlsb_fixedmeminstreambuf.h>
@@ -219,7 +221,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -300,6 +302,70 @@ int main(int argc, char *argv[])
 //..
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' and 'getValue' for Decimal64
+        //
+        // Concerns:
+        //: 1 'putValue' insert correctly encodes a Decimal64 value by first
+        //:   insert a length and then the output of
+        //:   'DecimalConvertUtil::decimal64ToMultiWidthEncoding'.
+        //:
+        //: 2 'getValue' decodes a Decimal64 by delegating its operation to
+        //:   'DecimalConvertUtil::decimal64FromMultiWidthEncoding'.
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        bdldfp::Decimal64 (*MDF)(long long, int) =
+                                           &bdldfp::DecimalUtil::makeDecimal64;
+
+        static const struct {
+            int d_lineNum;
+            bdldfp::Decimal64 d_value;
+            const char *d_exp;
+        } DATA[] = {
+            {  L_,  MDF(1, 0),  "02 c0 01"  },
+            {  L_,  MDF(0, 1),  "03 e0 00 00"  },
+            {  L_,  MDF((1 << 14), 2), "04 48 00 40 00"  }
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int                LINE  = DATA[i].d_lineNum;
+            const bdldfp::Decimal64  VALUE = DATA[i]. d_value;
+            const char              *EXP   = DATA[i].d_exp;
+            const int                LEN   = numOctets(EXP);
+
+            balber::BerEncoderOptions options;
+            bdlsb::MemOutStreamBuf osb;
+            ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+
+            if (veryVerbose) {
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+            LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+            LOOP2_ASSERT(osb.data(), EXP,
+                         0 == compareBuffers(osb.data(), EXP));
+            {
+                bdldfp::Decimal64 value;
+                int numBytesConsumed = 0;
+
+                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
+            }
+        }
       } break;
       case 21: {
         // --------------------------------------------------------------------
