@@ -29,6 +29,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
+//  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for 'char(16|32)_t'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has <type_traits> header
@@ -129,6 +130,10 @@ BSLS_IDENT("$Id: $")
 //:     long time, and those libraries WILL be identified as providing the
 //:     <type_traits> header.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
+//:     This macro is defined if the compiler suports the 'char16_t' and
+//:     'char32_t' types.
+//
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
@@ -508,11 +513,6 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_attributes)
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // clang supports __attribute__((noreturn)) in earlier versions
-#endif
-#if __has_feature(is_convertible_to)
-#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-// We use this flag to guess when library support is available, rather than try
-// to detect which standard library implementation is in use.
 #endif
 #endif
 
