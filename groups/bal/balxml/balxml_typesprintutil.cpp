@@ -1005,7 +1005,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                              bsl::ostream&              stream,
                                              const bdldfp::Decimal64&   object,
                                              const EncoderOptions       *,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     if (bdldfp::DecimalUtil::isInf(object)) {
         if (object < bdldfp::Decimal64()) {
