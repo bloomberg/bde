@@ -2,19 +2,24 @@
 #ifndef INCLUDED_BSLS_POINTERCASTUTIL
 #define INCLUDED_BSLS_POINTERCASTUTIL
 
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
-BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide function to cast between function and data pointers.
 //
 //@CLASSES:
 //  bsls::PointerCastUtil: namespace for pointer-casting functions
 //
-//@DESCRIPTION: This component provides a utility function to allow casting
-// between function and data pointers without triggering compiler warnings.
-// Such casts are legal in the latest C++ standard, but were not always so.
+//@DESCRIPTION: This component, 'bsls::PointerCastUtil', provides a utility
+// function to allow casting between function and data pointers without
+// triggering compiler warnings.  Such casts are legal in the latest C++
+// standard, but were not always so.
 //
 ///Usage
 //------
@@ -22,8 +27,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using a function pointer as a closure parameter
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose there is an event-handling service which requires registration of a
-// combination of object and closure value, and which invokes a method on the
+// Suppose there is an event-handling service that requires registration of a
+// combination of object and closure value, and that invokes a method on the
 // object, passing back the closure.
 //
 // First we define the service and its handler:
@@ -40,7 +45,7 @@ BSLS_IDENT("$Id: $")
 //      void eventOccurred() { d_handler_p->handle(d_closure_p); }
 //  };
 //..
-// Then, we want to define a handler which will receive a function pointer as
+// Then, we want to define a handler that will receive a function pointer as
 // the closure object and invoke it.  In order to do that, we must cast it to a
 // function pointer, but some compilers may not allow it.  We can use
 // 'bsls::PointerCastUtil::cast' to accomplish this:
@@ -49,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //      void handle(void *closure) {
 //           bsls::PointerCastUtil::cast<void(*)()>(closure)();
 //      }
-//  } mh;
+//  };
 //..
 // Next, we will set up a sample service and our handler function:
 //..
@@ -57,11 +62,13 @@ BSLS_IDENT("$Id: $")
 //  static int counter = 0;
 //  void event() { ++counter; }
 //..
-// Finally, we will register our handler and then trigger events to verify that // our handler is recording them correctly.  To register the function pointer
+// Finally, we will register our handler and then trigger events to verify that
+// our handler is recording them correctly.  To register the function pointer
 // as a closure object, we must cast it to a data pointer.  Again, we can use
 // 'bsls::PointerCastUtil::cast' to accomplish this:
 //..
-//  aService.registerHandler(&mh, bsls::PointerCastUtil::cast<void *>(event));
+//  MyHandler ah;
+//  aService.registerHandler(&ah, bsls::PointerCastUtil::cast<void *>(event));
 //  aService.eventOccurred();
 //  aService.eventOccurred();
 //  assert(counter == 2);
@@ -82,7 +89,7 @@ namespace bsls {
                         //=======================
                         // struct PointerCastUtil
                         //=======================
-                                
+
 struct PointerCastUtil {
     // This 'struct' provides a namespace for a 'static' utility function that
     // allows casting between function and data pointers.
@@ -90,7 +97,7 @@ struct PointerCastUtil {
     // CLASS METHODS
     template <class TO, class FROM>
     static TO cast(FROM from);
-        // Return the specifed 'from' cast to type 'To', casting it in two
+        // Return the specified 'from' cast to type 'To', casting it in two
         // steps, first to an integer type the size of a pointer and then to
         // the target type.  This function is intended to be used to cast
         // between function and data pointers, as doing such a cast directly
