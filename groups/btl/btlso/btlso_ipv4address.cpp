@@ -20,8 +20,6 @@ BSLS_IDENT_RCSID(btlso_ipv4address_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_ostream.h>
 
-#include <bsl_iostream.h> // XXX
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <mstcpip.h>
 #include <Winsock2.h>
