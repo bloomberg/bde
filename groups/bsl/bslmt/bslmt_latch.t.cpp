@@ -13,7 +13,6 @@
 #include <bsls_spinlock.h>
 
 #include <bsl_algorithm.h>   // 'bsl::min'
-#include <bsl_cmath.h>       // 'bsl::pow'
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -67,7 +66,7 @@ using namespace bsl;
 //
 // After the threads execution the expected result is:
 //..
-//  # producers * pow(2, # consumers)
+//  # producers * 2 ** # consumers)
 //..
 // If the latch doesn't provide the expected "isolation" and an 'x += 1' and an
 // 'x *= 2' are mixed the result will be not the expected one.
@@ -840,7 +839,7 @@ void test(int numProducers, int numConsumers, int numProducerConsumers)
         delete myThreads[i];
     }
 
-    const double result = myProducersAmount * pow(2, myConsumersAmount);
+    const int result = myProducersAmount * (1 << myConsumersAmount);
 
     ASSERTV(result, myInt.value(), result == myInt.value());
 
