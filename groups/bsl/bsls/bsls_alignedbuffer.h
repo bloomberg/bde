@@ -160,7 +160,7 @@ union AlignedBuffer_Data {
     // The C++11 implementation uses the 'alignas' keyword to ensure the
     // alignment of 'd_buffer'.
 
-    char alignas(ALIGNMENT) d_buffer[SIZE];
+    alignas(ALIGNMENT) char d_buffer[SIZE];
 #else
     // The C++03 implementation uses a union data member to ensure the
     // alignment of 'd_buffer'.
