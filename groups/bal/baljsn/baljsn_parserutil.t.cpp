@@ -65,16 +65,17 @@ using bsl::endl;
 // [11] static int getValue(float               *v, bslstl::StringRef s);
 // [12] static int getValue(double              *v, bslstl::StringRef s);
 // [13] static int getValue(bsl::string         *v, bslstl::StringRef s);
-// [14] static int getValue(bdlt::Time           *v, bslstl::StringRef s);
-// [15] static int getValue(bdlt::TimeTz         *v, bslstl::StringRef s);
-// [16] static int getValue(bdlt::Date           *v, bslstl::StringRef s);
-// [17] static int getValue(bdlt::DateTz         *v, bslstl::StringRef s);
-// [18] static int getValue(bdlt::Datetime       *v, bslstl::StringRef s);
-// [19] static int getValue(bdlt::DatetimeTz     *v, bslstl::StringRef s);
+// [14] static int getValue(bdlt::Time          *v, bslstl::StringRef s);
+// [15] static int getValue(bdlt::TimeTz        *v, bslstl::StringRef s);
+// [16] static int getValue(bdlt::Date          *v, bslstl::StringRef s);
+// [17] static int getValue(bdlt::DateTz        *v, bslstl::StringRef s);
+// [18] static int getValue(bdlt::Datetime      *v, bslstl::StringRef s);
+// [19] static int getValue(bdlt::DatetimeTz    *v, bslstl::StringRef s);
 // [20] static int getValue(vector<char>        *v, bslstl::StringRef s);
+// [21] static int getValue(bdldfp::Decimal64   *v, bslstl::StringRef s);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [21] USAGE EXAMPLE
+// [22] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -168,7 +169,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -233,6 +234,102 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
 //..
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'getValue' for Decimal64 values
+        //
+        // Concerns:
+        //: 1 Values in the valid range are parsed correctly.  Note that we do
+        //:   not need to perform an exhaustive test, because we assume the
+        //:   underlying parse function used 'DecimalUtil::parseDecimal64' is
+        //:   implemented correctly.
+        //:
+        //: 2 The passed in variable is unmodified if the data is not valid.
+        //:
+        //: 3 The return code is 0 on success and non-zero on failure.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows of string value, expected parsed value, and return code.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Provide the string value and a variable  to be parsed into to
+        //:     the 'getValue' function.  The variable is assigned a sentinel
+        //:     value before invoking the function.
+        //:
+        //:   2 If the parsing should succeed then verify that the variable
+        //:     value matches the expected value.  Otherwise confirm that the
+        //:     variable value is unmodified.
+        //:
+        //:   3 Confirm that the return code is 0 on success and non-zero
+        //:     otherwise.
+        //
+        // Testing:
+        //   static int getValue(bdldfp::Decimal64 *v, bslstl::StringRef s);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'getValue' for double"
+                               << "\n============================="
+                               << bsl::endl;
+        {
+            typedef bdldfp::Decimal64 Type;
+
+            const Type ERROR_VALUE = BDLDFP_DECIMAL_DD(999.0);
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp unsigned value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+                // line       input   exp           isValid
+                // ----       -----   ---           -------
+                {  L_,         "0",   BDLDFP_DECIMAL_DD(0.0),  true },
+                {  L_,         "1",   BDLDFP_DECIMAL_DD(1.0),  true },
+                {  L_,        "-1",   BDLDFP_DECIMAL_DD(-1.0), true },
+                {  L_,   "-9.876543210987654e307",
+                   BDLDFP_DECIMAL_DD(-9.876543210987654e307),  true },
+                {  L_,      "-0.1",   BDLDFP_DECIMAL_DD(-0.1), true },
+
+                {  L_,         "-",   ERROR_VALUE,  false },
+                {  L_,       "E-1",   ERROR_VALUE,  false },
+
+                {  L_,  "Z34.56e1",   ERROR_VALUE,  false },
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,  false },
+                {  L_,      "1.1}",   ERROR_VALUE,  false },
+                {  L_,     "1.1\n",   ERROR_VALUE,  false },
+                {  L_,   "1.10xFF",   ERROR_VALUE,  false },
+                {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
+                {  L_,      "JUNK",   ERROR_VALUE,  false },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int    LINE     = DATA[i].d_line;
+                const string INPUT    = DATA[i].d_input_p;
+                const Type   EXP      = DATA[i].d_exp;
+                const bool   IS_VALID = DATA[i].d_isValid;
+                      Type   value    = ERROR_VALUE;
+
+                StringRef    isb(INPUT.data(), INPUT.length());
+
+                bslma::TestAllocator         da("default", veryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                const int rc = Util::getValue(&value, isb);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rc, rc);
+                }
+                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+
+                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            }
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------

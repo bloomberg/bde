@@ -114,6 +114,10 @@ BSLS_IDENT("$Id: $")
 #include <balber_berencoderoptions.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
+#endif
+
 #ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
 #endif
@@ -378,6 +382,9 @@ struct BerUtil_Imp {
                         double                       *value,
                         int                           length);
     static int getValue(bsl::streambuf               *streamBuf,
+                        bdldfp::Decimal64            *value,
+                        int                           length);
+    static int getValue(bsl::streambuf               *streamBuf,
                         bsl::string                  *value,
                         int                           length);
     static int getValue(bsl::streambuf               *streamBuf,
@@ -492,6 +499,9 @@ struct BerUtil_Imp {
                         const BerEncoderOptions *options);
     static int putValue(bsl::streambuf          *streamBuf,
                         double                   value,
+                        const BerEncoderOptions *options);
+    static int putValue(bsl::streambuf          *streamBuf,
+                        bdldfp::Decimal64        value,
                         const BerEncoderOptions *options);
     static int putValue(bsl::streambuf          *streamBuf,
                         const bsl::string&       value,

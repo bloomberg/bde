@@ -208,6 +208,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
+#endif
+
 #ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
 #endif
@@ -490,6 +494,11 @@ struct TypesPrintUtil_Imp {
     static bsl::ostream& printDecimal(
                                     bsl::ostream&               stream,
                                     const double&               object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
+                                    const bdldfp::Decimal64&    object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
 
