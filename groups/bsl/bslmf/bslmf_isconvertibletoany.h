@@ -74,7 +74,7 @@ class IsConvertibleToAny_Imp {
         // conversion operator.
     };
 
-public:
+  public:
     typedef typename bsl::is_convertible<TYPE, UniqueType>::type Type;
         // 'Type' is defined as 'bsl::true_type' if 'TYPE' is convertible to
         // 'UniqueType' and 'bsl::false_type' otherwise.

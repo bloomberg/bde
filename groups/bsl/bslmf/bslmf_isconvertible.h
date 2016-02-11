@@ -144,6 +144,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_addlvaluereference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
@@ -152,11 +160,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include <bslmf_isarray.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
 #endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
@@ -167,12 +184,97 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-namespace BloombergLP {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
 
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1900
+    // The Microsft implementation of native traits allows binding of rvalues
+    // (including temporaries invented for conversion) to 'const volatile &'
+    // references.  Early versions also do not correctly disallow conversion
+    // from itself for types that are neither copy- nor move-constructible.
+#   define BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS
+# endif
+#endif
+
+namespace BloombergLP {
+namespace bslmf {
+
+                 // =========================================
+                 // private class IsConvertible_CheckComplete
+                 // =========================================
+
+template <class TYPE,
+          bool = bsl::is_function<TYPE>::value || bsl::is_void<TYPE>::value>
+struct IsConvertible_CheckComplete {
+    typedef TYPE type;
+
+    BSLMF_ASSERT((sizeof(TYPE) > 0));
+};
+
+template <class TYPE>
+struct IsConvertible_CheckComplete<TYPE &, false>
+     : IsConvertible_CheckComplete<TYPE > {
+    typedef TYPE & type;
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+struct IsConvertible_CheckComplete<TYPE &&, false>
+     : IsConvertible_CheckComplete<TYPE > {
+    typedef TYPE && type;
+};
+#endif
+
+template <class TYPE>
+struct IsConvertible_CheckComplete<TYPE, true> {
+    typedef TYPE type;
+};
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)  // IBM rejects this valid specialization
+template <class TYPE>
+struct IsConvertible_CheckComplete<TYPE[], false> {
+    typedef TYPE type[];
+};
+#endif
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#ifdef BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS
+
+namespace bsl {
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible
+    : ::bsl::integral_constant<bool,
+                               ::native_std::is_convertible<
+     typename BloombergLP::bslmf::IsConvertible_CheckComplete<FROM_TYPE>::type,
+     typename BloombergLP::bslmf::IsConvertible_CheckComplete<  TO_TYPE>::type
+                                                           >::value> {
+};
+
+}
+#else
+
+namespace BloombergLP {
 namespace bslmf {
 
                          // ==========================
@@ -190,6 +292,7 @@ struct IsConvertible_Match {
     static yes_type match(IsConvertible_Match&);
         // Return 'yes_type' if called on 'IsConvertible_Match' type.
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class TYPE>
     static no_type match(const TYPE&);
         // Return 'yes_type' if the (template parameter) 'TYPE' is
@@ -206,6 +309,12 @@ struct IsConvertible_Match {
         match(TYPE&);
         // Return 'yes_type' if the (template parameter) 'TYPE' is
         // 'IsConvertible_Match' and 'no_type' otherwise.
+#else
+    template <class TYPE>
+    static no_type match(TYPE&&);
+        // Return 'yes_type' if the (template parameter) 'TYPE' is
+        // 'IsConvertible_Match', and 'no_type' otherwise.
+#endif
 };
 
                          // ========================
@@ -214,8 +323,8 @@ struct IsConvertible_Match {
 
 template <class FROM_TYPE, class TO_TYPE
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-         , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::value
-         , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::value
+         , int IS_FROM_FUNDAMENTAL = bsl::is_fundamental<FROM_TYPE>::value
+         , int IS_TO_FUNDAMENTAL   = bsl::is_fundamental<TO_TYPE>::value
 #endif
          >
 struct IsConvertible_Imp {
@@ -246,7 +355,7 @@ struct IsConvertible_Imp {
 
         value = (sizeof(IsConvertible_Match::yes_type) ==
                  sizeof(IsConvertible_Match::match(
-                           (TypeRep<Test>::rep(), TypeRep<FROM_TYPE>::rep()))))
+                                         (Test(), TypeRep<FROM_TYPE>::rep()))))
             // Return the convertibility between 'FROM_TYPE' and 'TO_TYPE'.
             // This is set by invoking the 'operator,' method having 'Test&' on
             // the left and 'FROM_TYPE' on the right.  The 'value' is 'true' if
@@ -263,6 +372,9 @@ struct IsConvertible_Imp {
 };
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+// The following template partial specializations produce the same results as
+// the unspecialized template would, but avoid generating conversion warnings
+// on the affected compilers.
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <class TYPE>                                                         \
@@ -394,10 +506,49 @@ struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
 #undef BSLMF_ISCONVERTIBLE_SAMETYPEVALUE
 #undef BSLMF_ISCONVERTIBLE_VALUE
 #undef BSLMF_ISCONVERTIBLE_FORWARD
+
 #endif
 
-}  // close package namespace
 
+template <class TO_TYPE>
+struct IsConvertible_LazyTrait : bsl::add_lvalue_reference<
+                                     typename bsl::add_const<
+                                       typename bsl::remove_cv<TO_TYPE>::type
+                                                                      >::type
+                                                                      > {
+};
+
+
+template <class FROM_TYPE, class TO_TYPE>
+struct IsConvertible_IsNeverConvertible
+     : bsl::integral_constant<bool, bsl::is_void<FROM_TYPE>::value
+                                    || bsl::is_array<TO_TYPE>::value
+                                    || bsl::is_function<TO_TYPE>::value> {};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct IsConvertible_FilterNeverConvertible
+     : bsl::conditional<
+                   IsConvertible_IsNeverConvertible<FROM_TYPE, TO_TYPE>::value,
+                   bsl::false_type,
+                   IsConvertible_Imp<
+                                FROM_TYPE,
+                                typename IsConvertible_LazyTrait<TO_TYPE>::type
+                                    >
+                       >::type {
+};
+
+
+template <class FROM_TYPE, class TO_TYPE>
+struct IsConvertible_Conditional : bsl::conditional<
+     bsl::is_void<TO_TYPE>::value,
+     bsl::is_void<FROM_TYPE>,
+     IsConvertible_FilterNeverConvertible<
+                        typename IsConvertible_CheckComplete<FROM_TYPE>::type,
+                        typename IsConvertible_CheckComplete<  TO_TYPE>::type>
+                                                                      >::type {
+};
+
+}  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
@@ -408,11 +559,7 @@ namespace bsl {
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible
-    : BloombergLP::bslmf::IsConvertible_Imp<
-                   FROM_TYPE,
-                   typename add_lvalue_reference<
-                     typename add_const<
-                       typename remove_cv<TO_TYPE>::type>::type>::type>::type {
+    : BloombergLP::bslmf::IsConvertible_Conditional<FROM_TYPE, TO_TYPE>::type {
     // This 'struct' template implements the 'is_convertible' meta-function
     // defined in the C++11 standard [meta.rel] to determine if the (template
     // parameter) 'FROM_TYPE' is convertible to the (template parameter)
@@ -422,259 +569,88 @@ struct is_convertible
     // types, arrays of unknown bound, or (possibly cv-qualified) 'void' types.
 };
 
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible<FROM_TYPE, TO_TYPE&>
-    : BloombergLP::bslmf::IsConvertible_Imp<FROM_TYPE, TO_TYPE&>::type {
-    // This partial specialization is instantiated for the case where the
-    // (template parameter) 'TO_TYPE' is a reference type.
+template <class TYPE>
+struct is_convertible<TYPE, TYPE&>
+     : integral_constant< bool
+                        , is_reference<TYPE>::value
+                          || is_function<TYPE>::value
+                          || is_const<TYPE>::value> {
+    // This set of rules corresponds with the reference binding rules in c++11,
+    // where the specification of 'is_convertible' relies on rvalue-references.
+    // We must supply these specializations directly in order to support C++03
+    // compilers that do not have a good substitute for rvalue-references, as
+    // using 'const &' instead produces subtly different results in some cases.
 };
 
-template <class FROM_TYPE>
-struct is_convertible<FROM_TYPE, void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a non-'void' type and is being converted to the 'void' type.
-};
+// The remaining partial specializations deal with various cases of converting
+// to an lvalue-reference, which we make explicitly conform to the C++11 idiom
+// of converting from an rvalue (which may be an lvalue-reference).
 
-template <class FROM_TYPE>
-struct is_convertible<FROM_TYPE, const void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a non-'void' type and is being converted to the 'const void' type.
-};
-
-template <class FROM_TYPE>
-struct is_convertible<FROM_TYPE, volatile void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a non-'void' type and is being converted to the 'volatile void' type.
-};
-
-template <class FROM_TYPE>
-struct is_convertible<FROM_TYPE, const volatile void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a non-'void' type and is being converted to the 'const volatile void'
-    // type.
+template <class TYPE>
+struct is_convertible<TYPE&, TYPE&> : true_type {
 };
 
 template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible<volatile FROM_TYPE, TO_TYPE>
-   : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE>::type {
-    // This partial specialization is instantiated for the case where the
-    // (template parameter) 'FROM_TYPE' is a 'volatile' type.
+struct is_convertible<FROM_TYPE, volatile TO_TYPE&> : false_type {
 };
 
 template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible<volatile FROM_TYPE, TO_TYPE&>
-  : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::type {
-    // This partial specialization is instantiated for the case where the
-    // (template parameter) 'FROM_TYPE' is a 'volatile' type and the (template
-    // parameter) 'TO_TYPE' is a reference type.
+struct is_convertible<FROM_TYPE, const volatile TO_TYPE&> : false_type {
 };
 
-template <class FROM_TYPE>
-struct is_convertible<volatile FROM_TYPE, void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a 'volatile' type and is being converted to the 'void' type.
+template <class TYPE>
+struct is_convertible<TYPE&, volatile TYPE&> : true_type {
 };
 
+template <class TYPE>
+struct is_convertible<TYPE&, const volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE&, const volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE&, const volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE&, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE&, const volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, TYPE>
+     : bsl::conditional<
+                      bsl::is_fundamental<TYPE>::value,
+                      bsl::is_convertible<TYPE, TYPE>,
+                      BloombergLP::bslmf::IsConvertible_Conditional<TYPE, TYPE>
+                       >::type {
+};
+
+// IBM-specfic fix
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<volatile FROM_TYPE&, TO_TYPE>
-  : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE>::type {
-    // This partial specialization is instantiated for the case where the
-    // (template parameter) 'FROM_TYPE' is a reference to a 'volatile' type.
+     : bsl::conditional<
+              bsl::is_fundamental<FROM_TYPE>::value,
+              bsl::is_convertible<FROM_TYPE, TO_TYPE>,
+              BloombergLP::bslmf::IsConvertible_Conditional<volatile FROM_TYPE,
+                                                           TO_TYPE>
+                       >::type {
 };
 
 template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible<volatile FROM_TYPE&, TO_TYPE&>
- : BloombergLP::bslmf::IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&>::type {
-    // This partial specialization is instantiated for the case where the
-    // (template parameter) 'FROM_TYPE' is a reference to a 'volatile' type and
-    // the (template parameter) 'TO_TYPE' is a reference type.
-};
-
-template <class FROM_TYPE>
-struct is_convertible<volatile FROM_TYPE&, void> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the (template parameter) 'FROM_TYPE' is
-    // a reference to a 'volatile' type and is being converted to the 'void'
-    // type.
-};
-
-template <class TO_TYPE>
-struct is_convertible<void, TO_TYPE> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the non-'void' (template parameter) 'TO_TYPE'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<const void, TO_TYPE> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'const void' type is being converted
-    // to the non-'void' (template parameter) 'TO_TYPE'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<volatile void, TO_TYPE> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'volatile void' type is being
-    // converted to the non-'void' (template parameter) 'TO_TYPE'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<const volatile void, TO_TYPE> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'const volatile void' type is being
-    // converted to the non-'void' (template parameter) 'TO_TYPE'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<void, TO_TYPE&> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the non-'void' (template parameter) 'TO_TYPE&'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<const void, TO_TYPE&> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'const void' type is being converted
-    // to the non-'void' (template parameter) 'TO_TYPE&'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<volatile void, TO_TYPE&> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'volatile void' type is being
-    // converted to the non-'void' (template parameter) 'TO_TYPE&'.
-};
-
-template <class TO_TYPE>
-struct is_convertible<const volatile void, TO_TYPE&> : false_type {
-    // This partial specialization deriving from 'bsl::false_type' is
-    // instantiated for the case where the 'const volatile void' type is being
-    // converted to the non-'void' (template parameter) 'TO_TYPE&'.
-};
-
-template <>
-struct is_convertible<void, void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<void, const void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<void, volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<void, const volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const void, void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const void, const void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const void, volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const void, const volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<volatile void, void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<volatile void, const void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<volatile void, volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<volatile void, const volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const volatile void, void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const volatile void, const void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const volatile void, volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
-};
-
-template <>
-struct is_convertible<const volatile void, const volatile void> : true_type {
-    // This partial specialization deriving from 'bsl::true_type' is
-    // instantiated for the case where the 'void' type is being converted to
-    // the 'void' type.
+struct is_convertible<volatile FROM_TYPE&, const volatile TO_TYPE&>
+     : is_convertible<FROM_TYPE, const volatile TO_TYPE&>::type {
 };
 
 }  // close namespace bsl
+#endif
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                          // ====================
@@ -696,7 +672,7 @@ struct IsConvertible : bsl::is_convertible<FROM_TYPE, TO_TYPE>::type {
 
 }  // close enterprise namespace
 
-#endif
+#endif // ! defined(INCLUDED_BSLMF_ISCONVERTIBLE)
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

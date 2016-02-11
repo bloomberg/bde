@@ -205,6 +205,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -290,8 +294,11 @@ LocalTimeOffset::LocalTimeOffsetCallback
     BSLS_ASSERT_SAFE(callback);
 
     LocalTimeOffsetCallback previousCallback = localTimeOffsetCallback();
-    bsls::AtomicOperations::setPtrRelease(&s_localTimeOffsetCallback_p,
-                                          reinterpret_cast<void *>(callback));
+    bsls::AtomicOperations::setPtrRelease(
+        &s_localTimeOffsetCallback_p,
+        reinterpret_cast<void *>(
+            reinterpret_cast<bsls::Types::IntPtr>(callback)));
+
     return previousCallback;
 }
 
@@ -302,7 +309,9 @@ LocalTimeOffset::LocalTimeOffsetCallback
                                      LocalTimeOffset::localTimeOffsetCallback()
 {
     return reinterpret_cast<LocalTimeOffsetCallback>(
-          bsls::AtomicOperations::getPtrAcquire(&s_localTimeOffsetCallback_p));
+        reinterpret_cast<bsls::Types::IntPtr>(
+            bsls::AtomicOperations::getPtrAcquire( 
+                &s_localTimeOffsetCallback_p)));
 }
 
 }  // close package namespace

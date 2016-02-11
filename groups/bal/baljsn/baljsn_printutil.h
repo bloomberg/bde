@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 //  bsls::Types::Uint64  number
 //  float                number
 //  double               number
+//  bdldfp::Decimal64    number
 //  char *               string
 //  bsl::string          string
 //  bdlt::Date           string     ISO 8601 format
@@ -108,6 +109,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_float.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -130,6 +135,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALUTIL
+#include <bdldfp_decimalutil.h>
 #endif
 
 namespace BloombergLP {
@@ -173,6 +182,7 @@ struct PrintUtil {
     static int printValue(bsl::ostream& stream, bsls::Types::Uint64     value);
     static int printValue(bsl::ostream& stream, float                   value);
     static int printValue(bsl::ostream& stream, double                  value);
+    static int printValue(bsl::ostream& stream, bdldfp::Decimal64       value);
     static int printValue(bsl::ostream& stream, const char             *value);
     static int printValue(bsl::ostream& stream, const bsl::string&      value);
     static int printValue(bsl::ostream& stream, const bdlt::Time&       value);
@@ -291,6 +301,20 @@ inline
 int PrintUtil::printValue(bsl::ostream& stream, double value)
 {
     return printFloatingPoint(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream& stream, bdldfp::Decimal64 value)
+{
+    if (!bdldfp::DecimalUtil::isFinite(value)) {
+        return -1;                                                    // RETURN
+    }
+
+    stream << value;
+    if (stream.bad()) {
+        return 1;                                                     // RETURN
+    }
+    return 0;
 }
 
 inline

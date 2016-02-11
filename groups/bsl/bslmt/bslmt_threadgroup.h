@@ -243,12 +243,19 @@ int bslmt::ThreadGroup::addThread(const INVOKABLE&        functor,
     int rc = 1;
     if (ThreadAttributes::e_CREATE_JOINABLE != attributes.detachedState()) {
         ThreadAttributes newAttributes(attributes);
-        newAttributes.setDetachedState(
-                                ThreadAttributes::e_CREATE_JOINABLE);
-        rc = ThreadUtil::create(&handle, newAttributes, functor);
+        newAttributes.setDetachedState(ThreadAttributes::e_CREATE_JOINABLE);
+        rc = ThreadUtil::createWithAllocator(
+                                        &handle,
+                                        newAttributes,
+                                        functor,
+                                        d_threads.get_allocator().mechanism());
     }
     else {
-        rc = ThreadUtil::create(&handle, attributes, functor);
+        rc = ThreadUtil::createWithAllocator(
+                                        &handle,
+                                        attributes,
+                                        functor,
+                                        d_threads.get_allocator().mechanism());
     }
 
     if (0 == rc) {

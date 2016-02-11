@@ -24,40 +24,51 @@ using namespace BloombergLP;
 // PUBLIC CLASS DATA
 // [ 2] bslmf::IsEnum::VALUE
 // [ 1] bsl::is_enum::value
-//
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -181,9 +192,15 @@ struct ConvertToAnyType {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -242,8 +259,8 @@ int main(int argc, char *argv[])
         //:   type, or a reference to such a user-defined type.
         //
         // Plan:
-        //   Verify that 'bslmf::IsEnum::VALUE' has the correct value for each
-        //   (template parameter) 'TYPE' in the concerns.  (C-1..5)
+        //: 1 Verify that 'bslmf::IsEnum::VALUE' has the correct value for each
+        //:   (template parameter) 'TYPE' in the concerns.  (C-1..5)
         //
         // Testing:
         //   bslmf::IsEnum::VALUE
@@ -255,6 +272,7 @@ int main(int argc, char *argv[])
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, int,  0);
         TYPE_ASSERT_CVQ_REF   (bslmf::IsEnum, int,  0);
+        TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, void, 0);
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bslmf::IsEnum, EnumTestType, 1);
@@ -336,19 +354,19 @@ int main(int argc, char *argv[])
         //: 5 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) user-defined type having conversions to integral or
         //:   enumerated type, or a reference to such a user-defined type.
-        //
+        //:
         //: 6 'is_enum::value' is 'false' when 'TYPE' is a function or function
         //:   reference type.
-        //
+        //:
         //: 7 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) array type.
-        //
+        //:
         //: 8 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) void type.
         //
         // Plan:
-        //   Verify that 'bsl::is_enum::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.  (C-1..5)
+        //: 1 Verify that 'bsl::is_enum::value' has the correct value for each
+        //:   (template parameter) 'TYPE' in the concerns.  (C-1..5)
         //
         // Testing:
         //   bsl::is_enum::value
@@ -360,6 +378,7 @@ int main(int argc, char *argv[])
         // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, int,  false);
         TYPE_ASSERT_CVQ_REF   (bsl::is_enum, int,  false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, void, false);
 
         // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_enum, EnumTestType, true);
@@ -426,13 +445,13 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<void(&)()>::value);
         ASSERT(! bsl::is_enum<int(&)(char, float...)>::value);
 
-        // C-8
+        // C-7
 
-        // These tests dp not use the test macros above, as you need to use a
+        // These tests do not use the test macros above, as you need to use a
         // different syntax to correctly add a cv-qualifier, or make a pointer
         // or reference to, array types that does not fall out of the simple
         // textual replacement of a macro.  We could, instead, use the 'add_*'
-        // metafunctions. introducing a further component depenency to the
+        // metafunctions, introducing a further component dependency to the
         // levelization of this package.
 
         ASSERT(! bsl::is_enum<int[2]>::value);
@@ -487,7 +506,6 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<const void>::value);
         ASSERT(! bsl::is_enum<volatile void>::value);
         ASSERT(! bsl::is_enum<const volatile void>::value);
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

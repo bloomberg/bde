@@ -170,6 +170,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -281,7 +285,8 @@ inline
 CurrentTime::CurrentTimeCallback CurrentTime::currentTimeCallback()
 {
     return reinterpret_cast<CurrentTimeCallback>(
-              bsls::AtomicOperations::getPtrAcquire(&s_currenttimeCallback_p));
+        reinterpret_cast<bsls::Types::IntPtr>(
+            bsls::AtomicOperations::getPtrAcquire(&s_currenttimeCallback_p)));
 }
 
 inline
@@ -291,8 +296,12 @@ CurrentTime::setCurrentTimeCallback(CurrentTimeCallback callback)
     BSLS_ASSERT_OPT(callback);
 
     CurrentTimeCallback previousCallback = currentTimeCallback();
-    bsls::AtomicOperations::setPtrRelease(&s_currenttimeCallback_p,
-                                          reinterpret_cast<void *>(callback));
+
+    bsls::AtomicOperations::setPtrRelease(
+        &s_currenttimeCallback_p,
+        reinterpret_cast<void *>(
+            reinterpret_cast<bsls::Types::IntPtr>(callback)));
+
     return previousCallback;
 }
 

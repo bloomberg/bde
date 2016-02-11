@@ -51,6 +51,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -58,6 +62,19 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
 #define INCLUDED_STDDEF_H
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+// The Microsoft and Sun compilers do not recognize array-types as cv-qualified
+// (when the element type is cv-qualified) when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depeoning on how the trait might be used.  This also
+// corresponds to how Microsft itself implements the trait in VC2010 and later.
+// Last tested against VC 2015 (Release Candidate).
+# define BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
 #endif
 
 namespace bsl {
@@ -88,7 +105,7 @@ struct is_volatile<TYPE volatile> : true_type {
      // 'bsl::true_type'
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#ifdef BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing

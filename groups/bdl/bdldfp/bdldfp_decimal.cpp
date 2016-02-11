@@ -4,6 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
+#include <bsls_exceptionutil.h>
+#include <bsls_performancehint.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
@@ -12,6 +15,7 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
+#include <bslim_printer.h>
 #include <bslmf_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -82,19 +86,29 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 
 template <class CHARTYPE, class TRAITS, class DECIMAL>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-print(bsl::basic_ostream<CHARTYPE, TRAITS>& out,
-      DECIMAL                               value)
+printImpl(bsl::basic_ostream<CHARTYPE, TRAITS>& out,
+          DECIMAL                               value)
 {
-    typename bsl::basic_ostream<CHARTYPE, TRAITS>::sentry kerberos(out);
-    if (kerberos) {
-        typedef BloombergLP::bdldfp::DecimalNumPut<CHARTYPE> Facet;
-        const Facet& facet(bsl::has_facet<Facet>(out.getloc())
-                           ? bsl::use_facet<Facet>(out.getloc())
-                           : Facet::object());
-        facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
-                  out,
-                  out.fill(),
-                  value);
+    BSLS_TRY {
+        typename bsl::basic_ostream<CHARTYPE, TRAITS>::sentry kerberos(out);
+        if (kerberos) {
+            typedef BloombergLP::bdldfp::DecimalNumPut<CHARTYPE> Facet;
+            const Facet& facet(bsl::has_facet<Facet>(out.getloc())
+                               ? bsl::use_facet<Facet>(out.getloc())
+                               : Facet::object());
+
+            bsl::ostreambuf_iterator<CHARTYPE, TRAITS> itr =
+                facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
+                          out,
+                          out.fill(),
+                          value);
+            if (itr.failed()) {
+                out.setstate(bsl::ios::failbit | bsl::ios::badbit);
+            }
+        }
+    }
+    BSLS_CATCH(...) {
+        out.setstate(bsl::ios::badbit);
     }
     return out;
 }
@@ -246,6 +260,27 @@ doPutCommon(ITER_TYPE       out,
 
 }  // close unnamed namespace
 
+
+                            // --------------------
+                            // class Decimal_Type64
+                            // --------------------
+
+// ACCESSORS
+bsl::ostream& Decimal_Type64::print(bsl::ostream& stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(stream.bad())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return stream;                                                // RETURN
+    }
+
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start(true);
+    printImpl(stream, *this);
+    printer.end(true);
+    return stream;
+}
 
                             // -------------------
                             // class DecimalNumGet
@@ -708,7 +743,7 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal32                             object)
 {
-    return print(stream, object);
+    return printImpl(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -716,7 +751,7 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal64                             object)
 {
-    return print(stream, object);
+    return printImpl(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -724,7 +759,7 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal128                            object)
 {
-    return print(stream, object);
+    return printImpl(stream, object);
 }
 
                                   // Input

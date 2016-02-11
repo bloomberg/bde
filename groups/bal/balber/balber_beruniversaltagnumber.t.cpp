@@ -2380,6 +2380,10 @@ int main(int argc, char *argv[])
                                  FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
                                  &otherTag);
+        TEST_SELECT_WITH_ALT_TAG(bdldfp::Decimal64,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_OCTET_STRING,
+                                 &otherTag);
 
         otherTag = Class::e_BER_OCTET_STRING;
         TEST_SELECT_WITH_ALT_TAG(bdlt::Date,
@@ -2714,6 +2718,10 @@ int main(int argc, char *argv[])
         TEST_SELECT_WITH_OPTIONS(MyChoice,
                                  FM::e_DEFAULT,
                                  Class::e_BER_SEQUENCE,
+                                 &options);
+        TEST_SELECT_WITH_OPTIONS(bdldfp::Decimal64,
+                                 FM::e_DEFAULT,
+                                 Class::e_BER_OCTET_STRING,
                                  &options);
 
         options.setEncodeDateAndTimeTypesAsBinary(true);

@@ -36,8 +36,8 @@ BSLS_IDENT("$Id: $")
 //  typedef int        MyType;
 //  typedef const int  MyConstType;
 //..
-// Now, we instantiate the 'bsl::is_const' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
+// Now, we instantiate the 'bsl::is_const' template for each of the 'typedef's
+// and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_const<MyType>::value);
 //  assert(true  == bsl::is_const<MyConstType>::value);
@@ -58,6 +58,20 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
 #define INCLUDED_STDDEF_H
+#endif
+
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+// The Microsoft and Sun compilers do not recognize array-types as cv-qualified
+// (when the element type is cv-qualified) when performing matching for partial
+// template specialization, but do get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depeoning on how the trait might be used.  This also
+// corresponds to how Microsft itself implements the trait in VC2010 and later.
+// Last tested against VC 2015 (Release Candidate).
+# define BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
 #endif
 
 namespace bsl {
@@ -88,7 +102,7 @@ struct is_const<const TYPE> : true_type {
 };
 
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT)
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing
@@ -114,7 +128,6 @@ struct is_const<const TYPE[LENGTH]> : true_type {
      // Note that this single specialization is sufficient to work around the
      // MSVC issue, even for multidimensional arrays.
 };
-
 #endif
 
 }  // close namespace bsl

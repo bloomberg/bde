@@ -75,51 +75,56 @@ using namespace BloombergLP;
 // [ 2] CONCERN: This test driver is reusable w/other, similar components.
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
-int verbose = 0;
-int veryVerbose = 0;
-int veryVeryVerbose = 0;
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+bool         verbose = false;
+bool     veryVerbose = false;
+bool veryVeryVerbose = false;
 
 struct DummyType
 {
@@ -330,9 +335,9 @@ void fullTest(const char TYPENAME[])
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+    int        test = argc > 1 ? atoi(argv[1]) : 0;
+            verbose = argc > 2;
+        veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -354,8 +359,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting USAGE EXAMPLE"
-                            "\n=====================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         usageExample1();
         usageExample2();
@@ -363,7 +368,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING false_type AND true_type
+        // TESTING 'false_type' AND 'true_type'
         //
         // Concerns:
         //: 1 'false_type' is identical to 'integral_constant<bool, false>'.
@@ -379,8 +384,8 @@ int main(int argc, char *argv[])
         //   bsl::true_type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting false_type and true_type"
-                            "\n================================\n");
+        if (verbose) printf("\nTESTING 'false_type' AND 'true_type'"
+                            "\n====================================\n");
 
         ASSERT((IsSameType<bsl::false_type,
                            bsl::integral_constant<bool, false> >::VALUE));

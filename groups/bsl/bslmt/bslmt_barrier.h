@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslmt::Barrier: thread barrier class
 //
-//@SEE_ALSO: bslmt_mutex, bslmt_condition
+//@SEE_ALSO: bslmt_latch
 //
 //@DESCRIPTION: This component defines a thread barrier named 'bslmt::Barrier'.
 // Barriers provide a simple mechanism for synchronizing a series of threads at

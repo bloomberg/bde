@@ -88,8 +88,13 @@ struct InflatableType
     BSLMF_NESTED_TRAIT_DECLARATION(InflatableType, IsInflatable);
 };
 
-struct NonInflatableType
+union NonInflatableType
 {
+};
+
+enum NonInflatableEnum
+{
+    e_VALUE = 0
 };
 
 template <class TYPE>
@@ -107,8 +112,9 @@ struct ConvertibleToAny
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
 {
-    template <class T>
-    operator T() const { return T(); }
+    template <class TYPE>
+    operator TYPE() const { return TYPE(); }
+        // Return a default-constructed object of the deduced 'TYPE'.
 };
 
 // ============================================================================
@@ -340,6 +346,8 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
+        //: 1 'DetectNestedTrait<TYPE, TRAIT>' compiles and gives the expected
+        //:   result for every category of type.
         //
         // Plan:
         //
@@ -350,6 +358,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        // basic test types
         ASSERT((  bslmf::DetectNestedTrait<InflatableType,
                                            IsInflatable>::value));
         ASSERT((! bslmf::DetectNestedTrait<NonInflatableType,
@@ -358,13 +367,108 @@ int main(int argc, char *argv[])
                                            IsInflatable>::value));
         ASSERT((! bslmf::DetectNestedTrait<Container<NonInflatableType>,
                                            IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<NonInflatableEnum,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<InflatableType[1],
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<InflatableType[],
+                                           IsInflatable>::value));
         ASSERT((! bslmf::DetectNestedTrait<void, IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int, IsInflatable>::value));
 
+        // const-qualified test types
+        ASSERT((  bslmf::DetectNestedTrait<const InflatableType,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const NonInflatableType,
+                                           IsInflatable>::value));
+        ASSERT((  bslmf::DetectNestedTrait<const Container<InflatableType>,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const Container<NonInflatableType>,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const void, IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const int, IsInflatable>::value));
+
+        // volatile-qualified test types
+        ASSERT((  bslmf::DetectNestedTrait<volatile InflatableType,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<volatile NonInflatableType,
+                                           IsInflatable>::value));
+        ASSERT((  bslmf::DetectNestedTrait<volatile Container<InflatableType>,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<
+                                         volatile Container<NonInflatableType>,
+                                         IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<volatile void,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<volatile int,
+                                           IsInflatable>::value));
+
+        // cv-qualified test types
+        ASSERT((  bslmf::DetectNestedTrait<const volatile InflatableType,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const volatile NonInflatableType,
+                                           IsInflatable>::value));
+        ASSERT((  bslmf::DetectNestedTrait<
+                                      const volatile Container<InflatableType>,
+                                      IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<
+                                   const volatile Container<NonInflatableType>,
+                                   IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const volatile void,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<const volatile int,
+                                           IsInflatable>::value));
+
+        // pointer types
+        ASSERT((! bslmf::DetectNestedTrait<InflatableType *,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<NonInflatableType *,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<Container<InflatableType> *,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<Container<NonInflatableType> *,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<void *, IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int *, IsInflatable>::value));
+
+        // reference types
+        ASSERT((! bslmf::DetectNestedTrait<InflatableType &,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<NonInflatableType &,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<Container<InflatableType> &,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<Container<NonInflatableType> &,
+                                           IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int &, IsInflatable>::value));
+
+        // function types
+        ASSERT((! bslmf::DetectNestedTrait<void(int), IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int(...), IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int(*)(int), IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int(*)(...), IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int(&)(int), IsInflatable>::value));
+        ASSERT((! bslmf::DetectNestedTrait<int(&)(...), IsInflatable>::value));
+
+        // Direct query of the trait
         ASSERT((  IsInflatable<InflatableType>::value));
         ASSERT((! IsInflatable<NonInflatableType>::value));
         ASSERT((  IsInflatable<Container<InflatableType> >::value));
         ASSERT((! IsInflatable<Container<NonInflatableType> >::value));
+        ASSERT((  IsInflatable<const InflatableType>::value));
+        ASSERT((! IsInflatable<const NonInflatableType>::value));
+        ASSERT((  IsInflatable<const Container<InflatableType> >::value));
+        ASSERT((! IsInflatable<const Container<NonInflatableType> >::value));
+
+        ASSERT((! IsInflatable<InflatableType[1]>::value));
+        ASSERT((! IsInflatable<InflatableType[]>::value));
         ASSERT((! IsInflatable<void>::value));
+        ASSERT((! IsInflatable<int>::value));
+        ASSERT((! IsInflatable<void(int)>::value));
+        ASSERT((! IsInflatable<int(...)>::value));
+        ASSERT((! IsInflatable<int&>::value));
+        ASSERT((! IsInflatable<int(&)(int)>::value));
+        ASSERT((! IsInflatable<int(&)(...)>::value));
 
         ASSERT((! bslmf::DetectNestedTrait<ConvertibleToAny,
                                            IsInflatable>::value));

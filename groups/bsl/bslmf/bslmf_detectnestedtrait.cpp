@@ -2,6 +2,9 @@
 
 #include <bslmf_detectnestedtrait.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
+
 #include <bslmf_assert.h>            // for testing only
 #include <bslmf_integralconstant.h>  // for testing only
 

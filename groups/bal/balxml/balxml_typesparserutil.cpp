@@ -19,6 +19,8 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 
 #include <bdlsb_fixedmeminstreambuf.h>
 
+#include <bdldfp_decimalutil.h>
+
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -303,6 +305,23 @@ int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
+int parseDecimal64Impl(bdldfp::Decimal64  *result, const char *input)
+    // Load, into the specificed 'result', the 'Decimal64' value represented by
+    // the specified 'input' string.  Return 0 on success and non-zero
+    // otherwise.
+{
+    enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
+
+    bdldfp::Decimal64 d;
+    int rc = bdldfp::DecimalUtil::parseDecimal64(&d, input);
+    if (rc != 0) {
+        return BAEXML_FAILURE;
+    }
+    *result = d;
+
+    return BAEXML_SUCCESS;
+}
+
 }  // close unnamed namespace
 
 namespace balxml {
@@ -523,6 +542,29 @@ int TypesParserUtil_Imp::parseDefault(double                     *result,
                                       bdlat_TypeCategory::Simple)
 {
     return parseDouble(result, input, inputLength, false);
+}
+
+int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
+                                      const char                 *input,
+                                      int                         inputLength,
+                                      bdlat_TypeCategory::Simple)
+{
+    if (inputLength == 0) {
+        return -1;
+    }
+
+    if (inputLength < BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
+        // Use a fixed-length buffer for efficiency.
+        char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        bsl::memcpy(buffer, input, inputLength);
+        buffer[inputLength] = '\0';
+        return parseDecimal64Impl(result, buffer);
+    }
+    else {
+        // Use a string for dynamic allocation.
+        bsl::string tmp(input, inputLength);
+        return parseDecimal64Impl(result, tmp.c_str());
+    }
 }
 
 // HEX FUNCTIONS

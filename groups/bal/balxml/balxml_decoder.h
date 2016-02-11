@@ -605,7 +605,7 @@ class Decoder {
         // 'true' after this method returns.  The (optionally) specified 'uri'
         // is used for identifying the input document in error messages.  A
         // compilation error will result unless 'TYPE' conforms to the
-        // requirements of a 'bdeat' sequence or choice, as described in
+        // requirements of a 'bdlat' sequence or choice, as described in
         // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
     template <class TYPE>
@@ -614,7 +614,7 @@ class Decoder {
         // specified stream 'buffer'.  The (optionally) specified 'uri' is
         // used for identifying the input document in error messages.  Return
         // 0 on success, and a non-zero value otherwise.  A compilation error
-        // will result unless 'TYPE' conforms to the requirements of a bdeat
+        // will result unless 'TYPE' conforms to the requirements of a bdlat
         // sequence or choice, as described in 'bdlat_sequencefunctions' and
         // 'bdlat_choicefunctions'.
 
@@ -628,7 +628,7 @@ class Decoder {
         // 'length'.  The (optionally) specified 'uri' is used for identifying
         // the input document in error messages.  Return 0 on success, and a
         // non-zero value otherwise.  A compilation error will result unless
-        // 'TYPE' conforms to the requirements of a bdeat sequence or choice,
+        // 'TYPE' conforms to the requirements of a bdlat sequence or choice,
         // as described in 'bdlat_sequencefunctions' and
         // 'bdlat_choicefunctions'.
 
@@ -637,7 +637,7 @@ class Decoder {
         // Decode the specified 'object' of parameterized 'TYPE' from the file
         // with the specified 'filename'.  Return 0 on success, and a non-zero
         // value otherwise.  A compilation error will result unless 'TYPE'
-        // conforms to the requirements of a bdeat sequence or choice, as
+        // conforms to the requirements of a bdlat sequence or choice, as
         // described in 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.
 
     template <class TYPE>
@@ -646,7 +646,7 @@ class Decoder {
         // input source specified by a previous call to 'open' and leave the
         // reader in an open state.  Return 0 on success, and a non-zero value
         // otherwise.  A compilation error will result unless 'TYPE' conforms
-        // to the requirements of a bdeat sequence or choice, as described in
+        // to the requirements of a bdlat sequence or choice, as described in
         // 'bdlat_sequencefunctions' and 'bdlat_choicefunctions'.  The
         // behavior is undefined unless this call was preceded by a prior
         // successful call to 'open'

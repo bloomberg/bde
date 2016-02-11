@@ -181,23 +181,23 @@ struct Identity
 //                          HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct my_Class0
-{
+struct my_Class0 {
     // Class with no defined traits.
+    int d_nonEmptyData;
+
+    my_Class0(){}
+    my_Class0(const my_Class0&){}
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
 };
 
-struct my_Class1
-{
+struct my_Class1 : my_Class0 {
     // Class that uses explicitly-specialized type traits.
 };
 
 namespace BloombergLP {
 namespace bslmf {
-
-// Being empty, 'my_Class0' would normally be implicitly bitwise moveable.
-// Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<my_Class0> : bsl::false_type { };
 
 // Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
 // Override, making it explicitly NOT bitwise moveable.
@@ -224,11 +224,13 @@ struct my_Class2
                                    bsl::is_trivially_default_constructible);
 };
 
-struct my_Class4
+struct my_Class4 : my_Class0
 {
-    // Class with no special traits but has conversion from 'void*'.
-    // Used to check against false positives for 'bslma::Allocator*' traits.
-    my_Class4(void*);
+    // Class with no special traits but has conversion from 'void *'.
+    // Used to check against false positives for 'bslma::Allocator *' traits.
+    my_Class4(void*);  // IMPLICIT
+        // Construct a 'my_Class4' object from any pointer, including a pointer
+        // to 'bslma::Allocator', as an implicit conversion.
 };
 
 enum my_Enum
@@ -237,7 +239,7 @@ enum my_Enum
     MY_ENUM_0
 };
 
-struct ConvertibleToAnyNoTraits
+struct ConvertibleToAnyNoTraits : my_Class0
     // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
     // assign it any traits.  The concern is that since
     // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
@@ -248,26 +250,12 @@ struct ConvertibleToAnyNoTraits
     operator T() const { return T(); }
 };
 
-struct ConvertibleToAnyWithTraits {
+struct ConvertibleToAnyWithTraits : my_Class0 {
     template <class T>
     operator T() const { return T(); }
 };
 
 namespace BloombergLP {
-namespace bslmf {
-
-// Being empty, 'my_Class4' would normally be implicitly bitwise
-// moveable.  Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<my_Class4> : bsl::false_type { };
-
-// Being empty, 'ConvertibleToAnyNoTraits' would normally be implicitly bitwise
-// moveable.  Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<ConvertibleToAnyNoTraits> : bsl::false_type { };
-
-}  // close namespace bslmf
-
 namespace bslma {
 
 template <>
@@ -360,8 +348,7 @@ int main(int argc, char *argv[])
 
         // Trait tests for type convertible to anything
         TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
-        TRAIT_TEST(ConvertibleToAnyWithTraits,
-                   TRAIT_USESBSLMAALLOCATOR | TRAIT_BITWISEMOVEABLE);
+        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
 
       } break;
 

@@ -544,9 +544,9 @@ struct DeleteTestNode : public RbTreeNode {
    DeleteTestNode() : d_deleted(false) {}
 };
 
-                       // ============================
-                       // class TestTreeNodeComparator
-                       // ============================
+                       // ==============================
+                       // class DeleteTestNodeComparator
+                       // ==============================
 
 
 class DeleteTestNodeComparator {

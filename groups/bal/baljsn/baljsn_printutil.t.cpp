@@ -38,26 +38,27 @@ using bsl::endl;
 // matches the expected value.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] static int printValue(bsl::ostream& s, bool                    v);
-// [ 4] static int printValue(bsl::ostream& s, char                    v);
-// [ 4] static int printValue(bsl::ostream& s, signed char             v);
-// [ 4] static int printValue(bsl::ostream& s, unsigned char           v);
-// [ 4] static int printValue(bsl::ostream& s, short                   v);
-// [ 4] static int printValue(bsl::ostream& s, unsigned short          v);
-// [ 4] static int printValue(bsl::ostream& s, int                     v);
-// [ 4] static int printValue(bsl::ostream& s, unsigned int            v);
-// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Int64      v);
-// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Uint64     v);
-// [ 4] static int printValue(bsl::ostream& s, float                   v);
-// [ 4] static int printValue(bsl::ostream& s, double                  v);
-// [ 3] static int printValue(bsl::ostream& s, const char             *v);
-// [ 3] static int printValue(bsl::ostream& s, const bsl::string&      v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::Time&        v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::Date&        v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::Datetime&    v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::TimeTz&      v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::DateTz&      v);
-// [ 5] static int printValue(bsl::ostream& s, const bdlt::DatetimeTz&  v);
+// [ 2] static int printValue(bsl::ostream& s, bool                      v);
+// [ 4] static int printValue(bsl::ostream& s, char                      v);
+// [ 4] static int printValue(bsl::ostream& s, signed char               v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned char             v);
+// [ 4] static int printValue(bsl::ostream& s, short                     v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned short            v);
+// [ 4] static int printValue(bsl::ostream& s, int                       v);
+// [ 4] static int printValue(bsl::ostream& s, unsigned int              v);
+// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Int64        v);
+// [ 4] static int printValue(bsl::ostream& s, bsls::Types::Uint64       v);
+// [ 4] static int printValue(bsl::ostream& s, float                     v);
+// [ 4] static int printValue(bsl::ostream& s, double                    v);
+// [ 3] static int printValue(bsl::ostream& s, const char               *v);
+// [ 3] static int printValue(bsl::ostream& s, const bsl::string&        v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::Time&         v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::Date&         v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::Datetime&     v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::TimeTz&       v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::DateTz&       v);
+// [ 5] static int printValue(bsl::ostream& s, const bdlt::DatetimeTz&   v);
+// [ 5] static int printValue(bsl::ostream& s, const bdldfp::Decimal64&  v);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -492,6 +493,7 @@ int main(int argc, char *argv[])
         //  static int printValue(bsl::ostream& s, bsls::Types::Uint64     v);
         //  static int printValue(bsl::ostream& s, float                   v);
         //  static int printValue(bsl::ostream& s, double                  v);
+        //  static int printValue(bsl::ostream& s, bdldfp::Decimal64       v);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -530,6 +532,36 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const float       VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+
+        if (verbose) cout << "Encode Decimal64" << endl;
+        {
+            const struct {
+                int                d_line;
+                bdldfp::Decimal64  d_value;
+                const char        *d_result;
+            } DATA[] = {
+                //LINE  VALUE  RESULT
+                //----  -----  ------
+
+                { L_,   BDLDFP_DECIMAL_DD(0.0),  "0.0" },
+                { L_,   BDLDFP_DECIMAL_DD(1.13), "1.13" },
+                { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
+                  "-9.876543210987654e+307" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int               LINE  = DATA[ti].d_line;
+                const bdldfp::Decimal64 VALUE = DATA[ti].d_value;
+                const char *const       EXP   = DATA[ti].d_result;
 
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));

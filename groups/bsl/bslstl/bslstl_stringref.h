@@ -256,6 +256,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
 #endif
@@ -326,13 +330,14 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
   public:
     // PUBLIC TYPES
-    typedef const CHAR_TYPE     value_type;
-    typedef const CHAR_TYPE&    reference;
-    typedef const CHAR_TYPE&    const_reference;
-    typedef const CHAR_TYPE    *iterator;
-    typedef const CHAR_TYPE    *const_iterator;
-    typedef std::ptrdiff_t      difference_type;
-    typedef std::size_t         size_type;
+    typedef const CHAR_TYPE                        value_type;
+    typedef const CHAR_TYPE&                       reference;
+    typedef const CHAR_TYPE&                       const_reference;
+    typedef const CHAR_TYPE                       *iterator;
+    typedef const CHAR_TYPE                       *const_iterator;
+    typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
+    typedef std::ptrdiff_t                         difference_type;
+    typedef std::size_t                            size_type;
         // Standard Library general container requirements.
 
   public:
@@ -477,10 +482,23 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // object is valid and is bound to the same string.
 
     const_iterator end() const;
-        // Return an STL-compatible iterator one past the last character of the
+        // Return an STL-compatible iterator one-past-the-last character of the
         // string bound to this string reference or 'begin()' if the string
         // reference is empty.  The iterator remains valid as long as this
         // object is valid and is bound to the same string.
+
+    const_reverse_iterator rbegin() const;
+        // Return an STL-compatible reverse iterator to the last character of
+        // the string bound to this string reference or 'rend()' if the string
+        // reference is empty.  The iterator remains valid as long as this
+        // object is valid and is bound to the same string.
+
+    const_reverse_iterator rend() const;
+        // Return an STL-compatible reverse iterator to the
+        // prior-to-the-beginning character of the string bound to this string
+        // reference or 'rbegin()' if the string reference is empty.  The
+        // iterator remains valid as long as this object is valid and is bound
+        // to the same string.
 
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
@@ -912,6 +930,22 @@ typename StringRefImp<CHAR_TYPE>::const_iterator
     StringRefImp<CHAR_TYPE>::end() const
 {
     return Base::end();
+}
+
+template <class CHAR_TYPE>
+inline
+typename StringRefImp<CHAR_TYPE>::const_reverse_iterator
+    StringRefImp<CHAR_TYPE>::rbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template <class CHAR_TYPE>
+inline
+typename StringRefImp<CHAR_TYPE>::const_reverse_iterator
+    StringRefImp<CHAR_TYPE>::rend() const
+{
+    return const_reverse_iterator(begin());
 }
 
 template <class CHAR_TYPE>

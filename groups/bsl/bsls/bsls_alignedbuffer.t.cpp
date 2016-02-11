@@ -5,6 +5,7 @@
 #include <bsls_alignmenttotype.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_bsltestutil.h>
 
 #include <stddef.h>
 #include <cstdio>
@@ -28,33 +29,48 @@ using namespace std;
 // [3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -141,7 +157,7 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int veryVeryVerbose = argc > 4;
 
     setbuf(stdout, 0);    // Use unbuffered output
 
@@ -241,11 +257,20 @@ int main(int argc, char *argv[])
             do {                                                              \
               typedef bsls::AlignedBuffer<SIZE, ALIGNMENT> Buff;              \
               Buff buffer;                                                    \
-              ASSERT(reinterpret_cast<size_t>(&buffer) % ALIGNMENT == 0);     \
-              ASSERT(bsls::AlignmentFromType<Buff>::VALUE == (int)ALIGNMENT); \
-              ASSERT(sizeof(Buff) >= SIZE);                                   \
-              ASSERT(sizeof(Buff) % ALIGNMENT == 0);                          \
-              ASSERT(sizeof(Buff) - SIZE < (int) ALIGNMENT);                  \
+              if (veryVeryVerbose) {                                          \
+                  int size = SIZE;                                            \
+                  int alignment = ALIGNMENT;                                  \
+                  P_(size) P_(alignment) P_(reinterpret_cast<size_t>(&buffer))\
+                  P_((int) bsls::AlignmentFromType<Buff>::VALUE)              \
+                  P(sizeof(Buff))                                             \
+              }                                                               \
+              ASSERTV(reinterpret_cast<size_t>(&buffer),                      \
+                      reinterpret_cast<size_t>(&buffer) % ALIGNMENT == 0);    \
+              ASSERTV((int) bsls::AlignmentFromType<Buff>::VALUE,             \
+                      bsls::AlignmentFromType<Buff>::VALUE == (int)ALIGNMENT);\
+              ASSERTV(sizeof(Buff), sizeof(Buff) >= SIZE);                    \
+              ASSERTV(sizeof(Buff), sizeof(Buff) % ALIGNMENT == 0);           \
+              ASSERTV(sizeof(Buff), sizeof(Buff) - SIZE < (int) ALIGNMENT);   \
               ASSERT_ALIGN(Buff, ALIGNMENT);                                  \
             } while (0)
 

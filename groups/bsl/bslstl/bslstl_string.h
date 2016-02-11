@@ -1004,8 +1004,8 @@ class basic_string
     typedef ALLOCATOR                              allocator_type;
     typedef typename ALLOCATOR::size_type          size_type;
     typedef typename ALLOCATOR::difference_type    difference_type;
-    typedef typename ALLOCATOR::reference          reference;
-    typedef typename ALLOCATOR::const_reference    const_reference;
+    typedef value_type&                            reference;
+    typedef const value_type&                      const_reference;
     typedef typename ALLOCATOR::pointer            pointer;
     typedef typename ALLOCATOR::const_pointer      const_pointer;
     typedef CHAR_TYPE                             *iterator;
@@ -1502,12 +1502,12 @@ class basic_string
         // the specified 'position' in this string.  Throw 'out_of_range' if
         // 'position >= length()'.
 
-    reference front();
+    CHAR_TYPE& front();
         // Return a reference providing modifiable access to the character at
         // the first position in this string.  The behavior is undefined if
         // this string is empty.
 
-    reference back();
+    CHAR_TYPE& back();
         // Return a reference providing modifiable access to the character at
         // the last position in this string.  The behavior is undefined if this
         // string is empty.  Note that the last position is 'length() - 1'.
@@ -1922,12 +1922,12 @@ class basic_string
         // at the specified 'position' in this string.  Throw 'out_of_range' if
         // 'position >= length()'.
 
-    const_reference front() const;
+    const CHAR_TYPE& front() const;
         // Return a reference providing non-modifiable access to the character
         // at the first position in this string.  The behavior is undefined if
         // this string is empty.
 
-    const_reference back() const;
+    const CHAR_TYPE& back() const;
         // Return a reference providing non-modifiable access to the character
         // at the last position in this string.  The behavior is undefined if
         // this string is empty.  Note that the last position is
@@ -1944,14 +1944,14 @@ class basic_string
 
                      // *** 21.3.7 string operations: ***
 
-    const_pointer c_str() const;
+    const CHAR_TYPE *c_str() const;
         // Return an address providing non-modifiable access to the
         // null-terminated buffer of 'length() + 1' characters whose contents
         // are identical to the value of this string.  Note that any call to
         // the string destructor or any of its manipulators invalidates the
         // returned pointer.
 
-    const_pointer data() const;
+    const CHAR_TYPE *data() const;
         // Return an address providing non-modifiable access to the
         // null-terminated buffer of 'length()' characters whose contents are
         // identical to the value of this string.  Note that any call to the
@@ -3838,7 +3838,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position)
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
+CHAR_TYPE&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
 {
     BSLS_ASSERT_SAFE(!empty());
@@ -3848,7 +3848,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
+CHAR_TYPE&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back()
 {
     BSLS_ASSERT_SAFE(!empty());
@@ -4785,7 +4785,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
+const CHAR_TYPE&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front() const
 {
     BSLS_ASSERT_SAFE(!empty());
@@ -4795,7 +4795,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front() const
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
+const CHAR_TYPE&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back() const
 {
     BSLS_ASSERT_SAFE(!empty());
@@ -4827,7 +4827,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
+const CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
 {
     return this->dataPtr();
@@ -4835,7 +4835,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
+const CHAR_TYPE*
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
 {
     return this->dataPtr();

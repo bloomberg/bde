@@ -97,6 +97,7 @@ BSLS_IDENT("$Id: $")
 //  float                         DEC                         decimal
 //  double                        DEFAULT                     double
 //  double                        DEC                         decimal
+//  bdldflp::Decimal64            DEFAULT                     Decimal64
 //  bsl::string                   DEFAULT/TEXT                string
 //  bsl::string                   BASE64                      base64Binary
 //  bsl::string                   HEX                         hexBinary
@@ -246,6 +247,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_TYPETRAITS
@@ -422,6 +427,7 @@ struct bdlat_TypeName_Imp {
     static const char BDLAT_NAME_UINT64[];
     static const char BDLAT_NAME_FLOAT[];
     static const char BDLAT_NAME_DOUBLE[];
+    static const char BDLAT_NAME_DECIMAL64[];
     static const char BDLAT_NAME_CONST_CHAR_PTR[];
     static const char BDLAT_NAME_CONST_SIGNED_CHAR_PTR[];
     static const char BDLAT_NAME_CONST_UNSIGNED_CHAR_PTR[];
@@ -446,6 +452,7 @@ struct bdlat_TypeName_Imp {
     static const char BDLAT_XSDNAME_UNSIGNED_LONG[];
     static const char BDLAT_XSDNAME_FLOAT[];
     static const char BDLAT_XSDNAME_DOUBLE[];
+    static const char BDLAT_XSDNAME_DECIMAL64[];
     static const char BDLAT_XSDNAME_DECIMAL[];
     static const char BDLAT_XSDNAME_STRING[];
     static const char BDLAT_XSDNAME_BASE64_BINARY[];
@@ -479,6 +486,7 @@ struct bdlat_TypeName_Imp {
     static const char *name(const bsls::Types::Uint64       *);
     static const char *name(const float                     *);
     static const char *name(const double                    *);
+    static const char *name(const bdldfp::Decimal64         *);
     static const char *name(const char               *const *);
     static const char *name(const signed char        *const *);
     static const char *name(const unsigned char      *const *);
@@ -519,6 +527,7 @@ struct bdlat_TypeName_Imp {
     static const char *xsdName(const bsls::Types::Uint64  *, int format);
     static const char *xsdName(const float                *, int format);
     static const char *xsdName(const double               *, int format);
+    static const char *xsdName(const bdldfp::Decimal64    *, int format);
     static const char *xsdName(const bsl::string          *, int format);
     static const char *xsdName(const char          *const *, int format);
     static const char *xsdName(const signed char   *const *, int format);
@@ -690,6 +699,12 @@ inline
 const char *bdlat_TypeName_Imp::name(const double *)
 {
     return BDLAT_NAME_DOUBLE;
+}
+
+inline
+const char *bdlat_TypeName_Imp::name(const bdldfp::Decimal64 *)
+{
+    return BDLAT_NAME_DECIMAL64;
 }
 
 inline

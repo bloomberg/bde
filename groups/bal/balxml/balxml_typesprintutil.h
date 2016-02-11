@@ -79,9 +79,9 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
-// following 'bdeat' type categories:
+// following 'bdlat' type categories:
 //..
-//      'bdeat' Type Category               Formatting Mode
+//      'bdlat' Type Category               Formatting Mode
 //      ---------------------               ---------------
 //      Enumeration                         DEFAULT, TEXT, DECIMAL
 //      CustomizedType                      Base type's formatting modes
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string                         TEXT
 //      bsl::vector<char>                   BASE64
 //
-//      'bdeat' Type Category               Default Formatting Mode
+//      'bdlat' Type Category               Default Formatting Mode
 //      ---------------------               -----------------------
 //      Enumeration                         TEXT
 //..
@@ -206,6 +206,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATE
@@ -490,6 +494,11 @@ struct TypesPrintUtil_Imp {
     static bsl::ostream& printDecimal(
                                     bsl::ostream&               stream,
                                     const double&               object,
+                                    const EncoderOptions       *encoderOptions,
+                                    bdlat_TypeCategory::Simple);
+    static bsl::ostream& printDefault(
+                                    bsl::ostream&               stream,
+                                    const bdldfp::Decimal64&    object,
                                     const EncoderOptions       *encoderOptions,
                                     bdlat_TypeCategory::Simple);
 
