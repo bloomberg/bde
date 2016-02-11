@@ -699,14 +699,14 @@ SequentialPool::~SequentialPool()
 inline
 void *SequentialPool::allocate(bsls::Types::size_type size)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;                                                     // RETURN
-    }
-
     void *result = d_bufferManager.allocate(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
         return result;                                                // RETURN
+    }
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
     }
 
     return allocateNonFastPath(size);

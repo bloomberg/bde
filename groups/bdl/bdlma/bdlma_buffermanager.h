@@ -339,9 +339,9 @@ class BufferManager {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) on success, according to the alignment strategy
-        // specified at construction, and 0 if the allocation request exceeds
-        // the remaining free memory space in the external buffer.  The
-        // behavior is undefined unless '0 < size'.
+        // specified at construction.  If 'size' is 0 or the allocation request
+        // exceeds the remaining free memory space in the external buffer, no
+        // memory is allocated and 0 is returned.
 
     void *allocateRaw(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
@@ -430,8 +430,10 @@ class BufferManager {
         // Return the minimum non-negative integer that, when added to the
         // numerical value of the specified 'address', yields the alignment as
         // per the 'alignmentStrategy' provided at construction for an
-        // allocation of the specified 'size'.  The behavior is undefined
-        // unless '0 < size'.
+        // allocation of the specified 'size'.  Note that if '0 == size' and
+        // natural alignment was provided at construction, the result of this
+        // method is identical to the result for '0 == size' and maximal
+        // alignment.
 
     bool hasSufficientCapacity(bsls::Types::size_type size) const;
         // Return 'true' if there is sufficient memory space in the buffer to
@@ -494,7 +496,6 @@ BufferManager::~BufferManager()
 inline
 void *BufferManager::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0        <  size);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;
@@ -503,7 +504,8 @@ void *BufferManager::allocate(bsls::Types::size_type size)
                                                                      size);
 
     bsls::Types::size_type cursor = d_cursor + offset + size;
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(cursor <= d_bufferSize)) {
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(cursor <= d_bufferSize)
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < size)) {
         d_cursor = cursor;
         return address + offset;
     }
@@ -593,8 +595,6 @@ int BufferManager::calculateAlignmentOffsetFromSize(
                                             const void             *address,
                                             bsls::Types::size_type  size) const
 {
-    BSLS_ASSERT_SAFE(0 < size);
-
     bsls::Types::size_type alignment = (size & d_alignmentAndMask)
                                                            | d_alignmentOrMask;
 

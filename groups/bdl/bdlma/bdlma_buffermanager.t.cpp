@@ -419,9 +419,12 @@ int main(int argc, char *argv[])
         //:   strategies, values of 'address', and value of 'size'.
         //
         // Plan:
-        //: 1 Directly verify the result of this method using
+        //: 1 Directly verify the result of this method for a large set of
+        //:   'address' values and '0 == size'.
+        //:
+        //: 2 Directly verify the result of this method using
         //:   'bsls::AlignmentUtil' as an oracle for a large set of 'address'
-        //:   and 'size' values.
+        //:   and 'size > 0' values.  (C-1)
         //
         // Testing:
         //   int calculateAlignmentOffsetFromSize(address, size) const;
@@ -438,6 +441,26 @@ int main(int argc, char *argv[])
 
         for (bsl::size_t i = 0; i < numAddress; ++i) {
             const void *a = &address[i];
+
+            {
+                const Obj bm(bsls::Alignment::BSLS_NATURAL);
+                const Obj bmOracle(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bmOracle.calculateAlignmentOffsetFromSize(a, 0));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bm.calculateAlignmentOffsetFromSize(a, 1));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                ASSERT(0 == bm.calculateAlignmentOffsetFromSize(a, 0));
+            }
+
             for (bsl::size_t s = 1; s <= 128; ++s) {
                 {
                     const int alignment =
