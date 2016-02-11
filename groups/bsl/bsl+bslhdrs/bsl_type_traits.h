@@ -62,6 +62,11 @@ BSLS_IDENT("$Id: $")
 #  undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__APPLE_CC__) \
+    && __APPLE_CC__ <= 6000
+#    undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#endif
+
 namespace bsl
 {
     // Import selected symbols into bsl namespace

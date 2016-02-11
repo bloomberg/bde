@@ -547,7 +547,7 @@ int TypesParserUtil_Imp::parseDefault(double                     *result,
 int TypesParserUtil_Imp::parseDefault(bdldfp::Decimal64          *result,
                                       const char                 *input,
                                       int                         inputLength,
-                                      bdeat_TypeCategory::Simple)
+                                      bdlat_TypeCategory::Simple)
 {
     if (inputLength == 0) {
         return -1;

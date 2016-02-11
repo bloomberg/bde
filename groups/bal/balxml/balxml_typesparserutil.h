@@ -64,9 +64,9 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<char>                   DEFAULT, BASE64, HEX, TEXT, IS_LIST
 //..
 // In addition to the types listed above, this component also recognizes the
-// following 'bdeat' type categories:
+// following 'bdlat' type categories:
 //..
-//      'bdeat' Type Category               Formatting Mode
+//      'bdlat' Type Category               Formatting Mode
 //      ---------------------               ---------------
 //      Array                               IS_LIST
 //      CustomizedType                      Base type's formatting modes
@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string                         TEXT
 //      bsl::vector<char>                   BASE64
 //
-//      'bdeat' Type Category               Default Formatting Mode
+//      'bdlat' Type Category               Default Formatting Mode
 //      ---------------------               -----------------------
 //      Enumeration                         TEXT
 //..
@@ -379,7 +379,7 @@ struct TypesParserUtil_Imp {
     static int parseDefault(bdldfp::Decimal64          *result,
                             const char                 *input,
                             int                         inputLength,
-                            bdeat_TypeCategory::Simple);
+                            bdlat_TypeCategory::Simple);
 
     // DEFAULT FUNCTIONS
     template <class TYPE>

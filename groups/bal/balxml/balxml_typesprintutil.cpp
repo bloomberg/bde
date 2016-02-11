@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 #include <bsl_cfloat.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
+#include <bsl_cctype.h>
 #include <bsl_iterator.h>
 
 #include <bsls_assert.h>
@@ -1005,7 +1006,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                              bsl::ostream&              stream,
                                              const bdldfp::Decimal64&   object,
                                              const EncoderOptions       *,
-                                             bdeat_TypeCategory::Simple)
+                                             bdlat_TypeCategory::Simple)
 {
     if (bdldfp::DecimalUtil::isInf(object)) {
         if (object < bdldfp::Decimal64()) {
