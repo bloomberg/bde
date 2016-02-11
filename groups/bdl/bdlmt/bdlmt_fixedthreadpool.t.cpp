@@ -11,13 +11,13 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bdlt_currenttime.h>
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
-
-#include <bslma_defaultallocatorguard.h>
 
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -1210,6 +1210,9 @@ int main(int argc, char *argv[])
         //   enqueued.  Next let the jobs complete and assert that after
         //   shutting down the pool, all the threads are stopped.
         //
+        //   Finally, verify that the global allocator was unused, verifying
+        //   that the test allocator was used for thread creation.
+        //
         // Testing:
         //   int enqueueJob(FixedThreadPoolJobFunc , void *);
         //   void stop();
@@ -1235,6 +1238,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing: 'drain', 'stop', and 'shutdown'\n"
                           << "=======================================" << endl;
+
+        bslma::TestAllocator ga(veryVeryVerbose);
+        bslma::Default::setGlobalAllocator(&ga);
 
         if (veryVerbose) cout << "\tTesting: 'drain'\n"
                               << "\t----------------" << endl;
@@ -1423,6 +1429,7 @@ int main(int argc, char *argv[])
             }
         }
 
+        ASSERT(0 == ga.numAllocations());
       } break;
       case 3: {
         // --------------------------------------------------------------------
