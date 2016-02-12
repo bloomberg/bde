@@ -166,6 +166,11 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_unspecifiedbool.h>
 #endif
 
+#ifndef INCLUDED_CSTDLIB
+#include <cstdlib>
+#define INCLUDED_CSTDLIB
+#endif
+
 #ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
 #define INCLUDED_TYPEINFO
@@ -9533,8 +9538,8 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         // Compute the distance (in bytes) between the start of the source and
         // the start of the destination to see if they overlap.
         std::size_t dist = static_cast<std::size_t>(
-            abs(reinterpret_cast<const char*>(rep->d_allocator_p) -
-                reinterpret_cast<const char*>(&other)));
+            std::abs(reinterpret_cast<const char*>(rep->d_allocator_p) -
+                     reinterpret_cast<const char*>(&other)));
 
         if (dist >= sizeof(Adaptor)) {
             // Input and output don't overlap.
