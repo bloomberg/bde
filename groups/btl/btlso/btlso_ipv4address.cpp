@@ -56,18 +56,12 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 #if defined(BSLS_PLATFORM_OS_AIX)
     // The system-level checks of 'address' are less strict on AIX than on
     // other platforms.  Per DRQS-76925158, these pre-checks were added to
-    // provide a uniform view of address validity.
+    // provide uniform, cross-platform address validity.
 
-    if        ('\0' == *address) {                              // empty string
-        return false;                                                 // RETURN
-
-    } else if ('.'  == *address) {                                // leadng dot
-        return false;                                                 // RETURN
-
-    } else if ('.'  == address[bsl::strlen(address) - 1]){      // trailing dot
-        return false;                                                 // RETURN
-
-    } else if (bsl::strstr(address, "..")) {                   // adjacent dots
+    if ('\0' == *address                           // empty string
+     || '.'  == *address                           // leading  dot
+     || '.'  == address[bsl::strlen(address) - 1]  // trailing dot
+     || 0    != bsl::strstr(address, "..")) {      // adjacent dots
         return false;                                                 // RETURN
     }
 #endif
