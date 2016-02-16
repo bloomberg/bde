@@ -34,9 +34,7 @@ namespace btlso {
                        // class IPv4Address
                        // -----------------
 
-
 // PRIVATE CLASS METHODS
-
 int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -54,6 +52,19 @@ int IPv4Address::machineIndependentInetPtonIPv4(int *addr, const char *address)
     }
 
 #else
+
+#if defined(BSLS_PLATFORM_OS_AIX)
+    // The system-level checks of 'address' are less strict on AIX than on
+    // other platforms.  Per DRQS-76925158, these pre-checks were added to
+    // provide uniform, cross-platform address validity.
+
+    if ('\0' == *address                           // empty string
+     || '.'  == *address                           // leading  dot
+     || '.'  == address[bsl::strlen(address) - 1]  // trailing dot
+     || 0    != bsl::strstr(address, "..")) {      // adjacent dots
+        return false;                                                 // RETURN
+    }
+#endif
 
     in_addr inaddr;
     int     errorcode = inet_aton(address, &inaddr);
