@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // The session pool provides an efficient mechanism for the full-duplex
 // delivery of messages trying to achieve fully parallel communication on a
 // socket whenever possible.  If a particular socket's system buffers are full,
-// the messages are cached up to a certain (user-defined) limit, at which point
+// the messages are queued up to a certain (user-defined) limit, at which point
 // an alert is generated and the user has the ability to explicitly clear the
 // session's outgoing buffer or, by default, continue the transmission.
 //
@@ -395,7 +395,7 @@ BSLS_IDENT("$Id: $")
 //      d_config.setMaxThreads(4);                  // 4 I/O threads
 //      d_config.setMaxConnections(numConnections);
 //      d_config.setMetricsInterval(10.0);          // seconds
-//      d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
+//      d_config.setWriteQueueWatermarks(0, 1<<10); // 1Mb
 //      d_config.setIncomingMessageSizes(1, 100, 1024);
 //
 //      typedef btlmt::SessionPool::SessionPoolStateCallback SessionStateCb;
@@ -646,8 +646,8 @@ class SessionPool {
         e_SESSION_DOWN           = 2,  // session went down
         e_SESSION_ALLOC_FAILED   = 3,  // session allocation failed
         e_SESSION_STARTUP_FAILED = 4,  // the call to 'start' failed
-        e_WRITE_CACHE_LOWWAT     = 5,  // write cache low watermark reached
-        e_WRITE_CACHE_HIWAT      = 6,  // write cache high watermark reached
+        e_WRITE_QUEUE_LOWWATER   = 5,  // write queue low watermark reached
+        e_WRITE_QUEUE_HIGHWATER  = 6,  // write queue high watermark reached
         e_ACCEPT_FAILED          = 7,  // accept failed
         e_CONNECT_ATTEMPT_FAILED = 8,  // a connection attempt failed
         e_CONNECT_FAILED         = 9,  // the connection initiation failed
@@ -659,8 +659,8 @@ class SessionPool {
       , SESSION_DOWN           = e_SESSION_DOWN
       , SESSION_ALLOC_FAILED   = e_SESSION_ALLOC_FAILED
       , SESSION_STARTUP_FAILED = e_SESSION_STARTUP_FAILED
-      , WRITE_CACHE_LOWWAT     = e_WRITE_CACHE_LOWWAT
-      , WRITE_CACHE_HIWAT      = e_WRITE_CACHE_HIWAT
+      , WRITE_CACHE_LOWWAT     = e_WRITE_QUEUE_LOWWATER
+      , WRITE_CACHE_HIWAT      = e_WRITE_QUEUE_HIGHWATER
       , ACCEPT_FAILED          = e_ACCEPT_FAILED
       , CONNECT_ATTEMPT_FAILED = e_CONNECT_ATTEMPT_FAILED
       , CONNECT_FAILED         = e_CONNECT_FAILED
@@ -1012,23 +1012,29 @@ class SessionPool {
         // specified 'userData'.  Return 0 on success, and a non-zero value
         // with no effect on the session pool otherwise.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     int setWriteCacheWatermarks(int handleId,
                                 int lowWatermark,
-                                int hiWatermark);
-        // Set the write cache low- and high-water marks for the session
+                                int highWatermark);
+#endif
+
+    int setWriteQueueWatermarks(int handleId,
+                                int lowWatermark,
+                                int highWatermark);
+        // Set the write queue low- and high-water marks for the session
         // associated with the specified 'handleId' to the specified
-        // 'lowWatermark' and 'hiWatermark' values, respectively; return 0 on
-        // success, and a non-zero value otherwise.  A
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided (via the channel state
-        // callback) if 'lowWatermark' is greater than or equal to the current
-        // size of the write cache, and a 'BTEMT_WRITE_CACHE_HIWAT' alert is
-        // provided if 'hiWatermark' is less than or equal to the current size
-        // of the write cache.  (See the component-level documentation of
-        // 'btlmt_channelpool' for details on 'BTEMT_WRITE_CACHE_HIWAT' and
-        // 'BTEMT_WRITE_CACHE_LOWWAT' alerts.)  The behavior is undefined
-        // unless '0 <= lowWatermark' and 'lowWatermark <= hiWatermark'.  Note
-        // that this method overrides the values configured (for all channels)
-        // by the 'ChannelPoolConfiguration' supplied at construction.
+        // 'lowWatermark' and 'highWatermark' values, respectively; return 0 on
+        // success, and a non-zero value otherwise.  A 'e_WRITE_QUEUE_LOWWATER'
+        // alert is provided (via the channel state callback) if 'lowWatermark'
+        // is greater than or equal to the current size of the write queue, and
+        // a 'e_WRITE_QUEUE_HIGHWATER' alert is provided if 'highWatermark' is
+        // less than or equal to the current size of the write queue.  (See the
+        // component-level documentation of 'btlmt_channelpool' for details on
+        // 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER' alerts.)  The
+        // behavior is undefined unless '0 <= lowWatermark' and
+        // '0 <= highWatermark'.  Note that this method overrides the values
+        // configured (for all channels) by the 'ChannelPoolConfiguration'
+        // supplied at construction.
 
     // ACCESSORS
     const ChannelPoolConfiguration& config() const;
@@ -1132,6 +1138,16 @@ int SessionPool::import(
     }
     return rc;
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+int SessionPool::setWriteCacheWatermarks(int handleId,
+                                         int lowWatermark,
+                                         int highWatermark)
+{
+    return setWriteQueueWatermarks(handleId, lowWatermark, highWatermark);
+}
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

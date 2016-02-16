@@ -33,38 +33,30 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name                      Descriptions
 //  ---------------------     -------------------------------------------------
-//  BTEMT_SUCCESS             If the request had been a write request, then the
+//  e_SUCCESS                 If the request had been a write request, then the
 //                            request was successfully enqueued or has been
 //                            successfully written synchronously.  If the
 //                            request had been a read request, then the request
 //                            was successfully enqueued.
 //
-//  BTEMT_CACHE_OVERFLOW      The write request failed because the existing
-//                            write cache size (not including the size of the
-//                            message being written) is greater than the write
-//                            cache high-water mark.  Note that this status can
-//                            only occur when the write cache high-water mark
-//                            is modified after construction of the object
-//                            managing the channels.
+//  e_QUEUE_HIGHWATER         The write request failed because the current
+//                            write queue size (not including the size of the
+//                            message being written) is greater than the
+//                            configured write-queue size limit.
 //
-//  BTEMT_CACHE_HIGHWATER     The write request failed because the existing
-//                            write cache size after the current message gets
-//                            enqueued will be greater than the write cache
-//                            high-water mark.
-//
-//  BTEMT_READ_CHANNEL_DOWN   The read request failed because the read part of
+//  e_READ_CHANNEL_DOWN       The read request failed because the read part of
 //                            the channel had already been closed.
 //
-//  BTEMT_WRITE_CHANNEL_DOWN  The write request failed because the write part
+//  e_WRITE_CHANNEL_DOWN      The write request failed because the write part
 //                            of the channel had already been closed.
 //
-//  BTEMT_ENQUEUE_HIGHWATER   The write request failed because the existing
-//                            write cache size (not including the size of the
+//  e_ENQUEUE_HIGHWATER       The write request failed because the existing
+//                            write queue size (not including the size of the
 //                            message being written) is greater than the
-//                            enqueued cache high-water mark provided as a
+//                            enqueued queue high-water mark provided as a
 //                            function argument.
 //
-//  BTEMT_UNKNOWN_ID          The write request failed because the channel
+//  e_UNKNOWN_ID              The write request failed because the channel
 //                            identified by an specified id does not exist.
 //..
 //
@@ -103,7 +95,7 @@ BSLS_IDENT("$Id: $")
 // 'btlmt::ChannelStatus::Enum' to handle the different return conditions:
 //..
 //  switch(rc) {
-//    case btlmt::ChannelStatus::BTEMT_SUCCESS: { // Success
+//    case btlmt::ChannelStatus::e_SUCCESS: { // Success
 //
 //        // ...
 //
@@ -111,17 +103,12 @@ BSLS_IDENT("$Id: $")
 //
 //    // We handle the different types of failures in the cases below.
 //
-//    case btlmt::ChannelStatus::BTEMT_CACHE_OVERFLOW: {
+//    case btlmt::ChannelStatus::e_QUEUE_HIGHWATER: {
 //
 //        // ...
 //
 //    } break;
-//    case btlmt::ChannelStatus::BTEMT_CACHE_HIGHWATER: {
-//
-//        // ...
-//
-//    } break;
-//    case btlmt::ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN: {
+//    case btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN: {
 //
 //        // ...
 //
@@ -169,23 +156,13 @@ struct ChannelStatus {
                                     // enqueued or has been successfully
                                     // written synchronously.
 
-        e_CACHE_OVERFLOW     = -1,  // The write request failed because the
-                                    // existing write cache size (not including
+        e_QUEUE_HIGHWATER    = -2,  // The write request failed because the
+                                    // current write queue size (not including
                                     // the size of the message being written)
-                                    // is greater than the write cache
-                                    // high-water mark.  Note that this status
-                                    // can only occur when the write cache
-                                    // high-water mark is modified after
-                                    // construction of the object managing the
-                                    // channels.
+                                    // is greater than the configured
+                                    // write-queue size limit.
 
-        e_CACHE_HIGHWATER    = -2,  // The write request failed because the
-                                    // existing write cache size after the
-                                    // current message gets enqueued will be
-                                    // greater than the write cache high-water
-                                    // mark.
-
-        e_READ_CHANNEL_DOWN  = -6,  // The read request falied because the
+        e_READ_CHANNEL_DOWN  = -6,  // The read request failed because the
                                     // read part of the channel had already
                                     // been closed.
 
@@ -194,24 +171,24 @@ struct ChannelStatus {
                                     // already been closed.
 
         e_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
-                                    // existing write cache size (not
+                                    // current write queue size (not
                                     // including the size of the message
                                     // being written) is greater than the
-                                    // enqueued cache high-water mark
-                                    // provided as a function argument.
+                                    // write-queue size limit provided as a
+                                    // function argument.
 
         e_UNKNOWN_ID         = -5   // The write request failed because the
-                                    // channel identified by an specified
+                                    // channel identified by a specified
                                     // id does not exist.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTEMT_SUCCESS            = e_SUCCESS
-      , BTEMT_CACHE_OVERFLOW     = e_CACHE_OVERFLOW
-      , BTEMT_CACHE_HIGHWATER    = e_CACHE_HIGHWATER
+      , BTEMT_CACHE_HIWAT        = e_QUEUE_HIGHWATER
       , BTEMT_READ_CHANNEL_DOWN  = e_READ_CHANNEL_DOWN
       , BTEMT_WRITE_CHANNEL_DOWN = e_WRITE_CHANNEL_DOWN
       , BTEMT_ENQUEUE_HIGHWATER  = e_ENQUEUE_HIGHWATER
       , BTEMT_UNKNOWN_ID         = e_UNKNOWN_ID
+ //   , BTEMT_CACHE_OVERFLOW     = -1  // code that uses this is broken
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

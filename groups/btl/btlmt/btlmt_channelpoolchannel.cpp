@@ -150,7 +150,7 @@ ChannelPoolChannel::ChannelPoolChannel(
     BSLS_ASSERT(0 != blobBufferFactory);
     BSLS_ASSERT(0 != spAllocator);
 
-    // Cache these addresses since the ChannelPool channel can have
+    // Queue these addresses since the ChannelPool channel can have
     // disappeared when we get SESSION_DOWN.
 
     d_channelPool_p->getLocalAddress(&d_localAddress, d_channelId);

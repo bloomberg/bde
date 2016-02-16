@@ -87,7 +87,7 @@ using namespace bdlf::PlaceHolders;
 // [10] int connect(*h, sscb, endpoint, numAtts, time, *f, *userdata, *o, *la);
 // [  ] int import(*h, sscb, *streamSocket, *factory, *sessionFactory, *data);
 // [  ] int import(*h, sscb, *streamSocket, *sessionFactory, *userData);
-// [ 9] int setWriteCacheWatermarks(handle, int lowWatermark, int hiWatermark);
+// [ 9] int setWriteQueueWatermarks(handle, int loWatermark, int hiWatermark);
 //
 // ACCESSORS
 // [  ] const btlmt::ChannelPoolConfiguration& config() const;
@@ -206,7 +206,7 @@ btlso::IPv4Address getLocalAddress() {
 #endif
 }
 
-namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE {
+namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE {
 
 void poolStateCallback(int reason, int source, void *)
 {
@@ -551,11 +551,11 @@ void TestFactory::deallocate(btlmt::Session *session)
     d_allocator_p->deleteObjectRaw(session);
 }
 
-}  // close namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE
+}  // close namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE
 
-namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
+namespace BTLMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
 
-using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
 int createConnection(
                 Obj                                            *sessionPool,
@@ -608,12 +608,12 @@ int createConnection(
     }
 }
 
-}  // close namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS
+}  // close namespace BTLMT_SESSION_POOL_SETTING_SOCKETOPTIONS
 
 
-namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS {
+namespace BTLMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS {
 
-using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
 bslmt::Mutex                                           mapMutex;
 bsl::map<int, btlmt::AsyncChannel *>                   sourceIdToChannelMap;
@@ -796,11 +796,11 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
     mapMutex.unlock();
 }
 
-}  // close namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS
+}  // close namespace BTLMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS
 
-namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB {
+namespace BTLMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB {
 
-using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
 static bslma::TestAllocator testAllocator;
 static int callbackCount = 0;
@@ -876,11 +876,11 @@ void readCbWithMetrics(int               result,
     }
 }
 
-}  // close namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB
+}  // close namespace BTLMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB
 
-namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS {
+namespace BTLMT_SESSION_POOL_CASE_PEER_ADDRESS {
 
-using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
                     // ========================
                     // class TestSessionFactory
@@ -953,9 +953,9 @@ btlmt::AsyncChannel *TestSessionFactory::channel() const
     return 0;
 }
 
-}  // close namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS
+}  // close namespace BTLMT_SESSION_POOL_CASE_PEER_ADDRESS
 
-namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL {
+namespace BTLMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL {
 
                             // ===================
                             // class TesterSession
@@ -1270,7 +1270,7 @@ Tester::Tester(int                        mode,
     d_config.setMaxConnections(5);
     d_config.setReadTimeout(5.0);               // in seconds
     d_config.setMetricsInterval(10.0);          // seconds
-    d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
+    d_config.setWriteQueueWatermarks(0, 1<<10); // 1Mb
     d_config.setIncomingMessageSizes(1, 100, 1024);
 
     typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
@@ -1354,13 +1354,13 @@ int Tester::portNumber() const
     return d_portNumber;
 }
 
-}  // close namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL
+}  // close namespace BTLMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL
 
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
+namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
 
 ///Usage example
 ///-------------
@@ -1694,7 +1694,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         d_config.setMaxConnections(numConnections);
         d_config.setReadTimeout(5.0);               // in seconds
         d_config.setMetricsInterval(10.0);          // seconds
-        d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
+        d_config.setWriteQueueWatermarks(0, 1<<10); // 1Mb
         d_config.setIncomingMessageSizes(1, 100, 1024);
 
         typedef btlmt::SessionPool::SessionPoolStateCallback
@@ -1771,7 +1771,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
     }
 //..
 
-}  // close namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE
+}  // close namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1804,7 +1804,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "USAGE EXAMPLE" << bsl::endl
                                << "=============" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE;
+        using namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE;
 
         usageExample(&ta);
         ASSERT(0 == ta.numBytesInUse());
@@ -1845,7 +1845,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "EXTERNAL BLOB BUFFER FACTORY" << bsl::endl
                                << "============================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
         bslma::TestAllocator pa("poolAllocator", veryVeryVerbose);
@@ -1957,7 +1957,7 @@ int main(int argc, char *argv[])
                                << "======================================"
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL;
+        using namespace BTLMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL;
 
         btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
         btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
@@ -2035,14 +2035,14 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "TESTING 'start' after 'stop'" << bsl::endl
                                << "============================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS;
+        using namespace BTLMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS;
 
         typedef btlmt::SessionPool::SessionStateCallback     SessionCb;
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(2 * NUM_THREADS);
-        config.setWriteCacheWatermarks(0, NUM_BYTES * 10);  // 1Mb
+        config.setWriteQueueWatermarks(0, NUM_BYTES * 10);  // 1Mb
 
         PoolCb    poolStateCb(&poolStateCallback);
         SessionCb sessionStateCb = bdlf::BindUtil::bind(
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
                                << "====================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
+        using namespace BTLMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
 
         if (verbose) cout << "connect(IPv4Address...) with socket options"
                           << endl;
@@ -2239,7 +2239,7 @@ int main(int argc, char *argv[])
                                << "======================================"
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
+        using namespace BTLMT_SESSION_POOL_SETTING_SOCKETOPTIONS;
 
         if (verbose) cout << "connect(IPv4Address...) with client address"
                           << endl;
@@ -2325,18 +2325,18 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'setWriteCacheWatermarks'
-        //   The 'setWriteCacheWatermarks' method has the expected effect.
+        // TESTING 'setWriteQueueWatermarks'
+        //   The 'setWriteQueueWatermarks' method has the expected effect.
         //
         // Concerns:
-        //   1. That 'setWriteCacheWatermarks' fails when passed an invalid
+        //   1. That 'setWriteQueueWatermarks' fails when passed an invalid
         //      session id.
         //
-        //   2. That 'setWriteCacheWatermarks' correctly passes its arguments
-        //      to btlmt::ChannelPool::setWriteCacheWatermarks'.
+        //   2. That 'setWriteQueueWatermarks' correctly passes its arguments
+        //      to btlmt::ChannelPool::setWriteQueueWatermarks'.
         //
         // Plan:
-        //   1. For concern 1, invoke 'setWriteCacheWatermarks' with an invalid
+        //   1. For concern 1, invoke 'setWriteQueueWatermarks' with an invalid
         //      session id and verify that the method fails.
         //
         //   2. For concern 2, create a session, capturing the session id of a
@@ -2345,19 +2345,19 @@ int main(int argc, char *argv[])
         //      marks.  Assert that the method succeeds in each case.
         //
         // Testing:
-        //   int setWriteCacheWatermarks(int, int, int);
+        //   int setWriteQueueWatermarks(int, int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "TESTING 'setWriteCacheWatermarks'"
+        if (verbose) bsl::cout << "TESTING 'setWriteQueueWatermarks'"
                                << bsl::endl
                                << "================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         enum {
             LOW_WATERMARK =  512,
-            HI_WATERMARK  = 4096
+            HIGH_WATERMARK  = 4096
         };
 
         typedef btlmt::SessionPool::SessionStateCallback     SessionCb;
@@ -2365,7 +2365,7 @@ int main(int argc, char *argv[])
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(4);
-        config.setWriteCacheWatermarks(LOW_WATERMARK, HI_WATERMARK);
+        config.setWriteQueueWatermarks(LOW_WATERMARK, HIGH_WATERMARK);
 
         bsls::AtomicInt numUpConnections(0);
 
@@ -2406,51 +2406,51 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(50, 0);
         }
 
-        ASSERT(0 != sessionPool.setWriteCacheWatermarks(handle + 666,
+        ASSERT(0 != sessionPool.setWriteQueueWatermarks(handle + 666,
                                                         LOW_WATERMARK + 1,
-                                                        HI_WATERMARK - 1));
+                                                        HIGH_WATERMARK - 1));
 
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
                                                         LOW_WATERMARK,
-                                                        HI_WATERMARK));
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                                        HIGH_WATERMARK));
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
                                                         LOW_WATERMARK,
                                                         LOW_WATERMARK));
 
-        sessionPool.setWriteCacheWatermarks(handle,
+        sessionPool.setWriteQueueWatermarks(handle,
                                             LOW_WATERMARK,
-                                            HI_WATERMARK);
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
-                                                        HI_WATERMARK,
-                                                        HI_WATERMARK));
+                                            HIGH_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
+                                                        HIGH_WATERMARK,
+                                                        HIGH_WATERMARK));
 
-        sessionPool.setWriteCacheWatermarks(handle,
+        sessionPool.setWriteQueueWatermarks(handle,
                                             LOW_WATERMARK,
-                                            HI_WATERMARK);
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                            HIGH_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
                                                         LOW_WATERMARK - 2,
                                                         LOW_WATERMARK));
 
-        sessionPool.setWriteCacheWatermarks(handle,
+        sessionPool.setWriteQueueWatermarks(handle,
                                             LOW_WATERMARK,
-                                            HI_WATERMARK);
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
+                                            HIGH_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
                                                         LOW_WATERMARK - 2,
                                                         LOW_WATERMARK - 1));
 
-        sessionPool.setWriteCacheWatermarks(handle,
+        sessionPool.setWriteQueueWatermarks(handle,
                                             LOW_WATERMARK,
-                                            HI_WATERMARK);
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
-                                                        HI_WATERMARK,
-                                                        HI_WATERMARK + 2));
+                                            HIGH_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
+                                                        HIGH_WATERMARK,
+                                                        HIGH_WATERMARK + 2));
 
-        sessionPool.setWriteCacheWatermarks(handle,
+        sessionPool.setWriteQueueWatermarks(handle,
                                             LOW_WATERMARK,
-                                            HI_WATERMARK);
-        ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
-                                                        HI_WATERMARK + 1,
-                                                        HI_WATERMARK + 2));
+                                            HIGH_WATERMARK);
+        ASSERT(0 == sessionPool.setWriteQueueWatermarks(handle,
+                                                        HIGH_WATERMARK + 1,
+                                                        HIGH_WATERMARK + 2));
 
         ASSERT(0 == sessionPool.stop());
       } break;
@@ -2492,14 +2492,14 @@ int main(int argc, char *argv[])
                                << "=================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS;
+        using namespace BTLMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS;
 
         typedef btlmt::SessionPool::SessionStateCallback SessionCb;
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(2 * NUM_THREADS);
-        config.setWriteCacheWatermarks(0, NUM_BYTES * 10);  // 1Mb
+        config.setWriteQueueWatermarks(0, NUM_BYTES * 10);  // 1Mb
 
         PoolCb poolStateCb(&poolStateCallback);
         SessionCb sessionStateCb = bdlf::BindUtil::bind(
@@ -2576,7 +2576,7 @@ int main(int argc, char *argv[])
                                << "========================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB;
+        using namespace BTLMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB;
 
         {
             btlmt::ChannelPoolConfiguration config;
@@ -2678,7 +2678,7 @@ int main(int argc, char *argv[])
                                << "========================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         typedef btlmt::SessionPool::SessionStateCallback     SessionCb;
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
@@ -2753,7 +2753,7 @@ int main(int argc, char *argv[])
                                << "========================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS;
+        using namespace BTLMT_SESSION_POOL_CASE_PEER_ADDRESS;
 
         typedef btlmt::SessionPool::SessionStateCallback SessionCb;
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
@@ -2805,7 +2805,7 @@ int main(int argc, char *argv[])
                         << "=================================================="
                         << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(4);
@@ -2885,7 +2885,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "BLOB BASED EXAMPLE" << bsl::endl
                                << "==================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
@@ -2950,7 +2950,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "ALLOCATOR PROPAGATION" << bsl::endl
                                << "=====================" << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
