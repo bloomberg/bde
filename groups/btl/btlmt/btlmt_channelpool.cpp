@@ -1164,7 +1164,7 @@ void Channel::invokeChannelDown(ChannelHandle              self,
 
     // Do not deregister the read time out if not closing the read part.
 
-    if (ChannelPool::e_CHANNEL_DOWN_READ != type) {
+    if (ChannelPool::e_CHANNEL_DOWN_WRITE != type) {
         if (d_readTimeoutTimerId) {
             d_eventManager_p->deregisterTimer(d_readTimeoutTimerId);
             d_readTimeoutTimerId = 0;
