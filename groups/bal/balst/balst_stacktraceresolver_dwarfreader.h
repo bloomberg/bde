@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class,
 // 'balst::StackTraceResolver_DwarfReader', that is optimized for reading
-// information from object files that are the DWARF format.  The Elf object
+// information from object files that are in the DWARF format.  The Elf object
 // file format is used on Linux, Solaris, and HP-UX platforms, and the DWARF
 // file format is used within ELF files to encode source file name and line
 // number information.  The Elf format is described by documents at:
@@ -141,10 +141,6 @@ class StackTraceResolver_DwarfReader {
         e_DW_TAG_template_alias        = 0x43
     };
 
-    static const UintPtr s_minusOne  = ~static_cast<UintPtr>(0);
-    static const Offset  s_maxOffset = static_cast<Offset>(
-                                    ~static_cast<bsls::Types::Uint64>(0) >> 1);
-
   private:
     // DATA
     balst::StackTraceResolver_FileHelper
@@ -257,15 +253,19 @@ class StackTraceResolver_DwarfReader {
         // size of an 'unsigned int' or of a 'void *'.
 
     int readInitialLength(Offset *dst);
-        // Read the initial length of the object according to the DWARF doc to
-        // the specified '*dst', which is an 8-byte value.  Read '*dst' first
-        // as a 4 byte value, setting the high-order 4 bytes to 0, and if the
-        // value is below 0xfffffff0, then that means section offsets are to be
-        // read as 4 byte values from now on.  If the value is 0xffffffff, read
-        // the next 8 bytes into '*dst' and that indicates section offsets are
-        // to be 8 bytes from now on.  Initialize 'd_offsetSize' accordingly.
-        // Values in the range '[0xfffffff0, 0xffffffff)' are illegal for that
-        // first 4 bytes.  Return 0 on success and a non-zero value otherwise.
+        // Read the initial length of the object according to the DWARF
+        // specification to the specified '*dst', which is an 8-byte value.
+        // Read '*dst' first as a 4 byte value, setting the high-order 4 bytes
+        // to 0, and if the value is below 0xfffffff0, then that indicates that
+        // section offsets are to be read as 4 byte values within the object
+        // whose length is specified.  If the value is 0xffffffff, read the
+        // next 8 bytes into '*dst' and that indicates that section offsets are
+        // to be 8 bytes within the object whose length is specified.
+        // Initialize 'd_offsetSize' accordingly.  Values in the range
+        // '[0xfffffff0, 0xffffffff)' are illegal for that first 4 bytes.
+        // Return 0 on success and a non-zero value otherwise.  Note that when
+        // we read a 4-byte value, we do not extend sign to the high order 4
+        // bytes of '*dst'.
 
     template <class TYPE>
     int readLEB128(TYPE *dst);
@@ -326,8 +326,8 @@ class StackTraceResolver_DwarfReader {
 
     int setAddressSize(unsigned size);
         // Explicitly set the 'd_addressSize' of this reader to the specified
-        // 'size'.  This function will fail unless the size is the size of an
-        // 'unsigned' or the size of a 'UintPtr'.
+        // 'size'.  This function will fail unless the size is the
+        // 'sizeof(unsigned) == size' or 'sizeof(UintPtr) == size'.
 
     int setEndOffset(Offset newOffset);
         // Set the end offset to the specified 'newOffset'.

@@ -38,7 +38,7 @@ using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
-// The component under test describes a mechanism, the 'dwarf reader', used for
+// The component under test describes a mechanism, the "dwarf reader", used for
 // reading DWARF data from files.  DWARF stores information in certain formats,
 // and the dwarf reader is able to interpret and translate that information.
 //
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == FU::createDirectories(  tmpWorkingDir, true));
     ASSERT(0 == FU::setWorkingDirectory(tmpWorkingDir));
 
-    switch (test) {
+    switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
         // TESTING ENUM NAME METHODS
@@ -380,10 +380,10 @@ int main(int argc, char *argv[])
         //:     enabled in the imp file).
         //:   2 Call the 'stringFor*' method appropriate for the enum type.
         //:   3 Check that the string yielded begins with the appropriate
-        //:     prefix.
+        //:     prefix. (C-1)
         //:   4 Accumulate all the strings into a set, confirming that the size
         //:     of the set incremented with each string and therefore all the
-        //:     strings are unique.
+        //:     strings are unique.  (C-2)
         //
         // Testing:
         //   stringForAt(unsigned);
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
         //: 1 Write values to file, storing the offset after each value is
         //:   written to a vector.
         //: 2 Go back and skip over them, verifying that the cursor positions
-        //:   match the offsets in the vector.
+        //:   match the offsets in the vector.  (C-1)
         //
         // Testing:
         //   skipForm(unsigned);    (partial)
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That 'readOffset', which reads an offset of a specified number
-        //:   bytes, and assigns it, without sign-extension, to an 8-byte
+        //:   of bytes, and assigns it, without sign-extension, to an 8-byte
         //:   'Offset', works..
         //: 2 That 'readOffsetFromForm' works, for all supported values of
         //:   integral 'form'.
@@ -725,9 +725,9 @@ int main(int argc, char *argv[])
         //: 1 Write values to a file, appropriate to be read by different
         //:   forms.
         //: 2 Read them back using 'readOffset' and 'readOffsetFromForm', and
-        //:   verify the values read were correct.
+        //:   verify the values read were correct.  (C-1) (C-2)
         //: 3 Skip over the values with 'skipForm' and verify the cursor skips
-        //:   to the right position.
+        //:   to the right position.  (C-3)
         //
         // Testing:
         //   readOffset(Offset *, bsl::size_t);
@@ -804,8 +804,6 @@ int main(int argc, char *argv[])
         Offset maxOffset, minOffset;
         u::setToMax(&maxOffset);
         u::setToMin(&minOffset);
-
-        ASSERT(Obj::s_maxOffset == maxOffset);
 
         {
             bool firstTime = true;
@@ -1444,9 +1442,11 @@ int main(int argc, char *argv[])
         // TEST READULEB128
         //
         // Concerns:
-        //: 1 Test that 'readULEB128' can accurate read variable-length signed
-        //:   integral types, for signed integral types of size 1 through 8
-        //:   bytes.
+        //: 1 Test that 'readULEB128' can accurately read variable-length
+        //:   signed integral types, for signed integral types of size 1
+        //:   through 8 bytes.
+        //: 2 Test that 'skipULEB128' can skip over ULEB128 objects of all
+        //:   sizes.
         //
         // Plan:
         //: 1 Write, in the test driver, 'writeULEB128' that will write an
@@ -1462,9 +1462,9 @@ int main(int argc, char *argv[])
         //:     the next ULEB128 in the file.
         //:   o For each size in bytes at or above the length of the ULEB128
         //:     written, read the ULEB128, verify the value read was correct,
-        //:     and skip back to the beginning of the ULEB128.
-        //:   o Call 'skipUULEB128' and verify the cursor is correctly
-        //:     positioned.
+        //:     and skip back to the beginning of the ULEB128. (C-1)
+        //:   o Call 'skipULEB128' and verify the cursor is correctly
+        //:     positioned. (C-2)
         //
         // Testing:
         //   readULEB128(TYPE *dst);
@@ -1604,9 +1604,9 @@ int main(int argc, char *argv[])
         //:     the next LEB128 in the file.
         //:   o For each size in bytes at or above the length of the LEB128
         //:     written, read the LEB128, verify the value read was correct,
-        //:     and skip back to the beginning of the LEB128.
+        //:     and skip back to the beginning of the LEB128. (C-1)
         //:   o Call 'skipULEB128' and verify the cursor is correctly
-        //:     positioned.
+        //:     positioned. (C-2)
         //
         // Testing:
         //   readLEB128(TYPE *dst);
@@ -1731,8 +1731,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'readString' works.
         //: 2 'readStringAt' works.
-        //: 3 'readStringFromForm', which calls either 'readString' or
-        //:   'readStringAt', depending on the form enum passed, works.
+        //: 3 'readStringFromForm' works.
+        //:   A When 'form' is 'DW_FORM_string'.
+        //:   B When 'form' is 'DW_FORM_strp'.
         //: 4 'skipString' works.
         //
         // Plan:
@@ -1743,15 +1744,15 @@ int main(int argc, char *argv[])
         //: 2 Initialize two dwarf readers, one to access the 'str' section and
         //:   one to access the 'info' section.
         //: 3 Call 'readStringAt' on the 'str' reader to read the string and
-        //:   verify the result.
+        //:   verify the result. (C-2)
         //: 4 Skip the 'str' reader to the offset of the beginning of hte
         //:   strng.
         //: 5 Call 'readString' on the 'str' reader to read the string and
-        //:   verify the result.
+        //:   verify the result. (C-1)
         //: 6 Skip the 'str' reader to the beginning of the string.
         //: 7 Call 'readStringFromForm' on the 'str' reader with a form of
         //:   'DW_FORM_string' which should have the same effect as calling
-        //:   'readString', and verify the result.
+        //:   'readString', and verify the result. (C-3-A)
         //: 8 Skip the 'info' reader to the offset of the 4-byte initial length
         //:   of the 'info' section, and call 'readInitialLength', and confirm
         //:   that 'offsetSize' is 4 bytes.
@@ -1759,6 +1760,7 @@ int main(int argc, char *argv[])
         //:   4-byte offset of string in the 'str' section.
         //: 10 Call 'readStringFromForm' on the 'info' reader passing it the
         //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //:    (C-3-B)
         //: 11 Seek back to the initial length of the 'info' section and
         //:    overwrite it with an 8-byte initial length.
         //: 12 Re-initalize the 'info' reader, skip to the initial length,
@@ -1767,9 +1769,10 @@ int main(int argc, char *argv[])
         //:    the 8 byte offset of the string in the 'str' section.
         //: 14 Call 'readStringFromForm' on the 'info' reader passing it the
         //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //:    (C-3-B)
         //: 15 Skip the 'str' reader ot the beginning of the string.
         //: 16 Call 'skipString' on the 'str' reader and verify the cursor is
-        //:    now positioned after the string.
+        //:    now positioned after the string. (C-4)
         //
         // Testing:
         //   readString(bsl::string *);
@@ -1949,11 +1952,13 @@ int main(int argc, char *argv[])
         // TEST 'readInitialLength' and 'readSectionOffset'
         //
         // Concerns:
-        //: 1 That 'readInitialLength' correctly reads the intial length and
-        //:  sets the offset size.
-        //: 2 That 'offsetSize' correctly indicates the offset size.
-        //: 3 That 'readSectionOffset' correctly reads section offsets, and
+        //: 1 That 'readInitialLength' correctly reads the intial length.
+        //: 2 That 'readInitialLength' correctly sets the offset size.
+        //: 3 That 'offsetSize' correctly indicates the offset size.
+        //: 4 That 'readSectionOffset' correctly reads section offsets, and
         //:   reads them of the appropriate size.
+        //: 5 That 'readSectionOffset' fails if called prior to
+        //:   'readInitialLength'.
         //
         // Plan:
         //: 1 Write an initial length (which will eventually be over written)
@@ -1961,15 +1966,19 @@ int main(int argc, char *argv[])
         //:   offsets of 'sizeof(Offset)'.
         //: 2 Attempt to read a section offset prior to reading the initial
         //:   length and verify that it fails without changing the offset.
+        //:   (C-5)
         //: 3 Read the initial length, which will set the offset size to
-        //:   'sizeof(unsigned)'.  Verify the length is as expected.
-        //: 4 Read 256 offsets that will all be 4 bytes long.
-        //: 5 Seek back and rewrite the initial length to set the offset size
+        //:   'sizeof(unsigned)'.  Verify the length is as expected. (C-1)
+        //: 4 Verify that 'offsetSize()' is as expected. (C-2) (C-3)
+        //: 5 Read 256 offsets that will all be 4 bytes long, and confirm they
+        //:   are correct. (C-4)
+        //: 6 Seek back and rewrite the initial length to set the offset size
         //:   to 'sizeof(Offset)'.
-        //: 6 Seek back and read the initial length.  Verify the length is as
-        //:   expected.  Verify the offset size is now 'sizeof(Offset)'.
-        //: 7 Read 256 section offsets of size 'sizeof(Offset)', verify they
-        //:   are as expected.
+        //: 7 Seek back and read the initial length.  Verify the length is as
+        //:   expected. (C-1)
+        //: 8 Verify the offset size is now 'sizeof(Offset)'. (C-2) (C-3)
+        //: 9 Read 256 section offsets of size 'sizeof(Offset)', verify they
+        //:   are as expected. (C-4)
         //
         // Testing:
         //   readInitialLength(Offset *dst);
@@ -2104,16 +2113,16 @@ int main(int argc, char *argv[])
         //:   overwritten later with a different value) followed by address
         //:   values of varying sizes, 256 values for each size.
         //: 2 Call 'readAddress' with various forms to read all the addresses
-        //:   of different sizes.
+        //:   of different sizes and verify the values were correct. (C-1)
         //: 3 Skip back to the address size and read it with 'readAddressSize',
-        //:   verify with 'addressSize' that it's 'sizeof(int)'.
+        //:   verify with 'addressSize' that it's 'sizeof(int)'. (C-2-1)
         //: 4 Skip forward to where addresses of that size are, and read all
-        //:   the addresses of that size, verifying the values.
+        //:   the addresses of that size, verifying the values. (C-2-2)
         //: 5 Overwrite the address size with 'sizeof(UintPtr)'.
         //: 6 Skip back to the address size and read it with 'readAddressSize',
-        //:   verify with 'addressSize' that it's 'sizeof(UintPtr)'.
+        //:   verify with 'addressSize' that it's 'sizeof(UintPtr)'. (C-2-1)
         //: 7 Skip forward to where addresses of that size are, and read all
-        //:   the addresses of that size, verifying the values.
+        //:   the addresses of that size, verifying the values. (C-2-2)
         //
         // Testing:
         //   readAddress(UintPtr *dst, unsigned form);
@@ -2297,14 +2306,15 @@ int main(int argc, char *argv[])
         //: 1 That 'readValue' returns 0 when it succeeds.
         //: 2 That 'readValue' properly reads values from the file, for a
         //    variety of destination types.
-        //: 3 That an attempt to read past the end of section will fail.
+        //: 3 That an attempt to read past the end of section will fail with
+        //:   no change of state.
         //
         // Plan:
         //: 1 Write values of different types to a file.
-        //: 2 Read them out and verify that the read values match with the
-        //:   written values.
+        //: 2 Read them out and verify that the return value is 0 and that the
+        //:   read values match with the written values.  (C-1) (C-2)
         //: 3 Attempt to read a byte past the end of section, observe that it
-        //:   returns a failure return code with no change of state.
+        //:   returns a failure return code with no change of state.  (C-3)
         //
         // Testing:
         //   readValue(TYPE *);
@@ -2367,8 +2377,6 @@ int main(int argc, char *argv[])
         Offset maxOffset, minOffset;
         u::setToMax(&maxOffset);
         u::setToMin(&minOffset);
-
-        ASSERT(Obj::s_maxOffset == maxOffset);
 
         {
             bool firstTime = true;
@@ -2473,15 +2481,16 @@ int main(int argc, char *argv[])
         // TEST init, skipBytes, skipTo, atEndOfSection, offset
         //
         // Concerns:
-        //   That the basic navigations functions in a dwarf reader can
-        //   navigate through a section.  Note that this is just navigation,
-        //   we don't actually parse anything that's in the file.
+        //: 1 That 'init' checks its args properly and correctly returns a
+        //:   status to indicate whether it could be properly initialized.
+        //: 2 That the navigation functions can navigate properly within a
+        //:   file (note that nothing is ever read, all we do here is seeks).
         //
         // Plan:
         //: 1 Initialize 'init' with a variety of inputs and observe its return
-        //:   code to ensure that it's check its args properly.
+        //:   code to ensure that it checks its args properly.  (C-1)
         //: 2 Advance to the end of the section using 'skipTo' and 'skipBytes',
-        //:   observing the offset with 'offset()'.
+        //:   observing the offset with 'offset()' and 'atEndOfSection'.  (C-2)
         //
         // Testing:
         //   Obj();
@@ -2496,14 +2505,14 @@ int main(int argc, char *argv[])
                       "TEST init, skipBytes, skipTo, atEndOfSection, offset\n"
                       "====================================================\n";
 
-        struct {
+        const struct {
             int    d_line;
             bool   d_succeed;
             Offset d_offset;
             Offset d_size;
             Offset d_fileSize;
         } DATA[] = {
-            { L_, 1, 0, 100, 100 },
+            { L_, 1,   0, 100, 100 },
             { L_, 1, 100, 100, 200 },
             { L_, 1, 100, 100, 400 },
 
@@ -2524,7 +2533,6 @@ int main(int argc, char *argv[])
             { L_, 0, 0, 100, 99 },
             { L_, 0, 100, 100, 199 },
             { L_, 0, 100, 10, 60 },
-
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -2542,9 +2550,6 @@ int main(int argc, char *argv[])
 
         FH helper(fn);
 
-        char buffer[Obj::k_SCRATCH_BUF_LEN];
-        Obj mX;    const Obj& X = mX;
-
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE     = DATA[ti].d_line;
             const bool   SUCCEED  = DATA[ti].d_succeed;
@@ -2552,22 +2557,39 @@ int main(int argc, char *argv[])
             const Offset SIZE     = DATA[ti].d_size;
             const Offset FILESIZE = DATA[ti].d_fileSize;
 
-            Section sec;
-            sec.reset(OFFSET, SIZE);
+            char buffer[Obj::k_SCRATCH_BUF_LEN];
+            Obj mX;    const Obj& X = mX;
+
+            // The following shouldn't work on an uninitialized object.
+
+            ASSERT(0 != mX.skipTo(0));
+            ASSERT(0 >  X.offset());
+            ASSERT(0 != mX.skipBytes(10));
 
             // Try twice without disabling.
 
-            rc = mX.init(&helper, buffer, sec, FILESIZE);
-            ASSERTV(LINE, SUCCEED, rc, OFFSET, SIZE, FILESIZE,
-                                                         SUCCEED == (0 == rc));
+            Section sec;
+            sec.reset(OFFSET, SIZE);
 
             rc = mX.init(&helper, buffer, sec, FILESIZE);
             ASSERTV(LINE, SUCCEED, rc, OFFSET, SIZE, FILESIZE,
                                                          SUCCEED == (0 == rc));
 
-            // Try after previously disabling.
+            rc = mX.init(&helper, buffer, sec, FILESIZE);
+            ASSERTV(LINE, SUCCEED, rc, OFFSET, SIZE, FILESIZE,
+                                                         SUCCEED == (0 == rc));
+
+            // Now disable.
 
             mX.disable();
+
+            // The following shouldn't work on a disabled object.
+
+            ASSERT(0 != mX.skipTo(0));
+            ASSERT(0 >  X.offset());
+            ASSERT(0 != mX.skipBytes(10));
+
+            // Try init after previously disabling.
 
             rc = mX.init(&helper, buffer, sec, FILESIZE);
             ASSERTV(LINE, SUCCEED, rc, OFFSET, SIZE, FILESIZE,
@@ -2575,6 +2597,7 @@ int main(int argc, char *argv[])
 
             if (0 == rc) {
                 ASSERT(X.offset() == sec.d_offset);
+                ASSERT(!X.atEndOfSection());
 
                 rc = mX.skipTo(sec.d_offset + sec.d_size + 1);
                 ASSERT(0 != rc);    // Should fail
@@ -2598,6 +2621,7 @@ int main(int argc, char *argv[])
                     skipType = !skipType;
 
                     ASSERT(X.offset() == ii);
+                    ASSERT(!X.atEndOfSection());
                 }
 
                 Offset offset = X.offset();

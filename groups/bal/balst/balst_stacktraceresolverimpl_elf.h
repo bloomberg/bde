@@ -20,7 +20,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceResolverImpl<Elf>: symbol resolution for ELF objects
 //
-//@SEE_ALSO: balst_stacktraceresolverimpl_windows,
+//@SEE_ALSO: balst_stacktraceresolver_dwarfreader,
+//           balst_stacktraceresolverimpl_windows,
 //           balst_stacktraceresolverimpl_xcoff
 //
 //@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
@@ -32,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
 // documents at:
 //: o 'http://en.wikipedia.org/wiki/Executable_and_Linkable_Format'
-//: o 'http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf'
+//: o 'ftp://ftp.openwatcom.org/pub/devel/docs/elf-64-gen.pdf'
 //: o 'http://www.sco.com/developers/gabi/latest/contents.html'
 //
 ///Usage
@@ -89,10 +90,11 @@ class StackTraceResolverImpl;
 template <>
 class StackTraceResolverImpl<ObjectFileFormat::Elf> {
     // This class provides a public static 'resolve' method that, given a
-    // vector of 'StackTraceFrame's that have only their 'address' fields
-    // set, resolves all other fields in those frames.  The Elf object file
-    // format is used on Linux, Solaris, and HP-UX platforms.  All other
-    // methods in this class are private.
+    // vector of 'StackTraceFrame's that have only their 'address' fields set,
+    // resolves as many other fields in those frames as possible.  The Elf
+    // object file format is used on Linux, Solaris, and HP-UX platforms.  On
+    // Linux, some Elf sections contain data in the DWARF format, which makes
+    // it possible to resolve line numbers and file names.
 
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64

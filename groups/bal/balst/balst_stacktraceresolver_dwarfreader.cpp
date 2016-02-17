@@ -570,11 +570,6 @@ StackTraceResolver_DwarfReader::StackTraceResolver_DwarfReader()
     BSLMF_ASSERT(sizeof(Uint64) == sizeof(Offset));
     BSLMF_ASSERT(sizeof(UintPtr) == sizeof(void *));
     BSLMF_ASSERT(static_cast<Offset>(-1) < 0);
-    BSLMF_ASSERT(s_maxOffset > 0);
-    BSLMF_ASSERT(s_maxOffset > INT_MAX);
-    BSLMF_ASSERT(static_cast<Offset>(static_cast<Uint64>(s_maxOffset) + 1) <0);
-    BSLMF_ASSERT(static_cast<Offset>(static_cast<Uint64>(s_maxOffset) + 1) <
-                                                                      INT_MIN);
 
     disable();
 }
@@ -584,9 +579,9 @@ void StackTraceResolver_DwarfReader::disable()
 {
     d_helper_p    = 0;
     d_buffer_p    = 0;
-    d_offset      = s_minusOne;
-    d_beginOffset = s_minusOne;
-    d_endOffset   = s_minusOne;
+    d_offset      = -1;
+    d_beginOffset = -1;
+    d_endOffset   = -1;
     d_readPtr     = 0;
     d_endPtr      = 0;
     d_offsetSize  = -1;

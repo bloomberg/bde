@@ -1784,24 +1784,37 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
 
         rc = d_arangesReader.readAddressSize();
         u_ASSERT_BAIL(0 == rc);
+        const bool isAddressSizeSizeofUintPtr =
+                           sizeof(u::UintPtr) == d_arangesReader.addressSize();
 
-        unsigned char segmentSize;
-        rc = d_arangesReader.readValue(&segmentSize);
-        u_ASSERT_BAIL(0 == rc && "read segment size failed");
-        u_ASSERT_BAIL(0 == segmentSize);
+        // The meaning of the word 'segment' here is different from its meaning
+        // elsewhere in this file.  Here the 'segment size' is the size of a
+        // segment on a segmented architecture processor.  The 8086 and 80286
+        // were segmented architectures, and 'segmentSize' might have had some
+        // relevance there, but since the 80386 (ca 1992) x86 architectures
+        // have been able to access memory in a non-segmented manner.
 
-        // The 'mysteryZero' field is not in the spec, but everything didn't
-        // start working until I skipped those 4 bytes.
+        // We don't expect this code to be used on any segmented architectures,
+        // in which case 'segmentSizeSize' will be 0 and the 'tuple's of
+        // '(segmentSize, address, and size)' will instead be 'pair's of
+        // '(address, size)' where 'sizeof(size) == sizeof(address)'.
 
-        unsigned int mysteryZero;
-        rc = d_arangesReader.readValue(&mysteryZero);
-        u_ASSERT_BAIL(0 == rc);
-        if (0 != mysteryZero) {
-            u_eprintf("%s mysteryZero = %u\n", rn, mysteryZero);
+        unsigned char segmentSizeSize;
+        rc = d_arangesReader.readValue(&segmentSizeSize);
+        u_ASSERT_BAIL(0 == rc && "read segment size size failed");
+        u_ASSERT_BAIL(0 == segmentSizeSize);
 
-            // Don't return, we aren't sure those 4 bytes are supposed to be
-            // zero.
-        }
+        // According to section 2.70 of the spec, the header is padded here
+        // to the point where 'd_addressReader.offset()' will be a multiple
+        // of the size of a tuple.  Since '0 == segmentSize', the size of
+        // a tuple is '2 * d_arangesReader.addressSize()'.
+
+        // On Linux at least, this turns out to be wrong.  It turns out that
+        // regardless of how 'd_arangesReader.offset()' is aligned, we are to
+        // skip 4 bytes here.
+
+        rc = d_arangesReader.skipTo(d_arangesReader.offset() + 4);
+        u_ASSERT_BAIL(0 == rc && "skip padding failed");
 
         // u_TRACES && u_zprintf("%s Starting section %g pairs long.\n", rn,
         //                    (double) (endOffset - d_arangesReader.offset()) /
@@ -1809,7 +1822,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
 
         bool foundZeroes = false;
         while (d_arangesReader.offset() < endOffset) {
-            if (sizeof(u::UintPtr) == sizeof(unsigned int)) {
+            if (isAddressSizeSizeofUintPtr) {
                 rc =  d_arangesReader.readValue(&addressRange);
             }
             else {
@@ -2394,8 +2407,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     0 && u::dumpBinary(&d_lineReader, 8);
 
 #if 0
-    // Both the version 2 and version 4 specs say this field should be there,
-    // but it's not in the binary.
+    // In section 6.2.4.5, the DWARF docs (versions 2, 3 and 4) say this field
+    // should be there, but it's not in the binary.
 
     {
         unsigned char isStmt;
@@ -3155,9 +3168,9 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 }
 
 int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
-                                         void       *segmentPtr,
-                                         u::UintPtr     segmentSize,
-                                         const char *libraryFileName)
+                                          void       *segmentPtr,
+                                          u::UintPtr  segmentSize,
+                                          const char *libraryFileName)
 {
     int rc;
 
