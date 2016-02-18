@@ -423,6 +423,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomicoperations.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STRINGREF
+#include <bslstl_stringref.h>
+#endif
+
 #ifndef _PCRE2_H
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
@@ -631,6 +635,56 @@ class RegEx {
         // that 'subject' may be null if '0 == subjectLength' (denoting the
         // empty string).  Also note that after a successful call, 'result'
         // will contain exactly 'numSubpatterns() + 1' elements.
+
+    int match(bslstl::StringRef *result,
+              const char        *subject,
+              size_t             subjectLength,
+              size_t             subjectOffset = 0) const;
+        // Match the specified 'subject', having the specified 'subjectLength',
+        // against the pattern held by this regular-expression object
+        // ('pattern()').  Begin matching at the optionally specified
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // then begin matching from the start of 'subject'.  On success, load
+        // the specified 'result' with the 'StringRef' indicating the leftmost
+        // match of 'pattern()', and return 0.  Otherwise, return a non-zero
+        // value with no effect on 'result'.  The return value is 1 if the
+        // failure is caused by exceeding the depth limit.  The behavior is
+        // undefined unless 'isPrepared() == true', '0 <= subjectLength', '0 <=
+        // subjectOffset', and 'subjectOffset <= subjectLength'.  The behavior
+        // is also undefined if 'pattern()' was prepared with 'k_FLAG_UTF8',
+        // but 'subject' is not valid UTF-8.  Note that 'subject' need not be
+        // null-terminated and may contain embedded null characters.  Also note
+        // that 'subject' may be null if '0 == subjectLength' (denoting the
+        // empty string).
+
+    int match(bsl::vector<bslstl::StringRef> *result,
+              const char                     *subject,
+              size_t                          subjectLength,
+              size_t                          subjectOffset = 0) const;
+        // Match the specified 'subject', having the specified 'subjectLength',
+        // against the pattern held by this regular-expression object
+        // ('pattern()').  Begin matching at the optionally specified
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // then begin matching from the start of 'subject'.  On success, (1)
+        // load the first element of the specified 'result' with the
+        // 'StringRef' pair indicating the leftmost match of 'pattern()', (2)
+        // load elements of 'result' in the range '[ 1 .. numSubpatterns() ]'
+        // with the 'StringRef' indicating the respective matches of
+        // sub-patterns (unmatched sub-patterns have their respective 'result'
+        // elements loaded with empty 'StringRef'; sub-patterns matching
+        // multiple times have their respective 'result' elements loaded with
+        // the 'StringRef' indicating the rightmost match), and (3) return 0.
+        // Otherwise, return a non-zero value with no effect on 'result'.  The
+        // return value is 1 if the failure is caused by exceeding the depth
+        // limit.  The behavior is undefined unless 'isPrepared() == true', '0
+        // <= subjectLength', '0 <= subjectOffset', and 'subjectOffset <=
+        // subjectLength'.  The behavior is also undefined if 'pattern()' was
+        // prepared with 'k_FLAG_UTF8', but 'subject' is not valid UTF-8.  Note
+        // that 'subject' need not be null-terminated and may contain embedded
+        // null characters.  Also note that 'subject' may be null if '0 ==
+        // subjectLength' (denoting the empty string).  Also note that after a
+        // successful call, 'result' will contain exactly 'numSubpatterns() +
+        // 1' elements.
 
     int numSubpatterns() const;
         // Return the number of sub-patterns in the pattern held by this
