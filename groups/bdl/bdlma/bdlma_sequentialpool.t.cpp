@@ -1342,9 +1342,9 @@ int main(int argc, char *argv[])
                                  k_DEFAULT_SIZE == td.numBytesInUse());
                 }
                 else {
-                    bsls::Types::size_type size =
+                    int size = static_cast<int>(
                               bdlb::BitUtil::roundUpToBinaryPower(
-                                                  static_cast<uint64_t>(SIZE));
+                                                 static_cast<uint64_t>(SIZE)));
                     LOOP4_ASSERT(i,
                                  SIZE,
                                  size,
@@ -1416,9 +1416,9 @@ int main(int argc, char *argv[])
 
                     int actualInitialSize = INITIAL_SIZE;
                     if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRATEGY) {
-                        actualInitialSize =
-                                    bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<uint64_t>(INITIAL_SIZE));
+                        actualInitialSize = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
                     }
 
                     if (SIZE <= actualInitialSize) {
@@ -1428,8 +1428,9 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, ND == td.numBytesInUse());
                     }
                     else {
-                        int size = bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<uint64_t>(INITIAL_SIZE));
+                        int size = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
                         while (size < SIZE) {
                             size *= 2;
                         }
@@ -1525,9 +1526,9 @@ int main(int argc, char *argv[])
                             int actualInitialSize = INITIAL_SIZE;
                             if (bsls::BlockGrowth::BSLS_GEOMETRIC
                                                                  == STRATEGY) {
-                                actualInitialSize =
-                                      bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<uint64_t>(INITIAL_SIZE));
+                                actualInitialSize = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
                             }
 
                             if (ALLOC_SIZE <= actualInitialSize) {
@@ -1537,8 +1538,9 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(i, ND == td.numBytesInUse());
                             }
                             else {
-                                int size = bdlb::BitUtil::roundUpToBinaryPower(
-                                          static_cast<uint64_t>(INITIAL_SIZE));
+                                int size = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
                                 while (size < ALLOC_SIZE) {
                                     size *= 2;
                                 }

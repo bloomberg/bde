@@ -333,6 +333,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -364,9 +368,22 @@ class SequentialPool {
     };
 
     enum {
-        k_NUM_GEOMETRIC_BIN =   56   // number of bins available for geometric
-                                     // growth strategy
+        k_NUM_GEOMETRIC_BIN = 56   // number of bins available for geometric
+                                   // growth strategy
     };
+
+    struct GeometricBins {
+        // This 'struct' is used to optimize the construction time of the
+        // object with regard to initializing 'd_geometricBins'.
+
+        char *d_bin[k_NUM_GEOMETRIC_BIN];
+    };
+
+    // CLASS DATA
+    static const GeometricBins     s_geometricBinsInitializer;
+                                                     // used for fast
+                                                     // initialization of
+                                                     // 'd_geometricBins'
 
     // DATA
     BufferManager                  d_bufferManager;  // memory manager for
@@ -381,12 +398,11 @@ class SequentialPool {
                                                      // memory available for
                                                      // use (which may be 0)
 
-    char                          *d_geometricBin[k_NUM_GEOMETRIC_BIN];
-                                                     // memory allocated for
+    GeometricBins                  d_geometricBins;  // memory allocated for
                                                      // geometric growth
                                                      // strategy
 
-    bsls::Types::size_type         d_alwaysUnavailable;
+    uint64_t                       d_alwaysUnavailable;
                                                      // bitmask of bins never
                                                      // available to supply
                                                      // memory (reflects the
@@ -394,13 +410,13 @@ class SequentialPool {
                                                      // 'initialSize' and
                                                      // 'maxBufferSize')
 
-    bsls::Types::size_type         d_unavailable;    // bitmask of bins
+    uint64_t                       d_unavailable;    // bitmask of bins
                                                      // unavailable for
-                                                     // suppling memory
+                                                     // supplying memory
 
     Block                         *d_largeBlockList_p;
                                                      // address of 1st block of
-                                                     // memory used to satsify
+                                                     // memory used to satisfy
                                                      // allocations not handled
                                                      // by other strategies (or
                                                      // 0)
@@ -416,11 +432,12 @@ class SequentialPool {
   private:
     // PRIVATE MANIPULATORS
     void *allocateNonFastPath(bsls::Types::size_type size);
-        // Use the allocator supplied at construction to allocate a new
-        // internal buffer, then return the address of a contiguous block of
-        // memory of the specified 'size' (in bytes) according to the alignment
-        // strategy specified at construction from this buffer.  The behavior
-        // is undefined unless '0 < size'.
+        // If the specified 'size' is not 0, use the allocator supplied at
+        // construction to allocate a new internal buffer and return the
+        // address of a contiguous block of memory of 'size' (in bytes) from
+        // this new buffer, according to the alignment strategy specified at
+        // construction.  If 'size' is 0, no memory is allocated and 0 is
+        // returned.
 
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
@@ -702,11 +719,6 @@ void *SequentialPool::allocate(bsls::Types::size_type size)
     void *result = d_bufferManager.allocate(size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
         return result;                                                // RETURN
-    }
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;                                                     // RETURN
     }
 
     return allocateNonFastPath(size);
