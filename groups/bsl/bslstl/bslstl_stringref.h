@@ -793,13 +793,6 @@ StringRefImp<CHAR_TYPE>::StringRefImp(
 
 template <typename CHAR_TYPE>
 inline
-StringRefImp<CHAR_TYPE>::StringRefImp(const StringRefImp<CHAR_TYPE>& original)
-: Base(original.begin(), original.end())
-{
-}
-
-template <typename CHAR_TYPE>
-inline
 StringRefImp<CHAR_TYPE>::StringRefImp(
                                   const StringRefImp<CHAR_TYPE>& original,
                                   int                            startIndex,
