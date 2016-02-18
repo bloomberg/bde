@@ -11,6 +11,8 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 
 #include <bdlb_chartype.h>
 
+#include <bdldfp_decimalutil.h>
+
 #include <bsls_alignedbuffer.h>
 #include <bsls_assert.h>
 
@@ -162,6 +164,32 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
     }
 
     return -1;
+}
+
+int ParserUtil::getValue(bdldfp::Decimal64 *value,
+                                bslstl::StringRef data)
+{
+    if (0 == data.length())
+    {
+        return -1;
+    }
+
+    const int MAX_STRING_LENGTH = 32; // 32 > 16 + 3 + 2 + 1
+    char      buffer[MAX_STRING_LENGTH + 1];
+
+    bdlma::BufferedSequentialAllocator allocator(buffer,
+                                                 MAX_STRING_LENGTH + 1);
+    bsl::string                        dataString(data.data(),
+                                                  data.length(),
+                                                  &allocator);
+
+    bdldfp::Decimal64 d;
+    int rc = bdldfp::DecimalUtil::parseDecimal64(&d, dataString);
+    if (rc != 0) {
+        return -1;
+    }
+    *value = d;
+    return 0;
 }
 
 int ParserUtil::getValue(double *value, bslstl::StringRef data)

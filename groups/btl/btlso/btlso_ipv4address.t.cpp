@@ -388,7 +388,61 @@ int main(int argc, char *argv[])
                 { L_,  "325.3.5.7"        ,  false  },
                 { L_,  "5.7.0x10000"      ,  false  },
                 { L_,  "5.0x1000000"      ,  false  },
-                { L_,  "akjfa;kdfjask"    ,  false  }
+                { L_,  "akjfa;kdfjask"    ,  false  },
+
+                // Per DRQS 76925158: Additional test values.
+                //  Empty fields                       // Binary analog
+                { L_,  ""                 ,  false },  // 0
+                { L_,  "1"                ,  true  },  // 1
+               
+                { L_,  "."                ,  false },  // 00
+                { L_,  ".1"               ,  false },  // 01
+                { L_,  "1."               ,  false },  // 10
+                { L_,  "1.1"              ,  true  },  // 11
+                
+                { L_,  ".."               ,  false },  // 000
+                { L_,  "..1"              ,  false },  // 001
+                { L_,  ".1."              ,  false },  // 010
+                { L_,  ".1.1"             ,  false },  // 011
+                { L_,  "1.."              ,  false },  // 100
+                { L_,  "1..1"             ,  false },  // 101
+                { L_,  "1.1."             ,  false },  // 110
+                { L_,  "1.1.1"            ,  true  },  // 111
+                
+                { L_,  "..."              ,  false },  // 0000
+                { L_,  "...1"             ,  false },  // 0001
+                { L_,  "..1."             ,  false },  // 0010
+                { L_,  "..1.1"            ,  false },  // 0011
+                { L_,  ".1.."             ,  false },  // 0100
+                { L_,  ".1..1"            ,  false },  // 0101
+                { L_,  ".1.1."            ,  false },  // 0110
+                { L_,  ".1.1.1"           ,  false },  // 0111
+                { L_,  "1..."             ,  false },  // 1000
+                { L_,  "1...1"            ,  false },  // 1001
+                { L_,  "1..1."            ,  false },  // 1010
+                { L_,  "1..1.1"           ,  false },  // 1011
+                { L_,  "1.1.."            ,  false },  // 1100
+                { L_,  "1.1..1"           ,  false },  // 1101
+                { L_,  "1.1.1."           ,  false },  // 1110
+                { L_,  "1.1.1.1"          ,  true  },  // 1111
+                
+                //  Leading/trailing dots
+                { L_,  "1"                ,  true  },  // none
+                { L_,  "1.2"              ,  true  },  // none
+                { L_,  "1.2.3"            ,  true  },  // none
+                { L_,  "1.2.3.4"          ,  true  },  // none
+                { L_,  ".1"               ,  false },  // leading
+                { L_,  ".1.2"             ,  false },  // leading
+                { L_,  ".1.2.3"           ,  false },  // leading
+                { L_,  ".1.2.3.4"         ,  false },  // leading
+                { L_,  "1."               ,  false },  // trailing
+                { L_,  "1.2."             ,  false },  // trailing
+                { L_,  "1.2.3."           ,  false },  // trailing
+                { L_,  "1.2.3.4."         ,  false },  // trailing
+                { L_,  ".1."              ,  false },  // both
+                { L_,  ".1.2."            ,  false },  // both
+                { L_,  ".1.2.3."          ,  false },  // both
+                { L_,  ".1.2.3.4."        ,  false }   // both
             };
 
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;

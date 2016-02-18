@@ -24,6 +24,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
 #include <bsl_cstring.h>
 #include <bsl_utility.h>

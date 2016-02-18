@@ -27,6 +27,8 @@ const char bdlat_TypeName_Imp::BDLAT_NAME_INT64[]          = "Int64";
 const char bdlat_TypeName_Imp::BDLAT_NAME_UINT64[]         = "Uint64";
 const char bdlat_TypeName_Imp::BDLAT_NAME_FLOAT[]          = "float";
 const char bdlat_TypeName_Imp::BDLAT_NAME_DOUBLE[]         = "double";
+const char bdlat_TypeName_Imp::BDLAT_NAME_DECIMAL64[]      =
+                                                           "bdldfp::Decimal64";
 const char bdlat_TypeName_Imp::BDLAT_NAME_CONST_CHAR_PTR[] = "const char*";
 const char bdlat_TypeName_Imp::BDLAT_NAME_CONST_SIGNED_CHAR_PTR[] =
                                                           "const signed char*";
@@ -56,6 +58,8 @@ const char bdlat_TypeName_Imp::BDLAT_XSDNAME_UNSIGNED_LONG[] = "unsignedLong";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_FLOAT[]       = "float";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_DOUBLE[]      = "double";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_DECIMAL[]     = "decimal";
+const char bdlat_TypeName_Imp::BDLAT_XSDNAME_DECIMAL64[]   =
+                                                            "precisionDecimal";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_STRING[]      = "string";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_BASE64_BINARY[] = "base64Binary";
 const char bdlat_TypeName_Imp::BDLAT_XSDNAME_HEX_BINARY[]  = "hexBinary";
@@ -149,6 +153,20 @@ bdlat_TypeName_Imp::xsdName(const double *, int format)
         BSLS_ASSERT(0 && "Invalid format for double");
 
         return 0;                                                     // RETURN
+    }
+}
+
+const char*
+bdlat_TypeName_Imp::xsdName(const bdldfp::Decimal64 *, int format)
+{
+    switch (format & FMode::e_TYPE_MASK) {
+      case FMode::e_DEFAULT:
+        return BDLAT_XSDNAME_DECIMAL64;
+
+      default:
+        BSLS_ASSERT(0 && "Invalid format for bdldfp::Decimal64");
+
+        return 0;
     }
 }
 

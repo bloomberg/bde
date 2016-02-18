@@ -115,6 +115,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
+#endif
+
 namespace BloombergLP {
 namespace baljsn {
 
@@ -177,13 +181,14 @@ struct ParserUtil {
     static int getValue(bsls::Types::Uint64 *value, bslstl::StringRef data);
     static int getValue(float               *value, bslstl::StringRef data);
     static int getValue(double              *value, bslstl::StringRef data);
+    static int getValue(bdldfp::Decimal64   *value, bslstl::StringRef data);
     static int getValue(bsl::string         *value, bslstl::StringRef data);
-    static int getValue(bdlt::Date           *value, bslstl::StringRef data);
-    static int getValue(bdlt::Datetime       *value, bslstl::StringRef data);
-    static int getValue(bdlt::DatetimeTz     *value, bslstl::StringRef data);
-    static int getValue(bdlt::DateTz         *value, bslstl::StringRef data);
-    static int getValue(bdlt::Time           *value, bslstl::StringRef data);
-    static int getValue(bdlt::TimeTz         *value, bslstl::StringRef data);
+    static int getValue(bdlt::Date          *value, bslstl::StringRef data);
+    static int getValue(bdlt::Datetime      *value, bslstl::StringRef data);
+    static int getValue(bdlt::DatetimeTz    *value, bslstl::StringRef data);
+    static int getValue(bdlt::DateTz        *value, bslstl::StringRef data);
+    static int getValue(bdlt::Time          *value, bslstl::StringRef data);
+    static int getValue(bdlt::TimeTz        *value, bslstl::StringRef data);
     static int getValue(bsl::vector<char>   *value, bslstl::StringRef data);
         // Load into the specified 'value' the characters read from the
         // specified 'data'.  Return 0 on success or a non-zero value on

@@ -643,6 +643,40 @@ struct FilesystemUtil {
         // so must be prepared for this event.  See 'findMatchingPaths' for a
         // discussion of how 'pattern' is interpreted.
 
+    static int visitTree(
+              const char                                    *root,
+              const bsl::string&                             pattern,
+              const bsl::function<void (const char *path)>&  visitor,
+              bool                                           sortFlag = false);
+    static int visitTree(
+               const bsl::string&                            root,
+               const bsl::string&                            pattern,
+               const bsl::function<void (const char *path)>& visitor,
+               bool                                          sortFlag = false);
+        // Recursively traverse the directory tree starting at the specified
+        // 'root' for files whose leaf names match the specified 'pattern', and
+        // run the specified function 'visitor', passing it the full path
+        // starting with 'root' to each pattern matching file.  See
+        // 'findMatchingPaths' for a discussion of how 'pattern' is
+        // interpreted.  If the specified 'sortFlag' is 'true', traverse the
+        // files in the tree in sorted order, sorted by the full path name,
+        // otherwise the order in which the files will be visited is
+        // unspecified.  UTF-8 paths will be sorted by 'strcmp', which sorts by
+        // 'char's, not unicode code points.  Found '.' and '..' directories
+        // are ignored, except that 'root' may be '.' or '..'.  Return 0 on
+        // success, and a non-zero value otherwise.  This function will fail if
+        // 'root' does not specify a directory, of if 'pattern' contains '/' on
+        // Unix or '\' on Windows.  Note that both directories and plain files
+        // whose names match 'pattern' will be visited, while other files such
+        // as symlinks will not be visited or followed.  No file or directory
+        // that is not matched will be visited.  All directories are traversed,
+        // regardless of whether they are matched.  If a directory is matched
+        // and 'sortFlag' is 'true', it is visited immediately before it is
+        // traversed.  Also note that 'root' is never visited, even if it
+        // matches 'pattern'.  Also note that no pattern matching is done on
+        // 'root' -- if it contains wildcards, they are not interpreted as such
+        // and must exactly match the characters in the name of the directory.
+
     static void findMatchingPaths(bsl::vector<bsl::string> *result,
                                   const char               *pattern);
         // Load into the specified 'result' vector all paths in the filesystem
@@ -858,6 +892,18 @@ void FilesystemUtil::visitPaths(
                           const bsl::function<void(const char *path)>& visitor)
 {
     return visitPaths(pattern.c_str(), visitor);
+}
+
+inline
+int FilesystemUtil::visitTree(
+                       const char                                    *root,
+                       const bsl::string&                             pattern,
+                       const bsl::function<void (const char *path)>&  visitor,
+                       bool                                           sortFlag)
+{
+    BSLS_ASSERT_SAFE(0 != root);
+
+    return visitTree(bsl::string(root), pattern, visitor, sortFlag);
 }
 
 inline
