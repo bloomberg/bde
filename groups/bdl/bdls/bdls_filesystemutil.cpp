@@ -134,25 +134,7 @@ bool shortIsDotOrDots(const char *path)
     return '.' == *path && (!path[1] || ('.' == path[1] && !path[2]));
 }
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-
-namespace {
-namespace u {
-// Note that 'Standard' will run slower than 'Basic', but will still be
-// correct.  'Basic' is not defined on Visual Studio 2008.
-
-#if BSLS_PLATFORM_CMP_VERSION >= 1600
-// Visual Studio 2010 or after
-const FINDEX_INFO_LEVELS basicOrStandard = FindExInfoBasic;
-#else
-// Visual 2008 or before
-const FINDEX_INFO_LEVELS basicOrStandard = FindExInfoStandard;
-#endif
-
-}  // close namespace u
-}  // close unnamed namespace
-
-#else
+#if defined(BSLS_PLATFORM_OS_UNIX)
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN) || \
     (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
@@ -907,7 +889,7 @@ void FilesystemUtil::visitPaths(
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
-                                  u::basicOrStandard,
+                                  FindExInfoStandard,
                                   &findDataW,
                                   FindExSearchNameMatch,
                                   NULL,
@@ -992,7 +974,7 @@ int FilesystemUtil::visitTree(
                                                 0,
                                                 '-');
     FileDescriptor handle = FindFirstFileExW(widePattern.c_str(),
-                                             u::basicOrStandard,
+                                             FindExInfoStandard,
                                              &foundData,
                                              FindExSearchNameMatch,
                                              NULL,
@@ -1025,7 +1007,7 @@ int FilesystemUtil::visitTree(
                                                 0,
                                                 '-');
     handle = FindFirstFileExW(widePattern.c_str(),
-                              u::basicOrStandard,
+                              FindExInfoStandard,
                               &foundData,
                               FindExSearchLimitToDirectories,
                               NULL,
