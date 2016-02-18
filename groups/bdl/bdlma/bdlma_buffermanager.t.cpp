@@ -632,7 +632,9 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != addr1);
 
-            int ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+            int ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
             LOOP2_ASSERT(NEWSIZE, ret, NEWSIZE == ret);
 
             void *addr2 = mX.allocate(1);
@@ -642,7 +644,9 @@ int main(int argc, char *argv[])
             // Truncating previously allocated address should fail.
             if (EXPOFFSET != 0
              && ((char *)addr1 + INITIALSIZE) != ((char *)addr2 + 1)) {
-                ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+                ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
                 LOOP2_ASSERT(INITIALSIZE, ret, INITIALSIZE == ret);
             }
         }
@@ -812,13 +816,13 @@ int main(int argc, char *argv[])
 
             ASSERT(0 != addr);
 
-            int newSize = mX.expand(addr, 1);
+            int newSize = static_cast<int>(mX.expand(addr, 1));
             LOOP3_ASSERT(LINE, EXPUSED, newSize, EXPUSED == newSize);
 
             void *addr2 = mX.allocate(1);
             ASSERT(0 == addr2);
 
-            int ret = mX.expand(addr, newSize);
+            int ret = static_cast<int>(mX.expand(addr, newSize));
             LOOP2_ASSERT(LINE, ret, newSize == ret);
         }
 
@@ -828,7 +832,7 @@ int main(int argc, char *argv[])
         void *addr = mX.allocate(1);
         ASSERT(&buffer[0] == addr);
 
-        int newSize = mX.expand(addr, 1);
+        int newSize = static_cast<int>(mX.expand(addr, 1));
         ASSERT(k_BUFFER_SIZE == newSize);
 
         addr = mX.allocate(1);
