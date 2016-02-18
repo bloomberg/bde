@@ -49,7 +49,7 @@ namespace bdlma {
 
 // CLASS DATA
 const SequentialPool::GeometricBins
-                               SequentialPool::s_geometricBinsInitializer = {};
+                             SequentialPool::s_geometricBinsInitializer = {{}};
 
 // PRIVATE MANIPULATORS
 void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
