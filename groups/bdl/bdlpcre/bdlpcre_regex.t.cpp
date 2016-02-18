@@ -47,31 +47,33 @@ using namespace bdlpcre;
 // MANIPULATORS
 // [ 3] void clear();
 // [ 3] int prepare(const char*, int, const char**, int*);
-// [13] int setDepthLimit(int)
-// [13] int setDefaultDepthLimit(int)
+// [14] int setDepthLimit(int)
+// [14] int setDefaultDepthLimit(int)
 //
 // ACCESSORS
-// [ 5] int flags() const;
+// [ 6] int flags() const;
 // [ 3] bool isPrepared() const;
 // [ 4] int match(const char *subject, ...) const;
 // [ 4] int match(bsl::pair<size_t, size_t> *result, ...) const;
 // [ 4] int match(bsl::vector<bsl::pair<size_t, size_t> > *result, ...) const;
-// [10] int numSubpatterns() const;
+// [ 5] int match(bslstl::StringRef *result, ...) const;
+// [ 5] int match(bsl::vector<bslstl::StringRef> *result, ...) const;
+// [11] int numSubpatterns() const;
 // [ 2] const bsl::string& pattern() const;
-// [10] int subpatternIndex(const char *name) const;
-// [13] int getDepthLimit(int)
-// [13] int getDefaultDepthLimit(int)
+// [11] int subpatternIndex(const char *name) const;
+// [14] int getDepthLimit(int)
+// [14] int getDefaultDepthLimit(int)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] k_FLAG_CASELESS
-// [ 7] k_FLAG_MULTILINE
-// [ 8] k_FLAG_UTF8
-// [ 9] k_FLAG_DOTMATCHESALL
-// [11] ALLOCATOR PROPAGATION
-// [12] NON-CAPTURING GROUPS
-// [14] UNICODE CHARACTER PROPERTY SUPPORT
-// [15] MEMORY ALLIGNMENT
-// [16] USAGE EXAMPLE
+// [ 7] k_FLAG_CASELESS
+// [ 8] k_FLAG_MULTILINE
+// [ 9] k_FLAG_UTF8
+// [10] k_FLAG_DOTMATCHESALL
+// [12] ALLOCATOR PROPAGATION
+// [13] NON-CAPTURING GROUPS
+// [15] UNICODE CHARACTER PROPERTY SUPPORT
+// [16] MEMORY ALLIGNMENT
+// [17] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -526,7 +528,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -579,7 +581,7 @@ int main(int argc, char *argv[])
 //  }
 //..
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING MEMORY ALIGNMENT
         //
@@ -609,7 +611,7 @@ int main(int argc, char *argv[])
 
         regex.prepare(0, 0, k_PATTERN, 0);
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING UNICODE CHARACTER PROPERTY SUPPORT
         //   This will test that the underlying PCRE2 library correctly handles
@@ -633,7 +635,7 @@ int main(int argc, char *argv[])
                        << "TESTING UNICODE CHARACTER PROPERTY SUPPORT" << endl
                        << "==========================================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         static const struct {
             int            d_lineNum;         // source line number
@@ -680,7 +682,7 @@ int main(int argc, char *argv[])
                 P_(LINE) P(PATTERN)
             }
 
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -700,7 +702,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, retCode, MATCH == !retCode);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING DEPTH LIMIT
         //  This will test both the default and per-regex depth limit
@@ -798,7 +800,7 @@ int main(int argc, char *argv[])
         ASSERT( 0 == x.match(&resultPair, testString, testStringLength));
         ASSERT( 0 == x.match(&resultVector, testString, testStringLength));
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING NON-CAPTURING GROUPS
         //
@@ -821,9 +823,9 @@ int main(int argc, char *argv[])
                           << "NON-CAPTURING GROUPS" << endl
                           << "====================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(&testAllocator);
+        Obj mX(&ta);
         int rc = mX.prepare(0,0,"XX(?:\\d\\d:)+ (\\S+)");
 
         ASSERT(0 == rc);
@@ -870,7 +872,7 @@ int main(int argc, char *argv[])
             ASSERTV(results[1].first, 10 == results[1].first);
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING ALLOCATOR PROPAGATION
         //
@@ -892,9 +894,9 @@ int main(int argc, char *argv[])
                           << "TESTING ALLOCATION PROPAGATION" << endl
                           << "==============================" << endl;
 
-        bslma::TestAllocator allocator0(veryVeryVerbose);
-        bslma::TestAllocator allocator1(veryVeryVerbose);
-        bslma::TestAllocator allocator2(veryVeryVerbose);
+        bslma::TestAllocator allocator0(veryVeryVeryVerbose);
+        bslma::TestAllocator allocator1(veryVeryVeryVerbose);
+        bslma::TestAllocator allocator2(veryVeryVeryVerbose);
 
         bslma::TestAllocator *Z0 = &allocator0;
         bslma::TestAllocator *Z1 = &allocator1;
@@ -923,7 +925,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.match(&match, TEST_STRING, TEST_STRING_LEN));
 
             {
-                const char EXPECTED_MATCH[] = "bbasm_SecurityCache";
+                const char  EXPECTED_MATCH[] = "bbasm_SecurityCache";
                 bsl::string realMatch(&TEST_STRING[match.first],
                         match.second, Z2);     // do not use default allocator!
                 ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
@@ -933,7 +935,7 @@ int main(int argc, char *argv[])
             X.match(&match, TEST_STRING, TEST_STRING_LEN, startPosition);
 
             {
-                const char EXPECTED_MATCH[] = "tweut_StringRef";
+                const char  EXPECTED_MATCH[] = "tweut_StringRef";
                 bsl::string realMatch(&TEST_STRING[match.first],
                         match.second, Z2);     // do not use default allocator!
                 ASSERTV(realMatch, EXPECTED_MATCH == realMatch);
@@ -960,7 +962,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != Z1->numAllocations());
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING SUBPATTERNS
         //   This will test the 'numSubpatterns' and 'subpatternIndex'
@@ -994,7 +996,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING SUBPATTERNS" << endl
                                   << "===================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         static const struct {
             int         d_lineNum;   // source line number
@@ -1063,7 +1065,7 @@ int main(int argc, char *argv[])
                 cout << "\t  and ";  P(NUM_WORDS)
             }
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -1118,89 +1120,174 @@ int main(int argc, char *argv[])
                 cout << "\n\tMatching with "; P(SUBJECT);
             }
 
-            vector<pair<size_t, size_t> > vMatch;
+            if (veryVeryVerbose) {
+                cout << "\n\tMatching with offsets based 'match'" << endl;
+            }
+            {
+                vector<pair<size_t, size_t> > vMatch;
 
-            if (NUM_WORDS%2) {
-                // Grow the vector to make sure it shrinks back to exactly
-                // 'NUM_SUBPATTERNS'+1.  Only do this for 1/2 the cases.  For
-                // the other half, we check that the vector grows to exactly
-                // 'NUM_SUBPATTERNS'+1.
+                if (NUM_WORDS%2) {
+                    // Grow the vector to make sure it shrinks back to exactly
+                    // 'NUM_SUBPATTERNS'+1.  Only do this for 1/2 the cases.
+                    // For the other half, we check that the vector grows to
+                    // exactly 'NUM_SUBPATTERNS'+1.
 
-                for (int j = 0; j < NUM_SUBPATTERNS + 10; ++j) {
-                    vMatch.push_back(make_pair(0, 0));
+                    for (int j = 0; j < NUM_SUBPATTERNS + 10; ++j) {
+                        vMatch.push_back(make_pair(0, 0));
+                    }
+                }
+
+                retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
+                ASSERTV(LINE, 0 == retCode);
+                ASSERTV(LINE, vMatch.size(),
+                                      NUM_SUBPATTERNS+1 == (int)vMatch.size());
+
+                // captured substrings
+                const string csPkg(&SUBJECT[vMatch[SP_PKG_INDEX].first],
+                                            vMatch[SP_PKG_INDEX].second);
+                const string csName(&SUBJECT[vMatch[SP_NAME_INDEX].first],
+                                             vMatch[SP_NAME_INDEX].second);
+
+                if (veryVeryVerbose) {
+                    T_ T_ P_(csPkg) P(csName)
+                }
+
+                ASSERTV(LINE, csPkg,  CS_PKG  == csPkg);
+                ASSERTV(LINE, csName, CS_NAME == csName);
+
+                for (int j = 0; j < NUM_WORDS; ++j) {
+                    const char *CS_WORDJ       = CS_WORD[j];
+                    const int   SP_WORD_INDEXJ = SP_WORD_INDEX[j];
+
+                    const string csWordj(
+                                        &SUBJECT[vMatch[SP_WORD_INDEXJ].first],
+                                        vMatch[SP_WORD_INDEXJ].second);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(j) P(csWordj)
+                    }
+
+                    ASSERTV(LINE, csWordj,  CS_WORDJ == csWordj);
+                }
+
+                if (4 == NUM_WORDS) {
+                    // If NUM_WORDS is 4, that means the last subpattern was
+                    // not matched (only 4 words in the subject).  So make sure
+                    // that the last element in the vector contains (as per
+                    // doc): pair<size_t, size_t>(-1, 0).
+
+                    const pair<size_t, size_t> NOT_FOUND(-1, 0);
+                    const pair<size_t, size_t> lastElement =
+                                                       vMatch[vMatch.size()-1];
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(lastElement.first) P(lastElement.second)
+                    }
+
+                    ASSERTV(LINE, lastElement.first, lastElement.second,
+                            NOT_FOUND == lastElement);
+                }
+                else {
+                    // Check that the last (unnamed) substring at the end was
+                    // captured correctly.  It should be the last word in the
+                    // subject (CS_WORD[3]).
+
+                    const pair<size_t, size_t> lastElement =
+                                                       vMatch[vMatch.size()-1];
+
+                    const string  csLastWord(&SUBJECT[lastElement.first],
+                                             lastElement.second);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P(csLastWord)
+                    }
+
+                    ASSERTV(LINE, csLastWord, CS_WORD[3] == csLastWord);
                 }
             }
-
-            retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
-            ASSERTV(LINE, 0 == retCode);
-            ASSERTV(LINE,                vMatch.size(),
-                         NUM_SUBPATTERNS+1 == (int)vMatch.size());
-
-            // captured substrings
-            const string csPkg(&SUBJECT[vMatch[SP_PKG_INDEX].first],
-                               vMatch[SP_PKG_INDEX].second);
-            const string csName(&SUBJECT[vMatch[SP_NAME_INDEX].first],
-                                vMatch[SP_NAME_INDEX].second);
-
-            ASSERTV(LINE, csPkg,  CS_PKG  == csPkg);
-            ASSERTV(LINE, csName, CS_NAME == csName);
 
             if (veryVeryVerbose) {
-                T_ T_ P_(csPkg) P(csName)
+                cout << "\n\tMatching with 'StringRef' based 'match'" << endl;
             }
+            {
+                vector<bslstl::StringRef> vMatch;
 
-            for (int j = 0; j < NUM_WORDS; ++j) {
-                const char *CS_WORDJ       = CS_WORD[j];
-                const int   SP_WORD_INDEXJ = SP_WORD_INDEX[j];
+                if (NUM_WORDS%2) {
+                    // Grow the vector to make sure it shrinks back to exactly
+                    // 'NUM_SUBPATTERNS'+1.  Only do this for 1/2 the cases.
+                    // For the other half, we check that the vector grows to
+                    // exactly 'NUM_SUBPATTERNS'+1.
 
-                const string csWordj(&SUBJECT[vMatch[SP_WORD_INDEXJ].first],
-                                     vMatch[SP_WORD_INDEXJ].second);
-
-                if (veryVeryVerbose) {
-                    T_ T_ P_(j) P(csWordj)
+                    for (int j = 0; j < NUM_SUBPATTERNS + 10; ++j) {
+                        vMatch.push_back((bslstl::StringRef()));
+                    }
                 }
 
-                ASSERTV(LINE, csWordj,  CS_WORDJ == csWordj);
-            }
+                retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN);
+                ASSERTV(LINE, 0 == retCode);
+                ASSERTV(LINE, vMatch.size(),
+                                      NUM_SUBPATTERNS+1 == (int)vMatch.size());
 
-            if (4 == NUM_WORDS) {
-                // If NUM_WORDS is 4, that means the last subpattern was not
-                // matched (only 4 words in the subject).  So make sure that
-                // the last element in the vector contains (as per doc):
-                // pair<size_t, size_t>(-1, 0).
+                // captured substrings
+                const bslstl::StringRef& csPkg  = vMatch[SP_PKG_INDEX];
+                const bslstl::StringRef& csName = vMatch[SP_NAME_INDEX];
 
-                const pair<size_t, size_t> NOT_FOUND(-1, 0);
-                const pair<size_t, size_t> lastElement =
+                if (veryVeryVerbose) {
+                    T_ T_ P_(csPkg) P(csName)
+                }
+
+                ASSERTV(LINE, csPkg,  CS_PKG  == csPkg);
+                ASSERTV(LINE, csName, CS_NAME == csName);
+
+                for (int j = 0; j < NUM_WORDS; ++j) {
+                    const char *CS_WORDJ       = CS_WORD[j];
+                    const int   SP_WORD_INDEXJ = SP_WORD_INDEX[j];
+
+                    const bslstl::StringRef csWordj = vMatch[SP_WORD_INDEXJ];
+
+                    if (veryVeryVerbose) {
+                        T_ T_ P_(j) P(csWordj)
+                    }
+
+                    ASSERTV(LINE, csWordj,  CS_WORDJ == csWordj);
+                }
+
+                if (4 == NUM_WORDS) {
+                    // If NUM_WORDS is 4, that means the last subpattern was
+                    // not matched (only 4 words in the subject).  So make sure
+                    // that the last element in the vector contains (as per
+                    // doc): empty 'StringRef'.
+
+                    const bslstl::StringRef  NOT_FOUND;
+                    const bslstl::StringRef& lastElement =
                                                        vMatch[vMatch.size()-1];
 
-                if (veryVeryVerbose) {
-                    T_ T_ P_(lastElement.first) P(lastElement.second)
+                    if (veryVeryVerbose) {
+                        T_ T_ P(lastElement)
+                    }
+
+                    ASSERTV(LINE, lastElement, NOT_FOUND == lastElement);
                 }
+                else {
+                    // Check that the last (unnamed) substring at the end was
+                    // captured correctly.  It should be the last word in the
+                    // subject (CS_WORD[3]).
 
-                ASSERTV(LINE, lastElement.first, lastElement.second,
-                                                     NOT_FOUND == lastElement);
-            }
-            else {
-                // Check that the last (unnamed) substring at the end was
-                // captured correctly.  It should be the last word in the
-                // subject (CS_WORD[3]).
-
-                const pair<size_t, size_t> lastElement =
+                    const bslstl::StringRef csLastWord =
                                                        vMatch[vMatch.size()-1];
-                const string         csLastWord(&SUBJECT[lastElement.first],
-                                                lastElement.second);
 
-                if (veryVeryVerbose) {
-                    T_ T_ P(csLastWord)
+                    if (veryVeryVerbose) {
+                        T_ T_ P(csLastWord)
+                    }
+
+                    ASSERTV(LINE, csLastWord, CS_WORD[3] == csLastWord);
                 }
-
-                ASSERTV(LINE, csLastWord, CS_WORD[3] == csLastWord);
             }
         }
 
         if (verbose) cout << "\nEnd of Subpatterns Test." << endl;
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_DOTMATCHESALL FLAG
         //   This will test the 'k_FLAG_DOTMATCHESALL' option when compiling
@@ -1261,7 +1348,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
         Obj mX(&ta); const Obj& X = mX;   // has   'k_FLAG_DOTMATCHESALL'
         Obj mY(&ta); const Obj& Y = mY;   // !have 'k_FLAG_DOTMATCHESALL'
 
@@ -1388,7 +1476,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_UTF8 FLAG
         //   This will test the 'k_FLAG_UTF8' option when compiling regular
@@ -1420,7 +1508,7 @@ int main(int argc, char *argv[])
                           << "TESTING k_FLAG_UTF8 FLAG" << endl
                           << "========================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         static const struct {
             int            d_lineNum;         // source line number
@@ -1448,8 +1536,8 @@ int main(int argc, char *argv[])
                 P_(LINE) P(PATTERN)
             }
 
-            Obj mX(&testAllocator); const Obj& X = mX;  // has   'k_FLAG_UTF8'
-            Obj mY(&testAllocator); const Obj& Y = mY;  // !have 'k_FLAG_UTF8'
+            Obj mX(&ta); const Obj& X = mX;  // has   'k_FLAG_UTF8'
+            Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_UTF8'
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -1500,7 +1588,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_MULTILINE FLAG
         //   This will test the 'k_FLAG_MULTILINE' option when compiling
@@ -1539,7 +1627,7 @@ int main(int argc, char *argv[])
                           << "TESTING k_FLAG_MULTILINE FLAG" << endl
                           << "=============================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         const char PATTERN[]             = "^bbasm_SecurityCache$";
         const char SUBJECT_SINGLE_LINE[] = "bbasm_SecurityCache";
@@ -1565,8 +1653,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&testAllocator); const Obj& X = mX;  // has 'k_FLAG_MULTILINE'
-        Obj mY(&testAllocator); const Obj& Y = mY;  // !have 'k_FLAG_MULTILINE'
+        Obj mX(&ta); const Obj& X = mX;  // has 'k_FLAG_MULTILINE'
+        Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_MULTILINE'
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -1697,7 +1785,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_CASELESS FLAG
         //   This will test the 'k_FLAG_CASELESS' option when compiling regular
@@ -1731,7 +1819,7 @@ int main(int argc, char *argv[])
                           << "TESTING k_FLAG_CASELESS FLAG" << endl
                           << "============================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         const char PATTERN[]           = "bbasm_SecurityCache";
         const char SUBJECT_SAME_CASE[] = "bbasm_SecurityCache";
@@ -1749,8 +1837,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&testAllocator); const Obj& X = mX;  // has   'k_FLAG_CASELESS'
-        Obj mY(&testAllocator); const Obj& Y = mY;  // !have 'k_FLAG_CASELESS'
+        Obj mX(&ta); const Obj& X = mX;  // has   'k_FLAG_CASELESS'
+        Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_CASELESS'
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -1868,7 +1956,7 @@ int main(int argc, char *argv[])
             ASSERTV(vMatch[0].second, LEN == vMatch[0].second);
         }
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'flags' METHOD
         //   This will test that the options passed to the 'prepare' method are
@@ -1890,7 +1978,7 @@ int main(int argc, char *argv[])
                           << "======================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::TestAllocator testAllocator("test", veryVeryVerbose);
+        bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard guard(&da);
 
@@ -1899,7 +1987,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting a valid pattern." << endl;
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
             ASSERTV(X.flags(), 0 == X.flags());
@@ -1953,6 +2041,266 @@ int main(int argc, char *argv[])
         }
         ASSERTV(da.numAllocations(), 0 == da.numAllocations());
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING EXTENDED 'match' METHODS
+        //   This will test the extended 'match' methods.
+        //
+        // Concerns:
+        //: 1 Although we are not testing the implementation of the PCRE
+        //:   library, we want to check that the interface is plugged in
+        //:   correctly and works as documented.  In particular, we want to
+        //:   check that the 'subject', 'subjectLength', and 'subjectStart'
+        //:   arguments are passed to PCRE correctly and the resulting
+        //:   'ovector' is copied correctly to the 'result'.  Also we want to
+        //:   make sure that a failure code is returned when the subject does
+        //:   not match the pattern.
+        //
+        // Plan:
+        //: 1 Prepare a regular expression object using a given 'PATTERN'
+        //:   string, create a set of subjects that contain a single match for
+        //:   'PATTERN'.  The set should contain subjects of increasing length,
+        //:   and also increasing match offsets ('matchOffset').
+        //:
+        //: 2 Exercise the 'match' methods using 'subjectStart' values in the
+        //:   range [0..'subjectLength'].  Check that the methods succeed when
+        //:   'subjectStart' <= 'matchOffset' and they fail when
+        //:   'subjectStart' > 'matchOffset'.  For each successful call to
+        //:   'match', check that 'result' contains the correct 'StringRef'
+        //:   for the captured string.  Note that captured substrings are
+        //:   tested in later test case.
+        //:
+        //: 3 Finally, exercise the special case where 'subjectLength' is 0.
+        //
+        // Testing:
+        //   int match(bslstl::StringRef*, ...) const;
+        //   int match(bsl::vector<bslstl::StringRef>*, ...) const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING EXTENDED 'match' METHOD" << endl
+                          << "===============================" << endl;
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+        const char PATTERN[] = "(a(b(c)?)?)";  // matches 'a', 'ab', or 'abc'
+
+        static const struct {
+            int         d_lineNum;      // source line number
+            const char *d_subject;      // subject string
+            size_t      d_matchOffset;  // match offset
+            const char *d_matchString;  // matched string
+        } DATA[] = {
+            //line   subject       matchOffset       matchString
+            //----   -------       -----------       -----------
+
+            // subject length = 1
+            { L_,    "a",          0,                "a"         },
+
+            // subject length = 2
+            { L_,    "ab",         0,                "ab"        },
+            { L_,    "aZ",         0,                "a"         },
+            { L_,    "ba",         1,                "a"         },
+            { L_,    "Za",         1,                "a"         },
+
+            // subject length = 3
+            { L_,    "abb",        0,                "ab"        },
+            { L_,    "abc",        0,                "abc"       },
+            { L_,    "abZ",        0,                "ab"        },
+            { L_,    "acZ",        0,                "a"         },
+            { L_,    "aZZ",        0,                "a"         },
+            { L_,    "ZaZ",        1,                "a"         },
+            { L_,    "Zab",        1,                "ab"        },
+            { L_,    "ZZa",        2,                "a"         },
+
+            // subject length = 4
+            { L_,    "aZZZ",       0,                "a"         },
+            { L_,    "abZZ",       0,                "ab"        },
+            { L_,    "abcZ",       0,                "abc"       },
+            { L_,    "ZaZZ",       1,                "a"         },
+            { L_,    "ZabZ",       1,                "ab"        },
+            { L_,    "Zabc",       1,                "abc"       },
+            { L_,    "ZZaZ",       2,                "a"         },
+            { L_,    "ZZab",       2,                "ab"        },
+            { L_,    "ZZZa",       3,                "a"         },
+        };
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        Obj mX(&ta); const Obj& X = mX;
+
+        bsl::string errorMsg;
+        size_t      errorOffset;
+
+        int retCode = mX.prepare(&errorMsg, &errorOffset, PATTERN, 0);
+        ASSERTV(errorMsg, errorOffset, 0 == retCode);
+
+        if (verbose) {
+            cout << "\nTesting non-empty subjects." << endl;
+
+            if (veryVerbose) {
+                T_ P(PATTERN)
+            }
+        }
+
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int     LINE         = DATA[i].d_lineNum;
+            const char   *SUBJECT      = DATA[i].d_subject;
+            const size_t  MATCH_OFFSET = DATA[i].d_matchOffset;
+            const char   *MATCH_STRING = DATA[i].d_matchString;
+            const size_t  SUBJECT_LEN  = strlen(SUBJECT);
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(SUBJECT) P(MATCH_STRING)
+            }
+
+            bslstl::StringRef          match;
+            vector<bslstl::StringRef>  vMatch;
+
+            for (size_t subjectStart = 0; subjectStart <= SUBJECT_LEN;
+                                                              ++subjectStart) {
+                if (veryVeryVerbose) {
+                    T_ T_ P(subjectStart)
+                }
+
+                retCode = X.match(&match, SUBJECT, SUBJECT_LEN, subjectStart);
+
+                if (subjectStart <= MATCH_OFFSET) {
+                    ASSERTV(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING == match);
+                }
+                else {
+                    ASSERTV(LINE, subjectStart, 0 != retCode);
+                }
+
+                retCode = X.match(&vMatch, SUBJECT, SUBJECT_LEN, subjectStart);
+
+                if (subjectStart <= MATCH_OFFSET) {
+                    ASSERTV(LINE, subjectStart, 0 == retCode);
+                    ASSERTV(LINE, subjectStart, MATCH_STRING == vMatch[0]);
+                }
+                else {
+                    ASSERTV(LINE, subjectStart, 0 != retCode);
+                }
+            }
+        }
+
+        if (verbose) {
+            cout << "\nTesting empty subjects." << endl;
+        }
+
+        {
+            const char GOOD_PATTERN[]     = "(abc)*";
+            const char NOT_GOOD_PATTERN[] = "(abc)+";
+
+            Obj mGood(&ta);    const Obj& GOOD     = mGood;
+            Obj mNotGood(&ta); const Obj& NOT_GOOD = mNotGood;
+
+            if (veryVerbose) {
+                cout << "\tPreparing regular expression objects." << endl;
+            }
+
+            int retCode = mGood.prepare(&errorMsg,
+                                        &errorOffset,
+                                        GOOD_PATTERN,
+                                        0);
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+
+            retCode = mNotGood.prepare(&errorMsg,
+                                       &errorOffset,
+                                       NOT_GOOD_PATTERN,
+                                       0);
+            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+
+            if (veryVerbose) {
+                cout << "\tTesting good pattern." << endl;
+            }
+
+            bslstl::StringRef         match;
+            vector<bslstl::StringRef> vMatch;
+
+            retCode = GOOD.match(&match, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(match,   "" == match);
+
+            retCode = GOOD.match(&vMatch, "", 0);
+            ASSERT(0 == retCode);
+            ASSERTV(vMatch[0],  "" == vMatch[0]);
+
+            if (veryVerbose) {
+                cout << "\tTesting not so good pattern." << endl;
+            }
+
+            retCode = NOT_GOOD.match(&match, "", 0);
+            ASSERT(0 != retCode);
+
+            retCode = NOT_GOOD.match(&vMatch, "", 0);
+            ASSERT(0 != retCode);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            bsl::string errorMsg;
+            size_t      errorOffset;
+            const char  PATTERN[] = "(abc)*";
+            const char  SUBJECT[] = "XXXabcZZZ";
+
+            bslstl::StringRef               p, *zp = 0;
+            bsl::vector<bslstl::StringRef>  v, *zv = 0;
+
+            (void)zp;
+            (void)zv;
+
+            ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0));
+
+            // 'match' taking 'bsl::pair'
+            {
+                ASSERT_SAFE_PASS(X.match(&p, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(zp, SUBJECT,  9,  1));
+
+                ASSERT_SAFE_PASS(X.match(&p, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(&p,       0,  9,  1));
+
+                ASSERT_SAFE_PASS(X.match(&p,       0,  0,  0));
+                ASSERT_SAFE_FAIL(X.match(&p,       0,  1,  0));
+
+                ASSERT_SAFE_PASS(X.match(&p, SUBJECT,  0,  0));
+                ASSERT_SAFE_FAIL(X.match(&p, SUBJECT,  0, -1));
+
+                ASSERT_SAFE_PASS(X.match(&p, SUBJECT,  1,  1));
+                ASSERT_SAFE_FAIL(X.match(&p, SUBJECT,  1,  2));
+            }
+
+            // 'match' taking 'bsl::vector'
+            {
+                ASSERT_SAFE_PASS(X.match(&v, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(zv, SUBJECT,  9,  1));
+
+                ASSERT_SAFE_PASS(X.match(&v, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(&v,       0,  9,  1));
+
+                ASSERT_SAFE_PASS(X.match(&v,       0,  0,  0));
+                ASSERT_SAFE_FAIL(X.match(&v,       0,  1,  0));
+
+                ASSERT_SAFE_PASS(X.match(&v, SUBJECT,  0,  0));
+                ASSERT_SAFE_FAIL(X.match(&v, SUBJECT,  0, -1));
+
+                ASSERT_SAFE_PASS(X.match(&v, SUBJECT,  1,  1));
+                ASSERT_SAFE_FAIL(X.match(&v, SUBJECT,  1,  2));
+            }
+
+            // restore object to unprepared state
+            {
+                mX.clear();
+
+                ASSERT_SAFE_FAIL(X.match(&p, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(&v, SUBJECT,  9,  1));
+            }
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'match' METHODS
@@ -1988,12 +2336,14 @@ int main(int argc, char *argv[])
         //   int match(const char *subject, ...) const;
         //   int match(bsl::pair<size_t, size_t>*, ...) const;
         //   int match(bsl::vector<bsl::pair<size_t, size_t> >*, ...) const;
+        //   int match(bslstl::StringRef*, ...) const;
+        //   int match(bsl::vector<bslstl::StringRef>*, ...) const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING 'match' METHOD" << endl
                           << "======================" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         const char PATTERN[] = "(a(b(c)?)?)";  // matches 'a', 'ab', or 'abc'
 
@@ -2066,7 +2416,7 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&testAllocator); const Obj& X = mX;
+        Obj mX(&ta); const Obj& X = mX;
 
         bsl::string errorMsg;
         size_t      errorOffset;
@@ -2147,8 +2497,8 @@ int main(int argc, char *argv[])
             const char GOOD_PATTERN[]     = "(abc)*";
             const char NOT_GOOD_PATTERN[] = "(abc)+";
 
-            Obj mGood(&testAllocator);     const Obj& GOOD     = mGood;
-            Obj mNotGood(&testAllocator);  const Obj& NOT_GOOD = mNotGood;
+            Obj mGood(&ta);    const Obj& GOOD     = mGood;
+            Obj mNotGood(&ta); const Obj& NOT_GOOD = mNotGood;
 
             if (veryVerbose) {
                 cout << "\tPreparing regular expression objects." << endl;
@@ -2205,7 +2555,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj mX(&testAllocator);  const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -2333,7 +2683,7 @@ int main(int argc, char *argv[])
                           << "==================================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::TestAllocator testAllocator("test", veryVeryVerbose);
+        bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard guard(&da);
 
@@ -2343,7 +2693,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting a valid pattern." << endl;
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
@@ -2362,12 +2712,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting an invalid pattern." << endl;
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
             // Separate allocator for the error string
-            bslma::TestAllocator sa("string", veryVeryVerbose);
+            bslma::TestAllocator sa("string", veryVeryVeryVerbose);
 
             bsl::string errorMsg(&sa);
             size_t      errorOffset = 0;
@@ -2384,12 +2734,12 @@ int main(int argc, char *argv[])
             ASSERTV(errorMsg,        ""              != errorMsg);
         }
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
             // Separate allocator for the error string
-            bslma::TestAllocator sa("string", veryVeryVerbose);
+            bslma::TestAllocator sa("string", veryVeryVeryVerbose);
 
             bsl::string errorMsg(&sa);
 
@@ -2401,7 +2751,7 @@ int main(int argc, char *argv[])
             ASSERTV(errorMsg,        ""              != errorMsg);
         }
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
@@ -2416,7 +2766,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting sequential 'prepare'." << endl;
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
@@ -2440,7 +2790,7 @@ int main(int argc, char *argv[])
         }
         if (verbose) cout << "\nTesting 'clear'." << endl;
         {
-            Obj mX(&testAllocator); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
 
             ASSERT(false == X.isPrepared());
 
@@ -2603,9 +2953,9 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(&testAllocator);  const Obj& X = mX;
+        Obj mX(&ta); const Obj& X = mX;
 
         if (verbose) cout << "\nVerifying unprepared state." << endl;
 
