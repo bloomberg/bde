@@ -1678,7 +1678,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.allocate(    1));
                 ASSERT_SAFE_PASS(mX.allocateRaw( 1));
 
-                ASSERT_SAFE_FAIL(mX.allocate(    0));
+                ASSERT_SAFE_PASS(mX.allocate(    0));
                 ASSERT_SAFE_FAIL(mX.allocateRaw( 0));
             }
         }

@@ -474,14 +474,11 @@ void SequentialPool::release()
 
     d_unavailable = d_alwaysUnavailable;
 
-    for (int i = 0; i < k_NUM_GEOMETRIC_BIN; ++i) {
-        uint64_t binMask = static_cast<uint64_t>(1) << i;
-        if (binMask & d_allocated) {
-            d_allocator_p->deallocate(d_geometricBin[i]);
-        }
+    while (d_allocated) {
+        int i = bdlb::BitUtil::numTrailingUnsetBits(d_allocated);
+        d_allocator_p->deallocate(d_geometricBin[i]);
+        d_allocated = bdlb::BitUtil::withBitCleared(d_allocated, i);
     }
-
-    d_allocated = 0;
     
     // Return all blocks allocated outside the constant and growth strategies
     // to the underlying allocator.
