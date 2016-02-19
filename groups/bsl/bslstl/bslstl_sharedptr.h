@@ -4095,7 +4095,7 @@ struct SharedPtr_DefaultDeleter {
 
 struct SharedPtr_ImpUtil {
     // This 'struct' should be used by only 'shared_ptr' constructors. Its
-    // purpose is to enable shared_ptr constructors to determine the if the
+    // purpose is to enable 'shared_ptr' constructors to determine if the
     // (template parameter) types 'COMPATIBLE_TYPE' or 'ELEMENT_TYPE' have a
     // specialization of 'enable_shared_from_this' as an unambiguous, publicly
     // accessible, base class.
@@ -4526,6 +4526,11 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
                                               managedPtr.deleter().deleter()) {
             d_rep_p = static_cast<BloombergLP::bslma::SharedPtrRep *>
                                        (managedPtr.release().second.factory());
+        }
+        else if (&BloombergLP::bslma::SharedPtrRep::managedPtrEmptyDeleter ==
+                                              managedPtr.deleter().deleter()) {
+            d_rep_p = 0;
+            managedPtr.release();
         }
         else {
             basicAllocator =
@@ -5468,16 +5473,15 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
 {
     if (d_rep_p && d_ptr_p) {
         d_rep_p->acquireRef();
+        return BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>(d_ptr_p,
+                                                            d_rep_p,
+                         &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
     }
 
-    // Note that it is safe to pass 'd_rep_p' without increment when 'd_ptr_p'
-    // is null, as 'bslma::ManagedPtr' does not call the deleter when pointing
-    // to null.  There is no need for additional branching for special cases.
-
-    BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> ptr(d_ptr_p,
-                                                     d_rep_p,
-                         &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
-    return ptr;
+    return BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>(
+                     d_ptr_p,
+                    (BloombergLP::bslma::SharedPtrRep *)0,
+                    &BloombergLP::bslma::SharedPtrRep::managedPtrEmptyDeleter);
 }
 
 template <class ELEMENT_TYPE>
