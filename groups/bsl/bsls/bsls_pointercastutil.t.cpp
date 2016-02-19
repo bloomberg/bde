@@ -69,6 +69,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bsls::PointerCastUtil Util;
+extern "C" typedef int (*printf_t)(const char *, ...);
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -*
@@ -203,8 +204,6 @@ int main(int argc, char *argv[])
       }
 
       {
-          typedef int (*printf_t)(const char *, ...);
-
           const printf_t  original = std::printf;
           void           *as_void_p = Util::cast<void *>(original);
           const printf_t  restored = Util::cast<printf_t>(as_void_p);
