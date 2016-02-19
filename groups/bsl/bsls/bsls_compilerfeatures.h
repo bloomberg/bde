@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
-//  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default' 
+//  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default'
 //  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: explicit '= deleted'
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
 //  BSLS_COMPILERFEATURES_SUPPORT_FINAL: flag for 'final' keyword
@@ -29,10 +29,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
+//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has <type_traits> header
 //  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for 'char(16|32)_t'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
-//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
-//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has <type_traits> header
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
 //
@@ -135,16 +134,6 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
-//:     This macro is defined if the 'noexcept' keyword is supported by the
-//:     current compiler settings for this platform, both for designating a
-//:     function as not throwing and for testing if an expression may throw.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
-//:     This macro is defined if the <type_traits> header is provided by the
-//:     current compiler settings for this platform and supports traits like
-//:     'is_trivially_copyable' and 'is_nothrow_destructible'
 //
 ///Usage
 ///-----
