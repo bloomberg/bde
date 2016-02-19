@@ -99,12 +99,12 @@ BSLS_IDENT("$Id: $")
 //
 // The 'bdlf::Bind' functors support 'bslma::Allocator *' arguments.  When
 // binders are constructed by the 'bdlf::BindUtil::bind' (and 'bindR') factory
-// methods, the currently installed default allocator isused.  When binders are
-// constructed by the 'bdlf::BindUtil::bindS' (and 'bindSR') factory methods,
-// the non-optional, user-supplied allocator is used both for the creation of
-// the bound functor arguments and for the reference counting mechanism that
-// manages those arguments.  See the section "Binding with allocators" below
-// for a more detailed discussion.
+// methods, the currently installed default allocator is used.  When binders
+// are constructed by the 'bdlf::BindUtil::bindS' (and 'bindSR') factory
+// methods, the non-optional, user-supplied allocator is used both for the
+// creation of the bound functor arguments and for the reference counting
+// mechanism that manages those arguments.  See the section "Binding with
+// allocators" below for a more detailed discussion.
 //
 ///Elementary Construction and Usage of 'bdlf::Bind' Objects
 ///---------------------------------------------------------
@@ -389,10 +389,10 @@ BSLS_IDENT("$Id: $")
 // 'bdlf::BindUtil::bind' or 'bdlf::BindUtil::bindR', *not* the allocator of
 // the original object.
 //
-// For keeping the same allocator, pass the object by address to the binder
-// instead.  See the section "Binding with allocators" and the usage example
-// sections "Binding to Function Objects" and "Binding to Function Objects by
-// Reference" below.
+// For keeping the same allocator, pass the object by address to the binder, or
+// call 'bindS' or 'bindSR' instead.  See the section "Binding with allocators"
+// and the usage example sections "Binding to Function Objects" and "Binding to
+// Function Objects by Reference" below.
 //
 // CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
@@ -475,8 +475,8 @@ BSLS_IDENT("$Id: $")
 // the latter cases, the non-optional, user-supplied allocator is passed to the
 // copy constructors of the bound functor and arguments.
 //
-// Note that the invocation arguments, passed to the binder at invocation time,
-// are passed "as is" to the bound functor, and are not copied if the bound
+// When invoking a bound functor object, the (unbound) arguments are passed "as
+// is" to the bound functor.  Those arguments are not copied if the bound
 // functor takes them by modifiable or non-modifiable reference.
 //
 // In order to make clear where the allocation occurs, we will wrap "p3" into a
@@ -531,15 +531,15 @@ BSLS_IDENT("$Id: $")
 //      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 //      const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
-// We now create a shared binder object with 'allocator' using 'bindS'.  If the
-// bound object were an instance of a class taking an allocator, then
-// 'allocator' would be passed to its copy constructor; in this case.  In this
-// case, 'allocator' will be used to make the copy of 'myString' held by the
-// binder:
+// We now create a shared binder object with 'allocator' using 'bindS':
 //..
 //      callBinder(
 //            bdlf::BindUtil::bindS(&allocator, &invocable, _1, _2, myString));
 //..
+// When the bound object is an instance of a class taking an allocator, then
+// 'allocator' is be passed to its copy constructor as occurs in this example.
+// Here 'allocator' is used to make the copy of 'myString' held by the binder.
+//
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
@@ -811,7 +811,7 @@ BSLS_IDENT("$Id: $")
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound functor (using
-// 'FUNC::ResultType'), the binder needs an explicitly specification.  This is
+// 'typename FUNC::ResultType'), the binder needs an explicitly specification.  This is
 // done by using the 'bdlf::BindUtil::bindR' function template as exemplified
 // below:
 //..
@@ -1621,7 +1621,7 @@ class BindWrapper {
 
 struct BindUtil {
     // This 'struct' provides a namespace for utility functions used to
-    // construct 'Bind' and 'BindWrapper objects.  Four families of factory
+    // construct 'Bind' and 'BindWrapper' objects.  Four families of factory
     // methods are provided: 'bind', 'bindR', 'bindS', and 'bindSR'.
     // All factory methods accept an invocable object, optionally followed by
     // up to fourteen additional arguments.  Each argument can be either a
@@ -1633,10 +1633,11 @@ struct BindUtil {
     // object with the specified bound functor and bound arguments.  Memory for
     // copying the bound functor and bound arguments is supplied by the user
     // specified allocator if 'bindS', or 'bindSR' is used, or the currently
-    // installed default allocator.  The return type is inferred by using
-    // 'bslmf::FunctionPointerTraits' for free functions references and
-    // pointers, 'bslmf::MemberFunctionPointerTraits' for member function
-    // pointers, and 'FUNC::ResultType' for a functor of type 'FUNC'.
+    // installed default allocator, if 'bind' or 'bindR' is used.  The return
+    // type is inferred by using 'bslmf::FunctionPointerTraits' for free
+    // function references and pointers, 'bslmf::MemberFunctionPointerTraits'
+    // for member function pointers, and 'typenname FUNC::ResultType' for a functor of
+    // type 'FUNC'.
     //
     // The 'bindR' and 'bindSR' variations must be used when binding to an
     // object for which a result type cannot be automatically determined.
@@ -4626,7 +4627,7 @@ template <class FUNC>
 struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     // Function traits for function objects that are passed by value without
     // explicit result type specification.  The result type is determined to
-    // the 'FUNC::ResultType'.
+    // the 'typename FUNC::ResultType'.
 
     // ENUMERATIONS
     enum {
@@ -4706,7 +4707,7 @@ struct Bind_FuncTraits
     // This 'struct' provides various traits of the functor type 'FUNC'
     // documented below.  If 'RET' is 'bslmf::Nil', then the return type is
     // inferred by using either 'bslmf::FunctionPointerTraits',
-    // 'bslmf::MemberFunctionPointerTraits', or 'FUNC::result_type' as
+    // 'bslmf::MemberFunctionPointerTraits', or 'typename FUNC::result_type' as
     // appropriate.
     //..
     // // ENUMERATIONS
