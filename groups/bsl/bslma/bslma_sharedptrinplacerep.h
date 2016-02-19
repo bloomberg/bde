@@ -447,34 +447,66 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // referred to by this representation object.
 };
 
-                            //==================
-                            // SharedPtr_ImpUtil
-                            //==================
+                        //============================
+                        // SharedPtrInplaceRep_ImpUtil
+                        //============================
 
 struct SharedPtrInplaceRep_ImpUtil {
+    // This struct provides a namespace for several static methods that ease
+    // the implementation of many methods of the 'SharedPtrInplaceRep' class.
+
+    // CLASS METHODS
     template <class TYPE>
-    static void *voidify(TYPE *address) {
-        return static_cast<void *>(
-                const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-    }
+    static const TYPE& forward(const TYPE& reference);
+    template <class TYPE>
+    static BloombergLP::bslmf::MovableRef<TYPE> forward(
+                        const BloombergLP::bslmf::MovableRef<TYPE>& reference);
+        // Return the specified 'reference'.  Note that this pair of overloaded
+        // functions is necessary to correctly forward movable references when
+        // providing explicit move-semantics for C++03; otherwise the
+        // 'MovableRef' is likely to be wrapped in multiple layers of reference
+        // wrappers, and not be recognized as the movable vocabulary type.
 
     template <class TYPE>
-    static
-    const TYPE& forward(const TYPE& a1) { return a1; }
-
-    template <class TYPE>
-    static
-    ::BloombergLP::bslmf::MovableRef<TYPE>
-    forward(const ::BloombergLP::bslmf::MovableRef<TYPE>& a1) { return a1; }
+    static void *voidify(TYPE *address);
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // (the template parameter) 'TYPE' is cv-qualified.
 };
 
 // ============================================================================
 //              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class SharedPtrInplaceRep
-                      // -------------------------
+
+                        // ---------------------------
+                        // SharedPtrInplaceRep_ImpUtil
+                        // ---------------------------
+
+template <class TYPE>
+inline
+const TYPE& SharedPtrInplaceRep_ImpUtil::forward(const TYPE& reference)
+{
+    return reference;
+}
+
+template <class TYPE>
+inline
+BloombergLP::bslmf::MovableRef<TYPE> SharedPtrInplaceRep_ImpUtil::forward(
+                         const BloombergLP::bslmf::MovableRef<TYPE>& reference)
+{
+    return reference;
+}
+
+template <class TYPE>
+inline
+void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
+}
+
+                        // -------------------------
+                        // class SharedPtrInplaceRep
+                        // -------------------------
 
 // CREATORS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)

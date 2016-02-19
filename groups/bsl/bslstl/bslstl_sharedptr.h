@@ -602,9 +602,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // the ISO C++11 standard)).  Its interface is limited to the set of operations
 // that can be implemented by an implementation of the C++03 language, e,g.,
 // there is no specific support for rvalue references.  It does not support the
-// atomic shared pointer interface, nor does it collaborate with types that
-// derive from 'std::enable_shared_this': using 'shared_ptr' with such types
-// will result in (very destructive) undefined behavior.
+// atomic shared pointer interface.
 //
 // This component supports allocators following the 'bslma::Allocator' protocol
 // in addition to the C++ Standard Allocators (section 17.6.3.5,
@@ -1463,6 +1461,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
 #endif
@@ -1984,6 +1986,10 @@ class shared_ptr {
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.  Note that if 'managedPtr' is empty, then an
         // empty shared pointer is created and 'basicAllocator' is ignored.
+        // Also note that if 'managedPtr' owns a reference to another shared
+        // object (due to a previous call to 'shared_ptr<T>::managedPtr') then
+        // no memory will be allocated, and this 'shared_ptr' will adopt the
+        // 'ManagedPtr's ownership of that shared object.
 
     template <class COMPATIBLE_TYPE>
     explicit shared_ptr(
@@ -2782,8 +2788,12 @@ class shared_ptr {
 
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
         // Return a managed pointer that refers to the same object as this
-        // shared pointer and that has a deleter that decrements the reference
-        // count for the shared object.
+        // shared pointer.  If this shared pointer is not empty, and is not
+        // null, then increment the shared count on the shared object, and give
+        // the managed pointer a deleter that decrements the reference count
+        // for the shared object.  Note that if this 'shared_ptr' is reference-
+        // counting a null pointer, the empty 'bslma::ManagedPtr' returned will
+        // not participate in that shared ownership.
 
     BloombergLP::bslma::SharedPtrRep *rep() const;
         // Return the address providing modifiable access to the
@@ -3879,7 +3889,6 @@ class enable_shared_from_this {
     mutable bsl::weak_ptr<ELEMENT_TYPE> d_weakThis;
 
   protected:
-
     // CREATORS
     enable_shared_from_this();
         // Create an 'enable_shared_from_this' object that is not owned by any
@@ -3953,53 +3962,6 @@ void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
 
 namespace BloombergLP {
 namespace bslstl {
-
-                            //==================
-                            // SharedPtr_ImpUtil
-                            //==================
-
-struct SharedPtr_ImpUtil {
-    // This struct should be used by only 'shared_ptr' constructors. Its
-    // purpose is to enable shared_ptr constructors to determine the if the
-    // (template parameter) types 'COMPATIBLE_TYPE' or 'ELEMENT_TYPE' have a
-    // specialization of 'enable_shared_from_this' as an unambiguous, publicly
-    // accessible, base class.
-
-    template<class SHARED_TYPE, class ENABLE_TYPE>
-    static void loadEnableSharedFromThis(
-                   const bsl::enable_shared_from_this<ENABLE_TYPE> *result,
-                   bsl::shared_ptr<SHARED_TYPE>                    *sharedPtr);
-        // If the data member 'd_weakThis' of the specified 'result' has
-        // expired, then set it to refer to the object managed by the specified
-        // 'sharedPtr'; otherwise (i.e., 'd_weakThis' has not expired) this
-        // method has no effect.  This function shall be called only by
-        // 'shared_ptr' constructors creating shared pointers for classes that
-        // derive publicly and unambiguously from a specialization of
-        // 'enabled_shared_from_this'.  Note that overload resolution will
-        // select the overload below if a supplied type does not derive from a
-        // specialization of 'enable_shared_from_this'.
-
-    static void loadEnableSharedFromThis(const void *, const void *);
-        // Do nothing.  This overload is selected, rather than the immediately
-        // preceding template, when the 'SHARED_TYPE' template type parameter
-        // of 'shared_ptr<SHARED_TYPE>' does not derive from a specialization
-        // of 'enable_shared_from_this'.
-
-    template <class TYPE>
-    static void *voidify(TYPE *address) {
-        return static_cast<void *>(
-                const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-    }
-
-    template <class TYPE>
-    static
-    const TYPE& forward(const TYPE& a1) { return a1; }
-
-    template <class TYPE>
-    static
-    ::BloombergLP::bslmf::MovableRef<TYPE>
-    forward(const ::BloombergLP::bslmf::MovableRef<TYPE>& a1) { return a1; }
-};
 
                             // ====================
                             // struct SharedPtrUtil
@@ -4100,9 +4062,9 @@ struct SharedPtrUtil {
         // 'static_cast<TARGET *>(source.get())' is a valid expression.
 };
 
-                         // ==========================
-                         // struct SharedPtrNilDeleter
-                         // ==========================
+                        // ==========================
+                        // struct SharedPtrNilDeleter
+                        // ==========================
 
 struct SharedPtrNilDeleter {
     // This 'struct' provides a function-like shared pointer deleter that does
@@ -4113,9 +4075,9 @@ struct SharedPtrNilDeleter {
         // No-Op.
 };
 
-                       // ===============================
-                       // struct SharedPtr_DefaultDeleter
-                       // ===============================
+                        // ===============================
+                        // struct SharedPtr_DefaultDeleter
+                        // ===============================
 
 struct SharedPtr_DefaultDeleter {
     // This 'struct' provides a function-like shared pointer deleter that
@@ -4125,6 +4087,55 @@ struct SharedPtr_DefaultDeleter {
     template <class ANY_TYPE>
     void operator()(ANY_TYPE *ptr) const;
         // Call 'delete' with the specified 'ptr'.
+};
+
+                        //=========================
+                        // struct SharedPtr_ImpUtil
+                        //=========================
+
+struct SharedPtr_ImpUtil {
+    // This 'struct' should be used by only 'shared_ptr' constructors. Its
+    // purpose is to enable shared_ptr constructors to determine the if the
+    // (template parameter) types 'COMPATIBLE_TYPE' or 'ELEMENT_TYPE' have a
+    // specialization of 'enable_shared_from_this' as an unambiguous, publicly
+    // accessible, base class.
+
+    // CLASS METHODS
+    template <class TYPE>
+    static const TYPE& forward(const TYPE& reference);
+    template <class TYPE>
+    static BloombergLP::bslmf::MovableRef<TYPE> forward(
+                        const BloombergLP::bslmf::MovableRef<TYPE>& reference);
+        // Return the specified 'reference'.  Note that this pair of overloaded
+        // functions is necessary to correctly forward movable references when
+        // providing explicit move-semantics for C++03; otherwise the
+        // 'MovableRef' is likely to be wrapped in multiple layers of reference
+        // wrappers, and not be recognized as the movable vocabulary type.
+
+    template<class SHARED_TYPE, class ENABLE_TYPE>
+    static void loadEnableSharedFromThis(
+                   const bsl::enable_shared_from_this<ENABLE_TYPE> *result,
+                   bsl::shared_ptr<SHARED_TYPE>                    *sharedPtr);
+        // If the data member 'd_weakThis' of the specified 'result' has
+        // expired, then set it to refer to the object managed by the specified
+        // 'sharedPtr'; otherwise (i.e., 'd_weakThis' has not expired) this
+        // method has no effect.  This function shall be called only by
+        // 'shared_ptr' constructors creating shared pointers for classes that
+        // derive publicly and unambiguously from a specialization of
+        // 'enabled_shared_from_this'.  Note that overload resolution will
+        // select the overload below if a supplied type does not derive from a
+        // specialization of 'enable_shared_from_this'.
+
+    static void loadEnableSharedFromThis(const void *, const void *);
+        // Do nothing.  This overload is selected, rather than the immediately
+        // preceding template, when the 'SHARED_TYPE' template type parameter
+        // of 'shared_ptr<SHARED_TYPE>' does not derive from a specialization
+        // of 'enable_shared_from_this'.
+
+    template <class TYPE>
+    static void *voidify(TYPE *address);
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // (the template parameter) 'TYPE' is cv-qualified.
 };
 
                         // ==========================
@@ -4594,10 +4605,8 @@ shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_CPP11_NOEXCEPT
 : d_ptr_p(other.d_ptr_p)
 , d_rep_p(other.d_rep_p)
 {
-    if (d_ptr_p) {
+    if (d_rep_p) {
         d_rep_p->acquireRef();
-    } else {
-        d_rep_p = 0;
     }
 }
 
@@ -5457,9 +5466,14 @@ template <class ELEMENT_TYPE>
 BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::managedPtr() const
 {
-    if (d_rep_p) {
+    if (d_rep_p && d_ptr_p) {
         d_rep_p->acquireRef();
     }
+
+    // Note that it is safe to pass 'd_rep_p' without increment when 'd_ptr_p'
+    // is null, as 'bslma::ManagedPtr' does not call the deleter when pointing
+    // to null.  There is no need for additional branching for special cases.
+
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> ptr(d_ptr_p,
                                                      d_rep_p,
                          &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
@@ -5711,6 +5725,21 @@ namespace bslstl {
                             // SharedPtr_ImpUtil
                             // -----------------
 
+template <class TYPE>
+inline
+const TYPE& SharedPtr_ImpUtil::forward(const TYPE& reference)
+{
+    return reference;
+}
+
+template <class TYPE>
+inline
+BloombergLP::bslmf::MovableRef<TYPE> SharedPtr_ImpUtil::forward(
+                         const BloombergLP::bslmf::MovableRef<TYPE>& reference)
+{
+    return reference;
+}
+
 template <class SHARED_TYPE, class ENABLE_TYPE>
 inline
 void SharedPtr_ImpUtil::loadEnableSharedFromThis(
@@ -5732,6 +5761,13 @@ inline
 void bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(const void *,
                                                          const void *)
 {
+}
+
+template <class TYPE>
+inline
+void *SharedPtr_ImpUtil::voidify(TYPE *address) {
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
 }
 
                             // --------------------
@@ -6691,7 +6727,6 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
 
     BloombergLP::bslma::Allocator *basicAllocator =
