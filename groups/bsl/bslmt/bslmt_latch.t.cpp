@@ -1426,9 +1426,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'CTOR'" << endl;
             {
-                ASSERT_PASS(Obj(     1));
-                ASSERT_PASS(Obj(     0));
-                ASSERT_FAIL_RAW(Obj(-1));
+                ASSERT_SAFE_PASS(Obj( 1));
+                ASSERT_SAFE_PASS(Obj( 0));
+                ASSERT_SAFE_FAIL(Obj(-1));
             }
 
             if (veryVerbose) cout << "\t'countDown'" << endl;
