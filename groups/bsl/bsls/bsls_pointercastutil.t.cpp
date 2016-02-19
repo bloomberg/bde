@@ -191,14 +191,27 @@ int main(int argc, char *argv[])
       if (verbose) printf("\nTESTING 'cast'"
                           "\n==============\n");
 
-      typedef void (*assert_t)(bool, const char *, int);
+      {
+          typedef void (*assert_t)(bool, const char *, int);
 
-      const assert_t  original = aSsErT;
-      void           *as_void_p = Util::cast<void *>(original);
-      const assert_t  restored = Util::cast<assert_t>(as_void_p);
+          const assert_t  original = aSsErT;
+          void           *as_void_p = Util::cast<void *>(original);
+          const assert_t  restored = Util::cast<assert_t>(as_void_p);
 
-      ASSERT(aSsErT == original);
-      ASSERT(aSsErT == restored);
+          ASSERT(aSsErT == original);
+          ASSERT(aSsErT == restored);
+      }
+
+      {
+          typedef int (*printf_t)(const char *, ...);
+
+          const printf_t  original = std::printf;
+          void           *as_void_p = Util::cast<void *>(original);
+          const printf_t  restored = Util::cast<printf_t>(as_void_p);
+
+          ASSERT(std::printf == original);
+          ASSERT(std::printf == restored);
+      }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide function to cast between function and data pointers.
 //
 //@CLASSES:
-//  bsls::PointerCastUtil: namespace for pointer-casting functions
+//  bsls::PointerCastUtil: namespace for pointer-casting function
 //
 //@DESCRIPTION: This component, 'bsls::PointerCastUtil', provides a utility
 // function to allow casting between function and data pointers without
@@ -97,12 +97,12 @@ struct PointerCastUtil {
     // CLASS METHODS
     template <class TO, class FROM>
     static TO cast(FROM from);
-        // Return the specified 'from' cast to type 'To', casting it in two
+        // Return the specified 'from' cast to type 'TO', casting it in two
         // steps, first to an integer type the size of a pointer and then to
         // the target type.  This function is intended to be used to cast
         // between function and data pointers, as doing such a cast directly
-        // was once not legal.  The behavior is undefined if either the 'From'
-        // or 'To' types are larger than the intermediate integer type.
+        // was once not legal.  The behavior is undefined if either the 'FROM'
+        // or 'TO' types are larger than the intermediate integer type.
 };
 
 }  // close package namespace
@@ -113,6 +113,7 @@ TO bsls::PointerCastUtil::cast(FROM from)
 {
     BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(FROM));
     BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(TO));
+
     return reinterpret_cast<TO>(reinterpret_cast<bsls::Types::IntPtr>(from));
 }
 
