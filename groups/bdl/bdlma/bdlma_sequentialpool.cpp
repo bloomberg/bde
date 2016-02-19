@@ -47,10 +47,6 @@ namespace bdlma {
                            // class SequentialPool
                            // --------------------
 
-// CLASS DATA
-const SequentialPool::GeometricBins
-                             SequentialPool::s_geometricBinsInitializer = {{}};
-
 // PRIVATE MANIPULATORS
 void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
 {
@@ -104,14 +100,13 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
                 // Use memory from the geometric strategy.  If needed, allocate
                 // a block of memory.
 
-                char *& bin = d_geometricBins.d_bin[index];
+                char *&  bin           = d_geometricBin[index];
+                uint64_t allocatedSize = static_cast<uint64_t>(1) << index;
 
-                bsls::Types::size_type allocatedSize =
-                               static_cast<bsls::Types::size_type>(1) << index;
-
-                if (0 == bin) {
+                if (0 == (d_allocated & allocatedSize)) {
                     bin = reinterpret_cast<char *>(
                                        d_allocator_p->allocate(allocatedSize));
+                    d_allocated |= allocatedSize;
                 }
                 d_bufferManager.replaceBuffer(bin, allocatedSize);
 
@@ -144,12 +139,12 @@ SequentialPool::SequentialPool(bslma::Allocator *basicAllocator)
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -161,12 +156,12 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -180,12 +175,12 @@ SequentialPool::SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -198,12 +193,12 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                    static_cast<uint64_t>(k_INITIAL_SIZE)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -216,12 +211,12 @@ SequentialPool::SequentialPool(int initialSize)
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint64_t>(initialSize)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(0))
@@ -236,12 +231,12 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint64_t>(initialSize)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -257,12 +252,12 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint64_t>(initialSize)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -280,12 +275,12 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint64_t>(initialSize)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -302,12 +297,12 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                       static_cast<uint64_t>(initialSize)) - 1))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -325,7 +320,6 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
@@ -333,6 +327,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
                                     static_cast<uint64_t>(maxBufferSize + 1))))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -350,7 +345,6 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 : d_bufferManager()
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
@@ -358,6 +352,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
                                     static_cast<uint64_t>(maxBufferSize + 1))))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -377,7 +372,6 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
@@ -385,6 +379,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
                                     static_cast<uint64_t>(maxBufferSize + 1))))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -403,7 +398,6 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
@@ -411,6 +405,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
                                     static_cast<uint64_t>(maxBufferSize + 1))))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -433,7 +428,6 @@ SequentialPool::SequentialPool(
 : d_bufferManager(alignmentStrategy)
 , d_head_p(0)
 , d_freeListPrevAddr_p(&d_head_p)
-, d_geometricBins(s_geometricBinsInitializer)
 , d_alwaysUnavailable(
                (static_cast<uint64_t>(-1) << k_NUM_GEOMETRIC_BIN)
              | (bdlb::BitUtil::roundUpToBinaryPower(
@@ -441,6 +435,7 @@ SequentialPool::SequentialPool(
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
                                     static_cast<uint64_t>(maxBufferSize + 1))))
 , d_unavailable(d_alwaysUnavailable)
+, d_allocated(0)
 , d_largeBlockList_p(0)
 , d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
             ? 0
@@ -480,12 +475,14 @@ void SequentialPool::release()
     d_unavailable = d_alwaysUnavailable;
 
     for (int i = 0; i < k_NUM_GEOMETRIC_BIN; ++i) {
-        char *& bin = d_geometricBins.d_bin[i];
-
-        d_allocator_p->deallocate(bin);
-        bin = 0;
+        uint64_t binMask = static_cast<uint64_t>(1) << i;
+        if (binMask & d_allocated) {
+            d_allocator_p->deallocate(d_geometricBin[i]);
+        }
     }
 
+    d_allocated = 0;
+    
     // Return all blocks allocated outside the constant and growth strategies
     // to the underlying allocator.
 
@@ -538,13 +535,13 @@ void SequentialPool::reserveCapacity(bsls::Types::size_type numBytes)
             // Use memory from the geometric strategy.  If needed, allocate a
             // block of memory.
 
-            char *& bin = d_geometricBins.d_bin[index];
+            char *&  bin           = d_geometricBin[index];
+            uint64_t allocatedSize = static_cast<uint64_t>(1) << index;
 
-            if (0 == bin) {
-                bsls::Types::size_type allocatedSize =
-                               static_cast<bsls::Types::size_type>(1) << index;
+            if (0 == (d_allocated & allocatedSize)) {
                 bin = reinterpret_cast<char *>(
                                        d_allocator_p->allocate(allocatedSize));
+                d_allocated |= allocatedSize;
             }
         }
         else {

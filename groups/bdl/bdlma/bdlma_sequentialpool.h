@@ -372,19 +372,6 @@ class SequentialPool {
                                    // growth strategy
     };
 
-    struct GeometricBins {
-        // This 'struct' is used to optimize the construction time of the
-        // object with regard to initializing 'd_geometricBins'.
-
-        char *d_bin[k_NUM_GEOMETRIC_BIN];
-    };
-
-    // CLASS DATA
-    static const GeometricBins     s_geometricBinsInitializer;
-                                                     // used for fast
-                                                     // initialization of
-                                                     // 'd_geometricBins'
-
     // DATA
     BufferManager                  d_bufferManager;  // memory manager for
                                                      // current buffer
@@ -398,7 +385,8 @@ class SequentialPool {
                                                      // memory available for
                                                      // use (which may be 0)
 
-    GeometricBins                  d_geometricBins;  // memory allocated for
+    char                          *d_geometricBin[k_NUM_GEOMETRIC_BIN];
+                                                     // memory allocated for
                                                      // geometric growth
                                                      // strategy
 
@@ -413,6 +401,9 @@ class SequentialPool {
     uint64_t                       d_unavailable;    // bitmask of bins
                                                      // unavailable for
                                                      // supplying memory
+
+    uint64_t                       d_allocated;      // bitmask of bins
+                                                     // with allocated memory
 
     Block                         *d_largeBlockList_p;
                                                      // address of 1st block of
