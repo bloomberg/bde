@@ -811,9 +811,9 @@ BSLS_IDENT("$Id: $")
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound functor (using
-// 'typename FUNC::ResultType'), the binder needs an explicitly specification.  This is
-// done by using the 'bdlf::BindUtil::bindR' function template as exemplified
-// below:
+// 'typename FUNC::ResultType'), the binder needs an explicit specification.
+// This is done by using the 'bdlf::BindUtil::bindR' function template as
+// exemplified below:
 //..
 //  typedef void GlobalResultType;
 //  struct MyCallbackObjectWithoutResultType {
@@ -1636,8 +1636,8 @@ struct BindUtil {
     // installed default allocator, if 'bind' or 'bindR' is used.  The return
     // type is inferred by using 'bslmf::FunctionPointerTraits' for free
     // function references and pointers, 'bslmf::MemberFunctionPointerTraits'
-    // for member function pointers, and 'typenname FUNC::ResultType' for a functor of
-    // type 'FUNC'.
+    // for member function pointers, and 'typenname FUNC::ResultType' for a
+    // functor of type 'FUNC'.
     //
     // The 'bindR' and 'bindSR' variations must be used when binding to an
     // object for which a result type cannot be automatically determined.
