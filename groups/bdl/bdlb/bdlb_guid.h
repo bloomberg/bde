@@ -20,10 +20,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a value-semantic type for Globally
 // Unique Identifiers (GUIDs), 'bdlb::Guid', with format as described by RFC
-// 4122 (<http://http://www.ietf.org/rfc/rfc4122.txt>).  All equality and
-// comparison methods are defined for these GUIDs.  Note that this component
-// does not provide the facilities to generate GUIDs, and thus makes no
-// guarantees of uniqueness or randomness.
+// 4122 ('http://www.ietf.org/rfc/rfc4122.txt').  All equality and comparison
+// methods are defined for these GUIDs.  Note that this component does not
+// provide the facilities to generate GUIDs, and thus makes no guarantees of
+// uniqueness or randomness.
 //
 ///Usage
 ///-----
