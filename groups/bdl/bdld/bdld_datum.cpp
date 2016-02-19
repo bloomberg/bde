@@ -1397,7 +1397,7 @@ bool bdld::operator==(const Datum& lhs, const Datum& rhs)
     }
 }
 
-bsl::ostream& bdld::operator<<(bsl::ostream& stream, const Datum::DataType rhs)
+bsl::ostream& bdld::operator<<(bsl::ostream& stream, Datum::DataType rhs)
 {
     return stream << Datum::dataTypeToAscii(rhs);
 }
