@@ -106,6 +106,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timeunitratio.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -156,6 +160,8 @@ class Time {
     friend bool operator<=(const Time&, const Time&);
     friend bool operator>=(const Time&, const Time&);
     friend bool operator> (const Time&, const Time&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const Time&);
 
   public:
     // CLASS METHODS
@@ -375,6 +381,13 @@ class Time {
 };
 
 // FREE OPERATORS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Time& time);
+    // Pass the specified 'time' to the specified 'hashAlg'.  Note that this
+    // function is intended to integrate with the 'bslh' modular hashing
+    // system, and effectively provides a 'bsl::hash' specialization for
+    // 'time'.
+
 Time operator+(const Time& lhs, const DatetimeInterval& rhs);
     // Return a 'Time' value that is the sum of the specified 'lhs' time and
     // the specified 'rhs' datetime interval.
@@ -618,6 +631,13 @@ STREAM& Time::bdexStreamOut(STREAM& stream, int version) const
 }  // close package namespace
 
 // FREE OPERATORS
+template <typename HASHALG>
+void bdlt::hashAppend(HASHALG& hashAlg, const Time& time)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, time.d_milliseconds);
+}
+
 inline
 bdlt::Time bdlt::operator+(const Time& lhs, const DatetimeInterval& rhs)
 {
