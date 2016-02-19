@@ -1461,10 +1461,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
-#include <bslma_allocatortraits.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
 #endif
@@ -1539,10 +1535,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MOVABLEREF
