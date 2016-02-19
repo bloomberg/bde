@@ -1,5 +1,23 @@
-bsl-internal (2.25.0.0) unstable; urgency=low
+bsl-internal (2.25.2.0) unstable; urgency=low
 
+  * 2553154 Merge pull request #100 from mgiroux/bump-patchversion-to-2.25.2
+  * 4a31c23 bump patchversion to 2.25.2
+  * 76ee5c8 Merge pull request #97 from ameredit/feature/2_5_fix_C_includes_drqs76458497
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 5 Jan 2016 09:46:31 -0500
+
+bsl-internal (2.25.0.1) git; urgency=low
+
+  * 0305635 Changelog for version 2.25.0.1
+  * 4bce6d8 Changelog for version 2.25.0.1
+  * 556681c Merge pull request #87 from mgiroux/review/add-missing-bsls-compilerfeatures-includes-drqs-75487826
+  * 5667f4d Merge pull request #86 from mgiroux/review/add-delegatingdateimputil-stubs-drqs-75487826
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Dec 2015 17:00:26 -0500
+
+bsl-internal (2.25.0.0) git; urgency=low
+
+  * 1dd5aec Changelog for version 2.25.0.0
   * d63113c Merge pull request #81 from hversche/fix-bslmf_typelist-2.x
   * 9ece826 Merge pull request #80 from hversche/merge-vc2015-rebase
   * 8845b1b Merge pull request #79 from mgiroux/remove-bdlb_nullablevalue-from-2.25
@@ -21,7 +39,7 @@ bsl-internal (2.25.0.0) unstable; urgency=low
   * f42a0de Merge pull request #17 from nmyers12/allocator-rewind-drqs-61957786
   * e1fb878 Merge pull request #11 from hversche/update-C++11-library-feature-detection-drqs-72948281-rebase-2.24
 
- -- Henry Verschell <hverschell@bloomberg.net>  Wed, 9 Dec 2015 14:24:16 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Dec 2015 14:31:02 -0500
 
 bsl-internal (2.24.4.0) git; urgency=low
 
