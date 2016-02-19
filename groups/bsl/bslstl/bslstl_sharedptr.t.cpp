@@ -3477,8 +3477,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\tBasic usage\n");
         {
             ShareThis stackThis(&destructorCount);
-#if defined(BDE_BUILD_TARGET_EXC)
             {
+#if defined(BDE_BUILD_TARGET_EXC)
                 // Test exception thrown when not yet owned by a 'shared_ptr'
                 bool caughtException = false;
                 try {
@@ -3501,8 +3501,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\tBasic usage with 'const' element type\n");
         {
             const ShareThis stackThis(&destructorCount);
-#if defined(BDE_BUILD_TARGET_EXC)
             {
+#if defined(BDE_BUILD_TARGET_EXC)
                 // Test exception thrown when not yet owned by a 'shared_ptr'
                 bool caughtException = false;
                 try {
@@ -3524,8 +3524,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\tBasic usage of most-derived type\n");
         {
             ShareThisDerived stackThis(&destructorCount);
-#if defined(BDE_BUILD_TARGET_EXC)
             {
+#if defined(BDE_BUILD_TARGET_EXC)
                 // Test exception thrown when not yet owned by a 'shared_ptr'
                 bool caughtException = false;
                 try {
@@ -3547,8 +3547,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\tBasic usage of 'const' most-derived type\n");
         {
             const ShareThisDerived stackThis(&destructorCount);
-#if defined(BDE_BUILD_TARGET_EXC)
             {
+#if defined(BDE_BUILD_TARGET_EXC)
                 // Test exception thrown when not yet owned by a 'shared_ptr'
                 bool caughtException = false;
                 try {
@@ -3573,8 +3573,8 @@ int main(int argc, char *argv[])
                                               new ShareThis(&destructorCount));
             SharedPtr unownedPtr(SharedPtr(), originalPtr.get());
 
-#if defined(BDE_BUILD_TARGET_EXC)
             {
+#if defined(BDE_BUILD_TARGET_EXC)
                 // Test exception thrown when not yet owned by a 'shared_ptr'
                 bool caughtException = false;
                 try {
