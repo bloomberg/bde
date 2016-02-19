@@ -2712,7 +2712,7 @@ struct Bind_Tuple1 : bslmf::TypeList1<A1>
     // This 'struct' stores a list of one argument.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2735,8 +2735,8 @@ struct Bind_Tuple2 : bslmf::TypeList2<A1,A2>
     // This 'struct' stores a list of two arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2762,9 +2762,9 @@ struct Bind_Tuple3 : bslmf::TypeList3<A1,A2,A3>
     // This 'struct' stores a list of three arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2793,10 +2793,10 @@ struct Bind_Tuple4 : bslmf::TypeList4<A1,A2,A3,A4>
     // This 'struct' stores a list of four arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2828,11 +2828,11 @@ struct Bind_Tuple5 : bslmf::TypeList5<A1,A2,A3,A4,A5>
     // This 'struct' stores a list of five arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type FA5;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2867,12 +2867,12 @@ struct Bind_Tuple6 : bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     // This 'struct' stores a list of six arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type FA6;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2910,13 +2910,13 @@ struct Bind_Tuple7 : bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     // This 'struct' stores a list of seven arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type FA7;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -2959,14 +2959,14 @@ struct Bind_Tuple8 : bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     // This 'struct' stores a list of eight arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type FA8;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type FA8;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -3013,15 +3013,15 @@ struct Bind_Tuple9 : bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     // This 'struct' stores a list of nine arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type FA9;
+    typedef typename bslmf::ForwardingType<A1>::Type FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type FA9;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1> d_a1;
@@ -3072,16 +3072,16 @@ struct Bind_Tuple10 : bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This 'struct' stores a list of ten arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ForwardingType<A10>::Type FA10;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1>  d_a1;
@@ -3134,17 +3134,17 @@ struct Bind_Tuple11 : bslmf::TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This 'struct' stores a list of eleven arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ForwardingType<A11>::Type FA11;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1>  d_a1;
@@ -3200,18 +3200,18 @@ struct Bind_Tuple12 : bslmf::TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This 'struct' stores a list of twelve arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ForwardingType<A12>::Type FA12;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1>  d_a1;
@@ -3271,19 +3271,19 @@ struct Bind_Tuple13 : bslmf::TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This 'struct' stores a list of thirteen arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf::ConstForwardingType<A13>::Type FA13;
+    typedef typename bslmf::ForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ForwardingType<A13>::Type FA13;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1>  d_a1;
@@ -3347,20 +3347,20 @@ struct Bind_Tuple14 : bslmf::TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This 'struct' stores a list of fourteen arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf::ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf::ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf::ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf::ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf::ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf::ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf::ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf::ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf::ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf::ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf::ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf::ConstForwardingType<A13>::Type FA13;
-    typedef typename bslmf::ConstForwardingType<A14>::Type FA14;
+    typedef typename bslmf::ForwardingType<A1>::Type  FA1;
+    typedef typename bslmf::ForwardingType<A2>::Type  FA2;
+    typedef typename bslmf::ForwardingType<A3>::Type  FA3;
+    typedef typename bslmf::ForwardingType<A4>::Type  FA4;
+    typedef typename bslmf::ForwardingType<A5>::Type  FA5;
+    typedef typename bslmf::ForwardingType<A6>::Type  FA6;
+    typedef typename bslmf::ForwardingType<A7>::Type  FA7;
+    typedef typename bslmf::ForwardingType<A8>::Type  FA8;
+    typedef typename bslmf::ForwardingType<A9>::Type  FA9;
+    typedef typename bslmf::ForwardingType<A10>::Type FA10;
+    typedef typename bslmf::ForwardingType<A11>::Type FA11;
+    typedef typename bslmf::ForwardingType<A12>::Type FA12;
+    typedef typename bslmf::ForwardingType<A13>::Type FA13;
+    typedef typename bslmf::ForwardingType<A14>::Type FA14;
 
     // INSTANCE DATA
     Bind_TupleValue<FA1>  d_a1;
