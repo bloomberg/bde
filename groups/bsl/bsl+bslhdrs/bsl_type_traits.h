@@ -54,6 +54,12 @@ BSLS_IDENT("$Id: $")
 // We then detect specific platforms that may lack some elements of support,
 // and undefine the support-macro for just those cases.
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1600
+#  define BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
+#  undef BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#  undef BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 50000
 #  undef BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
 #endif
@@ -83,10 +89,13 @@ namespace bsl
     using native_std::is_trivial;
     using native_std::is_standard_layout;
     using native_std::is_pod;
+#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
     using native_std::is_literal_type;
+#endif
     using native_std::is_abstract;
     using native_std::is_signed;
     using native_std::is_unsigned;
+#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
     using native_std::is_constructible;
     using native_std::is_default_constructible;
     using native_std::is_copy_constructible;
@@ -95,6 +104,7 @@ namespace bsl
     using native_std::is_copy_assignable;
     using native_std::is_move_assignable;
     using native_std::is_destructible;
+#endif
 #if defined(BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS)
     using native_std::is_trivially_constructible;
     using native_std::is_trivially_copy_constructible;
@@ -103,6 +113,7 @@ namespace bsl
     using native_std::is_trivially_copy_assignable;
     using native_std::is_trivially_move_assignable;
 #endif
+#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
     using native_std::is_trivially_destructible;
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
@@ -112,6 +123,7 @@ namespace bsl
     using native_std::is_nothrow_copy_assignable;
     using native_std::is_nothrow_move_assignable;
     using native_std::is_nothrow_destructible;
+#endif
     using native_std::has_virtual_destructor;
 
     // 20.10.5, type property queries:
@@ -134,8 +146,10 @@ namespace bsl
 #endif
     using native_std::decay;
     using native_std::common_type;
+#if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
     using native_std::underlying_type;
     using native_std::result_of;
+#endif
 
 #if __cplusplus >= 201402L
     using native_std::is_null_pointer;
