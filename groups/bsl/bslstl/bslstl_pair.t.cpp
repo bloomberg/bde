@@ -14,6 +14,10 @@
 
 #include <bslmf_issame.h>
 
+#include <stdio.h>       // printf
+#include <stdlib.h>      // atoi
+#include <string.h>      // strcmp
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

@@ -2,6 +2,7 @@
 
 #include <bsls_cpp11.h>
 
+#include <stdlib.h>
 #include <cstdlib>
 #include <iostream>
 
