@@ -50,6 +50,7 @@ bsls_objectbuffer
 bsls_performancehint
 bsls_platform
 bsls_platformutil
+bsls_pointercastutil
 bsls_protocoltest
 bsls_spinlock
 bsls_stopwatch
