@@ -60,7 +60,7 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
                                  d_allocator_p);
 
         BSLS_ASSERT(d_maxBlockSize <=
-                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
 
         d_maxBlockSize *= 2;
     }
@@ -96,7 +96,7 @@ void Multipool::initialize(
                                  d_allocator_p);
 
         BSLS_ASSERT(d_maxBlockSize <=
-                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
 
         d_maxBlockSize *= 2;
     }
@@ -130,7 +130,7 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy  growthStrategy,
                                  d_allocator_p);
 
         BSLS_ASSERT(d_maxBlockSize <=
-                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
 
         d_maxBlockSize *= 2;
     }
@@ -166,7 +166,7 @@ void Multipool::initialize(
                                  d_allocator_p);
 
         BSLS_ASSERT(d_maxBlockSize <=
-                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
 
         d_maxBlockSize *= 2;
     }
