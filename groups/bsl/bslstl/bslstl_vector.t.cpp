@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
-
+#include <string.h>      // strlen
 
 using namespace BloombergLP;
 using namespace bsl;

@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <stdlib.h>      // atoi
 #include <string.h>
 
 // ============================================================================

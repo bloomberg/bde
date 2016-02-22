@@ -30,6 +30,8 @@
 #include <bsltf_testvaluesarray.h>
 #include <bsltf_stdtestallocator.h>
 
+#include <stdlib.h>      // atoi
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
