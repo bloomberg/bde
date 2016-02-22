@@ -473,7 +473,7 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
         // to its integer part.  If it's small enough (using 1e-17, generously
         // below the 1e-16 computed above), skip the verification.
         double dn, r;
-        r = modf(d, &dn);
+        r = bsl::modf(d, &dn);
         if ((dn != 0 && r / dn < 1e-17) || r == 0) {
             return rv;                                                // RETURN
         }

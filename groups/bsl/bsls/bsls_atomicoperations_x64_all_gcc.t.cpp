@@ -2,6 +2,7 @@
 
 #include <bsls_atomicoperations_x64_all_gcc.h>
 
+#include <stdlib.h>
 #include <cstdlib>
 #include <iostream>
 
