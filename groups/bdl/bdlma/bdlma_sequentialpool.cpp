@@ -479,7 +479,7 @@ void SequentialPool::release()
         d_allocator_p->deallocate(d_geometricBin[i]);
         d_allocated = bdlb::BitUtil::withBitCleared(d_allocated, i);
     }
-    
+
     // Return all blocks allocated outside the constant and growth strategies
     // to the underlying allocator.
 

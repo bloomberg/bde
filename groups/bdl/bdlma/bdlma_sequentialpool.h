@@ -402,8 +402,8 @@ class SequentialPool {
                                                      // unavailable for
                                                      // supplying memory
 
-    uint64_t                       d_allocated;      // bitmask of bins
-                                                     // with allocated memory
+    uint64_t                       d_allocated;      // bitmask of bins with
+                                                     // allocated memory
 
     Block                         *d_largeBlockList_p;
                                                      // address of 1st block of
