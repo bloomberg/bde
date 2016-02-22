@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlma_concurrentallocatoradapter.h>
 
 #include <bslim_testutil.h>
@@ -53,7 +52,7 @@ using namespace bsl;  // automatically added by script
 // [2] bdlma::ConcurrentAllocatorAdapter(int               numPools,
 //                                         bslma::Allocator *ba = 0);
 // [2] ~bdlma::ConcurrentAllocatorAdapter();
-// [3] void *allocate(int size);
+// [3] void *allocate(bsls::Types::size_type size);
 // [4] void deallocate(void *address);
 // [5] void release();
 // [6] void reserveCapacity(int size, int numObjects);
@@ -545,7 +544,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -101,6 +101,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -116,25 +120,25 @@ class HeapBypassAllocator : public bslma::Allocator {
     // freed.
 
     // PRIVATE TYPES
-    struct BufferHeader;                      // implementation detail
+    struct BufferHeader;                        // implementation detail
 
     // DATA
-    size_type             d_pageSize;         // virtual memory page size
+    bsls::Types::size_type  d_pageSize;         // virtual memory page size
 
-    BufferHeader         *d_firstBuffer_p;    // first buffer in linked list
+    BufferHeader           *d_firstBuffer_p;    // first buffer in linked list
 
-    BufferHeader         *d_currentBuffer_p;  // last buffer in linked list,
-                                              // also current buffer for
-                                              // allocations
+    BufferHeader           *d_currentBuffer_p;  // last buffer in linked list,
+                                                // also current buffer for
+                                                // allocations
 
-    char                 *d_cursor_p;         // pointer into current buffer,
-                                              // where next allocation will
-                                              // come from
+    char                   *d_cursor_p;         // pointer into current buffer,
+                                                // where next allocation will
+                                                // come from
 
-    const char           *d_endOfBuffer_p;    // end of current buffer
+    const char             *d_endOfBuffer_p;    // end of current buffer
 
-    size_type             d_alignment;        // max memory alignment of
-                                              // platform
+    bsls::Types::size_type  d_alignment;        // max memory alignment of
+                                                // platform
 
   private:
     // NOT IMPLEMENTED
@@ -143,12 +147,12 @@ class HeapBypassAllocator : public bslma::Allocator {
 
   private:
     // PRIVATE CLASS METHODS
-    static char *map(size_type size);
+    static char *map(bsls::Types::size_type size);
         // Return a pointer to a newly allocated buffer of memory that is at
         // least the specified 'size' (in bytes) on success, and a 0 value
         // otherwise.
 
-    static void unmap(void *address, size_type size);
+    static void unmap(void *address, bsls::Types::size_type size);
         // Release a buffer of memory that starts at the specified 'address'
         // and has the specified 'size' (in bytes).  The behavior is undefined
         // unless 'address' is the value returned from a previous call to
@@ -156,7 +160,7 @@ class HeapBypassAllocator : public bslma::Allocator {
         // created by that same call to 'map'.
 
     // PRIVATE MANIPULATORS
-    int replenish(size_type size);
+    int replenish(bsls::Types::size_type size);
         // Obtain an additional buffer of memory for this object, a multiple of
         // the page size in length, and at least large enough to allow
         // allocation of a segment of the specified 'size'.  Return 0 on
@@ -172,7 +176,7 @@ class HeapBypassAllocator : public bslma::Allocator {
         // has allocated.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Allocate a buffer of memory having the specified 'size' (in bytes),
         // and alignment defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT',
         // from virtual memory.  Return the address of the allocated memory on
@@ -188,7 +192,7 @@ class HeapBypassAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

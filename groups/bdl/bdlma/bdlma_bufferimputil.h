@@ -102,14 +102,19 @@ BSLS_IDENT("$Id: $")
 //      // by the pool and released when the pool is destroyed.
 //
 //      // DATA
-//      char      *d_buffer_p;    // pointer to current buffer
-//      int        d_bufferSize;  // size (in bytes) of the current buffer
-//      int        d_cursor;      // byte offset to unused memory in buffer
-//      BlockList  d_blockList;   // used to replenish memory
+//      char                   *d_buffer_p;    // pointer to current buffer
+//
+//      bsls::Types::size_type  d_bufferSize;  // size (in bytes) of the
+//                                             // current buffer
+//
+//      bsls::Types::IntPtr     d_cursor;      // byte offset to unused memory
+//                                             // in buffer
+//
+//      BlockList               d_blockList;   // used to replenish memory
 //
 //    private:
 //      // PRIVATE MANIPULATORS
-//      void replenishBuffer(int size);
+//      void replenishBuffer(bsls::Types::size_type size);
 //          // Replenish the current buffer with memory that satisfies an
 //          // allocation request having at least the specified 'size' (in
 //          // bytes).
@@ -126,7 +131,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this memory pool and release all associated memory.
 //
 //      // MANIPULATORS
-//      void *allocate(int size);
+//      void *allocate(bsls::Types::size_type size);
 //          // Return the address of a contiguous block of naturally-aligned
 //          // memory of the specified 'size' (in bytes).  The behavior is
 //          // undefined unless '0 < size'.
@@ -136,7 +141,7 @@ BSLS_IDENT("$Id: $")
 // 'allocate' alone is sufficient to illustrate the use of
 // 'bdlma::BufferImpUtil':
 //..
-//  void *my_SequentialPool::allocate(int size)
+//  void *my_SequentialPool::allocate(bsls::Types::size_type size)
 //  {
 //      assert(0 < size);
 //
@@ -175,6 +180,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -187,10 +196,10 @@ struct BufferImpUtil {
     // allocating memory from a buffer.
 
     // CLASS METHODS
-    static void *allocateFromBuffer(int                       *cursor,
+    static void *allocateFromBuffer(bsls::Types::IntPtr       *cursor,
                                     char                      *buffer,
-                                    int                        bufferSize,
-                                    int                        size,
+                                    bsls::Types::size_type     bufferSize,
+                                    bsls::Types::size_type     size,
                                     bsls::Alignment::Strategy  strategy);
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' having the specified 'bufferSize' (in bytes) at
@@ -199,13 +208,14 @@ struct BufferImpUtil {
         // 'buffer' contains sufficient available memory, and 0 otherwise.  The
         // 'cursor' is set to the first byte position immediately after the
         // allocated memory if there is sufficient memory, and not modified
-        // otherwise.  The behavior is undefined unless '0 <= bufferSize',
-        // '0 < size', '0 <= *cursor', and '*cursor <= bufferSize'.
+        // otherwise.  The behavior is undefined unless '0 < size',
+        // '0 <= *cursor', and '*cursor <= bufferSize'.
 
-    static void *allocateMaximallyAlignedFromBuffer(int  *cursor,
-                                                    char *buffer,
-                                                    int   bufferSize,
-                                                    int   size);
+    static void *allocateMaximallyAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size);
         // Allocate a maximally-aligned memory block of the specified 'size'
         // (in bytes) from the specified 'buffer' having the specified
         // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
@@ -213,13 +223,14 @@ struct BufferImpUtil {
         // sufficient available memory, and 0 otherwise.  The 'cursor' is set
         // to the first byte position immediately after the allocated memory if
         // there is sufficient memory, and not modified otherwise.  The
-        // behavior is undefined unless '0 <= bufferSize', '0 < size',
-        // '0 <= *cursor', and '*cursor <= bufferSize'.
+        // behavior is undefined unless '0 < size', '0 <= *cursor', and
+        // '*cursor <= bufferSize'.
 
-    static void *allocateNaturallyAlignedFromBuffer(int  *cursor,
-                                                    char *buffer,
-                                                    int   bufferSize,
-                                                    int   size);
+    static void *allocateNaturallyAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size);
         // Allocate a naturally-aligned memory block of the specified 'size'
         // (in bytes) from the specified 'buffer' having the specified
         // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
@@ -227,13 +238,14 @@ struct BufferImpUtil {
         // sufficient available memory, and 0 otherwise.  The 'cursor' is set
         // to the first byte position immediately after the allocated memory if
         // there is sufficient memory, and not modified otherwise.  The
-        // behavior is undefined unless '0 <= bufferSize', '0 < size',
-        // '0 <= *cursor', and '*cursor <= bufferSize'.
+        // behavior is undefined unless '0 < size', '0 <= *cursor', and
+        // '*cursor <= bufferSize'.
 
-    static void *allocateOneByteAlignedFromBuffer(int  *cursor,
-                                                  char *buffer,
-                                                  int   bufferSize,
-                                                  int   size);
+    static void *allocateOneByteAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size);
         // Allocate a 1-byte-aligned memory block of the specified 'size' (in
         // bytes) from the specified 'buffer' having the specified 'bufferSize'
         // (in bytes) at the specified 'cursor' position.  Return the address
@@ -241,12 +253,12 @@ struct BufferImpUtil {
         // available memory, and 0 otherwise.  The 'cursor' is set to the first
         // byte position immediately after the allocated memory if there is
         // sufficient memory, and not modified otherwise.  The behavior is
-        // undefined unless '0 <= bufferSize', '0 < size', '0 <= *cursor', and
+        // undefined unless '0 < size', '0 <= *cursor', and
         // '*cursor <= bufferSize'.
 
-    static void *allocateFromBufferRaw(int                       *cursor,
+    static void *allocateFromBufferRaw(bsls::Types::IntPtr       *cursor,
                                        char                      *buffer,
-                                       int                        size,
+                                       bsls::Types::size_type     size,
                                        bsls::Alignment::Strategy  strategy);
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' at the specified 'cursor' position, using the
@@ -256,9 +268,10 @@ struct BufferImpUtil {
         // unless '0 < size', 'buffer' contains sufficient available memory,
         // and 'cursor' refers to a valid position in 'buffer'.
 
-    static void *allocateMaximallyAlignedFromBufferRaw(int  *cursor,
-                                                       char *buffer,
-                                                       int   size);
+    static void *allocateMaximallyAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size);
         // Allocate a maximally-aligned memory block of the specified 'size'
         // (in bytes) from the specified 'buffer' at the specified 'cursor'
         // position.  Return the address of the allocated memory block.  The
@@ -267,9 +280,10 @@ struct BufferImpUtil {
         // 'buffer' contains sufficient available memory, and 'cursor' refers
         // to a valid position in 'buffer'.
 
-    static void *allocateNaturallyAlignedFromBufferRaw(int  *cursor,
-                                                       char *buffer,
-                                                       int   size);
+    static void *allocateNaturallyAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size);
         // Allocate a naturally-aligned memory block of the specified 'size'
         // (in bytes) from the specified 'buffer' at the specified 'cursor'
         // position.  Return the address of the allocated memory block.  The
@@ -278,9 +292,10 @@ struct BufferImpUtil {
         // 'buffer' contains sufficient available memory, and 'cursor' refers
         // to a valid position in 'buffer'.
 
-    static void *allocateOneByteAlignedFromBufferRaw(int  *cursor,
-                                                     char *buffer,
-                                                     int   size);
+    static void *allocateOneByteAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size);
         // Allocate a 1-byte-aligned memory block of the specified 'size' (in
         // bytes) from the specified 'buffer' at the specified 'cursor'
         // position.  Return the address of the allocated memory block.  The
@@ -296,7 +311,7 @@ struct BufferImpUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

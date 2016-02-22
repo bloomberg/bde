@@ -42,18 +42,18 @@ BSLS_IDENT("$Id: $")
 //  class my_StrPool {
 //
 //      // DATA
-//      int               d_blockSize;  // size of current memory block
+//      bsls::Types::size_type  d_blockSize;  // size of current memory block
 //
-//      char             *d_block_p;    // current free memory block
+//      char                   *d_block_p;    // current free memory block
 //
-//      int               d_cursor;     // offset to next available byte in
-//                                      // block
+//      bsls::Types::IntPtr     d_cursor;     // offset to next available byte
+//                                            // in block
 //
-//      bdlma::BlockList  d_blockList;  // supplies managed memory blocks
+//      bdlma::BlockList        d_blockList;  // supplies managed memory blocks
 //
 //    private:
 //      // PRIVATE MANIPULATORS
-//      void *allocateBlock(int numBytes);
+//      void *allocateBlock(bsls::Types::size_type numBytes);
 //          // Request a new memory block of at least the specified 'numBytes'
 //          // size and allocate the initial 'numBytes' from this block.
 //          // Return the address of the allocated memory.
@@ -74,10 +74,9 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object and release all associated memory.
 //
 //      // MANIPULATORS
-//      void *allocate(int numBytes);
+//      void *allocate(bsls::Types::size_type numBytes);
 //          // Allocate the specified 'numBytes' of memory and return its
 //          // address.  If 'numBytes' is 0, return 0 with no other effect.
-//          // The behavior is undefined unless '0 <= numBytes'.
 //
 //      void release();
 //          // Release all memory currently allocated through this object.
@@ -105,7 +104,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // PRIVATE MANIPULATORS
-//  void *my_StrPool::allocateBlock(int numBytes)
+//  void *my_StrPool::allocateBlock(bsls::Types::size_type numBytes)
 //  {
 //      assert(0 < numBytes);
 //
@@ -141,10 +140,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  void *my_StrPool::allocate(int numBytes)
+//  void *my_StrPool::allocate(bsls::Types::size_type numBytes)
 //  {
-//      assert(0 <= numBytes);
-//
 //      if (0 == numBytes) {
 //          return 0;                                                 // RETURN
 //      }
@@ -185,6 +182,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -243,11 +244,11 @@ class BlockList {
         // managed by this object.
 
     // MANIPULATORS
-    void *allocate(int size);
+    void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes).  If 'size' is 0, no memory is allocated and 0 is
         // returned.  The returned memory is guaranteed to be maximally
-        // aligned.  The behavior is undefined unless '0 <= size'.
+        // aligned.
 
     void deallocate(void *address);
         // Return the memory at the specified 'address' back to the associated
@@ -282,7 +283,7 @@ BlockList::BlockList(bslma::Allocator *basicAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

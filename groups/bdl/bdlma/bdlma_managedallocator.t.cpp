@@ -12,6 +12,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_protocoltest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
@@ -124,7 +125,7 @@ class my_SecurityAttributes;
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing the 'bdlma::ManagedAllocator' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'bdlma::ManagedAllocator' interface is especially useful for allocators
 // that are based on an underlying pooling mechanism (e.g., 'bdlma::Multipool'
 // or 'bdlma::BufferedSequentialPool').  In particular, such an allocator that
@@ -150,9 +151,14 @@ class my_SecurityAttributes;
         // the 'bdlma::ManagedAllocator' protocol.
 
         // DATA
-        char *d_buffer_p;    // external buffer (held, not owned)
-        int   d_bufferSize;  // size (in bytes) of external buffer
-        int   d_cursor;      // offset to next available byte in buffer
+        char                   *d_buffer_p;    // external buffer (held, not
+                                               // owned)
+
+        bsls::Types::size_type  d_bufferSize;  // size (in bytes) of external
+                                               // buffer
+
+        bsls::Types::IntPtr     d_cursor;      // offset to next available byte
+                                               // in buffer
 
       private:
         // NOT IMPLEMENTED
@@ -161,7 +167,7 @@ class my_SecurityAttributes;
 
       public:
         // CREATORS
-        my_BufferAllocator(char *buffer, size_type bufferSize);
+        my_BufferAllocator(char *buffer, bsls::Types::size_type bufferSize);
             // Create a buffer allocator for allocating maximally-aligned
             // memory blocks from the specified external 'buffer' having the
             // specified 'bufferSize' (in bytes).
@@ -170,7 +176,7 @@ class my_SecurityAttributes;
             // Destroy this buffer allocator.
 
         // MANIPULATORS
-        void *allocate(size_type size);
+        void *allocate(bsls::Types::size_type size);
             // Return the address of a maximally-aligned contiguous block of
             // memory of the specified 'size' (in bytes) on success, and 0 if
             // the allocation request exceeds the remaining free memory space
@@ -192,9 +198,10 @@ class my_SecurityAttributes;
 //..
     // CREATORS
     inline
-    my_BufferAllocator::my_BufferAllocator(char *buffer, size_type bufferSize)
+    my_BufferAllocator::my_BufferAllocator(char                   *buffer,
+                                           bsls::Types::size_type  bufferSize)
     : d_buffer_p(buffer)
-    , d_bufferSize(static_cast<int>(bufferSize))
+    , d_bufferSize(bufferSize)
     , d_cursor(0)
     {
     }
@@ -220,10 +227,10 @@ class my_SecurityAttributes;
 
     // STATIC HELPER FUNCTIONS
     static
-    void *allocateFromBufferImp(int  *cursor,
-                                char *buffer,
-                                int   bufferSize,
-                                int   size)
+    void *allocateFromBufferImp(bsls::Types::IntPtr    *cursor,
+                                char                   *buffer,
+                                bsls::Types::size_type  bufferSize,
+                                bsls::Types::size_type  size)
         // Allocate a maximally-aligned memory block of the specified 'size'
         // (in bytes) from the specified 'buffer' having the specified
         // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
@@ -231,8 +238,8 @@ class my_SecurityAttributes;
         // sufficient available memory, and 0 otherwise.  The 'cursor' is set
         // to the first byte position immediately after the allocated memory if
         // there is sufficient memory, and not modified otherwise.  The
-        // behavior is undefined unless '0 <= bufferSize', '0 < size',
-        // '0 <= *cursor', and '*cursor <= bufferSize'.
+        // behavior is undefined unless '0 < size', '0 <= *cursor', and
+        // '*cursor <= bufferSize'.
 
     {
         const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -255,7 +262,7 @@ class my_SecurityAttributes;
     }
 
     // MANIPULATORS
-    void *my_BufferAllocator::allocate(size_type size)
+    void *my_BufferAllocator::allocate(bsls::Types::size_type size)
     {
         return 0 == size ? 0 : allocateFromBufferImp(&d_cursor,
                                                      d_buffer_p,
@@ -677,7 +684,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

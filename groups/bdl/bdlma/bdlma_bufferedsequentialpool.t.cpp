@@ -201,24 +201,6 @@ static int blockSize(int numBytes)
     return numBytes;
 }
 
-//-----------------------------------------------------------------------------
-
-static int calculateNextSize(int currSize, int size)
-{
-    ASSERT(0 < currSize);
-    ASSERT(0 < size);
-
-    if (0 == currSize) {
-        return 0;                                                     // RETURN
-    }
-
-    do {
-        currSize *= 2;
-    } while (currSize < size);
-
-    return currSize;
-}
-
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1542,7 +1524,7 @@ int main(int argc, char *argv[])
                 mX.allocate(k_ALLOC_SIZE1);
                 void *addr = mX.allocate(k_ALLOC_SIZE2);
 
-                int cursor = 0;
+                bsls::Types::IntPtr cursor = 0;
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
@@ -1566,7 +1548,7 @@ int main(int argc, char *argv[])
                 mX.allocate(k_ALLOC_SIZE1);
                 void *addr = mX.allocate(k_ALLOC_SIZE2);
 
-                int cursor = 0;
+                bsls::Types::IntPtr cursor = 0;
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,
@@ -1592,7 +1574,7 @@ int main(int argc, char *argv[])
                 mX.allocate(k_ALLOC_SIZE1);
                 void *addr = mX.allocate(k_ALLOC_SIZE2);
 
-                int cursor = 0;
+                bsls::Types::IntPtr cursor = 0;
                 bdlma::BufferImpUtil::allocateFromBuffer(
                                             &cursor,
                                             buffer,
@@ -1617,7 +1599,7 @@ int main(int argc, char *argv[])
             mX.allocate(k_ALLOC_SIZE1);
             void *addr = mX.allocate(k_ALLOC_SIZE2);
 
-            int cursor = 0;
+            bsls::Types::IntPtr cursor = 0;
             bdlma::BufferImpUtil::allocateFromBuffer(
                                                 &cursor,
                                                 buffer,

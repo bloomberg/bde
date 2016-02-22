@@ -272,7 +272,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Performance of a 'bdlma::MultipoolAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::MultipoolAllocator' can greatly improve efficiency when it is used
 // to supply memory to node-based data structures that frequently both insert
 // and remove nodes, while growing to significant size before being destroyed.
@@ -624,6 +624,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -757,7 +761,7 @@ class MultipoolAllocator : public ManagedAllocator {
         // allocator is released.
 
     // MANIPULATORS
-    void reserveCapacity(size_type size, size_type numObjects);
+    void reserveCapacity(bsls::Types::size_type size, int numObjects);
         // Reserve memory from this multipool allocator to satisfy memory
         // requests for at least the specified 'numObjects' having the
         // specified 'size' (in bytes) before the pool replenishes.  If 'size'
@@ -766,7 +770,7 @@ class MultipoolAllocator : public ManagedAllocator {
 
                                 // Virtual Functions
 
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of maximally-aligned memory
         // of (at least) the specified 'size' (in bytes).  If 'size' is 0, no
         // memory is allocated and 0 is returned.  If
@@ -787,7 +791,7 @@ class MultipoolAllocator : public ManagedAllocator {
     int numPools() const;
         // Return the number of pools managed by this multipool allocator.
 
-    int maxPooledBlockSize() const;
+    bsls::Types::size_type maxPooledBlockSize() const;
         // Return the maximum size of memory blocks that are pooled by this
         // multipool allocator.  Note that the maximum value is defined as:
         //..
@@ -905,7 +909,7 @@ int MultipoolAllocator::numPools() const
 }
 
 inline
-int MultipoolAllocator::maxPooledBlockSize() const
+bsls::Types::size_type MultipoolAllocator::maxPooledBlockSize() const
 {
     return d_multipool.maxPooledBlockSize();
 }
@@ -916,7 +920,7 @@ int MultipoolAllocator::maxPooledBlockSize() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

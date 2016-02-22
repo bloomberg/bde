@@ -50,7 +50,7 @@ using namespace bsl;
 // [ 2] ~GuardingAllocator();
 //
 // MANIPULATORS
-// [ 3] void *allocate(size_type size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 3] void deallocate(void *address);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -212,8 +212,7 @@ bool causesMemoryFault(void *address, int offset, char value)
 
 // 'OFFSET' definition copied from the component '.cpp' file.
 
-const bslma::Allocator::size_type OFFSET =
-                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const bsls::Types::size_type OFFSET = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 struct AfterUserBlockDeallocationData
     // Helper struct storing the addresses we need for deallocation when the
@@ -932,7 +931,7 @@ int main(int argc, char *argv[])
         //:   of 0 has no effect.  (C-8)
         //
         // Testing:
-        //   void *allocate(size_type size);
+        //   void *allocate(bsls::Types::size_type size);
         //   void deallocate(void *address);
         // --------------------------------------------------------------------
 
@@ -1412,7 +1411,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -36,7 +36,7 @@ namespace {
 // Define the offset (in bytes) from the address returned to the user in which
 // to stash reference addresses ('e_AFTER_USER_BLOCK' only).
 
-static const bslma::Allocator::size_type OFFSET =
+static const bsls::Types::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 struct AfterUserBlockDeallocationData
@@ -199,14 +199,14 @@ GuardingAllocator::~GuardingAllocator()
 }
 
 // MANIPULATORS
-void *GuardingAllocator::allocate(size_type size)
+void *GuardingAllocator::allocate(bsls::Types::size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return 0;                                                     // RETURN
     }
 
-    const size_type paddedSize =
+    const bsls::Types::size_type paddedSize =
                           bsls::AlignmentUtil::roundUpToMaximalAlignment(size);
 
     // Adjust for additional memory needed to stash reference addresses when
@@ -222,7 +222,8 @@ void *GuardingAllocator::allocate(size_type size)
     const int pageSize = getSystemPageSize();
     const int numPages = (adjustedSize + pageSize - 1) / pageSize;
 
-    const size_type totalSize = (numPages + 1) * pageSize;  // add 1 for guard
+    // add 1 for guard
+    const bsls::Types::size_type totalSize = (numPages + 1) * pageSize;
 
     void *firstPage = systemAlloc(totalSize);
 
@@ -320,7 +321,7 @@ void GuardingAllocator::deallocate(void *address)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

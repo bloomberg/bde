@@ -143,21 +143,23 @@ int roundUp(int x, int y)
     class my_StrPool {
 
         // DATA
-        char           *d_block_p;    // current memory block
+        char                   *d_block_p;    // current memory block
 
-        int             d_blockSize;  // size of current memory block
+        bsls::Types::size_type  d_blockSize;  // size of current memory block
 
-        int             d_cursor;     // offset to next available byte in block
+        bsls::Types::IntPtr     d_cursor;     // offset to next available byte
+                                              // in block
 
         bdlma::InfrequentDeleteBlockList
-                        d_blockList;  // supplies managed memory blocks
+                                d_blockList;  // supplies managed memory blocks
 
       private:
         // PRIVATE MANIPULATORS
-        void *allocateBlock(int numBytes);
+        void *allocateBlock(bsls::Types::size_type numBytes);
             // Request a memory block of at least the specified 'numBytes' size
             // and allocate the initial 'numBytes' from this block.  Return the
-            // address of the allocated memory.
+            // address of the allocated memory.  The behavior is undefined
+            // unless '0 < numBytes'.
 
       private:
         // NOT IMPLEMENTED
@@ -176,11 +178,10 @@ int roundUp(int x, int y)
             // Destroy this object and release all associated memory.
 
         // MANIPULATORS
-        void *allocate(int size);
+        void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of memory of the
             // specified 'size' (in bytes).  If 'size' is 0, no memory is
-            // allocated and 0 is returned.  The behavior is undefined unless
-            // 'size >= 0'.
+            // allocated and 0 is returned.
 
         void release();
             // Release all memory currently allocated through this object.
@@ -208,7 +209,7 @@ int roundUp(int x, int y)
     };
 
     // PRIVATE MANIPULATORS
-    void *my_StrPool::allocateBlock(int numBytes)
+    void *my_StrPool::allocateBlock(bsls::Types::size_type numBytes)
     {
         ASSERT(0 < numBytes);
 
@@ -246,7 +247,7 @@ int roundUp(int x, int y)
     }
 
     // MANIPULATORS
-    void *my_StrPool::allocate(int size)
+    void *my_StrPool::allocate(bsls::Types::size_type size)
     {
         if (0 == size) {
             return 0;                                                 // RETURN
@@ -889,7 +890,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

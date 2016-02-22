@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdlma_multipool_cpp,"$Id$ $CSID$")
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
 
+#include <bdlb_bitutil.h>
+
 #include <bslma_autodestructor.h>
 #include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
@@ -15,6 +17,7 @@ BSLS_IDENT_RCSID(bdlma_multipool_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <bsl_new.h>
+#include <bsl_limits.h>
 
 namespace BloombergLP {
 namespace bdlma {
@@ -56,8 +59,10 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
                                  maxBlocksPerChunk,
                                  d_allocator_p);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -90,8 +95,10 @@ void Multipool::initialize(
                                  maxBlocksPerChunk,
                                  d_allocator_p);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -122,8 +129,10 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy  growthStrategy,
                                  maxBlocksPerChunkArray[i],
                                  d_allocator_p);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -156,8 +165,10 @@ void Multipool::initialize(
                                  maxBlocksPerChunkArray[i],
                                  d_allocator_p);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                        bsl::numeric_limits<bsl::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -167,37 +178,12 @@ void Multipool::initialize(
 }
 
 // PRIVATE ACCESSORS
-int Multipool::findPool(int size) const
+int Multipool::findPool(bsls::Types::size_type size) const
 {
-    BSLS_ASSERT_SAFE(0    <= size);
     BSLS_ASSERT_SAFE(size <= d_maxBlockSize);
 
-    int accumulator = ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1;
-
-    accumulator |= accumulator >> 16;
-    accumulator |= accumulator >>  8;
-    accumulator |= accumulator >>  4;
-    accumulator |= accumulator >>  2;
-    accumulator |= accumulator >>  1;
-
-    unsigned input = accumulator;
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    return __builtin_popcount(input) - 1;
-#else
-    input -= (input >> 1) & 0x55555555;
-
-    {
-        const int mask = 0x33333333;
-        input = ((input >> 2) & mask) + (input & mask);
-    }
-
-    input = ((input >>  4) + input) & 0x0f0f0f0f;
-    input =  (input >>  8) + input;
-    input =  (input >> 16) + input;
-
-    return (input & 0x000000ff) - 1;
-#endif
+    return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<bsl::uint32_t>(
+                                ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1));
 }
 
 // CREATORS
@@ -328,7 +314,7 @@ Multipool::~Multipool()
 }
 
 // MANIPULATORS
-void *Multipool::allocate(int size)
+void *Multipool::allocate(bsls::Types::size_type size)
 {
     BSLS_ASSERT(1 <= size);
 
@@ -371,7 +357,7 @@ void Multipool::release()
     d_blockList.release();
 }
 
-void Multipool::reserveCapacity(int size, int numBlocks)
+void Multipool::reserveCapacity(bsls::Types::size_type size, int numBlocks)
 {
     BSLS_ASSERT(1    <= size);
     BSLS_ASSERT(size <= d_maxBlockSize);
@@ -385,7 +371,7 @@ void Multipool::reserveCapacity(int size, int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

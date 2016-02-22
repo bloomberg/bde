@@ -18,10 +18,10 @@ namespace BloombergLP {
 namespace bdlma {
 
 // CREATORS
-AligningAllocator::AligningAllocator(size_type         alignment,
-                                     bslma::Allocator *allocator)
-: d_mask(bsl::min<size_type>(alignment,
-                             bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) - 1)
+AligningAllocator::AligningAllocator(bsls::Types::size_type  alignment,
+                                     bslma::Allocator       *allocator)
+: d_mask(bsl::min<bsls::Types::size_type>(alignment,
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) - 1)
 , d_heldAllocator_p(bslma::Default::allocator(allocator))
 {
     BSLS_ASSERT(0 < alignment);
@@ -29,13 +29,14 @@ AligningAllocator::AligningAllocator(size_type         alignment,
 }
 
 // MANIPULATORS
-void *AligningAllocator::allocate(size_type size)
+void *AligningAllocator::allocate(bsls::Types::size_type size)
 {
     size = (size + d_mask) & ~d_mask;
 
     void *ret = d_heldAllocator_p->allocate(size);
 
-    BSLS_ASSERT(0 == (reinterpret_cast<size_type>(ret) & d_mask));   // aligned
+    // assert 'ret' is aligned
+    BSLS_ASSERT(0 == (reinterpret_cast<bsls::Types::size_type>(ret) & d_mask));
 
     return ret;
 }

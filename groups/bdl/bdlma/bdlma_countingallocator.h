@@ -348,7 +348,7 @@ class CountingAllocator : public bslma::Allocator {
         // has no effect on any outstanding allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return a newly-allocated block of memory of the specified 'size' (in
         // bytes).  If 'size' is 0, a null pointer is returned with no other
         // effect (e.g., on allocation statistics).  Otherwise, invoke the
@@ -416,7 +416,7 @@ bsls::Types::Int64 CountingAllocator::numBytesTotal() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

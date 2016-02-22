@@ -62,7 +62,7 @@ using namespace bsl;
 // [ 5] void release();
 // [ 6] void reserveCapacity(int size, int numBlocks);
 // [ 9] int numPools() const;
-// [ 9] int maxPooledBlockSize() const;
+// [ 9] bsls::Types::size_type maxPooledBlockSize() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
@@ -251,7 +251,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::Multipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::Multipool' can be used by containers that hold different types of
 // elements, each of uniform size, for efficient memory allocation of new
 // elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -555,7 +555,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             // this memory pool is released.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        virtual void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of maximally-aligned
             // memory of (at least) the specified 'size' (in bytes).  If 'size'
             // is 0, no memory is allocated and 0 is returned.
@@ -587,14 +587,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
     // MANIPULATORS
     inline
-    void *my_MultipoolAllocator::allocate(size_type size)
+    void *my_MultipoolAllocator::allocate(bsls::Types::size_type size)
     {
         if (0 == size) {
             return 0;                                                 // RETURN
         }
-        else {
-            return d_multiPool.allocate(static_cast<int>(size));      // RETURN
-        }
+
+        return d_multiPool.allocate(size);
     }
 
     inline
@@ -694,7 +693,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int numPools() const;
-        //   int maxPooledBlockSize() const;
+        //   bsls::Types::size_type maxPooledBlockSize() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2666,7 +2665,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

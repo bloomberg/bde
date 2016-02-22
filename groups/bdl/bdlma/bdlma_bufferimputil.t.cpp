@@ -135,14 +135,19 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
         // by the pool and released when the pool is destroyed.
 
         // DATA
-        char      *d_buffer_p;    // pointer to current buffer
-        int        d_bufferSize;  // size (in bytes) of the current buffer
-        int        d_cursor;      // byte offset to unused memory in buffer
-        BlockList  d_blockList;   // used to replenish memory
+        char                   *d_buffer_p;    // pointer to current buffer
+
+        bsls::Types::size_type  d_bufferSize;  // size (in bytes) of the
+                                               // current buffer
+
+        bsls::Types::IntPtr     d_cursor;      // byte offset to unused memory
+                                               // in buffer
+
+        BlockList               d_blockList;   // used to replenish memory
 
       private:
         // PRIVATE MANIPULATORS
-        void replenishBuffer(int size);
+        void replenishBuffer(bsls::Types::size_type size);
             // Replenish the current buffer with memory that satisfies an
             // allocation request having at least the specified 'size' (in
             // bytes).
@@ -159,7 +164,7 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
             // Destroy this memory pool and release all associated memory.
 
         // MANIPULATORS
-        void *allocate(int size);
+        void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of naturally-aligned
             // memory of the specified 'size' (in bytes).  The behavior is
             // undefined unless '0 < size'.
@@ -169,7 +174,7 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 // 'allocate' alone is sufficient to illustrate the use of
 // 'bdlma::BufferImpUtil':
 //..
-    void *my_SequentialPool::allocate(int size)
+    void *my_SequentialPool::allocate(bsls::Types::size_type size)
     {
         ASSERT(0 < size);
 
@@ -204,7 +209,7 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 //           Additional Functionality Needed to Complete Usage Test Case
 //-----------------------------------------------------------------------------
 
-void my_SequentialPool::replenishBuffer(int size)
+void my_SequentialPool::replenishBuffer(bsls::Types::size_type size)
 {
     // ...
 
@@ -518,7 +523,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\tTesting 'allocateFromBuffer'" << endl;
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
 
                 void *address = Obj::allocateFromBuffer(&tmpCursor,
                                                         buffer,
@@ -532,7 +537,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
                 void *address;
 
                 if (STRAT == NAT) {
@@ -564,7 +569,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTesting 'allocateFromBufferRaw'"
                                   << endl;
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
 
                 void *address = Obj::allocateFromBufferRaw(&tmpCursor,
                                                            buffer,
@@ -577,7 +582,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
                 void *address;
 
                 if (STRAT == NAT) {
@@ -770,7 +775,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
 
                 void *address = Obj::allocateFromBuffer(&tmpCursor,
                                                         buffer,
@@ -783,7 +788,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                int tmpCursor = CURSOR;
+                bsls::Types::IntPtr tmpCursor = CURSOR;
                 void *address;
 
                 if (STRAT == NAT) {
@@ -824,7 +829,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 <= bufferSize'" << endl;
             {
-                int cursor = 0;
+                bsls::Types::IntPtr cursor = 0;
 
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
@@ -873,7 +878,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
             {
-                int cursor = 0;
+                bsls::Types::IntPtr cursor = 0;
 
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
@@ -997,7 +1002,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 <= *cursor'" << endl;
             {
-                int cursor;
+                bsls::Types::IntPtr cursor;
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
@@ -1100,7 +1105,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'*cursor <= bufferSize'" << endl;
             {
-                int cursor;
+                bsls::Types::IntPtr cursor;
 
                 cursor = k_BUFSIZE;
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
@@ -1174,7 +1179,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -21,14 +21,14 @@ MultipoolAllocator::~MultipoolAllocator()
 }
 
 // MANIPULATORS
-void *MultipoolAllocator::allocate(size_type size)
+void *MultipoolAllocator::allocate(bsls::Types::size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return 0;                                                     // RETURN
     }
 
-    return d_multipool.allocate(static_cast<int>(size));
+    return d_multipool.allocate(size);
 }
 
 void MultipoolAllocator::deallocate(void *address)
@@ -39,22 +39,22 @@ void MultipoolAllocator::deallocate(void *address)
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 }
 
-void MultipoolAllocator::reserveCapacity(size_type size, size_type numObjects)
+void MultipoolAllocator::reserveCapacity(bsls::Types::size_type size,
+                                         int                    numObjects)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return;                                                       // RETURN
     }
 
-    d_multipool.reserveCapacity(static_cast<int>(size),
-                                static_cast<int>(numObjects));
+    d_multipool.reserveCapacity(size, numObjects);
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
