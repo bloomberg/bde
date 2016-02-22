@@ -285,30 +285,39 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
         return -1;                                                    // RETURN
     }
 
-    ifs >> stats->d_pid
-        >> stats->d_comm
-        >> stats->d_state
-        >> stats->d_ppid
-        >> stats->d_pgrp
-        >> stats->d_session
-        >> stats->d_tty_nr
-        >> stats->d_tpgid
-        >> stats->d_flags
-        >> stats->d_minflt
-        >> stats->d_cminflt
-        >> stats->d_majflt
-        >> stats->d_cmajflt
-        >> stats->d_utime
-        >> stats->d_stime
-        >> stats->d_cutime
-        >> stats->d_cstime
-        >> stats->d_priority
-        >> stats->d_nice
-        >> stats->d_numThreads
-        >> stats->d_itrealvalue
-        >> stats->d_starttime
-        >> stats->d_vsize
-        >> stats->d_rss;
+    try {
+        // The following has been observed to throw with some gcc versions
+        // (reportedly 4.1.2 and 4.8.1).
+#ifndef BDE_OPENSOURCE_PUBLICATION
+        // See DRQS 57176174.
+#endif
+
+        ifs >> stats->d_pid
+            >> stats->d_comm
+            >> stats->d_state
+            >> stats->d_ppid
+            >> stats->d_pgrp
+            >> stats->d_session
+            >> stats->d_tty_nr
+            >> stats->d_tpgid
+            >> stats->d_flags
+            >> stats->d_minflt
+            >> stats->d_cminflt
+            >> stats->d_majflt
+            >> stats->d_cmajflt
+            >> stats->d_utime
+            >> stats->d_stime
+            >> stats->d_cutime
+            >> stats->d_cstime
+            >> stats->d_priority
+            >> stats->d_nice
+            >> stats->d_numThreads
+            >> stats->d_itrealvalue
+            >> stats->d_starttime
+            >> stats->d_vsize
+            >> stats->d_rss;
+    } catch (...) {
+    }
 
     return 0;
 }
