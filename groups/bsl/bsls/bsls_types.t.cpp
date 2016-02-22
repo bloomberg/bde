@@ -420,8 +420,8 @@ int main(int argc, char *argv[])
 #else
             { L_,   0x100000000LL,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFFLL, "9223372036854775807"  },
-            { L_,   0x8000000000000000LL, "-9223372036854775808" },
-            { L_,   0xFFFFFFFFFFFFFFFFLL, "-1"                   },  // signed
+            { L_,   T(0x8000000000000000LL), "-9223372036854775808" },
+            { L_,   T(0xFFFFFFFFFFFFFFFFLL), "-1"                   },  // signed
 #endif
             { L_,   -1,                   "-1"                   },  // signed
         };
