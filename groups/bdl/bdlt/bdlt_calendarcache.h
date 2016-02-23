@@ -256,11 +256,11 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_calendar.h>
 #endif
 
-#ifndef INCLUDED_BDLT_CURRENTTIME
-#include <bdlt_currenttime.h>
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
 #endif
 
-#ifndef INCLUDED_BDLT_DATETIME
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetime.h>
 #endif
 
