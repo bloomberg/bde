@@ -1037,7 +1037,7 @@ using namespace bdlf::PlaceHolders;
 // however.  See the 'bindTest7' example function at the end of the usage
 // example below.
 //
-///Binding to function objects by value or by address
+///Binding to Function Objects by Value or by Address
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Although function objects are invoked in syntactically the same manner as
 // free functions, they can be used by value or by address in conjunction with
@@ -1046,13 +1046,25 @@ using namespace bdlf::PlaceHolders;
 // the function object.  The difference between the two usages is that the
 // binder object holds a copy of the whole object or of its address only.  In
 // particular, when passing by value an object that takes an allocator, the
-// copy held by the binder uses the same allocator as the binder object (if
-// constructed by 'bdlf::BindUtil::bindA') or the default allocator (if
-// constructed by 'bdlf::BindUtil::bind' or 'bdlf::BindUtil::bindR'), but *not*
-// the allocator of the original object.  For keeping the same allocator, pass
-// the object by address to the binder instead.  See the section "Binding with
-// allocators" and the usage example sections "Binding to Function Objects" and
-// "Binding to Function Objects by Reference" below.
+// copy held by the binder uses the default allocator if constructed by
+// 'bdlf::BindUtil::bind' or 'bdlf::BindUtil::bindR', *not* the allocator of
+// the original object.
+//
+// For keeping the same allocator, pass the object by address to the binder
+// instead.  See the section "Binding with allocators" and the usage example
+// sections "Binding to Function Objects" and "Binding to Function Objects by
+// Reference" below.
+//
+// CAVEAT: When passing a function object by value, only the (non-modifiable)
+// copy held by the binder will be invoked.  Prior to this version, it was
+// possible to modifiably invoke this copy (hence a non-const 'operator()')
+// with the intent to modify the state of the function object.  However, only
+// the copy held by the binder was modified and the original function object
+// passed to the binder was not, but this usage error went undetected.  In this
+// version, a binder cannot modifiably invoke functors held by value, and
+// attempting to do so will trigger a compilation error.  If it is desired that
+// an invocation modifies the state of the function object, then this function
+// object must be passed to the binder *by* *address*.
 //
 ///Inferring the signature of the bound object
 ///- - - - - - - - - - - - - - - - - - - - - -
@@ -1119,16 +1131,19 @@ using namespace bdlf::PlaceHolders;
 // pass instead a local non-modifiable variable initialized to the literal
 // value.
 //
-///Binding with allocators
+///Binding with Allocators
 ///-----------------------
-// The copy of the bound object and arguments are created as members of the
-// 'bdlf::Bind' object, so no memory is allocated for those.  When the bound
-// object or arguments use memory allocation, however, that memory is supplied
-// by the default allocator unless 'bdlf::BindUtil::bindA' is used to specify
-// the allocator to be passed to the copy constructors of the bound object and
-// arguments.  Note that the invocation arguments, passed to the binder at
-// invocation time, are passed "as is" to the bound object, and are not copied
-// if the bound object takes them by modifiable or non-modifiable reference.
+// The bound functor and bound arguments are created as members of the
+// 'bdlf::Bind' object, so no memory is allocated for storing them.  However,
+// if the bound functor or bound argument's copy constructor requires memory
+// allocation, that memory is supplied by the currently installed default
+// allocator unless 'bdlf::BindUtil::bindS' (or 'bindSR') method is used.  In
+// the latter cases, the non-optional, user-supplied allocator is passed to the
+// copy constructors of the bound functor and arguments.
+//
+// Note that the invocation arguments, passed to the binder at invocation time,
+// are passed "as is" to the bound functor, and are not copied if the bound
+// functor takes them by modifiable or non-modifiable reference.
 //
 // In order to make clear where the allocation occurs, we will wrap "p3" into a
 // type that takes an allocator, e.g., a class 'MyString' (kept minimal here
@@ -1194,11 +1209,10 @@ using namespace bdlf::PlaceHolders;
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
-        ASSERT(NUM_ALLOCS != allocator.numAllocations());
-//#ifndef BSLS_PLATFORM_CMP_MSVC
-        ASSERTV(NUM_DEFAULT_ALLOCS,   defaultAllocator.numAllocations(),
-                NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
-//#endif
+        ASSERT(NUM_ALLOCS         != allocator.numAllocations());
+  #ifndef BSLS_PLATFORM_CMP_MSVC
+        ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+  #endif
     }
 //..
 
@@ -2212,7 +2226,7 @@ DEFINE_TEST_CASE(4) {
         //   'noAllocSlots' are appropriately set (showing that the correct
         //   values are propagated to the nested binder's placeholders), and
         //   that the return value is correct.  Then do same test with
-        //   'bdlf::BindUtil::bindA' and use 'allocTestType' and 'allocSlots'
+        //   'bdlf::BindUtil::bindS' and use 'AllocTestType' and 'AllocSlots'
         //   machinery to track allocators.  Finally, nest binders with three
         //   levels of recursion (enough to guarantee that recursion at any
         //   level will work) and again check that return value is correct.
@@ -2360,244 +2374,6 @@ DEFINE_TEST_CASE(4) {
             ASSERT(SlotsNoAlloc::verifySlots(NO_ALLOC_SLOTS[14], veryVerbose));
             if (veryVerbose) { printf("%d: X: ", L_); X.print(); }
         }
-
-#if 0
-        if (verbose)
-            printf("\tPropagating allocators to nested binders.\n");
-        {
-            AllocTestType mX(Z1);
-
-            SlotsAlloc::resetSlots(Z0);
-            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
-
-            // The binder below holds its own copies of mX (which uses 'Z1')
-            // and of all the nested binders (which use 'Z0').  All the copies
-            // should use the propagated allocator 'Z2', and thus there should
-            // be *no* allocation taking place with 'Z1', and only 14
-            // allocations with 'Z0' for the temporary copy of 'mX' passed to
-            // 'bdlf::BindUtil::bindA'.  When invoked with V1 up to V14 (which
-            // use 'Z0') the allocator slots are set to 'Z0'.
-
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
-
-#if !defined(BSLS_PLATFORM_CMP_IBM)  \
-  && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
-            ASSERT(14 == bdlf::BindUtil::bindA(Z2, mX,
-                             // first bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument1,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // second bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument2,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // third bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument3,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // fourth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument4,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // fifth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument5,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // sixth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument6,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // seventh bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument7,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // eighth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument8,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // ninth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument9,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // tenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument10,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // eleventh bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument11,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // twelfth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument12,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // thirteenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument13,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // fourteenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument14,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14))
-                                       // invocation arguments follow
-                                       (V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                        V10, V11, V12, V13, V14));
-
-#else
-            // The AIX xlC compiler can compile the code above, but has
-            // difficulty generating the stabstring (debug information) for the
-            // type of the above binder and thus fails at linking time.  We
-            // pass it a less complicated expression.
-
-            ASSERT(14 == bdlf::BindUtil::bindA(Z2, mX,
-                             // first bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument1,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14),
-                             // second to thirteenth bound arguments below
-                             _2, _3, _4, _5, _6, _7, _8, _9,
-                             _10, _11, _12, _13,
-                             // fourteenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument14,
-                                 _1, _2, _3, _4, _5, _6, _7, _8, _9,
-                                 _10, _11, _12, _13, _14))
-                                       // invocation arguments follow
-                                       (V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                        V10, V11, V12, V13, V14));
-#endif
-            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
-
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
-                                         - NUM_DEFAULT_ALLOCS_BEFORE;
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
-#ifndef BSLS_PLATFORM_CMP_MSVC
-            // MSVC 2005 does NOT use the RVO, so bindA does a copy
-            // construction with the default allocator.
-            LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 14 == NUM_DEFAULT_ALLOCS);
-#endif
-            LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
-        }
-
-        {
-            AllocTestType mX(Z1);
-
-            SlotsAlloc::resetSlots(Z0);
-            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS_DEFAULT, veryVerbose));
-
-            // The binder below holds its own copies of mX (which uses 'Z1')
-            // and of all the nested binders (which use 'Z0').  There should be
-            // 14^2=196 allocations taking place with 'Z0' for the nested
-            // binders, and another 14+196 allocations with 'Z0' for the
-            // temporary copies of 'mX' and the nested binders passed to the
-            // top 'bdlf::BindUtil::bindA'.  All the copies inside the
-            // top-level binder should use the propagated allocator 'Z2', and
-            // thus when invoked with the binder copies of V1 up to V14 (which
-            // use 'Z2') the allocator slots are set to 'Z2'.
-
-            const int NUM_DEFAULT_ALLOCS_BEFORE = Z0->numAllocations();
-            const int NUM_ALLOCS_BEFORE = Z1->numAllocations();
-
-#if !defined(BSLS_PLATFORM_CMP_IBM)  \
-  && (!defined(BSLS_PLATFORM_CMP_SUN) || __SUNPRO_CC < 0x580)
-            ASSERT(14 == bdlf::BindUtil::bindA(Z2, mX,
-                             // first bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument1,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // second bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument2,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // third bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument3,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // fourth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument4,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // fifth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument5,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // sixth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument6,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // seventh bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument7,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // eighth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument8,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // ninth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument9,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // tenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument10,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // eleventh bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument11,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // twelfth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument12,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // thirteenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument13,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14),
-                             // fourteenth bound argument below
-                             bdlf::BindUtil::bind(&selectAllocArgument14,
-                                 V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                 V10, V11, V12, V13, V14))
-                                             // invocation arguments follow
-                                             ());
-
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
-                                         - NUM_DEFAULT_ALLOCS_BEFORE;
-#ifndef BSLS_PLATFORM_CMP_MSVC
-            // MSVC 2005 does NOT use the RVO, so 'bindA' does a copy
-            // construction with the default allocator.
-            LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 406 == NUM_DEFAULT_ALLOCS);
-#endif
-#else
-            // The AIX xlC compiler can compile the code above, but has
-            // difficulty generating the stabstring (debug information) for the
-            // type of the above binder and thus fails at linking time.  We
-            // pass it a less complicated expression.
-
-            ASSERT(14 == bdlf::BindUtil::bindA(Z2, mX,
-                              // first bound argument below
-                              bdlf::BindUtil::bind(&selectAllocArgument1,
-                                  V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                  V10, V11, V12, V13, V14),
-                              // second to thirteenth bound arguments below
-                              V2, V3, V4, V5, V6, V7, V8, V9,
-                              V10, V11, V12, V13,
-                              // fourteenth bound argument below
-                              bdlf::BindUtil::bind(&selectAllocArgument14,
-                                  V1, V2, V3, V4, V5, V6, V7, V8, V9,
-                                  V10, V11, V12, V13, V14))
-                                       // invocation arguments follow
-                                       ());
-
-            const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
-                                         - NUM_DEFAULT_ALLOCS_BEFORE;
-            LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 70 == NUM_DEFAULT_ALLOCS);
-#endif
-            ASSERT(SlotsAlloc::verifySlots(ALLOC_SLOTS[14], veryVerbose));
-
-            const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
-            LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
-        }
-#endif // #if 0
 
         if (verbose)
             printf("\tPropagating allocators to nested binders via 'bindS'\n");
