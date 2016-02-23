@@ -6,6 +6,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
@@ -2206,8 +2207,6 @@ int main(int argc, char *argv[])
         //    3) The allocation request is distributed to the proper underlying
         //       pool, or to the "overflow" block list.
         //
-        //    QoI: Asserted precondition violations are detected when enabled.
-        //
         // Plan:
         //   Create multipools that manage a varying number of pools and
         //   allocate objects of varying sizes from each of the pools, as well
@@ -2242,11 +2241,22 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
+            bslma::TestAllocator allocator("allocator", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&allocator);
+
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
 
                 Obj mX(NUM_POOLS);
+
+                {
+                    // Test allocation with 'size == 0'.
+
+                    bsls::Types::Int64 numInUse = allocator.numBytesInUse();
+                    mX.allocate(0);
+                    LOOP_ASSERT(i, numInUse == allocator.numBytesInUse());
+                }
 
                 for (int j = 0; j < NUM_ODATA; ++j) {
 
@@ -2309,6 +2319,15 @@ int main(int argc, char *argv[])
 
                 Obj mX(NUM_POOLS, Z);
 
+                {
+                    // Test allocation with 'size == 0'.
+
+                    bsls::Types::Int64 numInUse =
+                                                 testAllocator.numBytesInUse();
+                    mX.allocate(0);
+                    LOOP_ASSERT(i, numInUse == testAllocator.numBytesInUse());
+                }
+
                 for (int j = 0; j < NUM_ODATA; ++j) {
 
                      for (int k = -1; k <= 1; ++k) {
@@ -2361,23 +2380,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX(2);
-
-            if (veryVerbose) cout << "\t'allocate(1 <= size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-
-                ASSERT_SAFE_FAIL(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
-            }
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------

@@ -674,12 +674,12 @@ class Multipool {
     // MANIPULATORS
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of maximally-aligned memory
-        // of (at least) the specified 'size' (in bytes).  If
+        // of (at least) the specified 'size' (in bytes).  If 'size' is 0, no
+        // memory is allocated and 0 is returned.  If
         // 'size > maxPooledBlockSize()', the memory allocation is managed
         // directly by the underlying allocator, and will not be pooled, but
         // will be deallocated when the 'release' method is called, or when
-        // this object is destroyed.  The behavior is undefined unless
-        // '1 <= size'.
+        // this object is destroyed.
 
     void deallocate(void *address);
         // Relinquish the memory block at the specified 'address' back to this

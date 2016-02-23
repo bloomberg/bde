@@ -849,11 +849,10 @@ int main(int argc, char *argv[])
 
             Obj mX;
 
-            if (veryVerbose) cout << "\t'allocate(size < 0)'" << endl;
+            if (veryVerbose) cout << "\t'allocate(size)'" << endl;
             {
                 ASSERT_SAFE_PASS(mX.allocate( 1));
                 ASSERT_SAFE_PASS(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
             }
         }
 

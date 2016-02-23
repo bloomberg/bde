@@ -50,26 +50,27 @@ InfrequentDeleteBlockList::~InfrequentDeleteBlockList()
 // MANIPULATORS
 void *InfrequentDeleteBlockList::allocate(bsls::Types::size_type size)
 {
-    if (0 == size) {
-        return 0;                                                     // RETURN
-    }
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        size = alignedAllocationSize(size, sizeof(Block));
 
-    size = alignedAllocationSize(size, sizeof(Block));
+        Block *block =
+                      reinterpret_cast<Block *>(d_allocator_p->allocate(size));
 
-    Block *block = reinterpret_cast<Block *>(d_allocator_p->allocate(size));
-
-    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+        BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                      reinterpret_cast<void *>(block),
                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
-    block->d_next_p = d_head_p;
-    d_head_p        = block;
+        block->d_next_p = d_head_p;
+        d_head_p        = block;
 
-    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+        BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                     reinterpret_cast<void *>(&block->d_memory),
                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
-    return reinterpret_cast<void *>(&block->d_memory);
+        return reinterpret_cast<void *>(&block->d_memory);            // RETURN
+    }
+
+    return 0;
 }
 
 void InfrequentDeleteBlockList::release()

@@ -34,7 +34,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
 // [ 3] ~bdlma::InfrequentDeleteBlockList();
-// [ 2] void *allocate(int size);
+// [ 2] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
 //
@@ -546,8 +546,6 @@ int main(int argc, char *argv[])
         //: 9 There is no temporary allocation from any allocator.
         //:
         //:10 The 'allocator' method returns the used allocator.
-        //:
-        //:11 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using a loop-based approach, default-construct three distinct
@@ -612,13 +610,10 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify the 'allocator' method returns the used allocator for all
         //:   constructors.
-        //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-11)
         //
         // Testing:
         //   bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         //
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
@@ -803,21 +798,6 @@ int main(int argc, char *argv[])
 
             Obj mX(&sa);  const Obj& X = mX;
             ASSERT(&sa == X.allocator());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(size < 0)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-                ASSERT_SAFE_PASS(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
-            }
         }
 
       } break;

@@ -316,21 +316,23 @@ Multipool::~Multipool()
 // MANIPULATORS
 void *Multipool::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT(1 <= size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        if (size <= d_maxBlockSize) {
+            const int pool = findPool(size);
+            Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
+            p->d_header.d_poolIdx = pool;
+            return p + 1;                                             // RETURN
+        }
 
-    if (size <= d_maxBlockSize) {
-        const int pool = findPool(size);
-        Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
-        p->d_header.d_poolIdx = pool;
+        // The requested size is large and will not be pooled.
+
+        Header *p = static_cast<Header *>(
+                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
+        p->d_header.d_poolIdx = -1;
         return p + 1;                                                 // RETURN
     }
 
-    // The requested size is large and will not be pooled.
-
-    Header *p = static_cast<Header *>(
-                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
-    p->d_header.d_poolIdx = -1;
-    return p + 1;
+    return 0;
 }
 
 void Multipool::deallocate(void *address)

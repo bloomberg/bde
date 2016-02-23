@@ -836,21 +836,11 @@ int main(int argc, char *argv[])
                                                          0,        // PASS
                                                          k_ALLOCSIZE,
                                                          NAT));
-                ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
-                                                         buffer,
-                                                         -1,       // FAIL
-                                                         k_ALLOCSIZE,
-                                                         NAT));
 
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         k_ALLOCSIZE));
-                ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1,       // FAIL
                                                          k_ALLOCSIZE));
 
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
@@ -858,21 +848,11 @@ int main(int argc, char *argv[])
                                                          buffer,
                                                          0,        // PASS
                                                          k_ALLOCSIZE));
-                ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1,       // FAIL
-                                                         k_ALLOCSIZE));
 
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         k_ALLOCSIZE));
-                ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1,       // FAIL
                                                          k_ALLOCSIZE));
             }
 
@@ -890,11 +870,6 @@ int main(int argc, char *argv[])
                                                          k_BUFSIZE,
                                                          0,        // FAIL
                                                          NAT));
-                ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
-                                                         buffer,
-                                                         k_BUFSIZE,
-                                                         -1,       // FAIL
-                                                         NAT));
 
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
@@ -906,11 +881,6 @@ int main(int argc, char *argv[])
                                                          buffer,
                                                          k_BUFSIZE,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         k_BUFSIZE,
-                                                         -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
@@ -922,11 +892,6 @@ int main(int argc, char *argv[])
                                                          buffer,
                                                          k_BUFSIZE,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         k_BUFSIZE,
-                                                         -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
@@ -938,11 +903,6 @@ int main(int argc, char *argv[])
                                                          buffer,
                                                          k_BUFSIZE,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         k_BUFSIZE,
-                                                         -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateFromBufferRaw(
                                                          &cursor,
@@ -954,11 +914,6 @@ int main(int argc, char *argv[])
                                                          buffer,
                                                          0,        // FAIL
                                                          NAT));
-                ASSERT_SAFE_FAIL(Obj::allocateFromBufferRaw(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1,       // FAIL
-                                                         NAT));
 
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBufferRaw(
                                                          &cursor,
@@ -968,10 +923,6 @@ int main(int argc, char *argv[])
                                                          &cursor,
                                                          buffer,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBufferRaw(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBufferRaw(
                                                          &cursor,
@@ -981,10 +932,6 @@ int main(int argc, char *argv[])
                                                          &cursor,
                                                          buffer,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBufferRaw(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBufferRaw(
                                                          &cursor,
@@ -994,10 +941,6 @@ int main(int argc, char *argv[])
                                                          &cursor,
                                                          buffer,
                                                          0));      // FAIL
-                ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBufferRaw(
-                                                         &cursor,
-                                                         buffer,
-                                                         -1));     // FAIL
             }
 
             if (veryVerbose) cout << "\t'0 <= *cursor'" << endl;
