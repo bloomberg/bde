@@ -592,60 +592,16 @@ template <class TYPE>
 struct is_convertible<TYPE&, TYPE&> : true_type {
 };
 
-template <class TYPE>
-struct is_convertible<const TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const TYPE, const TYPE&> : true_type {
-};
-
-template <class TYPE>
-struct is_convertible<const TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const TYPE, const volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<volatile TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<volatile TYPE, const TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<volatile TYPE, volatile TYPE&> : true_type {
-};
-
-template <class TYPE>
-struct is_convertible<volatile TYPE, const volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const volatile TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const volatile TYPE, const TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const volatile TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible<const volatile TYPE, const volatile TYPE&> : true_type {
-};
-
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<FROM_TYPE, volatile TO_TYPE&> : false_type {
 };
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<FROM_TYPE, const volatile TO_TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<TYPE&, const TYPE&> : true_type {
 };
 
 template <class TYPE>
@@ -657,7 +613,31 @@ struct is_convertible<TYPE&, const volatile TYPE&> : true_type {
 };
 
 template <class TYPE>
+struct is_convertible<const TYPE&, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE&, const TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE&, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
 struct is_convertible<const TYPE&, const volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE&, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE&, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE&, volatile TYPE&> : true_type {
 };
 
 template <class TYPE>
@@ -665,7 +645,15 @@ struct is_convertible<volatile TYPE&, const volatile TYPE&> : true_type {
 };
 
 template <class TYPE>
-struct is_convertible<volatile TYPE&, const TYPE&> : false_type {
+struct is_convertible<const volatile TYPE&, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE&, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE&, volatile TYPE&> : false_type {
 };
 
 template <class TYPE>
@@ -701,6 +689,81 @@ struct is_convertible<volatile FROM_TYPE&, const volatile TO_TYPE&>
      : is_convertible<FROM_TYPE, const volatile TO_TYPE&>::type {
 };
 
+#define FIXING_TEST_RESULTS_FOR_03       1
+#if defined(FIXING_TEST_RESULTS_FOR_03)
+// Some compilers need explicit guidance on a few of the reference-binding
+// conversions.  All compilers get most of these correct, but once a few
+// specializations are added, the full set is required to avoid ambiguities.
+
+// There remains a small concern about user-defined types that provide their
+// own conversion operators that should be used when the regular binding
+// fails.
+
+//template <class TYPE>
+//struct is_convertible<TYPE, TYPE&> : false_type {
+//};
+
+template <class TYPE>
+struct is_convertible<TYPE, const TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<TYPE, const volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, const TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, const volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, const volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, const volatile TYPE&> : false_type {
+};
+
+#endif
 }  // close namespace bsl
 #endif
 
