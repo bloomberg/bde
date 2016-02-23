@@ -1213,6 +1213,14 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDDEF_H
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+        // Here and throughout the file wherever 'auto_ptr' is used, suspend
+        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
+        // in this standard interface is required.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -6898,6 +6906,10 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 }  // close namespace bslmf
 
 }  // close enterprise namespace
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 
