@@ -38,6 +38,7 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -285,12 +286,9 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
         return -1;                                                    // RETURN
     }
 
-    try {
+    BSLS_TRY {
         // The following has been observed to throw with some gcc versions
-        // (reportedly 4.1.2 and 4.8.1).
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        // See DRQS 57176174.
-#endif
+        // (reportedly 4.1.2 and 4.8.1).  See internal ticket 57176174.
 
         ifs >> stats->d_pid
             >> stats->d_comm
@@ -316,7 +314,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
             >> stats->d_starttime
             >> stats->d_vsize
             >> stats->d_rss;
-    } catch (...) {
+    }
+    BSLS_CATCH (...) {
     }
 
     return 0;
