@@ -2,7 +2,9 @@
 #include <bdlt_calendarcache.h>
 
 #include <bdlt_calendarloader.h>
+#include <bdlt_currenttime.h>
 #include <bdlt_date.h>            // for testing only
+#include <bdlt_datetime.h>
 #include <bdlt_packedcalendar.h>
 
 #include <bslim_testutil.h>
@@ -17,6 +19,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>    // 'INT_MAX'
@@ -73,6 +76,7 @@ using namespace bsl;
 // [ 4] int invalidate(const char *name);
 // [ 4] int invalidateAll();
 // [ 3] shared_ptr<const Calendar> lookupCalendar(const char *name) const;
+// [ 3] Datetime lookupLoadTime(const char *name) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -152,6 +156,7 @@ typedef bdlt::CalendarCache                   Obj;
 typedef bsl::shared_ptr<const bdlt::Calendar> Entry;
 
 typedef bsls::TimeInterval                    Interval;
+typedef bdlt::Datetime                        Datetime;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
@@ -160,6 +165,8 @@ typedef pthread_t ThreadId;
 #endif
 
 typedef void *(*ThreadFunction)(void *arg);
+
+bdlt::DatetimeInterval                        OneSecond(0, 0, 0, 1);
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -172,7 +179,7 @@ BSLMF_ASSERT((bslalg::HasTrait<Obj,
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static const bdlt::Date gFirstDate1(2000, 1,  1);  // "CAL-1" calendar
+static const bdlt::Date gFirstDate1(2000, 1, 1);   // "CAL-1" calendar
 static const bdlt::Date gFirstDate2(2005, 5, 15);  // "CAL-2"    "
 static const bdlt::Date gFirstDate3(2010, 9, 30);  // "CAL-3"    "
 
@@ -1410,10 +1417,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'getCalendar' AND 'lookupCalendar'
-        //   Ensure that 'getCalendar' and 'lookupCalendar' behave as expected
-        //   in the absence of exceptions (exception neutrality is tested in a
-        //   a later test case).
+        // 'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'
+        //   Ensure that 'getCalendar', 'lookupCalendar', and 'lookupLoadTime'
+        //   behave as expected in the absence of exceptions (exception
+        //   neutrality is tested in a a later test case).
         //
         // Concerns:
         //: 1 That 'getCalendar', when supplied with a string not recognized
@@ -1451,52 +1458,73 @@ int main(int argc, char *argv[])
         //:10 That both 'getCalendar' and 'lookupCalendar' return pointers
         //:   providing non-modifiable access (only).
         //:
-        //:11 QoI: Asserted precondition violations are detected when enabled.
+        //:11 That 'lookupLoadTime', when supplied with a string not
+        //:   identifying a calendar present in the cache, returns
+        //:   'Datetime()'.
+        //:
+        //:12 That 'lookupLoadTime', when supplied with a string identifying a
+        //:   calendar present in the cache that has NOT expired, returns a
+        //:   reference to that calendar.
+        //:
+        //:13 That 'lookupLoadTime', when supplied with a string identifying a
+        //:   calendar present in the cache that HAS expired, returns null.
+        //:
+        //:14 That 'lookupLoadTime' allocates no memory from any allocator.
+        //:
+        //:15 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 'getCalendar' and 'lookupCalendar' are tested ad hoc, using a
-        //:   cache with no timeout, as follows: (C-1..2, C-5..6, C-9)
+        //: 1 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are tested
+        //:   ad hoc, using a cache with no timeout, as follows:
         //:
-        //:   1 'getCalendar' and 'lookupCalendar' are called with various
-        //:     strings on the initially empty cache.  (C-1)
+        //:   1 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
+        //:     called with various strings on the initially empty cache.
+        //:     (C-1, C-6, C-11)
         //:
         //:   2 Using 'getCalendar', the "CAL-1" calendar is loaded into the
-        //:     cache, then 'lookupCalendar' and 'getCalendar' are called with
-        //:     various strings.
+        //:     cache, then 'getCalendar', 'lookupCalendar', and
+        //:     'lookupLoadTime' are called with various strings.
         //:
         //:   3 A second calendar, "CAL-2", is loaded into the cache, and
-        //:     'lookupCalendar' and 'getCalendar' are again called with
-        //:     various strings.  (C-2, C-5..6, C-9)
+        //:     'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
+        //:     again called with various strings.  (C-2)
         //:
         //:   4 Verify that 'getCalendar' and 'lookupCalendar' return pointers
         //:     providing non-modifiable access (only).  (C-10)
         //:
-        //: 2 'getCalendar' and 'lookupCalendar' are further tested ad hoc,
-        //:   using a cache with a 1-second timeout, as follows: (C-3..4,
-        //:   C-7..8)
+        //: 2 'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are
+        //:    further tested ad hoc, using a cache with a 1-second timeout,
+        //:    as follows:
         //:
         //:   1 Calendars "CAL-1" and "CAL-2" are loaded into the cache, then
-        //:     'lookupCalendar' and 'getCalendar' are used to verify that the
-        //:     calendars have not yet expired.  (C-3, C-7).
+        //:     'getCalendar', 'lookupCalendar', and 'lookupLoadTime' are used
+        //:     to verify that the calendars have not yet expired.  (C-3, C-7,
+        //:     C-12).
         //:
         //:   2 Sleep for 2 seconds.
         //:
-        //:   3 'lookupCalendar' is used to verify that "CAL-1" has expired
-        //:     (null is returned); 'getCalendar' is used to verify that
-        //:     "CAL-2" has expired ("CAL-2" is reloaded into the cache).
-        //:     (C-4, C-8).
+        //:   3 'lookupCalendar' and 'lookupLoadTime' are used to verify that
+        //:     "CAL-1" has expired (null/'Datetime()' is returned);
+        //:     'getCalendar' is used to verify that "CAL-2" has expired
+        //:     ("CAL-2" is reloaded into the cache).  (C-4, C-5, C-8, C-9,
+        //:     C-13, C-14).
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-11)
+        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-15)
         //
         // Testing:
         //   shared_ptr<const Calendar> getCalendar(const char *name);
         //   shared_ptr<const Calendar> lookupCalendar(const char *name) const;
+        //   Datetime lookupLoadTime(const char *name) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "'getCalendar' AND 'lookupCalendar'" << endl
-                          << "==================================" << endl;
+        if (verbose) {
+            cout << endl
+                 << "'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'"
+                 << endl
+                 << "=================================="
+                 << endl;
+        }
 
         if (verbose) cout << "\nTesting without a timeout." << endl;
         {
@@ -1511,7 +1539,8 @@ int main(int argc, char *argv[])
 
             // Empty cache.
             {
-                Entry e;
+                Entry    e;
+                Datetime d;
 
                 e = mX.getCalendar("ERROR");      ASSERT(!e.get());
 
@@ -1527,13 +1556,21 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
                 LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+
+                d = X.lookupLoadTime("CAL-Z");    ASSERT(d == Datetime());
+
+                LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
             }
 
             bsls::Types::Int64 daLastNumBlocksTotal, saLastNumBlocksTotal;
 
             // Cache with one entry.
             {
-                Entry e1, ex;
+                Entry    e1;
+                Entry    ex;
+                Datetime dn = bdlt::CurrentTime::utc();
+                Datetime dx;
 
                 e1 = mX.getCalendar("CAL-1");     ASSERT(e1.get());
                                                   ASSERT(e1->firstDate() ==
@@ -1557,6 +1594,14 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
                              saLastNumBlocksTotal == sa.numBlocksTotal());
 
+                dx = X.lookupLoadTime("CAL-1");
+                ASSERT(dx - dn < OneSecond);
+
+                LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
+                             daLastNumBlocksTotal == da.numBlocksTotal());
+                LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
+                             saLastNumBlocksTotal == sa.numBlocksTotal());
+
                 ex = mX.getCalendar("CAL-1");     ASSERT(ex.get());
                                                   ASSERT(ex.get() == e1.get());
 
@@ -1571,7 +1616,11 @@ int main(int argc, char *argv[])
 
                 ex = X.lookupCalendar("aCAL-1");  ASSERT(!ex.get());
 
+                dx = X.lookupLoadTime("aCAL-1");  ASSERT(dx == Datetime());
+
                 ex = X.lookupCalendar("CAL-1z");  ASSERT(!ex.get());
+
+                dx = X.lookupLoadTime("CAL-1z");  ASSERT(dx == Datetime());
 
                 LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
                              daLastNumBlocksTotal == da.numBlocksTotal());
@@ -1581,7 +1630,13 @@ int main(int argc, char *argv[])
 
             // Cache with two entries.
             {
-                Entry e1, e2, ex, ey;
+                Entry    e1;
+                Entry    e2;
+                Entry    ex;
+                Entry    ey;
+                Datetime dn = bdlt::CurrentTime::utc();
+                Datetime dx;
+                Datetime dy;
 
                 const bsls::Types::Int64 lastNumBlocksInUse =
                                                            sa.numBlocksInUse();
@@ -1600,6 +1655,9 @@ int main(int argc, char *argv[])
                 ey = X.lookupCalendar("CAL-2");   ASSERT(ey.get());
                                                   ASSERT(ey.get() == e2.get());
 
+                dy = X.lookupLoadTime("CAL-2");
+                ASSERT(dy - dn < OneSecond);
+
                 e1 = mX.getCalendar("CAL-1");     ASSERT(e1.get());
                                                   ASSERT(e1->firstDate() ==
                                                                   gFirstDate1);
@@ -1607,7 +1665,12 @@ int main(int argc, char *argv[])
                 ex = X.lookupCalendar("CAL-1");   ASSERT(ex.get());
                                                   ASSERT(ex.get() == e1.get());
 
+                dx = X.lookupLoadTime("CAL-1");
+                ASSERT(dx - dn < OneSecond);
+
                 ex = X.lookupCalendar("CAL-Z");   ASSERT(!ex.get());
+
+                dx = X.lookupLoadTime("CAL-Z");   ASSERT(dx == Datetime());
 
                 LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
                              daLastNumBlocksTotal == da.numBlocksTotal());
@@ -1627,7 +1690,11 @@ int main(int argc, char *argv[])
 
             Obj mX(&loader, Interval(1), &sa);  const Obj& X = mX;
 
-            Entry e1, e2, eo;
+            Entry    e1;
+            Entry    e2;
+            Entry    eo;
+            Datetime dn = bdlt::CurrentTime::utc();
+            Datetime d0;
 
             e1 = mX.getCalendar("CAL-1");    ASSERT( e1.get());
             e2 = mX.getCalendar("CAL-2");    ASSERT( e2.get());
@@ -1635,8 +1702,12 @@ int main(int argc, char *argv[])
             eo = X.lookupCalendar("CAL-1");  ASSERT( eo.get());
                                              ASSERT( eo.get() == e1.get());
 
+            d0 = X.lookupLoadTime("CAL-1");  ASSERT(d0 - dn < OneSecond);
+
             eo = X.lookupCalendar("CAL-2");  ASSERT( eo.get());
                                              ASSERT( eo.get() == e2.get());
+
+            d0 = X.lookupLoadTime("CAL-2");  ASSERT(d0 - dn < OneSecond);
 
             eo = mX.getCalendar("CAL-1");    ASSERT( eo.get());
                                              ASSERT( eo.get() == e1.get());
@@ -1650,6 +1721,8 @@ int main(int argc, char *argv[])
             sleepSeconds(2);
 
             eo = X.lookupCalendar("CAL-1");  ASSERT(!eo.get());
+
+            d0 = X.lookupLoadTime("CAL-1");  ASSERT(d0 == Datetime());
 
             eo = mX.getCalendar("CAL-2");    ASSERT( eo.get());
                                              ASSERT( eo.get() != e2.get());
@@ -1681,6 +1754,14 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(X.lookupCalendar(""));
 
                 ASSERT_SAFE_FAIL(X.lookupCalendar(0));
+            }
+
+            {
+                const Obj X(&loader, &sa);
+
+                ASSERT_SAFE_PASS(X.lookupLoadTime(""));
+
+                ASSERT_SAFE_FAIL(X.lookupLoadTime(0));
             }
         }
 
@@ -2237,7 +2318,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
