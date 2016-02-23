@@ -1223,6 +1223,14 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDDEF_H
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+        // Here and throughout the file wherever 'auto_ptr' is used, suspend
+        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
+        // in this standard interface is required.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace BloombergLP {
 namespace bslstl {
 
@@ -1592,14 +1600,6 @@ class shared_ptr {
         // indicating the error.  Note that if 'managedPtr' is empty, then an
         // empty shared pointer is created and 'basicAllocator' is ignored.
 
-#ifdef BSLS_PLATFORM_CMP_GNU
-        // Here and throughout the file wherever 'auto_ptr' is used, suspend
-        // GCC reporting of deprecated declarations since the use of 'auto_ptr'
-        // in this standard interface is required.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
     template <class COMPATIBLE_TYPE>
     explicit shared_ptr(
                    native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
@@ -1631,10 +1631,6 @@ class shared_ptr {
         // 'COMPATIBLE_TYPE *' is not implicitly convertible to
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
         // indicating the error.
-
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic pop
-#endif
 
     template <class ANY_TYPE>
     shared_ptr(const shared_ptr<ANY_TYPE>&  source,
@@ -1708,11 +1704,6 @@ class shared_ptr {
         // that object.  Note that if 'rhs' is empty, then this shared pointer
         // will also be empty after the assignment.
 
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
     template <class COMPATIBLE_TYPE>
     shared_ptr& operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs);
         // Transfer, to this shared pointer, ownership of the modifiable object
@@ -1726,10 +1717,6 @@ class shared_ptr {
         // pointer held the last shared reference to that object.  Note that if
         // 'rhs' is empty, then this shared pointer will be empty after the
         // assignment.
-
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic pop
-#endif
 
     void reset();
         // Reset this shared pointer to the empty state.  If this shared
@@ -3872,11 +3859,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
     }
 }
 
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
@@ -3920,10 +3902,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
         d_rep_p = rep;
     }
 }
-
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic pop
-#endif
 
 template <class ELEMENT_TYPE>
 template <class ANY_TYPE>
@@ -4029,11 +4007,6 @@ shared_ptr<ELEMENT_TYPE>::operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
     return *this;
 }
 
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
@@ -4043,10 +4016,6 @@ shared_ptr<ELEMENT_TYPE>::operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs)
     SelfType(rhs).swap(*this);
     return *this;
 }
-
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic pop
-#endif
 
 template <class ELEMENT_TYPE>
 inline
@@ -6531,6 +6500,10 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 }  // close namespace bslmf
 
 }  // close enterprise namespace
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 
 #endif
 
