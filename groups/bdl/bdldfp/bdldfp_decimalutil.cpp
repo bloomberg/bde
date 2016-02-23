@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 
 #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 extern "C" {
-#include <decSingle.h>
+#include <decnumber/decSingle.h>
 }
 #endif
 

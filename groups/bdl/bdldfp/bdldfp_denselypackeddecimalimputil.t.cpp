@@ -26,7 +26,7 @@
 // Even in hardware and intel modes, we need decNumber functions.
 
 extern "C" {
-#include <decSingle.h>
+#include <decnumber/decSingle.h>
 }
 
 using namespace BloombergLP;
