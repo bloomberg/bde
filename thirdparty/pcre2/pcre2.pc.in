@@ -5,9 +5,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: libpcre2-8
+Name: libpcre2
 Description: PCRE2 - Perl compatible regular expressions C library (2nd API) with 8 bit character support
-Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lpcre2-8
-Libs.private: @PTHREAD_CFLAGS@ @PTHREAD_LIBS@
-Cflags: -I${includedir} @PCRE2_STATIC_CFLAG@
+Version: 10.20
+Libs: -L${libdir} @libs@
+Libs.private:
+Cflags: -I${includedir} @cflags@
