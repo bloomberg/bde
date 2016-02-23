@@ -230,6 +230,28 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER];
                                                                       // RETURN
             }
+            else if (bsl::toupper(name[1])=='R'
+             && bsl::toupper(name[2])=='I'
+             && bsl::toupper(name[3])=='T'
+             && bsl::toupper(name[4])=='E'
+             && bsl::toupper(name[5])=='Q'
+             && bsl::toupper(name[6])=='U'
+             && bsl::toupper(name[7])=='E'
+             && bsl::toupper(name[8])=='U'
+             && bsl::toupper(name[9])=='E'
+             && bsl::toupper(name[10])=='H'
+             && bsl::toupper(name[11])=='I'
+             && bsl::toupper(name[12])=='G'
+             && bsl::toupper(name[13])=='H'
+             && bsl::toupper(name[14])=='W'
+             && bsl::toupper(name[15])=='A'
+             && bsl::toupper(name[16])=='T'
+             && bsl::toupper(name[17])=='E'
+             && bsl::toupper(name[18])=='R') {
+                return
+               &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER];
+                                                                      // RETURN
+            }
           } break;
           case 'T': {
             if (bsl::toupper(name[1])=='H'
@@ -336,6 +358,26 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
              && bsl::toupper(name[13])=='W'
              && bsl::toupper(name[14])=='A'
              && bsl::toupper(name[15])=='T') {
+                return
+                &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER];
+                                                                      // RETURN
+            } else if (bsl::toupper(name[1])=='R'
+             && bsl::toupper(name[2])=='I'
+             && bsl::toupper(name[3])=='T'
+             && bsl::toupper(name[4])=='E'
+             && bsl::toupper(name[5])=='Q'
+             && bsl::toupper(name[6])=='U'
+             && bsl::toupper(name[7])=='E'
+             && bsl::toupper(name[8])=='U'
+             && bsl::toupper(name[9])=='E'
+             && bsl::toupper(name[10])=='L'
+             && bsl::toupper(name[11])=='O'
+             && bsl::toupper(name[12])=='W'
+             && bsl::toupper(name[13])=='W'
+             && bsl::toupper(name[14])=='A'
+             && bsl::toupper(name[15])=='T'
+             && bsl::toupper(name[16])=='E'
+             && bsl::toupper(name[17])=='R') {
                 return
                 &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER];
                                                                       // RETURN
@@ -550,7 +592,7 @@ ChannelPoolConfiguration::~ChannelPoolConfiguration()
     BSLS_ASSERT(0 <= d_maxConnections);
     BSLS_ASSERT(0 <= d_maxThreads);
     BSLS_ASSERT(0 <= d_writeQueueLowWater);
-    BSLS_ASSERT(d_writeQueueLowWater <= d_writeQueueHighWater);
+    BSLS_ASSERT(0 <= d_writeQueueHighWater);
     BSLS_ASSERT(0 <= d_readTimeout);
     BSLS_ASSERT(0 <= d_metricsInterval);
     BSLS_ASSERT(0 <= d_minMessageSizeOut

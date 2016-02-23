@@ -1012,12 +1012,6 @@ class SessionPool {
         // specified 'userData'.  Return 0 on success, and a non-zero value
         // with no effect on the session pool otherwise.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheWatermarks(int handleId,
-                                int lowWatermark,
-                                int highWatermark);
-#endif
-
     int setWriteQueueWatermarks(int handleId,
                                 int lowWatermark,
                                 int highWatermark);
@@ -1055,6 +1049,10 @@ class SessionPool {
         // 'handle' is listening, or a negative value if 'handle' does not
         // refer to an active listening session obtained from a successful call
         // to 'listen' on this session pool.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    int setWriteCacheWatermarks(int, int, int);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
@@ -1147,7 +1145,7 @@ int SessionPool::setWriteCacheWatermarks(int handleId,
 {
     return setWriteQueueWatermarks(handleId, lowWatermark, highWatermark);
 }
-#endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace

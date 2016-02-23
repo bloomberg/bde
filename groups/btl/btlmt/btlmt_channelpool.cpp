@@ -2122,6 +2122,7 @@ void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
     // generated.
 
     const int writeQueueSize = currentWriteQueueSize();
+    d_writeQueueHighWater = numBytes;
 
     if (!d_highWatermarkHitFlag && writeQueueSize >= numBytes) {
         d_highWatermarkHitFlag = true;
@@ -2138,8 +2139,6 @@ void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
 
         d_highWatermarkHitFlag = false;
     }
-
-    d_writeQueueHighWater = numBytes;
 }
 
 int Channel::setWriteQueueLowWatermark(int numBytes)

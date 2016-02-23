@@ -1660,10 +1660,6 @@ class ChannelPool {
         // note that this function is intended to be called to release
         // resources held by this channel pool just prior to its destruction.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheHiWatermark(int channelId, int numBytes);
-#endif
-
     int setWriteQueueHighWatermark(int channelId, int numBytes);
         // Set the write queue high-water mark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, and a non-zero value
@@ -1677,10 +1673,6 @@ class ChannelPool {
         // overrides the value configured (for all channels) by the
         // 'ChannelPoolConfiguration' supplied at construction.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheLowWatermark(int channelId, int numBytes);
-#endif
-
     int setWriteQueueLowWatermark(int channelId, int numBytes);
         // Set the write queue low-water mark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, and a non-zero value
@@ -1693,12 +1685,6 @@ class ChannelPool {
         // alerts.) The behavior is undefined unless '0 <= numBytes'.  Note
         // that this method overrides the value configured (for all channels)
         // by the 'ChannelPoolConfiguration' supplied at construction.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheWatermarks(int channelId,
-                                int lowWatermark,
-                                int highWatermark);
-#endif
 
     int setWriteQueueWatermarks(int channelId,
                                 int lowWatermark,
@@ -1719,10 +1705,6 @@ class ChannelPool {
         // configured (for all channels) by the 'ChannelPoolConfiguration'
         // supplied at construction.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int resetRecordedMaxWriteCacheSize(int channelId);
-#endif
-    
     int resetRecordedMaxWriteQueueSize(int channelId);
         // Reset the recorded max write queue size for the specified
         // 'channelId' to the current write queue size.  Return 0 on success,
@@ -1907,12 +1889,6 @@ class ChannelPool {
         // performance reasons this *sequence* is not captured atomically: by
         // the time one of the values is captured, another may already have
         // changed.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int getChannelWriteCacheStatistics(int *recordedMaxWriteQueueSize,
-                                       int *currentWriteQueueSize,
-                                       int  channelId) const;
-#endif
     
     int getChannelWriteQueueStatistics(int *recordedMaxWriteQueueSize,
                                        int *currentWriteQueueSize,
@@ -2033,6 +2009,16 @@ class ChannelPool {
     void totalBytesWritten(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes written
         // by the pool.
+
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    int setWriteCacheHiWatermark(int, int);
+    int setWriteCacheLowWatermark(int, int);
+    int setWriteCacheWatermarks(int, int, int);
+    int resetRecordedMaxWriteCacheSize(int); 
+    int getChannelWriteCacheStatistics(int *, int *, int) const;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 };
 
                  // ============================
@@ -2106,42 +2092,6 @@ bool operator!=(const ChannelPool_IovecArray<IOVEC> &lhs,
     // the same value, and 'false' otherwise.  Two iovec arrays do not have the
     // same value if their respective array addresses, array lengths, or total
     // data lengths are not the name.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-inline
-int ChannelPool::setWriteCacheHiWatermark(int id, int n)    // DEPRECATED
-{
-    return setWriteQueueHighWatermark(id, n);
-}
-
-inline
-int ChannelPool::setWriteCacheLowWatermark(int id, int n)  // DEPRECATED
-{
-    return setWriteQueueLowWatermark(id, n);
-}
-
-inline
-int ChannelPool::setWriteCacheWatermarks(                   // DEPRECATED
-        int id, int lo, int hi)
-{
-    return setWriteQueueWatermarks(id, lo, hi);
-}
-
-inline
-int ChannelPool::resetRecordedMaxWriteCacheSize(int id)     // DEPRECATED
-{
-    return resetRecordedMaxWriteQueueSize(id);
-}
-
-inline
-int ChannelPool::getChannelWriteCacheStatistics(            // DEPRECATED
-        int *max, int *size, int id) const
-{
-    return getChannelWriteQueueStatistics(max, size, id);
-}
-
-#endif
 
                  // =============================
                  // class ChannelPool_MessageUtil
@@ -2481,6 +2431,43 @@ void ChannelPool_MessageUtil::appendToBlob(
 {
     btls::IovecUtil::appendToBlob(dest, msg.iovecs(), msg.numIovecs());
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+int ChannelPool::setWriteCacheHiWatermark(int id, int n)    // DEPRECATED
+{
+    return setWriteQueueHighWatermark(id, n);
+}
+
+inline
+int ChannelPool::setWriteCacheLowWatermark(int id, int n)  // DEPRECATED
+{
+    return setWriteQueueLowWatermark(id, n);
+}
+
+inline
+int ChannelPool::setWriteCacheWatermarks(                   // DEPRECATED
+        int id, int lo, int hi)
+{
+    return setWriteQueueWatermarks(id, lo, hi);
+}
+
+inline
+int ChannelPool::resetRecordedMaxWriteCacheSize(int id)     // DEPRECATED
+{
+    return resetRecordedMaxWriteQueueSize(id);
+}
+
+inline
+int ChannelPool::getChannelWriteCacheStatistics(            // DEPRECATED
+        int *max, int *size, int id) const
+{
+    return getChannelWriteQueueStatistics(max, size, id);
+}
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 
 }  // close package namespace
 

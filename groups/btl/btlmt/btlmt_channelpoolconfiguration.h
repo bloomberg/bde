@@ -543,10 +543,6 @@ class ChannelPoolConfiguration {
         // non-zero value (with no effect on the state of this object)
         // otherwise.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheWatermarks(int lowWatermark, int highWatermark);
-#endif
-
     int setWriteQueueWatermarks(int lowWatermark, int highWatermark);
         // Set the write queue watermarks to specified 'lowWatermark' and
         // 'highWatermark' values.  Return 0 on success, and a non-zero value
@@ -630,16 +626,8 @@ class ChannelPoolConfiguration {
         // Return the read timeout attribute of this object.  A value of 0
         // indicates the read timeout should be disabled.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int writeCacheLowWatermark() const;
-#endif
-
     int writeQueueLowWatermark() const;
         // Return the low watermark for the write queue.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int writeCacheHiWatermark() const;
-#endif
 
     int writeQueueHighWatermark() const;
         // Return the high watermark for the write queue.
@@ -678,6 +666,12 @@ class ChannelPoolConfiguration {
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    int setWriteCacheWatermarks(int, int);
+    int writeCacheHiWatermark() const;
+    int writeCacheLowWatermark() const;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE OPERATORS
@@ -765,15 +759,6 @@ int ChannelPoolConfiguration::setThreadStackSize(int stackSize)
     }
     return -1;
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-int ChannelPoolConfiguration::setWriteCacheWatermarks(int lowWatermark,
-                                                      int highWatermark)
-{
-    return setWriteCacheWatermarks(lowWatermark, highWatermark);
-}
-#endif
 
 inline
 int ChannelPoolConfiguration::setWriteQueueWatermarks(int lowWatermark,
@@ -1100,24 +1085,10 @@ bsl::ostream& ChannelPoolConfiguration::streamOut(bsl::ostream& stream) const
     return stream << *this;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-int ChannelPoolConfiguration::writeCacheLowWatermark() const {
-    return d_writeQueueLowWater;
-}
-#endif
-
 inline
 int ChannelPoolConfiguration::writeQueueLowWatermark() const {
     return d_writeQueueLowWater;
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-int ChannelPoolConfiguration::writeCacheHiWatermark() const {
-    return d_writeQueueHighWater;
-}
-#endif
 
 inline
 int ChannelPoolConfiguration::writeQueueHighWatermark() const {
@@ -1347,6 +1318,29 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
 
      return accessAttribute(accessor, attributeInfo->d_id);
 }
+
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+inline
+int ChannelPoolConfiguration::writeCacheLowWatermark() const {
+    return d_writeQueueLowWater;
+}
+
+inline
+int ChannelPoolConfiguration::writeCacheHiWatermark() const {
+    return d_writeQueueHighWater;
+}
+
+inline
+int ChannelPoolConfiguration::setWriteCacheWatermarks(int lowWatermark,
+                                                      int highWatermark)
+{
+    return setWriteQueueWatermarks(lowWatermark, highWatermark);
+}
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 
 }  // close package namespace
 
