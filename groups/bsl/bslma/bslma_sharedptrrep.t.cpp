@@ -5,6 +5,7 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_asserttest.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -35,7 +36,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
 //--------------------
-// [ 9] void managedPtrDeleter(void *, bslma::SharedPtrRep *rep); // TBD
+// [ 9] void managedPtrDeleter(void *, bslma::SharedPtrRep *rep);
+// [ 9] void managedPtrEmptyDeleter(void *, bslma::SharedPtrRep *rep);
 // [ 2] bslma::SharedPtrRep();
 // [ 3] void acquireRef();
 // [ 8] void incrementRefs(int incrementAmount = 1);
@@ -473,6 +475,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void managedPtrDeleter(void*, bslma::SharedPtrRep *rep);
+        //   void managedPtrEmptyDeleter(void *, bslma::SharedPtrRep *rep);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING 'managedPtrDeleter'"
                             "\n===========================\n");
@@ -487,6 +490,30 @@ int main(int argc, char *argv[])
             ASSERT(false == X.hasUniqueOwner());
             ASSERT(1 == t.getNumObjectDisposed());
             ASSERT(1 == t.getNumRepDisposed());
+        }
+
+        if (verbose) printf("\nNEGATIVE TESTING 'managedPtrDeleter'"
+                            "\n------------------------------------\n");
+        {
+            TObj t;
+            Obj& x = t;
+            Obj const& X = x;
+
+            const bsls::AssertTestHandlerGuard G;
+            ASSERT_SAFE_FAIL(X.managedPtrDeleter(0, 0));
+            ASSERT_SAFE_PASS(X.managedPtrDeleter(0, &x));
+        }
+
+        if (verbose) printf("\nNEGATIVE TESTING 'managedPtrEmptyDeleter'"
+                            "\n-----------------------------------------\n");
+        {
+            TObj t;
+            Obj& x = t;
+            Obj const& X = x;
+
+            const bsls::AssertTestHandlerGuard G;
+            ASSERT_SAFE_PASS(X.managedPtrEmptyDeleter(0, 0));
+            ASSERT_SAFE_FAIL(X.managedPtrEmptyDeleter(0, &x));
         }
       } break;
       case 8: {

@@ -168,6 +168,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -438,13 +442,66 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // referred to by this representation object.
 };
 
+                        //============================
+                        // SharedPtrInplaceRep_ImpUtil
+                        //============================
+
+struct SharedPtrInplaceRep_ImpUtil {
+    // This struct provides a namespace for several static methods that ease
+    // the implementation of many methods of the 'SharedPtrInplaceRep' class.
+
+    // CLASS METHODS
+    template <class TYPE>
+    static const TYPE& forward(const TYPE& reference);
+    template <class TYPE>
+    static BloombergLP::bslmf::MovableRef<TYPE> forward(
+                        const BloombergLP::bslmf::MovableRef<TYPE>& reference);
+        // Return the specified 'reference'.  Note that this pair of overloaded
+        // functions is necessary to correctly forward movable references when
+        // providing explicit move-semantics for C++03; otherwise the
+        // 'MovableRef' is likely to be wrapped in multiple layers of reference
+        // wrappers, and not be recognized as the movable vocabulary type.
+
+    template <class TYPE>
+    static void *voidify(TYPE *address);
+        // Return the specified 'address' cast as a pointer to 'void', even if
+        // (the template parameter) 'TYPE' is cv-qualified.
+};
+
 // ============================================================================
 //              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class SharedPtrInplaceRep
-                      // -------------------------
+
+                        // ---------------------------
+                        // SharedPtrInplaceRep_ImpUtil
+                        // ---------------------------
+
+template <class TYPE>
+inline
+const TYPE& SharedPtrInplaceRep_ImpUtil::forward(const TYPE& reference)
+{
+    return reference;
+}
+
+template <class TYPE>
+inline
+BloombergLP::bslmf::MovableRef<TYPE> SharedPtrInplaceRep_ImpUtil::forward(
+                         const BloombergLP::bslmf::MovableRef<TYPE>& reference)
+{
+    return reference;
+}
+
+template <class TYPE>
+inline
+void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
+    return static_cast<void *>(
+            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
+}
+
+                        // -------------------------
+                        // class SharedPtrInplaceRep
+                        // -------------------------
 
 // CREATORS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
@@ -463,7 +520,7 @@ template <class... ARGS>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator      *basicAllocator,
                                                const ARGS&...  args)
 : d_allocator_p(basicAllocator)
-, d_instance(args...)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(args)...)
 {
 }
 # endif
@@ -472,6 +529,7 @@ template <class TYPE>
 inline
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
+, d_instance()
 {
 }
 
@@ -480,7 +538,7 @@ template <class A1>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A1&  a1)
 : d_allocator_p(basicAllocator)
-, d_instance(a1)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1))
 {
 }
 
@@ -490,7 +548,8 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A1&  a1,
                                                const A2&  a2)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2))
 {
 }
 
@@ -501,7 +560,9 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A2&  a2,
                                                const A3&  a3)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3))
 {
 }
 
@@ -513,7 +574,10 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A3&  a3,
                                                const A4&  a4)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4))
 {
 }
 
@@ -526,7 +590,11 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A4&  a4,
                                                const A5&  a5)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5))
 {
 }
 
@@ -540,7 +608,12 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A5&  a5,
                                                const A6&  a6)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6))
 {
 }
 
@@ -556,7 +629,13 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A6&  a6,
                                                const A7&  a7)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7))
 {
 }
 
@@ -573,7 +652,14 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A7&  a7,
                                                const A8&  a8)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8))
 {
 }
 
@@ -591,7 +677,15 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A8&  a8,
                                                const A9&  a9)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9))
 {
 }
 
@@ -610,7 +704,16 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A9&  a9,
                                                const A10& a10)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9),
+             SharedPtrInplaceRep_ImpUtil::forward(a10))
 {
 }
 
@@ -630,7 +733,17 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A10& a10,
                                                const A11& a11)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9),
+             SharedPtrInplaceRep_ImpUtil::forward(a10),
+             SharedPtrInplaceRep_ImpUtil::forward(a11))
 {
 }
 
@@ -651,7 +764,18 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A11& a11,
                                                const A12& a12)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9),
+             SharedPtrInplaceRep_ImpUtil::forward(a10),
+             SharedPtrInplaceRep_ImpUtil::forward(a11),
+             SharedPtrInplaceRep_ImpUtil::forward(a12))
 {
 }
 
@@ -674,7 +798,19 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A12& a12,
                                                const A13& a13)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9),
+             SharedPtrInplaceRep_ImpUtil::forward(a10),
+             SharedPtrInplaceRep_ImpUtil::forward(a11),
+             SharedPtrInplaceRep_ImpUtil::forward(a12),
+             SharedPtrInplaceRep_ImpUtil::forward(a13))
 {
 }
 
@@ -698,7 +834,20 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                const A13& a13,
                                                const A14& a14)
 : d_allocator_p(basicAllocator)
-, d_instance(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14)
+, d_instance(SharedPtrInplaceRep_ImpUtil::forward(a1),
+             SharedPtrInplaceRep_ImpUtil::forward(a2),
+             SharedPtrInplaceRep_ImpUtil::forward(a3),
+             SharedPtrInplaceRep_ImpUtil::forward(a4),
+             SharedPtrInplaceRep_ImpUtil::forward(a5),
+             SharedPtrInplaceRep_ImpUtil::forward(a6),
+             SharedPtrInplaceRep_ImpUtil::forward(a7),
+             SharedPtrInplaceRep_ImpUtil::forward(a8),
+             SharedPtrInplaceRep_ImpUtil::forward(a9),
+             SharedPtrInplaceRep_ImpUtil::forward(a10),
+             SharedPtrInplaceRep_ImpUtil::forward(a11),
+             SharedPtrInplaceRep_ImpUtil::forward(a12),
+             SharedPtrInplaceRep_ImpUtil::forward(a13),
+             SharedPtrInplaceRep_ImpUtil::forward(a14))
 {
 }
 #endif
@@ -735,7 +884,7 @@ template <class TYPE>
 inline
 TYPE *SharedPtrInplaceRep<TYPE>::ptr()
 {
-    return &d_instance;
+    return bsls::Util::addressOf(d_instance);
 }
 
 // ACCESSORS
