@@ -6,6 +6,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
+#include <bsls_pointercastutil.h>
+#include <bsls_types.h>
 
 #include <exception>
 
@@ -95,7 +97,8 @@ bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
 // CLASS METHODS
 void Assert::setFailureHandlerRaw(Assert::Handler function)
 {
-    bsls::AtomicOperations::setPtrRelease(&s_handler, (void *) function);
+    bsls::AtomicOperations::setPtrRelease(
+        &s_handler, PointerCastUtil::cast<void *>(function));
 }
 
 void Assert::setFailureHandler(Assert::Handler function)
