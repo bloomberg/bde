@@ -592,6 +592,54 @@ template <class TYPE>
 struct is_convertible<TYPE&, TYPE&> : true_type {
 };
 
+template <class TYPE>
+struct is_convertible<const TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, const TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const TYPE, const volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, volatile TYPE&> : true_type {
+};
+
+template <class TYPE>
+struct is_convertible<volatile TYPE, const volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, const TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, volatile TYPE&> : false_type {
+};
+
+template <class TYPE>
+struct is_convertible<const volatile TYPE, const volatile TYPE&> : true_type {
+};
+
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<FROM_TYPE, volatile TO_TYPE&> : false_type {
 };
@@ -628,8 +676,11 @@ template <class TYPE>
 struct is_convertible<volatile TYPE, TYPE>
      : bsl::conditional<
                       bsl::is_fundamental<TYPE>::value,
-                      bsl::is_convertible<TYPE, TYPE>,
-                      BloombergLP::bslmf::IsConvertible_Conditional<TYPE, TYPE>
+                      typename bsl::is_convertible<TYPE, TYPE>::type,
+                      typename BloombergLP::bslmf::IsConvertible_Conditional<
+                                                                          TYPE,
+                                                                          TYPE>
+                                                                         ::type
                        >::type {
 };
 
@@ -638,9 +689,10 @@ template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible<volatile FROM_TYPE&, TO_TYPE>
      : bsl::conditional<
               bsl::is_fundamental<FROM_TYPE>::value,
-              bsl::is_convertible<FROM_TYPE, TO_TYPE>,
-              BloombergLP::bslmf::IsConvertible_Conditional<volatile FROM_TYPE,
-                                                           TO_TYPE>
+              typename bsl::is_convertible<FROM_TYPE, TO_TYPE>::type,
+              typename BloombergLP::bslmf::IsConvertible_Conditional<
+                                                            volatile FROM_TYPE,
+                                                            TO_TYPE>::type
                        >::type {
 };
 
