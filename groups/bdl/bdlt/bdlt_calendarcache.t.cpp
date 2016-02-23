@@ -5,6 +5,7 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>            // for testing only
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
 #include <bdlt_packedcalendar.h>
 
 #include <bslim_testutil.h>
