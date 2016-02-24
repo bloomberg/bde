@@ -500,7 +500,7 @@ typedef RegEx Obj;
 // within 'message'.  The text is then extracted from 'message' and assigned to
 // the 'result' "out" parameter:
 //..
-        bsl::pair<size_t, size_t> capturedSubject =
+        const bsl::pair<size_t, size_t> capturedSubject =
                              matchVector[regEx.subpatternIndex("subjectText")];
 
         *result = bsl::string(&message[capturedSubject.first],
@@ -1678,9 +1678,7 @@ int main(int argc, char *argv[])
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
         ASSERTV(Y.flags(), 0 == Y.flags());
 
-        if (verbose) {
-            cout << "\nTrying multiline subjects." << endl;
-        }
+        if (verbose) cout << "\nTrying multi-line subjects." << endl;
 
         for (size_t i = 0; i < NUM_DATA; ++i) {
             const int     LINE          = DATA[i].d_lineNum;
@@ -1734,10 +1732,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, retCode, 0 != retCode);
         }
 
-        if (verbose) {
-            cout << "\nTrying single line subject." << endl;
-        }
-
+        if (verbose) cout << "\nTrying single line subject." << endl;
         {
             const char   *SUBJECT     = SUBJECT_SINGLE_LINE;
             const size_t  SUBJECT_LEN = strlen(SUBJECT);
@@ -1782,8 +1777,6 @@ int main(int argc, char *argv[])
             ASSERTV(vMatch[0].first,  0           == vMatch[0].first);
             ASSERTV(vMatch[0].second, SUBJECT_LEN == vMatch[0].second);
         }
-
-        if (verbose) cout << "\nEnd of Multiline Flag Test." << endl;
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1864,9 +1857,7 @@ int main(int argc, char *argv[])
         ASSERTV(errorMsg, errorOffset, 0 == retCode);
         ASSERTV(Y.flags(), 0 == Y.flags());
 
-        if (verbose) {
-            cout << "\nTrying different cases." << endl;
-        }
+        if (verbose) cout << "\nTrying different cases." << endl;
 
         for (size_t i = 0; i < NUM_DATA; ++i) {
             const int     LINE    = DATA[i].d_lineNum;
@@ -2183,10 +2174,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) {
-            cout << "\nTesting empty subjects." << endl;
-        }
-
+        if (verbose) cout << "\nTesting empty subjects." << endl;
         {
             const char GOOD_PATTERN[]     = "(abc)*";
             const char NOT_GOOD_PATTERN[] = "(abc)+";
@@ -2256,7 +2244,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0));
 
-            // 'match' taking 'bsl::pair'
+            // 'match' taking 'StringRef'
             {
                 ASSERT_SAFE_PASS(X.match(&p, SUBJECT,  9,  1));
                 ASSERT_SAFE_FAIL(X.match(zp, SUBJECT,  9,  1));
@@ -2274,7 +2262,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(X.match(&p, SUBJECT,  1,  2));
             }
 
-            // 'match' taking 'bsl::vector'
+            // 'match' taking 'bsl::vector' of 'StringRef'
             {
                 ASSERT_SAFE_PASS(X.match(&v, SUBJECT,  9,  1));
                 ASSERT_SAFE_FAIL(X.match(zv, SUBJECT,  9,  1));
@@ -2764,6 +2752,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.pattern(),     INVALID_PATTERN == X.pattern());
             ASSERTV(errorOffset,     7               == errorOffset);
         }
+
         if (verbose) cout << "\nTesting sequential 'prepare'." << endl;
         {
             Obj mX(&ta); const Obj& X = mX;
@@ -2788,6 +2777,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.isPrepared(),  false            == X.isPrepared());
             ASSERTV(X.pattern(),     INVALID_PATTERN  == X.pattern());
         }
+
         if (verbose) cout << "\nTesting 'clear'." << endl;
         {
             Obj mX(&ta); const Obj& X = mX;
@@ -2810,8 +2800,6 @@ int main(int argc, char *argv[])
             ASSERTV(X.isPrepared(),  false == X.isPrepared());
             ASSERTV(X.pattern(),     ""    == X.pattern());
         }
-        ASSERTV(da.numAllocations(), 0 == da.numAllocations());
-
         ASSERTV(da.numAllocations(), 0 == da.numAllocations());
       } break;
       case 2: {

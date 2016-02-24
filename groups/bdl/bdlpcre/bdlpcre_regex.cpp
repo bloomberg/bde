@@ -71,13 +71,46 @@ enum {
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
 
+// PRIVATE ACCESSORS
+int RegEx::privateMatch(const char *subject,
+                        size_t      subjectLength,
+                        size_t      subjectOffset) const
+{
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    int result = k_SUCCESS;
+
+    const unsigned char* actualSubject =
+                reinterpret_cast<const unsigned char*>(subject ? subject : "");
+
+    int returnValue = pcre2_match(d_patternCode_p,
+                                  actualSubject,
+                                  subjectLength,
+                                  subjectOffset,
+                                  0,
+                                  d_matchData_p,
+                                  d_matchContext_p);
+
+    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
+        result = k_DEPTHLIMITFAILURE;
+    } else if (0 > returnValue) {
+        result = k_FAILURE;
+    }
+
+    return result;
+}
+
 // CREATORS
 RegEx::RegEx(bslma::Allocator *basicAllocator)
 : d_flags(0)
 , d_pattern(basicAllocator)
 , d_pcre2Context_p(0)
+, d_compileContext_p(0)
 , d_matchContext_p(0)
-, d_pcre2Code_p(0)
+, d_patternCode_p(0)
+, d_matchData_p(0)
 , d_depthLimit(RegEx::defaultDepthLimit())
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -86,6 +119,10 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
                                             &bdlpcre_free,
                                             static_cast<void*>(d_allocator_p));
     BSLS_ASSERT(0 != d_pcre2Context_p);
+
+    // Pre-create compile context
+    d_compileContext_p = pcre2_compile_context_create(d_pcre2Context_p);
+    BSLS_ASSERT(0 != d_compileContext_p);
 
     // Pre-create match context
     d_matchContext_p = pcre2_match_context_create(d_pcre2Context_p);
@@ -98,9 +135,11 @@ RegEx::RegEx(bslma::Allocator *basicAllocator)
 void RegEx::clear()
 {
     if (isPrepared()) {
-        pcre2_code_free(d_pcre2Code_p);
-        d_pcre2Code_p = 0;
-        d_flags       = 0;
+        pcre2_code_free(d_patternCode_p);
+        pcre2_match_data_free(d_matchData_p);
+        d_patternCode_p = 0;
+        d_matchData_p   = 0;
+        d_flags         = 0;
         d_pattern.clear();
     }
 }
@@ -117,32 +156,23 @@ int RegEx::prepare(bsl::string *errorMessage,
 
     clear();
 
-    d_flags        = flags;
     d_pattern      = pattern;
+    d_flags        = flags;
 
     // Compile the new pattern.
 
     int    errorCodeFromPcre2;
     size_t errorOffsetFromPcre2;
 
-    pcre2_compile_context *compileContext = pcre2_compile_context_create(
-                                                             d_pcre2Context_p);
-
-    if (0 == compileContext) {
-        return k_FAILURE;                                             // RETURN
-    }
-
-    pcre2_code *pcre2Code = pcre2_compile(
+    pcre2_code *patternCode = pcre2_compile(
                                reinterpret_cast<const unsigned char*>(pattern),
                                PCRE2_ZERO_TERMINATED,
                                flags,
                                &errorCodeFromPcre2,
                                &errorOffsetFromPcre2,
-                               compileContext);
+                               d_compileContext_p);
 
-    pcre2_compile_context_free(compileContext);
-
-    if (0 == pcre2Code) {
+    if (0 == patternCode) {
         if (errorMessage) {
             unsigned char errorBuffer[256];
 
@@ -165,10 +195,25 @@ int RegEx::prepare(bsl::string *errorMessage,
         return k_FAILURE;                                             // RETURN
     }
 
+    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
+                                                               patternCode, 0);
+
+    if (0 == matchData) {
+        pcre2_code_free(patternCode);
+        if (errorMessage) {
+            errorMessage->assign("Out of memory.");
+        }
+        if (errorOffset) {
+            *errorOffset = 0;
+        }
+        return k_FAILURE;
+    }
+
     // Set the data members and set the object to the "prepared" state.
-    d_flags        = flags;
-    d_pattern      = pattern;
-    d_pcre2Code_p  = pcre2Code;
+    d_pattern       = pattern;
+    d_patternCode_p = patternCode;
+    d_matchData_p   = matchData;
+    d_flags         = flags;
 
     return k_SUCCESS;
 }
@@ -178,39 +223,7 @@ int RegEx::match(const char *subject,
                  size_t      subjectLength,
                  size_t      subjectOffset) const
 {
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
-
-    int result = k_SUCCESS;
-
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                             d_pcre2Code_p, 0);
-
-    if (0 == matchData) {
-        return k_FAILURE;                                             // RETURN
-    }
-
-    const unsigned char* actualSubject =
-                reinterpret_cast<const unsigned char*>(subject ? subject : "");
-
-    int returnValue = pcre2_match(d_pcre2Code_p,
-                                  actualSubject,
-                                  subjectLength,
-                                  subjectOffset,
-                                  0,
-                                  matchData,
-                                  d_matchContext_p);
-
-    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        result = k_DEPTHLIMITFAILURE;
-    } else if (0 > returnValue) {
-        result = k_FAILURE;
-    }
-
-    pcre2_match_data_free(matchData);
-
-    return result;
+    return privateMatch(subject, subjectLength, subjectOffset);
 }
 
 int RegEx::match(bsl::pair<size_t, size_t> *result,
@@ -219,103 +232,23 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                  size_t                     subjectOffset) const
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
 
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                            d_pcre2Code_p, 0);
+    int matchResult = privateMatch(subject, subjectLength, subjectOffset);
 
-    if (0 == matchData) {
-        return k_FAILURE;                                             // RETURN
+    if (k_SUCCESS != matchResult) {
+        return matchResult;                                           // RETURN
     }
 
-    const unsigned char* actualSubject =
-                reinterpret_cast<const unsigned char*>(subject ? subject : "");
-
-    int returnValue = pcre2_match(d_pcre2Code_p,
-                                  actualSubject,
-                                  subjectLength,
-                                  subjectOffset,
-                                  0,
-                                  matchData,
-                                  d_matchContext_p);
-
-    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_DEPTHLIMITFAILURE;                                   // RETURN
-    } else if (0 > returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_FAILURE;                                             // RETURN
-    }
-
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
+    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
 
     BSLS_ASSERT(1 <= ovectorCount);
 
     size_t offset = ovector[0];
     size_t length = ovector[1] - offset;
     *result = bsl::make_pair(offset, length);
-
-    pcre2_match_data_free(matchData);
-
-    return k_SUCCESS;
-}
-
-int
-RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
-             const char                              *subject,
-             size_t                                   subjectLength,
-             size_t                                   subjectOffset) const
-{
-    BSLS_ASSERT(result);
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
-
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                            d_pcre2Code_p, 0);
-
-    if (0 == matchData) {
-        return k_FAILURE;                                             // RETURN
-    }
-
-    const unsigned char* actualSubject =
-                reinterpret_cast<const unsigned char*>(subject ? subject : "");
-
-    int returnValue = pcre2_match(d_pcre2Code_p,
-                                  actualSubject,
-                                  subjectLength,
-                                  subjectOffset,
-                                  0,
-                                  matchData,
-                                  d_matchContext_p);
-
-    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_DEPTHLIMITFAILURE;                                   // RETURN
-    } else if (0 > returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_FAILURE;                                             // RETURN
-    }
-
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
-
-    // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
-
-    result->resize(ovectorCount);
-
-    for (size_t i = 0, j = 0; i < ovectorCount; ++i, j += 2) {
-        size_t offset = ovector[j];
-        size_t length = ovector[j + 1] - offset;
-        (*result)[i] = bsl::make_pair(offset, length);
-    }
-
-    pcre2_match_data_free(matchData);
 
     return k_SUCCESS;
 }
@@ -326,40 +259,17 @@ int RegEx::match(bslstl::StringRef *result,
                  size_t             subjectOffset) const
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
 
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                            d_pcre2Code_p, 0);
+    int matchResult = privateMatch(subject, subjectLength, subjectOffset);
 
-    if (0 == matchData) {
-        return k_FAILURE;                                             // RETURN
+    if (k_SUCCESS != matchResult) {
+        return matchResult;                                           // RETURN
     }
 
-    const unsigned char* actualSubject =
-                reinterpret_cast<const unsigned char*>(subject ? subject : "");
-
-    int returnValue = pcre2_match(d_pcre2Code_p,
-                                  actualSubject,
-                                  subjectLength,
-                                  subjectOffset,
-                                  0,
-                                  matchData,
-                                  d_matchContext_p);
-
-    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_DEPTHLIMITFAILURE;                                   // RETURN
-    } else if (0 > returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_FAILURE;                                             // RETURN
-    }
-
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
+    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
 
     BSLS_ASSERT(1 <= ovectorCount);
 
@@ -371,7 +281,35 @@ int RegEx::match(bslstl::StringRef *result,
         result->reset();
     }
 
-    pcre2_match_data_free(matchData);
+    return k_SUCCESS;
+}
+
+int
+RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
+             const char                              *subject,
+             size_t                                   subjectLength,
+             size_t                                   subjectOffset) const
+{
+    BSLS_ASSERT(result);
+
+    int matchResult = privateMatch(subject, subjectLength, subjectOffset);
+
+    if (k_SUCCESS != matchResult) {
+        return matchResult;                                           // RETURN
+    }
+
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
+
+    // Number of pairs in the output vector
+    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+
+    result->resize(ovectorCount);
+
+    for (size_t i = 0, j = 0; i < ovectorCount; ++i, j += 2) {
+        size_t offset = ovector[j];
+        size_t length = ovector[j + 1] - offset;
+        (*result)[i] = bsl::make_pair(offset, length);
+    }
 
     return k_SUCCESS;
 }
@@ -383,40 +321,17 @@ RegEx::match(bsl::vector<bslstl::StringRef>  *result,
              size_t                           subjectOffset) const
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(subject || 0 == subjectLength);
-    BSLS_ASSERT(subjectOffset <= subjectLength);
-    BSLS_ASSERT(isPrepared());
 
-    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
-                                                            d_pcre2Code_p, 0);
+    int matchResult = privateMatch(subject, subjectLength, subjectOffset);
 
-    if (0 == matchData) {
-        return k_FAILURE;                                             // RETURN
+    if (k_SUCCESS != matchResult) {
+        return matchResult;                                           // RETURN
     }
 
-    const unsigned char* actualSubject =
-                reinterpret_cast<const unsigned char*>(subject ? subject : "");
-
-    int returnValue = pcre2_match(d_pcre2Code_p,
-                                  actualSubject,
-                                  subjectLength,
-                                  subjectOffset,
-                                  0,
-                                  matchData,
-                                  d_matchContext_p);
-
-    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_DEPTHLIMITFAILURE;                                   // RETURN
-    } else if (0 > returnValue) {
-        pcre2_match_data_free(matchData);
-        return k_FAILURE;                                             // RETURN
-    }
-
-    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(d_matchData_p);
 
     // Number of pairs in the output vector
-    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
+    unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
 
     result->resize(ovectorCount);
 
@@ -431,8 +346,6 @@ RegEx::match(bsl::vector<bslstl::StringRef>  *result,
         }
     }
 
-    pcre2_match_data_free(matchData);
-
     return k_SUCCESS;
 }
 
@@ -441,7 +354,7 @@ int RegEx::numSubpatterns() const
     BSLS_ASSERT(isPrepared());
 
     int numSubpatterns;
-    int returnValue = pcre2_pattern_info(d_pcre2Code_p,
+    int returnValue = pcre2_pattern_info(d_patternCode_p,
                                          PCRE2_INFO_CAPTURECOUNT,
                                          &numSubpatterns);
     (void)returnValue;
@@ -456,7 +369,7 @@ int RegEx::subpatternIndex(const char *name) const
     BSLS_ASSERT(isPrepared());
 
     const int index = pcre2_substring_number_from_name(
-                                 d_pcre2Code_p,
+                                 d_patternCode_p,
                                  reinterpret_cast<const unsigned char*>(name));
 
     return 0 < index && index <= numSubpatterns() ? index : -1;
