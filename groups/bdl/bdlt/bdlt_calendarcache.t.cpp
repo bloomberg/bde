@@ -1464,11 +1464,12 @@ int main(int argc, char *argv[])
         //:   'Datetime()'.
         //:
         //:12 That 'lookupLoadTime', when supplied with a string identifying a
-        //:   calendar present in the cache that has NOT expired, returns a
-        //:   reference to that calendar.
+        //:   calendar present in the cache that has NOT expired, returns the
+        //:   the time at which that calendar was loaded.
         //:
         //:13 That 'lookupLoadTime', when supplied with a string identifying a
-        //:   calendar present in the cache that HAS expired, returns null.
+        //:   calendar present in the cache that HAS expired, returns
+        //:   'Datetime()'.
         //:
         //:14 That 'lookupLoadTime' allocates no memory from any allocator.
         //:
@@ -1523,7 +1524,7 @@ int main(int argc, char *argv[])
             cout << endl
                  << "'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'"
                  << endl
-                 << "=================================="
+                 << "====================================================="
                  << endl;
         }
 

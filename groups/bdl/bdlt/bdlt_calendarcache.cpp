@@ -195,7 +195,7 @@ CalendarCache::getCalendar(const char *calendarName)
 
     PackedCalendar packedCalendar;  // temporary, so use default allocator
 
-    Datetime timestamp = CurrentTime::utc();
+    const Datetime timestamp = CurrentTime::utc();
 
     if (d_loader_p->load(&packedCalendar, calendarName)) {
         return bsl::shared_ptr<const Calendar>();                     // RETURN
