@@ -98,6 +98,7 @@ BSLS_IDENT("$Id: $")
 //  'c'             - comparator providing an ordering for objects of type 'K'
 //  'al             - an STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+//  'values'        - an object of type 'initializer_list<value_type>'
 //  'k'             - an object of type 'K'
 //  'p1', 'p2'      - two iterators belonging to 'a'
 //  distance(i1,i2) - the number of elements in the range [i1, i2)
@@ -119,9 +120,23 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | otherwise, where N |
 //  |                                                    | is distance(i1,i2) |
 //  +----------------------------------------------------+--------------------+
+//  | set<K> a(values, c);                               | O[N] if 'values'   |
+//  | set<K> a(values, c, al);                           | is sorted with     |
+//  | set<K> a(values, al);                              | 'a.value_comp()',  |
+//  |                                                    | O[N * log(N)]      |
+//  |                                                    | otherwise, where N |
+//  |                                                    | is 'values.size()' |
+//  +----------------------------------------------------+--------------------+
 //  | a.~set<K>(); (destruction)                         | O[n]               |
 //  +----------------------------------------------------+--------------------+
-//  | a = b;       (assignment)                          | O[n]               |
+//  | a = b;       (assignment)                          | O[n + m]           |
+//  | a = values;  (assignment)                          | O[N] if 'values' is|
+//  |                                                    | sorted with        |
+//  |                                                    | 'a.value_comp()',  |
+//  |                                                    | O[N * log(N)]      |
+//  |                                                    | otherwise, where N |
+//  |                                                    | is 'values.size()' |
+//  |                                                    | '+ a.size()'       |
 //  +----------------------------------------------------+--------------------+
 //  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
 //  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
@@ -157,6 +172,12 @@ BSLS_IDENT("$Id: $")
 //  |                                                    |                    |
 //  |                                                    | where N is         |
 //  |                                                    | n + distance(i1,i2)|
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(values)                                   | O[log(N) *         |
+//  |                                                    |   'values.size()]' |
+//  |                                                    |                    |
+//  |                                                    | where N is         |
+//  |                                                    | 'n + values.size()'|
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1)                                        | amortized constant |
 //  +----------------------------------------------------+--------------------+
@@ -531,6 +552,16 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_FUNCTIONAL
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+#ifndef INCLUDED_INITIALIZER_LIST
+#include <initializer_list>
+#define INCLUDED_INITIALIZER_LIST
+#endif
+#endif
+
 namespace bsl {
                              // =========
                              // class set
@@ -734,6 +765,43 @@ class set {
         // 'first' is at a position at or before 'last'.  Note that this method
         // requires that the (template parameter) type 'KEY' be
         // "copy-constructible" (see {Requirements on 'KEY'}).
+    
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    set(native_std::initializer_list<value_type> values,
+        const COMPARATOR&                        comparator = COMPARATOR(),
+        const ALLOCATOR&                         basicAllocator = ALLOCATOR());
+        // Construct a 'set', and insert each object in the specified 'values',
+        // ignoring those keys that appears earlier in the sequence.
+        // Optionally specify a 'comparator' used to order keys contained in
+        // this object.  If 'comparator' is not supplied, a default-constructed
+        // object of the (template parameter) type 'COMPARATOR' is used.
+        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) type 'ALLOCATOR' is used.  If the template
+        // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
+        // default), then 'basicAllocator', if supplied, shall be convertible
+        // to 'bslma::Allocator *'.  If the template parameter 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator is used to
+        // supply memory.  If the sequence in 'values' is ordered according to
+        // the identified 'comparator', then this operation has 'O[N]'
+        // complexity, where 'N' is 'values.size()', otherwise this operation
+        // has 'O[N * log(N)]' complexity.
+    
+    set(native_std::initializer_list<value_type> values,
+        const ALLOCATOR&                         basicAllocator);
+        // Construct a 'set' that will use the specified 'basicAllocator'
+        // to supply memory and insert each object in the specified 'values',
+        // ignoring those keys that  appears earlier in the sequence. Use a
+        // default-constructed object of the (template parameter) type
+        // 'COMPARATOR' to order the keys contained in this 'set'.  If the
+        // template parameter 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
+        // convertible to 'bslma::Allocator *'.  If the sequence in 'values'
+        // is ordered according to the comparator, then this operation has
+        // 'O[N]' complexity, where 'N' is 'values.size()', otherwise this
+        // operation has 'O[N * log(N)]' complexity.
+#endif
 
     ~set();
         // Destroy this object.
@@ -746,6 +814,19 @@ class set {
         // and return a reference providing modifiable access to this object.
         // Note that this method requires that the (template parameter) type
         // 'KEY' type be "copy-constructible" (see {Requirements on 'KEY'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    set& operator=(native_std::initializer_list<value_type> values);
+        // Assign to this object the values in the specified 'values', ignoring
+        // the keys that appear earlier in the sequence and return a reference
+        // providing modifiable access to this object.  All existing objects
+        // are either assigned to or destroyed.  If the sequence in 'values' is
+        // ordered according to the comparator then this operation has 'O[N]'
+        // complexity, where 'N' is 'values.size()', otherwise this operation
+        // has 'O[N * log(N)]' complexity. Note that this method requires that
+        // the (template parameter) type 'KEY' type be "copy-constructible"
+        // (see {Requirements on 'KEY'}).
+#endif
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -807,6 +888,17 @@ class set {
         // 'first' is at a position at or before 'last'.  Note that this method
         // requires that the (template parameter) type 'KEY' be
         // "copy-constructible" (see {Requirements on 'KEY'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void insert(native_std::initializer_list<value_type> values);
+        // Insert into this 'set' the values in the specified 'values' which
+        // are not already in this set.  If the sequence in 'values' is ordered
+        // according to the comparator then this operation has 'O[N]'
+        // complexity, where 'N' is 'values.size()', otherwise this operation
+        // has 'O[N * log(N)]' complexity.  Note that this method requires that
+        // the (template parameter) type 'KEY' be "copy-constructible" (see
+        // {Requirements on 'KEY'}).
+#endif
 
     iterator erase(const_iterator position);
         // Remove from this set the 'value_type' object at the specified
@@ -1000,14 +1092,8 @@ class set {
 
 //    set(set&&, const ALLOCATOR&);
 
-//    set(initializer_list<value_type>,
-//        const COMPARATOR& = COMPARATOR(),
-//        const ALLOCATOR& = ALLOCATOR());
-
 //    set<KEY, COMPARATOR, ALLOCATOR>& operator=(
 //                                        set<KEY, COMPARATOR, ALLOCATOR>&& x);
-
-//    set& operator=(initializer_list<value_type>);
 
 //    template <class... Args> pair<iterator, bool> emplace(Args&&... args);
 
@@ -1017,8 +1103,6 @@ class set {
 //     pair<iterator, bool> insert(value_type&& value);
 
 //     iterator insert(const_iterator position, value_type&& value);
-
-//     void insert(initializer_list<value_type>);
 
 };
 
@@ -1264,6 +1348,26 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
     }
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+set<KEY, COMPARATOR, ALLOCATOR>::set(native_std::initializer_list<value_type> values,
+                                     const COMPARATOR&                        comparator,
+                                     const ALLOCATOR&                         basicAllocator)
+: set(values.begin(), values.end(), comparator, basicAllocator)
+{
+}
+
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+set<KEY, COMPARATOR, ALLOCATOR>::set(native_std::initializer_list<value_type> values,
+                                     const ALLOCATOR&                         basicAllocator)
+: set(values.begin(), values.end(), COMPARATOR(), basicAllocator)
+{
+}
+#endif
+    
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::~set()
@@ -1293,6 +1397,18 @@ set<KEY, COMPARATOR, ALLOCATOR>::operator=(const set& rhs)
     }
     return *this;
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+set<KEY, COMPARATOR, ALLOCATOR>&
+set<KEY, COMPARATOR, ALLOCATOR>::operator=(native_std::initializer_list<value_type> values)
+{
+    clear();
+    insert(values);
+    return *this;
+}
+#endif
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
@@ -1390,6 +1506,15 @@ void set<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     }
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+void set<KEY, COMPARATOR, ALLOCATOR>::insert(native_std::initializer_list<value_type> values)
+{
+    insert(values.begin(), values.end());
+}
+#endif
+    
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename set<KEY, COMPARATOR, ALLOCATOR>::iterator
