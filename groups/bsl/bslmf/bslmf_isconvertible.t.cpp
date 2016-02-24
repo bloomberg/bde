@@ -120,6 +120,14 @@ void aSsErT(bool condition, const char *message, int line)
     // Uncomment this macro definition to test the correct diagnosis of errors
     // when 'is_convertible' is instantiated with incomplete class types.
 
+#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE) \
+        ASSERT(RESULT  == (bsl::is_convertible<FROM_TYPE, TO_TYPE>::value))
+
+#define  _(TYPE) TYPE
+#define C_(TYPE) const TYPE
+#define V_(TYPE) volatile TYPE
+#define CV(TYPE) const volatile TYPE
+        
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -513,17 +521,17 @@ int main(int argc, char *argv[])
         ASSERT(true ==
           (bsl::is_convertible<ConvertibleToObj<int>, volatile float>::value));
         ASSERT(true ==
-          (bsl::is_convertible<ConvertibleToObj<float>, volatile int>::value));
+          (bsl::is_convertible<ConvertibleToObj<float>, V_(int)>::value));
         ASSERT(true ==
-          (bsl::is_convertible<ConvertibleToObj<volatile int>, float>::value));
+          (bsl::is_convertible<ConvertibleToObj<V_(int)>, float>::value));
         ASSERT(true ==
           (bsl::is_convertible<ConvertibleToObj<volatile float>, int>::value));
         ASSERT(true ==
           (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<float, ConvertibleFrom<volatile int> >::value));
+          (bsl::is_convertible<float, ConvertibleFrom<V_(int)> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<volatile int, ConvertibleFrom<float> >::value));
+          (bsl::is_convertible<V_(int), ConvertibleFrom<float> >::value));
         ASSERT(true ==
           (bsl::is_convertible<volatile float, ConvertibleFrom<int> >::value));
 
@@ -570,17 +578,17 @@ int main(int argc, char *argv[])
         ASSERT(true ==
           (bsl::is_convertible<ConvertibleToRef<int>, volatile float>::value));
         ASSERT(true ==
-          (bsl::is_convertible<ConvertibleToRef<float>, volatile int>::value));
+          (bsl::is_convertible<ConvertibleToRef<float>, V_(int)>::value));
         ASSERT(true ==
-          (bsl::is_convertible<ConvertibleToRef<volatile int>, float>::value));
+          (bsl::is_convertible<ConvertibleToRef<V_(int)>, float>::value));
         ASSERT(true ==
           (bsl::is_convertible<ConvertibleToRef<volatile float>, int>::value));
         ASSERT(true ==
           (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<float, ConvertibleFrom<volatile int> >::value));
+          (bsl::is_convertible<float, ConvertibleFrom<V_(int)> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<volatile int, ConvertibleFrom<float> >::value));
+          (bsl::is_convertible<V_(int), ConvertibleFrom<float> >::value));
         ASSERT(true ==
           (bsl::is_convertible<volatile float, ConvertibleFrom<int> >::value));
 
@@ -627,9 +635,9 @@ int main(int argc, char *argv[])
         ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<int>,
                                                       volatile float>::value));
         ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<float>,
-                                                        volatile int>::value));
+                                                        V_(int)>::value));
         ASSERT(true ==
-                      (bsl::is_convertible<ConvertibleToConstRef<volatile int>,
+                      (bsl::is_convertible<ConvertibleToConstRef<V_(int)>,
                                                                float>::value));
         ASSERT(true ==
                     (bsl::is_convertible<ConvertibleToConstRef<volatile float>,
@@ -637,9 +645,9 @@ int main(int argc, char *argv[])
         ASSERT(true ==
           (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<float, ConvertibleFrom<volatile int> >::value));
+          (bsl::is_convertible<float, ConvertibleFrom<V_(int)> >::value));
         ASSERT(true ==
-          (bsl::is_convertible<volatile int, ConvertibleFrom<float> >::value));
+          (bsl::is_convertible<V_(int), ConvertibleFrom<float> >::value));
         ASSERT(true ==
           (bsl::is_convertible<volatile float, ConvertibleFrom<int> >::value));
       } break;
@@ -681,130 +689,130 @@ int main(int argc, char *argv[])
         // Test 'volatile' type conversions.
 
         ASSERT(true == (bsl::is_convertible<int, volatile float>::value));
-        ASSERT(true == (bsl::is_convertible<float, volatile int>::value));
-        ASSERT(true == (bsl::is_convertible<volatile int, float>::value));
+        ASSERT(true == (bsl::is_convertible<float, V_(int)>::value));
+        ASSERT(true == (bsl::is_convertible<V_(int), float>::value));
         ASSERT(true == (bsl::is_convertible<volatile float, int>::value));
 
         // Test 'volatile' pointer and reference conversions from integral to
         // floating-point.
 
         ASSERT(false == (bsl::is_convertible<int*, volatile float*>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int*, float*>::value));
+        ASSERT(false == (bsl::is_convertible<V_(int)*, float*>::value));
         ASSERT(false == (bsl::is_convertible<int&, volatile float&>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int&, float&>::value));
+        ASSERT(false == (bsl::is_convertible<V_(int)&, float&>::value));
         ASSERT(false == (bsl::is_convertible<int,  volatile float&>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int,  float&>::value));
+        ASSERT(false == (bsl::is_convertible<V_(int),  float&>::value));
         ASSERT(true  == (bsl::is_convertible<int&,  volatile float>::value));
-        ASSERT(true  == (bsl::is_convertible<volatile int&,  float>::value));
+        ASSERT(true  == (bsl::is_convertible<V_(int)&,  float>::value));
 
         ASSERT(false ==
                     (bsl::is_convertible<int*, const volatile float*>::value));
         ASSERT(false ==
-                    (bsl::is_convertible<const volatile int*, float*>::value));
+                    (bsl::is_convertible<CV(int)*, float*>::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
                     (bsl::is_convertible<int&, const volatile float&>::value));
 #endif
         ASSERT(false ==
-                    (bsl::is_convertible<const volatile int&, float&>::value));
+                    (bsl::is_convertible<CV(int)&, float&>::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
                     (bsl::is_convertible<int,  const volatile float&>::value));
 #endif
         ASSERT(false ==
-                     (bsl::is_convertible<const volatile int, float&>::value));
+                     (bsl::is_convertible<CV(int), float&>::value));
         ASSERT(true  ==
                      (bsl::is_convertible<int&, const volatile float>::value));
         ASSERT(true  ==
-                     (bsl::is_convertible<const volatile int&, float>::value));
+                     (bsl::is_convertible<CV(int)&, float>::value));
 
         ASSERT(false ==
                     (bsl::is_convertible<const int*, volatile float*>::value));
         ASSERT(false ==
-                    (bsl::is_convertible<volatile int*, const float*>::value));
+                    (bsl::is_convertible<V_(int)*, const float*>::value));
         ASSERT(true  ==
                     (bsl::is_convertible<const int&, volatile float>::value));
         ASSERT(true  ==
-                    (bsl::is_convertible<volatile int&, const float>::value));
+                    (bsl::is_convertible<V_(int)&, const float>::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
            (bsl::is_convertible<   const int&, const volatile float&>::value));
         ASSERT(false ==
-           (bsl::is_convertible<volatile int&, const volatile float&>::value));
+           (bsl::is_convertible<V_(int)&, const volatile float&>::value));
         ASSERT(false ==
            (bsl::is_convertible<   const int,  const volatile float&>::value));
         ASSERT(false ==
-           (bsl::is_convertible<volatile int,  const volatile float&>::value));
+           (bsl::is_convertible<V_(int),  const volatile float&>::value));
 #endif
         ASSERT(false ==
-            (bsl::is_convertible<const          int, volatile float&>::value));
+            (bsl::is_convertible<C_(int), volatile float&>::value));
         ASSERT(false ==
-            (bsl::is_convertible<const volatile int, volatile float&>::value));
+            (bsl::is_convertible<CV(int), volatile float&>::value));
 
         // Sun 5.2 and 5.5 get this right if the cv-unqualified types differ.
 
         ASSERT(true ==
-               (bsl::is_convertible<      volatile int, const float&>::value));
+               (bsl::is_convertible<      V_(int), const float&>::value));
         ASSERT(true ==
-               (bsl::is_convertible<const volatile int, const float&>::value));
+               (bsl::is_convertible<CV(int), const float&>::value));
 
         ASSERT(false == (bsl::is_convertible<int*, float>::value));
         ASSERT(false == (bsl::is_convertible<int, float*>::value));
 
         // Test volatile pointer and reference conversions from floating-point
         // to integral.
-        ASSERT(false == (bsl::is_convertible<float*, volatile int*>::value));
+        ASSERT(false == (bsl::is_convertible<float*, V_(int)*>::value));
         ASSERT(false == (bsl::is_convertible<volatile float*, int*>::value));
-        ASSERT(false == (bsl::is_convertible<float&, volatile int&>::value));
+        ASSERT(false == (bsl::is_convertible<float&, V_(int)&>::value));
         ASSERT(false == (bsl::is_convertible<volatile float&, int&>::value));
-        ASSERT(false == (bsl::is_convertible<float,  volatile int&>::value));
+        ASSERT(false == (bsl::is_convertible<float,  V_(int)&>::value));
         ASSERT(false == (bsl::is_convertible<volatile float,  int&>::value));
-        ASSERT(true  == (bsl::is_convertible<float&,  volatile int>::value));
+        ASSERT(true  == (bsl::is_convertible<float&,  V_(int)>::value));
         ASSERT(true  == (bsl::is_convertible<volatile float&,  int>::value));
 
         ASSERT(false ==
-                    (bsl::is_convertible<float*, const volatile int*>::value));
+                    (bsl::is_convertible<float*, CV(int)*>::value));
         ASSERT(false ==
                     (bsl::is_convertible<const volatile float*, int*>::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
-                    (bsl::is_convertible<float&, const volatile int&>::value));
+                    (bsl::is_convertible<float&, CV(int)&>::value));
 #endif
         ASSERT(false ==
                     (bsl::is_convertible<const volatile float&, int&>::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
-                    (bsl::is_convertible<float,  const volatile int&>::value));
+                    (bsl::is_convertible<float,  CV(int)&>::value));
 #endif
         ASSERT(false ==
                     (bsl::is_convertible<const volatile float,  int&>::value));
         ASSERT(true  ==
-                    (bsl::is_convertible<float&, const volatile int >::value));
+                    (bsl::is_convertible<float&, CV(int) >::value));
         ASSERT(true  ==
                     (bsl::is_convertible<const volatile float&, int >::value));
 
         ASSERT(false ==
-                    (bsl::is_convertible<const float*, volatile int*>::value));
+                    (bsl::is_convertible<const float*, V_(int)*>::value));
         ASSERT(false ==
                     (bsl::is_convertible<volatile float*, const int*>::value));
         ASSERT(true  ==
-                    (bsl::is_convertible<const float&, volatile int >::value));
+                    (bsl::is_convertible<const float&, V_(int) >::value));
         ASSERT(true  ==
                     (bsl::is_convertible<volatile float&, const int >::value));
 #if !defined(BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES)
         ASSERT(false ==
-           (bsl::is_convertible<const    float&, const volatile int&>::value));
+           (bsl::is_convertible<const    float&, CV(int)&>::value));
         ASSERT(false ==
-           (bsl::is_convertible<volatile float&, const volatile int&>::value));
+           (bsl::is_convertible<volatile float&, CV(int)&>::value));
         ASSERT(false ==
-           (bsl::is_convertible<const    float , const volatile int&>::value));
+           (bsl::is_convertible<const    float , CV(int)&>::value));
         ASSERT(false ==
-           (bsl::is_convertible<volatile float , const volatile int&>::value));
+           (bsl::is_convertible<volatile float , CV(int)&>::value));
 #endif
         ASSERT(false ==
-            (bsl::is_convertible<const          float, volatile int&>::value));
+            (bsl::is_convertible<const          float, V_(int)&>::value));
         ASSERT(false ==
-            (bsl::is_convertible<const volatile float, volatile int&>::value));
+            (bsl::is_convertible<const volatile float, V_(int)&>::value));
 
         ASSERT(true  ==
                (bsl::is_convertible<      volatile float, const int&>::value));
@@ -917,55 +925,55 @@ int main(int argc, char *argv[])
 
         // C-4: Test volatile value conversions.
 
-        ASSERT(1 == (bslmf::IsConvertible<int, volatile int>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<volatile int, int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int, V_(int)>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<V_(int), int>::VALUE));
 
         // C-5: Test volatile pointer and reference conversions
 
-        ASSERT(1 == (bslmf::IsConvertible<int*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<volatile int*, int*>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<int&, volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<volatile int&, int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<int,  volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<volatile int,  int&>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<int&,  volatile int>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<volatile int&,  int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int*, V_(int)*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<V_(int)*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, V_(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<V_(int)&, int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int,  V_(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<V_(int),  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  V_(int)>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<V_(int)&,  int>::VALUE));
 
         // C-6: Test conversions on different combinations of cv-qualified
         //      types.
 
-        ASSERT(1 == (bslmf::IsConvertible<int*, const volatile int*>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<const volatile int*, int*>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<int&, const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<const volatile int&, int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<int,  const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<const volatile int,  int&>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<int&,  const volatile int>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<const volatile int&,  int>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int*, CV(int)*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<CV(int)*, int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&, CV(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<CV(int)&, int&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<int,  CV(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<CV(int),  int&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<int&,  CV(int)>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<CV(int)&,  int>::VALUE));
 
-        ASSERT(0 == (bslmf::IsConvertible<const int*, volatile int*>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<volatile int*, const int*>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<const int&, volatile int>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<volatile int&, const int>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<const int*, V_(int)*>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<V_(int)*, const int*>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<const int&, V_(int)>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<V_(int)&, const int>::VALUE));
         ASSERT(1 == (bslmf::IsConvertible<const int&,
-                                          const volatile int&>::VALUE));
-        ASSERT(1 == (bslmf::IsConvertible<volatile int&,
-                                          const volatile int&>::VALUE));
+                                          CV(int)&>::VALUE));
+        ASSERT(1 == (bslmf::IsConvertible<V_(int)&,
+                                          CV(int)&>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<const int,
-                                          const volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<volatile int,
-                                          const volatile int&>::VALUE));
+                                          CV(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<V_(int),
+                                          CV(int)&>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<const int,
-                                          volatile int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<const volatile int,
-                                          volatile int&>::VALUE));
+                                          V_(int)&>::VALUE));
+        ASSERT(0 == (bslmf::IsConvertible<CV(int),
+                                          V_(int)&>::VALUE));
 
 #if !defined(BSLS_PLATFORM_CMP_SUN)
         // Sun 5.2 and 5.5 both get this wrong when the cv-unqualified types
         // are the same.  Confirmed as recently as the 12.3 compiler.
-        ASSERT(0 == (bslmf::IsConvertible<volatile int,
+        ASSERT(0 == (bslmf::IsConvertible<V_(int),
                                           const int&>::VALUE));
-        ASSERT(0 == (bslmf::IsConvertible<const volatile int,
+        ASSERT(0 == (bslmf::IsConvertible<CV(int),
                                           const int&>::VALUE));
 #endif
         // C-7: Test conversions on different combinations of cv-qualified
@@ -1120,17 +1128,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == (bslmf::IsConvertible<int*,         int (*)[]   >::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<int (*)[][5], int*        >::VALUE));
         ASSERT(1 == (bslmf::IsConvertible<
-                                       int (*)[], volatile int (*)[]>::VALUE));
+                                       int (*)[], V_(int) (*)[]>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<
-                              volatile int (*)[],          int (*)[]>::VALUE));
+                              V_(int) (*)[],          int (*)[]>::VALUE));
         ASSERT(1 == (bslmf::IsConvertible<
                                        int (*)[], const    int (*)[]>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<
                               const    int (*)[],          int (*)[]>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<
-                              const    int (*)[], volatile int (*)[]>::VALUE));
+                              const    int (*)[], V_(int) (*)[]>::VALUE));
         ASSERT(0 == (bslmf::IsConvertible<
-                              volatile int (*)[], const    int (*)[]>::VALUE));
+                              V_(int) (*)[], const    int (*)[]>::VALUE));
 
         // C-13
 #if defined(BSLMF_ISCONVERTIBLE_TEST_COMPILE_ERROR_WITH_INCOMPLETE_TYPES)
@@ -1157,11 +1165,11 @@ int main(int argc, char *argv[])
         ASSERT(false == (bslmf::IsConvertible<void(), void>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<void(), int>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<void(), const void>::VALUE));
-        ASSERT(false == (bslmf::IsConvertible<void(), volatile int>::VALUE));
+        ASSERT(false == (bslmf::IsConvertible<void(), V_(int)>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<void,         void()>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<int,          void()>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<const void,   void()>::VALUE));
-        ASSERT(false == (bslmf::IsConvertible<volatile int, void()>::VALUE));
+        ASSERT(false == (bslmf::IsConvertible<V_(int), void()>::VALUE));
 
         ASSERT(false == (bslmf::IsConvertible<void    (), void    ()>::value));
         ASSERT(true  == (bslmf::IsConvertible<void    (), void (&)()>::value));
@@ -1177,12 +1185,12 @@ int main(int argc, char *argv[])
         ASSERT(false == (bslmf::IsConvertible<void(...), int>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<void(...), const void>::VALUE));
         ASSERT(false ==
-                       (bslmf::IsConvertible<void(...), volatile int>::VALUE));
+                       (bslmf::IsConvertible<void(...), V_(int)>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<void,        void(...)>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<int,         void(...)>::VALUE));
         ASSERT(false == (bslmf::IsConvertible<const void,  void(...)>::VALUE));
         ASSERT(false ==
-                       (bslmf::IsConvertible<volatile int, void(...)>::VALUE));
+                       (bslmf::IsConvertible<V_(int), void(...)>::VALUE));
 
         ASSERT(false  ==
                   (bslmf::IsConvertible<void    (...), void    (...)>::value));
@@ -1317,513 +1325,305 @@ int main(int argc, char *argv[])
 
         // C-1: Test conversion of basic types.
 
-        ASSERT(true  == (bsl::is_convertible<int,   int  >::value));
-        ASSERT(true  == (bsl::is_convertible<int,   char >::value));
-        ASSERT(false == (bsl::is_convertible<int,   char*>::value));
-        ASSERT(false == (bsl::is_convertible<void*, char*>::value));
-        ASSERT(true  == (bsl::is_convertible<char*, void*>::value));
+        ASSERT_IS_CONVERTIBLE(true,  int,   int  );
+        ASSERT_IS_CONVERTIBLE(true,  int,   char );
+        ASSERT_IS_CONVERTIBLE(false, int,   char*);
+        ASSERT_IS_CONVERTIBLE(false, void*, char*);
+        ASSERT_IS_CONVERTIBLE(true,  char*, void*);
 
         // C-2: Test cv-qualified conversions for values of the same type.
 
-        ASSERT(true ==
-         (bsl::is_convertible<               int,                int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               int, const          int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               int,       volatile int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               int, const volatile int>::value));
+        ASSERT_IS_CONVERTIBLE(true,     int,     int );
+        ASSERT_IS_CONVERTIBLE(true,     int , C_(int));
+        ASSERT_IS_CONVERTIBLE(true,     int , V_(int));
+        ASSERT_IS_CONVERTIBLE(true,     int , CV(int));
 
-        ASSERT(true ==
-         (bsl::is_convertible<const          int,                int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          int, const          int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          int,       volatile int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          int, const volatile int>::value));
+        ASSERT_IS_CONVERTIBLE(true,  C_(int),    int );
+        ASSERT_IS_CONVERTIBLE(true,  C_(int), C_(int));
+        ASSERT_IS_CONVERTIBLE(true,  C_(int), V_(int));
+        ASSERT_IS_CONVERTIBLE(true,  C_(int), CV(int));
 
-        ASSERT(true ==
-         (bsl::is_convertible<      volatile int,                int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<      volatile int, const          int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<      volatile int,       volatile int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<      volatile int, const volatile int>::value));
+        ASSERT_IS_CONVERTIBLE(true,  V_(int),    int );
+        ASSERT_IS_CONVERTIBLE(true,  V_(int), C_(int));
+        ASSERT_IS_CONVERTIBLE(true,  V_(int), V_(int));
+        ASSERT_IS_CONVERTIBLE(true,  V_(int), CV(int));
 
-        ASSERT(true ==
-         (bsl::is_convertible<const volatile int,                int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const volatile int, const          int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const volatile int,       volatile int>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const volatile int, const volatile int>::value));
-
-        // C-3: Test reference conversions for cv-qualified variants of a type
-
-        ASSERT(false ==
-       (bsl::is_convertible<               int,                int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<               int,       volatile int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<               int, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const          int,                int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          int,       volatile int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          int, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int,                int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int,       volatile int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int,                int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int,       volatile int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int, const volatile int&>::value));
-
-
-        ASSERT(true ==
-       (bsl::is_convertible<               int&,                int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&, const          int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&,       volatile int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&, const volatile int>::value));
-
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&,                int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&, const          int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&,       volatile int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&, const volatile int>::value));
-
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&,                int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&, const          int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&,       volatile int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&, const volatile int>::value));
-
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int&,                int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int&, const          int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int&,       volatile int>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int&, const volatile int>::value));
-
-
-        ASSERT(true ==
-       (bsl::is_convertible<               int&,                int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&, const          int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&,       volatile int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int&, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const          int&,                int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          int&,       volatile int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int&, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int&,                int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int&, const          int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&,       volatile int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int&, const volatile int&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int&,                int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int&, const          int&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int&,       volatile int&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int&, const volatile int&>::value));
+        ASSERT_IS_CONVERTIBLE(true,  CV(int),    int );
+        ASSERT_IS_CONVERTIBLE(true,  CV(int), C_(int));
+        ASSERT_IS_CONVERTIBLE(true,  CV(int), V_(int));
+        ASSERT_IS_CONVERTIBLE(true,  CV(int), CV(int));
 
         // C3 Pointer conversions with cv-qualified variants of the same type
 
-        ASSERT(true ==
-       (bsl::is_convertible<               int*,                int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int*, const          int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int*,       volatile int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               int*, const volatile int*>::value));
+        ASSERT_IS_CONVERTIBLE(true,     int *,    int *);
+        ASSERT_IS_CONVERTIBLE(true,     int *, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *, CV(int)*);
 
-        ASSERT(false ==
-       (bsl::is_convertible<const          int*,                int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int*, const          int*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          int*,       volatile int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          int*, const volatile int*>::value));
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*,    int *);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*, CV(int)*);
 
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int*,                int*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile int*, const          int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int*,       volatile int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile int*, const volatile int*>::value));
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*,    int *);
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*, CV(int)*);
 
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int*,                int*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int*, const          int*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile int*,       volatile int*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile int*, const volatile int*>::value));
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*,    int *);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)*, CV(int)*);
+
+
+        ASSERT_IS_CONVERTIBLE(true,     int *const,    int *);
+        ASSERT_IS_CONVERTIBLE(true,     int *const, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *const, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *const, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*const,    int *);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*const, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*const, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*const, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*const,    int *);
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*const, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*const, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*const, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const,    int *);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)*const, CV(int)*);
+
+
+        ASSERT_IS_CONVERTIBLE(true,     int *volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(true,     int *volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)*volatile, CV(int)*);
+
+
+        ASSERT_IS_CONVERTIBLE(true,     int *const volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(true,     int *const volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *const volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,     int *const volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*const volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*const volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, C_(int)*const volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)*const volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*const volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(false, V_(int)*const volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*const volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)*const volatile, CV(int)*);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const volatile,    int *);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const volatile, C_(int)*);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)*const volatile, V_(int)*);
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)*const volatile, CV(int)*);
+
+        // C-3: Test reference conversions for cv-qualified variants of a type
+
+        ASSERT_IS_CONVERTIBLE(false,    int ,     int &);
+        ASSERT_IS_CONVERTIBLE(true,     int ,  C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false,    int ,  V_(int)&);
+        ASSERT_IS_CONVERTIBLE(false,    int ,  CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(int),     int &);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int),  C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(int),  V_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(int),  CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(int),     int &);
+        ASSERT_IS_CONVERTIBLE(false, V_(int),  C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, V_(int),  V_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, V_(int),  CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(int),     int &);
+        ASSERT_IS_CONVERTIBLE(false, CV(int),  C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(int),  V_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(int),  CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(true,     int &,    int  );
+        ASSERT_IS_CONVERTIBLE(true,     int &, C_(int) );
+        ASSERT_IS_CONVERTIBLE(true,     int &, V_(int) );
+        ASSERT_IS_CONVERTIBLE(true,     int &, CV(int) );
+
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&,    int  );
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&, C_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&, V_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&, CV(int) );
+
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&,    int  );
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&, C_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&, V_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&, CV(int) );
+
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)&,    int  );
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)&, C_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)&, V_(int) );
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)&, CV(int) );
+
+        ASSERT_IS_CONVERTIBLE(true,     int &,    int &);
+        ASSERT_IS_CONVERTIBLE(true,     int &, C_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,     int &, V_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,     int &, CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(int)&,    int &);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&, C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(int)&, V_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,  C_(int)&, CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(int)&,    int &);
+        ASSERT_IS_CONVERTIBLE(false, V_(int)&, C_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&, V_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,  V_(int)&, CV(int)&);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(int)&,    int &);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)&, C_(int)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(int)&, V_(int)&);
+        ASSERT_IS_CONVERTIBLE(true,  CV(int)&, CV(int)&);
 
 
         // C-2: Test cv-qualified conversions for values of the same type.
 
-        ASSERT(true ==
-         (bsl::is_convertible<               my_Class,                my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               my_Class, const          my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               my_Class,       volatile my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<               my_Class, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(true,          my_Class,     my_Class );
+        ASSERT_IS_CONVERTIBLE(true,          my_Class , C_(my_Class));
+        ASSERT_IS_CONVERTIBLE(true,          my_Class , V_(my_Class));
+        ASSERT_IS_CONVERTIBLE(true,          my_Class , CV(my_Class));
 
-        ASSERT(true ==
-         (bsl::is_convertible<const          my_Class,                my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          my_Class, const          my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          my_Class,       volatile my_Class>::value));
-        ASSERT(true ==
-         (bsl::is_convertible<const          my_Class, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(true,       C_(my_Class),    my_Class );
+        ASSERT_IS_CONVERTIBLE(true,       C_(my_Class), C_(my_Class));
+        ASSERT_IS_CONVERTIBLE(true,       C_(my_Class), V_(my_Class));
+        ASSERT_IS_CONVERTIBLE(true,       C_(my_Class), CV(my_Class));
 
-        ASSERT(false ==
-         (bsl::is_convertible<      volatile my_Class,                my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<      volatile my_Class, const          my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<      volatile my_Class,       volatile my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<      volatile my_Class, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(NOT_NATIVE, V_(my_Class),    my_Class );
+        ASSERT_IS_CONVERTIBLE(false,      V_(my_Class), C_(my_Class));
+        ASSERT_IS_CONVERTIBLE(false,      V_(my_Class), V_(my_Class));
+        ASSERT_IS_CONVERTIBLE(false,      V_(my_Class), CV(my_Class));
 
-        ASSERT(false ==
-         (bsl::is_convertible<const volatile my_Class,                my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<const volatile my_Class, const          my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<const volatile my_Class,       volatile my_Class>::value));
-        ASSERT(false ==
-         (bsl::is_convertible<const volatile my_Class, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(false,      CV(my_Class),    my_Class );
+        ASSERT_IS_CONVERTIBLE(NOT_NATIVE, CV(my_Class), C_(my_Class));
+        ASSERT_IS_CONVERTIBLE(false,      CV(my_Class), V_(my_Class));
+        ASSERT_IS_CONVERTIBLE(false,      CV(my_Class), CV(my_Class));
 
 
         // C-3: Test reference conversions for cv-qualified variants of a type
 
-        ASSERT(false ==
-       (bsl::is_convertible<               my_Class,                my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<               my_Class,       volatile my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<               my_Class, const volatile my_Class&>::value));
+        ASSERT_IS_CONVERTIBLE(false,    my_Class ,     my_Class &);
+        ASSERT_IS_CONVERTIBLE(true,     my_Class ,  C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false,    my_Class ,  V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false,    my_Class ,  CV(my_Class)&);
 
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class,                my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class,       volatile my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class, const volatile my_Class&>::value));
+        ASSERT_IS_CONVERTIBLE(false, C_(my_Class),     my_Class &);
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class),  C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(my_Class),  V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(my_Class),  CV(my_Class)&);
 
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class,                my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class,       volatile my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class, const volatile my_Class&>::value));
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class),     my_Class &);
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  CV(my_Class)&);
 
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class,                my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class,       volatile my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class, const volatile my_Class&>::value));
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class),     my_Class &);
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  CV(my_Class)&);
 
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &,    my_Class  );
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, C_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, V_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, CV(my_Class) );
 
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&,                my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&, const          my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&,       volatile my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&,    my_Class  );
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&, C_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&, V_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&, CV(my_Class) );
 
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&,                my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&, const          my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&,       volatile my_Class>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&,    my_Class  );
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&, C_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&, V_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&, CV(my_Class) );
 
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&,                my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&, const          my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&,       volatile my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&,    my_Class  );
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&, C_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&, V_(my_Class) );
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&, CV(my_Class) );
 
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&,                my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&, const          my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&,       volatile my_Class>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&, const volatile my_Class>::value));
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &,    my_Class &);
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,     my_Class &, CV(my_Class)&);
+
+        ASSERT_IS_CONVERTIBLE(false, C_(my_Class)&,    my_Class &);
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&, C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, C_(my_Class)&, V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,  C_(my_Class)&, CV(my_Class)&);
+
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&,    my_Class &);
+        ASSERT_IS_CONVERTIBLE(false, V_(my_Class)&, C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,  V_(my_Class)&, V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,  V_(my_Class)&, CV(my_Class)&);
+
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&,    my_Class &);
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&, C_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(false, CV(my_Class)&, V_(my_Class)&);
+        ASSERT_IS_CONVERTIBLE(true,  CV(my_Class)&, CV(my_Class)&);
 
 
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&,                my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&, const          my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&,       volatile my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class&, const volatile my_Class&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class&,                my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class&,       volatile my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class&, const volatile my_Class&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&,                my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class&, const          my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile my_Class&,       volatile my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile my_Class&, const volatile my_Class&>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&,                my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&, const          my_Class&>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class&,       volatile my_Class&>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile my_Class&, const volatile my_Class&>::value));
-
-        // C3 Pointer conversions with cv-qualified variants of the same type
-
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class*,                my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class*, const          my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class*,       volatile my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<               my_Class*, const volatile my_Class*>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class*,                my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class*, const          my_Class*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const          my_Class*,       volatile my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const          my_Class*, const volatile my_Class*>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class*,                my_Class*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<      volatile my_Class*, const          my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile my_Class*,       volatile my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<      volatile my_Class*, const volatile my_Class*>::value));
-
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class*,                my_Class*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class*, const          my_Class*>::value));
-        ASSERT(false ==
-       (bsl::is_convertible<const volatile my_Class*,       volatile my_Class*>::value));
-        ASSERT(true ==
-       (bsl::is_convertible<const volatile my_Class*, const volatile my_Class*>::value));
-
-
-#if 0
         // C-3: Test const pointer and reference conversions.
-
-        ASSERT(true  == (bsl::is_convertible<      int*, const int*>::value));
-        ASSERT(false == (bsl::is_convertible<const int*,       int*>::value));
-
-        ASSERT(true  == (bsl::is_convertible<      int&, const int&>::value));
-        ASSERT(false == (bsl::is_convertible<const int&,       int&>::value));
-
-        ASSERT(false == (bsl::is_convertible<      int,        int&>::value));
-        ASSERT(true  == (bsl::is_convertible<      int,  const int&>::value));
-
-        ASSERT(true  == (bsl::is_convertible<      int&,        int&>::value));
-        ASSERT(true  == (bsl::is_convertible<const int&,  const int&>::value));
-
-        ASSERT(false == (bsl::is_convertible<const int,         int&>::value));
-        ASSERT(true  == (bsl::is_convertible<      int&,  const int >::value));
-
-        ASSERT(true  == (bsl::is_convertible<const int&, int >::value));
-        ASSERT(false == (bsl::is_convertible<const int,  int&>::value));
-
-        ASSERT(true  == (bsl::is_convertible<const int,  const int&>::value));
-        ASSERT(true  == (bsl::is_convertible<const int&, const int >::value));
 
         // Can bind a temporary to a 'const &'
         ASSERT(true  == (bsl::is_convertible<char,   const int&>::value));
         ASSERT(true  == (bsl::is_convertible<double, const int&>::value));
 
+#if 0
 #if !defined(BSLS_PLATFORM_CMP_SUN)
         // Sun 5.2 and 5.5 both get this wrong when the cv-unqualified types
         // are the same.  Re-confirmed with Sun CC 12.3.
-        ASSERT(false == (bsl::is_convertible<volatile int,
+        ASSERT(false == (bsl::is_convertible<V_(int),
                                              const int&>::value));
-        ASSERT(false == (bsl::is_convertible<const volatile int,
+        ASSERT(false == (bsl::is_convertible<CV(int),
                                              const int&>::value));
 #endif
-        ASSERT(false == (bsl::is_convertible<volatile int &,
+        ASSERT(false == (bsl::is_convertible<V_(int) &,
                                              const int&>::value));
+#endif
         ASSERT(true  == (bsl::is_convertible<volatile double,
                                              const int&>::value));
         ASSERT(true  == (bsl::is_convertible<char &,   const int&>::value));
 
         // C-4: Test volatile value conversions.
 
-        ASSERT(true == (bsl::is_convertible<int, volatile int>::value));
-        ASSERT(true == (bsl::is_convertible<volatile int, int>::value));
+        ASSERT(true == (bsl::is_convertible<int, V_(int)>::value));
+        ASSERT(true == (bsl::is_convertible<V_(int), int>::value));
 
         // C-5: Test volatile pointer and reference conversions
 
-        ASSERT(true  == (bsl::is_convertible<int*, volatile int*>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int*, int*>::value));
-
-        ASSERT(true  == (bsl::is_convertible<int&, volatile int&>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int&, int&>::value));
-
-        ASSERT(false == (bsl::is_convertible<int,  volatile int&>::value));
-        ASSERT(false == (bsl::is_convertible<volatile int,  int&>::value));
-
-        ASSERT(true  == (bsl::is_convertible<int&,  volatile int>::value));
-        ASSERT(true  == (bsl::is_convertible<volatile int&,  int>::value));
-#endif
 
         // C-6: Test conversions on different combinations of cv-qualified
         //      types.
 
-        ASSERT(true  ==
-                      (bsl::is_convertible<int*, const volatile int*>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<const volatile int*, int*>::value));
-        ASSERT(true  ==
-                      (bsl::is_convertible<int&, const volatile int&>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<const volatile int&, int&>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<int,  const volatile int&>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<const volatile int,  int&>::value));
-        ASSERT(true  ==
-                      (bsl::is_convertible<int&,  const volatile int>::value));
-        ASSERT(true  ==
-                      (bsl::is_convertible<const volatile int&,  int>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<const int*, volatile int*>::value));
-        ASSERT(false ==
-                      (bsl::is_convertible<volatile int*, const int*>::value));
-        ASSERT(true  ==
-                       (bsl::is_convertible<const int&, volatile int>::value));
-        ASSERT(true  ==
-                       (bsl::is_convertible<volatile int&, const int>::value));
-        ASSERT(true  ==
-             (bsl::is_convertible<   const int&, const volatile int&>::value));
-        ASSERT(true  ==
-             (bsl::is_convertible<volatile int&, const volatile int&>::value));
-        ASSERT(false  ==
-             (bsl::is_convertible<   const int,  const volatile int&>::value));
-        ASSERT(false  ==
-             (bsl::is_convertible<volatile int,  const volatile int&>::value));
-        ASSERT(false ==
-             (bsl::is_convertible<   const int,        volatile int&>::value));
-        ASSERT(false ==
-             (bsl::is_convertible<const volatile int, volatile  int&>::value));
 
         // C-7: Test conversions on different combinations of cv-qualified
         //      user-defined types.
 
-        ASSERT(false == (bsl::is_convertible<int*, int>::value));
-        ASSERT(false == (bsl::is_convertible<int, int*>::value));
-
-        ASSERT(true  ==
-               (bsl::is_convertible<      my_Class,        my_Class >::value));
-        ASSERT(true  ==
-               (bsl::is_convertible<      my_Class,  const my_Class >::value));
-        ASSERT(true  ==
-               (bsl::is_convertible<      my_Class,  const my_Class&>::value));
-        ASSERT(false ==
-               (bsl::is_convertible<const my_Class,        my_Class&>::value));
-        ASSERT(true  ==
-               (bsl::is_convertible<const my_Class,  const my_Class&>::value));
-        ASSERT(true  ==
-               (bsl::is_convertible<const my_Class&, const my_Class >::value));
-        ASSERT(false ==
-               (bsl::is_convertible<const my_Class,        my_Class&>::value));
         ASSERT(true  ==
                (bsl::is_convertible<      int,             my_Class >::value));
         ASSERT(false ==
@@ -1861,9 +1661,9 @@ int main(int argc, char *argv[])
                         volatile my_Class&,           my_ThirdClass&>::value));
 
         ASSERT(NOT_NATIVE == (bsl::is_convertible<
-                        my_NotCopyableClass, my_NotCopyableClass>::value));
+                            my_NotCopyableClass, my_NotCopyableClass>::value));
         ASSERT(false == (bsl::is_convertible<
-                        my_NotCopyableClass, my_NotCopyableClass &>::value));
+                          my_NotCopyableClass, my_NotCopyableClass &>::value));
         ASSERT(true == (bsl::is_convertible<
                     my_NotCopyableClass, const my_NotCopyableClass &>::value));
 
@@ -1917,14 +1717,49 @@ int main(int argc, char *argv[])
         ASSERT(true  == (bsl::is_convertible<void, void>::value));
         ASSERT(false == (bsl::is_convertible<void, int >::value));
         ASSERT(false == (bsl::is_convertible<void, int&>::value));
-        ASSERT(false == (bsl::is_convertible<int,  void>::value));
-        ASSERT(false == (bsl::is_convertible<int&, void>::value));
+        ASSERT(false == (bsl::is_convertible<void, int*>::value));
 
-        ASSERT(true  == (bsl::is_convertible<void, const void>::value));
+        ASSERT(true  == (bsl::is_convertible<const void, void>::value));
         ASSERT(false == (bsl::is_convertible<const void, int >::value));
         ASSERT(false == (bsl::is_convertible<const void, int&>::value));
+        ASSERT(false == (bsl::is_convertible<const void, int*>::value));
+
+        ASSERT(true  == (bsl::is_convertible<volatile void, void>::value));
+        ASSERT(false == (bsl::is_convertible<volatile void, int >::value));
+        ASSERT(false == (bsl::is_convertible<volatile void, int&>::value));
+        ASSERT(false == (bsl::is_convertible<volatile void, int*>::value));
+
+        ASSERT(true  == (bsl::is_convertible<const volatile void, void>::value));
+        ASSERT(false == (bsl::is_convertible<const volatile void, int >::value));
+        ASSERT(false == (bsl::is_convertible<const volatile void, int&>::value));
+        ASSERT(false == (bsl::is_convertible<const volatile void, int*>::value));
+
+        ASSERT(false == (bsl::is_convertible<int,  void>::value));
         ASSERT(false == (bsl::is_convertible<int,  const void>::value));
+        ASSERT(false == (bsl::is_convertible<int,  volatile void>::value));
+        ASSERT(false == (bsl::is_convertible<int,  const volatile void>::value));
+
+        ASSERT(false == (bsl::is_convertible<int&, void>::value));
         ASSERT(false == (bsl::is_convertible<int&, const void>::value));
+        ASSERT(false == (bsl::is_convertible<int&, volatile void>::value));
+        ASSERT(false == (bsl::is_convertible<int&, const volatile void>::value));
+
+        ASSERT(false == (bsl::is_convertible<int*, void>::value));
+        ASSERT(false == (bsl::is_convertible<int*, const void>::value));
+        ASSERT(false == (bsl::is_convertible<int*, volatile void>::value));
+        ASSERT(false == (bsl::is_convertible<int*, const volatile void>::value));
+
+        ASSERT(true == (bsl::is_convertible<const void, const void>::value));
+        ASSERT(true == (bsl::is_convertible<const void, volatile void>::value));
+        ASSERT(true == (bsl::is_convertible<const void, const volatile void>::value));
+
+        ASSERT(true == (bsl::is_convertible<volatile void, const void>::value));
+        ASSERT(true == (bsl::is_convertible<volatile void, volatile void>::value));
+        ASSERT(true == (bsl::is_convertible<volatile void, const volatile void>::value));
+
+        ASSERT(true == (bsl::is_convertible<const volatile void, const void>::value));
+        ASSERT(true == (bsl::is_convertible<const volatile void, volatile void>::value));
+        ASSERT(true == (bsl::is_convertible<const volatile void, const volatile void>::value));
 
         // C-9: Test derived-to-base convertibility
 
@@ -1944,26 +1779,26 @@ int main(int argc, char *argv[])
         // C-10: Test pointer-to-member variable convertibility
 
         ASSERT(true  == (bsl::is_convertible<int my_AbstractClass::*,
-                                             int my_DerivedClass::*>::value));
+                                 int  my_DerivedClass::*>::value));
         ASSERT(false == (bsl::is_convertible<int my_DerivedClass::*,
-                                             int my_AbstractClass::*>::value));
+                                 int  my_AbstractClass::*>::value));
         ASSERT(false == (bsl::is_convertible<int my_AbstractClass::*,
                                              void*>::value));
         ASSERT(false == (bsl::is_convertible<void*,
-                                             int my_AbstractClass::*>::value));
+                                 int  my_AbstractClass::*>::value));
 
         // C-11: Test pointer-to-member function convertibility
 
         ASSERT(true  == (bsl::is_convertible<int (my_AbstractClass::*)(int),
-                                             int (my_DerivedClass::*)(int)
+                                 int  (my_DerivedClass::*)(int)
                                              >::value));
         ASSERT(false == (bsl::is_convertible<int (my_DerivedClass::*)(int),
-                                             int (my_AbstractClass::*)(int)
+                                 int  (my_AbstractClass::*)(int)
                                              >::value));
         ASSERT(false == (bsl::is_convertible<int (my_AbstractClass::*)(int),
                                              void*>::value));
         ASSERT(false == (bsl::is_convertible<void*,
-                                             int (my_AbstractClass::*)(int)
+                                 int  (my_AbstractClass::*)(int)
                                              >::value));
 
         // C-12: Test arrays of unknown bound convertibility
@@ -1987,34 +1822,34 @@ int main(int argc, char *argv[])
         ASSERT(false  ==
                      (bsl::is_convertible<int [][5], int (*)[][5]>::value));
         ASSERT(false  ==
-         (bsl::is_convertible<         int [], volatile int (*)[]>::value));
+         (bsl::is_convertible<         int [], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int [],          int (*)[]>::value));
+         (bsl::is_convertible<V_(int) [],          int (*)[]>::value));
         ASSERT(false  ==
          (bsl::is_convertible<         int [], const    int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<const    int [],          int (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<const    int [], volatile int (*)[]>::value));
+         (bsl::is_convertible<const    int [], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int [], const    int (*)[]>::value));
+         (bsl::is_convertible<V_(int) [], const    int (*)[]>::value));
 
         ASSERT(true  ==
                      (bsl::is_convertible<int (*)[],    int (*)[]   >::value));
         ASSERT(true  ==
                      (bsl::is_convertible<int (*)[][5], int (*)[][5]>::value));
         ASSERT(true  ==
-         (bsl::is_convertible<         int (*)[], volatile int (*)[]>::value));
+         (bsl::is_convertible<         int (*)[], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (*)[],          int (*)[]>::value));
+         (bsl::is_convertible<V_(int) (*)[],          int (*)[]>::value));
         ASSERT(true  ==
          (bsl::is_convertible<         int (*)[], const    int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<const    int (*)[],          int (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<const    int (*)[], volatile int (*)[]>::value));
+         (bsl::is_convertible<const    int (*)[], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (*)[], const    int (*)[]>::value));
+         (bsl::is_convertible<V_(int) (*)[], const    int (*)[]>::value));
 
 # if !defined(BSLMF_ISCONVERTIBLE_NO_ARRAY_REF_OF_UNKNOWN_BOUND)
         // If the test call cannot be parsed, there is no concern for whether
@@ -2024,51 +1859,51 @@ int main(int argc, char *argv[])
         ASSERT(false ==
                      (bsl::is_convertible<int [][5], int (&)[][5]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<         int [], volatile int (&)[]>::value));
+         (bsl::is_convertible<         int [], V_(int) (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int [],          int (&)[]>::value));
+         (bsl::is_convertible<V_(int) [],          int (&)[]>::value));
         ASSERT(true  ==
          (bsl::is_convertible<         int [], const    int (&)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<const    int [],          int (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<const    int [], volatile int (&)[]>::value));
+         (bsl::is_convertible<const    int [], V_(int) (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int [], const    int (&)[]>::value));
+         (bsl::is_convertible<V_(int) [], const    int (&)[]>::value));
 
         ASSERT(false  ==
                      (bsl::is_convertible<int (*)[],    int (&)[]   >::value));
         ASSERT(false  ==
                      (bsl::is_convertible<int (*)[][5], int (&)[][5]>::value));
         ASSERT(false  ==
-         (bsl::is_convertible<         int (*)[], volatile int (&)[]>::value));
+         (bsl::is_convertible<         int (*)[], V_(int) (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (*)[],          int (&)[]>::value));
+         (bsl::is_convertible<V_(int) (*)[],          int (&)[]>::value));
         ASSERT(false  ==
          (bsl::is_convertible<         int (*)[], const    int (&)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<const    int (*)[],          int (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<const    int (*)[], volatile int (&)[]>::value));
+         (bsl::is_convertible<const    int (*)[], V_(int) (&)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (*)[], const    int (&)[]>::value));
+         (bsl::is_convertible<V_(int) (*)[], const    int (&)[]>::value));
 
         ASSERT(false  ==
                      (bsl::is_convertible<int (&)[],    int (*)[]   >::value));
         ASSERT(false  ==
                      (bsl::is_convertible<int (&)[][5], int (*)[][5]>::value));
         ASSERT(false  ==
-         (bsl::is_convertible<         int (&)[], volatile int (*)[]>::value));
+         (bsl::is_convertible<         int (&)[], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (&)[],          int (*)[]>::value));
+         (bsl::is_convertible<V_(int) (&)[],          int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<         int (&)[], const    int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<const    int (&)[],          int (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<const    int (&)[], volatile int (*)[]>::value));
+         (bsl::is_convertible<const    int (&)[], V_(int) (*)[]>::value));
         ASSERT(false ==
-         (bsl::is_convertible<volatile int (&)[], const    int (*)[]>::value));
+         (bsl::is_convertible<V_(int) (&)[], const    int (*)[]>::value));
 # endif // BSLMF_ISCONVERTIBLE_NO_ARRAY_REF_OF_UNKNOWN_BOUND
 #endif  // BSLMF_ISCONVERTIBLE_NO_ARRAY_OF_UNKNOWN_BOUND_AS_TEMPLATE_PARAMETER
 
@@ -2077,11 +1912,11 @@ int main(int argc, char *argv[])
         ASSERT(false == (bsl::is_convertible<void(), void>::VALUE));
         ASSERT(false == (bsl::is_convertible<void(), int>::VALUE));
         ASSERT(false == (bsl::is_convertible<void(), const void>::VALUE));
-        ASSERT(false == (bsl::is_convertible<void(), volatile int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(), V_(int)>::VALUE));
         ASSERT(false == (bsl::is_convertible<void,         void()>::VALUE));
         ASSERT(false == (bsl::is_convertible<int,          void()>::VALUE));
         ASSERT(false == (bsl::is_convertible<const void,   void()>::VALUE));
-        ASSERT(false == (bsl::is_convertible<volatile int, void()>::VALUE));
+        ASSERT(false == (bsl::is_convertible<V_(int), void()>::VALUE));
 
         ASSERT(false == (bsl::is_convertible<void    (), void    ()>::value));
         ASSERT(true  == (bsl::is_convertible<void    (), void (&)()>::value));
@@ -2096,11 +1931,11 @@ int main(int argc, char *argv[])
         ASSERT(false == (bsl::is_convertible<void(...), void>::VALUE));
         ASSERT(false == (bsl::is_convertible<void(...), int>::VALUE));
         ASSERT(false == (bsl::is_convertible<void(...), const void>::VALUE));
-        ASSERT(false == (bsl::is_convertible<void(...), volatile int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(...), V_(int)>::VALUE));
         ASSERT(false == (bsl::is_convertible<void,         void(...)>::VALUE));
         ASSERT(false == (bsl::is_convertible<int,          void(...)>::VALUE));
         ASSERT(false == (bsl::is_convertible<const void,   void(...)>::VALUE));
-        ASSERT(false == (bsl::is_convertible<volatile int, void(...)>::VALUE));
+        ASSERT(false == (bsl::is_convertible<V_(int), void(...)>::VALUE));
 
         ASSERT(false  ==
                    (bsl::is_convertible<void    (...), void    (...)>::value));
