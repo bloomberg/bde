@@ -434,10 +434,10 @@ class CalendarCache {
         // at construction), return an empty shared pointer.
 
     Datetime lookupLoadTime(const char *calendarName) const;
-        // Return the time, in Coordinated Universal Time (UTC), the calendar
-        // having the specified 'calendarName' was loaded into this calendar
-        // cache.  If the calendar having 'calendarName' is not found in the
-        // cache, or if the calendar has expired (i.e., per a timeout
+        // Return the time, in Coordinated Universal Time (UTC), at which the
+        // calendar having the specified 'calendarName' was loaded into this
+        // calendar cache.  If the calendar having 'calendarName' is not found
+        // in the cache, or if the calendar has expired (i.e., per a timeout
         // optionally supplied at construction), return 'Datetime()'.
 };
 
