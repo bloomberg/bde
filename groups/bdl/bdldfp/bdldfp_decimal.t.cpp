@@ -1002,6 +1002,18 @@ void TestDriver::testCase4()
         }
     }
 
+    // Bug in Studio Studio's C++ standard library: 'ostreambuf_iterator'
+    // doesn't set the 'failed' attribute when the iterator reaches the end of
+    // EOF of the 'streambuf'.  Therefore, 'operator<<' for the decimal types
+    // does not set the 'fail' and 'bad' bits when streaming to an 'ostream'
+    // with a 'streambuf' that is not large enough.  This is consistent with
+    // the behavior for 'int' and 'double'.  Note that the bug does not exist
+    // when using stlport.
+
+#if (!defined(BSLS_PLATFORM_OS_SUNOS) &&                                      \
+     !defined(BSLS_PLATFORM_OS_SOLARIS)) ||                                   \
+    defined(BDE_BUILD_TARGET_STLPORT)
+
     {
         {
             char buffer[4];
@@ -1036,6 +1048,8 @@ void TestDriver::testCase4()
             ASSERTV(out.bad(), out.bad());
         }
     }
+#endif
+
 #undef DFP
 }
 
