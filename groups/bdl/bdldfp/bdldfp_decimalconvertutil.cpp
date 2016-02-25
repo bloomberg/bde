@@ -22,6 +22,8 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
 
+#include <math.h>
+
 namespace BloombergLP {
 namespace bdldfp {
 
