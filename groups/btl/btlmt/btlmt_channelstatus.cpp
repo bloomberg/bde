@@ -51,6 +51,9 @@ const char *ChannelStatus::toAscii(ChannelStatus::Enum value)
       CASE(WRITE_CHANNEL_DOWN)
       CASE(ENQUEUE_HIGHWATER)
       CASE(UNKNOWN_ID)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case ChannelStatus::Enum(-1): return "(* INVALID *)";
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       default: return "(* UNKNOWN *)";
     }
 

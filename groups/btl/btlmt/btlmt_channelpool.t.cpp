@@ -7724,9 +7724,6 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase38();
-        // Comprehensive watermark callback behavior cleanups.
-
     static void testCase37();
         // Test usage example.
 
@@ -7854,32 +7851,6 @@ class TestDriver {
                                // --------------
                                // TEST APPARATUS
                                // --------------
-
-void TestDriver::testCase38()
-{
-        // --------------------------------------------------------------------
-        // Testing LOWWATER called when 'enqueueWatermark' exceeded
-        //
-        // Concerns:
-        //: 1 The low-water mark is invoked after the enqueue water mark is
-        //:   exceeded and the write queue size drops below the low-water mark.
-        //
-        // Plan:
-        //: 1 Write a message greater than the enqueue queue size and confirm
-        //:   that the low-water mark is invoked after the write completes.
-        //:   Repeat a similar write again and assert that low-water mark is
-        //:   invoked.
-        //
-        // Testing:
-        //   DRQS 33107174
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\n(not) TESTING LOWWATER when 'enqueueWatermark' exceeded"
-                 << "\n================================================="
-                 << endl;
-
-}
 
 void TestDriver::testCase37()
 {

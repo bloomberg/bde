@@ -188,7 +188,7 @@ struct ChannelStatus {
       , BTEMT_WRITE_CHANNEL_DOWN = e_WRITE_CHANNEL_DOWN
       , BTEMT_ENQUEUE_HIGHWATER  = e_ENQUEUE_HIGHWATER
       , BTEMT_UNKNOWN_ID         = e_UNKNOWN_ID
- //   , BTEMT_CACHE_OVERFLOW     = -1  // code that uses this is broken
+      , BTEMT_CACHE_OVERFLOW     = -1  // code that uses this is broken
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
