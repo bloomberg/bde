@@ -5,7 +5,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bdlma_bufferedsequentialallocator.h>
+#include <bslma_bufferallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_alignedbuffer.h>
@@ -603,9 +603,8 @@ int main(int argc, char *argv[])
         static const char k_PATTERN[] =
                   "\\b[A-Za-z0-9._-]+@[A-Za-z0-9\\.\\-]+\\.[A-Za-zaz]{2,4}\\b";
 
-        bsls::AlignedBuffer<256>           buffer;
-        bdlma::BufferedSequentialAllocator arena(buffer.buffer(),
-                                                 sizeof(buffer));
+        bsls::AlignedBuffer<256> buffer;
+        bslma::BufferAllocator arena(buffer.buffer(), sizeof(buffer), NULL);
 
         Obj regex(&arena);
 
