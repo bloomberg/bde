@@ -96,6 +96,66 @@ namespace bsls {
                                 // class Assert
                                 // ------------
 
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef  Z_BAELU_ASSERTION_REPORTER_ENABLE
+#define Z_BAELU_ASSERTION_REPORTER_ENABLE
+#endif
+
+#ifdef Z_BAELU_ASSERTION_REPORTER_ENABLE
+namespace {
+extern "C" {
+typedef void (*z_baelu_BregCallback)(int *assert_trace_enable,
+                                     int *assert_trace_severity,
+                                     int *assert_max_callstack_count);
+
+extern void
+z_baelu_AssertionReporter__initialize(z_baelu_BregCallback callback);
+
+const char *env_or_def(const char *var, const char *def)
+    // Return the value of the specified environment variable 'var' if it is
+    // present, and the specified 'def' otherwise.
+{
+    const char *val = std::getenv(var);
+    return val ? val : def;
+}
+
+void assert_trace_callback(int *assert_trace_enable,
+                           int *assert_trace_severity,
+                           int *assert_max_callstack_count)
+    // Obtain the assertion logging parameters from the environment (rather
+    // than from BREGs) and assign them respectively to the specified
+    // 'assert_trace_enable', 'assert_trace_severity', and
+    // 'assert_max_callstack_count'.
+{
+    switch (*env_or_def("ASSERT_TRACE_ENABLE", "y")) {
+      case 'f': case 'F': case 'n': case 'N': case '0':
+        *assert_trace_enable = 0;
+        break;
+      default:
+        *assert_trace_enable = 1;
+        break;
+    }
+
+    *assert_trace_severity =
+        std::atoi(env_or_def("ASSERT_TRACE_SEVERITY", "2"));
+    if (*assert_trace_severity < 0) {
+        *assert_trace_severity = 0;
+    }
+    else if (*assert_trace_severity > 6) {
+        *assert_trace_severity = 6;
+    }
+
+    *assert_max_callstack_count =
+        std::atoi(env_or_def("ASSERT_MAX_CALLSTACK_COUNT", "10"));
+    if (*assert_max_callstack_count < 0) {
+        *assert_max_callstack_count = 0;
+    }
+}
+}
+}
+
+#endif
+
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
     Assert::s_handler = {(void *) &Assert::failAbort};
@@ -121,6 +181,14 @@ void Assert::lockAssertAdministration()
 
 Assert::Handler Assert::failureHandler()
 {
+#ifdef Z_BAELU_ASSERTION_REPORTER_ENABLE
+    // Not thread safe, but hardly matters for our use case.
+    static bool first = true;
+    if (first) {
+        first = false;
+        z_baelu_AssertionReporter__initialize(assert_trace_callback);
+    }
+#endif
     return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
 }
 
