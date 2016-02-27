@@ -1,5 +1,6 @@
 bsl-internal (2.25.2.0.1.icbeta) unstable; urgency=low
 
+  * 8268da8 Changelog for version 2.25.2.0.1.icbeta
   * 1fefd9f Changelog for version 2.25.2.0.1.icbeta
   * 77a7e49 Changelog for version 2.25.2.0.1.icbeta
   * 5e0c2bd Changelog for version 2.25.2.0.1.icbeta
@@ -12,7 +13,7 @@ bsl-internal (2.25.2.0.1.icbeta) unstable; urgency=low
   * be0c393 Merge pull request #130 from hrosen4/drqs-76761821_to_2.25.x
   * 0d56a3e Merge pull request #110 from hversche/decimal64-improvement-for-2.25.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 27 Feb 2016 17:55:38 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 27 Feb 2016 17:56:26 -0500
 
 bsl-internal (2.25.2.0.icbeta) git; urgency=low
 
