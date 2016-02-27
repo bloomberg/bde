@@ -353,7 +353,7 @@ BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     if (0 == mantissa) {
-        DpdUtil::StorageType128 value = 
+        DpdUtil::StorageType128 value =
             DpdUtil::makeDecimalRaw128(mantissa, exponent);
         return bdldfp::DecimalImpUtil::convertFromDPD(value);
     }
@@ -486,6 +486,236 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+
+    case 12: {
+        // --------------------------------------------------------------------
+        // TESTING parseDecimal
+        // Concerns: the parse functions correctly parses decimal strings.
+        // Plan: Try parsing a variety of different valid and invalid
+        //       strings. Including minimum and maximum values.
+        //       decimal floats
+        //       positive and negative.), and different powers of 10 to
+        //       multiply by (both positive and negative.)
+        // Testing: parseDecimal32, parseDecimal64, parseDecimal128
+        // --------------------------------------------------------------------
+
+        {
+            typedef bdldfp::Decimal32 Type;
+
+            const Type ERROR_VALUE = BDLDFP_DECIMAL_DF(999.0);
+
+            Type inf  = bsl::numeric_limits<Type>::infinity();
+            Type qnan = bsl::numeric_limits<Type>::quiet_NaN();
+            Type snan = bsl::numeric_limits<Type>::signaling_NaN();
+            Type max  = BDLDFP_DECIMAL_DF(9.999999e+96);
+            Type min  = BDLDFP_DECIMAL_DF(-1e-95);
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp unsigned value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+                // line      input   exp           isValid
+                // ----      -----   ---           -------
+                {  L_,             "0",     BDLDFP_DECIMAL_DF(0.0),  true },
+                {  L_,             "1",     BDLDFP_DECIMAL_DF(1.0),  true },
+                {  L_,        "9.3E23",  BDLDFP_DECIMAL_DF(9.3E23),  true },
+                {  L_,            "-1",    BDLDFP_DECIMAL_DF(-1.0),  true },
+                {  L_,          "-0.1",    BDLDFP_DECIMAL_DF(-0.1),  true },
+                {  L_,  "9.999999e+96",                        max,  true },
+                {  L_,        "-1e-95",                        min,  true },
+                {  L_,         "1e+97",                        inf,  true },
+                {  L_,           "NaN",                       qnan,  true },
+                {  L_,          "sNaN",                       snan,  true },
+                {  L_,           "nan",                       qnan,  true },
+                {  L_,           "INF",                        inf,  true },
+                {  L_,          "-INF",                       -inf,  true },
+                {  L_,      "infinity",                        inf,  true },
+                {  L_,     "-infinity",                       -inf,  true },
+
+                {  L_,        "nanb", ERROR_VALUE,  false },
+                {  L_,       "snane", ERROR_VALUE,  false },
+                {  L_,       "snan ", ERROR_VALUE,  false },
+                {  L_,   "infinity ", ERROR_VALUE,  false },
+
+                {  L_,         "-",   ERROR_VALUE,  false },
+                {  L_,       "E-1",   ERROR_VALUE,  false },
+
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,  false },
+                {  L_,      "1.1}",   ERROR_VALUE,  false },
+                {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
+                {  L_,      "JUNK",   ERROR_VALUE,  false },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE     = DATA[i].d_line;
+                const char* INPUT    = DATA[i].d_input_p;
+                const Type  EXP      = DATA[i].d_exp;
+                const bool  IS_VALID = DATA[i].d_isValid;
+                      Type  value    = ERROR_VALUE;
+
+                const int rc = Util::parseDecimal32(&value, INPUT);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rc, rc);
+                }
+
+                if (Util::isNan(EXP)) {
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
+            }
+        }
+        {
+            typedef bdldfp::Decimal64 Type;
+
+            const Type ERROR_VALUE = BDLDFP_DECIMAL_DD(999.0);
+
+            Type inf  = bsl::numeric_limits<Type>::infinity();
+            Type qnan = bsl::numeric_limits<Type>::quiet_NaN();
+            Type snan = bsl::numeric_limits<Type>::signaling_NaN();
+            Type max  = bdldfp::DecimalImpUtil::parse64(
+                                                     "9.999999999999999e+384");
+            Type min  = BDLDFP_DECIMAL_DD(1e-383);
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp unsigned value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+                // line       input   exp           isValid
+                // ----       -----   ---           -------
+                {  L_,             "0",     BDLDFP_DECIMAL_DF(0.0),  true },
+                {  L_,             "1",     BDLDFP_DECIMAL_DF(1.0),  true },
+                {  L_,        "9.3E23",  BDLDFP_DECIMAL_DF(9.3E23),  true },
+                {  L_,            "-1",    BDLDFP_DECIMAL_DF(-1.0),  true },
+                {  L_,          "-0.1",    BDLDFP_DECIMAL_DF(-0.1),  true },
+                {  L_,  "9.999999999999999e+384",              max,  true },
+                {  L_,        "1e-383",                        min,  true },
+                {  L_,        "1e+385",                        inf,  true },
+
+                {  L_,           "NaN",                       qnan,  true },
+                {  L_,          "sNaN",                       snan,  true },
+                {  L_,           "nan",                       qnan,  true },
+                {  L_,           "INF",                        inf,  true },
+                {  L_,          "-INF",                       -inf,  true },
+                {  L_,      "infinity",                        inf,  true },
+                {  L_,     "-infinity",                       -inf,  true },
+
+                {  L_,        "nanb", ERROR_VALUE,  false },
+                {  L_,       "snane", ERROR_VALUE,  false },
+                {  L_,       "snan ", ERROR_VALUE,  false },
+                {  L_,   "infinity ", ERROR_VALUE,  false },
+
+                {  L_,         "-",   ERROR_VALUE,  false },
+                {  L_,       "E-1",   ERROR_VALUE,  false },
+
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,  false },
+                {  L_,      "1.1}",   ERROR_VALUE,  false },
+                {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
+                {  L_,      "JUNK",   ERROR_VALUE,  false },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE     = DATA[i].d_line;
+                const char* INPUT    = DATA[i].d_input_p;
+                const Type  EXP      = DATA[i].d_exp;
+                const bool  IS_VALID = DATA[i].d_isValid;
+                      Type  value    = ERROR_VALUE;
+
+                const int rc = Util::parseDecimal64(&value, INPUT);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rc, rc);
+                }
+                if (Util::isNan(EXP)) {
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
+            }
+        }
+        {
+            typedef bdldfp::Decimal128 Type;
+
+            const Type ERROR_VALUE = BDLDFP_DECIMAL_DL(999.0);
+            Type inf  = bsl::numeric_limits<Type>::infinity();
+            Type qnan = bsl::numeric_limits<Type>::quiet_NaN();
+            Type snan = bsl::numeric_limits<Type>::signaling_NaN();
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp unsigned value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+                // line       input   exp           isValid
+                // ----       -----   ---           -------
+                {  L_,             "0",     BDLDFP_DECIMAL_DF(0.0),  true },
+                {  L_,             "1",     BDLDFP_DECIMAL_DF(1.0),  true },
+                {  L_,        "9.3E23",  BDLDFP_DECIMAL_DF(9.3E23),  true },
+                {  L_,            "-1",    BDLDFP_DECIMAL_DF(-1.0),  true },
+                {  L_,          "-0.1",    BDLDFP_DECIMAL_DF(-0.1),  true },
+
+                {  L_,   "9.999999999999999e+500",
+                   bdldfp::DecimalImpUtil::parse128(
+                                         "9.999999999999999e+500"),  true },
+                {  L_,       "-1e-500", BDLDFP_DECIMAL_DL(-1e-500),  true },
+
+                {  L_,           "NaN",                       qnan,  true },
+                {  L_,          "sNaN",                       snan,  true },
+                {  L_,           "nan",                       qnan,  true },
+                {  L_,           "INF",                        inf,  true },
+                {  L_,          "-INF",                       -inf,  true },
+                {  L_,      "infinity",                        inf,  true },
+                {  L_,     "-infinity",                       -inf,  true },
+
+                {  L_,        "nanb", ERROR_VALUE,  false },
+                {  L_,       "snane", ERROR_VALUE,  false },
+                {  L_,       "snan ", ERROR_VALUE,  false },
+                {  L_,   "infinity ", ERROR_VALUE,  false },
+
+                {  L_,         "-",   ERROR_VALUE,  false },
+                {  L_,       "E-1",   ERROR_VALUE,  false },
+
+                {  L_,  "3Z4.56e1",   ERROR_VALUE,  false },
+                {  L_,      "1.1}",   ERROR_VALUE,  false },
+                {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
+                {  L_,      "JUNK",   ERROR_VALUE,  false },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE     = DATA[i].d_line;
+                const char* INPUT    = DATA[i].d_input_p;
+                const Type  EXP      = DATA[i].d_exp;
+                const bool  IS_VALID = DATA[i].d_isValid;
+                      Type  value    = ERROR_VALUE;
+
+                const int rc = Util::parseDecimal128(&value, INPUT);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rc, 0 == rc);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rc, rc);
+                }
+                if (Util::isNan(EXP)) {
+                    LOOP3_ASSERT(LINE, EXP, value, Util::isNan(value));
+                } else {
+                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                }
+            }
+        }
+    }
     case 11: {
         // --------------------------------------------------------------------
         // TESTING multiplyByPowerOf10
@@ -1447,6 +1677,7 @@ int main(int argc, char* argv[])
                 ASSERT(!Util::isUnordered(pInf, nInf));
 
                 // Note that -Inf compares equal to all inf values
+
                 //: o -Inf
 
                 ASSERT( Util::isUnordered(nInf, sNaN));
@@ -1713,7 +1944,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, 0);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2238000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1722,7 +1953,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, 5);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x224C000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1731,7 +1962,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 value = makeDecimalRaw64Zero(0, -5);
 
-                DpdUtil::StorageType64 ACTUAL = 
+                DpdUtil::StorageType64 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2224000000000000ull;
                 ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
@@ -1769,7 +2000,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, 0);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2208000000000000ull, 0x0000000000000000ull);
@@ -1781,7 +2012,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, 5);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2209400000000000ull, 0x0000000000000000ull);
@@ -1792,7 +2023,7 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 value = makeDecimalRaw128Zero(0, -5);
 
-                DpdUtil::StorageType128 ACTUAL = 
+                DpdUtil::StorageType128 ACTUAL =
                                 ImpUtil::convertToDPD(*value.data());
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2206C00000000000ull, 0x0000000000000000ull);
