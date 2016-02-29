@@ -1,8 +1,9 @@
 bsl-internal (2.25.2.0.3.icbeta) unstable; urgency=low
 
+  * faa24e0 Changelog for version 2.25.2.0.3.icbeta
   * bb1665e Merge pull request #197 from hrosen4/assertion-logging-without-main-init
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 29 Feb 2016 12:26:14 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 29 Feb 2016 12:32:41 -0500
 
 bsl-internal (2.25.2.0.1.icbeta) git; urgency=low
 
