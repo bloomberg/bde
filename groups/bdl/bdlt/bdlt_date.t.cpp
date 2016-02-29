@@ -819,6 +819,24 @@ if (verbose)
             { L_,    2014,     10,    1,   DOW::e_WED,           MOY::e_OCT },
             { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
             { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
+
+            { L_,    2016,      2,   29,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2020,      2,   29,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2024,      2,   29,   DOW::e_THU,           MOY::e_FEB },
+            { L_,    2028,      2,   29,   DOW::e_TUE,           MOY::e_FEB },
+            { L_,    2032,      2,   29,   DOW::e_SUN,           MOY::e_FEB },
+            { L_,    2036,      2,   29,   DOW::e_FRI,           MOY::e_FEB },
+            { L_,    2040,      2,   29,   DOW::e_WED,           MOY::e_FEB },
+            { L_,    2044,      2,   29,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2048,      2,   29,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2052,      2,   29,   DOW::e_THU,           MOY::e_FEB },
+            { L_,    2056,      2,   29,   DOW::e_TUE,           MOY::e_FEB },
+            { L_,    2060,      2,   29,   DOW::e_SUN,           MOY::e_FEB },
+            { L_,    2064,      2,   29,   DOW::e_FRI,           MOY::e_FEB },
+            { L_,    2068,      2,   29,   DOW::e_WED,           MOY::e_FEB },
+            { L_,    2072,      2,   29,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2076,      2,   29,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2080,      2,   29,   DOW::e_THU,           MOY::e_FEB },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2409,6 +2427,24 @@ if (verbose)
 
                 { L_,      10000,        1,        1,     0 },
                 { L_,    INT_MAX,        1,        1,     0 },
+
+                { L_,       2016,        2,       29,     1 },
+                { L_,       2020,        2,       29,     1 },
+                { L_,       2024,        2,       29,     1 },
+                { L_,       2028,        2,       29,     1 },
+                { L_,       2032,        2,       29,     1 },
+                { L_,       2036,        2,       29,     1 },
+                { L_,       2040,        2,       29,     1 },
+                { L_,       2044,        2,       29,     1 },
+                { L_,       2048,        2,       29,     1 },
+                { L_,       2052,        2,       29,     1 },
+                { L_,       2056,        2,       29,     1 },
+                { L_,       2060,        2,       29,     1 },
+                { L_,       2064,        2,       29,     1 },
+                { L_,       2068,        2,       29,     1 },
+                { L_,       2072,        2,       29,     1 },
+                { L_,       2076,        2,       29,     1 },
+                { L_,       2080,        2,       29,     1 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
