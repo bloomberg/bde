@@ -64,3 +64,4 @@ bslmf_selecttrait
 bslmf_tag
 bslmf_typelist
 bslmf_usesallocatorargt
+bslmf_util
