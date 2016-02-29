@@ -90,6 +90,10 @@ void printError(const char *text, const char *file, int line)
                           // in case it has been reopened as a buffered stream.
 }
 
+#ifdef Z_BAELU_ASSERTION_REPORTER_ENABLE
+static void doNothing(const char *, const char *, int) { }
+#endif
+
 namespace bsls {
 
                                 // ------------
@@ -97,8 +101,13 @@ namespace bsls {
                                 // ------------
 
 // CLASS DATA
-bsls::AtomicOperations::AtomicTypes::Pointer
-    Assert::s_handler = {(void *) &Assert::failAbort};
+bsls::AtomicOperations::AtomicTypes::Pointer Assert::s_handler = {
+#ifdef Z_BAELU_ASSERTION_REPORTER_ENABLE
+        (void *)&doNothing
+#else
+        (void *)&Assert::failAbort
+#endif
+};
 bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
 
 // CLASS METHODS
@@ -121,7 +130,9 @@ void Assert::lockAssertAdministration()
 
 Assert::Handler Assert::failureHandler()
 {
-    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
+    Handler h = (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
+    // For testing, pretend we're using the abort handler.
+    return h == doNothing ? failAbort : h;
 }
 
                        // Macro Dispatcher Method
