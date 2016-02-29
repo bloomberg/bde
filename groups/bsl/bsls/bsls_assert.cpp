@@ -90,9 +90,7 @@ void printError(const char *text, const char *file, int line)
                           // in case it has been reopened as a buffered stream.
 }
 
-#ifdef Z_BAELU_ASSERTION_REPORTER_ENABLE
 static void doNothing(const char *, const char *, int) { }
-#endif
 
 namespace bsls {
 
