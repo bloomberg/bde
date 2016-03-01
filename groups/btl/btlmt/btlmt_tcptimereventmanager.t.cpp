@@ -599,6 +599,8 @@ extern "C" void *testTimersThread(void *arg) {
                                            expDelta,
                                            -i,
                                            true));
+
+        mX->registerTimer(timeValues[i], functor);
     }
 
     globalBarrier->wait();
