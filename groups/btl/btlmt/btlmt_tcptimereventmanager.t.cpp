@@ -521,7 +521,6 @@ void *deregisterThread(void *arg)
                 0 == defaultAllocator.numBytesInUse());
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
-        btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
         const btlso::TimerEventManager::Callback callback(
                        bsl::allocator_arg_t(),
                        bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
@@ -572,7 +571,6 @@ extern "C" void *testTimersThread(void *arg) {
     int flags[NUM_TIMERS];
     bsls::TimeInterval timeValues[NUM_TIMERS];
     bsls::TimeInterval now = bdlt::CurrentTime::now();
-    void *timerIds[NUM_TIMERS];
 
     // TBD: This assertion currently fails because of a bug where storing
     // bsl::function objects in containers results in the use of the default
@@ -601,8 +599,6 @@ extern "C" void *testTimersThread(void *arg) {
                                            expDelta,
                                            -i,
                                            true));
-
-        timerIds[i] = mX->registerTimer(timeValues[i], functor);
     }
 
     globalBarrier->wait();
@@ -670,7 +666,6 @@ static void executeInParallel(bslmt_ThreadFunction  func,
     for (int i = 0; i < numThreads; ++i) {
         ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
     }
-
 }
 
 struct my_Event {
@@ -682,7 +677,7 @@ struct my_Event {
 static void recordCb(void *context,
                      bsl::vector<my_Event> *result) {
     my_Event event;
-    event.d_thread = bslmt::ThreadUtil::selfIdAsInt();
+    event.d_thread = (int) bslmt::ThreadUtil::selfIdAsInt();
     event.d_timestamp = bdlt::CurrentTime::utc().time();
     event.d_context = context;
     result->push_back(event);
@@ -742,7 +737,7 @@ void readData(ReadDataType *readDataArgs)
 {
     const int SIZE = 1024;
     char readBuffer[SIZE]  = { 'x' };
-    char expBuffer[SIZE]   = { 'z' };
+//     char expBuffer[SIZE]   = { 'z' };
     int errorCode = 0;
     int rc = btlso::SocketImpUtil::read(readBuffer,
                                         readDataArgs->d_handle,
@@ -1175,7 +1170,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);   const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-            enum { NUM_TIMERS  = 10000 };
+            enum { NUM_TIMERS  = 1000 };
             bsls::TimeInterval  timeValues[NUM_TIMERS];
 
             // DELTA had to be increased from 0.5 for when built in safe mode
