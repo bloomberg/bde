@@ -71,9 +71,7 @@
  The 'btlmt' package can be viewed as a framework for building efficient
  multi-threaded applications requiring interprocess communication (IPC).
  'btlmt' provides the structure whereby multiple threads within a process can
- engage in IPC via a flexible message format.  In general functionality,
- 'btlmt' is similar to the 'ptdispatch' framework, except that 'btlmt' uses
- TCP/IP sockets and not 'fstsnd' as its transport mechanism.  The following
+ engage in IPC via a flexible message format. The following
  overview presents the main 'btlmt' components and types, plus other types used
  by the framework.
 
