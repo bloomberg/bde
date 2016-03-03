@@ -973,7 +973,10 @@ class Datum {
 
     // Internal Datum representation
     union {
-        double            d_double;   // as a double value
+        // Do not change the order of these member, otherwise the code will not
+        // work properly with the clang compiler.
+
+        char              d_data[8];  // as a byte array of internal storage
 
         ShortString5      d_string5;  // as a string shorter than 5 chars
 
@@ -984,7 +987,7 @@ class Datum {
 
         ExponentAccess    d_exp;      // as the exponent as a 32 bit word
 
-        char              d_data[8];  // as a byte array of internal storage
+        double            d_double;   // as a double value
     };
 
     // PRIVATE CLASS METHODS
