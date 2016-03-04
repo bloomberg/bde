@@ -75,6 +75,10 @@ uint8_t, UCHAR_MAX, etc are defined. */
 
 #if _MSC_VER >= 1600
 #include <stdint.h>
+#else
+typedef unsigned char  uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int   uint32_t;
 #endif
 
 /* Allow for C++ users compiling this directly. */
