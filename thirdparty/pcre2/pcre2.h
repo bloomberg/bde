@@ -80,6 +80,7 @@ typedef unsigned char  uint8_t;
 typedef unsigned short uint16_t;
 typedef   signed int    int32_t;
 typedef unsigned int   uint32_t;
+#define UINT32_MAX     0xFFFFFFFFU
 #endif
 
 /* Allow for C++ users compiling this directly. */
