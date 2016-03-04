@@ -72,7 +72,10 @@ uint8_t, UCHAR_MAX, etc are defined. */
 
 #include <limits.h>
 #include <stdlib.h>
+
+#if _MSC_VER >= 1600
 #include <stdint.h>
+#endif
 
 /* Allow for C++ users compiling this directly. */
 
