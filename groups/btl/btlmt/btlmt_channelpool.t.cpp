@@ -8205,12 +8205,17 @@ void TestDriver::testCase34()
         // Concerns:
         //: 1 The low-water mark is invoked after the enqueue water mark is
         //:   exceeded and the write queue size drops below the low-water mark.
+        //: 2 The right error codes are returned for writes that fail for
+        //:   exceeding one or other highwater limit.
+        //: 3 Writing succeeds, and a lowwater event occurs, once the highwater
+        //:   limit is restored.
         //
         // Plan:
         //: 1 Write a message greater than the enqueue queue size and confirm
         //:   that the low-water mark is invoked after the write completes.
         //:   Repeat a similar write again and assert that low-water mark is
-        //:   invoked.
+        //:   invoked.  Adjust watermark limits and attempt writes, verifying
+        //:   correct failure and success responses.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -8319,6 +8324,30 @@ void TestDriver::testCase34()
 
         ASSERT(0 == bslmt::ThreadUtil::join(handle));
         LOOP_ASSERT(numTimesLowWaterCalled, 2 == numTimesLowWaterCalled);
+
+        pool.setWriteQueueHighWatermark(channelId, SIZE / 2);
+
+        rc = pool.write(channelId, b);
+        ASSERT(!rc);
+        rc = pool.write(channelId, b);
+        ASSERT(rc == btlmt::ChannelStatus::e_QUEUE_HIGHWATER);
+        rc = pool.write(channelId, b, 100);
+        ASSERT(rc == btlmt::ChannelStatus::e_ENQUEUE_HIGHWATER);
+
+        pool.setWriteQueueHighWatermark(channelId, 3 * SIZE);
+        rc = pool.write(channelId, b);
+        ASSERT(!rc);
+
+        rd.d_numBytes = 2 * SIZE;
+        bslmt::ThreadUtil::create(&handle, &readData, &rd);
+
+std::cout << "waiting" << std::endl;
+        channelCbBarrier.wait();
+
+std::cout << "waited, joining" << std::endl;
+        ASSERT(0 == bslmt::ThreadUtil::join(handle));
+
+        LOOP_ASSERT(numTimesLowWaterCalled, 3 == numTimesLowWaterCalled);
 }
 
 void TestDriver::testCase33()

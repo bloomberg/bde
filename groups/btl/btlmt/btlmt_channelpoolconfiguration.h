@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //   | maxThreads         | 0 <= maxThreads                             |
 //   +--------------------+---------------------------------------------+
 //   | writeQueueLowWater | 0 <= writeQueueLowWater                     |
-//   | writeQueueHighWater| 0 <= writeQueueLowWater                     |
+//   | writeQueueHighWater| 0 <= writeQueueHighWater                     |
 //   +--------------------+---------------------------------------------+
 //   | readTimeout        | 0 <= readTimeout                            |
 //   +--------------------+---------------------------------------------+
