@@ -220,6 +220,8 @@ BSLS_IDENT("$Id: $")
 # endif
 #endif
 
+#include <bslmf_issame.h>
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -377,10 +379,14 @@ struct IsConvertible_Imp {
         // convertible to 'TO_TYPE', and 'bsl::false_type' otherwise.
 };
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if 0 // defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 // The following template partial specializations produce the same results as
 // the unspecialized template would, but avoid generating conversion warnings
-// on the affected compilers.
+// on the affected compilers.  However, there is one known bug in this block of
+// code (reported by the test driver, not yet tracked down) and experimentally
+// removing it seems to clear the bug, without raising the feared warnings on
+// supported gcc platforms - although it still raises a few warnings with gcc
+// 4.3.5.
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <class TYPE>                                                         \
@@ -547,7 +553,7 @@ struct IsConvertible_FilterNeverConvertible
 template <class FROM_TYPE, class TO_TYPE>
 struct IsConvertible_Conditional : bsl::conditional<
      bsl::is_void<TO_TYPE>::value,
-     bsl::is_void<FROM_TYPE>,
+     typename bsl::is_void<FROM_TYPE>::type,
      IsConvertible_FilterNeverConvertible<
                         typename IsConvertible_CheckComplete<FROM_TYPE>::type,
                         typename IsConvertible_CheckComplete<  TO_TYPE>::type>
@@ -559,18 +565,18 @@ struct IsConvertible_Conditional : bsl::conditional<
 
 namespace bsl {
 
-                         // =====================
+                         // ==============================
                          // struct is_convertible_dispatch
-                         // =====================
+                         // ==============================
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible_dispatch
     : BloombergLP::bslmf::IsConvertible_Conditional<FROM_TYPE, TO_TYPE>::type {
-    // This 'struct' template implements the 'is_convertible_dispatch' meta-function
-    // defined in the C++11 standard [meta.rel] to determine if the (template
-    // parameter) 'FROM_TYPE' is convertible to the (template parameter)
-    // 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if the
-    // 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
+    // This 'struct' template implements the 'is_convertible_dispatch'
+    // meta-function defined in the C++11 standard [meta.rel] to determine if
+    // the (template parameter) 'FROM_TYPE' is convertible to the (template
+    // parameter) 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if
+    // the 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
     // otherwise.  Note that both 'FROM_TYPE' and 'TO_TYPE' should be complete
     // types, arrays of unknown bound, or (possibly cv-qualified) 'void' types.
 };
@@ -582,10 +588,90 @@ struct is_convertible_dispatch<TYPE, TYPE&>
                           || is_function<TYPE>::value
                           || is_const<TYPE>::value> {
     // This set of rules corresponds with the reference binding rules in c++11,
-    // where the specification of 'is_convertible_dispatch' relies on rvalue-references.
-    // We must supply these specializations directly in order to support C++03
-    // compilers that do not have a good substitute for rvalue-references, as
-    // using 'const &' instead produces subtly different results in some cases.
+    // where the specification of 'is_convertible_dispatch' relies on
+    // rvalue-references.  We must supply these specializations directly in
+    // order to support C++03 compilers that do not have a good substitute for
+    // rvalue-references, as using 'const &' instead produces subtly different
+    // results in some cases.
+};
+
+// Some compilers need explicit guidance on a few of the reference-binding
+// conversions.  All compilers get most of these correct, but once a few
+// specializations are added, the full set is required to avoid ambiguities.
+
+template <class TYPE>
+struct is_convertible_dispatch<TYPE, const TYPE&>
+    : true_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<TYPE, volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<TYPE, const volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const TYPE, TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const TYPE, const TYPE&>
+    : true_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const TYPE, volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const TYPE, const volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<volatile TYPE, TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<volatile TYPE, const TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<volatile TYPE, volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<volatile TYPE, const volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const volatile TYPE, TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const volatile TYPE, const TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const volatile TYPE, volatile TYPE&>
+    : false_type {
+};
+
+template <class TYPE>
+struct is_convertible_dispatch<const volatile TYPE, const volatile TYPE&>
+    : false_type {
 };
 
 // The remaining partial specializations deal with various cases of converting
@@ -594,14 +680,6 @@ struct is_convertible_dispatch<TYPE, TYPE&>
 
 template <class TYPE>
 struct is_convertible_dispatch<TYPE&, TYPE&> : true_type {
-};
-
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<FROM_TYPE, volatile TO_TYPE&> : false_type {
-};
-
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<FROM_TYPE, const volatile TO_TYPE&> : false_type {
 };
 
 template <class TYPE>
@@ -645,7 +723,8 @@ struct is_convertible_dispatch<volatile TYPE&, volatile TYPE&> : true_type {
 };
 
 template <class TYPE>
-struct is_convertible_dispatch<volatile TYPE&, const volatile TYPE&> : true_type {
+struct is_convertible_dispatch<volatile TYPE&, const volatile TYPE&>
+    : true_type {
 };
 
 template <class TYPE>
@@ -653,44 +732,74 @@ struct is_convertible_dispatch<const volatile TYPE&, TYPE&> : false_type {
 };
 
 template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE&, const TYPE&> : false_type {
+struct is_convertible_dispatch<const volatile TYPE&, const TYPE&>
+    : false_type {
 };
 
 template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE&, volatile TYPE&> : false_type {
+struct is_convertible_dispatch<const volatile TYPE&, volatile TYPE&>
+    : false_type {
 };
 
 template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE&, const volatile TYPE&> : true_type {
+struct is_convertible_dispatch<const volatile TYPE&, const volatile TYPE&>
+    : true_type {
 };
 
-#if 1
+
 template <class TYPE>
 struct is_convertible_dispatch<volatile TYPE, TYPE>
-     : bsl::conditional<
-                      bsl::is_fundamental<TYPE>::value,
-                      typename bsl::is_convertible_dispatch<TYPE, TYPE>::type,
-                      typename BloombergLP::bslmf::IsConvertible_Conditional<
-                                                                          TYPE,
-                                                                          TYPE>
-                                                                         ::type
-                       >::type {
+     : BloombergLP::bslmf::IsConvertible_Conditional<TYPE, TYPE>::type {
+    // Correct handling of non-fundamental volatile conversions to self.
+    // Note that this is not trivially true, but tests that 'TYPE' is copy-
+    // constructible.
 };
-#else
+
+
+#if 0
 template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<volatile FROM_TYPE, TO_TYPE>
-     : bsl::conditional<
-                      bsl::is_fundamental<FROM_TYPE>::value,
-                      typename bsl::is_convertible_dispatch<FROM_TYPE, TO_TYPE>::type,
-                      typename BloombergLP::bslmf::IsConvertible_Conditional<
-                                                            volatile FROM_TYPE,
-                                                                       TO_TYPE>
-                                                                         ::type
-                       >::type {
+struct is_convertible_dispatch<FROM_TYPE, TO_TYPE&>
+    : is_convertible_dispatch<typename remove_reference<FROM_TYPE>::type*, TO_TYPE*>::type {
+};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible_dispatch<volatile FROM_TYPE&, TO_TYPE&>
+    : is_convertible_dispatch<FROM_TYPE*, TO_TYPE*>::type {
 };
 #endif
 
-// IBM-specfic fix
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible_dispatch<FROM_TYPE, volatile TO_TYPE&> : false_type {
+};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible_dispatch<FROM_TYPE, const volatile TO_TYPE&>
+    : false_type {
+};
+
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible_dispatch<volatile FROM_TYPE&, volatile TO_TYPE&>
+    : is_convertible_dispatch<FROM_TYPE*, TO_TYPE*>::type {
+};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible_dispatch<volatile FROM_TYPE&, const volatile TO_TYPE&>
+     : is_convertible_dispatch<FROM_TYPE, const volatile TO_TYPE&>::type {
+};
+
+                         // =====================
+                         // struct is_convertible
+                         // =====================
+
+template <class FROM_TYPE>
+struct EffectiveFromType : conditional<
+              is_fundamental<FROM_TYPE>::value || is_pointer<FROM_TYPE>::value,
+              typename remove_cv<FROM_TYPE>::type,
+              FROM_TYPE> {
+};
+
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible_dispatch<volatile FROM_TYPE&, TO_TYPE>
      : bsl::conditional<
@@ -702,104 +811,17 @@ struct is_convertible_dispatch<volatile FROM_TYPE&, TO_TYPE>
                        >::type {
 };
 
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<volatile FROM_TYPE&, const volatile TO_TYPE&>
-     : is_convertible_dispatch<FROM_TYPE, const volatile TO_TYPE&>::type {
-};
-
-#define FIXING_TEST_RESULTS_FOR_03       1
-#if defined(FIXING_TEST_RESULTS_FOR_03)
-// Some compilers need explicit guidance on a few of the reference-binding
-// conversions.  All compilers get most of these correct, but once a few
-// specializations are added, the full set is required to avoid ambiguities.
-
-// There remains a small concern about user-defined types that provide their
-// own conversion operators that should be used when the regular binding
-// fails.
-
-//template <class TYPE>
-//struct is_convertible_dispatch<TYPE, TYPE&> : false_type {
-//};
-
-template <class TYPE>
-struct is_convertible_dispatch<TYPE, const TYPE&> : true_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<TYPE, const volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const TYPE, const TYPE&> : true_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const TYPE, const volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<volatile TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<volatile TYPE, const TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<volatile TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<volatile TYPE, const volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE, TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE, const TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE, volatile TYPE&> : false_type {
-};
-
-template <class TYPE>
-struct is_convertible_dispatch<const volatile TYPE, const volatile TYPE&> : false_type {
-};
-
-#endif
-
-                         // =====================
-                         // struct is_convertible
-                         // =====================
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible
-    : conditional< is_fundamental<FROM_TYPE>::value || is_pointer<FROM_TYPE>::value
-                 , typename is_convertible_dispatch<
-                                           typename remove_cv<FROM_TYPE>::type,
-                                           TO_TYPE >::type
-                 , typename is_convertible_dispatch<FROM_TYPE, TO_TYPE>::type
-                 >::type {
-    // This 'struct' template implements the 'is_convertible_dispatch' meta-function
-    // defined in the C++11 standard [meta.rel] to determine if the (template
-    // parameter) 'FROM_TYPE' is convertible to the (template parameter)
-    // 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if the
-    // 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
+    :  is_convertible_dispatch< typename EffectiveFromType<FROM_TYPE>::type
+                              , TO_TYPE
+                              >::type {
+    // This 'struct' template implements the 'is_convertible_dispatch'
+    // meta-function defined in the C++11 standard [meta.rel] to determine if
+    // the (template parameter) 'FROM_TYPE' is convertible to the (template
+    // parameter) 'TO_TYPE'.  This 'struct' derives from 'bsl::true_type' if
+    // the 'FROM_TYPE' is convertible to 'TO_TYPE', and from 'bsl::false_type'
     // otherwise.  Note that both 'FROM_TYPE' and 'TO_TYPE' should be complete
     // types, arrays of unknown bound, or (possibly cv-qualified) 'void' types.
 };
