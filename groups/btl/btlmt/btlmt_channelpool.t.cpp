@@ -8341,10 +8341,8 @@ void TestDriver::testCase34()
         rd.d_numBytes = 2 * SIZE;
         bslmt::ThreadUtil::create(&handle, &readData, &rd);
 
-std::cout << "waiting" << std::endl;
         channelCbBarrier.wait();
 
-std::cout << "waited, joining" << std::endl;
         ASSERT(0 == bslmt::ThreadUtil::join(handle));
 
         LOOP_ASSERT(numTimesLowWaterCalled, 3 == numTimesLowWaterCalled);

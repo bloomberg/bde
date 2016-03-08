@@ -2132,13 +2132,11 @@ void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
 
         d_eventManager_p->execute(functor);
     }
-    else if (writeQueueSize < numBytes) {
-        // Otherwise, if the write queue size limit is now greater than the
-        // current queue size, clear the hi-water mark hit flag so additional
-        // alerts will be generated.
-
-        d_highWatermarkHitFlag = false;
-    }
+    // If the write queue size limit is now greater than the current queue
+    // size, and a high-water alert has already been issued, the next write
+    // attempted beyond the new limit will not generate a new high-water alert,
+    // (even if some intervening writes succeed), until a low-water alert has
+    // also been issued.
 }
 
 int Channel::setWriteQueueLowWatermark(int numBytes)
