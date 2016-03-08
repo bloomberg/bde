@@ -26,6 +26,13 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
                         // --------------
                         // class Datetime
                         // --------------
+// CLASS VALUES
+const bsls::Types::Uint64 Datetime::s_firstNanosecondSecond = (Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_S_PER_D;
+const bsls::Types::Uint64 Datetime::s_firstPostNanosecondSecond = (Date(Datetime::k_FIRST_POST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_S_PER_D;
+
+const bsls::Types::Uint64 Datetime::s_firstSetValue = Date(9999, 12, 31) - Date() + 1;
+const bsls::Types::Uint64 Datetime::s_firstNanosecondValue = (Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_US_PER_D + Datetime::s_firstSetValue;
+const bsls::Types::Uint64 Datetime::s_firstPostNanosecondValue = (Date(Datetime::k_FIRST_POST_NANOSECOND_YEAR, 1, 1) - Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1)) * TimeUnitRatio::k_NS_PER_D + Datetime::s_firstNanosecondValue;
 
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
@@ -126,7 +133,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Datetime& object)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

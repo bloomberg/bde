@@ -141,7 +141,6 @@ using namespace bsl;
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
-// [22] Date& date();
 // [22] int validateAndSetDatetime(int, int, int, int, int, int, int);
 // [10] bsl::ostream& streamOut(bsl::ostream& stream) const;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -486,23 +485,6 @@ if (veryVerbose)
         if (verbose) cout << endl
                           << "TESTING DEPRECATED MANIPULATORS" << endl
                           << "===============================" << endl;
-
-        if (verbose) cout << "\nTesting 'date' Overload" << endl;
-
-        {
-            Obj x;  const Obj& X = x;
-
-            const Date date0             = X.date(); // accessor
-            Date&      modifiableDateRef = x.date(); // manipulator
-
-            ASSERT(date0 == modifiableDateRef);
-
-            ++modifiableDateRef;
-
-            const Date date1  = X.date();
-            ASSERT(date0 + 1 == date1);
-            ASSERT(date1     == modifiableDateRef);
-        }
 
         if (verbose) cout << "\nTesting 'validateAndSetDatetime'" << endl;
 
@@ -5065,6 +5047,7 @@ if (veryVerbose)
 
                 Obj x;  const Obj& X = x;
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
+
                 LOOP_ASSERT(i, HOUR   == X.time().hour());
                 LOOP_ASSERT(i, MINUTE == X.time().minute());
                 LOOP_ASSERT(i, SECOND == X.time().second());
@@ -5601,7 +5584,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

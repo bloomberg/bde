@@ -261,6 +261,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -286,22 +294,49 @@ class Datetime {
     // 'Datetime' objects whose "time" part has the same value as that of a
     // default constructed 'Time' object.
 
-    // PRIVATE TYPES
-    enum {
-        k_MILLISECONDS_PER_DAY    = TimeUnitRatio::k_MS_PER_D_32,
-        k_MILLISECONDS_PER_HOUR   = TimeUnitRatio::k_MS_PER_H_32,
-        k_MILLISECONDS_PER_MINUTE = TimeUnitRatio::k_MS_PER_M_32,
-        k_MILLISECONDS_PER_SECOND = TimeUnitRatio::k_MS_PER_S_32
-    };
+    // CLASS DATA
+    static const bsls::Types::Uint64 s_firstNanosecondSecond;
+    static const bsls::Types::Uint64 s_firstPostNanosecondSecond;
 
+    static const bsls::Types::Uint64 s_firstSetValue;
+    static const bsls::Types::Uint64 s_firstNanosecondValue;
+    static const bsls::Types::Uint64 s_firstPostNanosecondValue;
+    
     // DATA
-    Date d_date;  // "date" part of "date+time" value
-    Time d_time;  // "time" part of "date+time" value
+    bsls::Types::Uint64 d_value;  // encoded offset from the epoch
 
     // FRIENDS
     friend DatetimeInterval operator-(const Datetime&, const Datetime&);
 
+    friend bool operator==(const Datetime&, const Datetime&);
+    friend bool operator!=(const Datetime&, const Datetime&);
+    friend bool operator< (const Datetime&, const Datetime&);
+    friend bool operator<=(const Datetime&, const Datetime&);
+    friend bool operator> (const Datetime&, const Datetime&);
+    friend bool operator>=(const Datetime&, const Datetime&);
+
+    // PRIVATE MANIPULATOR
+    void setTimeIntervalFromEpoch(const bsls::TimeInterval& interval);
+        // TBD
+
+    void setUnset(int totalDays);
+        // TBD
+
+    // PRIVATE ACCESSORS
+    void timeIntervalFromEpoch(bsls::TimeInterval *interval) const;
+        // TBD
+
+    void timeIntervalFromEpoch(bsls::TimeInterval *interval,
+                               bool               *unset) const;
+        // TBD
+
   public:
+    // TYPES
+    enum {
+        k_FIRST_NANOSECOND_YEAR      = 1970,
+        k_FIRST_POST_NANOSECOND_YEAR = k_FIRST_NANOSECOND_YEAR + 500
+    };
+
     // CLASS METHODS
     static bool isValid(int year,
                         int month,
@@ -386,6 +421,16 @@ class Datetime {
         // If '24 == hour()' on entry, set the 'hour' attribute of this object
         // to 0 before performing the subtraction.  The behavior is undefined
         // unless the resulting value is valid for 'Datetime' (see 'isValid').
+
+    void setDatetime(const Date& date,
+                     int hour         = 0,
+                     int minute       = 0,
+                     int second       = 0,
+                     int millisecond  = 0);
+        // TBD
+
+    void setDatetime(const Date& date, const Time& time);
+        // TBD
 
     void setDatetime(int year,
                      int month,
@@ -627,15 +672,6 @@ class Datetime {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
-    Date& date();
-        // !DEPRECATED!: Do *not* use.
-        //
-        // Return a reference providing modifiable access to the internal date
-        // object of this datetime.
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -770,6 +806,67 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
                                // class Datetime
                                // --------------
 
+// PRIVATE MANIPULATOR
+inline
+void Datetime::setTimeIntervalFromEpoch(const bsls::TimeInterval& interval)
+{
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(s_firstNanosecondSecond <= interval.totalSeconds())
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(s_firstPostNanosecondSecond > interval.totalSeconds())) {
+        d_value = (interval.totalSeconds() - s_firstNanosecondSecond) * TimeUnitRatio::k_NS_PER_S + interval.nanoseconds() + s_firstNanosecondValue;
+    }
+    else if (s_firstPostNanosecondSecond <= interval.totalSeconds()) {
+        d_value = (interval.totalSeconds() - s_firstPostNanosecondSecond) * TimeUnitRatio::k_US_PER_S + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US + s_firstPostNanosecondValue;
+    }
+    else {
+        d_value = interval.totalSeconds() * TimeUnitRatio::k_US_PER_S + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US + s_firstSetValue;
+    }
+}
+
+inline
+void Datetime::setUnset(int totalDays)
+{
+    d_value = totalDays;
+}
+
+// PRIVATE ACCESSORS
+inline
+void Datetime::timeIntervalFromEpoch(bsls::TimeInterval *interval) const
+{
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(s_firstNanosecondValue <= d_value)
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(s_firstPostNanosecondValue > d_value)) {
+        bsls::Types::Uint64 totalNanoseconds =
+                                              d_value - s_firstNanosecondValue;
+        interval->setInterval(totalNanoseconds / TimeUnitRatio::k_NS_PER_S
+                                                     + s_firstNanosecondSecond,
+                              totalNanoseconds % TimeUnitRatio::k_NS_PER_S);
+    }
+    else if (s_firstPostNanosecondValue <= d_value) {
+        bsls::Types::Uint64 totalMicroseconds =
+                                          d_value - s_firstPostNanosecondValue;
+        interval->setInterval(totalMicroseconds / TimeUnitRatio::k_US_PER_S
+                                                 + s_firstPostNanosecondSecond,
+                              totalMicroseconds % TimeUnitRatio::k_US_PER_S
+                                                 * TimeUnitRatio::k_NS_PER_US);
+    }
+    else if (s_firstSetValue <= d_value) {
+        bsls::Types::Uint64 totalMicroseconds = d_value - s_firstSetValue;
+        interval->setInterval(totalMicroseconds / TimeUnitRatio::k_US_PER_S,
+                              totalMicroseconds % TimeUnitRatio::k_US_PER_S
+                                                 * TimeUnitRatio::k_NS_PER_US);
+    }
+    else {
+        interval->setInterval(d_value * TimeUnitRatio::k_S_PER_D);
+    }
+}
+
+inline
+void Datetime::timeIntervalFromEpoch(bsls::TimeInterval *interval,
+                                     bool               *unset) const
+{
+    timeIntervalFromEpoch(interval);
+    *unset = d_value < s_firstSetValue;
+}
+
 // CLASS METHODS
 inline
 bool Datetime::isValid(int year,
@@ -780,6 +877,7 @@ bool Datetime::isValid(int year,
                        int second,
                        int millisecond)
 {
+    // TBD
     return Date::isValidYearMonthDay(year, month, day)
         && Time::isValid(hour, minute, second, millisecond);
 }
@@ -787,29 +885,32 @@ bool Datetime::isValid(int year,
                                   // Aspects
 
 inline
-int Datetime::maxSupportedBdexVersion(int /* versionSelector */)
+int Datetime::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20160314) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
 // CREATORS
 inline
 Datetime::Datetime()
+: d_value(0)
 {
 }
 
 inline
 Datetime::Datetime(const Date& date)
-: d_date(date)
-, d_time(0, 0, 0, 0)
 {
+    setTimeIntervalFromEpoch(bsls::TimeInterval((date - Date())
+                                                  * TimeUnitRatio::k_S_PER_D));
 }
 
 inline
 Datetime::Datetime(const Date& date, const Time& time)
-: d_date(date)
-, d_time(time)
 {
+    setDatetime(date, time);
 }
 
 inline
@@ -820,9 +921,8 @@ Datetime::Datetime(int year,
                    int minute,
                    int second,
                    int millisecond)
-: d_date(year, month, day)
-, d_time(hour, minute, second, millisecond)
 {
+    // TBD
     BSLS_ASSERT_SAFE(Datetime::isValid(year,
                                        month,
                                        day,
@@ -830,12 +930,26 @@ Datetime::Datetime(int year,
                                        minute,
                                        second,
                                        millisecond));
+
+    if (24 != hour) {
+        bsls::Types::Uint64 totalSeconds = 
+                   (Date(year, month, day) - Date()) * TimeUnitRatio::k_S_PER_D
+                 + hour * TimeUnitRatio::k_S_PER_H
+                 + minute * TimeUnitRatio::k_S_PER_M
+                 + second;
+    
+        setTimeIntervalFromEpoch(bsls::TimeInterval(
+                                    totalSeconds,
+                                    millisecond * TimeUnitRatio::k_NS_PER_MS));
+    }
+    else {
+        setUnset(Date(year, month, day) - Date());
+    }
 }
 
 inline
 Datetime::Datetime(const Datetime& original)
-: d_date(original.d_date)
-, d_time(original.d_time)
+: d_value(original.d_value)
 {
 }
 
@@ -843,8 +957,7 @@ Datetime::Datetime(const Datetime& original)
 inline
 Datetime& Datetime::operator=(const Datetime& rhs)
 {
-    d_date = rhs.d_date;
-    d_time = rhs.d_time;
+    d_value = rhs.d_value;
 
     return *this;
 }
@@ -855,7 +968,11 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
     BSLS_ASSERT_SAFE(rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
     BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
-    d_date += d_time.addInterval(rhs);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+    interval.addMilliseconds(rhs.totalMilliseconds());
+    setTimeIntervalFromEpoch(interval);
 
     return *this;
 }
@@ -866,9 +983,48 @@ Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
     BSLS_ASSERT_SAFE(-rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
     BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
-    d_date += d_time.addInterval(-rhs);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+    interval.addMilliseconds(-rhs.totalMilliseconds());
+    setTimeIntervalFromEpoch(interval);
 
     return *this;
+}
+
+inline
+void Datetime::setDatetime(const Date& date,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         millisecond)
+{
+    if (24 != hour) {
+        bsls::Types::Uint64 totalSeconds =
+                                     (date - Date()) * TimeUnitRatio::k_S_PER_D
+                                   + hour            * TimeUnitRatio::k_S_PER_H
+                                   + minute          * TimeUnitRatio::k_S_PER_M
+                                   + second;
+        setTimeIntervalFromEpoch(bsls::TimeInterval(
+                                    totalSeconds,
+                                    millisecond * TimeUnitRatio::k_NS_PER_MS));
+    }
+    else {
+        setUnset(date - Date());
+    }
+}
+
+inline
+void Datetime::setDatetime(const Date& date, const Time& time)
+{
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+
+    time.getTime(&hour, &minute, &second, &millisecond);
+
+    setDatetime(date, hour, minute, second, millisecond);
 }
 
 inline
@@ -880,6 +1036,7 @@ void Datetime::setDatetime(int year,
                            int second,
                            int millisecond)
 {
+    // TBD
     BSLS_ASSERT_SAFE(Datetime::isValid(year,
                                        month,
                                        day,
@@ -888,8 +1045,7 @@ void Datetime::setDatetime(int year,
                                        second,
                                        millisecond));
 
-    d_date.setYearMonthDay(year, month, day);
-    d_time.setTime(hour, minute, second, millisecond);
+    setDatetime(Date(year, month, day), hour, minute, second, millisecond);
 }
 
 inline
@@ -921,7 +1077,24 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
-    d_date = date;
+    bsls::TimeInterval interval;
+    bool               unset;
+
+    timeIntervalFromEpoch(&interval, &unset);
+
+    if (!unset) {
+        bsls::Types::Uint64 seconds     = interval.totalSeconds()
+                                                    % TimeUnitRatio::k_S_PER_D;
+        int                 nanoseconds = interval.nanoseconds();
+
+        interval.setInterval((date - Date()) * TimeUnitRatio::k_S_PER_D
+                                                                     + seconds,
+                             nanoseconds);
+        setTimeIntervalFromEpoch(interval);
+    }
+    else {
+        setUnset(date - Date());
+    }
 }
 
 inline
@@ -929,7 +1102,7 @@ void Datetime::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(Date::isValidYearDay(year, dayOfYear));
 
-    d_date.setYearDay(year, dayOfYear);
+    setDate(Date(year, dayOfYear));
 }
 
 inline
@@ -937,21 +1110,45 @@ void Datetime::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(Date::isValidYearMonthDay(year, month, day));
 
-    d_date.setYearMonthDay(year, month, day);
+    setDate(Date(year, month, day));
 }
 
 inline
 void Datetime::setTime(const Time& time)
 {
-    d_time = time;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+
+    time.getTime(&hour, &minute, &second, &millisecond);
+
+    setTime(hour, minute, second, millisecond);
 }
 
 inline
 void Datetime::setTime(int hour, int minute, int second, int millisecond)
 {
+    // TBD
     BSLS_ASSERT_SAFE(Time::isValid(hour, minute, second, millisecond));
 
-    d_time.setTime(hour, minute, second, millisecond);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    if (24 != hour) {
+        bsls::Types::Uint64 totalSeconds =
+                                interval.totalDays() * TimeUnitRatio::k_S_PER_D
+                              + hour                 * TimeUnitRatio::k_S_PER_H
+                              + minute               * TimeUnitRatio::k_S_PER_M
+                              + second;
+        interval.setInterval(totalSeconds,
+                             millisecond * TimeUnitRatio::k_NS_PER_MS_32);
+        setTimeIntervalFromEpoch(interval);
+    }
+    else {
+        setUnset(interval.totalDays());
+    }
 }
 
 inline
@@ -960,7 +1157,22 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
 
-    d_time.setHour(hour);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    if (24 != hour) {
+        bsls::Types::Uint64 totalSeconds =
+                            interval.totalSeconds() / TimeUnitRatio::k_S_PER_D
+                                                    * TimeUnitRatio::k_S_PER_D
+                          + interval.totalSeconds() % TimeUnitRatio::k_S_PER_H
+                          + hour                    * TimeUnitRatio::k_S_PER_H;
+        interval.setInterval(totalSeconds, interval.nanoseconds());
+        setTimeIntervalFromEpoch(interval);
+    }
+    else {
+        setUnset(interval.totalDays());
+    }
 }
 
 inline
@@ -969,7 +1181,18 @@ void Datetime::setMinute(int minute)
     BSLS_ASSERT_SAFE(0 <= minute);
     BSLS_ASSERT_SAFE(     minute <= 59);
 
-    d_time.setMinute(minute);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    bsls::Types::Uint64 totalSeconds =
+                            interval.totalSeconds() / TimeUnitRatio::k_S_PER_H
+                                                    * TimeUnitRatio::k_S_PER_H
+                          + interval.totalSeconds() % TimeUnitRatio::k_S_PER_M
+                          + minute                  * TimeUnitRatio::k_S_PER_M;
+
+    interval.setInterval(totalSeconds, interval.nanoseconds());
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
@@ -978,7 +1201,17 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(0 <= second);
     BSLS_ASSERT_SAFE(     second <= 59);
 
-    d_time.setSecond(second);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    bsls::Types::Uint64 totalSeconds =
+                            interval.totalSeconds() / TimeUnitRatio::k_S_PER_M
+                                                    * TimeUnitRatio::k_S_PER_M
+                          + second;
+
+    interval.setInterval(totalSeconds, interval.nanoseconds());
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
@@ -987,7 +1220,12 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(0 <= millisecond);
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
-    d_time.setMillisecond(millisecond);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+    interval.setInterval(interval.totalSeconds(),
+                         millisecond * TimeUnitRatio::k_NS_PER_MS);
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
@@ -995,7 +1233,19 @@ void Datetime::addDays(int days)
 {
     BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(days));
 
-    d_date += days;
+    bsls::TimeInterval interval;
+    bool               unset;
+
+    timeIntervalFromEpoch(&interval, &unset);
+
+    interval.addDays(days);
+
+    if (!unset) {
+        setTimeIntervalFromEpoch(interval);
+    }
+    else {
+        setUnset(interval.totalDays());
+    }
 }
 
 inline
@@ -1004,6 +1254,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
                        bsls::Types::Int64 seconds,
                        bsls::Types::Int64 milliseconds)
 {
+    // TBD
     const DatetimeInterval delta(0,
                                  hours,
                                  minutes,
@@ -1013,68 +1264,56 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     BSLS_ASSERT_SAFE(delta <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
     BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
-    d_date += d_time.addInterval(delta);
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+    interval.addMilliseconds(delta.totalMilliseconds());
+    setTimeIntervalFromEpoch(interval);
 }
 
 
 inline
 void Datetime::addHours(bsls::Types::Int64 hours)
 {
-    const bsls::Types::Int64 totalMsec = hours * k_MILLISECONDS_PER_HOUR;
+    // TBD
+    bsls::TimeInterval interval;
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
-
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    timeIntervalFromEpoch(&interval);
+    interval.addHours(hours);
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
 void Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-    const bsls::Types::Int64 totalMsec = minutes * k_MILLISECONDS_PER_MINUTE;
+    // TBD
+    bsls::TimeInterval interval;
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
-
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    timeIntervalFromEpoch(&interval);
+    interval.addMinutes(minutes);
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
 void Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
-    const bsls::Types::Int64 totalMsec = seconds * k_MILLISECONDS_PER_SECOND;
+    // TBD
+    bsls::TimeInterval interval;
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
-
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    timeIntervalFromEpoch(&interval);
+    interval.addSeconds(seconds);
+    setTimeIntervalFromEpoch(interval);
 }
 
 inline
 void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    const int normMsec  = static_cast<int>(
-                                        milliseconds % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(
-                                        milliseconds / k_MILLISECONDS_PER_DAY);
+    // TBD
+    bsls::TimeInterval interval;
 
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    timeIntervalFromEpoch(&interval);
+    interval.addMilliseconds(milliseconds);
+    setTimeIntervalFromEpoch(interval);
 }
 
                                   // Aspects
@@ -1085,14 +1324,14 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            Date dateTmp;
-            Time timeTmp;
-            dateTmp.bdexStreamIn(stream, 1);
-            timeTmp.bdexStreamIn(stream, 1);
+            Date date;
+            Time time;
+
+            date.bdexStreamIn(stream, 1);
+            time.bdexStreamIn(stream, 1);
 
             if (stream) {
-                d_date = dateTmp;
-                d_time = timeTmp;
+                setDatetime(date, time);
             }
             else {
                 stream.invalidate();
@@ -1110,67 +1349,109 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    return d_date;
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    return Date() + interval.totalDays();
 }
 
 inline
 Time Datetime::time() const
 {
-    return d_time;
+    bsls::TimeInterval interval;
+    bool               unset;
+
+    timeIntervalFromEpoch(&interval, &unset);
+
+    if (unset) {
+        return Time(24);                                              // RETURN
+    }
+
+    Time time;
+
+    time.addMilliseconds(interval.totalSeconds() % TimeUnitRatio::k_S_PER_D
+                                                    * TimeUnitRatio::k_MS_PER_S
+                        + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_MS);
+
+    return time;
 }
 
 inline
 int Datetime::year() const
 {
-    return d_date.year();
+    return date().year();
 }
 
 inline
 int Datetime::month() const
 {
-    return d_date.month();
+    return date().month();
 }
 
 inline
 int Datetime::day() const
 {
-    return d_date.day();
+    return date().day();
 }
 
 inline
 int Datetime::dayOfYear() const
 {
-    return d_date.dayOfYear();
+    return date().dayOfYear();
 }
 
 inline
 DayOfWeek::Enum Datetime::dayOfWeek() const
 {
-    return d_date.dayOfWeek();
+    return date().dayOfWeek();
 }
 
 inline
 int Datetime::hour() const
 {
-    return d_time.hour();
+    bsls::TimeInterval interval;
+    bool               unset;
+
+    timeIntervalFromEpoch(&interval, &unset);
+
+    if (unset) {
+        return 24;                                                    // RETURN
+    }
+    
+    return interval.totalSeconds() / TimeUnitRatio::k_S_PER_H
+                                                    % TimeUnitRatio::k_H_PER_D;
 }
 
 inline
 int Datetime::minute() const
 {
-    return d_time.minute();
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+    
+    return interval.totalSeconds() / TimeUnitRatio::k_S_PER_M
+                                                    % TimeUnitRatio::k_M_PER_H;
 }
 
 inline
 int Datetime::second() const
 {
-    return d_time.second();
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    return interval.totalSeconds() % TimeUnitRatio::k_S_PER_M;
 }
 
 inline
 int Datetime::millisecond() const
 {
-    return d_time.millisecond();
+    bsls::TimeInterval interval;
+
+    timeIntervalFromEpoch(&interval);
+
+    return interval.nanoseconds() / TimeUnitRatio::k_NS_PER_MS;
 }
 
                                   // Aspects
@@ -1181,8 +1462,8 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            d_date.bdexStreamOut(stream, 1);
-            d_time.bdexStreamOut(stream, 1);
+            date().bdexStreamOut(stream, 1);
+            time().bdexStreamOut(stream, 1);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -1192,15 +1473,6 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
-inline
-Date& Datetime::date()
-{
-    return d_date;
-}
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 inline
 int Datetime::maxSupportedBdexVersion()
@@ -1276,63 +1548,68 @@ inline
 bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
                                        const Datetime& rhs)
 {
-    DatetimeInterval timeInterval1(lhs.d_date - rhs.d_date, 0, 0);
-    DatetimeInterval timeInterval2 = lhs.d_time - rhs.d_time;
-    timeInterval1 += timeInterval2;
+    bsls::TimeInterval lhsInterval;
+    bsls::TimeInterval rhsInterval;
 
-    return timeInterval1;
+    lhs.timeIntervalFromEpoch(&lhsInterval);
+    rhs.timeIntervalFromEpoch(&rhsInterval);
+
+    lhsInterval -= rhsInterval;
+
+    return bdlt::DatetimeInterval(
+                 0,
+                 0,
+                 0,
+                 lhsInterval.totalSeconds(),
+                 lhsInterval.nanoseconds() / bdlt::TimeUnitRatio::k_NS_PER_MS);
 }
 
 inline
 bool bdlt::operator==(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.date() == rhs.date() && lhs.time() == rhs.time();
+    return lhs.d_value == rhs.d_value;
 }
 
 inline
 bool bdlt::operator!=(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.date() != rhs.date() || lhs.time() != rhs.time();
+    return lhs.d_value != rhs.d_value;
 }
 
 inline
 bool bdlt::operator<(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= lhs.d_value);
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= rhs.d_value);
 
-    return lhs.date() <  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() < rhs.time());
+    return lhs.d_value < rhs.d_value;
 }
 
 inline
 bool bdlt::operator<=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= lhs.d_value);
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= rhs.d_value);
 
-    return lhs.date() <  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() <= rhs.time());
+    return lhs.d_value <= rhs.d_value;
 }
 
 inline
 bool bdlt::operator>(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= lhs.d_value);
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= rhs.d_value);
 
-    return lhs.date() >  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() > rhs.time());
+    return lhs.d_value > rhs.d_value;
 }
 
 inline
 bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= lhs.d_value);
+    BSLS_ASSERT_SAFE(bdlt::Datetime::s_firstSetValue <= rhs.d_value);
 
-    return lhs.date() >  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() >= rhs.time());
+    return lhs.d_value >= rhs.d_value;
 }
 
 }  // close enterprise namespace
@@ -1351,7 +1628,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::Datetime> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
