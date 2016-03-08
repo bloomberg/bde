@@ -423,8 +423,8 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      virtual void *allocate(bsls::Types::size_type size);
 //          // Return the address of a contiguous block of maximally-aligned
-//          // memory of (at least) the specified 'size' (in bytes).  The
-//          // behavior is undefined unless '1 <= size'.
+//          // memory of (at least) the specified 'size' (in bytes).  If 'size'
+//          // is 0, no memory is allocated and 0 is returned.
 //
 //      virtual void deallocate(void *address);
 //          // Relinquish the memory block at the specified 'address' back to
@@ -685,8 +685,8 @@ class ConcurrentMultipool {
         // 'size > maxPooledBlockSize()', the memory allocation is managed
         // directly by the underlying allocator, and will not be pooled, but
         // will be deallocated when the 'release' method is called, or when
-        // this object is destroyed.  The behavior is undefined unless
-        // '1 <= size'.
+        // this object is destroyed.  If 'size' is 0, no memory is allocated
+        // and 0 is returned.
 
     void deallocate(void *address);
         // Relinquish the memory block at the specified 'address' back to this

@@ -319,8 +319,11 @@ void *Multipool::allocate(bsls::Types::size_type size)
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
         if (size <= d_maxBlockSize) {
             const int pool = findPool(size);
+
             Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
+
             p->d_header.d_poolIdx = pool;
+
             return p + 1;                                             // RETURN
         }
 
@@ -328,7 +331,9 @@ void *Multipool::allocate(bsls::Types::size_type size)
 
         Header *p = static_cast<Header *>(
                 d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
+
         p->d_header.d_poolIdx = -1;
+
         return p + 1;                                                 // RETURN
     }
 

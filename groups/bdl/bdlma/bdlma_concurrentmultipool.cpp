@@ -302,32 +302,30 @@ ConcurrentMultipool::~ConcurrentMultipool()
 // MANIPULATORS
 void *ConcurrentMultipool::allocate(bsls::Types::size_type size)
 {
-    // TBD: change this block to 'BSLS_ASSERT(1 <= size)' after 'robo' is clean
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        static unsigned int count = 0;
-        if (count <= 100 && 0 == count % 10) {
-            bsl::fprintf(stderr,
-                         "Error: Allocating 0 bytes in %s\n", __FILE__);
-        }
-        ++count;
-        return 0;                                                     // RETURN
-    }
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        if (size <= d_maxBlockSize) {
+            const int pool = findPool(size);
 
-    if (size <= d_maxBlockSize) {
-        const int pool = findPool(size);
-        Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
-        p->d_header.d_poolIdx = pool;
+            Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
+
+            p->d_header.d_poolIdx = pool;
+
+            return p + 1;                                             // RETURN
+        }
+
+        // The requested size is large and will not be pooled.
+
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+        Header *p = static_cast<Header *>(
+                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
+
+        p->d_header.d_poolIdx = -1;
+
         return p + 1;                                                 // RETURN
     }
 
-    // The requested size is large and will not be pooled.
-
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    Header *p = static_cast<Header *>(
-                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
-    p->d_header.d_poolIdx = -1;
-    return p + 1;
+    return 0;
 }
 
 void ConcurrentMultipool::deallocate(void *address)

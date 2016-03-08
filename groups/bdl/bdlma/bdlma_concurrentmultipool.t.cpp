@@ -605,8 +605,8 @@ extern "C" void *workerThread(void *arg) {
         // MANIPULATORS
         virtual void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of maximally-aligned
-            // memory of (at least) the specified 'size' (in bytes).  The
-            // behavior is undefined unless '1 <= size'.
+            // memory of (at least) the specified 'size' (in bytes).  If 'size'
+            // is 0, no memory is allocated and 0 is returned.
 
         virtual void deallocate(void *address);
             // Relinquish the memory block at the specified 'address' back to
