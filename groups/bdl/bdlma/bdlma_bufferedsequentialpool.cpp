@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_bufferedsequentialpool_cpp,"$Id$ $CSID$")
 
-#include <bsl_climits.h>  // 'INT_MAX'
+#include <bsl_limits.h>
 
 namespace BloombergLP {
 namespace bdlma {
@@ -22,7 +22,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 , d_initialSize(size)
 , d_bufferManager(buffer, size)
 , d_pool(size,
-         INT_MAX,
+         bsl::numeric_limits<bsls::Types::size_type>::max(),
          bsls::BlockGrowth::BSLS_GEOMETRIC,
          bsls::Alignment::BSLS_NATURAL,
          false,
@@ -41,7 +41,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 , d_initialSize(size)
 , d_bufferManager(buffer, size)
 , d_pool(size,
-         INT_MAX,
+         bsl::numeric_limits<bsls::Types::size_type>::max(),
          growthStrategy,
          bsls::Alignment::BSLS_NATURAL,
          false,
@@ -60,7 +60,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 , d_initialSize(size)
 , d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
-         INT_MAX,
+         bsl::numeric_limits<bsls::Types::size_type>::max(),
          bsls::BlockGrowth::BSLS_GEOMETRIC,
          alignmentStrategy,
          false,
@@ -80,7 +80,7 @@ BufferedSequentialPool::BufferedSequentialPool(
 , d_initialSize(size)
 , d_bufferManager(buffer, size, alignmentStrategy)
 , d_pool(size,
-         INT_MAX,
+         bsl::numeric_limits<bsls::Types::size_type>::max(),
          growthStrategy,
          alignmentStrategy,
          false,
