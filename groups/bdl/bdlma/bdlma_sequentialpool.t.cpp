@@ -1278,6 +1278,9 @@ int main(int argc, char *argv[])
         //      from the internal block list if the they cannot be satisfied by
         //      the pool's internal buffer.
         //
+        //   3) Large allocations (i.e., INT_MAX) work as expected (DRQS
+        //      78107275).
+        //
         // Plan:
         //   For concerns 1 and 2, construct objects 'mV', 'mW', 'mX', and 'mY'
         //   with default, maximum, natural, and 1-byte alignment allocation
@@ -1286,6 +1289,8 @@ int main(int argc, char *argv[])
         //   pass a test allocator to the constructor to monitor the memory
         //   allocations by the pool.  Confirm the bytes allocated by the
         //   objects are as expected.
+        //
+        //   For concern 3, direct testing of large allocations is performed.
         //
         // Testing:
         //   void *allocate(size_type size);
@@ -1569,6 +1574,20 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+            }
+        }
+
+        if (verbose) cout << "\nTesting large allocations." << endl;
+        {
+            {
+                Obj mX;
+
+                mX.allocate(INT_MAX / 2 + 2);  // DRQS 78107275
+            }
+            {
+                Obj mX;
+
+                mX.allocate(INT_MAX);
             }
         }
       } break;

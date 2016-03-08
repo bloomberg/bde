@@ -117,7 +117,8 @@ struct Block {
 };
 
 static inline
-int roundUp(int x, int y)
+bsls::Types::size_type roundUp(bsls::Types::size_type x,
+                               bsls::Types::size_type y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
     // specified 'y'.  The behavior is undefined unless '0 <= x' and '0 < y'.
 {
@@ -243,7 +244,8 @@ int roundUp(int x, int y)
     my_StrPool::~my_StrPool()
     {
         ASSERT(k_INITIAL_SIZE <= d_blockSize);
-        ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
+        ASSERT(d_block_p || (0 <= d_cursor && d_cursor <=
+                               static_cast<bsls::Types::IntPtr>(d_blockSize)));
     }
 
     // MANIPULATORS
@@ -706,8 +708,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_; P_(HDRSZ); P(U::BSLS_MAX_ALIGNMENT); }
 
         struct {
-            int d_line;  // line number
-            int d_size;  // memory request size
+            int                    d_line;  // line number
+            bsls::Types::size_type d_size;  // memory request size
         } DATA[] = {
             //LINE   SIZE
             //----   ---------------
@@ -733,7 +735,8 @@ int main(int argc, char *argv[])
             { L_,    5 * HDRSZ - 13  },
             { L_,    5 * HDRSZ - 14  },
             { L_,    5 * HDRSZ - 15  },
-            { L_,    5 * HDRSZ - 16  }
+            { L_,    5 * HDRSZ - 16  },
+            { L_,    INT_MAX         }  // DRQS 78107275
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -743,10 +746,11 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int LINE = DATA[ti].d_line;
-            const int SIZE = DATA[ti].d_size;
+            const int                    LINE = DATA[ti].d_line;
+            const bsls::Types::size_type SIZE = DATA[ti].d_size;
 
-            const int EXP_SZ = roundUp(SIZE + HDRSZ, U::BSLS_MAX_ALIGNMENT);
+            const bsls::Types::size_type EXP_SZ =
+                                  roundUp(SIZE + HDRSZ, U::BSLS_MAX_ALIGNMENT);
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -755,7 +759,7 @@ int main(int argc, char *argv[])
 
             const void *EXP_P = (char *)oa.lastAllocatedAddress() + HDRSZ;
 
-            int numBytes = static_cast<int>(oa.lastAllocatedNumBytes());
+            bsls::Types::size_type numBytes = oa.lastAllocatedNumBytes();
 
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
 

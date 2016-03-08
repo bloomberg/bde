@@ -9,8 +9,10 @@ BSLS_IDENT_RCSID(bdlma_infrequentdeleteblocklist_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // HELPER FUNCTIONS
-static inline
-int alignedAllocationSize(int size, int sizeOfBlock)
+inline
+static bsls::Types::size_type alignedAllocationSize(
+                                            bsls::Types::size_type size,
+                                            bsls::Types::size_type sizeOfBlock)
     // Return the allocation size (in bytes) required to ensure proper
     // alignment for a 'bdlma::InfrequentDeleteBlockList::Block' containing a
     // maximally-aligned payload of the specified 'size', where the specified

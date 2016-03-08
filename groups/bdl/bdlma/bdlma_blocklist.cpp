@@ -10,7 +10,6 @@ namespace BloombergLP {
 namespace bdlma {
 
 // HELPER FUNCTIONS
-
 inline
 static bsls::Types::size_type alignedAllocationSize(
                                             bsls::Types::size_type size,
