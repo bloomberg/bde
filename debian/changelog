@@ -1,5 +1,6 @@
 bsl-internal (2.26.0.0) unstable; urgency=low
 
+  * fcf1049 Changelog for version 2.26.0.0
   * 1124757 Merge pull request #205 from mgiroux/review/trial-merging-2.25.x-to-2.x
   * e4d3cc5 reset patchversion to 0
   * 3b69b4a Merge pull request #204 from mgiroux/review/set-version-to-2.26.0
@@ -22,7 +23,7 @@ bsl-internal (2.26.0.0) unstable; urgency=low
   * 0d56a3e Merge pull request #110 from hversche/decimal64-improvement-for-2.25.x
   * 9937f35 Merge pull request #95 from che2/decimal64-improvement-for-2x
 
- -- Henry Verschell <hverschell@bloomberg.net>  Tue, 8 Mar 2016 11:01:07 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Mar 2016 12:39:08 -0500
 
 bsl-internal (2.25.2.0) git; urgency=low
 
