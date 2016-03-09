@@ -136,7 +136,7 @@ namespace USAGE_EXAMPLE {
                                     bslma::Allocator  *allocator)
         // Create a linked list of strings beginning with the specified '*head'
         // containing the null-terminated strings from the null-terminated
-        // 'stringArray'.  Use the specified 'allocator' for allocation.
+        // 'stringArray'.  Use the specified 'allocator' to supply memory.
     {
         *head = 0;
         const char *string;

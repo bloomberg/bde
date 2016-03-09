@@ -56,7 +56,8 @@ BSLS_IDENT("$Id: $")
 //      void *allocateBlock(bsls::Types::size_type numBytes);
 //          // Request a new memory block of at least the specified 'numBytes'
 //          // size and allocate the initial 'numBytes' from this block.
-//          // Return the address of the allocated memory.
+//          // Return the address of the allocated memory.  The behavior is
+//          // undefined unless '0 < numBytes'.
 //
 //    private:
 //      // NOT IMPLEMENTED

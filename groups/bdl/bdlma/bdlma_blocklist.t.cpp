@@ -159,7 +159,8 @@ int roundUp(int x, int y)
         void *allocateBlock(bsls::Types::size_type numBytes);
             // Request a new memory block of at least the specified 'numBytes'
             // size and allocate the initial 'numBytes' from this block.
-            // Return the address of the allocated memory.
+            // Return the address of the allocated memory.  The behavior is
+            // undefined unless '0 < numBytes'.
 
       private:
         // NOT IMPLEMENTED
@@ -840,20 +841,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == p);
             ASSERT(0 == oa.numBlocksTotal());
             ASSERT(0 == da.numBlocksTotal());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-                ASSERT_SAFE_PASS(mX.allocate( 0));
-            }
         }
 
       } break;

@@ -209,6 +209,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 

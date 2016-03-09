@@ -86,7 +86,7 @@ BSLS_IDENT("$Id$")
 //                                  bslma::Allocator  *allocator)
 //      // Create a linked list of strings beginning with the specified '*head'
 //      // containing the null-terminated strings from the null-terminated
-//      // 'stringArray'.  Use the specified 'allocator' for allocation.
+//      // 'stringArray'.  Use the specified 'allocator' to supply memory.
 //  {
 //      *head = 0;
 //      const char *string;
@@ -177,9 +177,9 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdlma {
 
-                          // ======================
-                          // class AlignedAllocator
-                          // ======================
+                         // =======================
+                         // class AligningAllocator
+                         // =======================
 
 class AligningAllocator : public bslma::Allocator {
     // This 'class' provides a mechanism that serves as a wrapper around
@@ -235,7 +235,7 @@ class AligningAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
