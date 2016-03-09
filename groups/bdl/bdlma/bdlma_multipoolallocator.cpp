@@ -20,36 +20,6 @@ MultipoolAllocator::~MultipoolAllocator()
 {
 }
 
-// MANIPULATORS
-void *MultipoolAllocator::allocate(bsls::Types::size_type size)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return 0;                                                     // RETURN
-    }
-
-    return d_multipool.allocate(size);
-}
-
-void MultipoolAllocator::deallocate(void *address)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(address != 0)) {
-        d_multipool.deallocate(address);
-    }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-}
-
-void MultipoolAllocator::reserveCapacity(bsls::Types::size_type size,
-                                         int                    numObjects)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return;                                                       // RETURN
-    }
-
-    d_multipool.reserveCapacity(size, numObjects);
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 

@@ -305,6 +305,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -413,8 +417,9 @@ class SequentialPool {
                                                      // 0)
 
     const bsls::Types::size_type   d_minSize;        // minimum available size
-                                                     // from an allocated
-                                                     // block; 0 when using
+                                                     // from an allocated block
+                                                     // when using constant
+                                                     // growth and 0 when using
                                                      // geometric growth
 
     bslma::Allocator              *d_allocator_p;    // memory allocator (held,
@@ -436,12 +441,11 @@ class SequentialPool {
 
   public:
     // CREATORS
-    explicit
-    SequentialPool(bslma::Allocator *basicAllocator = 0);
-    SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
-    SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
-                   bslma::Allocator          *basicAllocator = 0);
+    explicit SequentialPool(bslma::Allocator *basicAllocator = 0);
+    explicit SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                            bslma::Allocator            *basicAllocator = 0);
+    explicit SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
+                            bslma::Allocator          *basicAllocator = 0);
     SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
                    bsls::Alignment::Strategy    alignmentStrategy,
                    bslma::Allocator            *basicAllocator = 0);
@@ -460,10 +464,9 @@ class SequentialPool {
         // constant growth is used, the size of the internal buffers will
         // always be the same as the implementation-defined value.
 
-    SequentialPool(int initialSize);
-    explicit
-    SequentialPool(bsls::Types::size_type  initialSize,
-                   bslma::Allocator       *basicAllocator = 0);
+    explicit SequentialPool(int initialSize);
+    explicit SequentialPool(bsls::Types::size_type  initialSize,
+                            bslma::Allocator       *basicAllocator = 0);
     SequentialPool(bsls::Types::size_type       initialSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
@@ -490,7 +493,8 @@ class SequentialPool {
         // limit is imposed on the size of the internal buffers when geometric
         // growth is used.  Also note that when constant growth is used, the
         // size of the internal buffers will always be the same as
-        // 'initialSize'.
+        // 'initialSize'.  Also note that 'SequentialPool(int initialSize)' is
+        // provided to avoid ambguous definitions.
 
     SequentialPool(bsls::Types::size_type  initialSize,
                    bsls::Types::size_type  maxBufferSize,

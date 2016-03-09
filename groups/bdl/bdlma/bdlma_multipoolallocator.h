@@ -896,9 +896,32 @@ MultipoolAllocator::MultipoolAllocator(
 
 // MANIPULATORS
 inline
+void *MultipoolAllocator::allocate(bsls::Types::size_type size)
+{
+    return d_multipool.allocate(size);
+}
+
+inline
+void MultipoolAllocator::deallocate(void *address)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(address != 0)) {
+        d_multipool.deallocate(address);
+    }
+}
+
+inline
 void MultipoolAllocator::release()
 {
     d_multipool.release();
+}
+
+inline
+void MultipoolAllocator::reserveCapacity(bsls::Types::size_type size,
+                                         int                    numObjects)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        d_multipool.reserveCapacity(size, numObjects);
+    }
 }
 
 // ACCESSORS

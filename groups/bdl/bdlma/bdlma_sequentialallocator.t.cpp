@@ -429,18 +429,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            {
-                ASSERT_SAFE_PASS(mX.reserveCapacity( 0));
-            }
-        }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------

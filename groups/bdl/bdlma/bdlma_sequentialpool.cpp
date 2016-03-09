@@ -51,7 +51,7 @@ namespace bdlma {
 void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
-        // Note that empty blocks are maximally aligned which allows simple
+        // Note that empty blocks are maximally aligned, which allows simple
         // size comparisons.
 
         if (size <= d_minSize) {
@@ -325,8 +325,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                                             static_cast<uint64_t>(maxBufferSize
-                                                 & 0x7fffffffffffffffULL | 1))))
+                        static_cast<uint64_t>((  maxBufferSize
+                                               & 0x7fffffffffffffffULL) | 1))))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -351,8 +351,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                                             static_cast<uint64_t>(maxBufferSize
-                                                 & 0x7fffffffffffffffULL | 1))))
+                        static_cast<uint64_t>((  maxBufferSize
+                                               & 0x7fffffffffffffffULL) | 1))))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -379,8 +379,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                                             static_cast<uint64_t>(maxBufferSize
-                                                 & 0x7fffffffffffffffULL | 1))))
+                        static_cast<uint64_t>((  maxBufferSize
+                                               & 0x7fffffffffffffffULL) | 1))))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -406,8 +406,8 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                                             static_cast<uint64_t>(maxBufferSize
-                                                 & 0x7fffffffffffffffULL | 1))))
+                        static_cast<uint64_t>((  maxBufferSize
+                                               & 0x7fffffffffffffffULL) | 1))))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
@@ -437,8 +437,8 @@ SequentialPool::SequentialPool(
              | (bdlb::BitUtil::roundUpToBinaryPower(
                                        static_cast<uint64_t>(initialSize)) - 1)
              | (static_cast<uint64_t>(-1) << bdlb::BitUtil::log2(
-                                             static_cast<uint64_t>(maxBufferSize
-                                                 & 0x7fffffffffffffffULL | 1))))
+                        static_cast<uint64_t>((  maxBufferSize
+                                               & 0x7fffffffffffffffULL) | 1))))
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)

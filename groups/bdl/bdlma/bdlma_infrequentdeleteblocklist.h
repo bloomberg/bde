@@ -292,7 +292,8 @@ void InfrequentDeleteBlockList::deallocate(void *)
                                   // Aspects
 
 inline
-bslma::Allocator *InfrequentDeleteBlockList::allocator() const {
+bslma::Allocator *InfrequentDeleteBlockList::allocator() const
+{
     return d_allocator_p;
 }
 

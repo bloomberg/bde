@@ -56,8 +56,9 @@ struct HeapBypassAllocator::BufferHeader {
 // PRIVATE CLASS METHODS
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace bdlma {char *HeapBypassAllocator::map(bsls::Types::size_type size)
+namespace bdlma {
 
+char *HeapBypassAllocator::map(bsls::Types::size_type size)
 {
     // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
     // 'mmap' to use a special system file to map to.
@@ -84,8 +85,9 @@ void HeapBypassAllocator::unmap(void *address, bsls::Types::size_type size) {
 }  // close package namespace
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-namespace bdlma {char *HeapBypassAllocator::map(bsls::Types::size_type size)
+namespace bdlma {
 
+char *HeapBypassAllocator::map(bsls::Types::size_type size)
 {
     char *address =
            (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
@@ -193,7 +195,7 @@ void *HeapBypassAllocator::allocate(bsls::Types::size_type size)
                                     d_cursor_p, static_cast<int>(d_alignment));
     if (d_endOfBuffer_p < d_cursor_p + size) {
         bsls::Types::size_type blockSize =
-                                      size + d_alignment + sizeof(BufferHeader);
+                                     size + d_alignment + sizeof(BufferHeader);
         int sts = replenish(blockSize);    // 'replenish' will round up to
                                            // multiple of 'd_pageSize'
         if (0 != sts) {

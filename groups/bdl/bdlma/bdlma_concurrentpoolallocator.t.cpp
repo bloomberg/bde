@@ -41,7 +41,7 @@ using namespace bsl;  // automatically added by script
 // [ 4] ~bdlma::ConcurrentPoolAllocator();
 //
 // MANIPULATORS
-// [ 4] void *allocate(size_type size);
+// [ 4] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 //
 // ACCESSORS
@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //    constructors
-        //    allocate(int size);
+        //    allocate(bsls::Types::size_type size);
         //    deallocate(void *address);
         //    blockSize();
         // --------------------------------------------------------------------
@@ -1280,7 +1280,7 @@ int main(int argc, char *argv[])
         //   Each thread will invoke the 'allocator' method of each object.
         //
         // Testing:
-        //   allocate(int size);
+        //   allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         for (int i=0; i<1000; i++) {
@@ -1324,7 +1324,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   blockSize();
-        //   allocate(int size);
+        //   allocate(bsls::Types::size_type size);
         //   deallocate(void *address);
         // --------------------------------------------------------------------
         bslma::TestAllocator ta;

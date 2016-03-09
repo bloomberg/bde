@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The method returns the expected value for all alignment
-        //:   strategies, values of 'address', and value of 'size'.
+        //:   strategies, values of 'address', and values of 'size'.
         //
         // Plan:
         //: 1 Directly verify the result of this method for a large set of
@@ -662,9 +662,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 1));
+                ASSERT_PASS(mX.truncate(addr, 2, 1));
 
-                ASSERT_SAFE_FAIL(mX.truncate(   0, 1, 0));
+                ASSERT_FAIL(mX.truncate(   0, 1, 0));
             }
 
             if (veryVerbose) cout << "\t'0 <= newSize'" << endl;
@@ -673,10 +673,10 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2,  1));
-                ASSERT_SAFE_PASS(mX.truncate(addr, 1,  0));
+                ASSERT_PASS(mX.truncate(addr, 2,  1));
+                ASSERT_PASS(mX.truncate(addr, 1,  0));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 0, -1));
+                ASSERT_FAIL(mX.truncate(addr, 0, -1));
             }
 
             if (veryVerbose) cout << "\t'newSize <= originalSize'" << endl;
@@ -685,9 +685,20 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 2));
+                ASSERT_PASS(mX.truncate(addr, 2, 2));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 2, 3));
+                ASSERT_FAIL(mX.truncate(addr, 2, 3));
+            }
+
+            if (veryVerbose) {
+                cout << "\t'originalSize <= d_bufferSize'" << endl;
+            }
+            {
+                Obj mX(buffer, k_BUFFER_SIZE);
+
+                void *addr = mX.allocate(2);
+
+                ASSERT_FAIL(mX.truncate(addr, k_BUFFER_SIZE + 1, 3));
             }
         }
 
@@ -849,9 +860,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr, 1));
+                ASSERT_PASS(mX.expand(addr, 1));
 
-                ASSERT_SAFE_FAIL(mX.expand(   0, 4));
+                ASSERT_FAIL(mX.expand(   0, 4));
             }
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
@@ -860,9 +871,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr,  1));
+                ASSERT_PASS(mX.expand(addr,  1));
 
-                ASSERT_SAFE_FAIL(mX.expand(addr,  0));
+                ASSERT_FAIL(mX.expand(addr,  0));
             }
         }
 

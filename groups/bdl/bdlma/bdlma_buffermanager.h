@@ -295,7 +295,7 @@ class BufferManager {
     bsls::Types::size_type  d_bufferSize;        // size (in bytes) of external
                                                  // buffer
 
-    bsls::Types::size_type  d_cursor;            // offset to next available
+    bsls::Types::IntPtr     d_cursor;            // offset to next available
                                                  // byte in buffer
 
     bsls::Types::size_type  d_alignmentAndMask;  // a mask used during the
@@ -487,7 +487,9 @@ BufferManager::BufferManager(char                      *buffer,
 inline
 BufferManager::~BufferManager()
 {
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
     BSLS_ASSERT_SAFE(   (0 != d_buffer_p && 0 <  d_bufferSize)
                      || (0 == d_buffer_p && 0 == d_bufferSize));
 }
@@ -496,15 +498,17 @@ BufferManager::~BufferManager()
 inline
 void *BufferManager::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;
 
-    bsls::Types::size_type offset = calculateAlignmentOffsetFromSize(address,
-                                                                     size);
+    int offset = calculateAlignmentOffsetFromSize(address, size);
 
-    bsls::Types::size_type cursor = d_cursor + offset + size;
-    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(cursor <= d_bufferSize)
+    bsls::Types::IntPtr cursor = d_cursor + offset + size;
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                   static_cast<bsls::Types::size_type>(cursor) <= d_bufferSize)
         && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < size)) {
         d_cursor = cursor;
         return address + offset;
@@ -516,8 +520,10 @@ void *BufferManager::allocate(bsls::Types::size_type size)
 inline
 void *BufferManager::allocateRaw(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0        <  size);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(0 <  size);
+    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
     BSLS_ASSERT_SAFE(d_buffer_p);
 
     char *address = d_buffer_p + d_cursor;
@@ -610,7 +616,9 @@ bool BufferManager::hasSufficientCapacity(bsls::Types::size_type size) const
 {
     BSLS_ASSERT_SAFE(0 < size);
     BSLS_ASSERT_SAFE(d_buffer_p);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(0 <= d_cursor);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;
 

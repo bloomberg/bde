@@ -332,10 +332,12 @@ class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
 
   public:
     // CREATORS
-    ConcurrentMultipoolAllocator(bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipoolAllocator(int               numPools,
-                                 bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipoolAllocator(
+    explicit ConcurrentMultipoolAllocator(
+                                         bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipoolAllocator(
+                                         int               numPools,
+                                         bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipoolAllocator(
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
     ConcurrentMultipoolAllocator(

@@ -28,7 +28,8 @@ bsls::Types::size_type BufferManager::expand(void                   *address,
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(d_buffer_p);
-    BSLS_ASSERT(d_cursor <= d_bufferSize);
+    BSLS_ASSERT(0 <= d_cursor);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor) <= d_bufferSize);
 
     if (static_cast<char *>(address) + size == d_buffer_p + d_cursor) {
         const bsls::Types::size_type newSize = size + d_bufferSize - d_cursor;
@@ -47,7 +48,9 @@ bsls::Types::size_type BufferManager::truncate(
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT(newSize <= originalSize);
-    BSLS_ASSERT(d_cursor <= d_bufferSize);
+    BSLS_ASSERT(d_buffer_p);
+    BSLS_ASSERT(originalSize <= d_bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor) <= d_bufferSize);
 
     if (static_cast<char *>(address) + originalSize == d_buffer_p + d_cursor) {
         d_cursor -= originalSize - newSize;

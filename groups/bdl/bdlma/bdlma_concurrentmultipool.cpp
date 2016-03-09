@@ -355,7 +355,6 @@ void ConcurrentMultipool::release()
 void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
                                           int                    numBlocks)
 {
-    BSLS_ASSERT(0 <= size);
     BSLS_ASSERT(0 <= numBlocks);
 
     // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' and

@@ -56,12 +56,12 @@ using namespace bsl;
 // [ 7] bdlma::Multipool(numPools, gs, *mbpc, Allocator *ba = 0);
 // [ 7] bdlma::Multipool(numPools, *gs, *mbpc, Allocator *ba = 0);
 // [ 2] ~bdlma::Multipool();
-// [ 3] void *allocate(int size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 8] template <class TYPE> void deleteObject(const TYPE *object);
 // [ 8] template <class TYPE> void deleteObjectRaw(const TYPE *object);
 // [ 5] void release();
-// [ 6] void reserveCapacity(int size, int numBlocks);
+// [ 6] void reserveCapacity(bsls::Types::size_type size, int numBlocks);
 // [ 9] int numPools() const;
 // [ 9] bsls::Types::size_type maxPooledBlockSize() const;
 //-----------------------------------------------------------------------------
@@ -1960,7 +1960,7 @@ int main(int argc, char *argv[])
         //   standard 'bslma' exception-testing macro block.
         //
         // Testing:
-        //   void reserveCapacity(int size, int numBlocks);
+        //   void reserveCapacity(bsls::Types::size_type size, int numBlocks);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing RESERVECAPACITY"
@@ -2225,7 +2225,7 @@ int main(int argc, char *argv[])
         //   some white-box testing.
         //
         // Testing:
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ALLOCATE"

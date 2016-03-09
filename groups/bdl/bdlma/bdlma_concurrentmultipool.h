@@ -581,10 +581,12 @@ class ConcurrentMultipool {
 
   public:
     // CREATORS
-    ConcurrentMultipool(bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipool(int numPools, bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipool(bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    explicit ConcurrentMultipool(bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipool(int               numPools,
+                                 bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipool(
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     ConcurrentMultipool(int                          numPools,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);

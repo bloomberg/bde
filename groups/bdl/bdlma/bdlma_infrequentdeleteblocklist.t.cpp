@@ -610,8 +610,8 @@ int main(int argc, char *argv[])
         //: 5 Perform a separate test to verify that 'mX.allocate(0)' returns 0
         //:   and has no effect on any allocator.  (C-8)
         //:
-        //: 6 Verify the 'allocator' method returns the used allocator for all
-        //:   constructors.
+        //: 6 Verify the 'allocator' method returns the used allocator
+        //:   regardless of how the object was constructed.  (C-10)
         //
         // Testing:
         //   bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);

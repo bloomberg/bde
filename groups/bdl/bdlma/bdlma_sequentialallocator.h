@@ -225,6 +225,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -255,12 +259,13 @@ class SequentialAllocator : public ManagedAllocator {
 
   public:
     // CREATORS
-    explicit
-    SequentialAllocator(bslma::Allocator *basicAllocator = 0);
-    SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(bsls::Alignment::Strategy  alignmentStrategy,
-                        bslma::Allocator          *basicAllocator = 0);
+    explicit SequentialAllocator(bslma::Allocator *basicAllocator = 0);
+    explicit SequentialAllocator(
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    explicit SequentialAllocator(
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -276,10 +281,9 @@ class SequentialAllocator : public ManagedAllocator {
         // that no limit is imposed on the size of the internal buffers when
         // geometric growth is used.
 
-    SequentialAllocator(int initialSize);
-    explicit
-    SequentialAllocator(bsls::Types::size_type  initialSize,
-                        bslma::Allocator       *basicAllocator = 0);
+    explicit SequentialAllocator(int initialSize);
+    explicit SequentialAllocator(bsls::Types::size_type  initialSize,
+                                 bslma::Allocator       *basicAllocator = 0);
     SequentialAllocator(bsls::Types::size_type       initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -306,7 +310,9 @@ class SequentialAllocator : public ManagedAllocator {
         // on the size of the internal buffers when geometric growth is used.
         // Also note that when constant growth is used, the size of the
         // internal buffers will always be the same as the
-        // implementation-defined value.
+        // implementation-defined value.  Also note that
+        // 'SequentialPool(int initialSize)' is provided to avoid ambguous
+        // definitions.
 
     SequentialAllocator(bsls::Types::size_type  initialSize,
                         bsls::Types::size_type  maxBufferSize,

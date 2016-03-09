@@ -491,10 +491,11 @@ int main(int argc, char *argv[])
         //   Ensure this manipulator appropriately allows memory reuse.
         //
         // Concerns:
-        //: 1 The method allows reuse of allocate memory.
+        //: 1 The method allows reuse of allocated memory.
         //:
         //: 2 The method does not release any memory back to the underlying
-        //:   allocator.
+        //:   allocator.  While the contract allows memory to be released, this
+        //:   implementation does not release any memory.
         //:
         //: 3 The method does not violate any invariants for the class.
         //
@@ -509,7 +510,7 @@ int main(int argc, char *argv[])
         //:   'rewind'.  (C-2)
         //:
         //: 3 Allow the object to go out-of-scope and verify all memory has
-        //:   been returned to the underlying allocator.
+        //:   been returned to the underlying allocator.  (C-3)
         //
         // Testing:
         //   void rewind();
