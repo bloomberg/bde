@@ -1,5 +1,13 @@
-bsl-internal (2.26.0.0) unstable; urgency=low
+bsl-internal (2.26.0.1) unstable; urgency=low
 
+  * 97477c4 Merge pull request #212 from mgiroux/review/pcre_to_releases_2.x
+  * 1787bd3 Merge pull request #208 from che2/fix-pcre2-pc-file
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 14:51:12 -0500
+
+bsl-internal (2.26.0.0) git; urgency=low
+
+  * 681d43b Changelog for version 2.26.0.0
   * fcf1049 Changelog for version 2.26.0.0
   * 1124757 Merge pull request #205 from mgiroux/review/trial-merging-2.25.x-to-2.x
   * e4d3cc5 reset patchversion to 0
@@ -23,7 +31,7 @@ bsl-internal (2.26.0.0) unstable; urgency=low
   * 0d56a3e Merge pull request #110 from hversche/decimal64-improvement-for-2.25.x
   * 9937f35 Merge pull request #95 from che2/decimal64-improvement-for-2x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Mar 2016 12:39:08 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Mar 2016 12:41:35 -0500
 
 bsl-internal (2.25.2.0) git; urgency=low
 
