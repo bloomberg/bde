@@ -8,7 +8,8 @@ However, a few minor changes were applied.
 Build System Changes
 ====================
 
-In order to support the 'waf' build system, ...
+Created a `wscript` file to build using waf, based on instructions from the
+`NON-AUTOTOOLS-BUILD` file.
 
 
 VS2008 Support Changes
@@ -41,5 +42,3 @@ patch had to be applied to pcre2.h to work around VS2008''s lack of stdint.h.
     +#endif
 
      /* Allow for C++ users compiling this directly. */
-
-
