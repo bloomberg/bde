@@ -1,11 +1,14 @@
-bsl-internal (2.26.0.2) unstable; urgency=low
+bsl-internal (2.26.0.3) unstable; urgency=low
 
+  * ce7a20b Merge remote-tracking branch 'origin/review/add-pcre2-to-debian-control' into releases/2.26.x
+  * 0382ac5 Merge branch 'pcre_to_releases_2.x' into add-pcre2-to-debian-control
+  * 4d4c25a Changelog for version 2.26.0.2
   * e9edae2 Merge pull request #214 from mgiroux/review/pcre_to_releases_2.x
   * a3fbd05 Changelog for version 2.26.0.1
   * 97477c4 Merge pull request #212 from mgiroux/review/pcre_to_releases_2.x
   * 1787bd3 Merge pull request #208 from che2/fix-pcre2-pc-file
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 15:26:07 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Mar 2016 13:24:17 -0500
 
 bsl-internal (2.26.0.0) git; urgency=low
 
