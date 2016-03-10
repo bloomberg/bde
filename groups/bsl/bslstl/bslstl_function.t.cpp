@@ -311,6 +311,8 @@ typedef bsls::Types::Int64 AllocSizeType;
 // Use this test allocator when another allocator is not specified.
 bslma::TestAllocator globalTestAllocator("globalTestAllocator");
 
+typedef bsl::Function_SmallObjectOptimization Soo;
+
 template <class FUNC>
 bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
     // Wrap the specified functor, 'f' in a nothrow wrapper.
@@ -479,7 +481,7 @@ class CountCopies
 // Therefore, the return value should never be less than 1.
 int numCopies(CountCopies cc) { return cc.numCopies(); }
 
-typedef bsl::Function_SmallObjectOptimization::InplaceBuffer SmallObjectBuffer;
+typedef Soo::InplaceBuffer SmallObjectBuffer;
 
 // Simple functions
 int simpleFunc(const IntWrapper& iw, int v)
@@ -1826,9 +1828,15 @@ void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
                     LOOP_ASSERT(line, 0x4005 == f(IntWrapper(0x4000), 5));
                 }
             }
-            LOOP_ASSERT(line, numBlocksUsed == ta.numBlocksInUse());
-            LOOP_ASSERT(line, minBytesUsed <= ta.numBytesInUse() &&
-                        ta.numBytesInUse() <= maxBytesUsed);
+            if (Soo::IsInplaceFunc<Obj>::value) {
+                LOOP_ASSERT(line, numBlocksUsed == ta.numBlocksInUse());
+                LOOP_ASSERT(line, minBytesUsed <= ta.numBytesInUse() &&
+                            ta.numBytesInUse() <= maxBytesUsed);
+            }
+            else {
+                LOOP_ASSERT(line, numBlocksUsed <= ta.numBlocksInUse());
+                LOOP_ASSERT(line, minBytesUsed  <= ta.numBytesInUse());
+            }
             LOOP_ASSERT(line, globalAllocMonitor.isInUseSame());
         } EXCEPTION_TEST_CATCH {
             // Exception neutral: All memory has been released.
@@ -3899,7 +3907,8 @@ int main(int argc, char *argv[])
 
         typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
 
-        // Test that the small-object buffer meets the minimum size constraints.
+        // Test that the small-object buffer meets the minimum size
+        // constraints.
 
         LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
                      sizeof(MaxAlignedType),
@@ -5663,7 +5672,12 @@ int main(int argc, char *argv[])
             EmptyFunctor ftor;
             Obj f(ftor); const Obj& F = f;
             ASSERT(F);
-            ASSERT(globalAllocMonitor.isTotalSame());
+            if (Soo::IsInplaceFunc<Obj>::value) {
+                ASSERT(globalAllocMonitor.isTotalSame());
+            }
+            else {
+                globalAllocMonitor.reset();
+            }
             ASSERT(typeid(EmptyFunctor) == F.target_type());
             ASSERT(F.target<EmptyFunctor>() &&
                    ftor == *F.target<EmptyFunctor>());
@@ -5681,7 +5695,9 @@ int main(int argc, char *argv[])
                    ftor == *fw.target<EmptyFunctor>());
             ASSERT(&globalTestAllocator == fw.allocator());
         }
-        ASSERT(globalAllocMonitor.isInUseSame());
+        if (Soo::IsInplaceFunc<Obj>::value) {
+            ASSERT(globalAllocMonitor.isTotalSame());
+        }
 
         if (veryVerbose) printf("Construct with small functor\n");
         globalAllocMonitor.reset();
@@ -6047,7 +6063,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014-2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
