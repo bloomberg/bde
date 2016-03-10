@@ -34,3 +34,7 @@ Description: DecNumber Library
 Package: libinteldfp-dev
 Architecture: any
 Description: Intel Decimal Floating-Point Math Library
+
+Package: libpcre2-dev
+Architecture: any
+Description: PCRE 2 Regular Expression Library
