@@ -1,4 +1,4 @@
-// bdlt_datetimeimputil.h                                            -*-C++-*-
+// bdlt_datetimeimputil.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLT_DATETIMEIMPUTIL
 #define INCLUDED_BDLT_DATETIMEIMPUTIL
 
@@ -7,15 +7,24 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:
+//@PURPOSE: Provide constants useful for encoding datetimes.
 //
 //@CLASSES:
+//  bdlt::DatetimeImpUtil: namespace for datetime encoding constants
 //
-//@DESCRIPTION: This component implements a utility class,
-// 'bdlt::DatetimeImpUtil', that provides
+//@DESCRIPTION: This component implements a utility 'struct',
+// 'bdlt::DatetimeImpUtil', that defines a namespace for constants that are
+// useful to encoding datetimes.  The assumptions for this encoding are that a
+// collection of unset values, one per day over the valid range of
+// 'bdlt::Date', are encoded in the lowest values, then microsecond resolution
+// from the start of the 'bdlt::Date' range to 1970/01/01, then nanosecond
+// resolution throughy 2470/01/01, and finally microsecond resolution over the
+// residual of the 'bdlt::Date' range.
 //
 ///Usage
 ///-----
+// This component is not meant to be used directly and hence no usage example
+// is provided.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -28,14 +37,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                           // ======================
-                           // struct DatetimeImpUtil
-                           // ======================
+                          // ======================
+                          // struct DatetimeImpUtil
+                          // ======================
 
 struct DatetimeImpUtil {
-    // This 'struct' provides
+    // This 'struct' provides a namespace for datetime encoding constants.
 
-  public:
     // CLASS DATA
 
     static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;

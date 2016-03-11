@@ -25,21 +25,23 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdlt_currenttime
-     bdlt_defaultcalendarcache
+  8. bdlt_currenttime
+
+  7. bdlt_defaultcalendarcache
+     bdlt_localtimeoffset
      bdlt_iso8601util
 
   6. bdlt_calendarcache
+     bdlt_datetimeutil
      bdlt_datetimetz
-     bdlt_localtimeoffset
 
   5. bdlt_calendar
      bdlt_calendarloader
-     bdlt_datetimeutil
+     bdlt_datetime
      bdlt_datetz
      bdlt_epochutil
 
-  4. bdlt_datetime
+  4. bdlt_datetimeimputil
      bdlt_dateutil
      bdlt_packedcalendar
      bdlt_timetz

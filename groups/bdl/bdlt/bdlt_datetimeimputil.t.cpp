@@ -1,4 +1,4 @@
-// bdlt_datetimeimputil.t.cpp                                        -*-C++-*-
+// bdlt_datetimeimputil.t.cpp                                         -*-C++-*-
 #include <bdlt_datetimeimputil.h>
 
 #include <bdlt_date.h>
@@ -17,9 +17,17 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// The component under test implements a single utility 'struct', that defines
+// a set of constants.  There is no executable code.  Therefore the component
+// can be tested in a single test case that simply checks the values defined in
+// the 'struct'.
 // ----------------------------------------------------------------------------
+// [ 1] static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;
+// [ 1] static const bsls::Types::Uint64 k_2470_01_01_TOTAL_SECONDS;
+// [ 1] static const bsls::Types::Uint64 k_0001_01_01_VALUE;
+// [ 1] static const bsls::Types::Uint64 k_1970_01_01_VALUE;
+// [ 1] static const bsls::Types::Uint64 k_2470_01_01_VALUE;
 // ----------------------------------------------------------------------------
-// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -71,36 +79,53 @@ void aSsErT(bool condition, const char *message, int line)
 
 int main(int argc, char *argv[])
 {
-    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool             verbose = argc > 2;
-    const bool         veryVerbose = argc > 3;
-    const bool     veryVeryVerbose = argc > 4;
-    const bool veryVeryVeryVerbose = argc > 5;
-
-    (void)veryVeryVerbose;
-    (void)veryVeryVeryVerbose;
+    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 1: {
-          ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS
+        // --------------------------------------------------------------------
+        // TESTING 'DatetimeImpUtil' VALUES
+        //
+        // Concerns:
+        //: 1 That each value defined in 'DatetimeImpUtil' is correct.
+        //
+        // Plan:
+        //: 1 Using brute force, compare each explicit value defined in
+        //:   'DatetimeImpUtil' to a value calculated using 'Date' and
+        //:   'TimeUnitRatio'.  (C-1)
+        //
+        // Testing:
+        //   static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;
+        //   static const bsls::Types::Uint64 k_2470_01_01_TOTAL_SECONDS;
+        //   static const bsls::Types::Uint64 k_0001_01_01_VALUE;
+        //   static const bsls::Types::Uint64 k_1970_01_01_VALUE;
+        //   static const bsls::Types::Uint64 k_2470_01_01_VALUE;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'DatetimeImpUtil' VALUES" << endl
+                          << "================================" << endl;
+
+        ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS
                               == (bdlt::Date(1970, 1, 1) - bdlt::Date(1, 1, 1))
                                              * bdlt::TimeUnitRatio::k_S_PER_D);
 
-          ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS
+        ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS
                               == (bdlt::Date(2470, 1, 1) - bdlt::Date(1, 1, 1))
                                              * bdlt::TimeUnitRatio::k_S_PER_D);
 
-          ASSERT(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
+        ASSERT(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
                       == (bdlt::Date(9999, 12, 31) - bdlt::Date(1, 1, 1) + 1));
 
-          ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE
+        ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE
                       == (bdlt::Date(1970, 1, 1) - bdlt::Date(1, 1, 1))
                                   * bdlt::TimeUnitRatio::k_US_PER_D
                                   + bdlt::DatetimeImpUtil::k_0001_01_01_VALUE);
 
-          ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_VALUE
+        ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_VALUE
                       == (bdlt::Date(2470, 1, 1) - bdlt::Date(1970, 1, 1))
                                   * bdlt::TimeUnitRatio::k_NS_PER_D
                                   + bdlt::DatetimeImpUtil::k_1970_01_01_VALUE);

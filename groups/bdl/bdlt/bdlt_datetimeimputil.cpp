@@ -1,4 +1,4 @@
-// bdlt_datetimeimputil.cpp                                          -*-C++-*-
+// bdlt_datetimeimputil.cpp                                           -*-C++-*-
 #include <bdlt_datetimeimputil.h>
 
 #include <bsls_ident.h>
