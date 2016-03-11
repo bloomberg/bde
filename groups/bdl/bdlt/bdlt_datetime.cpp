@@ -23,16 +23,9 @@ namespace bdlt {
 BSLMF_ASSERT(bsl::is_trivially_copyable<Date>::value);
 BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
 
-                        // --------------
-                        // class Datetime
-                        // --------------
-// CLASS VALUES
-const bsls::Types::Uint64 Datetime::s_firstNanosecondSecond = (Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_S_PER_D;
-const bsls::Types::Uint64 Datetime::s_firstPostNanosecondSecond = (Date(Datetime::k_FIRST_POST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_S_PER_D;
-
-const bsls::Types::Uint64 Datetime::s_firstSetValue = Date(9999, 12, 31) - Date() + 1;
-const bsls::Types::Uint64 Datetime::s_firstNanosecondValue = (Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1) - Date()) * TimeUnitRatio::k_US_PER_D + Datetime::s_firstSetValue;
-const bsls::Types::Uint64 Datetime::s_firstPostNanosecondValue = (Date(Datetime::k_FIRST_POST_NANOSECOND_YEAR, 1, 1) - Date(Datetime::k_FIRST_NANOSECOND_YEAR, 1, 1)) * TimeUnitRatio::k_NS_PER_D + Datetime::s_firstNanosecondValue;
+                              // --------------
+                              // class Datetime
+                              // --------------
 
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
@@ -104,8 +97,8 @@ int Datetime::printToBuffer(char *result, int numBytes) const
                              millisecond);
 
     if ((0 > rc || rc == numBytes) && numBytes > 0) {
-        result[numBytes - 1] = '\0';  // Make sure to null-terminate
-                                      // on overflow.
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
     }
     return 22;  // Format of 'bdlt::Datetime' always has 22 characters.
 #else

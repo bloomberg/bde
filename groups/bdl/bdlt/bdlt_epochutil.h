@@ -159,9 +159,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                            // ================
-                            // struct EpochUtil
-                            // ================
+                             // ================
+                             // struct EpochUtil
+                             // ================
 
 struct EpochUtil {
     // This 'struct' provides a namespace for a suite of non-primitive
@@ -342,12 +342,12 @@ struct EpochUtil {
 };
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // ----------------
-                            // struct EpochUtil
-                            // ----------------
+                             // ----------------
+                             // struct EpochUtil
+                             // ----------------
 
 // CLASS METHODS
 inline
@@ -391,8 +391,7 @@ bsl::time_t EpochUtil::convertToTimeT(const Datetime& datetime)
 }
 
 inline
-int EpochUtil::convertToTimeT(bsl::time_t     *result,
-                              const Datetime&  datetime)
+int EpochUtil::convertToTimeT(bsl::time_t *result, const Datetime& datetime)
 {
     BSLS_ASSERT_SAFE(result);
 
@@ -455,7 +454,6 @@ void EpochUtil::convertToTimeT64(TimeT64 *result, const Datetime& datetime)
 
     *result = TimeT64(EpochUtil::convertToTimeT64(datetime));
 }
-
 
                        // 'bsls::TimeInterval'-Based Methods
 
@@ -560,7 +558,7 @@ int EpochUtil::convertToDatetimeInterval(DatetimeInterval *result,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

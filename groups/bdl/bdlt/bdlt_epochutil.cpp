@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
+#include <bdlt_datetimeimputil.h>
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -22,7 +24,6 @@ namespace bdlt {
 // that adheres to those restrictions without C++11 'constexpr' constructors.
 // (In C, a union can be used to type pun, but not in C++.)
 
-
 #ifndef BDE_OPENSOURCE_PUBLICATION
     #ifdef BDE_USE_PROLEPTIC_DATES
     #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
@@ -30,14 +31,16 @@ namespace bdlt {
 #endif
 
 #ifdef BDE_USE_PROLEPTIC_DATES
-static const int epochData[2] = { 719163, 0 };
-                                 // 719163 is 1970/01/01 in Proleptic Gregorian
+static const bsls::Types::Uint64 epochData =
+                        719163ULL * TimeUnitRatio::k_US_PER_D + 3652059ULL + 1;
+       // 719163 is 1970/01/01 and 3652059 is 9999/12/31 in Proleptic Gregorian
 
 const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135596800LL;
                                                  // January    1, 0001 00:00:00
 #else
-static const int epochData[2] = { 719165, 0 };
-                                 // 719165 is 1970/01/01 in POSIX
+static const bsls::Types::Uint64 epochData =
+                        719165ULL * TimeUnitRatio::k_US_PER_D + 3652061ULL + 1;
+                     // 719165 is 1970/01/01 and 3652061 is 9999/12/31 in POSIX
 
 const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
                                                  // January    1, 0001 00:00:00
@@ -46,21 +49,20 @@ const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
 const EpochUtil::TimeT64 EpochUtil::s_latestAsTimeT64   = 253402300799LL;
                                                  // December  31, 9999 23:59:59
 
-                            // ----------------
-                            // struct EpochUtil
-                            // ----------------
+                             // ----------------
+                             // struct EpochUtil
+                             // ----------------
 
 // CLASS DATA
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
-                           reinterpret_cast<const bdlt::Datetime *>(epochData);
+reinterpret_cast<const bdlt::Datetime *>(&DatetimeImpUtil::k_1970_01_01_VALUE);
 
 }  // close package namespace
 }  // close enterprise namespace
 
-
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -2241,7 +2241,6 @@ if (veryVerbose)
             ASSERT(D0 == D1);
         }
 
-
         if (verbose) cout
              << "\nTest 'add' methods on default constructed objects." << endl;
         {
@@ -4552,7 +4551,7 @@ if (veryVerbose)
 #define NL "\n"
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL  DATE  TIME  EXPECTED
@@ -4564,7 +4563,7 @@ if (veryVerbose)
         { L_,  0, -8,  DA,    TA, "01JAN0001_00:00:00.000" NL }, // default
 
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL  DATE  TIME  EXPECTED
@@ -4583,7 +4582,7 @@ if (veryVerbose)
         { L_, -3, -8,  DA,    TA, "01JAN0001_00:00:00.000" NL }, // default
 
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
         // -----------------------------------------------------------------
 
         //LINE L SPL  DATE  TIME  EXPECTED
@@ -4591,7 +4590,7 @@ if (veryVerbose)
         { L_,  2,  3,   DZ,   TZ, "      31DEC9999_23:59:59.999" NL },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL  DATE  TIME  EXPECTED
@@ -4600,7 +4599,7 @@ if (veryVerbose)
         { L_, -8, -8,  DZ,    TZ, "31DEC9999_23:59:59.999" NL }, // default
 
         // -----------------------------------------------------------------
-        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL  DATE  TIME  EXPECTED
@@ -4757,7 +4756,6 @@ if (veryVerbose)
                 LOOP2_ASSERT(LINE, RC, 22 == RC);  // Should always return 22
                                                    // because size of datetime
                                                    // format is fixed.
-
 
                 const int LENGTH = 0 == LIMIT
                                    ? 0
