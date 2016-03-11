@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - -
 // A leaky bucket can be queried whether submitting a 1 more unit would cause
 // it to overflow via the 'wouldOverflow' method.  This method facilitates the
-// recommended usage of a leak bucket: check whether 1 more unit can be added
+// recommended usage of a leaky bucket: check whether 1 more unit can be added
 // without causing the leaky bucket to overflow, and if so, consume the desired
 // amount of the resource (which may be more than 1).  Compared to the
 // alternative -- checking whether the desired amount can be submitted without
@@ -354,7 +354,7 @@ namespace btls {
 class LeakyBucket {
     // This mechanism implements a leaky bucket that allows clients to monitor
     // whether a resource is being consumed at a particular rate.  The behavior
-    // of a leak bucket is determined by two properties: the drain rate (in
+    // of a leaky bucket is determined by two properties: the drain rate (in
     // units/s) and capacity (in units), both of which can be specified at
     // construction or using the 'setRateAndCapacity' method.
     //
