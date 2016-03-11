@@ -802,15 +802,30 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
 inline
 void Datetime::setTimeIntervalFromEpoch(const bsls::TimeInterval& interval)
 {
-    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS <= interval.totalSeconds())
-        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS > interval.totalSeconds())) {
-        d_value = (interval.totalSeconds() - DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS) * TimeUnitRatio::k_NS_PER_S + interval.nanoseconds() + DatetimeImpUtil::k_1970_01_01_VALUE;
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                    DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS
+                                 <= interval.totalSeconds())
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                    DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS
+                                 >  interval.totalSeconds())) {
+        d_value = (  interval.totalSeconds()
+                   - DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS)
+                                                    * TimeUnitRatio::k_NS_PER_S
+                + interval.nanoseconds()
+                + DatetimeImpUtil::k_1970_01_01_VALUE;
     }
-    else if (DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS <= interval.totalSeconds()) {
-        d_value = (interval.totalSeconds() - DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS) * TimeUnitRatio::k_US_PER_S + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US + DatetimeImpUtil::k_2470_01_01_VALUE;
+    else if (DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS
+                                                  <= interval.totalSeconds()) {
+        d_value = (  interval.totalSeconds()
+                   - DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS)
+                                                    * TimeUnitRatio::k_US_PER_S
+                + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US
+                + DatetimeImpUtil::k_2470_01_01_VALUE;
     }
     else {
-        d_value = interval.totalSeconds() * TimeUnitRatio::k_US_PER_S + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US + DatetimeImpUtil::k_0001_01_01_VALUE;
+        d_value = interval.totalSeconds() * TimeUnitRatio::k_US_PER_S
+                + interval.nanoseconds() / TimeUnitRatio::k_NS_PER_US
+                + DatetimeImpUtil::k_0001_01_01_VALUE;
     }
 }
 
@@ -824,24 +839,27 @@ void Datetime::setUnset(int totalDays)
 inline
 void Datetime::timeIntervalFromEpoch(bsls::TimeInterval *interval) const
 {
-    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(DatetimeImpUtil::k_1970_01_01_VALUE <= d_value)
-        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(DatetimeImpUtil::k_2470_01_01_VALUE > d_value)) {
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                             DatetimeImpUtil::k_1970_01_01_VALUE <= d_value)
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                             DatetimeImpUtil::k_2470_01_01_VALUE >  d_value)) {
         bsls::Types::Uint64 totalNanoseconds =
-                                              d_value - DatetimeImpUtil::k_1970_01_01_VALUE;
+                                 d_value - DatetimeImpUtil::k_1970_01_01_VALUE;
         interval->setInterval(totalNanoseconds / TimeUnitRatio::k_NS_PER_S
-                                                     + DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS,
+                                 + DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS,
                               totalNanoseconds % TimeUnitRatio::k_NS_PER_S);
     }
     else if (DatetimeImpUtil::k_2470_01_01_VALUE <= d_value) {
         bsls::Types::Uint64 totalMicroseconds =
-                                          d_value - DatetimeImpUtil::k_2470_01_01_VALUE;
+                                 d_value - DatetimeImpUtil::k_2470_01_01_VALUE;
         interval->setInterval(totalMicroseconds / TimeUnitRatio::k_US_PER_S
-                                                 + DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS,
+                                 + DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS,
                               totalMicroseconds % TimeUnitRatio::k_US_PER_S
                                                  * TimeUnitRatio::k_NS_PER_US);
     }
     else if (DatetimeImpUtil::k_0001_01_01_VALUE <= d_value) {
-        bsls::Types::Uint64 totalMicroseconds = d_value - DatetimeImpUtil::k_0001_01_01_VALUE;
+        bsls::Types::Uint64 totalMicroseconds =
+                                 d_value - DatetimeImpUtil::k_0001_01_01_VALUE;
         interval->setInterval(totalMicroseconds / TimeUnitRatio::k_US_PER_S,
                               totalMicroseconds % TimeUnitRatio::k_US_PER_S
                                                  * TimeUnitRatio::k_NS_PER_US);

@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // Values represented by objects of type 'bdlt::Datetime' are used widely in
-// practice.  The values of the individual fields resulting from a
+// practice.  The values of the individual attributes resulting from a
 // default-constructed 'bdlt::Datetime' object, 'dt', are
 // "0001/01/01_24:00:00.000":
 //..
@@ -419,8 +419,9 @@ if (veryVerbose)
     bdlt::Datetime sunrise(2014, 6, 27,  5, 26, 51); // New York City
 //..
 // Then, we calculate the length of each shift in milliseconds (for good
-// precision).  Note that the difference of 'sunrise' and 'sunset' creates a
-// temporary 'bdlt::DatetimeInterval' object:
+// precision -- we may be synchronizing astronomical instruments).  Note that
+// the difference of 'sunrise' and 'sunset' creates a temporary
+// 'bdlt::DatetimeInterval' object:
 //..
     const int                numShifts = 7;
     const bsls::Types::Int64 shiftLengthInMsec
