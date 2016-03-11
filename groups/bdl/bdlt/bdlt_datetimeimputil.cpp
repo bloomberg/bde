@@ -16,12 +16,12 @@ namespace bdlt {
 
 #ifdef BDE_USE_PROLEPTIC_DATES
 
-const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
-                                          719162ULL * TimeUnitRatio::k_S_PER_D;
+const bsls::Types::Int64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
+                                           719162LL * TimeUnitRatio::k_S_PER_D;
                     // 719162 is 1970/01/01 - 0001/01/01 in Proleptic Gregorian
 
-const bsls::Types::Uint64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
-                                          901784ULL * TimeUnitRatio::k_S_PER_D;
+const bsls::Types::Int64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
+                                           901784LL * TimeUnitRatio::k_S_PER_D;
                     // 901784 is 2470/01/01 - 0001/01/01 in Proleptic Gregorian
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652058ULL + 1;
@@ -33,12 +33,12 @@ const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
 
 #else
 
-const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
-                                          719164ULL * TimeUnitRatio::k_S_PER_D;
+const bsls::Types::Int64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
+                                           719164LL * TimeUnitRatio::k_S_PER_D;
                                   // 719164 is 1970/01/01 - 0001/01/01 in POSIX
 
-const bsls::Types::Uint64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
-                                          901786ULL * TimeUnitRatio::k_S_PER_D;
+const bsls::Types::Int64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
+                                           901786LL * TimeUnitRatio::k_S_PER_D;
                                   // 901786 is 2470/01/01 - 0001/01/01 in POSIX
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652060ULL + 1;

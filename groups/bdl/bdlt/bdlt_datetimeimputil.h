@@ -46,8 +46,8 @@ struct DatetimeImpUtil {
 
     // CLASS DATA
 
-    static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;
-    static const bsls::Types::Uint64 k_2470_01_01_TOTAL_SECONDS;
+    static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
+    static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
 
     static const bsls::Types::Uint64 k_0001_01_01_VALUE;
     static const bsls::Types::Uint64 k_1970_01_01_VALUE;

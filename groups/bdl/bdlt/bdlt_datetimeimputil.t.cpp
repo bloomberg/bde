@@ -22,8 +22,8 @@ using namespace bsl;
 // can be tested in a single test case that simply checks the values defined in
 // the 'struct'.
 // ----------------------------------------------------------------------------
-// [ 1] static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;
-// [ 1] static const bsls::Types::Uint64 k_2470_01_01_TOTAL_SECONDS;
+// [ 1] static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
+// [ 1] static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
 // [ 1] static const bsls::Types::Uint64 k_0001_01_01_VALUE;
 // [ 1] static const bsls::Types::Uint64 k_1970_01_01_VALUE;
 // [ 1] static const bsls::Types::Uint64 k_2470_01_01_VALUE;
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
         //:   'TimeUnitRatio'.  (C-1)
         //
         // Testing:
-        //   static const bsls::Types::Uint64 k_1970_01_01_TOTAL_SECONDS;
-        //   static const bsls::Types::Uint64 k_2470_01_01_TOTAL_SECONDS;
+        //   static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
+        //   static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
         //   static const bsls::Types::Uint64 k_0001_01_01_VALUE;
         //   static const bsls::Types::Uint64 k_1970_01_01_VALUE;
         //   static const bsls::Types::Uint64 k_2470_01_01_VALUE;
