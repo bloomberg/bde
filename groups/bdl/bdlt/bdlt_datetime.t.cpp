@@ -328,15 +328,17 @@ int main(int argc, char *argv[])
 // Values represented by objects of type 'bdlt::Datetime' are used widely in
 // practice.  The values of the individual attributes resulting from a
 // default-constructed 'bdlt::Datetime' object, 'dt', are
-// "0001/01/01_24:00:00.000":
+// "0001/01/01_24:00:00.000000000":
 //..
     bdlt::Datetime dt;          ASSERT( 1 == dt.date().year());
                                 ASSERT( 1 == dt.date().month());
                                 ASSERT( 1 == dt.date().day());
-                                ASSERT(24 == dt.time().hour());
-                                ASSERT( 0 == dt.time().minute());
-                                ASSERT( 0 == dt.time().second());
-                                ASSERT( 0 == dt.time().millisecond());
+                                ASSERT(24 == dt.hour());
+                                ASSERT( 0 == dt.minute());
+                                ASSERT( 0 == dt.second());
+                                ASSERT( 0 == dt.millisecond());
+                                ASSERT( 0 == dt.microsecond());
+                                ASSERT( 0 == dt.nanosecond());
 //..
 // We can then set 'dt' to have a specific value, say, 8:43pm on January 6,
 // 2013:
@@ -345,10 +347,12 @@ int main(int argc, char *argv[])
                                 ASSERT(2013 == dt.date().year());
                                 ASSERT(   1 == dt.date().month());
                                 ASSERT(   6 == dt.date().day());
-                                ASSERT(  20 == dt.time().hour());
-                                ASSERT(  43 == dt.time().minute());
-                                ASSERT(   0 == dt.time().second());
-                                ASSERT(   0 == dt.time().millisecond());
+                                ASSERT(  20 == dt.hour());
+                                ASSERT(  43 == dt.minute());
+                                ASSERT(   0 == dt.second());
+                                ASSERT(   0 == dt.millisecond());
+                                ASSERT(   0 == dt.microsecond());
+                                ASSERT(   0 == dt.nanosecond());
 //..
 // Now suppose we add 6 hours and 9 seconds to this value.  There is more than
 // one way to do it:
@@ -359,10 +363,12 @@ int main(int argc, char *argv[])
                                 ASSERT(2013 == dt2.date().year());
                                 ASSERT(   1 == dt2.date().month());
                                 ASSERT(   7 == dt2.date().day());
-                                ASSERT(   2 == dt2.time().hour());
-                                ASSERT(  43 == dt2.time().minute());
-                                ASSERT(   9 == dt2.time().second());
-                                ASSERT(   0 == dt2.time().millisecond());
+                                ASSERT(   2 == dt2.hour());
+                                ASSERT(  43 == dt2.minute());
+                                ASSERT(   9 == dt2.second());
+                                ASSERT(   0 == dt2.millisecond());
+                                ASSERT(   0 == dt2.microsecond());
+                                ASSERT(   0 == dt2.nanosecond());
 
     bdlt::Datetime dt3(dt);
     dt3.addTime(6, 0, 9);
@@ -375,10 +381,12 @@ int main(int argc, char *argv[])
                                 ASSERT(2013 == dt3.date().year());
                                 ASSERT(   1 == dt3.date().month());
                                 ASSERT(  17 == dt3.date().day());
-                                ASSERT(   2 == dt3.time().hour());
-                                ASSERT(  43 == dt3.time().minute());
-                                ASSERT(   9 == dt3.time().second());
-                                ASSERT(   0 == dt3.time().millisecond());
+                                ASSERT(   2 == dt3.hour());
+                                ASSERT(  43 == dt3.minute());
+                                ASSERT(   9 == dt3.second());
+                                ASSERT(   0 == dt3.millisecond());
+                                ASSERT(   0 == dt3.microsecond());
+                                ASSERT(   0 == dt3.nanosecond());
 //..
 // We can also add more than a day's worth of time:
 //..
