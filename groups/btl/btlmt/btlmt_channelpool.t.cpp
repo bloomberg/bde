@@ -11517,17 +11517,6 @@ void TestDriver::testCase18()
             cpc.setMaxThreads(MAX_THREADS);
             cpc.setMetricsInterval(100.0);
 
-            struct rlimit rlim;
-            ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-
-#if defined(BSLS_PLATFORM_OS_AIX)
-            rlim.rlim_cur = 4 * MAX_THREADS + 2;
-#else
-            rlim.rlim_cur = 4 * MAX_THREADS + 6;
-#endif
-            ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
-            if (veryVerbose) { P(rlim.rlim_cur); }
-
             Obj mX(channelCb, dataCb, poolCb, cpc, &ta);  const Obj& X = mX;
 
             const btlso::IPv4Address ADDRESS("127.0.0.1", 0);
@@ -11566,6 +11555,17 @@ void TestDriver::testCase18()
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
+            struct rlimit rlim;
+            ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
+
+#if defined(BSLS_PLATFORM_OS_AIX)
+            rlim.rlim_cur = 4 * MAX_THREADS + 2;
+#else
+            rlim.rlim_cur = 4 * MAX_THREADS + 6;
+#endif
+            ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
+            if (veryVerbose) { P(rlim.rlim_cur); }
+
             for (int i = 0; i < MAX_THREADS; ++i) {
                 retCode = sockets[i]->connect(PEER);
                 if (veryVerbose) { P_(retCode); P(errno); }
@@ -11594,7 +11594,6 @@ void TestDriver::testCase18()
             ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
             if (veryVerbose) { P(rlim.rlim_cur); }
 
-            bslmt::ThreadUtil::microSleep(0, 8);
             acceptErrors = 0;
 
             if (verbose)
