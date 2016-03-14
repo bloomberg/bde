@@ -42,16 +42,18 @@ bsl::ostream& ChannelStatus::print(bsl::ostream&       stream,
 
 const char *ChannelStatus::toAscii(ChannelStatus::Enum value)
 {
-#define CASE(X) case(e_ ## X): return #X;
+#define CASE(X) case(ChannelStatus::e_ ## X): return #X;
 
     switch (value) {
       CASE(SUCCESS)
-      CASE(CACHE_OVERFLOW)
-      CASE(CACHE_HIGHWATER)
+      CASE(QUEUE_HIGHWATER)
       CASE(READ_CHANNEL_DOWN)
       CASE(WRITE_CHANNEL_DOWN)
       CASE(ENQUEUE_HIGHWATER)
       CASE(UNKNOWN_ID)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      case ChannelStatus::Enum(-1): return "(* INVALID *)";
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       default: return "(* UNKNOWN *)";
     }
 

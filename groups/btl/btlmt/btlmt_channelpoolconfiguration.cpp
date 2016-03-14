@@ -102,16 +102,16 @@ const bdlat_AttributeInfo
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT,
-        "WriteCacheLowWat",                     // name
-        sizeof("WriteCacheLowWat") - 1,         // name length
+        e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER,
+        "WriteQueueLowWater",                     // name
+        sizeof("WriteQueueLowWater") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT,
-        "WriteCacheHiWat",                     // name
-        sizeof("WriteCacheHiWat") - 1,         // name length
+        e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER,
+        "WriteQueueHighWater",                     // name
+        sizeof("WriteQueueHighWater") - 1,         // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     },
@@ -227,7 +227,29 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
              && bsl::toupper(name[13])=='A'
              && bsl::toupper(name[14])=='T') {
                 return
-                   &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+               &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER];
+                                                                      // RETURN
+            }
+            else if (bsl::toupper(name[1])=='R'
+             && bsl::toupper(name[2])=='I'
+             && bsl::toupper(name[3])=='T'
+             && bsl::toupper(name[4])=='E'
+             && bsl::toupper(name[5])=='Q'
+             && bsl::toupper(name[6])=='U'
+             && bsl::toupper(name[7])=='E'
+             && bsl::toupper(name[8])=='U'
+             && bsl::toupper(name[9])=='E'
+             && bsl::toupper(name[10])=='H'
+             && bsl::toupper(name[11])=='I'
+             && bsl::toupper(name[12])=='G'
+             && bsl::toupper(name[13])=='H'
+             && bsl::toupper(name[14])=='W'
+             && bsl::toupper(name[15])=='A'
+             && bsl::toupper(name[16])=='T'
+             && bsl::toupper(name[17])=='E'
+             && bsl::toupper(name[18])=='R') {
+                return
+               &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER];
                                                                       // RETURN
             }
           } break;
@@ -337,7 +359,27 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
              && bsl::toupper(name[14])=='A'
              && bsl::toupper(name[15])=='T') {
                 return
-                  &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+                &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER];
+                                                                      // RETURN
+            } else if (bsl::toupper(name[1])=='R'
+             && bsl::toupper(name[2])=='I'
+             && bsl::toupper(name[3])=='T'
+             && bsl::toupper(name[4])=='E'
+             && bsl::toupper(name[5])=='Q'
+             && bsl::toupper(name[6])=='U'
+             && bsl::toupper(name[7])=='E'
+             && bsl::toupper(name[8])=='U'
+             && bsl::toupper(name[9])=='E'
+             && bsl::toupper(name[10])=='L'
+             && bsl::toupper(name[11])=='O'
+             && bsl::toupper(name[12])=='W'
+             && bsl::toupper(name[13])=='W'
+             && bsl::toupper(name[14])=='A'
+             && bsl::toupper(name[15])=='T'
+             && bsl::toupper(name[16])=='E'
+             && bsl::toupper(name[17])=='R') {
+                return
+                &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER];
                                                                       // RETURN
             }
           } break;
@@ -485,12 +527,12 @@ ChannelPoolConfiguration::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN];
                                                                       // RETURN
       }
-      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
-        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT];
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER: {
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER];
                                                                       // RETURN
       }
-      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
-        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT];
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER: {
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER];
                                                                       // RETURN
       }
       case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
@@ -511,8 +553,8 @@ ChannelPoolConfiguration::lookupAttributeInfo(int id)
 ChannelPoolConfiguration::ChannelPoolConfiguration()
 : d_maxConnections(1024)
 , d_maxThreads(1)
-, d_writeCacheLowWat(0)
-, d_writeCacheHiWat(1 << 20)
+, d_writeQueueLowWater(0)
+, d_writeQueueHighWater(1 << 20)
 , d_readTimeout(30)
 , d_metricsInterval(30)
 , d_minMessageSizeOut(1)
@@ -530,8 +572,8 @@ ChannelPoolConfiguration::ChannelPoolConfiguration(
                                       const ChannelPoolConfiguration& original)
 : d_maxConnections(original.d_maxConnections)
 , d_maxThreads(original.d_maxThreads)
-, d_writeCacheLowWat(original.d_writeCacheLowWat)
-, d_writeCacheHiWat(original.d_writeCacheHiWat)
+, d_writeQueueLowWater(original.d_writeQueueLowWater)
+, d_writeQueueHighWater(original.d_writeQueueHighWater)
 , d_readTimeout(original.d_readTimeout)
 , d_metricsInterval(original.d_metricsInterval)
 , d_minMessageSizeOut(original.d_minMessageSizeOut)
@@ -549,8 +591,8 @@ ChannelPoolConfiguration::~ChannelPoolConfiguration()
 {
     BSLS_ASSERT(0 <= d_maxConnections);
     BSLS_ASSERT(0 <= d_maxThreads);
-    BSLS_ASSERT(0 <= d_writeCacheLowWat);
-    BSLS_ASSERT(d_writeCacheLowWat <= d_writeCacheHiWat);
+    BSLS_ASSERT(0 <= d_writeQueueLowWater);
+    BSLS_ASSERT(0 <= d_writeQueueHighWater);
     BSLS_ASSERT(0 <= d_readTimeout);
     BSLS_ASSERT(0 <= d_metricsInterval);
     BSLS_ASSERT(0 <= d_minMessageSizeOut
@@ -569,8 +611,8 @@ ChannelPoolConfiguration::operator=(const ChannelPoolConfiguration& rhs)
     if (this != &rhs) {
         d_maxConnections     = rhs.d_maxConnections;
         d_maxThreads         = rhs.d_maxThreads;
-        d_writeCacheLowWat   = rhs.d_writeCacheLowWat;
-        d_writeCacheHiWat    = rhs.d_writeCacheHiWat;
+        d_writeQueueLowWater = rhs.d_writeQueueLowWater;
+        d_writeQueueHighWater  = rhs.d_writeQueueHighWater;
         d_readTimeout        = rhs.d_readTimeout;
         d_metricsInterval    = rhs.d_metricsInterval;
         d_minMessageSizeOut  = rhs.d_minMessageSizeOut;
@@ -593,8 +635,8 @@ bool btlmt::operator==(const ChannelPoolConfiguration& lhs,
 {
     return lhs.d_maxConnections     == rhs.d_maxConnections
         && lhs.d_maxThreads         == rhs.d_maxThreads
-        && lhs.d_writeCacheHiWat    == rhs.d_writeCacheHiWat
-        && lhs.d_writeCacheLowWat   == rhs.d_writeCacheLowWat
+        && lhs.d_writeQueueHighWater  == rhs.d_writeQueueHighWater
+        && lhs.d_writeQueueLowWater   == rhs.d_writeQueueLowWater
         && lhs.d_readTimeout        == rhs.d_readTimeout
         && lhs.d_metricsInterval    == rhs.d_metricsInterval
         && lhs.d_minMessageSizeOut  == rhs.d_minMessageSizeOut
@@ -613,8 +655,10 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&                   output,
     output << "[\n"
            << "\tmaxConnections         : " << config.d_maxConnections   <<"\n"
            << "\tmaxThreads             : " << config.d_maxThreads       <<"\n"
-           << "\twriteCacheLowWat       : " << config.d_writeCacheLowWat <<"\n"
-           << "\twriteCacheHiWat        : " << config.d_writeCacheHiWat  <<"\n"
+           << "\twriteQueueLowWater     : "
+                                          << config.d_writeQueueLowWater <<"\n"
+           << "\twriteQueueHighWater    : "
+                                        << config.d_writeQueueHighWater  <<"\n"
            << "\treadTimeout            : " << config.d_readTimeout      <<"\n"
            << "\tmetricsInterval        : " << config.d_metricsInterval  <<"\n"
            << "\tminOutgoingMessageSize : " << config.d_minMessageSizeOut<<"\n"
