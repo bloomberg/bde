@@ -1264,18 +1264,20 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
         // Return the module name of the process with the specified 'pid',
         // without any trailing file extension.
 
-    static int findInstanceIndexFromPid(PDH_HQUERY         query,
-                                        const bsl::string& moduleName,
-                                        int                pid);
-        // Return the performance counter instance index for the "Process"
-        // object for the specified 'pid' (having the specified 'moduleName')
-        // using the specified 'hQuery' handle, or -1 if no such instance
-        // index can be found.
+    static int findInstanceIndexFromPid(unsigned int       *instanceIndex,
+                                        PDH_HQUERY          query,
+                                        const bsl::string&  moduleName,
+                                        int                 pid);
+        // Load into the specified 'instanceIndex' the performance counter
+        // instance index for the "Process" object for the specified 'pid'
+        // (having the specified 'moduleName') using the specified 'hQuery'
+        // handle.  If such an instance is found, return 0, otherwise return
+        // -1.
 
     static int rebindCounters(bsl::vector<PDH_HCOUNTER> *counters,
                               PDH_HQUERY                 query,
                               const char                *name,
-                              int                        instanceIndex);
+                              unsigned int               instanceIndex);
         // Bind the specified 'counters' to the specified 'query' for the
         // specified process 'name' and 'instanceIndex'.  Return 0 on success
         // or a non-zero value otherwise.
@@ -1334,22 +1336,23 @@ bsl::string balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 }
 
 int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
-::findInstanceIndexFromPid(PDH_HQUERY         query,
-                           const bsl::string& moduleName,
-                           int                pid)
+::findInstanceIndexFromPid(unsigned int       *instanceIndex,
+                           PDH_HQUERY          query,
+                           const bsl::string&  moduleName,
+                           int                 pid)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     PDH_STATUS rc;
 
-    for (int instanceIndex = 0; true; ++instanceIndex)
+    for (unsigned int index = 0; true; ++instanceIndex)
     {
         PDH_COUNTER_PATH_ELEMENTS cpe = {
             0,
             "Process",
             (LPSTR) moduleName.c_str(),
             0,
-            instanceIndex,
+            index,
             "ID Process"
         };
 
@@ -1393,7 +1396,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
         PdhRemoveCounter(counter);
 
         if (pid == (int) value.longValue) {
-            return instanceIndex;
+            *instanceIndex = index;
+            return 0;
         }
     }
 
@@ -1404,7 +1408,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::rebindCounters(bsl::vector<PDH_HCOUNTER> *counters,
                  PDH_HQUERY                 query,
                  const char                *name,
-                 int                        instanceIndex)
+                 unsigned int               instanceIndex)
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
     BALL_LOG_DEBUG << "Rebinding counters for new instance index "
@@ -1532,9 +1536,11 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     bsl::string name  = findModuleName(stats->d_pid);
-    int instanceIndex = findInstanceIndexFromPid(d_instanceQuery,
-                                                 name,
-                                                 stats->d_pid);
+    unsigned int instanceIndex;
+    findInstanceIndexFromPid(&instanceIndex,
+                             d_instanceQuery,
+                             name,
+                             stats->d_pid);
 
     BALL_LOG_TRACE << "Found instance index " << instanceIndex
                    << " for process '" << name << "', pid = "
@@ -1599,11 +1605,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
                     &kernelFileTime,
                     &userFileTime);
 
-    LARGE_INTEGER kernelTime          = { kernelFileTime.dwLowDateTime,
-                                          kernelFileTime.dwHighDateTime };
-
-    LARGE_INTEGER userTime            = { userFileTime.dwLowDateTime,
-                                          userFileTime.dwHighDateTime };
+    ULARGE_INTEGER userTime   = { userFileTime.dwLowDateTime,
+                                  userFileTime.dwHighDateTime };
 
     stats->d_lstData[e_CPU_TIME_SYSTEM] = double(userTime.QuadPart)
                                       / 10000000.0;
