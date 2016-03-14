@@ -1593,6 +1593,9 @@ void blobBasedReadCb(int             *needed,
 
 namespace TEST_CASE_TESTING_SOCKET_OPTIONS {
 
+bsls::AtomicInt poolStateCbCalled(0);
+bsls::AtomicInt channelStateCbCalled(0);
+
 class SocketPool {
 
     btlso::InetStreamSocketFactory<btlso::IPv4Address> d_factory;
@@ -1676,7 +1679,13 @@ void poolStateCb(int             state,
                   << " Source: "  << source
                   << " Severity: " << severity << bsl::endl;
     }
-    barrier->wait();
+
+    if (barrier) {
+        barrier->wait();
+    }
+    else {
+        ++poolStateCbCalled;
+    }
 }
 
 void channelStateCb(int              channelId,
@@ -1695,7 +1704,12 @@ void channelStateCb(int              channelId,
     }
     if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
         *id = channelId;
-        barrier->wait();
+        if (barrier) {
+            barrier->wait();
+        }
+        else {
+            ++channelStateCbCalled;
+        }
     }
 }
 
@@ -9173,19 +9187,17 @@ void TestDriver::testCase28()
                 P(config);
             }
 
-            bslmt::Barrier  channelCbBarrier(2);
-            int             channelId;
+            int channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                                       bdlf::BindUtil::bind(&channelStateCb,
-                                                           _1, _2, _3, _4,
-                                                           &channelId,
-                                                           &channelCbBarrier));
+                                   bdlf::BindUtil::bind(&channelStateCb,
+                                                        _1, _2, _3, _4,
+                                                        &channelId,
+                                                        (bslmt::Barrier *) 0));
 
-            bslmt::Barrier    poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                          bdlf::BindUtil::bind(&poolStateCb,
-                                                              _1, _2, _3,
-                                                              &poolCbBarrier));
+                                   bdlf::BindUtil::bind(&poolStateCb,
+                                                        _1, _2, _3,
+                                                        (bslmt::Barrier *) 0));
 
             btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
 
@@ -9199,15 +9211,21 @@ void TestDriver::testCase28()
             btlso::StreamSocket<btlso::IPv4Address> *socket =
                                                             factory.allocate();
 
+            ASSERT(0 == socket->setBlockingMode(
+                                             btlso::Flag::e_NONBLOCKING_MODE));
+
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
 
             btlso::IPv4Address serverAddr;
             ASSERT(0 == socket->localAddress(&serverAddr));
 
+            poolStateCbCalled = 0;
+            channelStateCbCalled = 0;
+
             btlso::IPv4Address exp_ca, ca;
             exp_ca.setIpAddress("127.0.0.1");
-            exp_ca.setPortNumber(45000);
+            exp_ca.setPortNumber(45246);
             int rc = pool.connect(serverAddr,
                                   1,
                                   bsls::TimeInterval(1),
@@ -9219,11 +9237,13 @@ void TestDriver::testCase28()
 
             ASSERT(!rc);
 
-            channelCbBarrier.wait();
+            while (!poolStateCbCalled && !channelStateCbCalled);
 
-            pool.getLocalAddress(&ca, channelId);
+            if (channelStateCbCalled) {
+                pool.getLocalAddress(&ca, channelId);
 
-            LOOP2_ASSERT(exp_ca, ca, exp_ca == ca);
+                LOOP2_ASSERT(exp_ca, ca, exp_ca == ca);
+            }
             factory.deallocate(socket);
         }
 
@@ -9236,19 +9256,17 @@ void TestDriver::testCase28()
                 P(config);
             }
 
-            bslmt::Barrier  channelCbBarrier(2);
-            int             channelId;
+            int channelId;
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                                       bdlf::BindUtil::bind(&channelStateCb,
-                                                           _1, _2, _3, _4,
-                                                           &channelId,
-                                                           &channelCbBarrier));
+                                   bdlf::BindUtil::bind(&channelStateCb,
+                                                        _1, _2, _3, _4,
+                                                        &channelId,
+                                                        (bslmt::Barrier *) 0));
 
-            bslmt::Barrier    poolCbBarrier(2);
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                          bdlf::BindUtil::bind(&poolStateCb,
-                                                              _1, _2, _3,
-                                                              &poolCbBarrier));
+                                   bdlf::BindUtil::bind(&poolStateCb,
+                                                        _1, _2, _3,
+                                                        (bslmt::Barrier *) 0));
 
             btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
 
@@ -9261,6 +9279,10 @@ void TestDriver::testCase28()
 
             btlso::StreamSocket<btlso::IPv4Address> *socket =
                                                             factory.allocate();
+
+            ASSERT(0 == socket->setBlockingMode(
+                                             btlso::Flag::e_NONBLOCKING_MODE));
+
             ASSERT(0 == socket->bind(getLocalAddress()));
             ASSERT(0 == socket->listen(5));
 
@@ -9269,7 +9291,10 @@ void TestDriver::testCase28()
 
             btlso::IPv4Address exp_ca, ca;
             exp_ca.setIpAddress("127.0.0.1");
-            exp_ca.setPortNumber(45000);
+            exp_ca.setPortNumber(45246);
+
+            poolStateCbCalled = 0;
+            channelStateCbCalled = 0;
 
             const char *host = "127.0.0.1";
             int rc = pool.connect(host,
@@ -9285,11 +9310,14 @@ void TestDriver::testCase28()
 
             ASSERT(!rc);
 
-            channelCbBarrier.wait();
+            while (!poolStateCbCalled && !channelStateCbCalled);
 
-            pool.getLocalAddress(&ca, channelId);
+            if (channelStateCbCalled) {
+                pool.getLocalAddress(&ca, channelId);
 
-            LOOP2_ASSERT(exp_ca, ca, exp_ca == ca);
+                LOOP2_ASSERT(exp_ca, ca, exp_ca == ca);
+            }
+
             factory.deallocate(socket);
         }
 
@@ -11492,10 +11520,10 @@ void TestDriver::testCase18()
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
 
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_AIX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
-            rlim.rlim_cur = 4 * MAX_THREADS + 5;
+            rlim.rlim_cur = 4 * MAX_THREADS + 6;
 #endif
             ASSERT(0 == setrlimit(RLIMIT_NOFILE, &rlim));
             if (veryVerbose) { P(rlim.rlim_cur); }
@@ -11548,7 +11576,7 @@ void TestDriver::testCase18()
             }
 
             // Give time to the channel pool to process accept error callbacks.
-//             bslmt::ThreadUtil::microSleep(0, 8);
+            bslmt::ThreadUtil::microSleep(0, 1);
 
             ASSERT(acceptErrors);
 

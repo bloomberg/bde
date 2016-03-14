@@ -1296,7 +1296,7 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
             return -1;                                                // RETURN
         }
 
-
+        
         // Register the server fd of 'd_controlChannel_p' for READs.
         btlso::EventManager::Callback cb(
                bsl::allocator_arg_t(),
