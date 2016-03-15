@@ -182,6 +182,7 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
         argvec.push_back(&command[0]);     // N.B. Assumes that 'bsl::string'
                                            // contents are always
                                            // null-terminated.
+                                           //
                                            // Same assumption applies below.
 
         for (Args::iterator i = arguments.begin(); i != arguments.end(); ++i) {
@@ -313,7 +314,7 @@ int terminateProcess(const ProcessHandle& handle)
 #error "Unknown OS type."
 #endif
 
-}  // namespace processSupport
+}  // close namespace processSupport
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -528,20 +529,22 @@ int main(int argc, char *argv[])
         // CONCERN: Statistics are Reset Correctly
         //
         // Concerns:
-        //: 1 That CPU statics are reset to zero after calling
-        //:   'resetStatistics'.
+        //:  1 That CPU statics are reset to zero after calling
+        //:    'resetStatistics'.
         //
         // Plan:
-        //: 1 Create a performance monitor, collect statistics, reset the
-        //:   statics, and verify that the returned statistics after the reset
-        //:   are plausible (Note that drqs 49280976, reset statistics lead to
-        //:   incorrectly determining the time since the last reset, and
-        //:   wildly incorrect statics after a reset).
+        //:  1 Create a performance monitor, collect statistics, reset the
+        //:    statics, and verify that the returned statistics after the reset
+        //:    are plausible (Note that drqs 49280976, reset statistics lead to
+        //:    incorrectly determining the time since the last reset, and
+        //:    wildly incorrect statics after a reset).
         //
+        // Testing:
+        //   CONCERN: Statistics are Reset Correctly (DRQS 49280976)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING RESET STATISTICS\n"
-                          << "========================\n";
+        if (verbose) cout << "CONCERN: Statistics are Reset Correctly\n"
+                          << "=======================================\n";
 
         if (verbose) cout << "\tPerform a reset and verify metrics"
                           << " are set to 0\n";
@@ -616,13 +619,16 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // CONCERN: The Process Start Time is Reasonable
+        // PROCESS START TIME SANITY
         //
         // Concerns:
-        //   it appears that for some versions of Linux, either different
-        //   kernels or different distros, our estimation of process start
-        //   time will be wildly inaccurate.  Determine whether this is the
-        //   case.
+        //:  1 It appears that for some versions of Linux, either different
+        //:    kernels or different distros, our estimation of process start
+        //:    time will be wildly inaccurate.  Determine whether this is the
+        //:    case.
+        //
+        // Testing:
+        //   CONCERN: The Process Start Time is Reasonable
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PROCESS START TIME SANITY\n"
@@ -652,19 +658,18 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //   The usage example shown in the component-level documentation
-        //   compiles and executes as expected.
+        //:  1 The usage example shown in the component-level documentation
+        //:    compiles and executes as expected.
         //
         // Plan:
-        //   Implement the test exactly as shown in the example.
+        //:  1 Implement the test exactly as shown in the example. (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            cout << "Testing Usage Example"
-                 << endl
-                 << "====================="
-                 << endl;
-        }
+        if (verbose) cout << "TESTING USAGE EXAMPLE\n"
+                             "=====================\n";
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
@@ -710,11 +715,36 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'numRegisteredPids'
         //
-        // Tests:
-        //   numRegisteredPids()
+        // Concerns:
+        //:  1 'numRegisteredPids' reports the correct number of registered
+        //:    processes.
+        //:
+        //:  2 'numRegisterPids' reports 0 before any processes are registered.
+        //:
+        //:  3 'numRegisterPids' increments by 1 every time a process is
+        //:    registered.
+        //:
+        //:  4 'numRegisterPids' decrements by 1 every time a process is
+        //:    un-registered.
+        //
+        // Plan:
+        //:  1 Using the ad-doc approach, monitor this test driver process, and
+        //:    one or more child processes, spawned as necessary, and check the
+        //:    value returned by 'numRegisteredPids' before and after each
+        //:    process is registered.  (C-1..3)
+        //:
+        //:  2 Un-register processes registered in step 1, and check the value
+        //:    returned by 'numRegisteredPids'.  (C-1,4)
+        //
+        // Testing:
+        //   int numRegisteredPids()
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'numRegisteredPids'\n"
+                          << "===========================\n";
+
         bdlmt::TimerEventScheduler scheduler;
-        balb::PerformanceMonitor perfmon(&scheduler, 1.0);
+        balb::PerformanceMonitor   perfmon(&scheduler, 1.0);
 
         ASSERT(0 == perfmon.numRegisteredPids());
 
@@ -726,8 +756,9 @@ int main(int argc, char *argv[])
         // Spawn as a child process another copy of this test driver, running
         // test case -3, which simply sleeps for one minute and exits.
 
-        bsl::string command(argv[0]);
+        bsl::string              command(argv[0]);
         bsl::vector<bsl::string> arguments;
+
         arguments.push_back(bsl::string("-3"));
 
         if (veryVeryVerbose) {
@@ -757,7 +788,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == perfmon.registerPid(pid, "mytask2"));
         ASSERT(2 == perfmon.numRegisteredPids());
 
-        // Unregister and terminate the child process.
+        // Un-register and terminate the child process.
 
         ASSERT(0 == perfmon.unregisterPid(pid));
         ASSERT(1 == perfmon.numRegisteredPids());
@@ -771,14 +802,18 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //:  1 The class is sufficiently functional to enable comprehensive
+        //:    testing in subsequent test cases.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            cout << "Breathing Test"
-                 << endl
-                 << "==============="
-                 << endl;
-        }
+        if (verbose) cout << "BREATHING TEST\n"
+                          << "==============\n";
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
@@ -849,9 +884,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING VIRTUAL SIZE AND RESIDENT SIZE
         //
-        // Tests:
-        //   numRegisteredPids()
+        // Testing:
+        //   TESTING VIRTUAL SIZE AND RESIDENT SIZE
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING VIRTUAL SIZE AND RESIDENT SIZE\n"
+                          << "======================================\n";
 
         bslma::NewDeleteAllocator newDeleteAllocator;
         test::MmapAllocator       mmapAllocator;
@@ -981,8 +1019,18 @@ int main(int argc, char *argv[])
         //   This test case provides a target for spawning a child process in
         //   test case 2.
         //
-        // Tests:
+        // Concerns:
+        //:  1 Test runs for at least 60 seconds.
+        //
+        // Plan:
+        //:  1 Confirm empirically by observing a test run.  (C-1)
+        //
+        // Testing:
+        //   DUMMY TEST CASE
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "DUMMY TEST CASE\n"
+                          << "===============\n";
 
         bslmt::ThreadUtil::microSleep(0, 60);
       } break;
