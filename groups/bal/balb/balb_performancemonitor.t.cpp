@@ -32,10 +32,14 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
+
+#include <bslmf_assert.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -43,6 +47,15 @@
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <sys/mman.h>
 #include <sys/times.h>
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#include <windows.h>
+#else
+#include <bsl_c_errno.h>
+#include <bsl_c_signal.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #endif
 
 using namespace BloombergLP;
@@ -62,6 +75,8 @@ using namespace bsl;
 // [ 3] USAGE EXAMPLE
 // [ 4] CONCERN: The Process Start Time is Reasonable
 // [ 5] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
+// [-1] TESTING VIRTUAL SIZE AND RESIDENT SIZE
+// [-3] DUMMY TEST CASE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -117,8 +132,6 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
-
 // ============================================================================
 //                       HELPER FUNCTIONS AND CLASSES
 // ----------------------------------------------------------------------------
@@ -144,6 +157,163 @@ const char LOG_CATEGORY[] = "BAEA.PERFORMANCEMONITOR.TEST";
                                                         passthrough,          \
                                                         ball::Severity::e_OFF,\
                                                         ball::Severity::e_OFF)
+
+namespace processSupport {
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+typedef int ProcessHandle;
+
+ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
+    // Execute in a child process the program located at the specified
+    // 'command' path, with the specified 'arguments'.  Return a
+    // 'ProcessHandle' object identifying the child process.
+{
+    typedef bsl::vector<bsl::string> Args;
+
+    ProcessHandle handle;
+    handle = fork();
+
+    if (0 == handle) {
+        // child process
+
+        bsl::vector<char *>  argvec;
+
+        argvec.push_back(&command[0]);     // N.B. Assumes that 'bsl::string'
+                                           // contents are always
+                                           // null-terminated.
+                                           // Same assumption applies below.
+
+        for (Args::iterator i = arguments.begin(); i != arguments.end(); ++i) {
+            argvec.push_back(&(*i)[0]);
+        }
+        argvec.push_back(0);
+
+        execv(argvec[0], argvec.data());
+
+        BSLS_ASSERT_OPT(0 && "execv failed");
+    }
+
+    return handle;
+}
+
+int getId(const ProcessHandle& handle)
+    // Return the integer value of the process ID associated with the process
+    // identified by the specified 'handle'.
+{
+    return handle;
+}
+
+int terminateProcess(const ProcessHandle& handle)
+    // Terminate the process identified by the specified 'handle'.  Return '0'
+    // on success and a non-zero value on failure.
+{
+    if (kill(handle, SIGTERM)) {
+        return errno;                                                 // RETURN
+    }
+
+    return 0;
+}
+
+#elif BSLS_PLATFORM_OS_WINDOWS
+
+typedef PROCESS_INFORMATION ProcessHandle;
+
+ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
+    // Execute in a child process the program located at the specified
+    // 'command' path, with the specified 'arguments'.  Return a
+    // 'ProcessHandle' object identifying the child process.
+{
+    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
+
+    typedef bsl::vector<bsl::string> Args;
+
+    STARTUPINFO sui;
+    GetStartupInfo(&sui);
+
+    // Need to have 'PROCESS_QUERY_INFORMATION' for 'GetExitCodeProcess'
+    // and 'PROCESS_TERMINATE' for 'TerminateProcess'.
+    //
+    // Empirically, these permissions seem to be granted for child processes.
+
+    ProcessHandle handle;
+
+    const char *app = command.data();
+
+    bsl::string commandLine;
+    for (Args::iterator i = arguments.begin(); i != arguments.end(); ++i) {
+        if (arguments.begin() != i) {
+            commandLine.append(" ");
+        }
+        commandLine.append(*i);
+    }
+
+    // N.B. The 'lpCommandLine' argument of 'CreateProcess' must be mutable,
+    // per requirements of 'CreateProcessEx' (cited in documentation for
+    // 'CreateProcess').
+    //
+    // https://msdn.microsoft.com/en-us/ library/ms682425.aspx
+
+    char *cmd = &commandLine[0];
+
+    bool  rc  = CreateProcess(app,       // lpApplicationName
+                              cmd,       // lpCommandLine
+                              NULL,      // lpProcessAttributes
+                              NULL,      // lpThreadAttributes
+                              true,      // bInheritHandles
+                              0,         // dwCreationFlags
+                              NULL,      // lpEnvironment
+                              NULL,      // lpCurrentDirectory
+                              &sui,      // lpStartupInfo - in
+                              &handle);  // lpProcessInformation - out
+
+    if (!rc) {
+        // Following the behavior of UNIX 'fork', failure to create process is
+        // indicated by '-1 == getId(handle)',
+
+        handle.dwProcessId = static_cast<DWORD>(-1);
+    }
+
+    return handle;
+}
+
+int getId(const ProcessHandle& handle)
+    // Return the integer value of the process ID associated with the process
+    // identified by the specified 'handle'.
+{
+    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
+
+    return static_cast<int>(handle.dwProcessId);
+}
+
+int terminateProcess(const ProcessHandle& handle)
+    // Terminate the process identified by the specified 'handle'.  Return '0'
+    // on success and a non-zero value on failure.
+{
+    BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
+
+    if (!TerminateProcess(handle.hProcess, 0)) {
+        DWORD exitCode;
+        if (GetExitCodeProcess(handle.hProcess, &exitCode)) {
+            return static_cast<int>(exitCode);
+        }
+        else {
+            return -1;                                                // RETURN
+        }
+    }
+
+    if (! (CloseHandle(handle.hProcess) && CloseHandle(handle.hThread))) {
+            return -1;                                                // RETURN
+    }
+
+    return 0;
+}
+
+#else
+#error "Unknown OS type."
+#endif
+
+}  // namespace processSupport
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -548,26 +718,52 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == perfmon.numRegisteredPids());
 
+        // Register this test driver process.
+
         ASSERT(0 == perfmon.registerPid(0, "mytask"));
         ASSERT(1 == perfmon.numRegisteredPids());
 
-#if defined(BSLS_PLATFORM_OS_UNIX) \
-    && !defined(BSLS_PLATFORM_OS_CYGWIN) \
-    && !defined(BSLS_PLATFORM_OS_DARWIN)
-        // 1 is not a valid pid on Windows or Cygwin.  On Darwin it is, but
-        // registerPid only works for processes running under the same user as
-        // this test is run as, meaning this would only work if the test was
-        // run as 'root'.
-        //
-        // A better test might be to search for a valid pid (and for Darwin,
-        // one which is running under the same user as this test).
+        // Spawn as a child process another copy of this test driver, running
+        // test case -3, which simply sleeps for one minute and exits.
 
-        ASSERT(0 == perfmon.registerPid(1, "mytask2"));
+        bsl::string command(argv[0]);
+        bsl::vector<bsl::string> arguments;
+        arguments.push_back(bsl::string("-3"));
+
+        if (veryVeryVerbose) {
+            T_ P(command)
+            for (bsl::vector<bsl::string>::iterator i = arguments.begin();
+                 i != arguments.end();
+                 ++i) {
+                T_ T_ P(*i)
+            }
+
+        }
+
+        processSupport::ProcessHandle handle =
+                                      processSupport::exec(command, arguments);
+
+        if (veryVeryVerbose) {
+            T_ P_(bdls::ProcessUtil::getProcessId())
+               P (processSupport::getId(handle))
+        }
+
+        // Register the spawned child process.
+
+        int pid = processSupport::getId(handle);
+
+        ASSERTV(pid, -1 != pid);
+
+        ASSERT(0 == perfmon.registerPid(pid, "mytask2"));
         ASSERT(2 == perfmon.numRegisteredPids());
 
-        ASSERT(0 == perfmon.unregisterPid(1));
+        // Unregister and terminate the child process.
+
+        ASSERT(0 == perfmon.unregisterPid(pid));
         ASSERT(1 == perfmon.numRegisteredPids());
-#endif
+
+        int rc = processSupport::terminateProcess(handle);
+        ASSERTV(rc, 0 == rc);
 
         ASSERT(0 == perfmon.unregisterPid(0));
         ASSERT(0 == perfmon.numRegisteredPids());
@@ -777,6 +973,19 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
       }  break;
 #endif
+      case -3: {
+        // --------------------------------------------------------------------
+        // DUMMY TEST CASE
+        //   Sleep for 60 seconds.
+        //
+        //   This test case provides a target for spawning a child process in
+        //   test case 2.
+        //
+        // Tests:
+        // --------------------------------------------------------------------
+
+        bslmt::ThreadUtil::microSleep(0, 60);
+      } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
         testStatus = -1;
