@@ -1,14 +1,31 @@
-bsl-internal (2.26.0.3) unstable; urgency=low
+bsl-internal (2.26.0.4) unstable; urgency=low
 
+  * 1d4eb44 Merge pull request #221 from hrosen4/no-DUMMY-drqs-79583761
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Mon, 14 Mar 2016 16:26:34 -0400
+
+bsl-internal (2.26.0.3) git; urgency=low
+
+  * b69bd53 Changelog for version 2.26.0.3
   * ce7a20b Merge remote-tracking branch 'origin/review/add-pcre2-to-debian-control' into releases/2.26.x
   * 0382ac5 Merge branch 'pcre_to_releases_2.x' into add-pcre2-to-debian-control
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Mar 2016 13:27:01 -0500
+
+bsl-internal (2.26.0.2) git; urgency=low
+
   * 4d4c25a Changelog for version 2.26.0.2
   * e9edae2 Merge pull request #214 from mgiroux/review/pcre_to_releases_2.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 15:29:27 -0500
+
+bsl-internal (2.26.0.1) git; urgency=low
+
   * a3fbd05 Changelog for version 2.26.0.1
   * 97477c4 Merge pull request #212 from mgiroux/review/pcre_to_releases_2.x
   * 1787bd3 Merge pull request #208 from che2/fix-pcre2-pc-file
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 10 Mar 2016 13:24:17 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 14:54:49 -0500
 
 bsl-internal (2.26.0.0) git; urgency=low
 
