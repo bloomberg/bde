@@ -478,22 +478,25 @@ class BufferedSequentialPool {
         // involved), and exists for consistency across memory pools.
 
     void release();
-        // Release all memory currently allocated through this pool.  This
-        // method deallocates all memory (if any) allocated with the allocator
-        // provided at construction, and makes the memory from the entire
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *all* memory except the external buffer
+        // supplied at construction.  The pool is reset to its
+        // default-constructed state, making the memory from the entire
         // external buffer supplied at construction available for subsequent
-        // allocations, but has no effect on the contents of the buffer.  Note
-        // that this pool is reset to its initial state by this method.  The
-        // effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // allocations, retaining the alignment and growth strategies, and the
+        // initial and maximum buffer sizes in effect following construction.
+        // The effect of subsequently - to this invokation of 'release' - using
+        // a pointer obtained from this object prior to this call to 'release'
+        // is undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Only memory
-        // allocated outside of the constant and geometric growth strategies
-        // (e.g., large blocks) are returned to the construction-time supplied
-        // allocator.  All retained memory will be used to satisfy subsequent
-        // allocations.  The effect of using a pointer after this call that was
-        // obtained from this object before this call is undefined.
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *only* memory that was allocated outside of the
+        // growth strategy of this pool (i.e., large blocks).  All retained
+        // memory will be used to satisfy subsequent allocations.  The effect
+        // of subsequently - to this invokation of 'rewind' - using a pointer
+        // obtained from this object prior to this call to 'rewind' is
+        // undefined.
 };
 
 }  // close package namespace

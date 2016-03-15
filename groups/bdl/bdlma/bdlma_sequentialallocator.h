@@ -376,19 +376,22 @@ class SequentialAllocator : public ManagedAllocator {
         // this allocator and has not already been deallocated.
 
     virtual void release();
-        // Release all memory allocated through this allocator.  The allocator
-        // is reset to its default constructed state, retaining the alignment
-        // and growth strategy supplied at construction (if any) after this
-        // call.  The effect of using a pointer value after this call that was
-        // obtained from this object before this call is undefined.
+        // Release all memory allocated through this allocator and return to
+        // the underlying allocator *all* memory.  The allocator is reset to
+        // its default-constructed state, retaining the alignment and growth
+        // strategies, and the initial and maximum buffer sizes in effect
+        // following construction.  The effect of subsequently - to this
+        // invokation of 'release' - using a pointer obtained from this object
+        // prior to this call to 'release' is undefined.
 
     virtual void rewind();
-        // Release all memory allocated through this pool.  Only memory
-        // allocated outside of the constant and geometric growth strategies
-        // (e.g., large blocks) are returned to the construction-time supplied
-        // allocator.  All retained memory will be used to satisfy subsequent
-        // allocations.  The effect of using a pointer after this call that was
-        // obtained from this object before this call is undefined.
+        // Release all memory allocated through this allocator and return to
+        // the underlying allocator *only* memory that was allocated outside of
+        // the growth strategy of this allocator (i.e., large blocks).  All
+        // retained memory will be used to satisfy subsequent allocations.  The
+        // effect of subsequently - to this invokation of 'rewind' - using a
+        // pointer obtained from this object prior to this call to 'rewind' is
+        // undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at

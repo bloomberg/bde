@@ -536,17 +536,15 @@ class SequentialPool {
                    bslma::Allocator            *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from a
         // sequence of dynamically-allocated buffers, of which the initial
-        // buffer has the specified 'initialSize' (in bytes), and the internal
-        // buffer growth is limited to the specified 'maxBufferSize'.  Allocate
-        // the initial buffer only if the specified 'allocateInitialBuffer' is
-        // 'true'.  Optionally specify a 'basicAllocator' used to supply memory
-        // for the dynamically-allocated buffers.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Optionally
-        // specify a 'growthStrategy' used to control buffer growth.  If no
-        // 'growthStrategy' is specified, geometric growth is used.  Optionally
-        // specify an 'alignmentStrategy' used to control alignment of
-        // allocated memory blocks.  If no 'alignmentStrategy' is specified,
-        // natural alignment is used.  The behavior is undefined unless
+        // buffer has the specified 'initialSize' (in bytes), the internal
+        // buffer growth is limited to the specified 'maxBufferSize', the
+        // specified 'growthStrategy' is used to control buffer growth, and the
+        // specified 'alignmentStrategy' is used to control alignment of
+        // allocated memory blocks.  Allocate the initial buffer only if the
+        // specified 'allocateInitialBuffer' is 'true'.  Optionally specify a
+        // 'basicAllocator' used to supply memory for the dynamically-allocated
+        // buffers.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
         // '0 < initialSize' and 'initialSize <= maxBufferSize'.  Note that
         // when constant growth is used, the size of the internal buffers will
         // always be the same as 'initialSize'.
@@ -587,20 +585,22 @@ class SequentialPool {
         // involved), and exists for consistency across pools.
 
     void release();
-        // Release all memory allocated through this pool.  The pool is reset
-        // to its default-constructed state, retaining the alignment and growth
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *all* memory.  The pool is reset to its
+        // default-constructed state, retaining the alignment and growth
         // strategies, and the initial and maximum buffer sizes in effect
-        // following construction.  The effect of using a pointer after this
-        // call that was obtained before this call from this object is
-        // undefined.
+        // following construction.  The effect of subsequently - to this
+        // invokation of 'release' - using a pointer obtained from this object
+        // prior to this call to 'release' is undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Only memory
-        // allocated outside of the constant and geometric growth strategies
-        // (e.g., large blocks) are returned to the construction-time supplied
-        // allocator.  All retained memory will be used to satisfy subsequent
-        // allocations.  The effect of using a pointer after this call that was
-        // obtained from this object before this call is undefined.
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *only* memory that was allocated outside of the
+        // growth strategy of this pool (i.e., large blocks).  All retained
+        // memory will be used to satisfy subsequent allocations.  The effect
+        // of subsequently - to this invokation of 'rewind' - using a pointer
+        // obtained from this object prior to this call to 'rewind' is
+        // undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
