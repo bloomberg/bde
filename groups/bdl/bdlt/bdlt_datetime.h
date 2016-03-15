@@ -1647,27 +1647,59 @@ void Datetime::getTime(int *hour,
                        int *nanosecond) const
 {
     bsls::TimeInterval interval;
+    bool               unset;
 
-    timeIntervalFromEpoch(&interval);
+    timeIntervalFromEpoch(&interval, &unset);
 
-    *hour = static_cast<int>(interval.seconds() / TimeUnitRatio::k_S_PER_H
+    if (!unset) {
+        *hour = static_cast<int>(interval.seconds() / TimeUnitRatio::k_S_PER_H
                                                    % TimeUnitRatio::k_H_PER_D);
 
-    *minute = static_cast<int>(interval.seconds() / TimeUnitRatio::k_S_PER_M
+        if (minute) {
+            *minute = static_cast<int>(interval.seconds()
+                                                   / TimeUnitRatio::k_S_PER_M
                                                    % TimeUnitRatio::k_M_PER_H);
 
-    *second = static_cast<int>(interval.seconds() % TimeUnitRatio::k_S_PER_M);
+            if (second) {
+                *second = static_cast<int>(interval.seconds()
+                                                   % TimeUnitRatio::k_S_PER_M);
 
-    *millisecond = static_cast<int>(interval.nanoseconds()
+                if (millisecond) {
+                    *millisecond = static_cast<int>(interval.nanoseconds()
                                                  / TimeUnitRatio::k_NS_PER_MS);
 
-    *microsecond = static_cast<int>(interval.nanoseconds()
+                    if (microsecond) {
+                        *microsecond = static_cast<int>(interval.nanoseconds()
                                                  / TimeUnitRatio::k_NS_PER_US
                                                  % TimeUnitRatio::k_US_PER_MS);
-
-    *nanosecond = static_cast<int>(interval.nanoseconds()
+                        if (nanosecond) {
+                            *nanosecond = static_cast<int>(
+                                             interval.nanoseconds()
                                                  % TimeUnitRatio::k_NS_PER_US);
-
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else {
+        *hour = 24;
+        if (minute) {
+            *minute = 0;
+            if (second) {
+                *second = 0;
+                if (millisecond) {
+                    *millisecond = 0;
+                    if (microsecond) {
+                        *microsecond = 0;
+                        if (nanosecond) {
+                            *nanosecond = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 inline
