@@ -124,7 +124,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define C_(TYPE) const TYPE
 #define V_(TYPE) volatile TYPE
 #define CV(TYPE) const volatile TYPE
-        
+    // Macros to provide simple cv-qualifier decorations for types, enabling a
+    // more table-like presentation of a sequence of test cases.
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -455,16 +457,17 @@ int main(int argc, char *argv[])
         //:   type conversions via a user-defined class.
         //
         // Plan:
-        //   Instantiate 'bsl::is_convertible' with combinations of a
-        //   user-defined class that is convertible to a fundamental type,
-        //   'T1', and another fundamental type, 'T2', to which 'T1' is
-        //   implicitly convertible.  Verify that the 'value' member is
-        //   initialized properly, and (manually) verify that no warning is
-        //   generated for conversions between floating-point types and
-        //   integral types.  For each combination of 'T1', use three different
-        //   user-defined classes: one that provides conversion to an object of
-        //   type 'T1', one that provides conversion to a reference to 'T1' and
-        //   one that provides conversion to a const reference to 'T1'.  (C-1)
+        //: 1 Instantiate 'bsl::is_convertible' with combinations of a
+        //:   user-defined class that is convertible to a fundamental type,
+        //:   'T1', and another fundamental type, 'T2', to which 'T1' is
+        //:   implicitly convertible.  Verify that the 'value' member is
+        //:   initialized properly, and (manually) verify that no warning is
+        //:   generated for conversions between floating-point types and
+        //:   integral types.  For each combination of 'T1', use three
+        //:   different user-defined classes: one that provides conversion to
+        //:   an object of type 'T1', one that provides conversion to a
+        //:   reference to 'T1' and one that provides conversion to a const
+        //:   reference to 'T1'.  (C-1)
         //
         // Testing:
         //   CONCERN: Warning-free on user-defined conversions
@@ -636,7 +639,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,    float,  V_(int)  );
         ASSERT_IS_CONVERTIBLE(true, V_(int  ),    float );
         ASSERT_IS_CONVERTIBLE(true, V_(float),    int   );
-#if 0
+
         // Test 'volatile' pointer and reference conversions from integral to
         // floating-point.
 
@@ -668,7 +671,6 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(false, V_(int) , CV(float)&);
         ASSERT_IS_CONVERTIBLE(false, C_(int) , V_(float)&);
         ASSERT_IS_CONVERTIBLE(false, CV(int) , V_(float)&);
-#endif
 
         // Test volatile pointer and reference conversions from floating-point
         // to integral.
@@ -1422,7 +1424,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(1, my_BslmaAllocator*, my_StlAllocator<void*>  );
         ASSERT_IS_CONVERTIBLE(1, my_BslmaAllocator*, my_StlAllocator<my_Enum>);
         ASSERT_IS_CONVERTIBLE(0, void*, my_StlAllocator<my_Enum> );
-        ASSERT_IS_CONVERTIBLE(1, my_BslmaAllocator*, 
+        ASSERT_IS_CONVERTIBLE(1, my_BslmaAllocator*,
                                  my_StlAllocator<my_EnumClass::Type> );
         ASSERT_IS_CONVERTIBLE(0, void*, my_StlAllocator<my_EnumClass::Type>);
 

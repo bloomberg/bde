@@ -220,8 +220,6 @@ BSLS_IDENT("$Id: $")
 # endif
 #endif
 
-#include <bslmf_issame.h>
-
 namespace BloombergLP {
 namespace bslmf {
 
@@ -674,9 +672,9 @@ struct is_convertible_dispatch<const volatile TYPE, const volatile TYPE&>
     : false_type {
 };
 
-// The remaining partial specializations deal with various cases of converting
-// to an lvalue-reference, which we make explicitly conform to the C++11 idiom
-// of converting from an rvalue (which may be an lvalue-reference).
+// The next group of partial specializations deal with various cases of
+// converting to an lvalue-reference, which we make explicitly conform to the
+// C++11 idiom of converting from an rvalue (which may be an lvalue-reference).
 
 template <class TYPE>
 struct is_convertible_dispatch<TYPE&, TYPE&> : true_type {
@@ -746,38 +744,23 @@ struct is_convertible_dispatch<const volatile TYPE&, const volatile TYPE&>
     : true_type {
 };
 
-
 template <class TYPE>
 struct is_convertible_dispatch<volatile TYPE, TYPE>
      : BloombergLP::bslmf::IsConvertible_Conditional<TYPE, TYPE>::type {
-    // Correct handling of non-fundamental volatile conversions to self.
-    // Note that this is not trivially true, but tests that 'TYPE' is copy-
+    // Correct handling of non-fundamental volatile conversions to self.  Note
+    // that this is not trivially true, but tests that 'TYPE' is copy (or move)
     // constructible.
 };
 
-
-#if 0
 template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<FROM_TYPE, TO_TYPE&>
-    : is_convertible_dispatch<typename remove_reference<FROM_TYPE>::type*, TO_TYPE*>::type {
-};
-
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<volatile FROM_TYPE&, TO_TYPE&>
-    : is_convertible_dispatch<FROM_TYPE*, TO_TYPE*>::type {
-};
-#endif
-
-
-template <class FROM_TYPE, class TO_TYPE>
-struct is_convertible_dispatch<FROM_TYPE, volatile TO_TYPE&> : false_type {
+struct is_convertible_dispatch<FROM_TYPE, volatile TO_TYPE&>
+    : false_type {
 };
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible_dispatch<FROM_TYPE, const volatile TO_TYPE&>
     : false_type {
 };
-
 
 template <class FROM_TYPE, class TO_TYPE>
 struct is_convertible_dispatch<volatile FROM_TYPE&, volatile TO_TYPE&>
