@@ -69,7 +69,7 @@ BSLS_IDENT("$Id$")
 //
 //..
 // |------|----------|----------|-----|----------|----------------|
-// | size | S (bits) | E (bits) |   B | T (bits) | max signficant |
+// | size | S (bits) | E (bits) |   B | T (bits) | max signficand |
 // |------|----------|----------|-----|----------|----------------|
 // |   1* |        0 |        1 |  -2 |        7 |            127 |
 // |   2  |        0 |        2 |  -3 |       14 |          16383 |
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id$")
 //
 // * 1 byte encoding will be supported by the decoder but not the encoder. This
 //   is done due to the relatively large performance impact of adding the 1
-//   byte encoding to the encoder (10%). Perserving the encoding size in the
+//   byte encoding to the encoder (10%). Preserving the encoding size in the
 //   decoder allows us to easily enable this encoding size at a later time.
 //
 // ** If the value to be encoded can not fit in the 5-byte encoding or is -Inf,
@@ -398,7 +398,7 @@ struct DecimalConvertUtil {
         //:
         //: o Otherwise if 'decimal' has a significand that cannot be exactly
         //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
+        //:   floating-point exception, round that value according to the
         //:   *binary* rounding direction setting of the environment, and
         //:   return the result of that.
         //:
@@ -519,7 +519,7 @@ struct DecimalConvertUtil {
                                   const unsigned char *buffer);
     static void decimal128FromBID(Decimal128          *decimal,
                                   const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implmentation
+        // Store, into the specified 'decimal', the native implementation
         // representation of the value of the same size base-10 floating point
         // value represented in Binary Integral Decimal format, at the specified
         // 'buffer' address.  The behavior is undefined unless 'buffer' points
@@ -572,7 +572,7 @@ struct DecimalConvertUtil {
                                   const unsigned char *buffer);
     static void decimal128FromDPD(Decimal128          *decimal,
                                   const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implmentation
+        // Store, into the specified 'decimal', the native implementation
         // representation of the value of the same size base-10 floating point
         // value represented in Densely Packed Decimal format, at the specified
         // 'buffer' address.  The behavior is undefined unless 'buffer' points
@@ -1200,7 +1200,7 @@ float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
 
 inline
 void DecimalConvertUtil::decimal32ToBID(unsigned char *buffer,
-                                                   Decimal32      decimal)
+                                        Decimal32      decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 result;
 
@@ -1211,7 +1211,7 @@ void DecimalConvertUtil::decimal32ToBID(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimal64ToBID(unsigned char *buffer,
-                                                   Decimal64      decimal)
+                                        Decimal64      decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 result;
 
@@ -1222,7 +1222,7 @@ void DecimalConvertUtil::decimal64ToBID(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimal128ToBID(unsigned char *buffer,
-                                                    Decimal128     decimal)
+                                         Decimal128     decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 result;
 
@@ -1233,7 +1233,7 @@ void DecimalConvertUtil::decimal128ToBID(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
-                                                 Decimal32      decimal)
+                                      Decimal32      decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 result;
 
@@ -1244,7 +1244,7 @@ void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
-                                                 Decimal64      decimal)
+                                      Decimal64      decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 result;
 
@@ -1255,7 +1255,7 @@ void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
-                                                 Decimal128     decimal)
+                                      Decimal128     decimal)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 result;
 
@@ -1302,7 +1302,7 @@ DecimalConvertUtil::decimal128FromBID(const unsigned char *buffer)
 inline
 void
 DecimalConvertUtil::decimalFromBID(Decimal32           *decimal,
-                                              const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
 
@@ -1314,7 +1314,7 @@ DecimalConvertUtil::decimalFromBID(Decimal32           *decimal,
 inline
 void
 DecimalConvertUtil::decimalFromBID(Decimal64           *decimal,
-                                              const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
 
@@ -1326,7 +1326,7 @@ DecimalConvertUtil::decimalFromBID(Decimal64           *decimal,
 inline
 void
 DecimalConvertUtil::decimalFromBID(Decimal128          *decimal,
-                                              const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;
 
@@ -1338,7 +1338,7 @@ DecimalConvertUtil::decimalFromBID(Decimal128          *decimal,
 inline
 void
 DecimalConvertUtil::decimal32FromBID(Decimal32           *decimal,
-                                                const unsigned char *buffer)
+                                     const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
 
@@ -1350,7 +1350,7 @@ DecimalConvertUtil::decimal32FromBID(Decimal32           *decimal,
 inline
 void
 DecimalConvertUtil::decimal64FromBID(Decimal64           *decimal,
-                                                const unsigned char *buffer)
+                                     const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
 
@@ -1362,7 +1362,7 @@ DecimalConvertUtil::decimal64FromBID(Decimal64           *decimal,
 inline
 void
 DecimalConvertUtil::decimal128FromBID(Decimal128          *decimal,
-                                                 const unsigned char *buffer)
+                                      const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;
 
@@ -1375,42 +1375,42 @@ DecimalConvertUtil::decimal128FromBID(Decimal128          *decimal,
 
 inline
 void DecimalConvertUtil::decimal32ToDPD(unsigned char *buffer,
-                                                  Decimal32      decimal)
+                                        Decimal32      decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
 
 inline
 void DecimalConvertUtil::decimal64ToDPD(unsigned char *buffer,
-                                                  Decimal64      decimal)
+                                        Decimal64      decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
 
 inline
 void DecimalConvertUtil::decimal128ToDPD(unsigned char *buffer,
-                                                   Decimal128     decimal)
+                                         Decimal128     decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
 
 inline
 void DecimalConvertUtil::decimalToDPD(unsigned char *buffer,
-                                                Decimal32      decimal)
+                                      Decimal32      decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
 
 inline
 void DecimalConvertUtil::decimalToDPD(unsigned char *buffer,
-                                                Decimal64      decimal)
+                                      Decimal64      decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
 
 inline
 void DecimalConvertUtil::decimalToDPD(unsigned char *buffer,
-                                                Decimal128     decimal)
+                                      Decimal128     decimal)
 {
     Imp::decimalToDPD(buffer, decimal);
 }
@@ -1441,7 +1441,7 @@ DecimalConvertUtil::decimal128FromDPD(const unsigned char *buffer)
 inline
 void
 DecimalConvertUtil::decimalFromDPD(Decimal32           *decimal,
-                                             const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     Imp::decimalFromDPD(decimal, buffer);
 }
@@ -1449,7 +1449,7 @@ DecimalConvertUtil::decimalFromDPD(Decimal32           *decimal,
 inline
 void
 DecimalConvertUtil::decimalFromDPD(Decimal64           *decimal,
-                                             const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     Imp::decimalFromDPD(decimal, buffer);
 }
@@ -1457,7 +1457,7 @@ DecimalConvertUtil::decimalFromDPD(Decimal64           *decimal,
 inline
 void
 DecimalConvertUtil::decimalFromDPD(Decimal128          *decimal,
-                                             const unsigned char *buffer)
+                                   const unsigned char *buffer)
 {
     Imp::decimalFromDPD(decimal, buffer);
 }
@@ -1465,7 +1465,7 @@ DecimalConvertUtil::decimalFromDPD(Decimal128          *decimal,
 inline
 void
 DecimalConvertUtil::decimal32FromDPD(Decimal32           *decimal,
-                                               const unsigned char *buffer)
+                                     const unsigned char *buffer)
 {
     *decimal = Imp::decimal32FromDPD(buffer);
 }
@@ -1473,7 +1473,7 @@ DecimalConvertUtil::decimal32FromDPD(Decimal32           *decimal,
 inline
 void
 DecimalConvertUtil::decimal64FromDPD(Decimal64           *decimal,
-                                               const unsigned char *buffer)
+                                     const unsigned char *buffer)
 {
     *decimal = Imp::decimal64FromDPD(buffer);
 }
@@ -1481,7 +1481,7 @@ DecimalConvertUtil::decimal64FromDPD(Decimal64           *decimal,
 inline
 void
 DecimalConvertUtil::decimal128FromDPD(Decimal128          *decimal,
-                                                const unsigned char *buffer)
+                                      const unsigned char *buffer)
 {
     *decimal = Imp::decimal128FromDPD(buffer);
 }
