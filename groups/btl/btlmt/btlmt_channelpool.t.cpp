@@ -275,6 +275,8 @@ typedef btlso::SocketOptUtil SockOpt;
 typedef btlso::SocketOptions SocketOptions;
 typedef btlso::LingerOptions LingerOptions;
 typedef bsls::Types::Uint64  ThreadId;
+typedef bsls::TimeInterval   TimeInterval;
+typedef btlso::IPv4Address   IPAddress;
 
 const ThreadId NULL_THREAD_ID = (ThreadId) (long long) -1;
 
@@ -712,19 +714,100 @@ void populateMessage(btlb::Blob       *msg,
 }
 
 //-----------------------------------------------------------------------------
+//                  TEST_CASE_PLATFORM_ERRORS
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_PLATFORM_ERRORS {
+
+void poolStateCb(int state, int source, int error)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source
+               << " Error: " << error << MTENDL;
+    }
+}
+
+void poolStateCbWithError(int             state,
+                          int             source,
+                          int             error,
+                          int            *platformError,
+                          bslmt::Barrier *barrier)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source
+               << " Error: " << error << MTENDL;
+    }
+
+    *platformError = error;
+    barrier->wait();
+}
+
+void channelStateCb(int   channelId,
+                    int   serverId,
+                    int   state,
+                    void *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << serverId
+               << " State: " << state << MTENDL;
+    }
+}
+
+void channelStateCbWithBarrier(int              channelId,
+                               int              serverId,
+                               int              state,
+                               void            * , // arg,
+                               bslmt::Barrier  *barrier)
+{
+    if (veryVerbose) {
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << serverId
+               << " State: " << state << MTENDL;
+    }
+
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     btlb::Blob      *msg,
+                     int              channelId,
+                     void            *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Blob Based Read Cb called with"
+               << " Channel Id: " << channelId
+               << " of length: "  << msg->length() << MTENDL;
+    }
+    *needed = 1;
+
+    msg->removeAll();
+}
+
+}
+
+//-----------------------------------------------------------------------------
 //                                  TEST_CASE_CTOR_TAKING_FACTORY
 //-----------------------------------------------------------------------------
 
 namespace TEST_CASE_CTOR_TAKING_FACTORY {
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -809,7 +892,7 @@ class ReadServer
 
   private:
     // ChannelPool Callback Functions
-    void poolCB(int state, int source, int severity);
+    void poolCB(int state, int source, int platformError);
 
     void chanCB(int channelId, int serverId, int state, void *arg);
 
@@ -970,14 +1053,14 @@ namespace TEST_CASE_TESTING_PEER_ADDRESS {
 btlmt::ChannelPool *d_pool_p = 0;
 btlso::IPv4Address  d_peerAddress;
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1043,14 +1126,14 @@ typedef bsl::map<int, int>::iterator MapIter;
 
 bsls::AtomicInt numUp(0);
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1172,14 +1255,14 @@ void *dataFunction(void *args)
 
 namespace TEST_CASE_LOWWATER_AFTER_ENQUEUEMARK_EXCEEDED {
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1261,14 +1344,14 @@ void *readData(void *data)
 
 namespace TEST_CASE_ADDING_WRITE_STATS {
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1446,14 +1529,14 @@ int                 numRead = 0;
 bslmt::Mutex        dataMutex;
 ostringstream       dataStream;
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1529,14 +1612,14 @@ void populateText(char *text, int length)
 
 namespace TEST_CASE_DISABLE_READ_WHEN_NUM_NEEDED_ZERO {
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
 }
 
@@ -1667,7 +1750,7 @@ public:
 
 void poolStateCb(int             state,
                  int             source,
-                 int             severity,
+                 int             platformError,
                  bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
@@ -1675,7 +1758,7 @@ void poolStateCb(int             state,
         bsl::cout << "Pool state callback called with"
                   << " State: " << state
                   << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
+                  << " PlatformError: " << platformError << bsl::endl;
     }
     barrier->wait();
 }
@@ -2090,7 +2173,7 @@ class ReadServer
 
   private:
     // ChannelPool Callback Functions
-    void poolCB(int state, int source, int severity);
+    void poolCB(int state, int source, int platformError);
 
     void chanCB(int channelId, int serverId, int state, void *arg);
 
@@ -2350,7 +2433,7 @@ class ReadServer
 
   private:
     // ChannelPool Callback Functions
-    void poolCB(int state, int source, int severity);
+    void poolCB(int state, int source, int platformError);
 
     void chanCB(int channelId, int serverId, int state, void *arg);
 
@@ -3494,14 +3577,14 @@ static
 void caseStressTestPoolStateCallback(
     int             state,
     int             sourceId,
-    int             severity)
+    int             platformError)
 {
     switch (state) {
       case PoolState::e_ACCEPT_TIMEOUT: {
         if (verbose) {
             MTCOUT << "\tAccept timed out:"
                    << " sourceId=" << sourceId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -3509,7 +3592,7 @@ void caseStressTestPoolStateCallback(
         if (verbose) {
             MTCOUT << "\tError Connecting:"
                    << " sourceId=" << sourceId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -3517,7 +3600,7 @@ void caseStressTestPoolStateCallback(
         if (verbose) {
             MTCOUT << "\tError Accepting:"
                    << " sourceId=" << sourceId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -3525,7 +3608,7 @@ void caseStressTestPoolStateCallback(
         if (verbose) {
             MTCOUT << "\tChannel Limit Reached:"
                    << " sourceId=" << sourceId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -4791,7 +4874,7 @@ namespace TEST_CASE_ACCEPT {
 static
 void caseAcceptPoolStateCallback(int                state,
                                  int                serverId,
-                                 int                severity,
+                                 int                platformError,
                                  bsls::AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
@@ -4801,7 +4884,7 @@ void caseAcceptPoolStateCallback(int                state,
         if (veryVerbose) {
             MTCOUT << "Error Accepting:"
                    << " serverId=" << serverId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
         ++*acceptErrors;
@@ -4861,7 +4944,7 @@ void caseMaxConnsChannelStateCallback(int                  channelId,
 static
 void caseMaxConnsPoolStateCallback(int                state,
                                    int                serverId,
-                                   int                severity,
+                                   int                platformError,
                                    int              **eventAddr,
                                    bsls::AtomicInt   *limitReachedFlag)
 {
@@ -4875,7 +4958,7 @@ void caseMaxConnsPoolStateCallback(int                state,
         if (veryVerbose) {
             MTCOUT << "Accept timed out:"
                    << " serverId=" << serverId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -4883,7 +4966,7 @@ void caseMaxConnsPoolStateCallback(int                state,
         if (veryVerbose) {
             MTCOUT << "Error Connecting:"
                    << " serverId=" << serverId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -4891,7 +4974,7 @@ void caseMaxConnsPoolStateCallback(int                state,
         if (veryVerbose) {
             MTCOUT << "Error Accepting:"
                    << " serverId=" << serverId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
       } break;
@@ -4899,7 +4982,7 @@ void caseMaxConnsPoolStateCallback(int                state,
         if (veryVerbose) {
             MTCOUT << "Channel Limit Reached:"
                    << " serverId=" << serverId
-                   << " severity=" << (severity ? "ALERT" : "CRITICAL")
+                   << " platformError=" << platformError
                    << MTENDL;
         }
         *limitReachedFlag = true;
@@ -6593,13 +6676,13 @@ void caseChannelStateCallback(int              channelId,
 
 namespace TEST_CASE_CONNECT {
 
-void poolStateCb(int state, int source, int severity)
+void poolStateCb(int state, int source, int platformError)
 {
     if (veryVerbose) {
         MTCOUT << "Pool state callback called with"
                << " State: " << state
                << " Source: "  << source
-               << " Severity: " << severity << MTENDL;
+               << " PlatformError: " << platformError << MTENDL;
     }
 }
 
@@ -6706,7 +6789,7 @@ void *caseOpenConnectThread(void *arg) {
 
 static void casePoolStateCb(int              poolState,
                              int              sourceId,
-                             int              severity,
+                             int              platformError,
                              // additional arguments follow
                              bsls::AtomicInt *numFailures,
                              caseWorkerInfo *info)
@@ -6724,13 +6807,13 @@ static void casePoolStateCb(int              poolState,
 #undef CASE
             default: cout << "Unknown pool state: "; P(poolState); break;
         }
-        T_(); P_(sourceId); P_(info->d_expUserId); P(severity);
+        T_(); P_(sourceId); P_(info->d_expUserId); P(platformError);
         T_(); P_(*numFailures); P(info->d_expNumFailures);
         cout << MTENDL;
     }
 
     if (PoolState::e_CHANNEL_LIMIT == poolState) {
-        ASSERT(btlmt::ChannelPool::e_ALERT == severity);  // ALERT
+        ASSERT(0 == platformError);
         return;                                                       // RETURN
     }
 
@@ -6811,20 +6894,20 @@ static void caseChannelCb(int                  channelId,
 }
 
 static void caseErrorPoolStateCb(int              poolState,
-                                  int              sourceId,
-                                  int              severity,
-                                  int              expectedSourceId,
-                                  int              expectedSeverity,
-                                  bsls::AtomicInt *isInvokedFlag)
+                                 int              sourceId,
+                                 int              platformError,
+                                 int              expectedSourceId,
+                                 int              expectedPlatformError,
+                                 bsls::AtomicInt *isInvokedFlag)
 {
     ASSERT(expectedSourceId == sourceId);
-    ASSERT(expectedSeverity == severity);
+    ASSERT(expectedPlatformError == platformError);
     ASSERT(PoolState::e_ERROR_CONNECTING == poolState);
     if (veryVerbose) {
         PT(bdlt::CurrentTime::now());
         PT(poolState);
         PT(sourceId);
-        PT(severity);
+        PT(platformError);
     }
     ++(*isInvokedFlag);
 }
@@ -6924,7 +7007,7 @@ class my_QueueProcessor {
 
     // Callback functions:
 
-    void poolCb(int state, int source, int severity);
+    void poolCb(int state, int source, int platformError);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
     void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *arg);
 
@@ -7069,10 +7152,10 @@ int my_QueueProcessor::portNumber() {
     return address.portNumber();
 }
 
-void my_QueueProcessor::poolCb(int state, int source, int severity) {
+void my_QueueProcessor::poolCb(int state, int source, int platformError) {
     if (veryVerbose) {
         MTCOUT << "Pool state changed ("
-               << source << ", " << severity << ", " << state
+               << source << ", " << platformError << ", " << state
                << ")." << MTENDL;
     }
 
@@ -7167,15 +7250,10 @@ namespace USAGE_EXAMPLE_NAMESPACE {
 
       private:
         // Callback functions:
-        void poolStateCb(int state, int source, int severity);
+        void poolStateCb(int state, int source, int platformError);
             // Output a message to 'stdout' indicating the specified 'state'
             // associated with the specified 'source' has occurred, with the
-            // specified 'severity'.  Note that 'state' is one of the
-            // 'PoolState' constants (see 'btlmt_message'), 'source'
-            // identifies the channel pool operation associated with this state
-            // (in this case, this must be the 'SERVER_ID' passed to
-            // 'listen()'), and 'severity' is one of the
-            // 'btlmt::ChannelPool::Severity' values.
+            // specified 'platformError'.
 
         void channelStateCb(int channelId, int sourceId, int state, void *ctx);
             // Output a message to 'stdout' indicating the specified 'state',
@@ -7291,12 +7369,12 @@ namespace USAGE_EXAMPLE_NAMESPACE {
 // methods are documented in the example header, and the implementation for
 // these methods is shown below:
 //..
-    void my_EchoServer::poolStateCb(int state, int source, int severity) {
+    void my_EchoServer::poolStateCb(int state, int source, int platformError) {
         ASSERT(source == SERVER_ID);
         d_coutLock_p->lock();
         MTCOUT << "Pool state changed: ("
                << source << ", "
-               << severity << ", "
+               << platformError << ", "
                << state << ") " << MTENDL;
         d_coutLock_p->unlock();
     }
@@ -7419,7 +7497,7 @@ class my_QueueClient {
 
   private:
     // Callback functions:
-    void poolStateCb(int state, int source, int severity);
+    void poolStateCb(int state, int source, int platformError);
     void channelStateCb(int channelId, int sourceId, int state, void *context);
     void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *);
 
@@ -7553,11 +7631,11 @@ int my_QueueClient::stopProcessor() {
     return bslmt::ThreadUtil::join(d_processorHandle);
 }
 
-void my_QueueClient::poolStateCb(int state, int source, int severity) {
+void my_QueueClient::poolStateCb(int state, int source, int platformError) {
 
     if (veryVerbose) {
         MTCOUT << "Pool state changed ("
-               << source << ", " << severity << ", " << state
+               << source << ", " << platformError << ", " << state
                << ")." << MTENDL;
     }
 }
@@ -7724,8 +7802,11 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase37();
+    static void testCase38();
         // Test usage example.
+
+    static void testCase37();
+        // Test that platform-specific errors are returned.
 
     static void testCase36();
         // Test the new constructor form that takes a BlobBufferFactory.
@@ -7852,7 +7933,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase37()
+void TestDriver::testCase38()
 {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -7887,6 +7968,365 @@ void TestDriver::testCase37()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase37()
+{
+    // --------------------------------------------------------------------
+    // TESTING: platform errors are returned correctly
+    //
+    // Concerns:
+    //: 1 Synchronous errors in channel pool methods are returned correctly
+    //:   through an optionally-specified argument.
+    //:
+    //: 2 Asynchronous errors in channel pool methods are returned correctly
+    //:   through the pool state callback's third argument.
+    //
+    // Plan:
+    //: 1 Invoke 'connect' and 'listen' methods passing arguments that cause
+    //:   the operation to fail.
+    //:
+    //: 2 Verify that for synchronous failures the optionally-specified error
+    //:   argument has the platform-specific error in it.  For asynchrounous
+    //:   errors confirm that the pool state callback's third arugment contains
+    //:   the platform error.
+    //:
+    //
+    // Testing:
+    //-------------------------------------------------------------------
+
+    if (verbose) {
+        cout << "\nTESTING getting platform-specific errors"
+             << "\n========================================"
+             << endl;
+    }
+
+    using namespace TEST_CASE_PLATFORM_ERRORS;
+
+    {
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
+                                                              &channelStateCb);
+
+        btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+
+        Obj mX(channelCb, dataCb, poolCb, config);
+        ASSERT(0 == mX.start());
+
+        const int            B    =   1;                        // Backlog
+        const int            SID  = 101;                        // ServerId
+        const int            RA   =   1;                        // ReuseAddr
+        const bool           REF  = true;                       // ReadEnabled
+        const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
+        const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
+        const int            BP   = 80;                         // Bad PortNum
+        const TimeInterval   T;                                 // TimeInterval
+        IPAddress            BA(getLocalAddress());             // Bad IPAddr
+        BA.setPortNumber(BP);
+
+        Obj::KeepHalfOpenMode      OM  = Obj::e_CLOSE_BOTH;
+        Obj::ConnectResolutionMode CRM = Obj::e_RESOLVE_ONCE;
+
+        typedef bslma::ManagedPtr<btlso::StreamSocket<IPAddress> > SSPtr;
+
+        // Listening on an invalid port number through various 'listen'
+        // overloads.
+
+        {
+            int error = 0;
+
+            int rc = mX.listen(BP, B, SID, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(BP, B, SID, T, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(BA, B, SID, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            Obj::KeepHalfOpenMode OM = Obj::e_CLOSE_BOTH;
+
+            rc = mX.listen(BA, B, SID, T, RA, REF, OM, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // Listening on a port number already in use via the various 'listen'
+        // overloads.
+
+        {
+            int error = 0;
+            int P     = 0;
+
+            int rc = mX.listen(P, B, SID, RA, REF, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            IPAddress A;
+            mX.getServerAddress(&A, SID);
+            P = A.portNumber();
+
+            error = 0;
+
+            rc = mX.listen(P, B, SID + 1, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(P, B, SID + 1, T, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(A, B, SID + 1, RA, REF, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(A, B, SID + 1, T, RA, REF, OM, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            rc = mX.close(SID);
+
+            ASSERT(0 == rc);
+        }
+
+        // 'listen' synchronous error - failure to set socket options
+
+        {
+            int error = 0;
+            int P     = 0;
+            IPAddress A(getLocalAddress());
+
+            SocketOptions SO;
+            SO.setSendTimeout(0);
+
+            int rc = mX.listen(P, B, SID, RA, REF, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(P, B, SID, T, RA, REF, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(A, B, SID, RA, REF, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(A, B, SID, T, RA, REF, OM, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // 'connect' synchronous error
+
+        {
+            int error = 0;
+
+            const char *h = "badaddress";
+            int rc = mX.connect(h, BP, 1, T, SID, CRM,
+                                REF, OM, OPTS, LA, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.connect(h, BP, 1, T, SID, (SSPtr *) 0,
+                            CRM, REF, OM, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // 'connect' asynchronous error -- setting socket options
+
+        {
+            int error = 0;
+
+            int rc = mX.listen(0, B, SID, RA, REF, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            IPAddress A;
+            mX.getServerAddress(&A, SID);
+            int P = A.portNumber();
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::ChannelPool::ChannelStateChangeCallback
+                                              clientChannelCb(&channelStateCb);
+
+            btlmt::ChannelPool::PoolStateChangeCallback clientPoolCb(
+                                    bdlf::BindUtil::bind(&poolStateCbWithError,
+                                                         _1, _2, _3,
+                                                         &platformError,
+                                                         &poolBarrier));
+
+            btlmt::ChannelPool::BlobBasedReadCallback clientDataCb(
+                                                             &blobBasedReadCb);
+
+            Obj mY(clientChannelCb, clientDataCb, clientPoolCb, config);
+            ASSERT(0 == mY.start());
+
+            SocketOptions SO;
+            SO.setSendTimeout(0);
+
+            rc = mY.connect(A, 1, T, SID, REF, OM, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+
+            rc = mY.connect("localhost", P, 1, T, SID,
+                            CRM, REF, OM, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+        }
+
+        // 'connect' asynchronous error -- using an unreachable peer address
+
+        {
+            int error = 0;
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::ChannelPool::ChannelStateChangeCallback
+                                              clientChannelCb(&channelStateCb);
+
+            btlmt::ChannelPool::PoolStateChangeCallback clientPoolCb(
+                                    bdlf::BindUtil::bind(&poolStateCbWithError,
+                                                         _1, _2, _3,
+                                                         &platformError,
+                                                         &poolBarrier));
+
+            btlmt::ChannelPool::BlobBasedReadCallback clientDataCb(
+                                                             &blobBasedReadCb);
+
+            error = 0;
+            Obj mX(clientChannelCb, clientDataCb, clientPoolCb, config);
+            ASSERT(0 == mX.start());
+
+            const char *h = "www.bloomberg.com";
+            const int   P = 12345;
+
+            IPAddress ADDR(h, P);
+            int rc = mX.connect(ADDR, 1, T, SID, REF, OM, OPTS, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+//             ASSERT(0 != platformError);
+
+            rc = mX.connect(ADDR, 1, T, SID, (SSPtr *) 0, REF, OM, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+//             ASSERT(0 != platformError);
+        }
+
+        // 'connect' asynchronous error -- using a bound local address
+
+        {
+            int error = 0;
+
+            Obj mY(channelCb, dataCb, poolCb, config);
+            ASSERT(0 == mY.start());
+
+            int rc = mY.listen(0, B, SID, RA, REF, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            IPAddress A;
+            mY.getServerAddress(&A, SID);
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::ChannelPool::ChannelStateChangeCallback
+                                              clientChannelCb(&channelStateCb);
+
+            btlmt::ChannelPool::PoolStateChangeCallback clientPoolCb(
+                                    bdlf::BindUtil::bind(&poolStateCbWithError,
+                                                         _1, _2, _3,
+                                                         &platformError,
+                                                         &poolBarrier));
+
+            btlmt::ChannelPool::BlobBasedReadCallback clientDataCb(
+                                                             &blobBasedReadCb);
+
+            error = 0;
+            Obj mX(clientChannelCb, clientDataCb, clientPoolCb, config);
+            ASSERT(0 == mX.start());
+
+            rc = mX.connect(BA, 1, T, SID, REF, OM, OPTS, &A, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+        }
+    }
 }
 
 void TestDriver::testCase36()
@@ -14567,7 +15007,7 @@ void TestDriver::testCase3()
             const int MAX_NUM_ATTEMPTS = 3;
 
             const bsls::TimeInterval TIMEOUT(0.01);
-            const int EXPECTED_SEVERITY = 1;
+            const int EXPECTED_PLATFORM_ERROR = 0;
 
             btlmt::ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -14588,7 +15028,7 @@ void TestDriver::testCase3()
                                 bdlf::BindUtil::bind( &caseErrorPoolStateCb
                                                     , _1, _2, _3
                                                     , DATA[i].d_sourceId
-                                                    , EXPECTED_SEVERITY
+                                                    , EXPECTED_PLATFORM_ERROR
                                                     , &isInvoked));
 
                         btlmt::ChannelPool mX(channelCb, dataCb, poolCb,
@@ -14673,7 +15113,7 @@ void TestDriver::testCase3()
                             bdlf::BindUtil::bind( &caseErrorPoolStateCb
                                                 , _1, _2, _3
                                                 , DATA[i].d_sourceId
-                                                , EXPECTED_SEVERITY
+                                                , EXPECTED_PLATFORM_ERROR
                                                 , &isInvoked));
 
                     btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config,
@@ -14693,7 +15133,6 @@ void TestDriver::testCase3()
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
-
 }
 
 void TestDriver::testCase2()
@@ -15205,6 +15644,7 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(38);
       CASE(37);
       CASE(36);
       CASE(35);
