@@ -53,6 +53,12 @@ BSLS_IDENT("$Id: $")
 //               e_SHUTDOWN_BOTH     Shut down both input and output streams
 //                                   of connection
 //
+//               e_SHUTDOWN_GRACEFUL Shut down this connection gracefully.  The
+//                                   input stream of the connection is shutdown
+//                                   immediately.  Shut down of the output
+//                                   stream happens once all enqueued write
+//                                   data has been sent.
+//
 //  IOWaitType
 //               e_IO_READ           Wait for data to arrive on a socket
 //
@@ -161,9 +167,15 @@ struct Flag {
                             // connection associated with a
                             // 'btlso::StreamSocket' object.
 
-        e_SHUTDOWN_BOTH     // Shut down the input and output streams of the
+        e_SHUTDOWN_BOTH,    // Shut down the input and output streams of the
                             // full-duplex connection associated a
                             // 'btlso::StreamSocket' object.
+
+        e_SHUTDOWN_GRACEFUL // Shut down this connection gracefully.  The
+                            // input stream of the connection is shutdown
+                            // immediately.  Shut down of the output
+                            // stream happens once all enqueued write
+                            // data has been sent.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_SHUTDOWN_RECEIVE = e_SHUTDOWN_RECEIVE

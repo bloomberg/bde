@@ -19,9 +19,6 @@
 #include <btlso_flag.h>
 
 #include <bslma_testallocator.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
@@ -57,6 +54,7 @@ using namespace bdlf::PlaceHolders;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+//
 // This test driver has grown in an ad-hoc manner and is still incomplete.  A
 // thorough review and addition of test cases is still required, but the added
 // test cases provide confidence that the core functionality is working.
@@ -190,6 +188,9 @@ typedef btlso::StreamSocketFactoryDeleter          SocketFactoryDeleter;
 typedef btlso::SocketOptions                       SocketOptions;
 typedef bsls::TimeInterval                         TimeInterval;
 typedef btlso::IPv4Address                         IPAddress;
+typedef btlso::IPv4Address                         IPAddress;
+typedef btlso::InetStreamSocketFactory<IPAddress>  InetStreamSocketFactory;
+typedef btlso::StreamSocket<IPAddress>             StreamSocket;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -362,38 +363,6 @@ void readCbWithBlob(int         result,
 
     blob->moveAndAppendDataBuffers(data);
 
-    *numNeeded = 1;
-}
-
-void readCbWithReadSize(int            result,
-                        int           *numNeeded,
-                        btlb::Blob    *data,
-                        int            channelId,
-                        int            readSize,
-                        int            totalDataSize,
-                        bslmt::Barrier *barrier)
-{
-    static int numRead = 0;
-
-    if (result) {
-        // Session is going down.
-
-        return;
-    }
-
-    ASSERT(numNeeded);
-    ASSERT(data);
-    ASSERT(0 < data->length());
-
-    const int bytesToRead = bsl::min(data->length(), readSize);
-
-    btlb::BlobUtil::erase(data, 0, bytesToRead);
-
-    numRead += bytesToRead;
-    if (numRead >= totalDataSize) {
-        barrier->wait();
-        numRead = 0;
-    }
     *numNeeded = 1;
 }
 
@@ -621,6 +590,277 @@ void TestFactory::deallocate(btlmt::Session *session)
 
 }  // close namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE
 
+namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN {
+
+bslmt::Barrier  *s_barrier_p = 0;
+int             *s_state_p = 0;
+bool             s_enqueueData = true;
+
+const int WRITE_SIZE = 1024 * 1024 * 10;
+
+                            // ===================
+                            // class TesterSession
+                            // ===================
+
+class TesterSession : public btlmt::Session {
+    // This class is a concrete implementation of the 'btlmt::Session' protocol
+    // to use along with 'Tester' objects.
+
+    // DATA
+    bsl::shared_ptr<btlmt::AsyncChannel>      d_channel_sp;
+    bsl::shared_ptr<btlb::BlobBufferFactory>  d_blobFactory_sp;
+
+    // PRIVATE MANIPULATORS
+    void readCb(int         result,
+                int        *numNeeded,
+                btlb::Blob *blob,
+                int         channelId);
+        // Read callback for session pool.
+
+  private:
+    // NOT IMPLEMENTED
+    TesterSession(const TesterSession&);
+    TesterSession& operator=(const TesterSession&);
+
+  public:
+    // CREATORS
+    TesterSession(
+              const bsl::shared_ptr<btlmt::AsyncChannel>&  channel,
+              bslma::Allocator                            *basicAllocator = 0);
+        // Create a new 'TesterSession' object for the specified 'channel'.
+        // Optionally specify 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    ~TesterSession();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int start();
+        // Begin the asynchronous operation of this session.
+
+    virtual int stop();
+        // Stop the operation of this session.
+
+    // ACCESSORS
+    virtual btlmt::AsyncChannel *channel() const;
+        // Return the channel associate with this session.
+};
+
+                            // -------------------
+                            // class TesterSession
+                            // -------------------
+
+// CREATORS
+TesterSession::TesterSession(
+                   const bsl::shared_ptr<btlmt::AsyncChannel>&  channel,
+                   bslma::Allocator                            *basicAllocator)
+: d_channel_sp(channel)
+{
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
+    d_blobFactory_sp.load(new (*allocator) btlb::PooledBlobBufferFactory(
+                                                                   WRITE_SIZE),
+                          allocator);
+}
+
+TesterSession::~TesterSession()
+{
+}
+
+// MANIPULATORS
+void TesterSession::readCb(int         result,
+                           int        *numNeeded,
+                           btlb::Blob *blob,
+                           int         )
+{
+    if (veryVerbose) {
+        MTCOUT << "Read callback called with: " << result << MTENDL;
+    }
+
+    if (result) {
+        d_channel_sp->close();
+        return;                                                       // RETURN
+    }
+
+    blob->removeAll();
+
+    if (s_enqueueData) {
+        btlb::Blob b(d_blobFactory_sp.get());
+        b.setLength(WRITE_SIZE);
+
+        ASSERT(0 == d_channel_sp->write(b));
+
+        ASSERT(0 != d_channel_sp->write(b));
+    }
+
+    d_channel_sp->close();
+
+    *numNeeded = 0;
+
+    s_barrier_p->wait();
+}
+
+int TesterSession::start()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session started" << MTENDL;
+    }
+
+    btlmt::AsyncChannel::BlobBasedReadCallback f =
+                                 bdlf::MemFnUtil::memFn(&TesterSession::readCb,
+                                                        this);
+
+    return d_channel_sp->read(1, f);
+}
+
+int TesterSession::stop()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session stopped" << MTENDL;
+    }
+
+    return 0;
+}
+
+// ACCESSORS
+btlmt::AsyncChannel *TesterSession::channel() const
+{
+    return d_channel_sp.get();
+}
+
+                    // ===================
+                    // class TesterFactory
+                    // ===================
+
+class TesterFactory : public btlmt::SessionFactory {
+    // This class is a concrete implementation of the 'btlmt::SessionFactory'
+    // that simply allocates 'TesterSession' objects.  No specific allocation
+    // strategy (such as pooling) is implemented.
+
+    // DATA
+    TesterSession    *d_session_p;    // held not owned
+
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+  public:
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TesterFactory,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TesterFactory(bslma::Allocator *basicAllocator = 0);
+        // Create a new 'TesterFactory' object of the specified 'mode'.
+        // Optionally specify 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    virtual ~TesterFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(
+                         const bsl::shared_ptr<btlmt::AsyncChannel>& channel,
+                         const btlmt::SessionFactory::Callback&      callback);
+        // Asynchronously allocate a 'btlmt::Session' object for the specified
+        // 'channel', and invoke the specified 'callback' with this session.
+
+    virtual void allocate(btlmt::AsyncChannel                    *channel,
+                          const btlmt::SessionFactory::Callback&  callback);
+        // Asynchronously allocate a 'btlmt::Session' object for the specified
+        // 'channel', and invoke the specified 'callback' with this session.
+
+    virtual void deallocate(btlmt::Session *session);
+        // Deallocate the specified 'session'.
+
+    TesterSession *session() const;
+        // Return the session managed by this factory.
+};
+
+                        // -------------------
+                        // class TesterFactory
+                        // -------------------
+
+// CREATORS
+TesterFactory::TesterFactory(bslma::Allocator *basicAllocator)
+: d_session_p(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+TesterFactory::~TesterFactory()
+{
+}
+
+// MANIPULATORS
+void TesterFactory::allocate(
+                          const bsl::shared_ptr<btlmt::AsyncChannel>& channel,
+                          const btlmt::SessionFactory::Callback&      callback)
+{
+    if (veryVerbose) {
+        MTCOUT << "TesterFactory::allocate called: " << MTENDL;
+    }
+
+    d_session_p = new (*d_allocator_p) TesterSession(channel,
+                                                     d_allocator_p);
+
+    callback(0, d_session_p);
+}
+
+void TesterFactory::allocate(btlmt::AsyncChannel                    *,
+                             const btlmt::SessionFactory::Callback&  )
+{
+    ASSERT(false); // shouldn't get called
+}
+
+void TesterFactory::deallocate(btlmt::Session *session)
+{
+    d_allocator_p->deleteObject(session);
+}
+
+TesterSession *TesterFactory::session() const
+{
+    return d_session_p;
+}
+
+void poolStateCallback(int reason, int source, void *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state changed: (" << reason << ", " << source << ") "
+               << MTENDL;
+    }
+}
+
+void sessionStateCb(int             state,
+                    int             ,
+                    btlmt::Session *session,
+                    void           *)
+{
+    *s_state_p = state;
+    switch (state) {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+          s_barrier_p->wait();
+      } break;
+      case btlmt::SessionPool::e_SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+          s_barrier_p->wait();
+      } break;
+    }
+}
+
+}  // close namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN
+
+
 namespace BTLMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
 
 using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
@@ -640,19 +880,23 @@ int createConnection(
     btlso::IPv4Address serverAddr;
     ASSERT(0 == serverSocket->localAddress(&serverAddr));
 
+    btlmt::ConnectOptions options;
+    options.setServerEndpoint(serverAddr);
+    options.setTimeout(bsls::TimeInterval(1));
+    options.setNumAttempts(1);
+    if (socketOptions) {
+        options.setSocketOptions(*socketOptions);
+    }
+
     int handleBuffer;
     if (socketOptions) {
         return sessionPool->connect(&handleBuffer,
                                     *sessionStateCb,
-                                    serverAddr,
-                                    1,
-                                    bsls::TimeInterval(1),
                                     sessionFactory,
-                                    0,
-                                    socketOptions,
-                                    ipAddress);                       // RETURN
+                                    options);                       // RETURN
     } else {
         BSLS_ASSERT_OPT(socketFactory); // test invariant
+        BSLS_ASSERT_OPT(ipAddress);
 
         typedef btlso::StreamSocketFactoryDeleter Deleter;
 
@@ -665,14 +909,12 @@ int createConnection(
             return rc;                                                // RETURN
         }
 
+        options.setSocketPtr(&clientSocket);
+
         return sessionPool->connect(&handleBuffer,
                                     *sessionStateCb,
-                                    serverAddr,
-                                    1,
-                                    bsls::TimeInterval(1),
-                                    &clientSocket,
                                     sessionFactory,
-                                    0);                               // RETURN
+                                    options);                         // RETURN
     }
 }
 
@@ -788,13 +1030,16 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
                      TestFactory                              *sessionFactory,
                      const btlb::Blob&                         dataBlob)
 {
+    btlmt::ListenOptions listenOpts;
+    listenOpts.setServerAddress(btlso::IPv4Address());
+    listenOpts.setBacklog(5);
+
     bsl::vector<int> serverHandles(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
         ASSERT(0 == pool->listen(&serverHandles[i],
                                  *sessionStateCb,
-                                 0,
-                                 5,
-                                 sessionFactory));
+                                 sessionFactory,
+                                 listenOpts));
     }
 
     ConnectData connectData[NUM_THREADS];
@@ -832,17 +1077,20 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
         bslmt::ThreadUtil::microSleep(50, 0);
     }
 
+    btlmt::ConnectOptions options;
+    options.setTimeout(bsls::TimeInterval(1));
+    options.setNumAttempts(10);
+
     bsl::vector<int> clientHandles(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
         btlso::IPv4Address serverAddr;
         ASSERT(0 == serverSockets[i]->localAddress(&serverAddr));
 
+        options.setServerEndpoint(serverAddr);
         ASSERT(0 == pool->connect(&clientHandles[i],
                                   *sessionStateCb,
-                                  serverAddr,
-                                  10,
-                                  bsls::TimeInterval(1),
-                                  sessionFactory));
+                                  sessionFactory,
+                                  options));
     }
 
     for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1358,22 +1606,30 @@ Tester::Tester(int                        mode,
 
     int handle;
 
+    btlmt::ConnectOptions connectOptions;
+    connectOptions.setServerEndpoint(endPointAddr);
+    connectOptions.setTimeout(bsls::TimeInterval(1));
+    connectOptions.setNumAttempts(5);
+
+    btlmt::ListenOptions listenOpts;
+    btlso::IPv4Address   address;
+    address.setPortNumber(d_portNumber);
+    listenOpts.setServerAddress(address);
+    listenOpts.setBacklog(5);
+
     if (LISTENER == mode) {
         ASSERT(0 == d_sessionPool_p->listen(&handle,
                                             sessionStateCb,
-                                            d_portNumber,
-                                            5,
-                                            &d_sessionFactory));
+                                            &d_sessionFactory,
+                                            listenOpts));
 
         d_portNumber = d_sessionPool_p->portNumber(handle);
     }
     else {
         ASSERT(0 == d_sessionPool_p->connect(&handle,
                                              sessionStateCb,
-                                             endPointAddr,
-                                             5,
-                                             bsls::TimeInterval(1),
-                                             &d_sessionFactory));
+                                             &d_sessionFactory,
+                                             connectOptions));
         d_portNumber = endPointAddr.portNumber();
     }
 }
@@ -1680,13 +1936,12 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
                       bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
-            // 'numConnections' simultaneous connections.  Pass the specified
-            // 'reuseAddressFlag' to set the 'REUSE_ADDRESS' socket option to
-            // the listening socket.  The echo server will use the specified
-            // 'coutLock' to synchronize access to the standard output.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
+            // 'numConnections' simultaneous connections.  The echo server will
+            // use the specified 'coutLock' to synchronize access to the
+            // standard output.  Optionally specify a 'basicAllocator' used to
+            // supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.  The behavior is undefined
+            // unless coutLock is not 0.
 
         ~my_EchoServer();
             // Destroy this server.
@@ -1786,13 +2041,20 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
         ASSERT(0 == rc);
 
         int handle;
-        rc = d_sessionPool_p->listen(&handle,
-                                     sessionStateCb,
-                                     portNumber,
-                                     numConnections,
-                                     reuseAddressFlag,
-                                     &d_sessionFactory);
-        ASSERT(0 == rc);
+
+        btlmt::ListenOptions listenOpts;
+        btlso::IPv4Address   address;
+        address.setPortNumber(portNumber);
+        listenOpts.setServerAddress(address);
+        listenOpts.setBacklog(numConnections);
+        btlso::SocketOptions socketOpts;
+        socketOpts.setReuseAddress(reuseAddressFlag);
+        listenOpts.setSocketOptions(socketOpts);
+
+        ASSERT(0 == d_sessionPool_p->listen(&handle,
+                                            sessionStateCb,
+                                            &d_sessionFactory,
+                                            listenOpts));
 
         d_portNumber = d_sessionPool_p->portNumber(handle);
     }
@@ -1817,7 +2079,7 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
 // We can implement a simple "Hello World!" example to exercise our echo
 // server.
 //..
-    int usageExample(bslma::Allocator *allocator) {
+    int usageExample(bslma::Allocator *) {
 
         enum {
             BACKLOG = 5,
@@ -1888,6 +2150,357 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING close with and without enqueued data
+        //
+        // Concerns:
+        //: 1 Calling 'close' on an AsyncChannel ensures that the channel is
+        //:   not closed till there is any write data enqueued.
+        //:
+        //: 2 Calling 'close' on an AsyncChannel that does not have any write
+        //:   data enqueued results in an immediate channel shutdown.
+        //:
+        //: 3 Calling 'close' on an AsyncChannel works irrespective of if the
+        //:   channel is an accepting or connecting channel.
+        //
+        // Plan:
+        //: 1 Create a listening socket on a SessionPool object and connect to
+        //:   it from another socket.  Write a large amount of data on the
+        //:   AsyncChannel using it's 'write' method such that the call fails
+        //:   and enqueues data to be subsequently written.  Call 'close'
+        //:   immediately after the 'write' call.  Confirm that the channel is
+        //:   closed (via a SESSION_DOWN callback) only after all the data has
+        //:   been successfully written to the connection.
+        //:
+        //: 2 Create a listening socket on a SessionPool object and connect to
+        //:   it from another socket.  Call 'close' immediately after that
+        //:   channel receives some data.  Confirm that the channel is closed
+        //:   (via a SESSION_DOWN callback) immediately.
+        //:
+        //: 3 Perform steps 1 and 2 for a connecting channel and verify that
+        //:   the channel is closed as expected.
+        //
+        // Testing:
+        //-------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING close with and without "
+                               << "enqueued data" << bsl::endl
+                               << "=============================="
+                               << "============="
+                               << bsl::endl;
+
+        using namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN;
+
+        if (verbose) bsl::cout << "Testing on accepting socket "
+                               << "with data enqueued." << bsl::endl;
+        {
+            btlmt::ChannelPoolConfiguration config;
+            config.setMaxThreads(1);                  // 4 I/O threads
+            config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+            Obj pool(config, poolStateCallback);
+
+            bslmt::Barrier barrier(2);
+            int            state;
+
+            s_barrier_p   = &barrier;
+            s_state_p     = &state;
+            s_enqueueData = true;
+
+            ASSERT(0 == pool.start());
+
+            int handle;
+            TesterFactory sessionFactory;
+
+            btlso::IPv4Address serverAddress;
+
+            btlmt::ListenOptions listenOpts;
+            listenOpts.setServerAddress(serverAddress);
+            listenOpts.setBacklog(5);
+            listenOpts.setAllowHalfOpenConnections(true);
+            btlso::SocketOptions socketOpts;
+            socketOpts.setReuseAddress(true);
+            listenOpts.setSocketOptions(socketOpts);
+
+            ASSERT(0 == pool.listen(&handle,
+                                    sessionStateCb,
+                                    &sessionFactory,
+                                    listenOpts));
+
+            const int PORTNUM = pool.portNumber(handle);
+
+            btlso::IPv4Address address("127.0.0.1",
+                                       btlso::IPv4Address::k_ANY_PORT);
+            address.setPortNumber(PORTNUM);
+
+            InetStreamSocketFactory  factory;
+            StreamSocket            *socket = factory.allocate();
+
+            ASSERT(0 == socket->connect(address));
+
+            barrier.wait();
+
+            ASSERT(Obj::SESSION_UP == state);
+
+            const char STRING[] = "Hello World!";
+
+            ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+            // Wait for read callback to be called.
+
+            barrier.wait();
+
+            const int BUFSIZE = 1024 * 1024;  // 1 MB
+            char buffer[BUFSIZE];
+
+            int totalDataRead = 0;
+            while (totalDataRead < WRITE_SIZE) {
+                const int rc = socket->read(buffer, BUFSIZE);
+                if (rc > 0) {
+                    totalDataRead += rc;
+                }
+            }
+
+            // Wait for SESSION_DOWN to be called.
+
+            barrier.wait();
+
+            if (veryVerbose) {
+                MTCOUT << "Bringing down the channel" << MTENDL;
+            }
+
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+            factory.deallocate(socket);
+        }
+
+        if (verbose) bsl::cout << "Testing on accepting socket "
+                               << "with NO data enqueued." << bsl::endl;
+        {
+            btlmt::ChannelPoolConfiguration config;
+            config.setMaxThreads(1);                  // 4 I/O threads
+            config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+            Obj pool(config, poolStateCallback);
+
+            bslmt::Barrier barrier(2);
+            int            state;
+
+            s_barrier_p   = &barrier;
+            s_state_p     = &state;
+            s_enqueueData = false;
+
+            ASSERT(0 == pool.start());
+
+            int handle;
+            TesterFactory sessionFactory;
+
+            btlso::IPv4Address serverAddress;
+            btlmt::ListenOptions listenOpts;
+            listenOpts.setServerAddress(serverAddress);
+            listenOpts.setBacklog(5);
+            listenOpts.setAllowHalfOpenConnections(true);
+            btlso::SocketOptions socketOpts;
+            socketOpts.setReuseAddress(true);
+            listenOpts.setSocketOptions(socketOpts);
+
+            ASSERT(0 == pool.listen(&handle,
+                                    sessionStateCb,
+                                    &sessionFactory,
+                                    listenOpts));
+
+            const int PORTNUM = pool.portNumber(handle);
+
+            btlso::IPv4Address address("127.0.0.1",
+                                       btlso::IPv4Address::k_ANY_PORT);
+            address.setPortNumber(PORTNUM);
+
+            InetStreamSocketFactory  factory;
+            StreamSocket            *socket = factory.allocate();
+
+            ASSERT(0 == socket->connect(address));
+
+            barrier.wait();
+
+            ASSERT(Obj::SESSION_UP == state);
+
+            const char STRING[] = "Hello World!";
+
+            ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+            // Wait for read callback to be called.
+
+            barrier.wait();
+
+            // Wait for SESSION_DOWN to be called.
+
+            barrier.wait();
+
+            if (veryVerbose) {
+                MTCOUT << "Bringing down the channel" << MTENDL;
+            }
+
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+            factory.deallocate(socket);
+        }
+
+        if (verbose) bsl::cout << "Testing on connecting socket "
+                               << "with data enqueued." << bsl::endl;
+        {
+            InetStreamSocketFactory  factory;
+            StreamSocket            *serverSocket = factory.allocate();
+
+            ASSERT(0 == serverSocket->bind(getLocalAddress()));
+            ASSERT(0 == serverSocket->listen(1));
+
+            IPAddress serverAddr;
+            ASSERT(0 == serverSocket->localAddress(&serverAddr));
+
+            btlmt::ChannelPoolConfiguration config;
+            config.setMaxThreads(1);                  // 4 I/O threads
+            config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+            Obj pool(config, poolStateCallback);
+
+            ASSERT(0 == pool.start());
+
+            bslmt::Barrier barrier(2);
+            int            state;
+
+            s_barrier_p   = &barrier;
+            s_state_p     = &state;
+            s_enqueueData = true;
+
+            TesterFactory sessionFactory;
+
+            btlmt::ConnectOptions connectOptions;
+            connectOptions.setServerEndpoint(serverAddr);
+            connectOptions.setTimeout(bsls::TimeInterval(1));
+            connectOptions.setNumAttempts(1);
+            connectOptions.setAllowHalfOpenConnections(true);
+
+            int handleBuffer;
+            int rc = pool.connect(&handleBuffer,
+                                  sessionStateCb,
+                                  &sessionFactory,
+                                  connectOptions);
+            ASSERT(0 == rc);
+            
+            StreamSocket *socket;
+            do {
+                rc = serverSocket->accept(&socket);
+            } while (rc);
+
+            barrier.wait();
+
+            ASSERT(Obj::SESSION_UP == state);
+
+            const char STRING[] = "Hello World!";
+
+            ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+            // Wait for read callback to be called.
+
+            barrier.wait();
+
+            const int BUFSIZE = 1024 * 1024;  // 1 MB
+            char buffer[BUFSIZE];
+
+            int totalDataRead = 0;
+            while (totalDataRead < WRITE_SIZE) {
+                const int rc = socket->read(buffer, BUFSIZE);
+                if (rc > 0) {
+                    totalDataRead += rc;
+                }
+            }
+
+            // Wait for SESSION_DOWN to be called.
+
+            barrier.wait();
+
+            if (veryVerbose) {
+                MTCOUT << "Bringing down the channel" << MTENDL;
+            }
+
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+            factory.deallocate(socket);
+        }
+
+        if (verbose) bsl::cout << "Testing on connecting socket "
+                               << "with NO data enqueued." << bsl::endl;
+        {
+            InetStreamSocketFactory  factory;
+            StreamSocket            *serverSocket = factory.allocate();
+
+            ASSERT(0 == serverSocket->bind(getLocalAddress()));
+            ASSERT(0 == serverSocket->listen(1));
+
+            IPAddress serverAddr;
+            ASSERT(0 == serverSocket->localAddress(&serverAddr));
+
+            btlmt::ChannelPoolConfiguration config;
+            config.setMaxThreads(1);                  // 4 I/O threads
+            config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+            Obj pool(config, poolStateCallback);
+
+            ASSERT(0 == pool.start());
+
+            bslmt::Barrier barrier(2);
+            int            state;
+
+            s_barrier_p   = &barrier;
+            s_state_p     = &state;
+            s_enqueueData = false;
+
+            TesterFactory sessionFactory;
+
+            btlmt::ConnectOptions connectOptions;
+            connectOptions.setServerEndpoint(serverAddr);
+            connectOptions.setTimeout(bsls::TimeInterval(1));
+            connectOptions.setNumAttempts(1);
+            connectOptions.setAllowHalfOpenConnections(true);
+
+            int handleBuffer;
+            int rc = pool.connect(&handleBuffer,
+                                  sessionStateCb,
+                                  &sessionFactory,
+                                  connectOptions);
+            ASSERT(0 == rc);
+            
+            StreamSocket *socket;
+            do {
+                rc = serverSocket->accept(&socket);
+            } while (rc);
+
+            barrier.wait();
+
+            ASSERT(Obj::SESSION_UP == state);
+
+            const char STRING[] = "Hello World!";
+
+            ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
+
+            // Wait for read callback to be called.
+
+            barrier.wait();
+
+            // Wait for SESSION_DOWN to be called.
+
+            barrier.wait();
+
+            if (veryVerbose) {
+                MTCOUT << "Bringing down the channel" << MTENDL;
+            }
+
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+            factory.deallocate(socket);
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -2484,7 +3097,7 @@ int main(int argc, char *argv[])
                                               _3,
                                               _4,
                                               &barrier);
-        const char FILL = 0xBB;
+        const char FILL = 'X';
         BSLS_ASSERT(0 == SIZE % 2); // test invariant
         {
             Obj mX(&blobFactory, config, &poolStateCallback, &pa);
@@ -2492,13 +3105,19 @@ int main(int argc, char *argv[])
             int rc = mX.start();
             ASSERT(0 == rc);
 
+            btlmt::ListenOptions listenOpts;
+            listenOpts.setServerAddress(btlso::IPv4Address());
+            listenOpts.setBacklog(5);
+            listenOpts.setAllowHalfOpenConnections(false);
+            btlso::SocketOptions socketOpts;
+            socketOpts.setReuseAddress(true);
+            listenOpts.setSocketOptions(socketOpts);
+
             int handle;
             rc = mX.listen(&handle,
                            sessionStateCb,
-                           0,
-                           5,
-                           1,
-                           &factory);
+                           &factory,
+                           listenOpts);
             ASSERT(0 == rc);
 
             const int PORTNUM = mX.portNumber(handle);
@@ -2739,8 +3358,6 @@ int main(int argc, char *argv[])
             btlmt::ChannelPoolConfiguration config;
             config.setMaxThreads(1);
 
-            typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
-
             bslmt::Barrier channelCbBarrier(2);
             btlmt::SessionPool::SessionStateCallback sessionStateCb(
                          bdlf::BindUtil::bind(&sessionStateCallbackWithBarrier,
@@ -2850,8 +3467,6 @@ int main(int argc, char *argv[])
             btlmt::ChannelPoolConfiguration config;
             config.setMaxThreads(1);
 
-            typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
-
             bslmt::Barrier channelCbBarrier(2);
             btlmt::SessionPool::SessionStateCallback sessionStateCb(
                          bdlf::BindUtil::bind(&sessionStateCallbackWithBarrier,
@@ -2882,7 +3497,7 @@ int main(int argc, char *argv[])
                                    &socketFactory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                btlso::IPv4Address address("127.0.0.1", 45248); // good address
+                btlso::IPv4Address address("127.0.0.1", 45000); // good address
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2986,23 +3601,31 @@ int main(int argc, char *argv[])
 
         TestFactory factory;
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(5);
+        btlso::SocketOptions socketOpts;
+        socketOpts.setReuseAddress(true);
+        listenOpts.setSocketOptions(socketOpts);
+
         int handle = 0;
         ASSERT(0 == sessionPool.listen(&handle,
                                        sessionStateCb,
-                                       0,
-                                       5,
-                                       1,
-                                       &factory));
+                                       &factory,
+                                       listenOpts));
         const int PORTNUM = sessionPool.portNumber(handle);
 
         btlso::IPv4Address ADDRESS("127.0.0.1", PORTNUM);
 
+        btlmt::ConnectOptions connectOptions;
+        connectOptions.setServerEndpoint(ADDRESS);
+        connectOptions.setTimeout(bsls::TimeInterval(1));
+        connectOptions.setNumAttempts(5);
+
         ASSERT(0 == sessionPool.connect(&handle,
                                         sessionStateCb,
-                                        ADDRESS,
-                                        5,
-                                        bsls::TimeInterval(1),
-                                        &factory));
+                                        &factory,
+                                        connectOptions));
 
         while (numUpConnections < 2) {
             bslmt::ThreadUtil::microSleep(50, 0);
@@ -3205,12 +3828,15 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.start());
 
+            btlmt::ListenOptions listenOpts;
+            listenOpts.setServerAddress(btlso::IPv4Address());
+            listenOpts.setBacklog(5);
+
             int handle = 0;
             ASSERT(0 == mX.listen(&handle,
                                   &sessionStateCallback,
-                                  0,
-                                  5,
-                                  &sessionFactory));
+                                  &sessionFactory,
+                                  listenOpts));
 
             const int PORTNUM = mX.portNumber(handle);
 
@@ -3303,9 +3929,16 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(5);
+
         int         handle;
         TestFactory sessionFactory;
-        int rc = mX.listen(&handle, sessionStateCb, 0, 5, &sessionFactory);
+        int rc = mX.listen(&handle,
+                           sessionStateCb,
+                           &sessionFactory,
+                           listenOpts);
         ASSERT(!rc);
 
         const int PORTNUM = X.portNumber(handle);
@@ -3369,10 +4002,14 @@ int main(int argc, char *argv[])
         Obj mX(config, poolStateCb);
         ASSERT(0 == mX.start());
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(1);
+
         bslmt::Barrier barrier(2);
         int            handle;
         TestSessionFactory sessionFactory(&barrier);
-        mX.listen(&handle, sessionStateCb, 0, 1, &sessionFactory);
+        mX.listen(&handle, sessionStateCb, &sessionFactory, listenOpts);
 
         btlso::InetStreamSocketFactory<btlso::IPv4Address> socketFactory;
         btlso::StreamSocket<btlso::IPv4Address> *socket =
@@ -3443,13 +4080,18 @@ int main(int argc, char *argv[])
         int rc = mX.start();
         ASSERT(0 == rc);
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(5);
+        btlso::SocketOptions socketOpts;
+        socketOpts.setReuseAddress(true);
+        listenOpts.setSocketOptions(socketOpts);
+
         int handle;
         rc = mX.listen(&handle,
                        sessionStateCb,
-                       0,
-                       5,
-                       1,
-                       &factory);
+                       &factory,
+                       listenOpts);
         ASSERT(0 == rc);
 
         const int PORTNUM = mX.portNumber(handle);
@@ -3507,13 +4149,18 @@ int main(int argc, char *argv[])
         int rc = sessionPool.start();
         ASSERT(0 == rc);
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(5);
+        btlso::SocketOptions socketOpts;
+        socketOpts.setReuseAddress(false);
+        listenOpts.setSocketOptions(socketOpts);
+
         int handle;
         rc = sessionPool.listen(&handle,
                                 sessionStateCb,
-                                0,
-                                5,
-                                false,
-                                &factory);
+                                &factory,
+                                listenOpts);
         ASSERT(0 == rc);
 
         {
@@ -3570,13 +4217,18 @@ int main(int argc, char *argv[])
         int rc = mX.start();
         ASSERT(0 == rc);
 
+        btlmt::ListenOptions listenOpts;
+        listenOpts.setServerAddress(btlso::IPv4Address());
+        listenOpts.setBacklog(5);
+        btlso::SocketOptions socketOpts;
+        socketOpts.setReuseAddress(false);
+        listenOpts.setSocketOptions(socketOpts);
+
         int handle;
         rc = mX.listen(&handle,
                        sessionStateCb,
-                       0,
-                       5,
-                       false,
-                       &factory);
+                       &factory,
+                       listenOpts);
         ASSERT(0 == rc);
 
         {

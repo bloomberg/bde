@@ -46,6 +46,7 @@ const char *Flag::toAscii(Flag::ShutdownType value)
       CASE(SHUTDOWN_RECEIVE)
       CASE(SHUTDOWN_SEND)
       CASE(SHUTDOWN_BOTH)
+      CASE(SHUTDOWN_GRACEFUL)
       default: return "(* UNKNOWN *)";
     }
 

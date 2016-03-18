@@ -911,6 +911,134 @@ class SessionPool {
     int listen(
               int                                      *handleBuffer,
               const SessionPool::SessionStateCallback&  callback,
+              SessionFactory                           *factory,
+              const btlmt::ListenOptions&               options,
+              void                                     *userData = 0,
+              int                                      *platformErrorCode = 0);
+        // Asynchronously listen for connection requests based on the
+        // parameters in the specified 'options'.  Once a connection is
+        // successfully accepted, this session pool will allocate and start a
+        // session for the connection using the specified 'factory'.  Load a
+        // handle for the listening connection into 'handleBuffer'.  Optionally
+        // specify 'platformErrorCode' that will be loaded with the
+        // platform-specific error code if this method fails.  Return 0 on
+        // success, and a non-zero value otherwise.  Every time a connection is
+        // accepted by this pool on this (newly-established) listening socket,
+        // the newly allocated session is passed to the specified 'callback'
+        // along with the optionally specified 'userData'.
+    
+                                  // *** client-related section ***
+    int closeHandle(int handle);
+        // Close the listener or the connection represented by the specified
+        // 'handle'.  Return 0 on success, or a non-zero value if the specified
+        // 'handle' does not match any currently allocation session handle.
+
+    int connect(
+              int                                      *handleBuffer,
+              const SessionPool::SessionStateCallback&  callback,
+              SessionFactory                           *factory,
+              const btlmt::ConnectOptions&              options,
+              void                                     *userData = 0,
+              int                                      *platformErrorCode = 0);
+        // Asynchronously attempt to establish a connection based on the
+        // parameters in the specified 'options'.  Once a connection is
+        // successfully established, allocate and start a session using the
+        // specified 'factory' and load a handle for the initiated connection
+        // into 'handleBuffer'.  Whenever this session state changes
+        // (i.e., is established), the specified 'callback' will be invoked
+        // along with a pointer to newly created 'Session' and the optionally
+        // specified 'userData'.  Return 0 on successful initiation, and a
+        // non-zero value otherwise.
+
+    int import(int                                            *handleBuffer,
+               const SessionPool::SessionStateCallback&        callback,
+               btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+               SessionFactory                                 *sessionFactory,
+               void                                           *userData = 0);
+    int import(int                                            *handleBuffer,
+               const SessionPool::SessionStateCallback&        callback,
+               bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                              *streamSocket,
+               SessionFactory                                 *sessionFactory,
+               void                                           *userData = 0);
+    int import(
+      int                                            *handleBuffer,
+      const SessionPool::SessionStateCallback&        callback,
+      btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+      btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+      bool                                            allowHalfOpenConnections,
+      SessionFactory                                 *sessionFactory,
+      void                                           *userData = 0);
+    int import(
+      int                                            *handleBuffer,
+      const SessionPool::SessionStateCallback&        callback,
+      bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
+                                                     *streamSocket,
+      bool                                            allowHalfOpenConnections,
+      SessionFactory                                 *sessionFactory,
+      void                                           *userData = 0);
+        // Asynchronously import the specified 'streamSocket' into this session
+        // pool.  Load into the specified 'handleBuffer' the handle to the
+        // corresponding internally-allocated session through the specified
+        // 'sessionFactory'.  If 'streamSocket' is a 'bslma::ManagedPtr', then
+        // ownership is transferred from it if this function returns
+        // successfully, and will be left unchanged if an error is returned;
+        // otherwise, upon destruction of this session pool, 'streamSocket' is
+        // destroyed via the specified 'socketFactory'.  Optionally specify
+        // 'allowHalfOpenConnections' to specify if this connection can remain
+        // half-open (that is with only the read or the write end open); if
+        // 'allowHalfOpenConnections' is not specified, then both ends of this
+        // connection will be closed when it is closed.  When the session state
+        // changes (i.e., is established), the specified 'callback' will be
+        // invoked along with the allocated 'Session' and the optionally
+        // specified 'userData'.  Return 0 on success, and a non-zero value
+        // with no effect on the session pool otherwise.
+
+    int setWriteQueueWatermarks(int handleId,
+                                int lowWatermark,
+                                int highWatermark);
+        // Set the write queue low- and high-water marks for the session
+        // associated with the specified 'handleId' to the specified
+        // 'lowWatermark' and 'highWatermark' values, respectively; return 0 on
+        // success, and a non-zero value otherwise.  A 'e_WRITE_QUEUE_LOWWATER'
+        // alert is provided (via the channel state callback) if 'lowWatermark'
+        // is greater than or equal to the current size of the write queue, and
+        // a 'e_WRITE_QUEUE_HIGHWATER' alert is provided if 'highWatermark' is
+        // less than or equal to the current size of the write queue.  (See the
+        // component-level documentation of 'btlmt_channelpool' for details on
+        // 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER' alerts.)  The
+        // behavior is undefined unless '0 <= lowWatermark' and
+        // '0 <= highWatermark'.  Note that this method overrides the values
+        // configured (for all channels) by the 'ChannelPoolConfiguration'
+        // supplied at construction.
+
+    // ACCESSORS
+    const ChannelPoolConfiguration& config() const;
+        // Return a non-modifiable reference to the configuration used during
+        // the construction of this session pool.
+
+    void getChannelHandleStatistics(
+                       bsl::vector<ChannelPool::HandleInfo> *handleInfo) const;
+        // Load into the specified 'handleInfo' array a snapshot of the
+        // information per socket handle currently in use by this channel pool.
+
+    int numSessions() const;
+        // Return a *snapshot* of the current number of sessions managed by
+        // this session pool.
+
+    int portNumber(int handle) const;
+        // Return the port number on which the session with the specified
+        // 'handle' is listening, or a negative value if 'handle' does not
+        // refer to an active listening session obtained from a successful call
+        // to 'listen' on this session pool.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    int setWriteCacheWatermarks(int, int, int);
+
+    int listen(
+              int                                      *handleBuffer,
+              const SessionPool::SessionStateCallback&  callback,
               int                                       portNumber,
               int                                       backlog,
               SessionFactory                           *factory,
@@ -965,12 +1093,10 @@ class SessionPool {
         // passed to the specified 'callback' along with the optionally
         // specified 'userData'.  The behavior is undefined unless
         // '0 < backlog'.
+        //
+        // DEPRECATED: Use the 'listen' overload taking a
+        // 'btlmt::ListenOptions' argument instead.
 
-                                  // *** client-related section ***
-    int closeHandle(int handle);
-        // Close the listener or the connection represented by the specified
-        // 'handle'.  Return 0 on success, or a non-zero value if the specified
-        // 'handle' does not match any currently allocation session handle.
 
     int connect(
               int                                      *handleBuffer,
@@ -980,7 +1106,7 @@ class SessionPool {
               int                                       numAttempts,
               const bsls::TimeInterval&                 interval,
               bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                         *socket,
+                                                       *socket,
               SessionFactory                           *factory,
               void                                     *userData = 0,
               ConnectResolutionMode                     resolutionMode
@@ -1025,6 +1151,9 @@ class SessionPool {
         // returned.  Return 0 on successful initiation, and a non-zero value
         // otherwise.  The behavior is undefined unless '0 < numAttempts', and
         // '0 < interval || 1 == numAttempts'.
+        //
+        // DEPRECATED: Use the 'connect' overload taking a
+        // 'btlmt::ConnectOptions' argument instead.
 
     int connect(
               int                                      *handleBuffer,
@@ -1056,83 +1185,24 @@ class SessionPool {
         // this session state changes (i.e., is established), the specified
         // 'callback' will be invoked along with a pointer to newly created
         // 'Session' and the optionally specified 'userData'.  Optionally
-        // specify either 'socketOptions' that will be used to specify what
-        // options should be set on the connecting socket and/or 'localAddress'
-        // to be used as the source address, or 'socket' to use as the
-        // connecting socket (with any desired options and/or source address
-        // already set).  Optionally specify 'platformErrorCode' that will be
-        // loaded with the platform-specific error code if this method fails.
-        // If 'socket' is specified, ownership will be transferred from it if
-        // this function returns successfully, and will be left unchanged if an
-        // error is returned.  Return 0 on successful initiation, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // '0 < numAttempts', and '0 < interval' or '1 == numAttempts'.
+        // specify 'halfOpenMode' to keep a channel half-open (with only the
+        // read or the write end open) in case a channel established by this
+        // server is half-closed; if 'halfOpenMode' is not specified, then
+        // 'ChannelPool::e_CLOSE_BOTH' is used (i.e., half-open connections
+        // lead to closing the channel completely).  Optionally specify either
+        // 'socketOptions' that will be used to specify what options should be
+        // set on the connecting socket and/or 'localAddress' to be used as the
+        // source address, or 'socket' to use as the connecting socket (with
+        // any desired options and/or source address already set).  If 'socket'
+        // is specified, ownership will be transferred from it if this function
+        // returns successfully, and will be left unchanged if an error is
+        // returned.  Return 0 on successful initiation, and a non-zero value
+        // otherwise.  The behavior is undefined unless '0 < numAttempts', and
+        // '0 < interval' or '1 == numAttempts'.
+        //
+        // DEPRECATED: Use the 'connect' overload taking a
+        // 'btlmt::ConnectOptions' argument instead.
 
-    int import(int                                            *handleBuffer,
-               const SessionPool::SessionStateCallback&        callback,
-               btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
-               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-               SessionFactory                                 *sessionFactory,
-               void                                           *userData = 0);
-    int import(int                                            *handleBuffer,
-               const SessionPool::SessionStateCallback&        callback,
-               bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                                                              *streamSocket,
-               SessionFactory                                 *sessionFactory,
-               void                                           *userData = 0);
-        // Asynchronously import the specified 'streamSocket' into this session
-        // pool.  Load into the specified 'handleBuffer' the handle to the
-        // corresponding internally-allocated session through the specified
-        // 'sessionFactory'.  If 'streamSocket' is a 'bslma::ManagedPtr', then
-        // ownership is transferred from it if this function returns
-        // successfully, and will be left unchanged if an error is returned;
-        // otherwise, upon destruction of this session pool, 'streamSocket' is
-        // destroyed via the specified 'socketFactory'.  When the session state
-        // changes (i.e., is established), the specified 'callback' will be
-        // invoked along with the allocated 'Session' and the optionally
-        // specified 'userData'.  Return 0 on success, and a non-zero value
-        // with no effect on the session pool otherwise.
-
-    int setWriteQueueWatermarks(int handleId,
-                                int lowWatermark,
-                                int highWatermark);
-        // Set the write queue low- and high-water marks for the session
-        // associated with the specified 'handleId' to the specified
-        // 'lowWatermark' and 'highWatermark' values, respectively; return 0 on
-        // success, and a non-zero value otherwise.  A 'e_WRITE_QUEUE_LOWWATER'
-        // alert is provided (via the channel state callback) if 'lowWatermark'
-        // is greater than or equal to the current size of the write queue, and
-        // a 'e_WRITE_QUEUE_HIGHWATER' alert is provided if 'highWatermark' is
-        // less than or equal to the current size of the write queue.  (See the
-        // component-level documentation of 'btlmt_channelpool' for details on
-        // 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER' alerts.)  The
-        // behavior is undefined unless '0 <= lowWatermark' and
-        // '0 <= highWatermark'.  Note that this method overrides the values
-        // configured (for all channels) by the 'ChannelPoolConfiguration'
-        // supplied at construction.
-
-    // ACCESSORS
-    const ChannelPoolConfiguration& config() const;
-        // Return a non-modifiable reference to the configuration used during
-        // the construction of this session pool.
-
-    void getChannelHandleStatistics(
-                       bsl::vector<ChannelPool::HandleInfo> *handleInfo) const;
-        // Load into the specified 'handleInfo' array a snapshot of the
-        // information per socket handle currently in use by this channel pool.
-
-    int numSessions() const;
-        // Return a *snapshot* of the current number of sessions managed by
-        // this session pool.
-
-    int portNumber(int handle) const;
-        // Return the port number on which the session with the specified
-        // 'handle' is listening, or a negative value if 'handle' does not
-        // refer to an active listening session obtained from a successful call
-        // to 'listen' on this session pool.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int setWriteCacheWatermarks(int, int, int);
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -1199,6 +1269,41 @@ int SessionPool::import(
                 SessionFactory                                 *sessionFactory,
                 void                                           *userData)
 {
+    return import(handleBuffer,
+                  callback,
+                  streamSocket,
+                  socketFactory,
+                  false,
+                  sessionFactory,
+                  userData);
+}
+
+inline
+int SessionPool::import(
+   int                                                         *handleBuffer,
+   const SessionPool::SessionStateCallback&                     cb,
+   bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > *streamSocket,
+   SessionFactory                                              *sessionFactory,
+   void                                                        *userData)
+{
+    return import(handleBuffer,
+                  cb,
+                  streamSocket,
+                  false,
+                  sessionFactory,
+                  userData);
+}
+
+inline
+int SessionPool::import(
+      int                                            *handleBuffer,
+      const SessionPool::SessionStateCallback&        callback,
+      btlso::StreamSocket<btlso::IPv4Address>        *streamSocket,
+      btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
+      bool                                            allowHalfOpenConnections,
+      SessionFactory                                 *sessionFactory,
+      void                                           *userData)
+{
     typedef btlso::StreamSocketFactoryDeleter Deleter;
 
     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> > socket(
@@ -1209,6 +1314,7 @@ int SessionPool::import(
     const int rc = import(handleBuffer,
                           callback,
                           &socket,
+                          allowHalfOpenConnections,
                           sessionFactory,
                           userData);
 
@@ -1226,6 +1332,80 @@ int SessionPool::setWriteCacheWatermarks(int handleId,
 {
     return setWriteQueueWatermarks(handleId, lowWatermark, highWatermark);
 }
+
+inline
+int SessionPool::listen(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  cb,
+                   int                                       portNumber,
+                   int                                       backlog,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   const btlso::SocketOptions               *socketOptions,
+                   int                                      *platformErrorCode)
+{
+    btlso::IPv4Address endpoint;
+    endpoint.setPortNumber(portNumber);
+
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  1,
+                  factory,
+                  userData,
+                  socketOptions,
+                  platformErrorCode);
+}
+
+inline
+int SessionPool::listen(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  cb,
+                   int                                       portNumber,
+                   int                                       backlog,
+                   int                                       reuseAddress,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   const btlso::SocketOptions               *socketOptions,
+                   int                                      *platformErrorCode)
+{
+    btlso::IPv4Address endpoint;
+    endpoint.setPortNumber(portNumber);
+
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  reuseAddress,
+                  factory,
+                  userData,
+                  socketOptions,
+                  platformErrorCode);
+}
+
+inline
+int SessionPool::listen(
+                   int                                      *handleBuffer,
+                   const SessionPool::SessionStateCallback&  cb,
+                   const btlso::IPv4Address&                 endpoint,
+                   int                                       backlog,
+                   SessionFactory                           *factory,
+                   void                                     *userData,
+                   const btlso::SocketOptions               *socketOptions,
+                   int                                      *platformErrorCode)
+{
+    return listen(handleBuffer,
+                  cb,
+                  endpoint,
+                  backlog,
+                  1,
+                  factory,
+                  userData,
+                  socketOptions,
+                  platformErrorCode);
+}
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
