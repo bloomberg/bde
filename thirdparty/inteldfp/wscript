@@ -295,11 +295,11 @@ def build(bld):
         config = {}
         config['cflags'] = []
         config['lib_target'] = 'inteldfp'
-        config['lib_install_path'] = os.path.join(prefix, 'lib')
+        config['lib_install_path'] = bld.env.LIBDIR
         config['h_install_path'] = os.path.join(prefix, 'include', 'inteldfp')
-        config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
-        config['pc_libdir'] = '${prefix}/lib'
-        config['pc_includedir'] = '${prefix}/include/inteldfp'
+        config['pc_install_path'] = os.path.join(bld.env.LIBDIR, 'pkgconfig')
+        config['pc_libdir'] = config['lib_install_path']
+        config['pc_includedir'] = config['h_install_path']
         is_bde = False
 
     bld(name='inteldfp_pc',
