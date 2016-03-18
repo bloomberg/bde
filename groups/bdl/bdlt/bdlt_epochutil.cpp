@@ -11,10 +11,9 @@ namespace bdlt {
 
                             // CONSTANTS
 
-// The following 'epochData' object represents the footprint of a
-// 'bdlt::Datetime' object as a pair of 32-bit integers, load-time initialized
-// to the value representing the epoch time (1970/1/1_00:00:00.000).  The test
-// driver must verify this representation.
+// The following '*s_epochData_p' object represents the footprint of a
+// 'bdlt::Datetime' object initialized to the value representing the epoch time
+// (1970/1/1_00:00:00.000).  The test driver must verify this representation.
 //
 // Note that if a change is made to the underlying data format of a
 // 'bdlt::Datetime' object, the 'epochData' object must be changed to match.
