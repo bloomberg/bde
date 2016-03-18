@@ -80,8 +80,8 @@ int Datetime::printToBuffer(char *result, int numBytes) const
     int               second;
     int               millisecond;
     int               microsecond;
-    int               nanosecond;
-    getTime(&hour, &minute, &second, &millisecond, &microsecond, &nanosecond);
+
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily

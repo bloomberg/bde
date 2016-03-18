@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 // Values represented by objects of type 'bdlt::Datetime' are used widely in
 // practice.  The values of the individual attributes resulting from a
 // default-constructed 'bdlt::Datetime' object, 'dt', are
-// "0001/01/01_24:00:00.000000000":
+// "0001/01/01_24:00:00.000000":
 //..
     bdlt::Datetime dt;          ASSERT( 1 == dt.date().year());
                                 ASSERT( 1 == dt.date().month());
@@ -338,7 +338,6 @@ int main(int argc, char *argv[])
                                 ASSERT( 0 == dt.second());
                                 ASSERT( 0 == dt.millisecond());
                                 ASSERT( 0 == dt.microsecond());
-                                ASSERT( 0 == dt.nanosecond());
 //..
 // We can then set 'dt' to have a specific value, say, 8:43pm on January 6,
 // 2013:
@@ -352,7 +351,6 @@ int main(int argc, char *argv[])
                                 ASSERT(   0 == dt.second());
                                 ASSERT(   0 == dt.millisecond());
                                 ASSERT(   0 == dt.microsecond());
-                                ASSERT(   0 == dt.nanosecond());
 //..
 // Now suppose we add 6 hours and 9 seconds to this value.  There is more than
 // one way to do it:
@@ -368,7 +366,6 @@ int main(int argc, char *argv[])
                                 ASSERT(   9 == dt2.second());
                                 ASSERT(   0 == dt2.millisecond());
                                 ASSERT(   0 == dt2.microsecond());
-                                ASSERT(   0 == dt2.nanosecond());
 
     bdlt::Datetime dt3(dt);
     dt3.addTime(6, 0, 9);
@@ -386,7 +383,6 @@ int main(int argc, char *argv[])
                                 ASSERT(   9 == dt3.second());
                                 ASSERT(   0 == dt3.millisecond());
                                 ASSERT(   0 == dt3.microsecond());
-                                ASSERT(   0 == dt3.nanosecond());
 //..
 // We can also add more than a day's worth of time:
 //..
@@ -1900,6 +1896,7 @@ if (veryVerbose)
                     ASSERT(delta < maxDelta);
                 } else {
                     DatetimeInterval minDelta  = startOfEpoch - x;
+                    P(minDelta); // JEFF
                     ASSERT(minDelta < delta);
                 }
 

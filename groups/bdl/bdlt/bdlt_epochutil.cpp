@@ -31,17 +31,9 @@ namespace bdlt {
 #endif
 
 #ifdef BDE_USE_PROLEPTIC_DATES
-static const bsls::Types::Uint64 epochData =
-                        719163ULL * TimeUnitRatio::k_US_PER_D + 3652059ULL + 1;
-       // 719163 is 1970/01/01 and 3652059 is 9999/12/31 in Proleptic Gregorian
-
 const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135596800LL;
                                                  // January    1, 0001 00:00:00
 #else
-static const bsls::Types::Uint64 epochData =
-                        719165ULL * TimeUnitRatio::k_US_PER_D + 3652061ULL + 1;
-                     // 719165 is 1970/01/01 and 3652061 is 9999/12/31 in POSIX
-
 const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
                                                  // January    1, 0001 00:00:00
 #endif
