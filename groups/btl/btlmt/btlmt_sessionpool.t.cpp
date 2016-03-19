@@ -2272,7 +2272,6 @@ int main(int argc, char *argv[])
             btlso::InetStreamSocketFactory<btlso::IPv4Address> socketFactory;
 
             {
-
                 typedef btlso::StreamSocketFactoryDeleter Deleter;
 
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
@@ -2280,7 +2279,7 @@ int main(int argc, char *argv[])
                                    &socketFactory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                btlso::IPv4Address address("127.0.0.1", 45000); // good address
+                btlso::IPv4Address address("127.0.0.1", 45248); // good address
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2304,7 +2303,7 @@ int main(int argc, char *argv[])
                                    &socketFactory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
 
-                btlso::IPv4Address address("1.1.1.1", 45000);  // bad address
+                btlso::IPv4Address address("1.1.1.1", 45248);  // bad address
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2934,8 +2933,6 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 != ta.numBytesInUse());
-        const int NUM_BYTES = da.numBytesInUse();
-        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2998,8 +2995,6 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
         ASSERT(0 != ta.numBytesInUse());
-        const int NUM_BYTES = da.numBytesInUse();
-        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
       case 1: {
