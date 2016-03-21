@@ -1,8 +1,16 @@
-bsl-internal (2.26.0.4) unstable; urgency=low
+bsl-internal (2.26.0.5) unstable; urgency=low
 
+  * d1053f8 Merge pull request #237 from sbreitst/add_bdld.txt_2.26.x-bde-1004
+  * 2c4d3ff Merge pull request #230 from hversche/fix-tuple-clang-drqs-79683576-2.26
+
+ -- Steven Breitstein <sbreitstein@bloomberg.net>  Fri, 18 Mar 2016 11:34:55 -0400
+
+bsl-internal (2.26.0.4) git; urgency=low
+
+  * 6d4d6b2 Changelog for version 2.26.0.4
   * 1d4eb44 Merge pull request #221 from hrosen4/no-DUMMY-drqs-79583761
 
- -- Henry Verschell <hverschell@bloomberg.net>  Mon, 14 Mar 2016 16:26:34 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Mar 2016 20:31:41 -0400
 
 bsl-internal (2.26.0.3) git; urgency=low
 
