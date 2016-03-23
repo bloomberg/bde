@@ -79,8 +79,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 int main(int argc, char *argv[])
 {
-    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
+    const int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    const bool verbose     = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -129,6 +130,15 @@ int main(int argc, char *argv[])
                       == (bdlt::Date(2470, 1, 1) - bdlt::Date(1970, 1, 1))
                                   * bdlt::TimeUnitRatio::k_NS_PER_D
                                   + bdlt::DatetimeImpUtil::k_1970_01_01_VALUE);
+
+        if (veryVerbose) {
+            P(bdlt::DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS);
+            P(bdlt::DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS);
+            P(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE);
+            P(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE);
+            P(bdlt::DatetimeImpUtil::k_2470_01_01_VALUE);
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
