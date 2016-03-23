@@ -692,6 +692,9 @@ struct bsls_Platform_Assert;
             #elif defined(__SunOS_5_10)
                 #define BSLS_PLATFORM_OS_VER_MAJOR 10
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
+            #elif defined(__SunOS_5_11)
+                #define BSLS_PLATFORM_OS_VER_MAJOR 11
+                #define BSLS_PLATFORM_OS_VER_MINOR 0
             #else
                 #define BSLS_PLATFORM_OS_VER_MAJOR 1
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
