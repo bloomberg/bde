@@ -385,7 +385,7 @@ template<class MSG>
 void Socks5Session::readMessageCb(int         result,
                                   int        *needed,
                                   btlb::Blob *msg,
-                                  int         channelId,
+                                  int,
                                   void (Socks5Session::*func)(
                                                          const MSG *data,
                                                          int        length,
@@ -705,7 +705,7 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
 void Socks5Session::readProxy(int         result,
                               int        *needed,
                               btlb::Blob *msg,
-                              int         channelId)
+                              int)
 {
     if (btlmt::AsyncChannel::e_SUCCESS == result) {
         const int length = msg->length();
