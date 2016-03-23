@@ -176,9 +176,9 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
         return -1;                                                    // RETURN
     }
 
-    // We sometimes get redundant copies of the same address, so we need to
-    // keep them in a hash table to avoid duplicates, then copy from the hash
-    // table to the vector.
+    // We sometimes get redundant copies of the same address, so keep a
+    // hash table to detect and ignore duplicates.  Ensure that values appear
+    // in the vector in the same order they appear in the 'getaddrinfo' list.
 
     bsl::unordered_set<btlso::IPv4Address, IPv4AddressHasher> addressHT;
 
@@ -199,19 +199,15 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
             btlso::IPv4Address address;
             address.setIpAddress(sockAddrIn->sin_addr.s_addr);
 
-            addressHT.insert(address);
+            if (addressHT.insert(address).second) {
+                hostAddresses->push_back(address);
+            }
         }
 
         // AF_INET6, AF_IRDA, AF_BTH, etc. are ignored.
     }
 
     freeaddrinfo(head);
-
-    hostAddresses->reserve(addressHT.size());
-    hostAddresses->insert(hostAddresses->end(),
-                          addressHT.begin(),
-                          addressHT.end());
-
     return 0;
 }
 
