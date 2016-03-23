@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bdlt_calendarcache_cpp,"$Id$ $CSID$")
 
 #include <bdlt_calendarloader.h>
+#include <bdlt_currenttime.h>
 #include <bdlt_date.h>            // for testing only
 #include <bdlt_packedcalendar.h>
 
@@ -18,28 +19,9 @@ BSLS_IDENT_RCSID(bdlt_calendarcache_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-namespace {
-
-// STATIC HELPER FUNCTIONS
-static
-bool hasExpired(const bsl::time_t& interval,
-                const bsl::time_t& loadTime)
-    // Return 'true' if at least the specified time 'interval' has elapsed
-    // since the specified 'loadTime', and 'false' otherwise.
-{
-    const bsl::time_t now = bsl::time(0);
-    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != now);
-
-    const bsl::time_t elapsedTime = now - loadTime;
-
-    return elapsedTime >= interval ? true : false;
-}
-
-}  // close unnamed namespace
-
-                     // =========================
-                     // class CalendarCache_Entry
-                     // =========================
+                        // =========================
+                        // class CalendarCache_Entry
+                        // =========================
 
 class CalendarCache_Entry {
     // This class defines the type of objects that are inserted into the
@@ -51,7 +33,7 @@ class CalendarCache_Entry {
     bsl::shared_ptr<const Calendar> d_ptr;       // shared pointer to
                                                  // out-of-place instance
 
-    bsl::time_t                     d_loadTime;  // time when calendar was
+    Datetime                        d_loadTime;  // time when calendar was
                                                  // loaded
 
   public:
@@ -61,7 +43,7 @@ class CalendarCache_Entry {
         // is never actually inserted into the cache.
 
     CalendarCache_Entry(Calendar         *calendar,
-                        bsl::time_t       loadTime,
+                        Datetime          loadTime,
                         bslma::Allocator *allocator);
         // Create a cache entry object for managing the specified 'calendar'
         // that was loaded at the specified 'loadTime' using the specified
@@ -86,24 +68,24 @@ class CalendarCache_Entry {
         // Return a shared pointer providing non-modifiable access to the
         // calendar referred to by this cache entry object.
 
-    bsl::time_t loadTime() const;
+    Datetime loadTime() const;
         // Return the time at which the calendar referred to by this cache
         // entry object was loaded.
 };
 
-                     // -------------------------
-                     // class CalendarCache_Entry
-                     // -------------------------
+                        // -------------------------
+                        // class CalendarCache_Entry
+                        // -------------------------
 
 // CREATORS
 CalendarCache_Entry::CalendarCache_Entry()
 : d_ptr()
-, d_loadTime(0)
+, d_loadTime()
 {
 }
 
 CalendarCache_Entry::CalendarCache_Entry(Calendar         *calendar,
-                                         bsl::time_t       loadTime,
+                                         Datetime          loadTime,
                                          bslma::Allocator *allocator)
 : d_ptr(calendar, allocator)
 , d_loadTime(loadTime)
@@ -138,14 +120,14 @@ bsl::shared_ptr<const Calendar> CalendarCache_Entry::get() const
     return d_ptr;
 }
 
-bsl::time_t CalendarCache_Entry::loadTime() const
+Datetime CalendarCache_Entry::loadTime() const
 {
     return d_loadTime;
 }
 
-                        // -------------------
-                        // class CalendarCache
-                        // -------------------
+                           // -------------------
+                           // class CalendarCache
+                           // -------------------
 
 // CREATORS
 CalendarCache::CalendarCache(CalendarLoader   *loader,
@@ -173,7 +155,7 @@ CalendarCache::CalendarCache(CalendarLoader            *loader,
 
 : d_cache(bsl::less<bsl::string>(), basicAllocator)
 , d_loader_p(loader)
-, d_timeOut(static_cast<bsl::time_t>(timeout.seconds()))
+, d_timeOut(0, 0, 0, 0, timeout.totalMilliseconds())
 , d_hasTimeOutFlag(true)
 , d_lock()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -199,9 +181,8 @@ CalendarCache::getCalendar(const char *calendarName)
         CacheIterator iter = d_cache.find(calendarName);
 
         if (iter != d_cache.end()) {
-
-            if (!d_hasTimeOutFlag
-             || !hasExpired(d_timeOut, iter->second.loadTime())) {
+            if (   !d_hasTimeOutFlag
+                || d_timeOut > CurrentTime::utc() - iter->second.loadTime()) {
                 return iter->second.get();                            // RETURN
             }
             else {
@@ -214,6 +195,8 @@ CalendarCache::getCalendar(const char *calendarName)
 
     PackedCalendar packedCalendar;  // temporary, so use default allocator
 
+    const Datetime timestamp = CurrentTime::utc();
+
     if (d_loader_p->load(&packedCalendar, calendarName)) {
         return bsl::shared_ptr<const Calendar>();                     // RETURN
     }
@@ -223,9 +206,7 @@ CalendarCache::getCalendar(const char *calendarName)
     Calendar *calendarPtr = new (*d_allocator_p) Calendar(packedCalendar,
                                                           d_allocator_p);
 
-    CalendarCache_Entry entry(calendarPtr, bsl::time(0), d_allocator_p);
-
-    BSLS_ASSERT(static_cast<bsl::time_t>(-1) != entry.loadTime());
+    CalendarCache_Entry entry(calendarPtr, timestamp, d_allocator_p);
 
     // Insert newly-loaded calendar into cache if another thread hasn't done so
     // already.
@@ -287,9 +268,8 @@ CalendarCache::lookupCalendar(const char *calendarName) const
     CacheIterator iter = d_cache.find(calendarName);
 
     if (iter != d_cache.end()) {
-
-        if (!d_hasTimeOutFlag
-         || !hasExpired(d_timeOut, iter->second.loadTime())) {
+        if (   !d_hasTimeOutFlag
+            || d_timeOut > CurrentTime::utc() - iter->second.loadTime()) {
             return iter->second.get();                                // RETURN
         }
         else {
@@ -300,11 +280,32 @@ CalendarCache::lookupCalendar(const char *calendarName) const
     return bsl::shared_ptr<const Calendar>();
 }
 
+Datetime CalendarCache::lookupLoadTime(const char *calendarName) const
+{
+    BSLS_ASSERT(calendarName);
+
+    bsls::BslLockGuard lockGuard(&d_lock);
+
+    CacheIterator iter = d_cache.find(calendarName);
+
+    if (iter != d_cache.end()) {
+        if (   !d_hasTimeOutFlag
+            || d_timeOut > CurrentTime::utc() - iter->second.loadTime()) {
+            return iter->second.loadTime();                           // RETURN
+        }
+        else {
+            d_cache.erase(iter);
+        }
+    }
+
+    return Datetime();
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

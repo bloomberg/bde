@@ -256,6 +256,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_calendar.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIME
+#include <bdlt_datetime.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include <bdlt_datetimeinterval.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -280,10 +288,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BSL_CTIME
-#include <bsl_ctime.h>
-#endif
-
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -302,18 +306,18 @@ namespace bdlt {
 class CalendarLoader;
 class CalendarCache_Entry;
 
-                        // ===================
-                        // class CalendarCache
-                        // ===================
+                           // ===================
+                           // class CalendarCache
+                           // ===================
 
 class CalendarCache {
-    // This class implements an efficient cache of *read-only*
-    // 'bdlt::Calendar' objects that are loaded into the cache, using a
-    // calendar loader supplied at construction, as a side-effect of the
-    // 'getCalendar' manipulator.  Calendars in the cache can be invalidated,
-    // and removed from the cache via the 'invalidate' and 'invalidateAll'
-    // methods.  In addition, calendars in the cache can be made to expire
-    // based on a timeout that may be optionally supplied at construction.  The
+    // This class implements an efficient cache of *read-only* 'bdlt::Calendar'
+    // objects that are loaded into the cache, using a calendar loader supplied
+    // at construction, as a side-effect of the 'getCalendar' manipulator.
+    // Calendars in the cache can be invalidated, and removed from the cache
+    // via the 'invalidate' and 'invalidateAll' methods.  In addition,
+    // calendars in the cache can be made to expire based on a timeout that may
+    // be optionally supplied at construction.  The
     // 'bsl::shared_ptr<const bdlt::Calendar>' objects returned from the
     // 'getCalendar' and 'lookupCalendar' methods allow for the safe removal of
     // calendars from the cache that may still have outstanding references to
@@ -333,7 +337,7 @@ class CalendarCache {
     CalendarLoader         *d_loader_p;        // calendar loader (held, not
                                                // owned)
 
-    bsl::time_t             d_timeOut;         // timeout value; ignored unless
+    DatetimeInterval        d_timeOut;         // timeout value; ignored unless
                                                // 'd_hasTimeOutFlag' is 'true'
 
     bool                    d_hasTimeOutFlag;  // 'true' if this cache has a
@@ -428,16 +432,24 @@ class CalendarCache {
         // If the calendar having 'calendarName' is not found in the cache, or
         // if the calendar has expired (i.e., per a timeout optionally supplied
         // at construction), return an empty shared pointer.
+
+    Datetime lookupLoadTime(const char *calendarName) const;
+        // Return the datetime, in Coordinated Universal Time (UTC), at which
+        // the calendar having the specified 'calendarName' was loaded into
+        // this calendar cache.  If the calendar having 'calendarName' is not
+        // found in the cache, or if the calendar has expired (i.e., per a
+        // timeout optionally supplied at construction), return 'Datetime()'.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // TRAITS
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -450,7 +462,7 @@ struct UsesBslmaAllocator<bdlt::CalendarCache> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
