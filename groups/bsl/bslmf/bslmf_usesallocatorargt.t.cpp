@@ -1,8 +1,8 @@
 // bslmf_usesallocatorargt.t.cpp                                      -*-C++-*-
-#include <bslmf_usesallocatorargt.h>
 
-#include <bslmf_allocatorargt.h>  // for testing only
+#include "bslmf_usesallocatorargt.h"
 
+#include <bslmf_allocatorargt.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 

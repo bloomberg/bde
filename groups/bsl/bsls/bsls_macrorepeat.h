@@ -1,4 +1,4 @@
-// bsls_macrorepeat.h                                                 -*-C++-*-
+// bsls_macrorepeat.h                  -*-C++-*-
 #ifndef INCLUDED_BSLS_MACROREPEAT
 #define INCLUDED_BSLS_MACROREPEAT
 
@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Repreat a macro invocation with different numeric arguments.
+//@PURPOSE: repreat a macro invocation with different numeric arguments
 //
 //@CLASSES:
 // BSLS_MACROREPEAT(N, MACRO): Invoke 'MACRO(1) MACRO(2) ... MACRO(N)'
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id: $")
 #endif // ! defined(INCLUDED_BSLS_MACROREPEAT)
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

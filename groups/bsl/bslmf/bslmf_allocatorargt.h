@@ -395,7 +395,7 @@ static const allocator_arg_t allocator_arg = { };
 #endif // ! defined(INCLUDED_BSLMF_ALLOCATORARGT)
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

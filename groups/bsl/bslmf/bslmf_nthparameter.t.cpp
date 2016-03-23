@@ -1,6 +1,6 @@
-// bslmf_nthparameter.t.cpp                                           -*-C++-*-
-#include <bslmf_nthparameter.h>
+// bslmf_nthparameter.t.cpp                  -*-C++-*-
 
+#include "bslmf_nthparameter.h"
 #include <bslmf_integralconstant.h>
 
 #include <cstdio>
@@ -149,7 +149,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Finally, we test this implementation using 'bsl::is_same':
 //..
-   #include <bslmf_issame.h>  // for testing only
+   #include <bslmf_issame.h>
 
    int usageExample1()
    {
@@ -509,7 +509,7 @@ template <class ELEMS_01,
                                                ELEMS_10>::Type Type;
    };
 
-   #include <bslmf_issame.h>  // for testing only
+   #include <bslmf_issame.h>
 
    int usageExample1()
    {
@@ -538,7 +538,7 @@ template <class ELEMS_01,
    struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
    };
-   #include <bslmf_issame.h>  // for testing only
+   #include <bslmf_issame.h>
 
    int usageExample1()
    {
@@ -730,7 +730,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

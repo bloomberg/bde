@@ -13,6 +13,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_objectbuffer.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -1433,8 +1434,9 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
 #define TEST_CONSTRUCT(op, expArgs)                                           \
   {                                                                           \
     ConstructTestTypeNoAlloc EXP expArgs ;                                    \
-    char rawBuf[sizeof(ConstructTestTypeNoAlloc)];                            \
-    ConstructTestTypeNoAlloc *objPtr = (ConstructTestTypeNoAlloc *)rawBuf;    \
+    bsls::ObjectBuffer<ConstructTestTypeNoAlloc> rawBuf;                      \
+    ConstructTestTypeNoAlloc *objPtr =                                        \
+            (ConstructTestTypeNoAlloc *) rawBuf.buffer();                     \
     ConstructTestTypeNoAlloc& mX = *objPtr;                                   \
     const ConstructTestTypeNoAlloc& X = mX;                                   \
     std::memset(&mX, 92, sizeof mX);                                          \
@@ -1446,8 +1448,9 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
   {                                                                           \
     /* Expects allocator at end of argument list */                           \
     ConstructTestTypeAlloc EXP expArgs ;                                      \
-    char rawBuf[sizeof(ConstructTestTypeAlloc)];                              \
-    ConstructTestTypeAlloc *objPtr = (ConstructTestTypeAlloc *)rawBuf;        \
+    bsls::ObjectBuffer<ConstructTestTypeAlloc> rawBuf;                        \
+    ConstructTestTypeAlloc *objPtr =                                          \
+              (ConstructTestTypeAlloc *) rawBuf.buffer();                     \
     ConstructTestTypeAlloc& mX = *objPtr;                                     \
     const ConstructTestTypeAlloc& X = *objPtr;                                \
     std::memset(&mX, 92, sizeof mX);                                          \
@@ -1458,8 +1461,9 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
   {                                                                           \
     /* Expects allocator after 'allocator_arg_t' tag */                       \
     ConstructTestTypeAllocArgT EXP expArgs ;                                  \
-    char rawBuf[sizeof(ConstructTestTypeAllocArgT)];                          \
-    ConstructTestTypeAllocArgT *objPtr = (ConstructTestTypeAllocArgT *)rawBuf;\
+    bsls::ObjectBuffer<ConstructTestTypeAllocArgT> rawBuf;                    \
+    ConstructTestTypeAllocArgT *objPtr =                                      \
+              (ConstructTestTypeAllocArgT *) rawBuf.buffer();                 \
     ConstructTestTypeAllocArgT& mX = *objPtr;                                 \
     const ConstructTestTypeAllocArgT& X = *objPtr;                            \
     std::memset(&mX, 92, sizeof mX);                                          \

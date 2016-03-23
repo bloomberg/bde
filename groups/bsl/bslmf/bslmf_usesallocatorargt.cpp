@@ -2,10 +2,14 @@
 
 #include <bslmf_usesallocatorargt.h>
 
-#include <bslmf_allocatorargt.h>  // for testing only
+#include <bslmf_allocatorargt.h>  // For testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+namespace BloombergLP {
+
+} // Close namespace BloombergLP
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.

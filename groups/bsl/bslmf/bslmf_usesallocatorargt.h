@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a metafunction for 'allocator_arg_t' construction.
+//@PURPOSE: Provide a metafunction for 'allocator_arg_t' construction
 //
 //@CLASSES:
 //  bslmf::UsesAllocatorArgT: metafunction for 'allocator_arg_t' checking
