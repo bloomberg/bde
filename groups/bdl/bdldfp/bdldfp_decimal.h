@@ -3518,11 +3518,11 @@ class Decimal_StandardNamespaceCanary {
     // name of the standard namespace.  Do not use it.
 };
 
-          // =======================================================
-          // template<...> class faux_numeric_limits<NUMERIC, DUMMY>
-          // =======================================================
+    // =================================================================
+    // template<...> class faux_numeric_limits<NUMERIC_TYPE, DUMMY_TYPE>
+    // =================================================================
 
-template<class NUMERIC, class DUMMY = void>
+template<class NUMERIC_TYPE, class DUMMY_TYPE = void>
 class faux_numeric_limits;
     // This class is used as a base-class for manifest constants in the
     // 'std::numeric_limits' specializations to overcome a Sun compiler issue.
@@ -3531,8 +3531,8 @@ class faux_numeric_limits;
       // class faux_numeric_limits<Decimal_StandardNamespaceCanary, ...>
       // ===============================================================
 
-template<class DUMMY>
-class faux_numeric_limits<Decimal_StandardNamespaceCanary, DUMMY>
+template<class DUMMY_TYPE>
+class faux_numeric_limits<Decimal_StandardNamespaceCanary, DUMMY_TYPE>
 {
     // Explicit full specialization of the standard "traits" template
     // 'std::numeric_limits' for the type
@@ -3547,12 +3547,12 @@ class faux_numeric_limits<Decimal_StandardNamespaceCanary, DUMMY>
         // numeric type.
 };
 
-         // =========================================================
-         // template<...> class faux_numeric_limits<Decimal32, DUMMY>
-         // =========================================================
+    // ==============================================================
+    // template<...> class faux_numeric_limits<Decimal32, DUMMY_TYPE>
+    // ==============================================================
 
-template<class DUMMY>
-class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY> {
+template<class DUMMY_TYPE>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY_TYPE> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal32'.
 
@@ -3659,12 +3659,12 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY> {
         // by the C and C++ Decimal TRs.
 };
 
-         // =========================================================
-         // template<...> class faux_numeric_limits<Decimal64, DUMMY>
-         // =========================================================
+    // ==============================================================
+    // template<...> class faux_numeric_limits<Decimal64, DUMMY_TYPE>
+    // ==============================================================
 
-template<class DUMMY>
-class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY> {
+template<class DUMMY_TYPE>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY_TYPE> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal64'.
 
@@ -3769,12 +3769,12 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY> {
         // by the C and C++ Decimal TRs.
 };
 
-         // ==========================================================
-         // template<...> class faux_numeric_limits<Decimal128, DUMMY>
-         // ==========================================================
+    // ===============================================================
+    // template<...> class faux_numeric_limits<Decimal128, DUMMY_TYPE>
+    // ===============================================================
 
-template<class DUMMY>
-class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY> {
+template<class DUMMY_TYPE>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY_TYPE> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type
         // 'BloombergLP::bdldfp::Decimal128'.
@@ -3885,226 +3885,226 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY> {
              // faux_numeric_limits<Decimal32, ...> member storage
              // --------------------------------------------------
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_specialized;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_specialized;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::digits;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::digits;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::digits10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::max_digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::max_digits10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_signed;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_signed;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_integer;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_integer;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_exact;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_exact;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::radix;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::radix;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::min_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::min_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::min_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::min_exponent10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::max_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::max_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal32, DUMMY>::max_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal32, DUMMY_TYPE>::max_exponent10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::has_infinity;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::has_infinity;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::has_quiet_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::has_quiet_NaN;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::has_signaling_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::has_signaling_NaN;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_denorm_style
-faux_numeric_limits<Decimal32, DUMMY>::has_denorm;
+faux_numeric_limits<Decimal32, DUMMY_TYPE>::has_denorm;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::has_denorm_loss;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::has_denorm_loss;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_iec559;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_iec559;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_bounded;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_bounded;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::is_modulo;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::is_modulo;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::traps;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::traps;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal32, DUMMY>::tinyness_before;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal32, DUMMY_TYPE>::tinyness_before;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_round_style
-faux_numeric_limits<Decimal32, DUMMY>::round_style;
+faux_numeric_limits<Decimal32, DUMMY_TYPE>::round_style;
 
              // --------------------------------------------------
              // faux_numeric_limits<Decimal64, ...> member storage
              // --------------------------------------------------
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_specialized;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_specialized;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::digits;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::digits;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::digits10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::max_digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::max_digits10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_signed;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_signed;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_integer;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_integer;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_exact;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_exact;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::radix;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::radix;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::min_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::min_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::min_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::min_exponent10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::max_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::max_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal64, DUMMY>::max_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal64, DUMMY_TYPE>::max_exponent10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::has_infinity;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::has_infinity;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::has_quiet_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::has_quiet_NaN;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::has_signaling_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::has_signaling_NaN;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_denorm_style
-faux_numeric_limits<Decimal64, DUMMY>::has_denorm;
+faux_numeric_limits<Decimal64, DUMMY_TYPE>::has_denorm;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::has_denorm_loss;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::has_denorm_loss;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_iec559;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_iec559;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_bounded;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_bounded;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::is_modulo;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::is_modulo;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::traps;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::traps;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal64, DUMMY>::tinyness_before;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal64, DUMMY_TYPE>::tinyness_before;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_round_style
-faux_numeric_limits<Decimal64, DUMMY>::round_style;
+faux_numeric_limits<Decimal64, DUMMY_TYPE>::round_style;
 
             // ---------------------------------------------------
             // faux_numeric_limits<Decimal128, ...> member storage
             // ---------------------------------------------------
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_specialized;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_specialized;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::digits;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::digits;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::digits10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::max_digits10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::max_digits10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_signed;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_signed;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_integer;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_integer;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_exact;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_exact;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::radix;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::radix;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::min_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::min_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::min_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::min_exponent10;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::max_exponent;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::max_exponent;
 
-template<class DUMMY>
-const int faux_numeric_limits<Decimal128, DUMMY>::max_exponent10;
+template<class DUMMY_TYPE>
+const int faux_numeric_limits<Decimal128, DUMMY_TYPE>::max_exponent10;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::has_infinity;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::has_infinity;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::has_quiet_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::has_quiet_NaN;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::has_signaling_NaN;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::has_signaling_NaN;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_denorm_style
-faux_numeric_limits<Decimal128, DUMMY>::has_denorm;
+faux_numeric_limits<Decimal128, DUMMY_TYPE>::has_denorm;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::has_denorm_loss;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::has_denorm_loss;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_iec559;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_iec559;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_bounded;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_bounded;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::is_modulo;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::is_modulo;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::traps;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::traps;
 
-template<class DUMMY>
-const bool faux_numeric_limits<Decimal128, DUMMY>::tinyness_before;
+template<class DUMMY_TYPE>
+const bool faux_numeric_limits<Decimal128, DUMMY_TYPE>::tinyness_before;
 
-template<class DUMMY>
+template<class DUMMY_TYPE>
 const std::float_round_style
-faux_numeric_limits<Decimal128, DUMMY>::round_style;
+faux_numeric_limits<Decimal128, DUMMY_TYPE>::round_style;
 
 }  // close package namespace
 }  // close enterprise namespace
