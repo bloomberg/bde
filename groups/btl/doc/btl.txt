@@ -65,8 +65,7 @@
 /'btlmt'
 /- - - -
  The {'btlmt'} package provides a multi-threaded framework that supports
- TCP/IPv4 transport.  In functionality, 'btlmt' is similar to 'ptdispatch'
- except that there is no support for 'fstsnd' at this time.
+ TCP/IPv4 transport. 
 
 /'btls'
 / - - -
