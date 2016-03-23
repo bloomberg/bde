@@ -13,6 +13,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <btlmt_channelstatus.h>
+
 #include <btls_iovecutil.h>
 #include <btlso_resolveutil.h>
 #include <btlso_socketimputil.h>
@@ -250,7 +252,7 @@ class Channel {
                                                          // local buffer,
                                                          // stack-allocated
 
-    volatile bool                    d_hiWatermarkHitFlag;
+    volatile bool                    d_highWatermarkHitFlag;
                                                          // already full
 
     // Channel state section (here for packing boolean flags together)
@@ -270,9 +272,9 @@ class Channel {
     bsls::TimeInterval               d_readTimeout;      // read timeout
                                                          // interval
 
-    int                              d_writeCacheLowWat;
+    int                              d_writeQueueLowWater;
 
-    int                              d_writeCacheHiWat;
+    int                              d_writeQueueHighWater;
 
     const int                        d_minIncomingMessageSize;
 
@@ -318,10 +320,10 @@ class Channel {
                                                          // synchronized with
                                                          // 'd_writeMutex'
 
-    bsls::AtomicInt                  d_recordedMaxWriteCacheSize;
+    bsls::AtomicInt                  d_recordedMaxWriteQueueSize;
                                                          // maximum recorded
                                                          // size of the write
-                                                         // cache
+                                                         // queue
 
     // DO NOT CHANGE THE ORDER OF THESE TWO DATA MEMBERS
 
@@ -358,7 +360,7 @@ class Channel {
     bool                             d_isWriteActive;    // a thread is
                                                          // actively writing
 
-    bsls::AtomicInt                  d_writeActiveCacheSize;
+    bsls::AtomicInt                  d_writeActiveQueueSize;
                                                          // number of bytes
                                                          // currently being
                                                          // written (including
@@ -554,50 +556,51 @@ class Channel {
         // from being destroyed (by another thread) during the course of this
         // operation by holding the specified 'self' handle to this channel
         // pool.  Return 0 on success, or a negative value if the message could
-        // not be enqueued.  The templatized type 'MessageType' must be support
-        // by the 'ChannelPool_MessageUtil' class (i.e.  'btlb::Blob' or
-        // 'ChannelPool_MessageUtil::IovecArray').  Note that the message may
-        // not be enqueued if the number of bytes already enqueued for this
-        // channel exceeds either the specified 'enqueueWaterMark' or the high
-        // water mark specified to this channel at construction, or if
-        // enqueuing this message would cause the high water mark to be
-        // exceeded.  Note that success does not imply that the message is
-        // actually written to the channel, only that it has been enqueued
-        // successfully.  Also note that 'self' is guaranteed to be valid
-        // during the entirety of this call.
+        // not be enqueued.  The templatized type 'MessageType' must be
+        // supported by the 'ChannelPool_MessageUtil' class (i.e.  'btlb::Blob'
+        // or 'ChannelPool_MessageUtil::IovecArray').  Note that the message
+        // will not be enqueued if the number of bytes already enqueued for
+        // this channel exceeds either the specified 'enqueueWaterMark' or the
+        // high water mark specified to this channel at construction.  If the
+        // message is rejected for this reason, e_WRITE_QUEUE_HIGHWATER and
+        // e_WRITE_QUEUE_LOWWATER alerts are scheduled, and may be delivered to
+        // a different thread before this call returns.  Note that success does
+        // not imply that the message is actually written to the channel, only
+        // that it has been enqueued successfully.  Also note that 'self' is
+        // guaranteed to be valid during the entirety of this call.
 
-    int setWriteCacheHiWatermark(int numBytes);
-        // Set the write cache high-water mark for this channel to the
+    int setWriteQueueHighWatermark(int numBytes);
+        // Set the write queue high-water mark for this channel to the
         // specified 'numBytes'; return 0 on success, and a non-zero value if
-        // 'numBytes' is less than the low-water mark for the write cache.  The
+        // 'numBytes' is less than the low-water mark for the write queue.  The
         // behavior is undefined unless '0 <= numBytes'.
 
-    void setWriteCacheHiWatermarkRaw(int numBytes);
-        // Set the write cache high-water mark for this channel to the
+    void setWriteQueueHighWatermarkRaw(int numBytes);
+        // Set the write queue high-water mark for this channel to the
         // specified 'numBytes'.  The behavior is undefined unless exclusive
         // write access has been obtained on this channel prior to the call.
 
-    int setWriteCacheLowWatermark(int numBytes);
-        // Set the write cache low-water mark for this channel to the specified
+    int setWriteQueueLowWatermark(int numBytes);
+        // Set the write queue low-water mark for this channel to the specified
         // 'numBytes'; return 0 on success, and a non-zero value if 'numBytes'
-        // is greater than the high-water mark for the write cache.  The
+        // is greater than the high-water mark for the write queue.  The
         // behavior is undefined unless '0 <= numBytes'.
 
-    void setWriteCacheLowWatermarkRaw(int numBytes);
-        // Set the write cache low-water mark for this channel to the specified
+    void setWriteQueueLowWatermarkRaw(int numBytes);
+        // Set the write queue low-water mark for this channel to the specified
         // 'numBytes'.  The behavior is undefined unless exclusive write access
         // has been obtained on this channel prior to the call.
 
-    void setWriteCacheWatermarks(int lowWatermark, int hiWatermark);
-        // Set the write cache low-water and high-water marks for this channel
-        // to the specified 'lowWatermark' and 'hiWatermark', respectively.
+    void setWriteQueueWatermarks(int lowWatermark, int highWatermark);
+        // Set the write queue low-water and high-water marks for this channel
+        // to the specified 'lowWatermark' and 'highWatermark', respectively.
         // The behavior is undefined unless '0 <= lowWatermark' and
-        // 'lowWatermark <= hiWatermark'.
+        // 'lowWatermark <= highWatermark'.
 
-    void resetRecordedMaxWriteCacheSize();
-        // Reset the recorded max write cache size for this channel to the
-        // current write cache size.  Note that this function resets the
-        // recorded max write cache size and does not change the write cache
+    void resetRecordedMaxWriteQueueSize();
+        // Reset the recorded max write queue size for this channel to the
+        // current write queue size.  Note that this function resets the
+        // recorded max write queue size and does not change the write queue
         // high-water mark for this channel.
 
     // ACCESSORS
@@ -636,13 +639,13 @@ class Channel {
         // Return the number of bytes request to be written to this channel
         // since its construction or since the last reset.
 
-    int currentWriteCacheSize() const;
-        // Return a snapshot of the number of bytes currently cached to be
+    int currentWriteQueueSize() const;
+        // Return a snapshot of the number of bytes currently queued to be
         // written to this channel.
 
-    int recordedMaxWriteCacheSize() const;
+    int recordedMaxWriteQueueSize() const;
         // Return a snapshot of the maximum recorded size, in bytes, of the
-        // cache of data to be written to this channel.
+        // queue of data to be written to this channel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
@@ -735,16 +738,16 @@ bsls::Types::Int64 Channel::numBytesRequestedToBeWritten() const
 }
 
 inline
-int Channel::currentWriteCacheSize() const
+int Channel::currentWriteQueueSize() const
 {
     return d_writeEnqueuedData->length() +
-                                          d_writeActiveCacheSize.loadRelaxed();
+                                          d_writeActiveQueueSize.loadRelaxed();
 }
 
 inline
-int Channel::recordedMaxWriteCacheSize() const
+int Channel::recordedMaxWriteQueueSize() const
 {
-    return d_recordedMaxWriteCacheSize.loadRelaxed();
+    return d_recordedMaxWriteQueueSize.loadRelaxed();
 }
 
 inline
@@ -1514,7 +1517,7 @@ int Channel::refillOutgoingMsg()
     // Otherwise, swap 'd_writeEnqueuedData' and 'd_writeActiveData'.
 
     d_writeEnqueuedData.swap(d_writeActiveData);
-    d_writeActiveCacheSize.addRelaxed(d_writeActiveData->length());
+    d_writeActiveQueueSize.addRelaxed(d_writeActiveData->length());
 
     return 1;
 }
@@ -1673,18 +1676,18 @@ void Channel::writeCb(ChannelHandle self)
             bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
 
             d_numBytesWritten.addRelaxed(writeRet);
-            d_writeActiveCacheSize.addRelaxed(-writeRet);
+            d_writeActiveQueueSize.addRelaxed(-writeRet);
 
-            if (d_hiWatermarkHitFlag
-             && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
+            if (d_highWatermarkHitFlag
+             && (currentWriteQueueSize() <= d_writeQueueLowWater)) {
 
-                d_hiWatermarkHitFlag = false;
+                d_highWatermarkHitFlag = false;
 
                 oGuard.release()->unlock();
 
                 d_channelStateCb(d_channelId,
                                  d_sourceId,
-                                 ChannelPool::e_WRITE_CACHE_LOWWAT,
+                                 ChannelPool::e_WRITE_QUEUE_LOWWATER,
                                  d_userData);
             }
         } // End of the lock guard.
@@ -1775,14 +1778,14 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_userData(static_cast<void *>(0))
 , d_numUsedIVecs(0)
 , d_minBytesBeforeNextCb(config.minIncomingMessageSize())
-, d_hiWatermarkHitFlag(false)
+, d_highWatermarkHitFlag(false)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
 , d_keepHalfOpenMode(mode)
 , d_useReadTimeout(config.readTimeout() > 0.0)
 , d_readTimeout(config.readTimeout())
-, d_writeCacheLowWat(config.writeCacheLowWatermark())
-, d_writeCacheHiWat(config.writeCacheHiWatermark())
+, d_writeQueueLowWater(config.writeQueueLowWatermark())
+, d_writeQueueHighWater(config.writeQueueHighWatermark())
 , d_minIncomingMessageSize(config.minIncomingMessageSize())
 , d_channelDownFlag(0)
 , d_channelUpFlag(0)
@@ -1793,14 +1796,14 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_numBytesRead(0)
 , d_numBytesWritten(0)
 , d_numBytesRequestedToBeWritten(0)
-, d_recordedMaxWriteCacheSize(0)
+, d_recordedMaxWriteQueueSize(0)
 , d_readBlobFactory_p(readBlobBufferPool)
 , d_blobReadData(d_readBlobFactory_p, basicAllocator)
 , d_writeBlobFactory_p(writeBlobBufferPool)
 , d_writeActiveDataCurrentBuffer(0)
 , d_writeActiveDataCurrentOffset(0)
 , d_isWriteActive(false)
-, d_writeActiveCacheSize(0)
+, d_writeActiveQueueSize(0)
 , d_sharedPtrRepAllocator_p(sharedPtrAllocator)
 , d_allocator_p(basicAllocator)
 {
@@ -1843,7 +1846,7 @@ Channel::~Channel()
     // 'notifyChannelDown' has already deregistered all socket events
     // pertaining to this deallocated socket.
 
-    BSLS_ASSERT(d_recordedMaxWriteCacheSize >= 0);
+    BSLS_ASSERT(d_recordedMaxWriteQueueSize >= 0);
 }
 
 // MANIPULATORS
@@ -1927,18 +1930,10 @@ int Channel::writeMessage(const MessageType&   msg,
 {
     typedef ChannelPool_MessageUtil MessageUtil;
 
-    enum {
-        e_CACHE_HIWAT     = -1,
-        e_HIT_CACHE_HIWAT = -2,
-        e_CHANNEL_DOWN    = -3,
-        e_ENQUEUE_WAT     = -4,
-        e_SUCCESS         =  0
-    };
-
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                           isChannelDown(e_CLOSED_SEND_MASK))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return e_CHANNEL_DOWN;                                        // RETURN
+        return ChannelStatus::e_WRITE_CHANNEL_DOWN;                   // RETURN
     }
 
     bsls::Types::Int64 dataLength = MessageUtil::length(msg);
@@ -1958,49 +1953,38 @@ int Channel::writeMessage(const MessageType&   msg,
 
     d_numBytesRequestedToBeWritten.addRelaxed(dataLength);
 
-    const int writeCacheSize = currentWriteCacheSize();
+    const int writeQueueSize = currentWriteQueueSize();
+    const int writeQueueRejectLevel =
+                             bsl::min(enqueueWatermark, d_writeQueueHighWater);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                         writeCacheSize > d_writeCacheHiWat)) {
+                                     writeQueueSize > writeQueueRejectLevel)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return e_CACHE_HIWAT;                                         // RETURN
-    }
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                          writeCacheSize > enqueueWatermark)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        d_hiWatermarkHitFlag = true;
-        return e_ENQUEUE_WAT;                                         // RETURN
-    }
+        if(!d_highWatermarkHitFlag) {
+            d_highWatermarkHitFlag = true;
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                            writeCacheSize + dataLength > d_writeCacheHiWat)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        if(!d_hiWatermarkHitFlag) {
-            d_hiWatermarkHitFlag = true;
-
-            bsl::function<void()> functor(bdlf::BindUtil::bind(
-                                              d_channelStateCb,
-                                              d_channelId,
-                                              d_sourceId,
-                                              ChannelPool::e_WRITE_CACHE_HIWAT,
-                                              d_userData));
+            bsl::function<void()> functor(
+                bdlf::BindUtil::bind(d_channelStateCb, d_channelId, d_sourceId,
+                            ChannelPool::e_WRITE_QUEUE_HIGHWATER, d_userData));
 
             d_eventManager_p->execute(functor);
 
             // We must release the mutex AFTER 'functor' is enqueued to be
             // executed.  Otherwise, another thread can come in between and
-            // 'e_WRITE_CACHE_LOWWAT' can be generated and the flag reset to
+            // 'e_WRITE_QUEUE_LOWWATER' can be generated and the flag reset to
             // false BEFORE the callback is delivered.  This way, the user will
-            // see the following sequence: LOWWAT, HIWAT, HIWAT (maybe),
-            // LOWWAT, which is wrong, especially if no messages are queued
-            // after HIWAT.
+            // see the following sequence: LOWWATER, HIGHWATER, HIGHWATER
+            // (maybe), LOWWATER, which is wrong, especially if no messages are
+            // queued after HIGHWATER.
         }
-        return e_HIT_CACHE_HIWAT;                                     // RETURN
+        return writeQueueRejectLevel == enqueueWatermark
+            ? ChannelStatus::e_ENQUEUE_HIGHWATER
+            : ChannelStatus::e_QUEUE_HIGHWATER;                       // RETURN
     }
 
-    if (d_recordedMaxWriteCacheSize.loadRelaxed() < writeCacheSize) {
-        d_recordedMaxWriteCacheSize.storeRelaxed(writeCacheSize);
+    if (d_recordedMaxWriteQueueSize.loadRelaxed() < writeQueueSize) {
+        d_recordedMaxWriteQueueSize.storeRelaxed(writeQueueSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2021,11 +2005,12 @@ int Channel::writeMessage(const MessageType&   msg,
 
         d_isWriteActive = true; // This must be done before releasing the lock.
 
+        BSLS_ASSERT(0 != d_writeActiveData);
         BSLS_ASSERT(0 == d_writeActiveData->numBuffers());
         BSLS_ASSERT(0 == d_writeActiveDataCurrentBuffer);
         BSLS_ASSERT(0 == d_writeActiveDataCurrentOffset);
 
-        d_writeActiveCacheSize.addRelaxed(static_cast<int>(dataLength));
+        d_writeActiveQueueSize.addRelaxed(static_cast<int>(dataLength));
 
         oGuard.release()->unlock();
 
@@ -2056,10 +2041,10 @@ int Channel::writeMessage(const MessageType&   msg,
             BSLS_ASSERT(btlso::SocketHandle::e_ERROR_INTERRUPTED != writeRet);
 
             notifyChannelDown(self, btlso::Flag::e_SHUTDOWN_SEND, false);
-            return e_CHANNEL_DOWN;                                    // RETURN
+            return ChannelStatus::e_WRITE_CHANNEL_DOWN;               // RETURN
         }
 
-        d_writeActiveCacheSize.addRelaxed(-writeRet);
+        d_writeActiveQueueSize.addRelaxed(-writeRet);
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
@@ -2074,7 +2059,7 @@ int Channel::writeMessage(const MessageType&   msg,
             if (!refillOutgoingMsg()) {
                 // There isn't any pending data, our work here is done.
 
-                return e_SUCCESS;                                     // RETURN
+                return ChannelStatus::e_SUCCESS;                      // RETURN
             }
         }
         else {
@@ -2097,7 +2082,7 @@ int Channel::writeMessage(const MessageType&   msg,
                                                       self));
 
         d_eventManager_p->execute(initWriteFunctor);
-        return e_SUCCESS;                                             // RETURN
+        return ChannelStatus::e_SUCCESS;                              // RETURN
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
@@ -2118,100 +2103,78 @@ int Channel::writeMessage(const MessageType&   msg,
 
     MessageUtil::appendToBlob(d_writeEnqueuedData.get(), msg);
 
-    return e_SUCCESS;
+    return ChannelStatus::e_SUCCESS;
 }
 
-int Channel::setWriteCacheHiWatermark(int numBytes)
+int Channel::setWriteQueueHighWatermark(int numBytes)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    if (d_writeCacheLowWat > numBytes) {
-        return -1;                                                    // RETURN
-    }
-
-    setWriteCacheHiWatermarkRaw(numBytes);
+    setWriteQueueHighWatermarkRaw(numBytes);
 
     return 0;
 }
 
-void Channel::setWriteCacheHiWatermarkRaw(int numBytes)
+void Channel::setWriteQueueHighWatermarkRaw(int numBytes)
 {
-    // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
-    // existing cache size and a 'HIWAT' alert has not already been generated.
+    // Generate a 'HIGHWATER' alert if the new queue size limit is smaller than
+    // the existing queue size and a 'HIGHWATER' alert has not already been
+    // generated.
 
-    const int writeCacheSize = currentWriteCacheSize();
+    const int writeQueueSize = currentWriteQueueSize();
+    d_writeQueueHighWater = numBytes;
 
-    if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
-        d_hiWatermarkHitFlag = true;
+    if (!d_highWatermarkHitFlag && writeQueueSize >= numBytes) {
+        d_highWatermarkHitFlag = true;
         bsl::function<void()> functor(bdlf::BindUtil::bind(
-                                             &d_channelStateCb,
-                                              d_channelId,
-                                              d_sourceId,
-                                              ChannelPool::e_WRITE_CACHE_HIWAT,
-                                              d_userData));
+            &d_channelStateCb, d_channelId, d_sourceId,
+                            ChannelPool::e_WRITE_QUEUE_HIGHWATER, d_userData));
 
         d_eventManager_p->execute(functor);
     }
-    else if (writeCacheSize < numBytes) {
-        // Otherwise, if the write cache size limit is now greater than the
-        // current cache size, clear the hi-water mark hit flag so additional
-        // alerts will be generated.
-
-        d_hiWatermarkHitFlag = false;
-    }
-
-    d_writeCacheHiWat = numBytes;
+    // If the write queue size limit is now greater than the current queue
+    // size, and a high-water alert has already been issued, the next write
+    // attempted beyond the new limit will not generate a new high-water alert,
+    // (even if some intervening writes succeed), until a low-water alert has
+    // also been issued.
 }
 
-int Channel::setWriteCacheLowWatermark(int numBytes)
+int Channel::setWriteQueueLowWatermark(int numBytes)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    if (numBytes > d_writeCacheHiWat) {
-        return -1;                                                    // RETURN
-    }
-
-    setWriteCacheLowWatermarkRaw(numBytes);
+    setWriteQueueLowWatermarkRaw(numBytes);
 
     return 0;
 }
 
-void Channel::setWriteCacheLowWatermarkRaw(int numBytes)
+void Channel::setWriteQueueLowWatermarkRaw(int numBytes)
 {
-    d_writeCacheLowWat = numBytes;
+    d_writeQueueLowWater = numBytes;
 
-    if (d_hiWatermarkHitFlag
-     && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
+    if (d_highWatermarkHitFlag
+     && (currentWriteQueueSize() <= d_writeQueueLowWater)) {
 
-        d_hiWatermarkHitFlag = false;
+        d_highWatermarkHitFlag = false;
         bsl::function<void()> functor(bdlf::BindUtil::bind(
-                                            &d_channelStateCb,
-                                             d_channelId,
-                                             d_sourceId,
-                                             ChannelPool::e_WRITE_CACHE_LOWWAT,
-                                             d_userData));
+             &d_channelStateCb, d_channelId, d_sourceId,
+                             ChannelPool::e_WRITE_QUEUE_LOWWATER, d_userData));
 
         d_eventManager_p->execute(functor);
     }
 }
 
-void Channel::setWriteCacheWatermarks(int lowWatermark, int hiWatermark)
+void Channel::setWriteQueueWatermarks(int lowWatermark, int highWatermark)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_writeMutex);
 
-    if (hiWatermark < d_writeCacheLowWat) {
-        setWriteCacheLowWatermarkRaw(lowWatermark);
-        setWriteCacheHiWatermarkRaw(hiWatermark);
-    }
-    else {
-        setWriteCacheHiWatermarkRaw(hiWatermark);
-        setWriteCacheLowWatermarkRaw(lowWatermark);
-    }
+    setWriteQueueHighWatermarkRaw(highWatermark);
+    setWriteQueueLowWatermarkRaw(lowWatermark);
 }
 
-void Channel::resetRecordedMaxWriteCacheSize()
+void Channel::resetRecordedMaxWriteQueueSize()
 {
-    d_recordedMaxWriteCacheSize.storeRelaxed(currentWriteCacheSize());
+    d_recordedMaxWriteQueueSize.storeRelaxed(currentWriteQueueSize());
 }
 
 // ============================================================================
@@ -3008,7 +2971,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
     }
 
     // If we take the next branch, cs will become invalid.  Therefore, we need
-    // to cache some of its data fields.
+    // to queue some of its data fields.
 
     const bool removeConnectorFlag = (0 == cs.d_numAttempts);
     const bool isInProgress        = cs.d_inProgress;
@@ -3581,7 +3544,7 @@ int ChannelPool::connectImp(
 
     manager->execute(connectFunctor);
 
-    return e_SUCCESS;
+    return ChannelStatus::e_SUCCESS;
 }
 
 int ChannelPool::connectImp(
@@ -3642,7 +3605,7 @@ int ChannelPool::connectImp(
 
     manager->execute(connectFunctor);
 
-    return e_SUCCESS;
+    return ChannelStatus::e_SUCCESS;
 }
 
                          // *** Channel management ***
@@ -3831,7 +3794,7 @@ int ChannelPool::stopAndRemoveAllChannels()
     return 0;
 }
 
-int ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
+int ChannelPool::setWriteQueueHighWatermark(int channelId, int numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
 
@@ -3841,10 +3804,10 @@ int ChannelPool::setWriteCacheHiWatermark(int channelId, int numBytes)
     }
     BSLS_ASSERT(channelHandle);
 
-    return channelHandle->setWriteCacheHiWatermark(numBytes);
+    return channelHandle->setWriteQueueHighWatermark(numBytes);
 }
 
-int ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
+int ChannelPool::setWriteQueueLowWatermark(int channelId, int numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
 
@@ -3854,15 +3817,15 @@ int ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
     }
     BSLS_ASSERT(channelHandle);
 
-    return channelHandle->setWriteCacheLowWatermark(numBytes);
+    return channelHandle->setWriteQueueLowWatermark(numBytes);
 }
 
-int ChannelPool::setWriteCacheWatermarks(int channelId,
+int ChannelPool::setWriteQueueWatermarks(int channelId,
                                          int lowWatermark,
-                                         int hiWatermark)
+                                         int highWatermark)
 {
     BSLS_ASSERT(0 <= lowWatermark);
-    BSLS_ASSERT(lowWatermark <= hiWatermark);
+    BSLS_ASSERT(0 <= highWatermark);
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
@@ -3870,12 +3833,12 @@ int ChannelPool::setWriteCacheWatermarks(int channelId,
     }
     BSLS_ASSERT(channelHandle);
 
-    channelHandle->setWriteCacheWatermarks(lowWatermark, hiWatermark);
+    channelHandle->setWriteQueueWatermarks(lowWatermark, highWatermark);
 
     return 0;
 }
 
-int ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
+int ChannelPool::resetRecordedMaxWriteQueueSize(int channelId)
 {
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
@@ -3883,7 +3846,7 @@ int ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
     }
     BSLS_ASSERT(channelHandle);
 
-    channelHandle->resetRecordedMaxWriteCacheSize();
+    channelHandle->resetRecordedMaxWriteQueueSize();
 
     return 0;
 }
@@ -4348,16 +4311,16 @@ int ChannelPool::getChannelStatistics(
     return 1;
 }
 
-int ChannelPool::getChannelWriteCacheStatistics(int *recordedMaxWriteCacheSize,
-                                                int *currentWriteCacheSize,
+int ChannelPool::getChannelWriteQueueStatistics(int *recordedMaxWriteQueueSize,
+                                                int *currentWriteQueueSize,
                                                 int  channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         Channel *channel = channelHandle.get();
 
-        *recordedMaxWriteCacheSize = channel->recordedMaxWriteCacheSize();
-        *currentWriteCacheSize     = channel->currentWriteCacheSize();
+        *recordedMaxWriteQueueSize = channel->recordedMaxWriteQueueSize();
+        *currentWriteQueueSize     = channel->currentWriteQueueSize();
 
         return 0;                                                     // RETURN
     }

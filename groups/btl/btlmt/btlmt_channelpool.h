@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // The channel pool provides an efficient mechanism for the full-duplex
 // delivery of messages trying to achieve fully parallel communication on a
 // socket whenever possible.  If a particular socket's system buffers are full,
-// the messages are cached up to a certain (user-defined) limit, at which point
+// the messages are queued up to a certain (user-defined) limit, at which point
 // an alert is generated.
 //
 // The channel pool tries to achieve optimal performance by enabling zero-copy
@@ -110,7 +110,7 @@ BSLS_IDENT("$Id: $")
 // listening port is *not* closed.
 //
 // If the peer on a particular channel is unable to keep up with the traffic,
-// the system buffers will become full and the channel will cache the outgoing
+// the system buffers will become full and the channel will queue the outgoing
 // messages up to the specified limit.  Once this limit is reached, an alert is
 // generated and all further requests for sending data are denied until there
 // is space available in the channel's buffer.  The same limit applies for
@@ -182,34 +182,46 @@ BSLS_IDENT("$Id: $")
 //
 ///Invocation of High- and Low-Water Mark Callbacks
 ///------------------------------------------------
-// When constructing a channel pool object, users can specify, via the
-// 'setWriteCacheWatermarks' function of 'btlmt::ChannelPoolConfiguration', the
-// maximum data size (high-water mark) that can be enqueued for writing on a
-// channel.  If the write cache size exceeds this high-water mark value, then
-// 'write' calls on that channel will fail.  This information is also
-// communicated by providing a 'e_WRITE_CACHE_HIWAT' alert to the client via
-// the channel state callback.  Note that 'write' calls can also fail if the
-// write cache size exceeds the optionally specified 'enqueueWatermark'
-// argument provided to 'write', but a 'e_WRITE_CACHE_HIWAT' alert is not
-// provided in this scenario.
-//
-// In addition to the high-water mark, users can also specify a low-water mark,
-// again via the 'setWriteCacheWatermarks' function of
-// 'btlmt::ChannelPoolConfiguration'.  After a write fails because the write
-// cache size would be exceeded, the channel pool will later provide a
-// 'e_WRITE_CACHE_LOWWAT' alert to the client via the channel state callback
-// when the write cache size falls to, or below, the low-water mark.
-// Typically, clients will suspend writing to a channel if the write cache
-// exceeds the high-water mark or the optionally provided 'enqueueWatermark',
-// and then resume writing after they receive a low-water mark event.  Note
-// that a 'e_WRITE_CACHE_LOWWAT' alert is also provided if the write cache size
+// Users of channel pool objects can specify at construction, via the
+// 'setWriteQueueWatermarks' method of 'btlmt::ChannelPoolConfiguration', or
+// later via 'setWriteQueueHighWatermark', a soft limit on the number of
+// bytes that can be enqueued on a channel for writing.  Any time that the
+// write-queue size exceeds this high-water mark value, subsequent 'write'
+// calls on that channel will fail until the size falls back below the limit.
+// When a 'write' call fails for this reason, this event triggers a
+// 'e_WRITE_QUEUE_HIGHWATER' alert to the client via the channel-state
+// callback.   Note that 'write' calls also fail if the write-queue size
 // exceeds the optionally specified 'enqueueWatermark' argument provided to
-// 'write'.
+// 'write', and then trigger the same alert.  Note, too, that the alert
+// callback may be delivered (to a different thread) before the 'write' call
+// returns.
 //
-// Note that the high- and low-water marks for a specified channel can be
-// modified from the values established at construction by the
-// 'setWriteCacheHiWatermark', 'setWriteCacheLowWatermark', and
-// 'setWriteCacheWatermarks' methods on 'btlmt::ChannelPool'.
+// In addition to the high-water mark, users can also specify at construction
+// a low-water mark, again via the 'setWriteQueueWatermarks' function of
+// 'btlmt::ChannelPoolConfiguration', or later via 'setWriteQueueLowWatermark'.
+// After a write fails because a write-queue size limit has been exceeded,
+// the channel pool will later provide a 'e_WRITE_QUEUE_LOWWATER' alert to
+// the client via the channel state callback when the write-queue size falls
+// to, or below, the low-water mark.  Note that the alert callback may be
+// delivered (to a different thread) before the 'write' call returns.
+//
+// Typically, clients will suspend writing to a channel when the write queue
+// tops a high-water mark, and then resume when they receive a low-water mark
+// callback. Since callback alerts are not synchronized with calls to 'write',
+// programs that rely on a mix of error-return values and callback alerts for
+// flow control must provide their own synchronization.
+//
+// Values for the high- and low-watermark settings may be chosen according to
+// requirements on data flow rate, latency, and memory usage.  A positive
+// low-watermark setting, by notifying the client before the queue is empty,
+// enables clients to ensure that the channel does not go idle while messages
+// are being prepared to send; or it may be used simply to notify a client
+// immediately when the next message may be queued.  A high-watermark setting
+// may be chosen to limit the latency between a call to 'write' and actual
+// delivery of a message, or simply to limit the amount of storage used for
+// buffering messages.  A high-watermark value less than the low-watermark
+// value, thus, enables tuning to maximize throughput without exceeding
+// message-delivery latency requirements.
 //
 ///Usage
 ///-----
@@ -334,7 +346,7 @@ BSLS_IDENT("$Id: $")
 //          // Output a message to 'stdout' indicating the specified 'state',
 //          // associated with the specified 'channelId' and 'sourceId', has
 //          // occurred.  If 'state' is 'btlmt::ChannelPool::e_CHANNEL_DOWN'
-//          // then shutdown the channel.  Note that the 'channelId' is a
+//          // then 'shutdown' the channel.  Note that the 'channelId' is a
 //          // unique identifier chosen by the channel pool for each connection
 //          // channel, 'sourceId' identifies the channel pool operation
 //          // responsible for creating the channel (in this case, the
@@ -397,7 +409,7 @@ BSLS_IDENT("$Id: $")
 //      d_config.setMaxConnections(numConnections);
 //      d_config.setReadTimeout(5.0);       // in seconds
 //      d_config.setMetricsInterval(10.0);  // seconds
-//      d_config.setMaxWriteCache(1<<10);   // 1MB
+//      d_config.setMaxWriteQueue(1<<10);   // 1MB
 //      d_config.setIncomingMessageSizes(1, 100, 1024);
 //
 //      btlmt::ChannelPool::ChannelStateChangeCallback channelStateFunctor(
@@ -536,6 +548,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BTLMT_CHANNELSTATUS
+#include <btlmt_channelstatus.h>
 #endif
 
 #ifndef INCLUDED_BTLMT_CHANNELPOOLCONFIGURATION
@@ -789,8 +805,8 @@ class ChannelPool {
         e_MESSAGE_DISCARDED    = 4,
         e_AUTO_READ_ENABLED    = 5,
         e_AUTO_READ_DISABLED   = 6,
-        e_WRITE_CACHE_LOWWAT   = 7,
-        e_WRITE_CACHE_HIWAT    = e_WRITE_BUFFER_FULL,
+        e_WRITE_QUEUE_LOWWATER   = 7,
+        e_WRITE_QUEUE_HIGHWATER  = e_WRITE_BUFFER_FULL,
         e_CHANNEL_DOWN_READ    = 8,
         e_CHANNEL_DOWN_WRITE   = 9
 
@@ -1574,59 +1590,57 @@ class ChannelPool {
         // note that this function is intended to be called to release
         // resources held by this channel pool just prior to its destruction.
 
-    int setWriteCacheHiWatermark(int channelId, int numBytes);
-        // Set the write cache high-water mark for the specified 'channelId' to
+    int setWriteQueueHighWatermark(int channelId, int numBytes);
+        // Set the write queue high-water mark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, and a non-zero value
-        // if either 'channelId' does not exist or 'numBytes' is less than the
-        // low-water mark for the write cache.  A 'e_WRITE_CACHE_HIWAT' alert
-        // is provided (via the channel state callback) if 'numBytes' is less
-        // than or equal to the current size of the write cache.  (See the
-        // "Invocation of High- and Low-Water Mark Callbacks" section under
-        // @DESCRIPTION in the component-level documentation for details on
-        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
-        // behavior is undefined unless '0 <= numBytes'.  Note that this method
-        // overrides the value configured (for all channels) by the
-        // 'ChannelPoolConfiguration' supplied at construction.
-
-    int setWriteCacheLowWatermark(int channelId, int numBytes);
-        // Set the write cache low-water mark for the specified 'channelId' to
-        // the specified 'numBytes'; return 0 on success, and a non-zero value
-        // if either 'channelId' does not exist or 'numBytes' is greater than
-        // the high-water mark for the write cache.  A 'e_WRITE_CACHE_LOWWAT'
+        // if 'channelId' does not exist. An 'e_WRITE_QUEUE_HIGHWATER'
         // alert is provided (via the channel state callback) if 'numBytes' is
-        // greater than or equal to the current size of the write cache.  (See
-        // the "Invocation of High- and Low-Water Mark Callbacks" section under
+        // less than or equal to the current size of the write queue.  (See the
+        // "Invocation of High- and Low-Water Mark Callbacks" section under
         // @DESCRIPTION in the component-level documentation for details on
-        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
+        // 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER' alerts.)  The
         // behavior is undefined unless '0 <= numBytes'.  Note that this method
         // overrides the value configured (for all channels) by the
         // 'ChannelPoolConfiguration' supplied at construction.
 
-    int setWriteCacheWatermarks(int channelId,
+    int setWriteQueueLowWatermark(int channelId, int numBytes);
+        // Set the write queue low-water mark for the specified 'channelId' to
+        // the specified 'numBytes'; return 0 on success, and a non-zero value
+        // if either 'channelId' does not exist.  An 'e_WRITE_QUEUE_LOWWATER'
+        // alert is provided (via the channel state callback) if 'numBytes' is
+        // greater than or equal to the current size state of the write queue.
+        // (See // the "Invocation of High- and Low-Water Mark Callbacks"
+        // section under @DESCRIPTION in the component-level documentation for
+        // details on 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER'
+        // alerts.) The behavior is undefined unless '0 <= numBytes'.  Note
+        // that this method overrides the value configured (for all channels)
+        // by the 'ChannelPoolConfiguration' supplied at construction.
+
+    int setWriteQueueWatermarks(int channelId,
                                 int lowWatermark,
-                                int hiWatermark);
-        // Set the write cache low- and high-water marks for the specified
-        // 'channelId' to the specified 'lowWatermark' and 'hiWatermark'
+                                int highWatermark);
+        // Set the write queue low- and high-water marks for the specified
+        // 'channelId' to the specified 'lowWatermark' and 'highWatermark'
         // values, respectively; return 0 on success, and a non-zero value if
-        // 'channelId' does not exist.  A 'e_WRITE_CACHE_LOWWAT' alert is
+        // 'channelId' does not exist.  A 'e_WRITE_QUEUE_LOWWATER' alert is
         // provided (via the channel state callback) if 'lowWatermark' is
-        // greater than or equal to the current size of the write cache, and a
-        // 'e_WRITE_CACHE_HIWAT' alert is provided if 'hiWatermark' is less
-        // than or equal to the current size of the write cache.  (See the
+        // greater than or equal to the current size of the write queue, and a
+        // 'e_WRITE_QUEUE_HIGHWATER' alert is provided if 'highWatermark' is
+        // less than or equal to the current size of the write queue.  (See the
         // "Invocation of High- and Low-Water Mark Callbacks" section under
         // @DESCRIPTION in the component-level documentation for details on
-        // 'e_WRITE_CACHE_HIWAT' and 'e_WRITE_CACHE_LOWWAT' alerts.)  The
+        // 'e_WRITE_QUEUE_HIGHWATER' and 'e_WRITE_QUEUE_LOWWATER' alerts.)  The
         // behavior is undefined unless '0 <= lowWatermark' and
-        // 'lowWatermark <= hiWatermark'.  Note that this method overrides the
-        // values configured (for all channels) by the
-        // 'ChannelPoolConfiguration' supplied at construction.
+        // '0 <= highWatermark'.  Note that this method overrides the values
+        // configured (for all channels) by the 'ChannelPoolConfiguration'
+        // supplied at construction.
 
-    int resetRecordedMaxWriteCacheSize(int channelId);
-        // Reset the recorded max write cache size for the specified
-        // 'channelId' to the current write cache size.  Return 0 on success,
+    int resetRecordedMaxWriteQueueSize(int channelId);
+        // Reset the recorded max write queue size for the specified
+        // 'channelId' to the current write queue size.  Return 0 on success,
         // or a non-zero value if 'channelId' does not exist.  Note that this
-        // function resets the recorded max write cache size and does not
-        // change the write cache high-water mark for 'channelId'.
+        // function resets the recorded max write queue size and does not
+        // change the write queue high-water mark for 'channelId'.
 
                                   // *** Thread management ***
 
@@ -1665,24 +1679,19 @@ class ChannelPool {
 
     int write(int channelId, const btlb::Blob& message);
     int write(int channelId, const btlb::Blob& message, int enqueueWatermark);
-        // Enqueue a request to write the specified 'message' into the channel
-        // having the specified 'channelId'.  Optionally specify an
-        // 'enqueueWaterMark' to limit the size of the enqueued portion of the
-        // message.  Return 0 on success, and a non-zero value otherwise.  On
-        // error, the return value *may* equal to one of the enumerators in
-        // 'ChannelStatus::Enum'.
-
     int write(int channelId, const btls::Iovec vecs[], int numVecs);
     int write(int channelId, const btls::Ovec  vecs[], int numVecs);
-        // Enqueue a request to write the specified 'vecs' into the channel
-        // having the specified 'channelId'.  Return 0 on success, and a
-        // non-zero value otherwise.  On error, the return value *may* equal to
-        // one of the enumerators in 'ChannelStatus::Enum'.  Note that you
-        // should prefer this method over the other 'write()' method *only*
-        // *if* you expect that this object will be able to write most of the
-        // data contained in the specified 'vecs' atomically.  If the 'vecs'
-        // must be enqueued, an inefficient data copy will occur to allow to
-        // control the lifetime of the data.
+        // Enqueue a request to write the specified 'message' or 'vecs' into
+        // the channel having the specified 'channelId'.  Optionally specify an
+        // 'enqueueWatermark' to fail if the write queue already has more than
+        // 'enqueueWatermark' bytes.  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in 'ChannelStatus::Enum'.  If the error is a transient
+        // failure resulting from an overfull output queue, a high-water
+        // callback will be scheduled immediately, and a low-watermark callback
+        // will be scheduled to be called when the queue has drained enough to
+        // accept more data.  These callbacks may be delivered to a different
+        // thread before this call returns.
 
                                   // *** Clock management ***
 
@@ -1810,13 +1819,13 @@ class ChannelPool {
         // performance reasons this *sequence* is not captured atomically: by
         // the time one of the values is captured, another may already have
         // changed.
-
-    int getChannelWriteCacheStatistics(int *recordedMaxWriteCacheSize,
-                                       int *currentWriteCacheSize,
+    
+    int getChannelWriteQueueStatistics(int *recordedMaxWriteQueueSize,
+                                       int *currentWriteQueueSize,
                                        int  channelId) const;
-        // Load into the specified 'recordedMaxWriteCacheSize' and
-        // 'currentWriteCacheSize' the maximum and current size respectively of
-        // the write cache of the channel identified by the specified
+        // Load into the specified 'recordedMaxWriteQueueSize' and
+        // 'currentWriteQueueSize' the maximum and current size respectively of
+        // the write queue of the channel identified by the specified
         // 'channelId' and return 0 if the specified 'channelId' is a valid
         // channel id.  Otherwise, return a non-zero value.  Note that for
         // performance reasons this *sequence* is not captured atomically: by
@@ -1930,6 +1939,9 @@ class ChannelPool {
     void totalBytesWritten(bsls::Types::Int64 *result) const;
         // Load, into the specified 'result', the total number of bytes written
         // by the pool.
+
+
+
 };
 
                  // ============================
@@ -2330,6 +2342,8 @@ void ChannelPool_MessageUtil::appendToBlob(
 {
     btls::IovecUtil::appendToBlob(dest, msg.iovecs(), msg.numIovecs());
 }
+
+
 
 }  // close package namespace
 

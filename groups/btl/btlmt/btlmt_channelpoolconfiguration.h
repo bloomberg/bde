@@ -1,4 +1,4 @@
-// btlmt_channelpoolconfiguration.h                                   -*-C++-*-
+ // btlmt_channelpoolconfiguration.h                                   -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -62,15 +62,15 @@ BSLS_IDENT("$Id: $")
 //
 //   int     maxMessageSizeIn    input message strategy hint               1024
 //
-//   int     writeCacheLowWat    High and low watermarks (in                  0
-//   int     writeCacheHiWat     bytes) for a channel's write              1 MB
-//                               cache.  Once high watermark
+//   int     writeQueueLowWater  High and low watermarks (in                  0
+//   int     writeQueueHighWater bytes) for a channel's write              1 MB
+//                               queue.  Once high watermark
 //                               is reached, the channel pool
 //                               will no longer accept messages
 //                               for the channel until there
 //                               is write space available.
 //                               A channel state callback will
-//                               result once the cached data size
+//                               result once the queued data size
 //                               is lower than the low watermark
 //                               value.
 //
@@ -94,8 +94,8 @@ BSLS_IDENT("$Id: $")
 //   +--------------------+---------------------------------------------+
 //   | maxThreads         | 0 <= maxThreads                             |
 //   +--------------------+---------------------------------------------+
-//   | writeCacheLowWat   | 0 <= writeCacheLowWat                       |
-//   | writeCacheHiWat    | writeCacheLowWat <= writeCacheLowWat        |
+//   | writeQueueLowWater | 0 <= writeQueueLowWater                     |
+//   | writeQueueHighWater| 0 <= writeQueueHighWater                     |
 //   +--------------------+---------------------------------------------+
 //   | readTimeout        | 0 <= readTimeout                            |
 //   +--------------------+---------------------------------------------+
@@ -155,9 +155,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0   == cpc.setMaxThreads(200));
 //  assert(200 == cpc.maxThreads());
 //
-//  assert(0    == cpc.setWriteCacheWatermarks(0, 1024));
-//  assert(0    == cpc.writeCacheLowWatermark());
-//  assert(1024 == cpc.writeCacheHiWatermark());
+//  assert(0    == cpc.setWriteQueueWatermarks(0, 1024));
+//  assert(0    == cpc.writeQueueLowWatermark());
+//  assert(1024 == cpc.writeQueueHighWatermark());
 //
 //  assert(0   == cpc.setReadTimeout(3.5));
 //  assert(3.5 == cpc.readTimeout());
@@ -187,8 +187,8 @@ BSLS_IDENT("$Id: $")
 // [
 //         maxConnections         : 100
 //         maxThreads             : 200
-//         writeCacheLowWat       : 0
-//         writeCacheHiWat        : 1024
+//         writeQueueLowWater     : 0
+//         writeQueueHighWater    : 1024
 //         readTimeout            : (3, 500000000)
 //         metricsInterval        : (5, 250000000)
 //         minOutgoingMessageSize : 4
@@ -270,9 +270,10 @@ class ChannelPoolConfiguration {
     int                   d_maxThreads;        // maximum number of threads
                                                // managed by a channel pool
 
-    int                   d_writeCacheLowWat;  // watermarks for the write
+    int                   d_writeQueueLowWater;  // watermarks for the write
 
-    int                   d_writeCacheHiWat;   // buffer for a managed channel
+    int                   d_writeQueueHighWater;
+                                               // buffer for a managed channel
 
     // Timeouts
     double                d_readTimeout;       // timeout interval to wait for
@@ -344,11 +345,11 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
             // index for 'MaxMessageSizeIn' attribute
 
-        e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
-            // index for 'WriteCacheLowWat' attribute
+        e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER = 10,
+            // index for 'WriteQueueLowWater' attribute
 
-        e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
-            // index for 'WriteCacheHiWat' attribute
+        e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER = 11,
+            // index for 'WriteQueueHighWater' attribute
 
         e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
@@ -390,11 +391,11 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
             // id for 'MaxMessageSizeIn' attribute
 
-        e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
-            // id for 'WriteCacheLowWat' attribute
+        e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER   = 11,
+            // id for 'WriteQueueLowWater' attribute
 
-        e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
-            // id for 'WriteCacheHiWat' attribute
+        e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER  = 12,
+            // id for 'WriteQueueHighWater' attribute
 
         e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
@@ -491,9 +492,9 @@ class ChannelPoolConfiguration {
         // non-zero value (with no effect on the state of this object)
         // otherwise.
 
-    int setWriteCacheWatermarks(int lowWatermark, int hiWatermark);
-        // Set the write cache watermarks to specified 'lowWatermark' and
-        // 'hiWatermark' values.  Return 0 on success, and a non-zero value
+    int setWriteQueueWatermarks(int lowWatermark, int highWatermark);
+        // Set the write queue watermarks to specified 'lowWatermark' and
+        // 'highWatermark' values.  Return 0 on success, and a non-zero value
         // (with no effect on the state of this object) otherwise.
 
     int setCollectTimeMetrics(bool collectTimeMetricsFlag);
@@ -574,11 +575,11 @@ class ChannelPoolConfiguration {
         // Return the read timeout attribute of this object.  A value of 0
         // indicates the read timeout should be disabled.
 
-    int writeCacheLowWatermark() const;
-        // Return the low watermark for the write cache.
+    int writeQueueLowWatermark() const;
+        // Return the low watermark for the write queue.
 
-    int writeCacheHiWatermark() const;
-        // Return the high watermark for the write cache.
+    int writeQueueHighWatermark() const;
+        // Return the high watermark for the write queue.
 
     int threadStackSize() const;
         // Return the thread stack size attribute of this object.
@@ -614,6 +615,7 @@ class ChannelPoolConfiguration {
         // information structure.  Return the value returned from the
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
+
 };
 
 // FREE OPERATORS
@@ -703,12 +705,12 @@ int ChannelPoolConfiguration::setThreadStackSize(int stackSize)
 }
 
 inline
-int ChannelPoolConfiguration::setWriteCacheWatermarks(int lowWatermark,
-                                                      int hiWatermark)
+int ChannelPoolConfiguration::setWriteQueueWatermarks(int lowWatermark,
+                                                      int highWatermark)
 {
-    if (0 <= lowWatermark && lowWatermark <= hiWatermark) {
-        d_writeCacheLowWat = lowWatermark;
-        d_writeCacheHiWat = hiWatermark;
+    if (0 <= lowWatermark && 0 <= highWatermark) {
+        d_writeQueueLowWater = lowWatermark;
+        d_writeQueueHighWater = highWatermark;
         return 0;                                                     // RETURN
     }
     return -1;
@@ -816,15 +818,15 @@ int ChannelPoolConfiguration::manipulateAttributes(MANIPULATOR& manipulator)
     }
 
     ret = manipulator(
-                  &d_writeCacheLowWat,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                &d_writeQueueLowWater,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
     ret = manipulator(
-                   &d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+               &d_writeQueueHighWater,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -913,16 +915,16 @@ int ChannelPoolConfiguration::manipulateAttribute(MANIPULATOR& manipulator,
                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER: {
         return manipulator(
-                  &d_writeCacheLowWat,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                &d_writeQueueLowWater,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER: {
         return manipulator(
-                   &d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+               &d_writeQueueHighWater,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
@@ -1028,13 +1030,13 @@ bsl::ostream& ChannelPoolConfiguration::streamOut(bsl::ostream& stream) const
 }
 
 inline
-int ChannelPoolConfiguration::writeCacheLowWatermark() const {
-    return d_writeCacheLowWat;
+int ChannelPoolConfiguration::writeQueueLowWatermark() const {
+    return d_writeQueueLowWater;
 }
 
 inline
-int ChannelPoolConfiguration::writeCacheHiWatermark() const {
-    return d_writeCacheHiWat;
+int ChannelPoolConfiguration::writeQueueHighWatermark() const {
+    return d_writeQueueHighWater;
 }
 
 inline
@@ -1119,14 +1121,15 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
     }
 
     ret = accessor(
-                  d_writeCacheLowWat,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                d_writeQueueLowWater,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+    ret = accessor(
+               d_writeQueueHighWater,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1212,16 +1215,16 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id) const
                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_LOW_WATER: {
         return accessor(
-                  d_writeCacheLowWat,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+                d_writeQueueLowWater,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_LOW_WATER]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
+      case e_ATTRIBUTE_ID_WRITE_QUEUE_HIGH_WATER: {
         return accessor(
-                   d_writeCacheHiWat,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+               d_writeQueueHighWater,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_QUEUE_HIGH_WATER]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
@@ -1259,6 +1262,9 @@ int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
 
      return accessAttribute(accessor, attributeInfo->d_id);
 }
+
+
+
 
 }  // close package namespace
 

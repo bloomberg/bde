@@ -128,7 +128,7 @@ const TI T61 = 689.6;
 const int MAXCONNECTIONS[NUM_VALUES]   = { 1024, 10,  20,  300, 400, 500,
                                                                          600 };
 const int MAXNUMTHREADS[NUM_VALUES]    = { 1,   11,  21,  301, 401, 501, 601 };
-const int MAXWRITECACHE[NUM_VALUES]    = { 1048576, 512, 600, 700, 800, 900,
+const int MAXWRITEQUEUE[NUM_VALUES]    = { 1048576, 512, 600, 700, 800, 900,
                                                                          999 };
 const TI  READTIMEOUT[NUM_VALUES]      = { T00, T10, T20, T30, T40, T50, T60 };
 const TI  METRICSINTERVAL[NUM_VALUES]  = { T00, T11, T21, T31, T41, T51, T61 };
@@ -310,9 +310,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == cpc.setMaxThreads(200));
         ASSERT(200 == cpc.maxThreads());
 
-        ASSERT(0 == cpc.setWriteCacheWatermarks(0, 1024));
-        ASSERT(0 == cpc.writeCacheLowWatermark());
-        ASSERT(1024 == cpc.writeCacheHiWatermark());
+        ASSERT(0 == cpc.setWriteQueueWatermarks(0, 1024));
+        ASSERT(0 == cpc.writeQueueLowWatermark());
+        ASSERT(1024 == cpc.writeQueueHighWatermark());
 
         ASSERT(0 == cpc.setReadTimeout(3.5));
         ASSERT(3.5 == cpc.readTimeout());
@@ -336,8 +336,8 @@ int main(int argc, char *argv[])
                 "[" NL
                 "\tmaxConnections         : 100" NL
                 "\tmaxThreads             : 200" NL
-                "\twriteCacheLowWat       : 0" NL
-                "\twriteCacheHiWat        : 1024" NL
+                "\twriteQueueLowWater     : 0" NL
+                "\twriteQueueHighWater    : 1024" NL
                 "\treadTimeout            : 3.5" NL
                 "\tmetricsInterval        : 5.25" NL
                 "\tminOutgoingMessageSize : 4" NL
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
         "MaxConnections", "MaxThreads", "ReadTimeout", "MetricsInterval",
         "MinMessageSizeOut", "TypMessageSizeOut", "MaxMessageSizeOut",
         "MinMessageSizeIn", "TypMessageSizeIn", "MaxMessageSizeIn",
-        "WriteCacheLowWat", "WriteCacheHiWat", "ThreadStackSize",
+        "WriteQueueLowWater", "WriteQueueHighWater", "ThreadStackSize",
         "CollectTimeMetrics"
         };
 
@@ -529,9 +529,9 @@ int main(int argc, char *argv[])
                                                                     j + 1));
                   } break;
                   case 10: {
-                    ASSERT(0 == mA.setWriteCacheWatermarks(
-                                                  i,
-                                                  mA.writeCacheHiWatermark()));
+                    ASSERT(0 == mA.setWriteQueueWatermarks(
+                                                i,
+                                                mA.writeQueueHighWatermark()));
                     AssignValue<int> visitor(i);
                     LOOP2_ASSERT(i, j, 0 ==
                        bdlat_SequenceFunctions::manipulateAttribute(&mB,
@@ -539,10 +539,10 @@ int main(int argc, char *argv[])
                                                                     j + 1));
                   } break;
                   case 11: {
-                    ASSERT(0 == mA.setWriteCacheWatermarks(
-                                                   mA.writeCacheLowWatermark(),
-                                                   MAXWRITECACHE[i]));
-                    AssignValue<int> visitor(MAXWRITECACHE[i]);
+                    ASSERT(0 == mA.setWriteQueueWatermarks(
+                                                   mA.writeQueueLowWatermark(),
+                                                   MAXWRITEQUEUE[i]));
+                    AssignValue<int> visitor(MAXWRITEQUEUE[i]);
                     LOOP2_ASSERT(i, j, 0 ==
                        bdlat_SequenceFunctions::manipulateAttribute(&mB,
                                                                     visitor,
@@ -1160,8 +1160,8 @@ int main(int argc, char *argv[])
                 "[" NL
                 "\tmaxConnections         : 1024" NL
                 "\tmaxThreads             : 1" NL
-                "\twriteCacheLowWat       : 0" NL
-                "\twriteCacheHiWat        : 1048576" NL
+                "\twriteQueueLowWater     : 0" NL
+                "\twriteQueueHighWater    : 1048576" NL
                 "\treadTimeout            : 30" NL
                 "\tmetricsInterval        : 30" NL
                 "\tminOutgoingMessageSize : 1" NL
@@ -1184,8 +1184,8 @@ int main(int argc, char *argv[])
                 "[" NL
                 "\tmaxConnections         : 10" NL
                 "\tmaxThreads             : 11" NL
-                "\twriteCacheLowWat       : 0" NL
-                "\twriteCacheHiWat        : 1048576" NL
+                "\twriteQueueLowWater     : 0" NL
+                "\twriteQueueHighWater    : 1048576" NL
                 "\treadTimeout            : 60" NL
                 "\tmetricsInterval        : 61.1" NL
                 "\tminOutgoingMessageSize : 12" NL

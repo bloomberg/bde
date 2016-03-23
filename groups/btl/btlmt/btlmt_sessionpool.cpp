@@ -264,7 +264,7 @@ void SessionPool::channelStateCb(int   channelId,
                                              _2,
                                              handle->d_handleId));
       } break;
-      case ChannelPool::e_WRITE_CACHE_LOWWAT: {
+      case ChannelPool::e_WRITE_QUEUE_LOWWATER: {
           if (0 == userData) {
               break;
           }
@@ -273,13 +273,13 @@ void SessionPool::channelStateCb(int   channelId,
                                    static_cast<SessionPool_Handle *>(userData);
 
           if (handlePtr->d_session_p) {
-              handlePtr->d_sessionStateCB(e_WRITE_CACHE_LOWWAT,
+              handlePtr->d_sessionStateCB(e_WRITE_QUEUE_LOWWATER,
                                           handlePtr->d_handleId,
                                           handlePtr->d_session_p,
                                           handlePtr->d_userData_p);
           }
       } break;
-      case ChannelPool::e_WRITE_CACHE_HIWAT: {
+      case ChannelPool::e_WRITE_QUEUE_HIGHWATER: {
           if (0 == userData) {
               break;
           }
@@ -288,7 +288,7 @@ void SessionPool::channelStateCb(int   channelId,
                                    static_cast<SessionPool_Handle *>(userData);
 
           if (handlePtr->d_session_p) {
-              handlePtr->d_sessionStateCB(e_WRITE_CACHE_HIWAT,
+              handlePtr->d_sessionStateCB(e_WRITE_QUEUE_HIGHWATER,
                                           handlePtr->d_handleId,
                                           handlePtr->d_session_p,
                                           handlePtr->d_userData_p);
@@ -1079,12 +1079,12 @@ int SessionPool::listen(
     return 0;
 }
 
-int SessionPool::setWriteCacheWatermarks(int handleId,
+int SessionPool::setWriteQueueWatermarks(int handleId,
                                          int lowWatermark,
-                                         int hiWatermark)
+                                         int highWatermark)
 {
     BSLS_ASSERT(0 <= lowWatermark);
-    BSLS_ASSERT(lowWatermark <= hiWatermark);
+    BSLS_ASSERT(0 <= highWatermark);
 
     HandlePtr handle;
     if (d_handles.find(handleId, &handle)) {
@@ -1096,12 +1096,8 @@ int SessionPool::setWriteCacheWatermarks(int handleId,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!channelPtr)) {
         return -1;                                                    // RETURN
     }
-    else {
-        return d_channelPool_p->setWriteCacheWatermarks(
-                                                       channelPtr->channelId(),
-                                                       lowWatermark,
-                                                       hiWatermark);  // RETURN
-    }
+    return d_channelPool_p->setWriteQueueWatermarks(
+            channelPtr->channelId(), lowWatermark, highWatermark);    // RETURN
 }
 
 // ACCESSORS
