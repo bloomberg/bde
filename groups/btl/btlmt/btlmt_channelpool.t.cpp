@@ -10817,6 +10817,14 @@ void TestDriver::testCase22()
 
                 ASSERT(0 == ret);
 
+                // TBD: This fails on Windows cl-18.  Temporarily disable the
+                // rest of this test if the socket pair cannot be
+                // established.  Eventually, we need to investigate why the
+                // connection is not being established.
+                if (ret) {
+                    return;
+                }
+
                 // The following socket options are set only if necessary.
                 ret = btlso::SocketOptUtil::setOption(
                                                  handles[1],
