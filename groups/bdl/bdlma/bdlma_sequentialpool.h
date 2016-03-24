@@ -22,8 +22,11 @@ BSLS_IDENT("$Id: $")
 // satisfy the request, or returns a separate memory block, depending on
 // whether the request size exceeds an optionally-specified maximum buffer
 // size.  The 'release' method releases all memory allocated through the pool,
-// as does the destructor.  Note that individually allocated memory blocks
-// cannot be separately deallocated.
+// as does the destructor.  The 'rewind' method releases all memory allocated
+// through the pool and returns to the underlying allocator *only* memory that
+// was allocated outside of the typical internal buffer growth of the pool
+// (i.e., large blocks).  Note that individually allocated memory blocks cannot
+// be separately deallocated.
 //
 // A 'bdlma::SequentialPool' is typically used when fast allocation and
 // deallocation is needed, but the user does not know in advance the maximum
@@ -596,11 +599,11 @@ class SequentialPool {
     void rewind();
         // Release all memory allocated through this pool and return to the
         // underlying allocator *only* memory that was allocated outside of the
-        // growth strategy of this pool (i.e., large blocks).  All retained
-        // memory will be used to satisfy subsequent allocations.  The effect
-        // of subsequently - to this invokation of 'rewind' - using a pointer
-        // obtained from this object prior to this call to 'rewind' is
-        // undefined.
+        // typical internal buffer growth of this pool (i.e., large blocks).
+        // All retained memory will be used to satisfy subsequent allocations.
+        // The effect of subsequently - to this invokation of 'rewind' - using
+        // a pointer obtained from this object prior to this call to 'rewind'
+        // is undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at

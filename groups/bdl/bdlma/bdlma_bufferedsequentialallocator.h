@@ -24,6 +24,7 @@ BSLS_IDENT("$Id: $")
 //  ( bdlma::BufferedSequentialAllocator )
 //   `----------------------------------'
 //                   |        ctor/dtor
+//                   |        rewind
 //                   |
 //                   V
 //       ,-----------------------.
@@ -46,9 +47,12 @@ BSLS_IDENT("$Id: $")
 // an alignment strategy at construction that governs the alignment of
 // allocated memory blocks.  If no alignment strategy is specified at
 // construction, natural alignment is used.  The 'release' method releases all
-// memory allocated through the allocator, as does the destructor.  Note that,
-// even though a 'deallocate' method is available, it has no effect:
-// Individually allocated memory blocks cannot be separately deallocated.
+// memory allocated through the allocator, as does the destructor.  The
+// 'rewind' method releases all memory allocated through the allocator and
+// returns to the underlying allocator *only* memory that was allocated outside
+// of the typical internal buffer growth of the allocator (i.e., large blocks).
+// Note that individually allocated memory blocks cannot be separately
+// deallocated.
 //
 // 'bdlma::BufferedSequentialAllocator' is typically used when users have a
 // reasonable estimation of the amount of memory needed.  This amount of memory
@@ -354,11 +358,11 @@ class BufferedSequentialAllocator : public ManagedAllocator {
     virtual void rewind();
         // Release all memory allocated through this allocator and return to
         // the underlying allocator *only* memory that was allocated outside of
-        // the growth strategy of this allocator (i.e., large blocks).  All
-        // retained memory will be used to satisfy subsequent allocations.  The
-        // effect of subsequently - to this invokation of 'rewind' - using a
-        // pointer obtained from this object prior to this call to 'rewind' is
-        // undefined.
+        // the typical internal buffer growth of this allocator (i.e., large
+        // blocks).  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of subsequently - to this invokation of
+        // 'rewind' - using a pointer obtained from this object prior to this
+        // call to 'rewind' is undefined.
 };
 
 // ============================================================================

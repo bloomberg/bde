@@ -24,9 +24,14 @@ BSLS_IDENT("$Id: $")
 // growth strategy is specified at construction, geometric growth is used.
 // Users can also optionally specify an alignment strategy at construction that
 // governs the alignment of allocated memory blocks.  If no alignment strategy
-// is specified, natural alignment is used.
+// is specified, natural alignment is used.  The 'release' method releases all
+// memory allocated through the pool, as does the destructor.  The 'rewind'
+// method releases all memory allocated through the pool and returns to the
+// underlying allocator *only* memory that was allocated outside of the typical
+// internal buffer growth of the pool (i.e., large blocks).  Note that
+// individually allocated memory blocks cannot be separately deallocated.
 //
-// 'bdlma::BufferedSequentialPool' is typically used when users have a
+// A 'bdlma::BufferedSequentialPool' is typically used when users have a
 // reasonable estimation of the amount of memory needed.  This amount of memory
 // would typically be created directly on the program stack, and used as the
 // initial external buffer of the pool for fast memory allocation.  While the
@@ -492,11 +497,11 @@ class BufferedSequentialPool {
     void rewind();
         // Release all memory allocated through this pool and return to the
         // underlying allocator *only* memory that was allocated outside of the
-        // growth strategy of this pool (i.e., large blocks).  All retained
-        // memory will be used to satisfy subsequent allocations.  The effect
-        // of subsequently - to this invokation of 'rewind' - using a pointer
-        // obtained from this object prior to this call to 'rewind' is
-        // undefined.
+        // typical internal buffer growth of this pool (i.e., large blocks).
+        // All retained memory will be used to satisfy subsequent allocations.
+        // The effect of subsequently - to this invokation of 'rewind' - using
+        // a pointer obtained from this object prior to this call to 'rewind'
+        // is undefined.
 };
 
 }  // close package namespace

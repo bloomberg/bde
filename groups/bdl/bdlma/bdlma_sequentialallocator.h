@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 //                |         ctor/dtor
 //                |         allocateAndExpand
 //                |         reserveCapacity
+//                |         rewind
 //                |         truncate
 //                V
 //    ,-----------------------.
@@ -43,8 +44,11 @@ BSLS_IDENT("$Id: $")
 // to satisfy the request, or returns a separate memory block, depending on
 // whether the request size exceeds an optionally-specified maximum buffer
 // size.  The 'release' method releases all memory allocated through the
-// allocator, as does the destructor.  Note that individually allocated memory
-// blocks cannot be separately deallocated.
+// allocator, as does the destructor.  The 'rewind' method releases all memory
+// allocated through the allocator and returns to the underlying allocator
+// *only* memory that was allocated outside of the typical internal buffer
+// growth of the allocator (i.e., large blocks).  Note that individually
+// allocated memory blocks cannot be separately deallocated.
 //
 // The main difference between a 'bdlma::SequentialAllocator' and a
 // 'bdlma::SequentialPool' is that, very often, a 'bdlma::SequentialAllocator'
@@ -387,11 +391,11 @@ class SequentialAllocator : public ManagedAllocator {
     virtual void rewind();
         // Release all memory allocated through this allocator and return to
         // the underlying allocator *only* memory that was allocated outside of
-        // the growth strategy of this allocator (i.e., large blocks).  All
-        // retained memory will be used to satisfy subsequent allocations.  The
-        // effect of subsequently - to this invokation of 'rewind' - using a
-        // pointer obtained from this object prior to this call to 'rewind' is
-        // undefined.
+        // the typical internal buffer growth of this allocator (i.e., large
+        // blocks).  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of subsequently - to this invokation of
+        // 'rewind' - using a pointer obtained from this object prior to this
+        // call to 'rewind' is undefined.
 
     void reserveCapacity(bsls::Types::size_type numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
