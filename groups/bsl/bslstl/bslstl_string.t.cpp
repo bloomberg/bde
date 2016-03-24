@@ -959,10 +959,10 @@ struct TestDriver {
         typedef TYPE                    *pointer;
         typedef TYPE&                    reference;
 
-        InputIterator(const TYPE *initVal)
+        explicit InputIterator(const TYPE *initVal)
         : d_data(initVal)
-            // Create an input iterator pointing to '*initVal' (or after
-            // 'initVal[-1]').
+            // Create an input iterator pointing to the specified '*initVal'
+            // (or after 'initVal[-1]').
         {}
 
         // MANIPULATORS
@@ -16952,194 +16952,350 @@ int main(int argc, char *argv[])
                   "\nTESTING STRING TO FLOATING POINT NUMBER CONVERSIONS"
                   "\n===================================================\n");
 
-        static const struct {
-            int         d_lineNum;          // source line number
-            const char *d_input;            // input
-            size_t      d_pos;              // position of character after the
-                                            // numeric value
-            double      d_spec;             // specifications
-        } DATA[] = {
-            //line  input                      pos      spec
-            //----  -----                      ---      ----
-            { L_,   "0",                       1,       0},
-            { L_,   "-0",                      2,       0},
-            { L_,   "3.145gg",                 5,       3.145},
-            { L_,   "    -5.9991",             11,     -5.9991},
-            { L_,   "10e1",                    4,       1e2},
-            { L_,   "10p2",                    2,       10},
+        enum { k_DEFAULT_POSITION = 54321 };
+
+        if (verbose) printf("Testing stof, stod, and stold with strings.\n");
+        {
+            static const struct {
+                int         d_lineNum;          // source line number
+                const char *d_input;            // input
+                size_t      d_pos;              // position of character after
+                                                // the numeric value
+                double      d_spec;             // specifications
+            } DATA[] = {
+                //line  input               pos  spec
+                //----  -----               ---  ----
+                { L_,   "0",                1,    0     },
+                { L_,   "-0",               2,    0     },
+                { L_,   "+.5",              3,    0.5   },
+                { L_,   "3.145gg",          5,    3.145 },
+                { L_,   "    -5.9991",      11,  -5.9991},
+                { L_,   "10e",              2,    10    },
+                { L_,   "10e1",             4,    1e2   },
+                { L_,   "10p2",             2,    10    },
 #if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS) || \
      (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1800))
-            { L_,   "0xf.f",                   5,       15.937500},
+                { L_,   "0xf.f",            5,    15.937500},
 #endif
 #if __cplusplus >= 201103L
-            { L_,   "inF",                     3,      std::numeric_limits
-                                                        <double>::infinity()},
+                { L_,   "inF",              3,    std::numeric_limits
+                                                        <double>::infinity() },
+                { L_,   "-inFinITY",        9,   -std::numeric_limits
+                                                        <double>::infinity() },
+                { L_,   "+InF",             4,    std::numeric_limits
+                                                        <double>::infinity() },
 #endif
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                // Awkward - fails only for 'float'
+                { L_,   "   9e99",          7,    9e99 },
 
-        if (verbose) printf("Testing stof, stod and stold with strings.\n");
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int    LINE   = DATA[ti].d_lineNum;
-            const char  *INPUT  = DATA[ti].d_input;
-            const size_t POS    = DATA[ti].d_pos;
-            double SPEC   = DATA[ti].d_spec;
-            bsl::string inV(INPUT);
+                // Range errors
+                { L_,   "9e9999",           0,   -1 },
+                { L_,   "-9e9999",          0,   -1 },
+                { L_,   "+9e9999",          0,   -1 },
 
-            {
-                float                  value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
+                // Invalid buffers
+                { L_,   "",                 0,   -2 },
+                { L_,   ".",                0,   -2 },
+                { L_,   "-",                0,   -2 },
+                { L_,   "e",                0,   -2 },
+                { L_,   ".e",               0,   -2 },
+                { L_,   "+e",               0,   -2 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-                value = bsl::stof(inV, NULL);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                const char   *INPUT  = DATA[ti].d_input;
+                const size_t  POS    = DATA[ti].d_pos;
+                double        SPEC   = DATA[ti].d_spec;
 
-                value = bsl::stof(inV, &position);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
-                ASSERT (position == POS);
+                const bsl::string      inV(INPUT);
+                bsl::string::size_type position = k_DEFAULT_POSITION;
 
-                value = bsl::stof(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
+                if (POS && POS != 7)  // 7 uniquely denotes the awkward row
+                {
+                    float value = bsl::stof(inV, NULL);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
 
-            }
-            {
-                double                 value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
+                    value = bsl::stof(inV, &position);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
+                    ASSERTV(POS, position, POS == position);
 
-                value = bsl::stod(inV, NULL);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
+                    position = k_DEFAULT_POSITION;
 
-                value = bsl::stod(inV, &position);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (position == POS);
-
-                value = bsl::stod(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
-
-            }
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-            {
-                double                 value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
-
-                value = bsl::stold(inV, NULL);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-
-                value = bsl::stold(inV, &position);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (position == POS);
-
-                value = bsl::stold(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
-            }
+                    value = bsl::stof(inV, &position);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
+                    ASSERTV(POS, position, POS == position);
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        float value = bsl::stof(inV, NULL);
+                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(SPEC, POS, -1 == SPEC || 7 == POS);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(SPEC, -2 == SPEC);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
 #endif
+                }
+                position = k_DEFAULT_POSITION;
+
+                if (POS)
+                {
+                    double value = bsl::stod(inV, NULL);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+
+                    value = bsl::stod(inV, &position);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+                    ASSERTV(LINE, POS, position, POS == position);
+
+                    position = k_DEFAULT_POSITION;
+
+                    value = bsl::stod(inV, &position);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+                    ASSERTV(LINE, POS, position,
+                            POS == position);
+
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        double value = bsl::stod(inV, NULL);
+                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(LINE, SPEC, -1 == SPEC);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(LINE, SPEC, -2 == SPEC);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
+#endif
+                }
+                position = k_DEFAULT_POSITION;
+
+                if (POS)
+                {
+                    long double value = bsl::stold(inV, NULL);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+
+                    value = bsl::stold(inV, &position);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+                    ASSERTV(LINE, POS, position, POS == position);
+
+                    position = k_DEFAULT_POSITION;
+
+                    value = bsl::stold(inV, &position);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+                    ASSERTV(LINE, POS, position,
+                            POS == position);
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        long double value = bsl::stold(inV, NULL);
+                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(LINE, SPEC, -1 == SPEC);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(LINE, SPEC, -2 == SPEC);
+                        ASSERTV(LINE, position,
+                                k_DEFAULT_POSITION == position);
+                    }
+#endif
+                }
+            }
         }
 
-        static const struct {
-            int            d_lineNum;          // source line number
-            const wchar_t *d_input;            // input
-            size_t         d_pos;              // position of character after
-                                               // the numeric value
-            double         d_spec;             // specifications
-        } WDATA[] = {
-            //line  input                      pos      spec
-            //----  -----                      ---      ----
-            { L_,   L"0",                       1,       0},
-            { L_,   L"-0",                      2,       0},
-            { L_,   L"3.145gg",                 5,       3.145},
-            { L_,   L"    -5.9991",             11,     -5.9991},
-            { L_,   L"10e1",                    4,       1e2},
-            { L_,   L"10p2",                    2,       10},
+        if (verbose) printf("Testing stof, stod and stold with wstrings.\n");
+        {
+            static const struct {
+                int            d_lineNum;          // source line number
+                const wchar_t *d_input;            // input
+                size_t         d_pos;              // position of character
+                                                   // after the numeric value
+                long double    d_spec;             // specifications
+            } DATA[] = {
+                //line  input               pos  spec
+                //----  -----               ---  ----
+                { L_,   L"0",               1,    0     },
+                { L_,   L"-0",              2,    0     },
+                { L_,   L"+.5",             3,    0.5   },
+                { L_,   L"3.125gg",         5,    3.125 },
+                { L_,   L"    -4.6875",     11,  -4.6875},
+                { L_,   L"10e",             2,    10    },
+                { L_,   L"10e1",            4,    1e2   },
+                { L_,   L"10p2",            2,    10    },
 #if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS) || \
      (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1800))
-            { L_,   L"0xf.f",                   5,       15.937500},
+                { L_,   L"0xf.f",           5,    15.937500},
 #endif
-
 #if __cplusplus >= 201103L
-            { L_,   L"inF",                     3,      std::numeric_limits
-                                                        <double>::infinity()},
+                { L_,   L"inF",             3,    std::numeric_limits
+                                                        <double>::infinity() },
+                { L_,   L"-inFinITY",       9,   -std::numeric_limits
+                                                        <double>::infinity() },
+                { L_,   L"+InF",            4,    std::numeric_limits
+                                                        <double>::infinity() },
 #endif
-        };
-        const int NUM_WDATA = sizeof WDATA / sizeof *WDATA;
+                // Awkward - fails only for 'float'
+                { L_,   L" 8.5e99",         7,    8.5e99 },
 
-        if (verbose) printf("Testing stof, stod and stold with wstrings.\n");
-        for (int ti = 0; ti < NUM_WDATA; ++ti) {
-            const int      LINE   = WDATA[ti].d_lineNum;
-            const wchar_t *INPUT  = WDATA[ti].d_input;
-            const size_t   POS    = WDATA[ti].d_pos;
-            double         SPEC   = WDATA[ti].d_spec;
-            bsl::wstring inV(INPUT);
+                // Range errors
+                { L_,   L"9e9999",          0,   -1 },
+                { L_,   L"-9e9999",         0,   -1 },
+                { L_,   L"+9e9999",         0,   -1 },
 
-            {
-                float                   value;
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
+                // Invalid buffers
+                { L_,   L"",                0,   -2 },
+                { L_,   L".",               0,   -2 },
+                { L_,   L"-",               0,   -2 },
+                { L_,   L"e",               0,   -2 },
+                { L_,   L".e",              0,   -2 },
+                { L_,   L"+e",              0,   -2 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-                value = bsl::stof(inV, NULL);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int      LINE   = DATA[ti].d_lineNum;
+                const wchar_t *INPUT  = DATA[ti].d_input;
+                const size_t   POS    = DATA[ti].d_pos;
+                long double    SPEC   = DATA[ti].d_spec;
 
-                value = bsl::stof(inV, &position);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
-                ASSERT (position == POS);
+                const bsl::wstring      inV(INPUT);
+                bsl::wstring::size_type position = k_DEFAULT_POSITION;
 
-                value = bsl::stof(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, value, (float)SPEC, value == (float)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
-            }
-            {
-                double                  value;
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
+                if (POS && POS != 7)  // 7 uniquely denotes the awkward row
+                {
+                    float value = bsl::stof(inV, NULL);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
 
-                value = bsl::stod(inV, NULL);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
+                    value = bsl::stof(inV, &position);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
+                    ASSERTV(POS, position, POS == position);
 
-                value = bsl::stod(inV, &position);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (position == POS);
+                    position = k_DEFAULT_POSITION;
 
-                value = bsl::stod(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, value, (double)SPEC,
-                                                        value == (double)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
-            }
-#if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
-    || defined(BSLS_PLATFORM_CMP_IBM))
-            // IBM has rounding issues in 'wcstold' that stop
-            // 'value == (long double)SPEC' from evaluating to true.
-            {
-                double                  value;
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
-
-                value = bsl::stold(inV, NULL);
-                LOOP3_ASSERT (LINE, (double)value, (double)SPEC,
-                                                   value == (long double)SPEC);
-
-                value = bsl::stold(inV, &position);
-                LOOP3_ASSERT (LINE, (double)value, (double)SPEC,
-                                                   value == (long double)SPEC);
-                ASSERT (position == POS);
-
-                value = bsl::stold(inV, &sz_valid_nonptr);
-                LOOP3_ASSERT (LINE, (double)value, (double)SPEC,
-                                                   value == (long double)SPEC);
-                ASSERT (sz_valid_nonptr == POS);
-            }
+                    value = bsl::stof(inV, &position);
+                    ASSERTV(LINE, value, (float)SPEC, value == (float)SPEC);
+                    ASSERTV(POS, position, POS == position);
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        float value = bsl::stof(inV, NULL);
+                        ASSERTV(LINE, inV, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(LINE, inV, SPEC, POS, -1 == SPEC || 7 == POS);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(LINE, inV, SPEC, -2 == SPEC);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
 #endif
+                }
+                position = k_DEFAULT_POSITION;
+
+                if (POS)
+                {
+                    double value = bsl::stod(inV, NULL);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+
+                    value = bsl::stod(inV, &position);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+                    ASSERTV(POS, position, POS == position);
+
+                    position = k_DEFAULT_POSITION;
+
+                    value = bsl::stod(inV, &position);
+                    ASSERTV(LINE, value, (double)SPEC, value == (double)SPEC);
+                    ASSERTV(POS, position, POS == position);
+
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        double value = bsl::stod(inV, NULL);
+                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(LINE, inV, SPEC, -1 == SPEC);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(LINE, inV, SPEC, -2 == SPEC);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
+#endif
+                }
+                position = k_DEFAULT_POSITION;
+
+                if (POS)
+                {
+                    long double value = bsl::stold(inV, NULL);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+
+                    value = bsl::stold(inV, &position);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+                    ASSERTV(POS, position, POS == position);
+
+                    position = k_DEFAULT_POSITION;
+
+                    value = bsl::stold(inV, &position);
+                    ASSERTV(LINE, (double)value,   (double)SPEC,
+                                  (double)value == (double)SPEC);
+                    ASSERTV(POS, position, POS == position);
+                }
+                else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                    try {
+                        long double value = bsl::stold(inV, NULL);
+                        ASSERTV(LINE, INPUT, value, SPEC, !"Did not throw");
+                    }
+                    catch(const std::out_of_range&) {
+                        // Expected code path
+                        ASSERTV(SPEC, -1 == SPEC);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
+                    catch(const std::invalid_argument&) {
+                        // Expected code path
+                        ASSERTV(SPEC, -2 == SPEC);
+                        ASSERTV(position, k_DEFAULT_POSITION == position);
+                    }
+#endif
+                }
+            }
         }
       } break;
       case 30: {
@@ -17151,7 +17307,8 @@ int main(int argc, char *argv[])
         //:   correct signed integer value.
         //:
         //: 2 'stoul', and 'stoull' parse the string properly into the
-        //:   correct unsigned integer value.
+        //:   correct unsigned integer value, even when the input is a string
+        //:   denoting a negative number.
         //:
         //: 3 The methods discard leading white space characters and create
         //:   largest valid integral number.
@@ -17186,6 +17343,23 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STRING TO INTEGER CONVERSIONS"
                             "\n=====================================\n");
 
+        enum { k_DEFAULT_POSITION = 54321 };
+
+        enum IntType {
+            e_INT,
+            e_LONG_INT,
+            e_UNSIGNED_LONG_INT,
+            e_LONG_LONG_INT,
+            e_UNSIGNEDLONG_LONG_INT,
+            e_NOT_INT
+        };
+
+        enum ErrType {
+            e_PASS,
+            e_INVALID,
+            e_RANGE,
+        };
+
         static const struct {
             int         d_lineNum;          // source line number
             const char *d_input;            // input
@@ -17194,50 +17368,57 @@ int main(int argc, char *argv[])
                                             // numeric value
             long long   d_spec;             // specifications
         } DATA[] = {
-            //line  input                   base   pos  spec
-            //----  -----                   ----   ---  ----
-            { L_,   "0",                    10,    1,   0 },
-            { L_,   "-0",                   10,    2,   0},
-            { L_,   "10101",                10,    5,   10101},
-            { L_,   "-10101",               10,    6,  -10101},
-            { L_,   "32767",                10,    5,   32767},
-            { L_,   "-32767",               10,    6,  -32767},
-            { L_,   "000032767",            10,    9,   32767},
-            { L_,   "2147483647",           10,    10,  2147483647},
-            { L_,   "-2147483647",          10,    11, -2147483647},
-            { L_,   "4294967295",           10,    10,  4294967295},
-            { L_,   "9223372036854775807",  10,    19,  9223372036854775807LL},
-            { L_,   "-9223372036854775807", 10,    20, -9223372036854775807LL},
+            //line input                   base  pos  spec
+            //---- -----                   ----  ---  ----
+            { L_,  "0",                    10,   1,   0    },
+            { L_,  "0w",                   10,   1,   0    },
+            { L_,  "0x",                   10,   1,   0    },
+            { L_,  "-0",                   10,   2,   0    },
+            { L_,  "10101",                10,   5,   10101},
+            { L_,  "-10101",               10,   6,  -10101},
+            { L_,  "32767",                10,   5,   32767},
+            { L_,  "-32767",               10,   6,  -32767},
+            { L_,  "000032767",            10,   9,   32767},
+            { L_,  "2147483647",           10,   10,  2147483647LL},
+            { L_,  "2147483648",           10,   10,  2147483648LL},
+            { L_,  "-2147483647",          10,   11, -2147483647LL},
+            { L_,  "-2147483648",          10,   11, -2147483648LL},
+            { L_,  " -2147483649",         10,   12, -2147483649LL},
+            { L_,  "4294967295",           10,   10,  4294967295LL},
+            { L_,  "9223372036854775807",  10,   19,  9223372036854775807LL  },
+            { L_,  "-9223372036854775807", 10,   20, -9223372036854775807LL  },
+            { L_,  "-9223372036854775808", 10,   20, -9223372036854775807LL-1},
+            { L_,  "-9223372036854775809", 10,   20,  9223372036854775807LL  },
+            { L_,  "19223372036854775808", 10,   0,   0},
 
             //test usage of spaces, and non valid characters with in the string
-            { L_,   "  515",                10,    5,   515},
-            { L_,   "  515  505050",        10,    5,   515},
-            { L_,   " 99abc99",             10,    3,   99},
-            { L_,   " 3.14159",             10,    2,   3},
-            { L_,   "0x555",                10,    1,   0},
+            { L_,  "  515",                10,   5,   515},
+            { L_,  "  515  505050",        10,   5,   515},
+            { L_,  " 99abc99",             10,   3,   99 },
+            { L_,  " 3.14159",             10,   2,   3  },
+            { L_,  "0x555",                10,   1,   0  },
 
             //test different bases
-            { L_,   "111",                  2,     3,   7},
-            { L_,   "101",                  2,     3,   5},
-            { L_,   "100",                  2,     3,   4},
-            { L_,   "101010101010 ",        2,     12,  2730},
-            { L_,   "1010101010102 ",       2,     12,  2730},
-            { L_,   "111111111111111",      2,     15,  32767},
-            { L_,   "-111111111111111",     2,     16, -32767},
-            { L_,   "77777",                8,     5,   32767},
-            { L_,   "-77777",               8,     6,  -32767},
-            { L_,   "7FFF",                 16,    4,   32767},
-            { L_,   "0x7FfF",               16,    6,   32767},
-            { L_,   "-00000x7FFf",          16,    6,  -0},
-            { L_,   "ZZZZ",                 36,    4,   1679615 },
+            { L_,  "111",                  2,    3,   7      },
+            { L_,  "101",                  2,    3,   5      },
+            { L_,  "100",                  2,    3,   4      },
+            { L_,  "101010101010 ",        2,    12,  2730   },
+            { L_,  "1010101010102 ",       2,    12,  2730   },
+            { L_,  "111111111111111",      2,    15,  32767  },
+            { L_,  "-111111111111111",     2,    16, -32767  },
+            { L_,  "77777",                8,    5,   32767  },
+            { L_,  "-77777",               8,    6,  -32767  },
+            { L_,  "7FFF",                 16,   4,   32767  },
+            { L_,  "0x7FfF",               16,   6,   32767  },
+            { L_,  "-00000x7FFf",          16,   6,  -0      },
+            { L_,  "ZZZZ",                 36,   4,   1679615},
 
             // base zero
-            { L_,   "79FFZZZf",             0,     2,   79},
-            { L_,   "0xFfAb",               0,     6,   65451},
-            { L_,   "05471",                0,     5,   2873},
-            { L_,   "0X5471",               0,     6,   21617},
-            { L_,   "5471",                 0,     4,   5471},
-
+            { L_,  "79FFZZZf",             0,    2,   79   },
+            { L_,  "0xFfAb",               0,    6,   65451},
+            { L_,  "05471",                0,    5,   2873 },
+            { L_,  "0X5471",               0,    6,   21617},
+            { L_,  "5471",                 0,    4,   5471 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -17250,103 +17431,180 @@ int main(int argc, char *argv[])
             const int          BASE   = DATA[ti].d_base;
             const size_t       POS    = DATA[ti].d_pos;
             const long long    SPEC   = DATA[ti].d_spec;
-            const bsl::string  STRING_VALUE(INPUT);
 
-            if (SPEC <= std::numeric_limits<int>::max() &&
-                SPEC >= std::numeric_limits<int>::min()) {
-                int                    value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
+            if (veryVerbose) {
+                P_(INPUT) P_(BASE) P_(POS) P(SPEC);
+            }
 
-                value = bsl::stoi(STRING_VALUE, NULL, BASE);
+            const bsl::string      STRING_VALUE(INPUT);
+            bsl::string::size_type position = k_DEFAULT_POSITION;
+
+            if (SPEC <= std::numeric_limits<int>::max()
+             && SPEC >= std::numeric_limits<int>::min()
+             && POS
+             && (POS < 20 || SPEC < 0)) {
+                int value = bsl::stoi(STRING_VALUE, NULL, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stoi(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
                 ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoi(STRING_VALUE, &sz_valid_nonptr, BASE);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoi(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, STRING_VALUE, sz_valid_nonptr, POS,
-                        sz_valid_nonptr == POS);
+                ASSERTV(LINE, STRING_VALUE, position, POS,
+                        position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    int value = bsl::stoi(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<long>::max() &&
-                SPEC >= std::numeric_limits<long>::min()) {
-                long                   value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
-
-                value = bsl::stol(STRING_VALUE, NULL, BASE);
+            if (SPEC <= std::numeric_limits<long>::max()
+             && SPEC >= std::numeric_limits<long>::min()
+             && POS
+             && (POS < 20 || SPEC < 0)) {
+                long value = bsl::stol(STRING_VALUE, NULL, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stol(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
                 ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stol(STRING_VALUE, &sz_valid_nonptr, BASE);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stol(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, STRING_VALUE, sz_valid_nonptr, POS,
-                        sz_valid_nonptr == POS);
+                ASSERTV(LINE, STRING_VALUE, position, POS,
+                        position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    long value = bsl::stol(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<unsigned long>::max()&& SPEC >= 0)
-            {
-                unsigned long          value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
+            if (((sizeof(long) == sizeof(long long)
+                 || SPEC <= std::numeric_limits<unsigned long>::max())
+                 && SPEC >= std::numeric_limits<long>::min()
+                 && POS)
+             || POS == 12) {
+                const unsigned long EXPECT = static_cast<unsigned long>(SPEC);
 
-                value = bsl::stoul(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
 
                 value = bsl::stoul(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
                 ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoul(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, STRING_VALUE, sz_valid_nonptr, POS,
-                        sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoul(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS,
+                        position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-            if (SPEC <= std::numeric_limits<long long>::max()) {
-                long long              value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
-
-                value = bsl::stoll(STRING_VALUE, NULL, BASE);
+            if (POS && (POS < 20 || SPEC < 0)) {
+                long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stoll(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
                 ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoll(STRING_VALUE, &sz_valid_nonptr, BASE);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoll(STRING_VALUE, &position, BASE);
                 ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, STRING_VALUE, sz_valid_nonptr, POS,
-                        sz_valid_nonptr == POS);
+                ASSERTV(LINE, STRING_VALUE, position, POS,
+                        position == POS);
             }
+            else {
+# if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+# endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<unsigned long long>::max()
-                                                                && SPEC >= 0) {
-                unsigned long long     value;
-                bsl::string::size_type position = bsl::string::npos;
-                bsl::string::size_type sz_valid_nonptr;
+            if (POS) {
+                const unsigned long long EXPECT = SPEC;
 
-                value = bsl::stoull(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                unsigned long long value =
+                                         bsl::stoull(STRING_VALUE, NULL, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
 
                 value = bsl::stoull(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
                 ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoull(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, STRING_VALUE, sz_valid_nonptr, POS,
-                        sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoull(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS,
+                        position == POS);
             }
-#endif
+            else {
+# if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    unsigned long long value =
+                                         bsl::stoull(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+# endif
+            }
+            position = k_DEFAULT_POSITION;
         }
 
         static const struct {
@@ -17357,50 +17615,57 @@ int main(int argc, char *argv[])
                                            // numeric value
             long long      d_spec;         // specifications
         } WDATA[] = {
-            //line  input                   base  pos  spec
-            //----  -----                   ----  ---  ----
-            { L_,   L"0",                    10,   1,   0 },
-            { L_,   L"-0",                   10,   2,   0},
-            { L_,   L"10101",                10,   5,   10101},
-            { L_,   L"-10101",               10,   6,  -10101},
-            { L_,   L"32767",                10,   5,   32767},
-            { L_,   L"-32767",               10,   6,  -32767},
-            { L_,   L"000032767",            10,   9,   32767},
-            { L_,   L"2147483647",           10,   10,  2147483647},
-            { L_,   L"-2147483647",          10,   11, -2147483647},
-            { L_,   L"4294967295",           10,   10,  4294967295},
-            { L_,   L"9223372036854775807",  10,   19,  9223372036854775807LL},
-            { L_,   L"-9223372036854775807", 10,   20, -9223372036854775807LL},
+            //line input                   base  pos  spec
+            //---- -----                   ----  ---  ----
+            { L_,  L"0",                    10,  1,   0    },
+            { L_,  L"0w",                   10,  1,   0    },
+            { L_,  L"0x",                   10,  1,   0    },
+            { L_,  L"-0",                   10,  2,   0    },
+            { L_,  L"10101",                10,  5,   10101},
+            { L_,  L"-10101",               10,  6,  -10101},
+            { L_,  L"32767",                10,  5,   32767},
+            { L_,  L"-32767",               10,  6,  -32767},
+            { L_,  L"000032767",            10,  9,   32767},
+            { L_,  L"2147483647",           10,  10,  2147483647LL},
+            { L_,  L"2147483648",           10,  10,  2147483648LL},
+            { L_,  L"-2147483647",          10,  11, -2147483647LL},
+            { L_,  L"-2147483648",          10,  11, -2147483648LL},
+            { L_,  L" -2147483649",         10,  12, -2147483649LL},
+            { L_,  L"4294967295",           10,  10,  4294967295LL},
+            { L_,  L"9223372036854775807",  10,  19,  9223372036854775807LL  },
+            { L_,  L"-9223372036854775807", 10,  20, -9223372036854775807LL  },
+            { L_,  L"-9223372036854775808", 10,  20, -9223372036854775807LL-1},
+            { L_,  L"-9223372036854775809", 10,  20,  9223372036854775807LL  },
+            { L_,  L"19223372036854775808", 10,  0,   0},
 
             //test usage of spaces, and non valid characters with in the string
-            { L_,   L"  515",                10,   5,   515},
-            { L_,   L"  515  505050",        10,   5,   515},
-            { L_,   L" 99abc99",             10,   3,   99},
-            { L_,   L" 3.14159",             10,   2,   3},
-            { L_,   L"0x555",                10,   1,   0},
+            { L_,  L"  515",                10,  5,   515},
+            { L_,  L"  515  505050",        10,  5,   515},
+            { L_,  L" 99abc99",             10,  3,   99 },
+            { L_,  L" 3.14159",             10,  2,   3  },
+            { L_,  L"0x555",                10,  1,   0  },
 
             //test different bases
-            { L_,   L"111",                  2,    3,   7},
-            { L_,   L"101",                  2,    3,   5},
-            { L_,   L"100",                  2,    3,   4},
-            { L_,   L"101010101010 ",        2,    12,  2730},
-            { L_,   L"1010101010102 ",       2,    12,  2730},
-            { L_,   L"111111111111111",      2,    15,  32767},
-            { L_,   L"-111111111111111",     2,    16, -32767},
-            { L_,   L"77777",                8,    5,   32767},
-            { L_,   L"-77777",               8,    6,  -32767},
-            { L_,   L"7FFF",                 16,   4,   32767},
-            { L_,   L"0x7FfF",               16,   6,   32767},
-            { L_,   L"-00000x7FFf",          16,   6,  -0},
-            { L_,   L"ZZZZ",                 36,   4,   1679615 },
+            { L_,  L"111",                  2,   3,   7      },
+            { L_,  L"101",                  2,   3,   5      },
+            { L_,  L"100",                  2,   3,   4      },
+            { L_,  L"101010101010 ",        2,   12,  2730   },
+            { L_,  L"1010101010102 ",       2,   12,  2730   },
+            { L_,  L"111111111111111",      2,   15,  32767  },
+            { L_,  L"-111111111111111",     2,   16, -32767  },
+            { L_,  L"77777",                8,   5,   32767  },
+            { L_,  L"-77777",               8,   6,  -32767  },
+            { L_,  L"7FFF",                 16,  4,   32767  },
+            { L_,  L"0x7FfF",               16,  6,   32767  },
+            { L_,  L"-00000x7FFf",          16,  6,  -0      },
+            { L_,  L"ZZZZ",                 36,  4,   1679615},
 
             // base zero
-            { L_,   L"79FFZZZf",             0,    2,   79},
-            { L_,   L"0xFfAb",               0,    6,   65451},
-            { L_,   L"05471",                0,    5,   2873},
-            { L_,   L"0X5471",               0,    6,   21617},
-            { L_,   L"5471",                 0,    4,   5471},
-
+            { L_,  L"79FFZZZf",             0,   2,   79   },
+            { L_,  L"0xFfAb",               0,   6,   65451},
+            { L_,  L"05471",                0,   5,   2873 },
+            { L_,  L"0X5471",               0,   6,   21617},
+            { L_,  L"5471",                 0,   4,   5471 },
         };
         const int NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
@@ -17413,95 +17678,583 @@ int main(int argc, char *argv[])
             const int           BASE   = WDATA[ti].d_base;
             const size_t        POS    = WDATA[ti].d_pos;
             const long long     SPEC   = WDATA[ti].d_spec;
-            const bsl::wstring  STRING_VALUE(INPUT);
 
-            if (SPEC <= std::numeric_limits<int>::max() &&
-                SPEC >= std::numeric_limits<int>::min()) {
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
+            if (veryVerbose) {
+                P_(INPUT) P_(BASE) P_(POS) P(SPEC);
+            }
 
+            const bsl::wstring      STRING_VALUE(INPUT);
+            bsl::wstring::size_type position = k_DEFAULT_POSITION;
+
+            if (SPEC <= std::numeric_limits<int>::max()
+             && SPEC >= std::numeric_limits<int>::min()
+             && POS
+             && (POS < 20 || SPEC < 0)) {
                 int value = bsl::stoi(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stoi(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, position, POS, position == POS);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoi(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, sz_valid_nonptr, POS, sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoi(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    int value = bsl::stoi(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<long>::max() &&
-                SPEC >= std::numeric_limits<long>::min()) {
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
-
+            if (SPEC <= std::numeric_limits<long>::max()
+             && SPEC >= std::numeric_limits<long>::min()
+             && POS
+             && (POS < 20 || SPEC < 0)) {
                 long value = bsl::stol(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stol(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, position, POS, position == POS);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stol(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, sz_valid_nonptr, POS, sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stol(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    long value = bsl::stol(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<unsigned long>::max() && SPEC >= 0)
-            {
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
+            if (((sizeof(long) == sizeof(long long) ||
+                   SPEC <= std::numeric_limits<unsigned long>::max())
+                && SPEC >= std::numeric_limits<long>::min()
+                && POS)
+             || POS == 12) {
+                const unsigned long EXPECT = static_cast<unsigned long>(SPEC);
 
                 unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
 
                 value = bsl::stoul(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, position, POS, position == POS);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoul(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, sz_valid_nonptr, POS, sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoul(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
             }
+            else {
+#if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    unsigned long value = bsl::stoul(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+#endif
+            }
+            position = k_DEFAULT_POSITION;
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
-            if (SPEC <= std::numeric_limits<long long>::max()) {
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
-
+            if (POS && (POS < 20 || SPEC < 0)) {
                 long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
 
                 value = bsl::stoll(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, position, POS, position == POS);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoll(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, sz_valid_nonptr, POS, sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoll(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
             }
+            else {
+# if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    long long value = bsl::stoll(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+# endif
+            }
+            position = k_DEFAULT_POSITION;
 
-            if (SPEC <= std::numeric_limits<unsigned long long>::max()
-                                                                && SPEC >= 0) {
-                bsl::wstring::size_type position = bsl::string::npos;
-                bsl::wstring::size_type sz_valid_nonptr;
+            if (POS) {
+                const unsigned long long EXPECT = SPEC;
 
                 unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
 
                 value = bsl::stoull(STRING_VALUE, &position, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, position, POS, position == POS);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
 
-                value = bsl::stoull(STRING_VALUE, &sz_valid_nonptr, BASE);
-                ASSERTV(LINE, value, SPEC, value == SPEC);
-                ASSERTV(LINE, sz_valid_nonptr, POS, sz_valid_nonptr == POS);
+                position = k_DEFAULT_POSITION;
+
+                value = bsl::stoull(STRING_VALUE, &position, BASE);
+                ASSERTV(LINE, STRING_VALUE, SPEC, EXPECT,   value,
+                                                  EXPECT == value);
+                ASSERTV(LINE, STRING_VALUE, position, POS, position == POS);
             }
-#endif
+            else {
+# if defined(BDE_BUILD_TARGET_EXC)
+                try {
+                    unsigned long long value =
+                                         bsl::stoull(STRING_VALUE, NULL, BASE);
+                    ASSERTV(LINE, STRING_VALUE, value, SPEC, !"Did not throw");
+                }
+                catch(const std::out_of_range&) {
+                    // Expected code path
+                    ASSERTV(position, k_DEFAULT_POSITION == position);
+                }
+# endif
+            }
+            position = k_DEFAULT_POSITION;
         }
+
+#if defined(BDE_BUILD_TARGET_EXC)
+        // Testing error handling requires catching exceptions thrown from the
+        // 'bsl' function as the standard-mandated error-reporting technique.
+
+        if (verbose) printf("Testing error handling for stoi, stol, stoll,"
+                            "  stoul and stoull with 'char' strings.\n");
+        {
+            static const struct {
+                int         d_lineNum;          // source line number
+                const char *d_input;            // input
+                int         d_base;             // base of input
+                ErrType     d_error;            // expected exception type
+            } DATA[] = {
+                //line  input                   base   error
+                //----  -----                   ----   -----
+                { L_,   "0",                    10,    e_PASS },
+                { L_,   "-0",                   10,    e_PASS },
+                { L_,   "--0",                  10,    e_INVALID },
+                { L_,   "-+0",                  10,    e_INVALID },
+                { L_,   "+0",                   10,    e_PASS },
+                { L_,   "+-0",                  10,    e_INVALID },
+                { L_,   "++0",                  10,    e_INVALID },
+                { L_,   "",                     10,    e_INVALID },
+                { L_,   "-",                    10,    e_INVALID },
+                { L_,   "+",                    10,    e_INVALID },
+
+                { L_,   " 0",                   10,    e_PASS },
+                { L_,   " -0",                  10,    e_PASS },
+                { L_,   " --0",                 10,    e_INVALID },
+                { L_,   " -+0",                 10,    e_INVALID },
+                { L_,   " +0",                  10,    e_PASS },
+                { L_,   " +-0",                 10,    e_INVALID },
+                { L_,   " ++0",                 10,    e_INVALID },
+                { L_,   " ",                    10,    e_INVALID },
+                { L_,   " -",                   10,    e_INVALID },
+                { L_,   " +",                   10,    e_INVALID },
+
+                { L_,   "0",                    10,    e_PASS },
+                { L_,   "0",                    36,    e_PASS },
+
+                { L_,   "-0x",                  10,    e_PASS },
+                { L_,   "--0x",                 10,    e_INVALID },
+                { L_,   "-+0x",                 10,    e_INVALID },
+                { L_,   "+0x",                  10,    e_PASS },
+                { L_,   "+-0x",                 10,    e_INVALID },
+                { L_,   "++0x",                 10,    e_INVALID },
+
+                { L_,   "-0x",                  36,    e_PASS },
+                { L_,   "--0x",                 36,    e_INVALID },
+                { L_,   "-+0x",                 36,    e_INVALID },
+                { L_,   "+0x",                  36,    e_PASS },
+                { L_,   "+-0x",                 36,    e_INVALID },
+                { L_,   "++0x",                 36,    e_INVALID },
+                { L_,   "",                     36,    e_INVALID },
+                { L_,   "-",                    36,    e_INVALID },
+                { L_,   "+",                    36,    e_INVALID },
+
+                { L_,   "0x",                   0,     e_PASS },
+                { L_,   "-0x",                  0,     e_PASS },
+                { L_,   "--0x",                 0,     e_INVALID },
+                { L_,   "-+0x",                 0,     e_INVALID },
+                { L_,   "+0x",                  0,     e_PASS },
+                { L_,   "+-0x",                 0,     e_INVALID },
+                { L_,   "++0x",                 0,     e_INVALID },
+                { L_,   "",                     0,     e_INVALID },
+                { L_,   "-",                    0,     e_INVALID },
+                { L_,   "+",                    0,     e_INVALID },
+
+                { L_,   "0x",                   16,    e_PASS },
+                { L_,   "-0x",                  16,    e_PASS },
+                { L_,   "--0x",                 16,    e_INVALID },
+                { L_,   "-+0x",                 16,    e_INVALID },
+                { L_,   "+0x",                  16,    e_PASS },
+                { L_,   "+-0x",                 16,    e_INVALID },
+                { L_,   "++0x",                 16,    e_INVALID },
+
+                { L_,   "+Z",                   35,    e_INVALID },
+                { L_,   "+z",                   36,    e_PASS },
+                { L_,   "ZzZzzZZzzZZzzzz",      36,    e_RANGE },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int intType = e_INT; intType != e_NOT_INT; ++intType) {
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int          LINE   = DATA[ti].d_lineNum;
+                    const char        *INPUT  = DATA[ti].d_input;
+                    const int          BASE   = DATA[ti].d_base;
+                    const ErrType      ERROR  = DATA[ti].d_error;
+
+                    const bsl::string  STRING_VALUE(INPUT);
+
+                    if (veryVerbose) {
+                        T_ P_(INPUT) P_(BASE) P((int)ERROR);
+                    }
+
+                    try {
+                        switch (intType) {
+                          case e_INT : {
+                            int value = bsl::stoi(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_LONG_INT : {
+                            long value = bsl::stol(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_UNSIGNED_LONG_INT : {
+                            unsigned long value =
+                                          bsl::stoul(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_LONG_LONG_INT : {
+                            long long value =
+                                          bsl::stoll(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_UNSIGNEDLONG_LONG_INT : {
+                            unsigned long long value =
+                                         bsl::stoull(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                        }
+                    }
+                    catch(const std::invalid_argument&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_INVALID == ERROR);
+                    }
+                    catch(const std::out_of_range&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_RANGE == ERROR);
+                    }
+
+                    size_t next = 0;
+                    try {
+                        switch (intType) {
+                          case e_INT : {
+                            int value = bsl::stoi(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_LONG_INT : {
+                            long value = bsl::stol(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_UNSIGNED_LONG_INT : {
+                            unsigned long value =
+                                         bsl::stoul(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_LONG_LONG_INT : {
+                            long long value =
+                                         bsl::stoll(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_UNSIGNEDLONG_LONG_INT : {
+                            unsigned long long value =
+                                        bsl::stoull(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                        }
+                    }
+                    catch(const std::invalid_argument&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_INVALID == ERROR);
+                        ASSERTV(next, !next);
+                    }
+                    catch(const std::out_of_range&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_RANGE == ERROR);
+                        ASSERTV(next, !next);
+                    }
+                }
+
+                if (verbose) printf("negative testing");
+                {
+                    bsls::AssertTestHandlerGuard guard;
+
+                    size_t next = 0;
+                    for (int i = -3; i != 43; ++i) {
+                        if (!i || (2 <= i && i <= 36)) {
+                            ASSERT_OPT_PASS(bsl::stoi("0", NULL, i));
+                            ASSERT_OPT_PASS(bsl::stoi("-1", &next, i));
+                        }
+                        else {
+                            ASSERT_OPT_FAIL(bsl::stoi("0", NULL, i));
+                            ASSERT_OPT_FAIL(bsl::stoi("-1", &next, i));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) printf("Testing error handling for stoi, stol, stoll,"
+                            "  stoul and stoull with 'wchar_t' strings.\n");
+        {
+            static const struct {
+                int            d_lineNum;          // source line number
+                const wchar_t *d_input;            // input
+                int            d_base;             // base of input
+                ErrType        d_error;            // expected exception type
+            } DATA[] = {
+                //line  input                   base   error
+                //----  -----                   ----   -----
+                { L_,   L"0",                    10,    e_PASS },
+                { L_,   L"-0",                   10,    e_PASS },
+                { L_,   L"--0",                  10,    e_INVALID },
+                { L_,   L"-+0",                  10,    e_INVALID },
+                { L_,   L"+0",                   10,    e_PASS },
+                { L_,   L"+-0",                  10,    e_INVALID },
+                { L_,   L"++0",                  10,    e_INVALID },
+                { L_,   L"",                     10,    e_INVALID },
+                { L_,   L"-",                    10,    e_INVALID },
+                { L_,   L"+",                    10,    e_INVALID },
+
+                { L_,   L" 0",                   10,    e_PASS },
+                { L_,   L" -0",                  10,    e_PASS },
+                { L_,   L" --0",                 10,    e_INVALID },
+                { L_,   L" -+0",                 10,    e_INVALID },
+                { L_,   L" +0",                  10,    e_PASS },
+                { L_,   L" +-0",                 10,    e_INVALID },
+                { L_,   L" ++0",                 10,    e_INVALID },
+                { L_,   L" ",                    10,    e_INVALID },
+                { L_,   L" -",                   10,    e_INVALID },
+                { L_,   L" +",                   10,    e_INVALID },
+
+                { L_,   L"0",                    10,    e_PASS },
+                { L_,   L"0",                    36,    e_PASS },
+
+                { L_,   L"-0x",                  10,    e_PASS },
+                { L_,   L"--0x",                 10,    e_INVALID },
+                { L_,   L"-+0x",                 10,    e_INVALID },
+                { L_,   L"+0x",                  10,    e_PASS },
+                { L_,   L"+-0x",                 10,    e_INVALID },
+                { L_,   L"++0x",                 10,    e_INVALID },
+
+                { L_,   L"-0x",                  36,    e_PASS },
+                { L_,   L"--0x",                 36,    e_INVALID },
+                { L_,   L"-+0x",                 36,    e_INVALID },
+                { L_,   L"+0x",                  36,    e_PASS },
+                { L_,   L"+-0x",                 36,    e_INVALID },
+                { L_,   L"++0x",                 36,    e_INVALID },
+                { L_,   L"",                     36,    e_INVALID },
+                { L_,   L"-",                    36,    e_INVALID },
+                { L_,   L"+",                    36,    e_INVALID },
+
+                { L_,   L"0x",                   0,     e_PASS },
+                { L_,   L"-0x",                  0,     e_PASS },
+                { L_,   L"--0x",                 0,     e_INVALID },
+                { L_,   L"-+0x",                 0,     e_INVALID },
+                { L_,   L"+0x",                  0,     e_PASS },
+                { L_,   L"+-0x",                 0,     e_INVALID },
+                { L_,   L"++0x",                 0,     e_INVALID },
+                { L_,   L"",                     0,     e_INVALID },
+                { L_,   L"-",                    0,     e_INVALID },
+                { L_,   L"+",                    0,     e_INVALID },
+
+                { L_,   L"0x",                   16,    e_PASS },
+                { L_,   L"-0x",                  16,    e_PASS },
+                { L_,   L"--0x",                 16,    e_INVALID },
+                { L_,   L"-+0x",                 16,    e_INVALID },
+                { L_,   L"+0x",                  16,    e_PASS },
+                { L_,   L"+-0x",                 16,    e_INVALID },
+                { L_,   L"++0x",                 16,    e_INVALID },
+
+                { L_,   L"+Z",                   35,    e_INVALID },
+                { L_,   L"+z",                   36,    e_PASS },
+                { L_,   L"ZzZzzZZzzZZzzzz",      36,    e_RANGE },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int intType = e_INT; intType != e_NOT_INT; ++intType) {
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int          LINE   = DATA[ti].d_lineNum;
+                    const wchar_t     *INPUT  = DATA[ti].d_input;
+                    const int          BASE   = DATA[ti].d_base;
+                    const ErrType      ERROR  = DATA[ti].d_error;
+
+                    const bsl::wstring  STRING_VALUE(INPUT);
+
+                    if (veryVerbose) {
+                        T_ P_(INPUT) P_(BASE) P((int)ERROR);
+                    }
+
+                    try {
+                        switch (intType) {
+                          case e_INT : {
+                            int value = bsl::stoi(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_LONG_INT : {
+                            long value = bsl::stol(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_UNSIGNED_LONG_INT : {
+                            unsigned long value =
+                                          bsl::stoul(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_LONG_LONG_INT : {
+                            long long value =
+                                          bsl::stoll(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, intType, INPUT, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                          case e_UNSIGNEDLONG_LONG_INT : {
+                            unsigned long long value =
+                                         bsl::stoull(STRING_VALUE, NULL, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                          }
+                        }
+                    }
+                    catch(const std::invalid_argument&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_INVALID == ERROR);
+                    }
+                    catch(const std::out_of_range&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_RANGE == ERROR);
+                    }
+
+                    size_t next = 0;
+                    try {
+                        switch (intType) {
+                          case e_INT : {
+                            int value = bsl::stoi(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_LONG_INT : {
+                            long value = bsl::stol(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_UNSIGNED_LONG_INT : {
+                            unsigned long value =
+                                         bsl::stoul(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_LONG_LONG_INT : {
+                            long long value =
+                                         bsl::stoll(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                          case e_UNSIGNEDLONG_LONG_INT : {
+                            unsigned long long value =
+                                        bsl::stoull(STRING_VALUE, &next, BASE);
+                            ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
+                                    e_PASS == ERROR || !"Did not throw");
+                            ASSERTV(next, 0 != next);
+                          }
+                        }
+                    }
+                    catch(const std::invalid_argument&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_INVALID == ERROR);
+                        ASSERTV(next, !next);
+                    }
+                    catch(const std::out_of_range&) {
+                        ASSERTV(LINE, intType, STRING_VALUE, BASE, (int)ERROR,
+                                e_RANGE == ERROR);
+                        ASSERTV(next, !next);
+                    }
+                }
+
+                if (verbose) printf("negative testing");
+                {
+                    bsls::AssertTestHandlerGuard guard;
+
+                    size_t next = 0;
+                    for (int i = -3; i != 43; ++i) {
+                        if (!i || (2 <= i && i <= 36)) {
+                            ASSERT_OPT_PASS(bsl::stoi("0", NULL, i));
+                            ASSERT_OPT_PASS(bsl::stoi("-1", &next, i));
+                        }
+                        else {
+                            ASSERT_OPT_FAIL(bsl::stoi("0", NULL, i));
+                            ASSERT_OPT_FAIL(bsl::stoi("-1", &next, i));
+                        }
+                    }
+                }
+            }
+        }
+#endif // BDE_BUILD_TARGET_EXC
       } break;
       case 29: {
         // --------------------------------------------------------------------

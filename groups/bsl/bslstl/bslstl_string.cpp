@@ -7,7 +7,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_forwarditerator.h>     // for testing only
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
+#include <ctype.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -42,6 +44,112 @@ template class bsl::basic_string<wchar_t>;
 #endif
 
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_CLANG)
+# define BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS 1
+#endif
+
+namespace {
+// "0x" should return '0' for bases 0 and 16, but some C runtime libraries
+// disagree.  Intercept a possible error, and check for this special condition,
+// including leading whitespace and (optionaly) an immediately preceding '+' or
+// '-'.
+#if defined(BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS)
+static
+bool isAwkwardZero(const bsl::string& str, int base)
+    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
+    // zero in the specified 'base', and 'false' otherwise.
+{
+    if (0 != base && 16 != base) {
+        return false;                                                 // RETURN
+    }
+
+    size_t index = str.size();
+    if (str.size() < 2) { // || (0 != base && 16 != base)) {
+        return false;                                                 // RETURN
+    }
+
+    --index;
+    if ('x' != str[index] && 'X' != str[index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (str[--index] != '0') {
+        return false;                                                 // RETURN
+    }
+
+    if (!index) {
+        return true;                                                  // RETURN
+    }
+
+    --index;
+    if ('+' == str[index] || '-' == str[index]) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    while (isspace(str[index])) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+    return false;                                                     // RETURN
+}
+
+static
+bool isAwkwardZero(const bsl::wstring& str, int base)
+    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
+    // zero in the specified 'base', and 'false' otherwise.
+{
+    if (0 != base && 16 != base) {
+        return false;                                                 // RETURN
+    }
+
+    size_t index = str.size();
+    if (str.size() < 2) { // || (0 != base && 16 != base)) {
+        return false;                                                 // RETURN
+    }
+
+    --index;
+    if (L'x' != str[index] && L'X' != str[index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (L'0' != str[--index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (!index) {
+        return true;                                                  // RETURN
+    }
+
+    --index;
+    if (L'+' == str[index] || L'-' == str[index]) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    while (isspace(str[index])) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    return false;                                                     // RETURN
+}
+#else
+# define isAwkwardZero(A, B) false
+#endif
+
+}  // close unnamed namespace
+
+//-----------------------------------------------------------------------------
+
 std::size_t bsl::hashBasicString(const string& str)
 {
     return hashBasicString<char, char_traits<char>, allocator<char> >(str);
@@ -55,6 +163,17 @@ std::size_t bsl::hashBasicString(const wstring& str)
 
 int bsl::stoi(const string& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
@@ -64,20 +183,39 @@ int bsl::stoi(const string& str, std::size_t *pos, int base)
     if (errno == ERANGE) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
+    else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
+         && (value > native_std::numeric_limits<int>::max() ||
+             value < native_std::numeric_limits<int>::min() ) ) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
 
-    if (pos){
+    if (pos) {
         *pos = static_cast<size_t>(ptr - str.c_str());
     }
 
     errno = original_errno;
-    return value;
+    return static_cast<int>(value);
 }
 
 int bsl::stoi(const wstring& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -87,8 +225,16 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+    else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
+         && (value > native_std::numeric_limits<int>::max() ||
+             value < native_std::numeric_limits<int>::min() ) ) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
     if (pos) {
@@ -96,11 +242,22 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
     }
 
     errno = original_errno;
-    return value;
+    return static_cast<int>(value);
 }
 
 long bsl::stol(const string& str, std::size_t* pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
@@ -109,6 +266,9 @@ long bsl::stol(const string& str, std::size_t* pos, int base)
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
@@ -124,6 +284,17 @@ long bsl::stol(const string& str, std::size_t* pos, int base)
 
 long bsl::stol(const wstring& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -132,6 +303,9 @@ long bsl::stol(const wstring& str, std::size_t *pos, int base)
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
@@ -147,6 +321,17 @@ long bsl::stol(const wstring& str, std::size_t *pos, int base)
 
 unsigned long bsl::stoul(const string& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
@@ -155,6 +340,9 @@ unsigned long bsl::stoul(const string& str, std::size_t *pos, int base)
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
@@ -172,6 +360,17 @@ unsigned long bsl::stoul(const wstring&  str,
                          std::size_t    *pos,
                          int             base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -180,6 +379,9 @@ unsigned long bsl::stoul(const wstring&  str,
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
@@ -193,17 +395,34 @@ unsigned long bsl::stoul(const wstring&  str,
     return value;
 }
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long long bsl::stoll(const string& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
     errno = 0;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     long long value = strtoll(str.c_str(), &ptr, base);
+#else
+    long long value = _strtoi64(str.c_str(), &ptr, base);
+#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
@@ -219,14 +438,32 @@ long long bsl::stoll(const string& str, std::size_t *pos, int base)
 
 long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
     errno = 0;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     long long value = wcstoll(str.c_str(), &ptr, base);
+#else
+    long long value = _wcstoi64(str.c_str(), &ptr, base);
+#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
@@ -242,14 +479,32 @@ long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
 
 unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
     errno = 0;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     unsigned long long value = strtoull(str.c_str(), &ptr, base);
+#else
+    unsigned long long value = _strtoui64(str.c_str(), &ptr, base);
+#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
@@ -265,14 +520,32 @@ unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
 
 unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT_OPT( 0 <= base);
+    BSLS_ASSERT_OPT( 1 != base);
+    BSLS_ASSERT_OPT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
     errno = 0;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     unsigned long long value = wcstoull(str.c_str(), &ptr, base);
+#else
+    unsigned long long value = _wcstoui64(str.c_str(), &ptr, base);
+#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
@@ -286,64 +559,6 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
     return value;
 }
 
-float bsl::stof(const string& str, std::size_t *pos)
-{
-    char *ptr;
-    int   original_errno = errno;
-
-    errno = 0;
-
-    float value = strtof(str.c_str(), &ptr);
-
-    if (errno == ERANGE){
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
-    }
-    else if (ptr == str.c_str()){
-        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
-    }
-
-    if (pos) {
-        *pos = ptr - str.c_str();
-    }
-
-    errno = original_errno;
-    return value;
-}
-
-float bsl::stof(const wstring& str, std::size_t *pos)
-{
-    wchar_t *ptr;
-    int      original_errno = errno;
-
-    errno = 0;
-    float value = wcstof(str.c_str(), &ptr);
-
-    if (errno == ERANGE){
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
-    }
-    else if (ptr == str.c_str()){
-        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
-    }
-
-    if (pos) {
-        *pos = ptr - str.c_str();
-    }
-
-    errno = original_errno;
-    return value;
-}
-#else
-float bsl::stof(const string& str, std::size_t *pos)
-{
-    return static_cast<float>(stod(str, pos));
-}
-
-float bsl::stof(const wstring& str, std::size_t *pos)
-{
-    return static_cast<float>(stod(str, pos));
-}
-#endif
-
 double bsl::stod(const string& str, std::size_t *pos)
 {
     char *ptr;
@@ -354,6 +569,9 @@ double bsl::stod(const string& str, std::size_t *pos)
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
@@ -378,6 +596,9 @@ double bsl::stod(const wstring& str, std::size_t *pos)
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
     }
@@ -391,6 +612,59 @@ double bsl::stod(const wstring& str, std::size_t *pos)
 }
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
+float bsl::stof(const string& str, std::size_t *pos)
+{
+    char *ptr;
+    int   original_errno = errno;
+
+    errno = 0;
+
+    float value = strtof(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
+    wchar_t *ptr;
+    int      original_errno = errno;
+
+    errno = 0;
+    float value = wcstof(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
 long double bsl::stold(const string& str, std::size_t *pos)
 {
     char *ptr;
@@ -401,6 +675,9 @@ long double bsl::stold(const string& str, std::size_t *pos)
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
+    }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
     }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
@@ -425,6 +702,9 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
     }
@@ -436,6 +716,48 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
     errno = original_errno;
     return value;
 }
+#else
+// Proir to C++17, the C++ standard specified this function using the C90
+// library, which did not have 'strtof'.  That is the implementation we
+// continue to support on older Microsoft compilers, lacking the necessary C99
+// conversion functions.  Note that 'errno' and invalid strings are detected
+// and thrown by the 'stod' function that is forwarded to, so only need to
+// worry about performing a safe floating-point conversion.
+
+namespace {
+inline
+float convertDoubleToFloatOrThrow(double value) {
+    if ((value <=  native_std::numeric_limits<float>::max()) &&
+        (value >= -native_std::numeric_limits<float>::max())) {
+        return static_cast<float>(value);
+    }
+
+    BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stolf");
+}
+
+}
+float bsl::stof(const string& str, std::size_t *pos)
+{
+    return convertDoubleToFloatOrThrow(stod(str, pos));
+}
+
+float bsl::stof(const wstring& str, std::size_t *pos)
+{
+    return convertDoubleToFloatOrThrow(stod(str, pos));
+}
+
+// 'long double' has an identical representation to 'double' on these Windows
+// compilers, so lacking the 'strtold' function is not an issue.
+
+long double bsl::stold(const string& str, std::size_t *pos)
+{
+    return stod(str, pos);
+}
+
+long double bsl::stold(const wstring& str, std::size_t *pos)
+{
+    return stod(str, pos);
+}
 #endif
 
 bsl::string bsl::to_string(int value) {
@@ -444,6 +766,7 @@ bsl::string bsl::to_string(int value) {
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
+
     int len = sprintf(str.dataPtr(), "%d", value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
@@ -458,6 +781,7 @@ bsl::string bsl::to_string(unsigned value) {
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
+
     int len = sprintf(str.dataPtr(), "%u", value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
@@ -472,6 +796,7 @@ bsl::string bsl::to_string(long value) {
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
+
     int len = sprintf(str.dataPtr(), "%ld", value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
@@ -486,6 +811,7 @@ bsl::string bsl::to_string(unsigned long value) {
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
+
     int len = sprintf(str.dataPtr(), "%lu", value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
