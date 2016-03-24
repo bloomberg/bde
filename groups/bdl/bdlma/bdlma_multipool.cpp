@@ -366,12 +366,13 @@ void Multipool::release()
 
 void Multipool::reserveCapacity(bsls::Types::size_type size, int numBlocks)
 {
-    BSLS_ASSERT(1    <= size);
     BSLS_ASSERT(size <= d_maxBlockSize);
     BSLS_ASSERT(0    <= numBlocks);
 
-    const int pool = findPool(size);
-    d_pools_p[pool].reserveCapacity(numBlocks);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        const int pool = findPool(size);
+        d_pools_p[pool].reserveCapacity(numBlocks);
+    }
 }
 
 }  // close package namespace

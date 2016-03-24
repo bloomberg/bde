@@ -494,7 +494,7 @@ class SequentialPool {
         // growth is used.  Also note that when constant growth is used, the
         // size of the internal buffers will always be the same as
         // 'initialSize'.  Also note that 'SequentialPool(int initialSize)' is
-        // provided to avoid ambguous definitions.
+        // provided to avoid ambiguous definitions.
 
     SequentialPool(bsls::Types::size_type  initialSize,
                    bsls::Types::size_type  maxBufferSize,

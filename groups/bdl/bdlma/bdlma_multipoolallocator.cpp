@@ -6,8 +6,6 @@ BSLS_IDENT_RCSID(bdlma_multipoolallocator_cpp,"$Id$ $CSID$")
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
 
-#include <bsls_performancehint.h>
-
 namespace BloombergLP {
 namespace bdlma {
 

@@ -50,17 +50,6 @@ void ConcurrentMultipoolAllocator::release()
     d_multipool.release();
 }
 
-void ConcurrentMultipoolAllocator::reserveCapacity(
-                                             bsls::Types::size_type size,
-                                             int                    numObjects)
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        return;                                                       // RETURN
-    }
-
-    d_multipool.reserveCapacity(size, numObjects);
-}
 }  // close package namespace
 
 }  // close enterprise namespace

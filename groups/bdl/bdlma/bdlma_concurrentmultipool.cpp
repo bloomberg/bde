@@ -357,10 +357,9 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
 {
     BSLS_ASSERT(0 <= numBlocks);
 
-    // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' and
-    // 'BSLS_ASSERT(size <= d_maxBlockSize)' after 'robo' is clean.
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize) ||
-        BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+    // TBD: Change this block to 'BSLS_ASSERT(size <= d_maxBlockSize)' after
+    // 'robo' is clean.
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         static unsigned int count = 0;
         if (count <= 100 && 0 == count % 10) {
@@ -372,11 +371,13 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
         return;                                                       // RETURN
     }
 
-    const int pool = findPool(size);
-    d_pools_p[pool].reserveCapacity(numBlocks);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        const int pool = findPool(size);
+        d_pools_p[pool].reserveCapacity(numBlocks);
+    }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

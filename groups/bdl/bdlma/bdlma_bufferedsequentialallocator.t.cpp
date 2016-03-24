@@ -778,7 +778,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, GS, *ba)'" << endl;

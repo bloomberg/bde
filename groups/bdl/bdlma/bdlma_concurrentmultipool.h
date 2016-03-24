@@ -722,8 +722,9 @@ class ConcurrentMultipool {
     void reserveCapacity(bsls::Types::size_type size, int numBlocks);
         // Reserve memory from this multipool to satisfy memory requests for at
         // least the specified 'numBlocks' having the specified 'size' (in
-        // bytes) before the pool replenishes.  The behavior is undefined
-        // unless '1 <= size <= maxPooledBlockSize()', and '0 <= numBlocks'.
+        // bytes) before the pool replenishes.  If 'size' is 0, this method has
+        // no effect.  The behavior is undefined unless
+        // 'size <= maxPooledBlockSize()' and '0 <= numBlocks'.
 
     // ACCESSORS
     int numPools() const;

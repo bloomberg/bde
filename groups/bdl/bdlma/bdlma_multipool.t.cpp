@@ -2024,8 +2024,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.reserveCapacity( 1,  1));
                 ASSERT_SAFE_PASS(mX.reserveCapacity(16,  0));
 
-                ASSERT_SAFE_FAIL(mX.reserveCapacity( 0,  1));
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(-1,  1));
+                ASSERT_SAFE_PASS(mX.reserveCapacity( 0,  1));
                 ASSERT_SAFE_FAIL(mX.reserveCapacity(17,  1));
 
                 ASSERT_SAFE_FAIL(mX.reserveCapacity(16, -1));

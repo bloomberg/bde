@@ -120,7 +120,7 @@ static inline
 bsls::Types::size_type roundUp(bsls::Types::size_type x,
                                bsls::Types::size_type y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '0 <= x' and '0 < y'.
+    // specified 'y'.
 {
     return (x + y - 1) / y * y;
 }

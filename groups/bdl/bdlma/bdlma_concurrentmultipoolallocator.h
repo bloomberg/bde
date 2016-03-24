@@ -444,7 +444,7 @@ class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
         // requests for at least the specified 'numObjects' having the
         // specified 'size' (in bytes) before the pool replenishes.  If 'size'
         // is 0, this method has no effect.  The behavior is undefined unless
-        // '0 <= size', 'size < maxPooledBlockSize()', and '0 <= numObjects'.
+        // 'size <= maxPooledBlockSize()' and '0 <= numObjects'.
 
                                 // Virtual Functions
 
@@ -571,6 +571,15 @@ ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
               maxBlocksPerChunkArray,
               basicAllocator)
 {
+}
+
+// MANIPULATORS
+inline
+void ConcurrentMultipoolAllocator::reserveCapacity(
+                                             bsls::Types::size_type size,
+                                             int                    numObjects)
+{
+    d_multipool.reserveCapacity(size, numObjects);
 }
 
 // ACCESSORS

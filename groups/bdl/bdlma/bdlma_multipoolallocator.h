@@ -624,6 +624,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -766,7 +770,7 @@ class MultipoolAllocator : public ManagedAllocator {
         // requests for at least the specified 'numObjects' having the
         // specified 'size' (in bytes) before the pool replenishes.  If 'size'
         // is 0, this method has no effect.  The behavior is undefined unless
-        // 'size <= maxPooledBlockSize()'.
+        // 'size <= maxPooledBlockSize()' and '0 <= numObjects'.
 
                                 // Virtual Functions
 
@@ -919,9 +923,7 @@ inline
 void MultipoolAllocator::reserveCapacity(bsls::Types::size_type size,
                                          int                    numObjects)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
-        d_multipool.reserveCapacity(size, numObjects);
-    }
+    d_multipool.reserveCapacity(size, numObjects);
 }
 
 // ACCESSORS
