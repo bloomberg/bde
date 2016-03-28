@@ -419,10 +419,11 @@ class SequentialPool {
                                                      // by other strategies (or
                                                      // 0)
 
-    const bsls::Types::size_type   d_minSize;        // minimum available size
-                                                     // from an allocated block
-                                                     // when using constant
-                                                     // growth and 0 when using
+    const bsls::Types::size_type   d_constantGrowthSize;
+                                                     // available size from an
+                                                     // allocated block when
+                                                     // using constant growth
+                                                     // and 0 when using
                                                      // geometric growth
 
     bslma::Allocator              *d_allocator_p;    // memory allocator (held,

@@ -315,8 +315,8 @@ class SequentialAllocator : public ManagedAllocator {
         // Also note that when constant growth is used, the size of the
         // internal buffers will always be the same as the
         // implementation-defined value.  Also note that
-        // 'SequentialPool(int initialSize)' is provided to avoid ambiguous
-        // definitions.
+        // 'SequentialAllocator(int initialSize)' is provided to avoid
+        // ambiguous definitions.
 
     SequentialAllocator(bsls::Types::size_type  initialSize,
                         bsls::Types::size_type  maxBufferSize,

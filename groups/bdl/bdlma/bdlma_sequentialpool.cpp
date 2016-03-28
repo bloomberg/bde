@@ -54,7 +54,7 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
         // Note that empty blocks are maximally aligned, which allows simple
         // size comparisons.
 
-        if (size <= d_minSize) {
+        if (size <= d_constantGrowthSize) {
             // Constant growth strategy.
 
             if (*d_freeListPrevAddr_p) {
@@ -63,7 +63,7 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
                 d_bufferManager.replaceBuffer(
                                        reinterpret_cast<char *>(
                                            &(*d_freeListPrevAddr_p)->d_memory),
-                                       d_minSize);
+                                       d_constantGrowthSize);
 
                 d_freeListPrevAddr_p = &(*d_freeListPrevAddr_p)->d_next_p;
             }
@@ -71,9 +71,9 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
                 // Use a newly allocated block.
 
                 Block *block = reinterpret_cast<Block *>(
-                                   d_allocator_p->allocate(
-                                        alignedAllocationSize(d_minSize,
-                                                              sizeof(Block))));
+                                d_allocator_p->allocate(
+                                    alignedAllocationSize(d_constantGrowthSize,
+                                                          sizeof(Block))));
 
                 block->d_next_p       = *d_freeListPrevAddr_p;
                 *d_freeListPrevAddr_p =  block;
@@ -81,7 +81,7 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
 
                 d_bufferManager.replaceBuffer(reinterpret_cast<char *>(
                                                              &block->d_memory),
-                                              d_minSize);
+                                              d_constantGrowthSize);
             }
         }
         else {
@@ -146,7 +146,7 @@ SequentialPool::SequentialPool(bslma::Allocator *basicAllocator)
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -163,9 +163,9 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : k_INITIAL_SIZE)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : k_INITIAL_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -182,7 +182,7 @@ SequentialPool::SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -200,9 +200,9 @@ SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : k_INITIAL_SIZE)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : k_INITIAL_SIZE)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -218,7 +218,7 @@ SequentialPool::SequentialPool(int initialSize)
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(0))
 {
     BSLS_ASSERT(0 < initialSize);
@@ -238,7 +238,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < initialSize);
@@ -259,9 +259,9 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : initialSize)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : initialSize)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < initialSize);
@@ -282,7 +282,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < initialSize);
@@ -304,9 +304,9 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : initialSize)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : initialSize)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < initialSize);
@@ -330,7 +330,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type  initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0           <  initialSize);
@@ -356,9 +356,9 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : initialSize)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : initialSize)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0           <  initialSize);
@@ -384,7 +384,7 @@ SequentialPool::SequentialPool(bsls::Types::size_type     initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(0)
+, d_constantGrowthSize(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0           <  initialSize);
@@ -411,9 +411,9 @@ SequentialPool::SequentialPool(bsls::Types::size_type       initialSize,
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : initialSize)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : initialSize)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0           <  initialSize);
@@ -442,9 +442,9 @@ SequentialPool::SequentialPool(
 , d_unavailable(d_alwaysUnavailable)
 , d_allocated(0)
 , d_largeBlockList_p(0)
-, d_minSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
-            ? 0
-            : initialSize)
+, d_constantGrowthSize(  growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                       ? 0
+                       : initialSize)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0           <  initialSize);
@@ -510,14 +510,15 @@ void SequentialPool::reserveCapacity(bsls::Types::size_type numBytes)
         return;                                                       // RETURN
     }
 
-    if (numBytes <= d_minSize) {
+    if (numBytes <= d_constantGrowthSize) {
         // Constant growth strategy.
 
         if (0 == *d_freeListPrevAddr_p) {
             // No block available for reuse; allocate a block for future use.
 
             Block *block = reinterpret_cast<Block *>(d_allocator_p->allocate(
-                             alignedAllocationSize(d_minSize, sizeof(Block))));
+                                    alignedAllocationSize(d_constantGrowthSize,
+                                                          sizeof(Block))));
 
             block->d_next_p        = *d_freeListPrevAddr_p;
             *d_freeListPrevAddr_p  =  block;

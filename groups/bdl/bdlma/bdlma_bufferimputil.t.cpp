@@ -827,35 +827,6 @@ int main(int argc, char *argv[])
             char *buffer = bufferStorage.buffer();
             enum { k_BUFSIZE = 64, k_ALLOCSIZE = 4 };
 
-            if (veryVerbose) cout << "\t'0 <= bufferSize'" << endl;
-            {
-                bsls::Types::IntPtr cursor = 0;
-
-                ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
-                                                         buffer,
-                                                         0,        // PASS
-                                                         k_ALLOCSIZE,
-                                                         NAT));
-
-                ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         0,        // PASS
-                                                         k_ALLOCSIZE));
-
-                ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         0,        // PASS
-                                                         k_ALLOCSIZE));
-
-                ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
-                                                         &cursor,
-                                                         buffer,
-                                                         0,        // PASS
-                                                         k_ALLOCSIZE));
-            }
-
             if (veryVerbose) cout << "\t'0 < size'" << endl;
             {
                 bsls::Types::IntPtr cursor = 0;
