@@ -797,7 +797,11 @@ int main(int argc, char *argv[])
     // at some point when these asserts can be re-enabled.  Till then we will
     // provide a compiler warning at the beginning of main.
 
-#warning "default allocator assert is disabled"
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
+# warning "default allocator assert is disabled"
+#else
+# pragma message("default allocator assert is disabled")
+#endif
 
     int            test = argc > 1 ? atoi(argv[1]) : 0;
                 verbose = argc > 2;
