@@ -736,7 +736,10 @@ int main(int argc, char *argv[])
             { L_,    5 * HDRSZ - 14  },
             { L_,    5 * HDRSZ - 15  },
             { L_,    5 * HDRSZ - 16  },
-            { L_,    INT_MAX         }  // DRQS 78107275
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+            { L_,    INT_MAX         }, // DRQS 78107275
+#endif
+            { L_,    INT_MAX / 4     }  // DRQS 78107275
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

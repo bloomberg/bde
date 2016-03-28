@@ -1389,14 +1389,27 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
+                bsls::Types::size_type numBytes = INT_MAX / 4;
+                cBuffer = (char *)mX.allocate(numBytes);
+                bsls::Types::size_type size =
+                                           bdlb::BitUtil::roundUpToBinaryPower(
+                                              static_cast<uint64_t>(numBytes));
+                ASSERT(size == objectAllocator.numBytesInUse());
+            }
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+            {
+                Obj mX(buffer, bufferSize, NAT, &objectAllocator);
+
+                ASSERT(0 == objectAllocator.numBytesInUse());
+
                 bsls::Types::size_type numBytes = INT_MAX;
                 cBuffer = (char *)mX.allocate(numBytes);
                 bsls::Types::size_type size =
                                            bdlb::BitUtil::roundUpToBinaryPower(
                                               static_cast<uint64_t>(numBytes));
-                P_(size)  P(objectAllocator.numBytesInUse());
                 ASSERT(size == objectAllocator.numBytesInUse());
             }
+#endif
         }
       } break;
       case 3: {

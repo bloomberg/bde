@@ -1583,6 +1583,12 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
 
+                mX.allocate(INT_MAX / 4);
+            }
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+            {
+                Obj mX;
+
                 mX.allocate(INT_MAX / 2 + 2);  // DRQS 78107275
             }
             {
@@ -1590,6 +1596,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(INT_MAX);
             }
+#endif
         }
       } break;
       case 3: {
