@@ -34,8 +34,8 @@ using namespace bsl;
 // behavior specified by the protocol from the concrete subclass.  We also need
 // to ensure that this class derives from the 'bslma::Allocator' class.
 //-----------------------------------------------------------------------------
-// [ 1] virtual void allocate(size_type size);
-// [ 1] virtual void *allocateAligned(bsl::size_t, size_type);
+// [ 1] virtual void allocate(bsls::Types::size_type size);
+// [ 1] virtual void *allocateAligned(size_type, size_type);
 // [ 1] virtual void deallocate(void *address);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -106,7 +106,7 @@ struct AlignedAllocatorTestImp :
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'bdlma::AlignedAllocator' protocol provided in this component defines a
 // bilateral contract between suppliers and consumers of raw aligned memory.
 // In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
@@ -145,7 +145,7 @@ struct AlignedAllocatorTestImp :
             // effect on any outstanding allocated memory.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        virtual void *allocate(bsls::Types::size_type size);
             // Return a newly allocated block of memory of (at least) the
             // specified positive 'size' (in bytes).  If 'size' is 0, a null
             // pointer is returned with no other effect.  If this allocator
@@ -159,7 +159,8 @@ struct AlignedAllocatorTestImp :
             // avoid having to acquire a lock, and potential contention in
             // multi-threaded programs).
 
-        virtual void *allocateAligned(bsl::size_t size, size_type alignment);
+        virtual void *allocateAligned(bsls::Types::size_type size,
+                                      bsls::Types::size_type alignment);
             // Return the address of a newly allocated block of memory of at
             // least the specified positive 'size' (in bytes), sufficiently
             // aligned such that the returned 'address' satisfies, for the
@@ -196,7 +197,7 @@ struct AlignedAllocatorTestImp :
 // the base class (the typical usage in this case):
 //..
     // MANIPULATORS
-    void *MyAlignedAllocator::allocate(size_type size)
+    void *MyAlignedAllocator::allocate(bsls::Types::size_type size)
     {
         if (0 == size) {
             return 0;                                                 // RETURN
@@ -206,8 +207,8 @@ struct AlignedAllocatorTestImp :
         return allocateAligned(size, alignment);
     }
 
-    void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
-                                              size_type   alignment)
+    void *MyAlignedAllocator::allocateAligned(bsls::Types::size_type size,
+                                              bsls::Types::size_type alignment)
     {
         BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
         BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
@@ -291,8 +292,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-///Example 2: Using the 'bdlma::AlignedAllocator' protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Using the 'bdlma::AlignedAllocator' Protocol
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA
@@ -361,8 +362,8 @@ int main(int argc, char *argv[])
         //:   'bslma::Allocator' .
         //
         // Testing:
-        //   virtual void *allocate(size_type size) = 0;
-        //   virtual void *allocateAligned(bsl::size_t, size_type) = 0;
+        //   virtual void *allocate(bsls::Types::size_type size) = 0;
+        //   virtual void *allocateAligned(size_type, size_type) = 0;
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
 
@@ -404,7 +405,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -34,7 +34,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::BlockList(bslma::Allocator *ba = 0);
 // [ 3] ~bdlma::BlockList();
-// [ 2] void *allocate(int size);
+// [ 2] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
 //-----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ int roundUp(int x, int y)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::BlockList' in a Memory Pool
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::BlockList' object is commonly used to supply memory to more
 // elaborate memory managers that distribute parts of each (larger) allocated
 // memory block supplied by the 'bdlma::BlockList' object.  The 'my_StrPool'
@@ -145,21 +145,22 @@ int roundUp(int x, int y)
     class my_StrPool {
 
         // DATA
-        int               d_blockSize;  // size of current memory block
+        bsls::Types::size_type  d_blockSize;  // size of current memory block
 
-        char             *d_block_p;    // current free memory block
+        char                   *d_block_p;    // current free memory block
 
-        int               d_cursor;     // offset to next available byte in
-                                        // block
+        bsls::Types::IntPtr     d_cursor;     // offset to next available byte
+                                              // in block
 
-        bdlma::BlockList  d_blockList;  // supplies managed memory blocks
+        bdlma::BlockList        d_blockList;  // supplies managed memory blocks
 
       private:
         // PRIVATE MANIPULATORS
-        void *allocateBlock(int numBytes);
+        void *allocateBlock(bsls::Types::size_type numBytes);
             // Request a new memory block of at least the specified 'numBytes'
             // size and allocate the initial 'numBytes' from this block.
-            // Return the address of the allocated memory.
+            // Return the address of the allocated memory.  The behavior is
+            // undefined unless '0 < numBytes'.
 
       private:
         // NOT IMPLEMENTED
@@ -177,10 +178,9 @@ int roundUp(int x, int y)
             // Destroy this object and release all associated memory.
 
         // MANIPULATORS
-        void *allocate(int numBytes);
+        void *allocate(bsls::Types::size_type numBytes);
             // Allocate the specified 'numBytes' of memory and return its
             // address.  If 'numBytes' is 0, return 0 with no other effect.
-            // The behavior is undefined unless '0 <= numBytes'.
 
         void release();
             // Release all memory currently allocated through this object.
@@ -208,7 +208,7 @@ int roundUp(int x, int y)
     };
 
     // PRIVATE MANIPULATORS
-    void *my_StrPool::allocateBlock(int numBytes)
+    void *my_StrPool::allocateBlock(bsls::Types::size_type numBytes)
     {
         ASSERT(0 < numBytes);
 
@@ -244,10 +244,8 @@ int roundUp(int x, int y)
     }
 
     // MANIPULATORS
-    void *my_StrPool::allocate(int numBytes)
+    void *my_StrPool::allocate(bsls::Types::size_type numBytes)
     {
-        ASSERT(0 <= numBytes);
-
         if (0 == numBytes) {
             return 0;                                                 // RETURN
         }
@@ -677,7 +675,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlma::BlockList(bslma::Allocator *ba = 0);
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "DEFAULT CTOR & ALLOCATE" << endl
@@ -845,21 +843,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksTotal());
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(size < 0)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-                ASSERT_SAFE_PASS(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
-            }
-        }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -930,7 +913,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

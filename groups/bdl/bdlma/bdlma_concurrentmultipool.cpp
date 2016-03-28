@@ -30,6 +30,7 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>  // 'fprintf'
 #include <bsl_cstdint.h>
+#include <bsl_limits.h>
 
 #include <new>           // placement 'new'
 
@@ -69,8 +70,10 @@ void ConcurrentMultipool::initialize(
                              maxBlocksPerChunk,
                              &d_allocAdapter);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -100,8 +103,10 @@ void ConcurrentMultipool::initialize(
                              maxBlocksPerChunk,
                              &d_allocAdapter);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -131,8 +136,10 @@ void ConcurrentMultipool::initialize(
                              maxBlocksPerChunkArray[i],
                              &d_allocAdapter);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -162,8 +169,10 @@ void ConcurrentMultipool::initialize(
                              maxBlocksPerChunkArray[i],
                              &d_allocAdapter);
 
+        BSLS_ASSERT(d_maxBlockSize <=
+                       bsl::numeric_limits<bsls::Types::size_type>::max() / 2);
+
         d_maxBlockSize *= 2;
-        BSLS_ASSERT(d_maxBlockSize > 0);
     }
 
     d_maxBlockSize /= 2;
@@ -174,7 +183,7 @@ void ConcurrentMultipool::initialize(
 
 // PRIVATE ACCESSORS
 inline
-int ConcurrentMultipool::findPool(int size) const
+int ConcurrentMultipool::findPool(bsls::Types::size_type size) const
 {
     return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<bsl::uint32_t>(
                                 ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1));
@@ -291,34 +300,32 @@ ConcurrentMultipool::~ConcurrentMultipool()
 }
 
 // MANIPULATORS
-void *ConcurrentMultipool::allocate(int size)
+void *ConcurrentMultipool::allocate(bsls::Types::size_type size)
 {
-    // TBD: change this block to 'BSLS_ASSERT(1 <= size)' after 'robo' is clean
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        static unsigned int count = 0;
-        if (count <= 100 && 0 == count % 10) {
-            bsl::fprintf(stderr,
-                         "Error: Allocating 0 bytes in %s\n", __FILE__);
-        }
-        ++count;
-        return 0;                                                     // RETURN
-    }
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        if (size <= d_maxBlockSize) {
+            const int pool = findPool(size);
 
-    if (size <= d_maxBlockSize) {
-        const int pool = findPool(size);
-        Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
-        p->d_header.d_poolIdx = pool;
+            Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
+
+            p->d_header.d_poolIdx = pool;
+
+            return p + 1;                                             // RETURN
+        }
+
+        // The requested size is large and will not be pooled.
+
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+        Header *p = static_cast<Header *>(
+                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
+
+        p->d_header.d_poolIdx = -1;
+
         return p + 1;                                                 // RETURN
     }
 
-    // The requested size is large and will not be pooled.
-
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    Header *p = static_cast<Header *>(
-                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
-    p->d_header.d_poolIdx = -1;
-    return p + 1;
+    return 0;
 }
 
 void ConcurrentMultipool::deallocate(void *address)
@@ -345,15 +352,16 @@ void ConcurrentMultipool::release()
     d_blockList.release();
 }
 
-void ConcurrentMultipool::reserveCapacity(int size, int numBlocks)
+void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
+                                          int                    numBlocks)
 {
-    BSLS_ASSERT(0 <= size);
     BSLS_ASSERT(0 <= numBlocks);
 
-    // TBD: Change this block to 'BSLS_ASSERT(1 <= size)' and
-    // 'BSLS_ASSERT(size <= d_maxBlockSize)' after 'robo' is clean.
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize) ||
-        BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
+    // TBD: Change this block to 'BSLS_ASSERT(size <= d_maxBlockSize)' after
+    // 'robo' is clean.
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         static unsigned int count = 0;
         if (count <= 100 && 0 == count % 10) {
@@ -365,15 +373,23 @@ void ConcurrentMultipool::reserveCapacity(int size, int numBlocks)
         return;                                                       // RETURN
     }
 
-    const int pool = findPool(size);
-    d_pools_p[pool].reserveCapacity(numBlocks);
-}
-}  // close package namespace
+#else
 
+    BSLS_ASSERT(size <= d_maxBlockSize);
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        const int pool = findPool(size);
+        d_pools_p[pool].reserveCapacity(numBlocks);
+    }
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

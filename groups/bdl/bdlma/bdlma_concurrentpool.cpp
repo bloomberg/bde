@@ -61,12 +61,11 @@ enum {
 // implementation details of private support functions
 
 static inline
-int roundUp(int x, int y)
+bsls::Types::size_type roundUp(bsls::Types::size_type x,
+                               bsls::Types::size_type y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '0 <= x' and '0 < y'.
+    // specified 'y'.
 {
-    BSLS_ASSERT(0 <= x);
-
     return (x + y - 1) / y * y;
 }
 
@@ -82,7 +81,8 @@ LLink *toLink(char *address)
 // private support functions
 
 static inline
-int computeInternalBlockSize(int blockSize)
+bsls::Types::size_type computeInternalBlockSize(
+                                              bsls::Types::size_type blockSize)
     // Return the number of bytes that must be allocated to provide an aligned
     // block of memory of the specified 'blockSize' that can also be used to
     // represent a 'object' 'LLink' (on the 'bdlma::ConcurrentPool' objects
@@ -90,8 +90,8 @@ int computeInternalBlockSize(int blockSize)
     // 'LLink' object or 'blockSize' rounded up to the alignment required for a
     // 'LLink' object (i.e., the maximum platform alignment).
 {
-    const int HEADER_LENGTH  = offsetof(LLink, d_next_p);
-    const int MINIMUM_LENGTH = sizeof(LLink);
+    const bsls::Types::size_type HEADER_LENGTH  = offsetof(LLink, d_next_p);
+    const bsls::Types::size_type MINIMUM_LENGTH = sizeof(LLink);
 
     return roundUp(bsl::max(blockSize + HEADER_LENGTH, MINIMUM_LENGTH),
                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
@@ -100,7 +100,7 @@ int computeInternalBlockSize(int blockSize)
 static
 void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
                   bdlma::InfrequentDeleteBlockList *blockList,
-                  int                               blockSize,
+                  bsls::Types::size_type            blockSize,
                   int                               numBlocks)
     // Append to the specified 'nextList', 'numBlocks' free memory blocks each
     // having the specified 'blockSize', using memory provided by the specified
@@ -157,7 +157,8 @@ void ConcurrentPool::replenish()
 }
 
 // CREATORS
-ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
+ConcurrentPool::ConcurrentPool(bsls::Types::size_type  blockSize,
+                               bslma::Allocator       *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(k_INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
@@ -170,7 +171,7 @@ ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-ConcurrentPool::ConcurrentPool(int                          blockSize,
+ConcurrentPool::ConcurrentPool(bsls::Types::size_type       blockSize,
                                bsls::BlockGrowth::Strategy  growthStrategy,
                                bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
@@ -186,7 +187,7 @@ ConcurrentPool::ConcurrentPool(int                          blockSize,
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-ConcurrentPool::ConcurrentPool(int                          blockSize,
+ConcurrentPool::ConcurrentPool(bsls::Types::size_type       blockSize,
                                bsls::BlockGrowth::Strategy  growthStrategy,
                                int                          maxBlocksPerChunk,
                                bslma::Allocator            *basicAllocator)
@@ -379,7 +380,7 @@ void ConcurrentPool::reserveCapacity(int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

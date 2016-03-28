@@ -27,7 +27,7 @@ ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()
 }
 
 // MANIPULATORS
-void *ConcurrentAllocatorAdapter::allocate(size_type numBytes)
+void *ConcurrentAllocatorAdapter::allocate(bsls::Types::size_type numBytes)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
     return d_allocator_p->allocate(numBytes);
@@ -43,7 +43,7 @@ void ConcurrentAllocatorAdapter::deallocate(void *address)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -15,18 +15,17 @@ namespace bdlma {
                            // --------------------
 
 // CLASS METHODS
-void *BufferImpUtil::allocateFromBuffer(int                       *cursor,
+void *BufferImpUtil::allocateFromBuffer(bsls::Types::IntPtr       *cursor,
                                         char                      *buffer,
-                                        int                        bufferSize,
-                                        int                        size,
+                                        bsls::Types::size_type     bufferSize,
+                                        bsls::Types::size_type     size,
                                         bsls::Alignment::Strategy  strategy)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufferSize);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 <= *cursor);
-    BSLS_ASSERT(*cursor <= bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(*cursor) <= bufferSize);
 
     void *result = 0;
 
@@ -57,17 +56,17 @@ void *BufferImpUtil::allocateFromBuffer(int                       *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateMaximallyAlignedFromBuffer(int  *cursor,
-                                                        char *buffer,
-                                                        int   bufferSize,
-                                                        int   size)
+void *BufferImpUtil::allocateMaximallyAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufferSize);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 <= *cursor);
-    BSLS_ASSERT(*cursor <= bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(*cursor) <= bufferSize);
 
     const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                       buffer + *cursor,
@@ -83,17 +82,17 @@ void *BufferImpUtil::allocateMaximallyAlignedFromBuffer(int  *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateNaturallyAlignedFromBuffer(int  *cursor,
-                                                        char *buffer,
-                                                        int   bufferSize,
-                                                        int   size)
+void *BufferImpUtil::allocateNaturallyAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufferSize);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 <= *cursor);
-    BSLS_ASSERT(*cursor <= bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(*cursor) <= bufferSize);
 
     const int alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                          size);
@@ -112,17 +111,17 @@ void *BufferImpUtil::allocateNaturallyAlignedFromBuffer(int  *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateOneByteAlignedFromBuffer(int  *cursor,
-                                                      char *buffer,
-                                                      int   bufferSize,
-                                                      int   size)
+void *BufferImpUtil::allocateOneByteAlignedFromBuffer(
+                                            bsls::Types::IntPtr    *cursor,
+                                            char                   *buffer,
+                                            bsls::Types::size_type  bufferSize,
+                                            bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufferSize);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 <= *cursor);
-    BSLS_ASSERT(*cursor <= bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(*cursor) <= bufferSize);
 
     if (*cursor + size > bufferSize) {
         return 0;                                                     // RETURN
@@ -134,9 +133,9 @@ void *BufferImpUtil::allocateOneByteAlignedFromBuffer(int  *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateFromBufferRaw(int                       *cursor,
+void *BufferImpUtil::allocateFromBufferRaw(bsls::Types::IntPtr       *cursor,
                                            char                      *buffer,
-                                           int                        size,
+                                           bsls::Types::size_type     size,
                                            bsls::Alignment::Strategy  strategy)
 {
     BSLS_ASSERT(cursor);
@@ -170,9 +169,10 @@ void *BufferImpUtil::allocateFromBufferRaw(int                       *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateMaximallyAlignedFromBufferRaw(int  *cursor,
-                                                           char *buffer,
-                                                           int   size)
+void *BufferImpUtil::allocateMaximallyAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
@@ -189,9 +189,10 @@ void *BufferImpUtil::allocateMaximallyAlignedFromBufferRaw(int  *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateNaturallyAlignedFromBufferRaw(int  *cursor,
-                                                           char *buffer,
-                                                           int   size)
+void *BufferImpUtil::allocateNaturallyAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
@@ -211,9 +212,10 @@ void *BufferImpUtil::allocateNaturallyAlignedFromBufferRaw(int  *cursor,
     return result;
 }
 
-void *BufferImpUtil::allocateOneByteAlignedFromBufferRaw(int  *cursor,
-                                                         char *buffer,
-                                                         int   size)
+void *BufferImpUtil::allocateOneByteAlignedFromBufferRaw(
+                                                bsls::Types::IntPtr    *cursor,
+                                                char                   *buffer,
+                                                bsls::Types::size_type  size)
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
@@ -230,7 +232,7 @@ void *BufferImpUtil::allocateOneByteAlignedFromBufferRaw(int  *cursor,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

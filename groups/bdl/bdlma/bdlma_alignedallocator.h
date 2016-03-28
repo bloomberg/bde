@@ -51,7 +51,7 @@ BSLS_IDENT("$Id$")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'bdlma::AlignedAllocator' protocol provided in this component defines a
 // bilateral contract between suppliers and consumers of raw aligned memory.
 // In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id$")
 //          // effect on any outstanding allocated memory.
 //
 //      // MANIPULATORS
-//      virtual void *allocate(size_type size);
+//      virtual void *allocate(bsls::Types::size_type size);
 //          // Return a newly allocated block of memory of (at least) the
 //          // specified positive 'size' (in bytes).  If 'size' is 0, a null
 //          // pointer is returned with no other effect.  If this allocator
@@ -104,7 +104,8 @@ BSLS_IDENT("$Id$")
 //          // avoid having to acquire a lock, and potential contention in
 //          // multi-threaded programs).
 //
-//      virtual void *allocateAligned(bsl::size_t size, size_type alignment);
+//      virtual void *allocateAligned(bsls::Types::size_type size,
+//                                    bsls::Types::size_type alignment);
 //          // Return the address of a newly allocated block of memory of at
 //          // least the specified positive 'size' (in bytes), sufficiently
 //          // aligned such that the returned 'address' satisfies, for the
@@ -141,7 +142,7 @@ BSLS_IDENT("$Id$")
 // the base class (the typical usage in this case):
 //..
 //  // MANIPULATORS
-//  void *MyAlignedAllocator::allocate(size_type size)
+//  void *MyAlignedAllocator::allocate(bsls::Types::size_type size)
 //  {
 //      if (0 == size) {
 //          return 0;                                                 // RETURN
@@ -151,8 +152,8 @@ BSLS_IDENT("$Id$")
 //      return allocateAligned(size, alignment);
 //  }
 //
-//  void *MyAlignedAllocator::allocateAligned(bsl::size_t size,
-//                                            size_type   alignment)
+//  void *MyAlignedAllocator::allocateAligned(bsls::Types::size_type size,
+//                                            bsls::Types::size_type alignment)
 //  {
 //      BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 //      BSLS_ASSERT_SAFE(0 == (alignment % sizeof(void *)));
@@ -206,7 +207,7 @@ BSLS_IDENT("$Id$")
 // Note that the memory is not released when the allocator goes out of scope.
 //
 ///Example 2: Using the 'bdlma::AlignedAllocator' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA
@@ -243,6 +244,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_annotation.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
 #endif
@@ -262,7 +267,8 @@ class AlignedAllocator : public bslma::Allocator {
 
   public:
     // MANIPULATORS
-    virtual void *allocateAligned(bsl::size_t size, size_type alignment) = 0;
+    virtual void *allocateAligned(bsls::Types::size_type size,
+                                  bsls::Types::size_type alignment) = 0;
         // Return the address of a newly allocated block of memory of at least
         // the specified positive 'size' (in bytes), sufficiently aligned such
         // that the returned 'address' satisfies, for the specified
@@ -281,7 +287,7 @@ class AlignedAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -207,7 +207,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::ConcurrentMultipoolAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipoolAllocator' can be used to supply memory to
 // node-based data structures such as 'bsl::set', 'bsl::list' or 'bsl::map'.
 // Suppose we are implementing a container of named graphs data structure,
@@ -2083,7 +2083,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
