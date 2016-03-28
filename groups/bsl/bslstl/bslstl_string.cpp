@@ -163,9 +163,9 @@ std::size_t bsl::hashBasicString(const wstring& str)
 
 int bsl::stoi(const string& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -205,9 +205,9 @@ int bsl::stoi(const string& str, std::size_t *pos, int base)
 
 int bsl::stoi(const wstring& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -247,9 +247,9 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
 
 long bsl::stol(const string& str, std::size_t* pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -284,9 +284,9 @@ long bsl::stol(const string& str, std::size_t* pos, int base)
 
 long bsl::stol(const wstring& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -321,9 +321,9 @@ long bsl::stol(const wstring& str, std::size_t *pos, int base)
 
 unsigned long bsl::stoul(const string& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -360,9 +360,9 @@ unsigned long bsl::stoul(const wstring&  str,
                          std::size_t    *pos,
                          int             base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -397,9 +397,9 @@ unsigned long bsl::stoul(const wstring&  str,
 
 long long bsl::stoll(const string& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -438,9 +438,9 @@ long long bsl::stoll(const string& str, std::size_t *pos, int base)
 
 long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -479,9 +479,9 @@ long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
 
 unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {
@@ -520,9 +520,9 @@ unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
 
 unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
 {
-    BSLS_ASSERT_OPT( 0 <= base);
-    BSLS_ASSERT_OPT( 1 != base);
-    BSLS_ASSERT_OPT(36 >= base);
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
 
     if (isAwkwardZero(str, base)) {
         if (pos) {

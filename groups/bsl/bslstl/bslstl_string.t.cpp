@@ -18042,12 +18042,12 @@ int main(int argc, char *argv[])
                     size_t next = 0;
                     for (int i = -3; i != 43; ++i) {
                         if (!i || (2 <= i && i <= 36)) {
-                            ASSERT_OPT_PASS(bsl::stoi("0", NULL, i));
-                            ASSERT_OPT_PASS(bsl::stoi("-1", &next, i));
+                            ASSERT_PASS(bsl::stoi("0", NULL, i));
+                            ASSERT_PASS(bsl::stoi("-1", &next, i));
                         }
                         else {
-                            ASSERT_OPT_FAIL(bsl::stoi("0", NULL, i));
-                            ASSERT_OPT_FAIL(bsl::stoi("-1", &next, i));
+                            ASSERT_FAIL(bsl::stoi("0", NULL, i));
+                            ASSERT_FAIL(bsl::stoi("-1", &next, i));
                         }
                     }
                 }
@@ -18243,12 +18243,12 @@ int main(int argc, char *argv[])
                     size_t next = 0;
                     for (int i = -3; i != 43; ++i) {
                         if (!i || (2 <= i && i <= 36)) {
-                            ASSERT_OPT_PASS(bsl::stoi("0", NULL, i));
-                            ASSERT_OPT_PASS(bsl::stoi("-1", &next, i));
+                            ASSERT_PASS(bsl::stoi("0", NULL, i));
+                            ASSERT_PASS(bsl::stoi("-1", &next, i));
                         }
                         else {
-                            ASSERT_OPT_FAIL(bsl::stoi("0", NULL, i));
-                            ASSERT_OPT_FAIL(bsl::stoi("-1", &next, i));
+                            ASSERT_FAIL(bsl::stoi("0", NULL, i));
+                            ASSERT_FAIL(bsl::stoi("-1", &next, i));
                         }
                     }
                 }
