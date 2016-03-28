@@ -357,6 +357,8 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
 {
     BSLS_ASSERT(0 <= numBlocks);
 
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+
     // TBD: Change this block to 'BSLS_ASSERT(size <= d_maxBlockSize)' after
     // 'robo' is clean.
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > d_maxBlockSize)) {
@@ -370,6 +372,12 @@ void ConcurrentMultipool::reserveCapacity(bsls::Types::size_type size,
         ++count;
         return;                                                       // RETURN
     }
+
+#else
+
+    BSLS_ASSERT(size <= d_maxBlockSize);
+
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
         const int pool = findPool(size);
