@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
             x.stop();                  ASSERT(false == X.isRunning());
 
-            x.start();
+            x.start(true);
             delayWall(0.2);
             delayUser(0.2);
             delaySystem(0.2);
@@ -679,9 +679,17 @@ int main(int argc, char *argv[])
             Obj y(x);  const Obj& Y = y;
             ASSERT(false == X.isRunning());
             ASSERT(false == Y.isRunning());
-            ASSERT(X.accumulatedWallTime()   == Y.accumulatedWallTime());
-            ASSERT(X.accumulatedUserTime()   == Y.accumulatedUserTime());
-            ASSERT(X.accumulatedSystemTime() == Y.accumulatedSystemTime());
+
+            double v;
+
+            v = X.accumulatedWallTime() - Y.accumulatedWallTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
+
+            v = X.accumulatedUserTime() - Y.accumulatedUserTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
+
+            v = X.accumulatedSystemTime() - Y.accumulatedSystemTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
         }
 
         {
@@ -782,7 +790,10 @@ int main(int argc, char *argv[])
         ASSERT(false == X1.isRunning());
         ASSERT(false == X4.isRunning());
 
-        ASSERT(X1.accumulatedWallTime() == X4.accumulatedWallTime());
+        double v;
+
+        v = X1.accumulatedWallTime() - X4.accumulatedWallTime();
+        ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
 
       } break;
       case -1: {
