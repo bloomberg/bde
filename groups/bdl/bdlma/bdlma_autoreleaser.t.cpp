@@ -1,7 +1,7 @@
 // bdlma_autoreleaser.t.cpp                                           -*-C++-*-
 #include <bdlma_autoreleaser.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 
@@ -57,22 +57,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -152,10 +152,10 @@ void *my_BlockList::allocate(int numBytes)
         my_Block *newBlock = new my_Block(numBytes);
         newBlock->d_next_p = d_head_p;
         d_head_p = newBlock;
-        return newBlock->d_buffer;
+        return newBlock->d_buffer;                                    // RETURN
     }
     else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 
@@ -203,15 +203,15 @@ class my_StrPool {
 void *my_StrPool::allocate(int numBytes)
 {
     if (numBytes <= 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     if (d_block_p && numBytes + d_cursor <= d_blockSize) {
         char *p = d_block_p + d_cursor;
         d_cursor += numBytes;
-        return p;
+        return p;                                                     // RETURN
     }
     else {
-        return allocateBlock(numBytes);
+        return allocateBlock(numBytes);                               // RETURN
     }
 }
 
@@ -226,30 +226,30 @@ void my_StrPool::release()
 // my_strpool.cpp
 
 enum {
-    INITIAL_SIZE = 128,
-    GROW_FACTOR  =   2,
-    THRESHOLD    = 128
+    k_INITIAL_SIZE = 128,
+    k_GROW_FACTOR  =   2,
+    k_THRESHOLD    = 128
 };
 
 void *my_StrPool::allocateBlock(int numBytes)
 {
     ASSERT(0 < numBytes);
 
-    if (THRESHOLD < numBytes) {
-        return d_blockList.allocate(numBytes);
+    if (k_THRESHOLD < numBytes) {
+        return d_blockList.allocate(numBytes);                        // RETURN
     }
     else {
         if (d_block_p) {
-            d_blockSize *= GROW_FACTOR;
+            d_blockSize *= k_GROW_FACTOR;
         }
         d_block_p = (char *)d_blockList.allocate(d_blockSize);
         d_cursor = numBytes;
-        return d_block_p;
+        return d_block_p;                                             // RETURN
     }
 }
 
 my_StrPool::my_StrPool()
-: d_blockSize(INITIAL_SIZE)
+: d_blockSize(k_INITIAL_SIZE)
 , d_block_p(0)
 , d_blockList()
 {
@@ -257,7 +257,7 @@ my_StrPool::my_StrPool()
 
 my_StrPool::~my_StrPool()
 {
-    ASSERT(INITIAL_SIZE <= d_blockSize);
+    ASSERT(k_INITIAL_SIZE <= d_blockSize);
     ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
 }
 
@@ -287,8 +287,6 @@ my_StrPool::~my_StrPool()
 //
 // First, we define the interface of our 'my_FastStrArray' class:
 //..
-//  // my_fastcstrarray.h
-//
     class my_FastCstrArray {
         // This class implements an array of C string elements.  Each C string
         // is allocated using the 'my_StrPool' member for fast memory
@@ -305,6 +303,9 @@ my_StrPool::~my_StrPool()
         // PRIVATE MANIPULATORS
         void increaseSize();
 
+        // Not implemented:
+        my_FastCstrArray(const my_FastCstrArray&);
+
       public:
         // CREATORS
         my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
@@ -318,95 +319,87 @@ my_StrPool::~my_StrPool()
         const char *operator[](int index) const { return d_array_p[index]; }
         int length() const { return d_length; }
     };
-//
-//  // ...
 
-// FREE OPERATORS
-ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// my_fastcstrarray.cpp
-
-enum {
-    MY_INITIAL_SIZE = 1, // initial physical capacity (number of elements)
-    MY_GROW_FACTOR  = 2  // multiplicative factor by which to grow 'd_capacity'
-};
-
-static inline
-int nextSize(int size)
-    // Return the specified 'size' multiplied by 'MY_GROW_FACTOR'.
-{
-    return size * MY_GROW_FACTOR;
-}
-
-static inline
-void reallocate(char             ***array,
-                int                *size,
-                int                 newSize,
-                int                 length,
-                bslma::Allocator   *allocator)
-    // Reallocate memory in the specified 'array' and update the specified size
-    // to the specified 'newSize', using the specified 'allocator' to supply
-    // memory.  The specified 'length' number of leading elements are
-    // preserved.  If 'allocate' should throw an exception, this function has
-    // no effect.  The behavior is undefined unless '1 <= newSize',
-    // '0 <= length', and 'length <= newSize'.
-{
-    ASSERT(array);
-    ASSERT(*array);
-    ASSERT(size);
-    ASSERT(1 <= newSize);
-    ASSERT(0 <= length);
-    ASSERT(length <= *size);    // sanity check
-    ASSERT(length <= newSize);  // ensure class invariant
-
-    char **tmp = *array;
-
-    *array = (char **)allocator->allocate(newSize * sizeof **array);
-
-    // commit
-    bsl::memcpy(*array, tmp, length * sizeof **array);
-    *size = newSize;
-    allocator->deallocate(tmp);
-}
-
-void my_FastCstrArray::increaseSize()
-{
-    reallocate(&d_array_p,
-               &d_capacity,
-               nextSize(d_capacity),
-               d_length,
-               d_allocator_p);
-}
-
-// CREATORS
-my_FastCstrArray::my_FastCstrArray(bslma::Allocator *basicAllocator)
-: d_capacity(MY_INITIAL_SIZE)
-, d_length(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    d_array_p = (char **)d_allocator_p->allocate(
-                                               d_capacity * sizeof *d_array_p);
-}
-
-my_FastCstrArray::~my_FastCstrArray()
-{
-    ASSERT(1        <= d_capacity);
-    ASSERT(0        <= d_length);
-    ASSERT(d_length <= d_capacity);
-
-    d_allocator_p->deallocate(d_array_p);
-}
+    // FREE OPERATORS
+    ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
 
 //..
-// Finally, we implement 'my_FastCstrArray::operator=' using a
+// Then, we implement the methods:
+//..
+    enum {
+        k_MY_INITIAL_SIZE = 1, // initial physical capacity
+        k_MY_GROW_FACTOR  = 2  // factor by which to grow 'd_capacity'
+    };
+
+    static inline
+    int nextSize(int size)
+        // Return the specified 'size' multiplied by 'k_MY_GROW_FACTOR'.
+    {
+        return size * k_MY_GROW_FACTOR;
+    }
+
+    static inline
+    void reallocate(char             ***array,
+                    int                *size,
+                    int                 newSize,
+                    int                 length,
+                    bslma::Allocator   *allocator)
+        // Reallocate memory in the specified 'array' and update the specified
+        // 'size' to the specified 'newSize', using the specified 'allocator'
+        // to supply memory.  The specified 'length' number of leading elements
+        // are preserved.  If 'allocate' should throw an exception, this
+        // function has no effect.  The behavior is undefined unless
+        // '1 <= newSize', '0 <= length', and 'length <= newSize'.
+    {
+        ASSERT(array);
+        ASSERT(*array);
+        ASSERT(size);
+        ASSERT(1 <= newSize);
+        ASSERT(0 <= length);
+        ASSERT(length <= *size);    // sanity check
+        ASSERT(length <= newSize);  // ensure class invariant
+
+        char **tmp = *array;
+
+        *array = (char **)allocator->allocate(newSize * sizeof **array);
+
+        // commit
+        bsl::memcpy(*array, tmp, length * sizeof **array);
+        *size = newSize;
+        allocator->deallocate(tmp);
+    }
+
+    void my_FastCstrArray::increaseSize()
+    {
+        reallocate(&d_array_p,
+                   &d_capacity,
+                   nextSize(d_capacity),
+                   d_length,
+                   d_allocator_p);
+    }
+
+    // CREATORS
+    my_FastCstrArray::my_FastCstrArray(bslma::Allocator *basicAllocator)
+    : d_capacity(k_MY_INITIAL_SIZE)
+    , d_length(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        d_array_p = (char **)d_allocator_p->allocate(
+                                               d_capacity * sizeof *d_array_p);
+    }
+
+    my_FastCstrArray::~my_FastCstrArray()
+    {
+        ASSERT(1        <= d_capacity);
+        ASSERT(0        <= d_length);
+        ASSERT(d_length <= d_capacity);
+
+        d_allocator_p->deallocate(d_array_p);
+    }
+//..
+// Now, we implement 'my_FastCstrArray::operator=' using a
 // 'bdlma::AutoReleaser' proctor to preserve exception neutrality:
 //..
-//  // my_fastcstrarray.cpp
-//  #include <my_fastcstrarray.h>
-//
-//  // ...
-//
     // MANIPULATORS
     my_FastCstrArray&
     my_FastCstrArray::operator=(const my_FastCstrArray& rhs)
@@ -426,7 +419,8 @@ my_FastCstrArray::~my_FastCstrArray()
             bdlma::AutoReleaser<my_StrPool> autoReleaser(&d_strPool);
 
             for (int i = 0; i < rhs.d_length; ++i) {
-                const int size = bsl::strlen(rhs.d_array_p[i]) + 1;
+                const int size =
+                           static_cast<int>(bsl::strlen(rhs.d_array_p[i])) + 1;
                 d_array_p[i] = (char *)d_strPool.allocate(size);
                 bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
             }
@@ -437,36 +431,37 @@ my_FastCstrArray::~my_FastCstrArray()
 
         return *this;
     }
-//
-//  // ...
 //..
 // Note that a 'bdlma::AutoReleaser' proctor is used to manage the array's C
 // string memory pool while allocating memory for the individual elements.  If
 // an exception is thrown during the 'for' loop, the proctor's destructor
 // releases memory for all elements allocated through the pool, thus ensuring
 // that no memory is leaked.
-
-void my_FastCstrArray::append(const char *item)
-{
-    if (d_length >= d_capacity) {
-        this->increaseSize();
+//
+// Finally, we complete the implementation:
+//..
+    void my_FastCstrArray::append(const char *item)
+    {
+        if (d_length >= d_capacity) {
+            this->increaseSize();
+        }
+        const int sSize = static_cast<int>(bsl::strlen(item)) + 1;
+        char *elem = (char *)d_strPool.allocate(sSize);
+        bsl::memcpy(elem, item, sSize * sizeof *item);
+        d_array_p[d_length] = elem;
+        ++d_length;
     }
-    const int sSize = bsl::strlen(item) + 1;
-    char *elem = (char *)d_strPool.allocate(sSize);
-    bsl::memcpy(elem, item, sSize * sizeof *item);
-    d_array_p[d_length] = elem;
-    ++d_length;
-}
 
-// FREE OPERATORS
-ostream& operator<<(ostream& stream, const my_FastCstrArray& array)
-{
-    stream << "[ ";
-    for (int i = 0; i < array.length(); ++i) {
-        stream << '"' << array[i] << "\" ";
+    // FREE OPERATORS
+    ostream& operator<<(ostream& stream, const my_FastCstrArray& array)
+    {
+        stream << "[ ";
+        for (int i = 0; i < array.length(); ++i) {
+            stream << '"' << array[i] << "\" ";
+        }
+        return stream << ']' << flush;
     }
-    return stream << ']' << flush;
-}
+//..
 
 // ============================================================================
 //                                MAIN PROGRAM
@@ -700,7 +695,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

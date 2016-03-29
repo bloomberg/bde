@@ -14,21 +14,23 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorproctor, bdlma_managedallocator
 //
-//@DESCRIPTION: This component provides a proctor object to manage memory
-// allocated from a managed allocator or pool.  The proctor's destructor
-// invokes the 'release' method of its managed allocator or pool unless the
-// proctor's own 'release' method has been called.  Note that after a proctor
-// releases management of its managed allocator or pool, the proctor can be
-// reused by invoking its 'reset' method with another allocator or pool object
-// (of the same (template parameter) type 'ALLOCATOR').
+//@DESCRIPTION: This component provides a proctor object,
+// 'bdlma::AutoReleaser', to manage memory allocated from a managed allocator
+// or pool.  The proctor's destructor invokes the 'release' method of its
+// managed allocator or pool unless the proctor's own 'release' method has been
+// called.  Note that after a proctor releases management of its managed
+// allocator or pool, the proctor can be reused by invoking its 'reset' method
+// with another allocator or pool object (of the same (template parameter) type
+// 'ALLOCATOR').
 //
-///REQUIREMENTS
+///Requirements
 ///------------
 // The object of the (template parameter) type 'ALLOCATOR' must provide a
 // method having the following signature:
 //..
 //  void release();
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -52,8 +54,6 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the interface of our 'my_FastStrArray' class:
 //..
-//  // my_fastcstrarray.h
-//
 //  class my_FastCstrArray {
 //      // This class implements an array of C string elements.  Each C string
 //      // is allocated using the 'my_StrPool' member for fast memory
@@ -70,6 +70,9 @@ BSLS_IDENT("$Id: $")
 //      // PRIVATE MANIPULATORS
 //      void increaseSize();
 //
+//      // Not implemented:
+//      my_FastCstrArray(const my_FastCstrArray&);
+//
 //    public:
 //      // CREATORS
 //      my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
@@ -84,16 +87,86 @@ BSLS_IDENT("$Id: $")
 //      int length() const { return d_length; }
 //  };
 //
-//  // ...
+//  // FREE OPERATORS
+//  ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
+//
 //..
-// Finally, we implement 'my_FastCstrArray::operator=' using a
+// Then, we implement the methods:
+//..
+//  enum {
+//      k_MY_INITIAL_SIZE = 1, // initial physical capacity
+//      k_MY_GROW_FACTOR  = 2  // factor by which to grow 'd_capacity'
+//  };
+//
+//  static inline
+//  int nextSize(int size)
+//      // Return the specified 'size' multiplied by 'k_MY_GROW_FACTOR'.
+//  {
+//      return size * k_MY_GROW_FACTOR;
+//  }
+//
+//  static inline
+//  void reallocate(char             ***array,
+//                  int                *size,
+//                  int                 newSize,
+//                  int                 length,
+//                  bslma::Allocator   *allocator)
+//      // Reallocate memory in the specified 'array' and update the specified
+//      // 'size' to the specified 'newSize', using the specified 'allocator'
+//      // to supply memory.  The specified 'length' number of leading elements
+//      // are preserved.  If 'allocate' should throw an exception, this
+//      // function has no effect.  The behavior is undefined unless
+//      // '1 <= newSize', '0 <= length', and 'length <= newSize'.
+//  {
+//      ASSERT(array);
+//      ASSERT(*array);
+//      ASSERT(size);
+//      ASSERT(1 <= newSize);
+//      ASSERT(0 <= length);
+//      ASSERT(length <= *size);    // sanity check
+//      ASSERT(length <= newSize);  // ensure class invariant
+//
+//      char **tmp = *array;
+//
+//      *array = (char **)allocator->allocate(newSize * sizeof **array);
+//
+//      // commit
+//      bsl::memcpy(*array, tmp, length * sizeof **array);
+//      *size = newSize;
+//      allocator->deallocate(tmp);
+//  }
+//
+//  void my_FastCstrArray::increaseSize()
+//  {
+//      reallocate(&d_array_p,
+//                 &d_capacity,
+//                 nextSize(d_capacity),
+//                 d_length,
+//                 d_allocator_p);
+//  }
+//
+//  // CREATORS
+//  my_FastCstrArray::my_FastCstrArray(bslma::Allocator *basicAllocator)
+//  : d_capacity(k_MY_INITIAL_SIZE)
+//  , d_length(0)
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_array_p = (char **)d_allocator_p->allocate(
+//                                             d_capacity * sizeof *d_array_p);
+//  }
+//
+//  my_FastCstrArray::~my_FastCstrArray()
+//  {
+//      ASSERT(1        <= d_capacity);
+//      ASSERT(0        <= d_length);
+//      ASSERT(d_length <= d_capacity);
+//
+//      d_allocator_p->deallocate(d_array_p);
+//  }
+//..
+// Now, we implement 'my_FastCstrArray::operator=' using a
 // 'bdlma::AutoReleaser' proctor to preserve exception neutrality:
 //..
-//  // my_fastcstrarray.cpp
-//  #include <my_fastcstrarray.h>
-//
-//  // ...
-//
 //  // MANIPULATORS
 //  my_FastCstrArray&
 //  my_FastCstrArray::operator=(const my_FastCstrArray& rhs)
@@ -113,7 +186,8 @@ BSLS_IDENT("$Id: $")
 //          bdlma::AutoReleaser<my_StrPool> autoReleaser(&d_strPool);
 //
 //          for (int i = 0; i < rhs.d_length; ++i) {
-//              const int size = bsl::strlen(rhs.d_array_p[i]) + 1;
+//              const int size =
+//                         static_cast<int>(bsl::strlen(rhs.d_array_p[i])) + 1;
 //              d_array_p[i] = (char *)d_strPool.allocate(size);
 //              bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
 //          }
@@ -124,14 +198,37 @@ BSLS_IDENT("$Id: $")
 //
 //      return *this;
 //  }
-//
-//  // ...
 //..
 // Note that a 'bdlma::AutoReleaser' proctor is used to manage the array's C
 // string memory pool while allocating memory for the individual elements.  If
 // an exception is thrown during the 'for' loop, the proctor's destructor
 // releases memory for all elements allocated through the pool, thus ensuring
 // that no memory is leaked.
+//
+// Finally, we complete the implementation:
+//..
+//  void my_FastCstrArray::append(const char *item)
+//  {
+//      if (d_length >= d_capacity) {
+//          this->increaseSize();
+//      }
+//      const int sSize = static_cast<int>(bsl::strlen(item)) + 1;
+//      char *elem = (char *)d_strPool.allocate(sSize);
+//      bsl::memcpy(elem, item, sSize * sizeof *item);
+//      d_array_p[d_length] = elem;
+//      ++d_length;
+//  }
+//
+//  // FREE OPERATORS
+//  ostream& operator<<(ostream& stream, const my_FastCstrArray& array)
+//  {
+//      stream << "[ ";
+//      for (int i = 0; i < array.length(); ++i) {
+//          stream << '"' << array[i] << "\" ";
+//      }
+//      return stream << ']' << flush;
+//  }
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -140,9 +237,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ==================
-                        // class AutoReleaser
-                        // ==================
+                            // ==================
+                            // class AutoReleaser
+                            // ==================
 
 template <class ALLOCATOR>
 class AutoReleaser {
@@ -186,12 +283,12 @@ class AutoReleaser {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------
-                        // class AutoReleaser
-                        // ------------------
+                            // ------------------
+                            // class AutoReleaser
+                            // ------------------
 
 // CREATORS
 template <class ALLOCATOR>
@@ -231,7 +328,7 @@ void AutoReleaser<ALLOCATOR>::reset(ALLOCATOR *newAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

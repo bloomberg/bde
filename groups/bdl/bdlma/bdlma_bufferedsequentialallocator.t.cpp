@@ -1,7 +1,7 @@
 // bdlma_bufferedsequentialallocator.t.cpp                            -*-C++-*-
 #include <bdlma_bufferedsequentialallocator.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -9,6 +9,7 @@
 
 #include <bsls_alignedbuffer.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
@@ -97,22 +98,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -144,8 +145,8 @@ typedef bsls::Alignment::Strategy          Strat;
 // actually gets aligned on a 4-byte boundary.  To work around this, create a
 // static buffer instead.
 
-enum { BUFFER_SIZE = 256 };
-static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
+enum { k_BUFFER_SIZE = 256 };
+static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -153,8 +154,10 @@ static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a method, 'calculate', that performs
 // calculations (where the specifics are not important to illustrate the use of
 // this component), which require three vectors of 'double' values.
@@ -170,7 +173,7 @@ static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 // (which triggers more allocations) by reserving for the specific capacity we
 // need:
 //..
-        enum { SIZE = 3 * 100 * sizeof(double) };
+        enum { k_SIZE = 3 * 100 * sizeof(double) };
 //..
 // In the above calculation, we assume that the only memory allocation
 // requested by the vector is the allocation for the array that stores the
@@ -182,18 +185,16 @@ static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 // To avoid alignment issues described in the "Warning" section (above), we
 // create a 'bsls::AlignedBuffer':
 //..
-        bsls::AlignedBuffer<SIZE> bufferStorage;
+        bsls::AlignedBuffer<k_SIZE> bufferStorage;
 
-        bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
+        bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(),
+                                                 k_SIZE);
 
         bsl::vector<double> v1(&alloc);     v1.reserve(100);
         bsl::vector<double> v2(&alloc);     v2.reserve(100);
         bsl::vector<double> v3(&alloc);     v3.reserve(100);
 
-        // ...
-        (void)data;
-
-        return 0.0;
+        return data.empty() ? 0.0 : data.front();
     }
 //..
 // By making use of a 'bdlma::BufferedSequentialAllocator', *all* dynamic
@@ -206,9 +207,9 @@ static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
 
 void receivePriceQuotes(bsl::map<bsl::string, double> *updateMap)
 {
-    enum { NUM_SECURITIES = 100 };
+    enum { k_NUM_SECURITIES = 100 };
 
-    for (int i = 0; i < NUM_SECURITIES; ++i) {
+    for (int i = 0; i < k_NUM_SECURITIES; ++i) {
         char buffer[256];
         int n = bsl::sprintf(buffer, "sec%d", i);
         bsl::string security(buffer, n);
@@ -229,8 +230,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -297,25 +298,26 @@ int main(int argc, char *argv[])
 // stack:
 //..
     enum {
-        NUM_SECURITIES = 100,
+        k_NUM_SECURITIES = 100,
 
-        TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
+        k_TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
                          + sizeof(void *) * 4,
 
-        AVERAGE_SECURITY_LENGTH = 5,
+        k_AVERAGE_SECURITY_LENGTH = 5,
 
-        TOTAL_SIZE = NUM_SECURITIES *
-                     (TREE_NODE_SIZE + AVERAGE_SECURITY_LENGTH )
+        k_TOTAL_SIZE = k_NUM_SECURITIES *
+                                 (k_TREE_NODE_SIZE + k_AVERAGE_SECURITY_LENGTH)
     };
 
-    bsls::AlignedBuffer<TOTAL_SIZE> bufferStorage;
+    bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
 //..
 // The calculation of the amount of memory needed is just an estimate, as we
 // used the average security size instead of the maximum security size.  We
 // also assume that a 'bsl::map's node size is roughly the size of 4 pointers.
 //..
-    bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(), TOTAL_SIZE,
-                                                             &objectAllocator);
+    bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(),
+                                           k_TOTAL_SIZE,
+                                           &objectAllocator);
     bsl::map<bsl::string, double> updateMap(&bsa);
 
     receivePriceQuotes(&updateMap);
@@ -365,18 +367,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting managed buffer is not affected after "
                              "destruction." << endl;
         {
-            char bufferRef[BUFFER_SIZE];
-            int total = 0;
+            char bufferRef[k_BUFFER_SIZE];
+            bsls::Types::Int64 total = 0;
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
-            char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
+            char *buffer = (char *)objectAllocator.allocate(k_BUFFER_SIZE);
             total = objectAllocator.numBlocksInUse();
 
             {
-                memset(buffer,    0xA, BUFFER_SIZE);
-                memset(bufferRef, 0xA, BUFFER_SIZE);
+                memset(buffer,    0xA, k_BUFFER_SIZE);
+                memset(bufferRef, 0xA, k_BUFFER_SIZE);
 
-                Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+                Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
                 ASSERT(total == objectAllocator.numBlocksInUse());
 
@@ -386,7 +388,7 @@ int main(int argc, char *argv[])
                 ASSERT(total == objectAllocator.numBlocksInUse());
             }
             ASSERT(total == objectAllocator.numBlocksInUse());
-            ASSERT(0 == memcmp(buffer, bufferRef, BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
 
             objectAllocator.deallocate(buffer);
             ASSERT(0 == objectAllocator.numBlocksInUse());
@@ -395,17 +397,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
                              " destruction." << endl;
         {
-            char buffer[BUFFER_SIZE];
+            char buffer[k_BUFFER_SIZE];
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             // Allocate some memory such that memory is allocated from the test
             // allocator.
-            mX.allocate(BUFFER_SIZE + 1);
+            mX.allocate(k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
             ASSERT(0 != objectAllocator.numBlocksInUse());
@@ -455,15 +457,15 @@ int main(int argc, char *argv[])
         {
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            char *buffer = (char *)objectAllocator.allocate(BUFFER_SIZE);
-            char bufferRef[BUFFER_SIZE];
+            char *buffer = (char *)objectAllocator.allocate(k_BUFFER_SIZE);
+            char bufferRef[k_BUFFER_SIZE];
 
-            int total = objectAllocator.numBlocksInUse();
+            bsls::Types::Int64 total = objectAllocator.numBlocksInUse();
 
-            memset(buffer,    0xA, BUFFER_SIZE);
-            memset(bufferRef, 0xA, BUFFER_SIZE);
+            memset(buffer,    0xA, k_BUFFER_SIZE);
+            memset(bufferRef, 0xA, k_BUFFER_SIZE);
 
-            Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(total == objectAllocator.numBlocksInUse());
 
@@ -476,7 +478,7 @@ int main(int argc, char *argv[])
             mX.release();
             ASSERT(total == objectAllocator.numBlocksInUse());
 
-            ASSERT(0 == memcmp(buffer, bufferRef, BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
 
             objectAllocator.deallocate(buffer);
         }
@@ -485,17 +487,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
                              " 'release'." << endl;
         {
-            char buffer[BUFFER_SIZE];
+            char buffer[k_BUFFER_SIZE];
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
-            Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             // Allocate some memory such that memory is allocated from the test
             // allocator.
-            mX.allocate(BUFFER_SIZE + 1);
+            mX.allocate(k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
 
@@ -511,7 +513,7 @@ int main(int argc, char *argv[])
             void *addr = mX.allocate(16);
 
             ASSERT(&buffer[0] <= addr);
-            ASSERT(&buffer[0] + BUFFER_SIZE > addr);
+            ASSERT(&buffer[0] + k_BUFFER_SIZE > addr);
             ASSERT(0 == objectAllocator.numBlocksInUse());
         }
       } break;
@@ -543,14 +545,15 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 1, 5, 12, 24, 32, 64, 256, 257, 512, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+        Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
-        int lastNumBytesInUse = objectAllocator.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = objectAllocator.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = mX.allocate(SIZE);
-            const int numBytesInUse = objectAllocator.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse =
+                                               objectAllocator.numBytesInUse();
             mX.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == objectAllocator.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <=
@@ -623,16 +626,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting single allocation." << endl;
         for (int i = 0; i < NUM_DATA; ++i) {
             // allocators
-            Obj mV(buffer, BUFFER_SIZE,      &taV);
-            Obj mW(buffer, BUFFER_SIZE, MAX, &taW);
-            Obj mX(buffer, BUFFER_SIZE, NAT, &taX);
-            Obj mY(buffer, BUFFER_SIZE, BYT, &taY);
+            Obj mV(buffer, k_BUFFER_SIZE,      &taV);
+            Obj mW(buffer, k_BUFFER_SIZE, MAX, &taW);
+            Obj mX(buffer, k_BUFFER_SIZE, NAT, &taX);
+            Obj mY(buffer, k_BUFFER_SIZE, BYT, &taY);
 
             // pools
-            bdlma::BufferedSequentialPool mA(buffer, BUFFER_SIZE,      &taA);
-            bdlma::BufferedSequentialPool mB(buffer, BUFFER_SIZE, MAX, &taB);
-            bdlma::BufferedSequentialPool mC(buffer, BUFFER_SIZE, NAT, &taC);
-            bdlma::BufferedSequentialPool mD(buffer, BUFFER_SIZE, BYT, &taD);
+            bdlma::BufferedSequentialPool mA(buffer, k_BUFFER_SIZE,      &taA);
+            bdlma::BufferedSequentialPool mB(buffer, k_BUFFER_SIZE, MAX, &taB);
+            bdlma::BufferedSequentialPool mC(buffer, k_BUFFER_SIZE, NAT, &taC);
+            bdlma::BufferedSequentialPool mD(buffer, k_BUFFER_SIZE, BYT, &taD);
 
             void *addrA = mA.allocate(DATA[i]);
             void *addrV = mV.allocate(DATA[i]);
@@ -687,16 +690,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting consecutive allocations." << endl;
         {
             // allocators
-            Obj mV(buffer, BUFFER_SIZE,      &taV);
-            Obj mW(buffer, BUFFER_SIZE, MAX, &taW);
-            Obj mX(buffer, BUFFER_SIZE, NAT, &taX);
-            Obj mY(buffer, BUFFER_SIZE, BYT, &taY);
+            Obj mV(buffer, k_BUFFER_SIZE,      &taV);
+            Obj mW(buffer, k_BUFFER_SIZE, MAX, &taW);
+            Obj mX(buffer, k_BUFFER_SIZE, NAT, &taX);
+            Obj mY(buffer, k_BUFFER_SIZE, BYT, &taY);
 
             // pools
-            bdlma::BufferedSequentialPool mA(buffer, BUFFER_SIZE,      &taA);
-            bdlma::BufferedSequentialPool mB(buffer, BUFFER_SIZE, MAX, &taB);
-            bdlma::BufferedSequentialPool mC(buffer, BUFFER_SIZE, NAT, &taC);
-            bdlma::BufferedSequentialPool mD(buffer, BUFFER_SIZE, BYT, &taD);
+            bdlma::BufferedSequentialPool mA(buffer, k_BUFFER_SIZE,      &taA);
+            bdlma::BufferedSequentialPool mB(buffer, k_BUFFER_SIZE, MAX, &taB);
+            bdlma::BufferedSequentialPool mC(buffer, k_BUFFER_SIZE, NAT, &taC);
+            bdlma::BufferedSequentialPool mD(buffer, k_BUFFER_SIZE, BYT, &taD);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 void *addrA = mA.allocate(DATA[i]);
@@ -752,7 +755,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting allocation size of 0 bytes." << endl;
         {
-            Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+            Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
             void *addr = mX.allocate(0);
             ASSERT(0 == addr);
             ASSERT(0 == objectAllocator.numBytesInUse());
@@ -775,7 +778,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, GS, *ba)'" << endl;
@@ -784,7 +786,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, CON));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, AS, *ba)'" << endl;
@@ -793,7 +794,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, GS, AS, *ba)'" << endl;
@@ -802,7 +802,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2, CON, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, *ba)'" << endl;
@@ -811,12 +810,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, *ba)'" << endl;
@@ -825,12 +822,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, CON));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, AS, *ba)'" << endl;
@@ -839,12 +834,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, MAX));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, MAX));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, AS, *ba)'"
@@ -854,12 +847,10 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL_RAW(Obj(0,       2,  8, CON, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON, MAX));
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON, MAX));
 
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON, MAX));
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON, MAX));
             }
         }
 
@@ -916,29 +907,28 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
         char *buffer = bufferStorage.buffer();
 
         if (verbose) cout << "\nTesting constructor." << endl;
-        Obj mX(buffer, BUFFER_SIZE, &objectAllocator);
+        Obj mX(buffer, k_BUFFER_SIZE, &objectAllocator);
 
         if (verbose) cout << "\nTesting allocate from buffer." << endl;
-        void *addr1 = mX.allocate(ALLOC_SIZE1);
+        void *addr1 = mX.allocate(k_ALLOC_SIZE1);
 
         // Allocation starts at the beginning of the aligned buffer.
         ASSERT(&buffer[0] == addr1);
 
         // Allocation comes from within the buffer.
-        LOOP2_ASSERT((void *)&buffer[BUFFER_SIZE - 1],
+        LOOP2_ASSERT((void *)&buffer[k_BUFFER_SIZE - 1],
                      addr1,
-                     &buffer[BUFFER_SIZE - 1] >= addr1);
+                     &buffer[k_BUFFER_SIZE - 1] >= addr1);
 
-
-        void *addr2 = mX.allocate(ALLOC_SIZE2);
+        void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
         // Allocation comes from within the buffer.
         ASSERT(&buffer[0]               <  addr2);
-        ASSERT(&buffer[BUFFER_SIZE - 1] >= addr2);
+        ASSERT(&buffer[k_BUFFER_SIZE - 1] >= addr2);
 
         // Allocation respects the alignment strategy.
         LOOP2_ASSERT((void *)&buffer[8],
@@ -946,7 +936,7 @@ int main(int argc, char *argv[])
                      &buffer[8] == addr2);
 
         // First allocation is of sufficient size.
-        ASSERT((char *)addr2 >= (char *)addr1 + ALLOC_SIZE1);
+        ASSERT((char *)addr2 >= (char *)addr1 + k_ALLOC_SIZE1);
 
         // Make sure no memory comes from the object, default, and global
         // allocators.
@@ -957,8 +947,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocate when buffer runs out."
                           << endl;
         {
-            Obj mY(buffer, BUFFER_SIZE, &objectAllocator);
-            addr1 = mY.allocate(BUFFER_SIZE + 1);
+            Obj mY(buffer, k_BUFFER_SIZE, &objectAllocator);
+            addr1 = mY.allocate(k_BUFFER_SIZE + 1);
 
             // Allocation request is satisfied even when larger than the
             // supplied buffer.
@@ -988,7 +978,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
