@@ -168,7 +168,7 @@ class Stopwatch {
         // Create a stopwatch in the STOPPED state having total accumulated
         // system, user, and wall times all equal to 0.0.
 
-    Stopwatch(const Stopwatch& other);
+    //! Stopwatch(const Stopwatch& other) = default;
         // Create a stopwatch having the state and total accumulated system,
         // user, and wall time of the specified 'other' object.
 
@@ -265,20 +265,6 @@ Stopwatch::Stopwatch()
 , d_accumulatedWallTime(0)
 , d_isRunning(false)
 , d_collectCpuTimesFlag(false)
-{
-    TimeUtil::initialize();
-}
-
-inline
-Stopwatch::Stopwatch(const Stopwatch& other)
-: d_startSystemTime(other.d_startSystemTime)
-, d_startUserTime(other.d_startUserTime)
-, d_startWallTime(other.d_startWallTime)
-, d_accumulatedSystemTime(other.d_accumulatedSystemTime)
-, d_accumulatedUserTime(other.d_accumulatedUserTime)
-, d_accumulatedWallTime(other.d_accumulatedWallTime)
-, d_isRunning(other.d_isRunning)
-, d_collectCpuTimesFlag(other.d_collectCpuTimesFlag)
 {
     TimeUtil::initialize();
 }
