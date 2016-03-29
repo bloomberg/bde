@@ -5,12 +5,15 @@
 BSLS_IDENT_RCSID(bdlma_infrequentdeleteblocklist_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_performancehint.h>
 
 namespace BloombergLP {
 
 // HELPER FUNCTIONS
-static inline
-int alignedAllocationSize(int size, int sizeOfBlock)
+inline
+static bsls::Types::size_type alignedAllocationSize(
+                                            bsls::Types::size_type size,
+                                            bsls::Types::size_type sizeOfBlock)
     // Return the allocation size (in bytes) required to ensure proper
     // alignment for a 'bdlma::InfrequentDeleteBlockList::Block' containing a
     // maximally-aligned payload of the specified 'size', where the specified
@@ -37,9 +40,9 @@ int alignedAllocationSize(int size, int sizeOfBlock)
 
 namespace bdlma {
 
-                  // -------------------------------
-                  // class InfrequentDeleteBlockList
-                  // -------------------------------
+                     // -------------------------------
+                     // class InfrequentDeleteBlockList
+                     // -------------------------------
 
 // CREATORS
 InfrequentDeleteBlockList::~InfrequentDeleteBlockList()
@@ -48,30 +51,29 @@ InfrequentDeleteBlockList::~InfrequentDeleteBlockList()
 }
 
 // MANIPULATORS
-void *InfrequentDeleteBlockList::allocate(int size)
+void *InfrequentDeleteBlockList::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT(0 <= size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
+        size = alignedAllocationSize(size, sizeof(Block));
 
-    if (0 == size) {
-        return 0;                                                     // RETURN
-    }
+        Block *block =
+                      reinterpret_cast<Block *>(d_allocator_p->allocate(size));
 
-    size = alignedAllocationSize(size, sizeof(Block));
-
-    Block *block = reinterpret_cast<Block *>(d_allocator_p->allocate(size));
-
-    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+        BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                      reinterpret_cast<void *>(block),
                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
-    block->d_next_p = d_head_p;
-    d_head_p        = block;
+        block->d_next_p = d_head_p;
+        d_head_p        = block;
 
-    BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+        BSLS_ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                     reinterpret_cast<void *>(&block->d_memory),
                                     bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
 
-    return reinterpret_cast<void *>(&block->d_memory);
+        return reinterpret_cast<void *>(&block->d_memory);            // RETURN
+    }
+
+    return 0;
 }
 
 void InfrequentDeleteBlockList::release()
@@ -83,24 +85,11 @@ void InfrequentDeleteBlockList::release()
     }
 }
 
-void InfrequentDeleteBlockList::rewind()
-{
-    if (d_head_p == 0)
-        return;                                                       // RETURN
-    Block *tail = d_head_p->d_next_p;
-    d_head_p->d_next_p = 0;
-    while (tail) {
-        void *lastBlock = tail;
-        tail = tail->d_next_p;
-        d_allocator_p->deallocate(lastBlock);
-    }
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

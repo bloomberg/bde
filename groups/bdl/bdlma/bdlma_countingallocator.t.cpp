@@ -1,7 +1,7 @@
 // bdlma_countingallocator.t.cpp                                      -*-C++-*-
 #include <bdlma_countingallocator.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -48,7 +48,7 @@ using namespace bsl;
 // [ 2] ~CountingAllocator();
 //
 // MANIPULATORS
-// [ 3] void *allocate(size_type size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 3] void deallocate(void *address);
 //
 // ACCESSORS
@@ -87,22 +87,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -141,13 +141,13 @@ typedef void *(*ThreadFunction)(void *arg);
 // ----------------------------------------------------------------------------
 
 static
-ThreadId createThread(ThreadFunction func, void *arg)
+ThreadId createThread(ThreadFunction function, void *arg)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, 0);
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)function, arg, 0, 0);
 #else
     ThreadId id;
-    pthread_create(&id, 0, func, arg);
+    pthread_create(&id, 0, function, arg);
     return id;
 #endif
 }
@@ -276,10 +276,9 @@ extern "C" void *threadFunction3(void *arg)
 // track the amount of dynamic memory used by a container.  The container used
 // for illustration is 'DoubleStack', a stack of out-of-place 'double' values.
 //
-// First, we show the (elided) interface of the 'DoubleStack' class:
+// First, we show the interface of the 'DoubleStack' class:
 //..
     // doublestack.h
-    // ...
 
     class DoubleStack {
         // This class implements a stack of out-of-place 'double' values.
@@ -296,8 +295,6 @@ extern "C" void *threadFunction3(void *arg)
 
         bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
                                            // owned)
-
-      // ...
 
         // NOT IMPLEMENTED
         DoubleStack(const DoubleStack&);
@@ -341,12 +338,12 @@ extern "C" void *threadFunction3(void *arg)
     // ...
 
     // TYPES
-    enum { INITIAL_CAPACITY = 1, GROWTH_FACTOR = 2 };
+    enum { k_INITIAL_CAPACITY = 1, k_GROWTH_FACTOR = 2 };
 
     // CREATORS
     DoubleStack::DoubleStack(bslma::Allocator *basicAllocator)
     : d_stack_p(0)
-    , d_capacity(INITIAL_CAPACITY)
+    , d_capacity(k_INITIAL_CAPACITY)
     , d_length(0)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
@@ -409,7 +406,7 @@ extern "C" void *threadFunction3(void *arg)
     // PRIVATE MANIPULATORS
     void DoubleStack::increaseCapacity()
     {
-        const int newCapacity = d_capacity * GROWTH_FACTOR;
+        const int newCapacity = d_capacity * k_GROWTH_FACTOR;
                                                         // reallocate can throw
         reallocate(&d_stack_p, newCapacity, d_length, d_allocator_p);
         d_capacity = newCapacity;                       // commit
@@ -520,7 +517,7 @@ if (veryVerbose)
 // which displays the following on a 32-bit platform:
 //..
 //  ----------------------------------------
-//          Counting Allocator State
+//                          Counting Allocator State
 //  ----------------------------------------
 //  Allocator name: 'DoubleStack' Allocator
 //  Bytes in use:   16
@@ -887,8 +884,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1025,7 +1022,7 @@ if (veryVerbose)
         //:   'mX.deallocate(0)' has no effect.  (C-6)
         //
         // Testing:
-        //   void *allocate(size_type size);
+        //   void *allocate(bsls::Types::size_type size);
         //   void deallocate(void *address);
         //   Int64 numBytesInUse() const;
         //   Int64 numBytesTotal() const;
@@ -1357,8 +1354,8 @@ if (veryVerbose)
             LOOP2_ASSERT(CONFIG, noa.numBlocksTotal(),
                          0 == noa.numBlocksTotal());
 
-            // Verify we can allocate from the object and write to the
-            // returned memory block.
+            // Verify we can allocate from the object and write to the returned
+            // memory block.
 
             void *p = mX.allocate(1);
             LOOP2_ASSERT(CONFIG, p, p);
@@ -1532,7 +1529,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

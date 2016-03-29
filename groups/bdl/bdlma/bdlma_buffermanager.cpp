@@ -1,4 +1,12 @@
 // bdlma_buffermanager.cpp                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <bdlma_buffermanager.h>
 
 #include <bsls_ident.h>
@@ -9,45 +17,22 @@ BSLS_IDENT_RCSID(bdlma_buffermanager_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // -------------------
-                        // class BufferManager
-                        // -------------------
-
-// PRIVATE MANIPULATORS
-void BufferManager::init(bsls::Alignment::Strategy strategy)
-{
-    switch (strategy) {
-      case bsls::Alignment::BSLS_MAXIMUM: {
-        d_allocate_p    = &BufferImpUtil::allocateMaximallyAlignedFromBuffer;
-        d_allocateRaw_p =
-                         &BufferImpUtil::allocateMaximallyAlignedFromBufferRaw;
-      } break;
-      case bsls::Alignment::BSLS_NATURAL: {
-        d_allocate_p    = &BufferImpUtil::allocateNaturallyAlignedFromBuffer;
-        d_allocateRaw_p =
-                         &BufferImpUtil::allocateNaturallyAlignedFromBufferRaw;
-      } break;
-      case bsls::Alignment::BSLS_BYTEALIGNED: {
-        d_allocate_p    = &BufferImpUtil::allocateOneByteAlignedFromBuffer;
-        d_allocateRaw_p = &BufferImpUtil::allocateOneByteAlignedFromBufferRaw;
-      } break;
-      default: {
-        BSLS_ASSERT_OPT(0 && "Invalid alignment 'strategy' value.");
-      } break;
-    }
-}
+                           // -------------------
+                           // class BufferManager
+                           // -------------------
 
 // MANIPULATORS
-int BufferManager::expand(void *address, int size)
+bsls::Types::size_type BufferManager::expand(void                   *address,
+                                             bsls::Types::size_type  size)
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 < size);
     BSLS_ASSERT(d_buffer_p);
     BSLS_ASSERT(0 <= d_cursor);
-    BSLS_ASSERT(d_cursor <= d_bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor) <= d_bufferSize);
 
     if (static_cast<char *>(address) + size == d_buffer_p + d_cursor) {
-        const int newSize = size + d_bufferSize - d_cursor;
+        const bsls::Types::size_type newSize = size + d_bufferSize - d_cursor;
         d_cursor = d_bufferSize;
 
         return newSize;                                               // RETURN
@@ -56,14 +41,16 @@ int BufferManager::expand(void *address, int size)
     return size;
 }
 
-int BufferManager::truncate(void *address, int originalSize, int newSize)
+bsls::Types::size_type BufferManager::truncate(
+                                          void                   *address,
+                                          bsls::Types::size_type  originalSize,
+                                          bsls::Types::size_type  newSize)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= newSize);
     BSLS_ASSERT(newSize <= originalSize);
     BSLS_ASSERT(d_buffer_p);
-    BSLS_ASSERT(0 <= d_cursor);
-    BSLS_ASSERT(d_cursor <= d_bufferSize);
+    BSLS_ASSERT(originalSize <= d_bufferSize);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor) <= d_bufferSize);
 
     if (static_cast<char *>(address) + originalSize == d_buffer_p + d_cursor) {
         d_cursor -= originalSize - newSize;
@@ -77,7 +64,7 @@ int BufferManager::truncate(void *address, int originalSize, int newSize)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

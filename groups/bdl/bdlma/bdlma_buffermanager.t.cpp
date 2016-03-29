@@ -1,7 +1,15 @@
 // bdlma_buffermanager.t.cpp                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <bdlma_buffermanager.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorguard.h>
@@ -66,10 +74,11 @@ using namespace bsl;
 // // ACCESSORS
 // [ 2] char *buffer() const;
 // [ 2] int bufferSize() const;
+// [11] int calculateAlignmentOffsetFromSize(address, size) const;
 // [ 7] bool hasSufficientCapacity(int size) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -94,22 +103,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -134,10 +143,10 @@ typedef bsls::Alignment::Strategy Strat;
 // actually gets aligned on a 4-byte boundary.  To work around this, create a
 // static buffer instead.
 
-enum { BUFFER_SIZE = 256 };
-static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
+enum { k_BUFFER_SIZE = 256 };
+static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
-enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -250,15 +259,16 @@ class my_Class {
     int my_IntegerCountingHashTable::calculateBufferSize(int tableLength,
                                                          int numNodes)
     {
-        return tableLength * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-                                     + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        return static_cast<int>(tableLength * sizeof(my_Node *)
+                              + numNodes * sizeof(my_Node)
+                              + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation
 // includes a "fudge" factor equivalent to the maximum alignment requirement of
 // the platform.
 //..
-//  // CREATORS
+    // CREATORS
     my_IntegerCountingHashTable::my_IntegerCountingHashTable(
                                                   int                   size,
                                                   bdlma::BufferManager *buffer)
@@ -287,7 +297,7 @@ class my_Class {
                 tmp = &((*tmp)->d_next_p);
             }
             else {
-                return ++((*tmp)->d_count);
+                return ++((*tmp)->d_count);                           // RETURN
             }
         }
 
@@ -318,7 +328,6 @@ class my_Class {
         const int MAX_SIZE = my_IntegerCountingHashTable::
                                            calculateBufferSize(length, length);
 //..
-//
 // We then allocate an external buffer to be used by 'bdlma::BufferManager'.
 // Normally, this buffer will be created on the program stack if we know the
 // length in advance (for example, if we specify in the contract of this
@@ -369,7 +378,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -399,6 +408,97 @@ int main(int argc, char *argv[])
         result = detectNOccurrences(3, array, 5);
         ASSERT(false == result);
 
+      } break;
+      case 11: {
+        // -------------------------------------------------------------------
+        // TESTING 'calculateAlignmentOffsetFromSize'
+        //   Ensure this accessor returns the expected value.
+        //
+        // Concerns:
+        //: 1 The method returns the expected value for all alignment
+        //:   strategies, values of 'address', and values of 'size'.
+        //
+        // Plan:
+        //: 1 Directly verify the result of this method for a large set of
+        //:   'address' values and '0 == size'.
+        //:
+        //: 2 Directly verify the result of this method using
+        //:   'bsls::AlignmentUtil' as an oracle for a large set of 'address'
+        //:   and 'size > 0' values.  (C-1)
+        //
+        // Testing:
+        //   int calculateAlignmentOffsetFromSize(address, size) const;
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'calculateAlignmentOffsetFromSize'"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        char              address[1024];
+        const bsl::size_t numAddress = sizeof address;
+
+        for (bsl::size_t i = 0; i < numAddress; ++i) {
+            const void *a = &address[i];
+
+            {
+                const Obj bm(bsls::Alignment::BSLS_NATURAL);
+                const Obj bmOracle(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bmOracle.calculateAlignmentOffsetFromSize(a, 0));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bm.calculateAlignmentOffsetFromSize(a, 1));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                ASSERT(0 == bm.calculateAlignmentOffsetFromSize(a, 0));
+            }
+
+            for (bsl::size_t s = 1; s <= 128; ++s) {
+                {
+                    const int alignment =
+                            bsls::AlignmentUtil::calculateAlignmentFromSize(s);
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_NATURAL);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment =
+                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment = 1;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -472,18 +572,18 @@ int main(int argc, char *argv[])
 
             // MAXIMUM ALIGNMENT
             {  L_,      MAX,           1,           0,            0 },
-            {  L_,      MAX,           1,           1,    MAX_ALIGN },
+            {  L_,      MAX,           1,           1,  k_MAX_ALIGN },
             {  L_,      MAX,           2,           0,            0 },
-            {  L_,      MAX,           2,           1,    MAX_ALIGN },
-            {  L_,      MAX,           2,           2,    MAX_ALIGN },
+            {  L_,      MAX,           2,           1,  k_MAX_ALIGN },
+            {  L_,      MAX,           2,           2,  k_MAX_ALIGN },
             {  L_,      MAX,           3,           0,            0 },
-            {  L_,      MAX,           3,           1,    MAX_ALIGN },
-            {  L_,      MAX,           3,           2,    MAX_ALIGN },
-            {  L_,      MAX,           3,           3,    MAX_ALIGN },
-            {  L_,      MAX,           8,           4,    MAX_ALIGN },
+            {  L_,      MAX,           3,           1,  k_MAX_ALIGN },
+            {  L_,      MAX,           3,           2,  k_MAX_ALIGN },
+            {  L_,      MAX,           3,           3,  k_MAX_ALIGN },
+            {  L_,      MAX,           8,           4,  k_MAX_ALIGN },
             {  L_,      MAX,          15,          15,           16 },
             {  L_,      MAX,          16,           0,            0 },
-            {  L_,      MAX,          16,           1,    MAX_ALIGN },
+            {  L_,      MAX,          16,           1,  k_MAX_ALIGN },
             {  L_,      MAX,          16,          15,           16 },
             {  L_,      MAX,          16,          16,           16 },
 
@@ -527,12 +627,14 @@ int main(int argc, char *argv[])
                 P_(INITIALSIZE) P_(NEWSIZE) P(EXPOFFSET)
             }
 
-            Obj mX(buffer, BUFFER_SIZE, STRAT);
+            Obj mX(buffer, k_BUFFER_SIZE, STRAT);
 
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != addr1);
 
-            int ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+            int ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
             LOOP2_ASSERT(NEWSIZE, ret, NEWSIZE == ret);
 
             void *addr2 = mX.allocate(1);
@@ -542,7 +644,9 @@ int main(int argc, char *argv[])
             // Truncating previously allocated address should fail.
             if (EXPOFFSET != 0
              && ((char *)addr1 + INITIALSIZE) != ((char *)addr2 + 1)) {
-                ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+                ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
                 LOOP2_ASSERT(INITIALSIZE, ret, INITIALSIZE == ret);
             }
         }
@@ -554,36 +658,47 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 != address'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 1));
+                ASSERT_PASS(mX.truncate(addr, 2, 1));
 
-                ASSERT_SAFE_FAIL(mX.truncate(   0, 1, 0));
+                ASSERT_FAIL(mX.truncate(   0, 1, 0));
             }
 
             if (veryVerbose) cout << "\t'0 <= newSize'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2,  1));
-                ASSERT_SAFE_PASS(mX.truncate(addr, 1,  0));
+                ASSERT_PASS(mX.truncate(addr, 2,  1));
+                ASSERT_PASS(mX.truncate(addr, 1,  0));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 0, -1));
+                ASSERT_FAIL(mX.truncate(addr, 0, -1));
             }
 
             if (veryVerbose) cout << "\t'newSize <= originalSize'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 2));
+                ASSERT_PASS(mX.truncate(addr, 2, 2));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 2, 3));
+                ASSERT_FAIL(mX.truncate(addr, 2, 3));
+            }
+
+            if (veryVerbose) {
+                cout << "\t'originalSize <= d_bufferSize'" << endl;
+            }
+            {
+                Obj mX(buffer, k_BUFFER_SIZE);
+
+                void *addr = mX.allocate(2);
+
+                ASSERT_FAIL(mX.truncate(addr, k_BUFFER_SIZE + 1, 3));
             }
         }
 
@@ -649,39 +764,39 @@ int main(int argc, char *argv[])
             // ----     -----       -----------       -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,             255 },
-            {  L_,      NAT,           2,             254 },
-            {  L_,      NAT,           3,             253 },
-            {  L_,      NAT,           4,             252 },
-            {  L_,      NAT,           7,             249 },
-            {  L_,      NAT,           8,             248 },
-            {  L_,      NAT,          15,             241 },
-            {  L_,      NAT,          16,             240 },
-            {  L_,      NAT,         100,             156 },
-            {  L_,      NAT,         254,               2 },
-            {  L_,      NAT,         255,               1 },
+            {  L_,      NAT,           1,               255 },
+            {  L_,      NAT,           2,               254 },
+            {  L_,      NAT,           3,               253 },
+            {  L_,      NAT,           4,               252 },
+            {  L_,      NAT,           7,               249 },
+            {  L_,      NAT,           8,               248 },
+            {  L_,      NAT,          15,               241 },
+            {  L_,      NAT,          16,               240 },
+            {  L_,      NAT,         100,               156 },
+            {  L_,      NAT,         254,                 2 },
+            {  L_,      NAT,         255,                 1 },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1, 256 - MAX_ALIGN },
-            {  L_,      MAX,           2, 256 - MAX_ALIGN },
-            {  L_,      MAX,           3, 256 - MAX_ALIGN },
-            {  L_,      MAX,           4, 256 - MAX_ALIGN },
-            {  L_,      MAX,           7, 256 - MAX_ALIGN },
-            {  L_,      MAX,           8, 256 - MAX_ALIGN },
-            {  L_,      MAX,          15,             240 },
-            {  L_,      MAX,          16,             240 },
-            {  L_,      MAX,         108,             144 },
+            {  L_,      MAX,           1, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,           2, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,           3, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,           4, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,           7, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,           8, 256 - k_MAX_ALIGN },
+            {  L_,      MAX,          15,               240 },
+            {  L_,      MAX,          16,               240 },
+            {  L_,      MAX,         108,               144 },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,             255 },
-            {  L_,      BYT,           2,             254 },
-            {  L_,      BYT,           3,             253 },
-            {  L_,      BYT,           4,             252 },
-            {  L_,      BYT,           7,             249 },
-            {  L_,      BYT,           8,             248 },
-            {  L_,      BYT,          15,             241 },
-            {  L_,      BYT,          16,             240 },
-            {  L_,      BYT,         108,             148 },
+            {  L_,      BYT,           1,               255 },
+            {  L_,      BYT,           2,               254 },
+            {  L_,      BYT,           3,               253 },
+            {  L_,      BYT,           4,               252 },
+            {  L_,      BYT,           7,               249 },
+            {  L_,      BYT,           8,               248 },
+            {  L_,      BYT,          15,               241 },
+            {  L_,      BYT,          16,               240 },
+            {  L_,      BYT,         108,               148 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -705,31 +820,31 @@ int main(int argc, char *argv[])
                 P_(INITIALSIZE) P(EXPUSED)
             }
 
-            Obj mX(buffer, BUFFER_SIZE, STRAT);
+            Obj mX(buffer, k_BUFFER_SIZE, STRAT);
 
             mX.allocate(INITIALSIZE);
             void *addr = mX.allocate(1);
 
             ASSERT(0 != addr);
 
-            int newSize = mX.expand(addr, 1);
+            int newSize = static_cast<int>(mX.expand(addr, 1));
             LOOP3_ASSERT(LINE, EXPUSED, newSize, EXPUSED == newSize);
 
             void *addr2 = mX.allocate(1);
             ASSERT(0 == addr2);
 
-            int ret = mX.expand(addr, newSize);
+            int ret = static_cast<int>(mX.expand(addr, newSize));
             LOOP2_ASSERT(LINE, ret, newSize == ret);
         }
 
         // No initial allocation, just allocate and expand directly.
-        Obj mX(buffer, BUFFER_SIZE);
+        Obj mX(buffer, k_BUFFER_SIZE);
 
         void *addr = mX.allocate(1);
         ASSERT(&buffer[0] == addr);
 
-        int newSize = mX.expand(addr, 1);
-        ASSERT(BUFFER_SIZE == newSize);
+        int newSize = static_cast<int>(mX.expand(addr, 1));
+        ASSERT(k_BUFFER_SIZE == newSize);
 
         addr = mX.allocate(1);
         ASSERT(0 == addr);
@@ -741,25 +856,24 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 != address'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr, 1));
+                ASSERT_PASS(mX.expand(addr, 1));
 
-                ASSERT_SAFE_FAIL(mX.expand(   0, 4));
+                ASSERT_FAIL(mX.expand(   0, 4));
             }
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr,  1));
+                ASSERT_PASS(mX.expand(addr,  1));
 
-                ASSERT_SAFE_FAIL(mX.expand(addr,  0));
-                ASSERT_SAFE_FAIL(mX.expand(addr, -1));
+                ASSERT_FAIL(mX.expand(addr,  0));
             }
         }
 
@@ -793,7 +907,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObject'." << endl;
         {
-            Obj mX(buffer, BUFFER_SIZE);
+            Obj mX(buffer, k_BUFFER_SIZE);
 
             void *addr = mX.allocate(sizeof(my_Class));
             my_Class *obj = new(addr) my_Class();
@@ -806,7 +920,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObjectRaw'." << endl;
         {
-            Obj mX(buffer, BUFFER_SIZE);
+            Obj mX(buffer, k_BUFFER_SIZE);
 
             void *addr = mX.allocate(sizeof(my_Class));
             my_Class *obj = new(addr) my_Class();
@@ -897,12 +1011,11 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 ASSERT_SAFE_PASS(mX.hasSufficientCapacity( 1));
 
                 ASSERT_SAFE_FAIL(mX.hasSufficientCapacity( 0));
-                ASSERT_SAFE_FAIL(mX.hasSufficientCapacity(-1));
             }
 
             if (veryVerbose) cout << "\t'0 != buffer()'" << endl;
@@ -948,12 +1061,12 @@ int main(int argc, char *argv[])
         char *buffer = bufferStorage.buffer();
 
         {
-            char bufferRef[BUFFER_SIZE];
+            char bufferRef[k_BUFFER_SIZE];
 
-            memset(buffer,    0xA, BUFFER_SIZE);
-            memset(bufferRef, 0xA, BUFFER_SIZE);
+            memset(buffer,    0xA, k_BUFFER_SIZE);
+            memset(bufferRef, 0xA, k_BUFFER_SIZE);
 
-            Obj mX(buffer, BUFFER_SIZE);  const Obj& X = mX;
+            Obj mX(buffer, k_BUFFER_SIZE);  const Obj& X = mX;
 
             // Allocate some memory.
             mX.allocate(1);
@@ -969,7 +1082,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting that there is no effect on the buffer."
                      << endl;
 
-            ASSERT(0 == memcmp(buffer, bufferRef, BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
         }
 
         {
@@ -1022,12 +1135,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting address managed after 'release'."
                           << endl;
         {
-            char bufferRef[BUFFER_SIZE];
+            char bufferRef[k_BUFFER_SIZE];
 
-            memset(buffer,    0xA, BUFFER_SIZE);
-            memset(bufferRef, 0xA, BUFFER_SIZE);
+            memset(buffer,    0xA, k_BUFFER_SIZE);
+            memset(bufferRef, 0xA, k_BUFFER_SIZE);
 
-            Obj mX(buffer, BUFFER_SIZE);  const Obj& X = mX;
+            Obj mX(buffer, k_BUFFER_SIZE);  const Obj& X = mX;
 
             // Allocate some memory.
             mX.allocate(1);
@@ -1037,16 +1150,16 @@ int main(int argc, char *argv[])
             mX.release();
 
             LOOP2_ASSERT(buffer, X.buffer(), buffer == X.buffer());
-            LOOP2_ASSERT(BUFFER_SIZE, X.bufferSize(),
-                         BUFFER_SIZE == X.bufferSize());
+            LOOP2_ASSERT(k_BUFFER_SIZE, X.bufferSize(),
+                         k_BUFFER_SIZE == X.bufferSize());
 
             if (verbose)
                 cout << "\nTesting that there is no effect on the buffer."
                      << endl;
 
-            ASSERT(0 == memcmp(buffer, bufferRef, BUFFER_SIZE));
+            ASSERT(0 == memcmp(buffer, bufferRef, k_BUFFER_SIZE));
 
-            void *addr = mX.allocate(BUFFER_SIZE);  ASSERT(0 != addr);
+            void *addr = mX.allocate(k_BUFFER_SIZE);  ASSERT(0 != addr);
         }
 
         {
@@ -1100,47 +1213,47 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting replace and address returned." << endl;
         {
-            enum { NEW_BUFFER_SIZE = 512 };
+            enum { k_NEW_BUFFER_SIZE = 512 };
 
-            bsls::AlignedBuffer<NEW_BUFFER_SIZE> bufferStorage2;
+            bsls::AlignedBuffer<k_NEW_BUFFER_SIZE> bufferStorage2;
 
             char *buffer  = bufferStorage.buffer();   // initial buffer
             char *buffer2 = bufferStorage2.buffer();  // buffer for replacing
 
-            char bufferRef[BUFFER_SIZE];  // reference for validating
+            char bufferRef[k_BUFFER_SIZE];  // reference for validating
 
-            memset(buffer,    0xA, BUFFER_SIZE);
-            memset(bufferRef, 0xA, BUFFER_SIZE);
+            memset(buffer,    0xA, k_BUFFER_SIZE);
+            memset(bufferRef, 0xA, k_BUFFER_SIZE);
 
-            Obj mX(buffer, BUFFER_SIZE);  const Obj& X = mX;
-            void *addr1 = mX.allocate(BUFFER_SIZE);      ASSERT(0 != addr1);
+            Obj mX(buffer, k_BUFFER_SIZE);  const Obj& X = mX;
+            void *addr1 = mX.allocate(k_BUFFER_SIZE);      ASSERT(0 != addr1);
 
-            char *ret = mX.replaceBuffer(buffer2, NEW_BUFFER_SIZE);
+            char *ret = mX.replaceBuffer(buffer2, k_NEW_BUFFER_SIZE);
             LOOP2_ASSERT((void *)&buffer[0], ret, &buffer[0] == ret);
 
             LOOP2_ASSERT((void *)&buffer2[0], X.buffer(),
                          &buffer2[0] == X.buffer());
-            LOOP2_ASSERT(NEW_BUFFER_SIZE, X.bufferSize(),
-                         NEW_BUFFER_SIZE == X.bufferSize());
+            LOOP2_ASSERT(k_NEW_BUFFER_SIZE, X.bufferSize(),
+                         k_NEW_BUFFER_SIZE == X.bufferSize());
 
-            void *addr2 = mX.allocate(NEW_BUFFER_SIZE);  ASSERT(0 != addr2);
+            void *addr2 = mX.allocate(k_NEW_BUFFER_SIZE);  ASSERT(0 != addr2);
 
             if (verbose) cout << "\nTesting that there is no effect on the"
                                  " initial buffer." << endl;
 
-            ASSERT(0 == memcmp(ret, bufferRef, BUFFER_SIZE));
+            ASSERT(0 == memcmp(ret, bufferRef, k_BUFFER_SIZE));
 
             Obj mY;  const Obj& Y = mY;
 
-            ret = mY.replaceBuffer(buffer, BUFFER_SIZE);
+            ret = mY.replaceBuffer(buffer, k_BUFFER_SIZE);
             ASSERT(0 == ret);
 
             LOOP2_ASSERT((void *)&buffer[0], Y.buffer(),
                          &buffer[0] == Y.buffer());
-            LOOP2_ASSERT(BUFFER_SIZE, Y.bufferSize(),
-                         BUFFER_SIZE == Y.bufferSize());
+            LOOP2_ASSERT(k_BUFFER_SIZE, Y.bufferSize(),
+                         k_BUFFER_SIZE == Y.bufferSize());
 
-            void *addr3 = mY.allocate(BUFFER_SIZE);  ASSERT(0 != addr3);
+            void *addr3 = mY.allocate(k_BUFFER_SIZE);  ASSERT(0 != addr3);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1154,9 +1267,9 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
 
-                ASSERT_SAFE_PASS(mX.replaceBuffer(buffer, BUFFER_SIZE));
+                ASSERT_SAFE_PASS(mX.replaceBuffer(buffer, k_BUFFER_SIZE));
 
-                ASSERT_SAFE_FAIL(mX.replaceBuffer(     0, BUFFER_SIZE));
+                ASSERT_SAFE_FAIL(mX.replaceBuffer(     0, k_BUFFER_SIZE));
             }
 
             if (veryVerbose) cout << "\t'0 < newBufferSize'" << endl;
@@ -1166,7 +1279,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.replaceBuffer(buffer,  1));
 
                 ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer,  0));
-                ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer, -1));
             }
         }
 
@@ -1248,17 +1360,17 @@ int main(int argc, char *argv[])
             {  L_,      NAT,         7,                     1 },
             {  L_,      NAT,         8,                     8 },
             {  L_,      NAT,        15,                     1 },
-            {  L_,      NAT,        16,             MAX_ALIGN },
+            {  L_,      NAT,        16,           k_MAX_ALIGN },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,         1,             MAX_ALIGN },
-            {  L_,      MAX,         2,             MAX_ALIGN },
-            {  L_,      MAX,         3,             MAX_ALIGN },
-            {  L_,      MAX,         4,             MAX_ALIGN },
-            {  L_,      MAX,         7,             MAX_ALIGN },
-            {  L_,      MAX,         8,             MAX_ALIGN },
-            {  L_,      MAX,        15,             MAX_ALIGN },
-            {  L_,      MAX,        16,             MAX_ALIGN },
+            {  L_,      MAX,         1,           k_MAX_ALIGN },
+            {  L_,      MAX,         2,           k_MAX_ALIGN },
+            {  L_,      MAX,         3,           k_MAX_ALIGN },
+            {  L_,      MAX,         4,           k_MAX_ALIGN },
+            {  L_,      MAX,         7,           k_MAX_ALIGN },
+            {  L_,      MAX,         8,           k_MAX_ALIGN },
+            {  L_,      MAX,        15,           k_MAX_ALIGN },
+            {  L_,      MAX,        16,           k_MAX_ALIGN },
 
             // 1-BYTE ALIGNMENT
             {  L_,      BYT,         1,                     1 },
@@ -1292,7 +1404,7 @@ int main(int argc, char *argv[])
                 P_(ALLOCSIZE) P(EXPOFFSET)
             }
 
-            Obj mX(buffer, BUFFER_SIZE, STRAT);
+            Obj mX(buffer, k_BUFFER_SIZE, STRAT);
 
             void *addr = mX.allocate(1);
             LOOP3_ASSERT(LINE, (void *)&buffer[0], addr, &buffer[0] == addr);
@@ -1467,10 +1579,10 @@ int main(int argc, char *argv[])
             {  L_,      MAX,     8,             2,                  1 },
             {  L_,      MAX,     8,             4,                  1 },
             {  L_,      MAX,     8,             8,                  1 },
-            {  L_,      MAX,    16,             1,     16 / MAX_ALIGN },
-            {  L_,      MAX,    16,             2,     16 / MAX_ALIGN },
-            {  L_,      MAX,    16,             4,     16 / MAX_ALIGN },
-            {  L_,      MAX,    16,             8,     16 / MAX_ALIGN },
+            {  L_,      MAX,    16,             1,   16 / k_MAX_ALIGN },
+            {  L_,      MAX,    16,             2,   16 / k_MAX_ALIGN },
+            {  L_,      MAX,    16,             4,   16 / k_MAX_ALIGN },
+            {  L_,      MAX,    16,             8,   16 / k_MAX_ALIGN },
             {  L_,      MAX,    16,            16,                  1 },
             {  L_,      MAX,    16,            32,                  0 },
 
@@ -1544,9 +1656,9 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(addr, addr2, addr == addr2);
                 }
                 else if (STRAT == MAX) {
-                    const int INCR = ALLOCSIZE < MAX_ALIGN
-                                     ? MAX_ALIGN
-                                     : ALLOCSIZE;
+                    const int INCR = ALLOCSIZE < k_MAX_ALIGN
+                                   ? k_MAX_ALIGN
+                                   : ALLOCSIZE;
 
                     LOOP2_ASSERT((void *)&buffer[INCR * count], addr,
                                          &buffer[INCR * count] == addr);
@@ -1572,14 +1684,13 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
             {
-                Obj mX(buffer, BUFFER_SIZE);
+                Obj mX(buffer, k_BUFFER_SIZE);
 
                 ASSERT_SAFE_PASS(mX.allocate(    1));
                 ASSERT_SAFE_PASS(mX.allocateRaw( 1));
 
-                ASSERT_SAFE_FAIL(mX.allocate(    0));
+                ASSERT_SAFE_PASS(mX.allocate(    0));
                 ASSERT_SAFE_FAIL(mX.allocateRaw( 0));
-                ASSERT_SAFE_FAIL(mX.allocateRaw(-1));
             }
         }
 
@@ -1633,21 +1744,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "CTORS / ACCESSORS TEST" << endl
                                   << "======================" << endl;
 
-        enum { ALLOC_SIZE1 = 1, ALLOC_SIZE2 = 4 };
+        enum { k_ALLOC_SIZE1 = 1, k_ALLOC_SIZE2 = 4 };
 
-        char buffer[BUFFER_SIZE];
+        char buffer[k_BUFFER_SIZE];
 
         if (verbose) cout << "\nTesting ctors and accessors." << endl;
         {
-            Obj mX(buffer, BUFFER_SIZE);  const Obj& X = mX;
-            Obj mY;                       const Obj& Y = mY;
+            Obj mX(buffer, k_BUFFER_SIZE);  const Obj& X = mX;
+            Obj mY;                         const Obj& Y = mY;
 
             LOOP2_ASSERT(&buffer[0], X.buffer(),
                          &buffer[0] == X.buffer());
             LOOP_ASSERT(Y.buffer(), 0 == Y.buffer());
 
-            LOOP2_ASSERT(BUFFER_SIZE, X.bufferSize(),
-                         BUFFER_SIZE == X.bufferSize());
+            LOOP2_ASSERT(k_BUFFER_SIZE, X.bufferSize(),
+                         k_BUFFER_SIZE == X.bufferSize());
             LOOP_ASSERT(Y.bufferSize(), 0 == Y.bufferSize());
         }
 
@@ -1659,15 +1770,15 @@ int main(int argc, char *argv[])
             Obj mX(bsls::Alignment::BSLS_MAXIMUM);
             Obj mY(bsls::Alignment::BSLS_BYTEALIGNED);
 
-            mV.replaceBuffer(buffer, BUFFER_SIZE);
-            mW.replaceBuffer(buffer, BUFFER_SIZE);
-            mX.replaceBuffer(buffer, BUFFER_SIZE);
-            mY.replaceBuffer(buffer, BUFFER_SIZE);
+            mV.replaceBuffer(buffer, k_BUFFER_SIZE);
+            mW.replaceBuffer(buffer, k_BUFFER_SIZE);
+            mX.replaceBuffer(buffer, k_BUFFER_SIZE);
+            mY.replaceBuffer(buffer, k_BUFFER_SIZE);
 
             const int NAT_OFFSET =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
-                                      &buffer[ALLOC_SIZE1],
-                                      ALLOC_SIZE2);
+                                      &buffer[k_ALLOC_SIZE1],
+                                      k_ALLOC_SIZE2);
 
             const int MAX_OFFSET1 =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -1676,55 +1787,56 @@ int main(int argc, char *argv[])
 
             const int MAX_OFFSET2 =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
-                                      &buffer[ALLOC_SIZE1 + MAX_OFFSET1],
+                                      &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1],
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             void *addr;
 
-            addr = mV.allocate(ALLOC_SIZE1);
+            addr = mV.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mV.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
+            addr = mV.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1 + NAT_OFFSET], addr,
+                         &buffer[k_ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
-            addr = mW.allocate(ALLOC_SIZE1);
+            addr = mW.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mW.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
+            addr = mW.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1 + NAT_OFFSET], addr,
+                         &buffer[k_ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
-            addr = mX.allocate(ALLOC_SIZE1);
+            addr = mX.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[MAX_OFFSET1], addr,
                          &buffer[MAX_OFFSET1] == addr);
 
-            addr = mX.allocate(ALLOC_SIZE2);
+            addr = mX.allocate(k_ALLOC_SIZE2);
             LOOP2_ASSERT(
-                     &buffer[ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2],
+                     &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2],
                      addr,
-                     &buffer[ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2] == addr);
+                     &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2] ==
+                                                                         addr);
 
-            addr = mY.allocate(ALLOC_SIZE1);
+            addr = mY.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mY.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1], addr,
-                         &buffer[ALLOC_SIZE1] == addr);
+            addr = mY.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1], addr,
+                         &buffer[k_ALLOC_SIZE1] == addr);
         }
 
         if (verbose) cout << "\nTesting 3 arg. ctor and alignment strategy."
                           << endl;
         {
-            Obj mV(buffer, BUFFER_SIZE);
-            Obj mW(buffer, BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
-            Obj mX(buffer, BUFFER_SIZE, bsls::Alignment::BSLS_MAXIMUM);
-            Obj mY(buffer, BUFFER_SIZE, bsls::Alignment::BSLS_BYTEALIGNED);
+            Obj mV(buffer, k_BUFFER_SIZE);
+            Obj mW(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_NATURAL);
+            Obj mX(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_MAXIMUM);
+            Obj mY(buffer, k_BUFFER_SIZE, bsls::Alignment::BSLS_BYTEALIGNED);
 
             const int NAT_OFFSET =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
-                                      &buffer[ALLOC_SIZE1],
-                                      ALLOC_SIZE2);
+                                      &buffer[k_ALLOC_SIZE1],
+                                      k_ALLOC_SIZE2);
 
             const int MAX_OFFSET1 =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -1733,41 +1845,42 @@ int main(int argc, char *argv[])
 
             const int MAX_OFFSET2 =
                 bsls::AlignmentUtil::calculateAlignmentOffset(
-                                      &buffer[ALLOC_SIZE1 + MAX_OFFSET1],
+                                      &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1],
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             void *addr;
 
-            addr = mV.allocate(ALLOC_SIZE1);
+            addr = mV.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mV.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
+            addr = mV.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1 + NAT_OFFSET], addr,
+                         &buffer[k_ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
-            addr = mW.allocate(ALLOC_SIZE1);
+            addr = mW.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mW.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
+            addr = mW.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1 + NAT_OFFSET], addr,
+                         &buffer[k_ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
-            addr = mX.allocate(ALLOC_SIZE1);
+            addr = mX.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[MAX_OFFSET1], addr,
                          &buffer[MAX_OFFSET1] == addr);
 
-            addr = mX.allocate(ALLOC_SIZE2);
+            addr = mX.allocate(k_ALLOC_SIZE2);
             LOOP2_ASSERT(
-                     &buffer[ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2],
+                     &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2],
                      addr,
-                     &buffer[ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2] == addr);
+                     &buffer[k_ALLOC_SIZE1 + MAX_OFFSET1 + MAX_OFFSET2] ==
+                                                                         addr);
 
-            addr = mY.allocate(ALLOC_SIZE1);
+            addr = mY.allocate(k_ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
-            addr = mY.allocate(ALLOC_SIZE2);
-            LOOP2_ASSERT(&buffer[ALLOC_SIZE1], addr,
-                         &buffer[ALLOC_SIZE1] == addr);
+            addr = mY.allocate(k_ALLOC_SIZE2);
+            LOOP2_ASSERT(&buffer[k_ALLOC_SIZE1], addr,
+                         &buffer[k_ALLOC_SIZE1] == addr);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1777,9 +1890,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'0 != buffer'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj(buffer, BUFFER_SIZE));
+                ASSERT_SAFE_PASS(Obj(buffer, k_BUFFER_SIZE));
 
-                ASSERT_SAFE_FAIL(Obj(     0, BUFFER_SIZE));
+                ASSERT_SAFE_FAIL(Obj(     0, k_BUFFER_SIZE));
             }
 
             if (veryVerbose) cout << "\t'0 < bufferSize'" << endl;
@@ -1787,7 +1900,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj(buffer,  1));
 
                 ASSERT_SAFE_FAIL(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL(Obj(buffer, -1));
             }
         }
       } break;
@@ -1810,7 +1922,7 @@ int main(int argc, char *argv[])
         //   that it comes from the external buffer.  Then, allocate another
         //   block of memory from the buffer object, and verify that the first
         //   allocation returned a block of memory of sufficient size by
-        //   checking that 'addr2 >= addr1 + ALLOC_SIZE1'.  Also verify that
+        //   checking that 'addr2 >= addr1 + k_ALLOC_SIZE1'.  Also verify that
         //   the alignment strategy indicated at construction is followed by
         //   checking the address of the second allocation.
         //
@@ -1821,27 +1933,27 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
 
         char *buffer = bufferStorage.buffer();
 
         if (verbose) cout << "\nTesting constructor." << endl;
 
-        Obj mX(buffer, BUFFER_SIZE);  const Obj& X = mX;
+        Obj mX(buffer, k_BUFFER_SIZE);  const Obj& X = mX;
         ASSERT(&buffer[0]  == X.buffer());
-        ASSERT(BUFFER_SIZE == X.bufferSize());
+        ASSERT(k_BUFFER_SIZE == X.bufferSize());
 
         if (verbose) cout << "\nTesting allocate." << endl;
 
-        void *addr1 = mX.allocate(ALLOC_SIZE1);
+        void *addr1 = mX.allocate(k_ALLOC_SIZE1);
         ASSERT(&buffer[0] == addr1);
-        LOOP2_ASSERT((void *)&buffer[BUFFER_SIZE - 1], addr1,
-                             &buffer[BUFFER_SIZE - 1] >= addr1);
+        LOOP2_ASSERT((void *)&buffer[k_BUFFER_SIZE - 1], addr1,
+                             &buffer[k_BUFFER_SIZE - 1] >= addr1);
 
-        void *addr2 = mX.allocate(ALLOC_SIZE2);
+        void *addr2 = mX.allocate(k_ALLOC_SIZE2);
         ASSERT(&buffer[0] < addr2);
-        ASSERT(&buffer[BUFFER_SIZE - 1] >= addr2);
-        ASSERT((char *)addr2 >= (char *)addr1 + ALLOC_SIZE1);
+        ASSERT(&buffer[k_BUFFER_SIZE - 1] >= addr2);
+        ASSERT((char *)addr2 >= (char *)addr1 + k_ALLOC_SIZE1);
 
         LOOP2_ASSERT((void *)&buffer[8], addr2, &buffer[8] == addr2);
 
@@ -1859,7 +1971,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
