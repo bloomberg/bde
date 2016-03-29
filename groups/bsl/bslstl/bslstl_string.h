@@ -1051,15 +1051,6 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
-    // 'to_string' functions are made friends to allow access to the internal
-    // short string buffer.
-    friend string to_string(int);
-    friend string to_string(long);
-    friend string to_string(long long);
-    friend string to_string(unsigned);
-    friend string to_string(unsigned long);
-    friend string to_string(unsigned long long);
-
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
                       basic_string,
@@ -1073,6 +1064,16 @@ class basic_string
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
+
+    // FRIENDS
+    friend string to_string(int);
+    friend string to_string(long);
+    friend string to_string(long long);
+    friend string to_string(unsigned);
+    friend string to_string(unsigned long);
+    friend string to_string(unsigned long long);
+        // 'to_string' functions are made friends to allow access to the
+        // internal short string buffer.
 
     // PRIVATE MANIPULATORS
 
@@ -2478,8 +2479,6 @@ long stol(const string&  str, std::size_t* pos = 0, int base = 10);
 long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const string&  str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
-
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long long stoll(const string&  str, std::size_t* pos = 0, int base = 10);
 long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long long stoull(const string&   str,
@@ -2488,30 +2487,32 @@ unsigned long long stoull(const string&   str,
 unsigned long long stoull(const wstring&  str,
                           std::size_t    *pos = 0,
                           int             base = 10);
-#endif
-    // Parses 'str' interpreting its content as an integral number. Optionally
-    // specify 'pos' whose value is set to the position of the next character
+    // Return the value of the specified 'str' by parsing the string and
+    // interpreting its content as an integral number.  Optionally specify
+    // 'pos' whose value is set to the position of the next character in 'str'
     // after the numerical value.  Optionally specify 'base' used to change the
-    // interpretation of 'str' to a integral number written in the specified
-    // 'base'.  Valid bases are in the range of [0,35] where base 0
-    // automatically determines the base of the string; The base will be 16 if
-    // the number is prefixed with '0x' or '0X', base 8 if the number is
-    // prefixed with a '0' and base 10 otherwise.  The function ignores leading
-    // white space characters and interprets as many characters possible to
-    // form a valid base n integral number.  If no conversion could be
-    // performed, then an invalid_argument exception is thrown.  If the value
-    // read is out of range of the return type, then an out_of_range exception
-    // is thrown.
+    // interpretation of 'str' to a integral number written in the given
+    // 'base'.  Valid bases are bases in the range of [2,36] and base 0, where
+    // base 0 automatically determines the base while parsing the string: the
+    // base will be 16 if the number is prefixed with '0x' or '0X', base 8 if
+    // the number is prefixed with a '0', and base 10 otherwise.  The function
+    // ignores leading white space characters and interprets as many characters
+    // possible to form a valid integral number in the chosen base.  If no
+    // conversion could be performed, then an 'invalid_argument' exception is
+    // thrown.  If the value read is out of range of the return type, then an
+    // 'out_of_range' exception is thrown.  The behavior is undefined unless
+    // 'base' is valid.  Note that negative numbers are parsed by interpreting
+    // the numeric sequence following the '-' character, and then negating the
+    // result, so that 'stoul' and 'stoull' have defined results for negative
+    // numbers where the absolute value falls in the valid range for the
+    // corresponding signed conversion.
 
 float  stof(const string&  str, std::size_t* pos =0);
 float  stof(const wstring& str, std::size_t* pos =0);
 double stod(const string&  str, std::size_t* pos =0);
 double stod(const wstring& str, std::size_t* pos =0);
-
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long double stold(const string&  str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
-#endif
     // Parses 'str' interpreting its contents as a floating point number. In
     // C++11 if the number in 'str' is prefixed with '0x' or '0X' the string
     // will be interpreted as a hex number.  If there is no leading 0x or 0X
