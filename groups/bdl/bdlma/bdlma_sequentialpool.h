@@ -379,6 +379,8 @@ class SequentialPool {
                                    // growth strategy
     };
 
+    typedef bsl::uint64_t uint64_t;  // to support old toolchains
+
     // DATA
     BufferManager                  d_bufferManager;  // memory manager for
                                                      // current buffer
