@@ -17,15 +17,16 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: John Lakos (jlakos), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component implements a value-semantic type,
-// 'bdlt::Datetime', that represents the composition of a date and time value.
-// The combined "date+time" value of a 'bdlt::Datetime' object is expressed
-// textually as "yyyy/mm/dd_hh:mm:ss.ssssss", where "yyyy/mm/dd" represents the
-// "date" part of the value and "hh:mm:ss.ssssss" represents the "time" part.
+// 'bdlt::Datetime', that represents the composition of a date and a time
+// value.  The combined "date+time" value of a 'bdlt::Datetime' object is
+// expressed textually as "yyyy/mm/dd_hh:mm:ss.ssssss", where "yyyy/mm/dd"
+// represents the "date" part of the value and "hh:mm:ss.ssssss" represents the
+// "time" part.
 //
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
-// etc.). In particular, note that adding units of time to a 'bdlt::Datetime'
+// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
 // object can affect the values of both the time and date parts of the object.
 // For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
 // is "1987/10/03_22:30:00.000000" updates the value to
@@ -61,15 +62,17 @@ BSLS_IDENT("$Id: $")
 // part, respectively) to distinguish them from the many other attributes (see
 // below) that derive from these two main parts.
 //..
-//  Name  Type        Default          Range
-//  ----  ----------  ---------------  ------------------------------
-//  date  bdlt::Date  0001/01/01       [0001/01/01      .. 9999/12/31]
-//  time  bdlt::Time  24:00:00.000000  [00:00:00.000000 .. 23:59:59.999999]
+//  Name  Related Type  Default          Range
+//  ----  ------------  ---------------  ------------------------------------
+//  date  bdlt::Date    0001/01/01       [0001/01/01      .. 9999/12/31]
+//  time  bdlt::Time*   24:00:00.000000  [00:00:00.000000 .. 23:59:59.999999]
 //..
+// (*) Note that 'bdlt::Time' supports only millisecond resolution.
+//
 // A 'bdlt::Datetime' object can be used in terms of its "date" and "time"
 // parts or, if appropriate to an application, the object can be viewed as a
 // single, integrated type having the combined individual attributes of date
-// and time.  Accessors and manipulators are provided for each of these nine
+// and time.  Accessors and manipulators are provided for each of these eight
 // (derived) attributes:
 //..
 //  Name         Type  Default  Range        Constraint
@@ -174,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The streaming operator produces the following output on 'stdout':
 //..
-//  06JAN2013_20:43:00.000
+//  06JAN2013_20:43:00.000000
 //..
 //
 ///Example 2: Creating a Schedule of Equal Time Intervals
@@ -216,14 +219,14 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe:
 //..
-//  26JUN2014_20:31:23.000
-//  26JUN2014_21:47:52.714
-//  26JUN2014_23:04:22.428
-//  27JUN2014_00:20:52.142
-//  27JUN2014_01:37:21.856
-//  27JUN2014_02:53:51.570
-//  27JUN2014_04:10:21.284
-//  27JUN2014_05:26:50.998
+//  26JUN2014_20:31:23.000000
+//  26JUN2014_21:47:52.714000
+//  26JUN2014_23:04:22.428000
+//  27JUN2014_00:20:52.142000
+//  27JUN2014_01:37:21.856000
+//  27JUN2014_02:53:51.570000
+//  27JUN2014_04:10:21.284000
+//  27JUN2014_05:26:50.998000
 //..
 // Notice how our objects (since they manage both "date" and "time of day"
 // parts of each point in time) seamlessly handle the transition between the
@@ -297,10 +300,10 @@ class Datetime {
     // representing the composition of date and time values.  Valid date values
     // for the "date" part of a 'Datetime' object are the same as those defined
     // for 'Date' objects; similarly, valid time values for the "time" part of
-    // a 'Datetime' object are the similar to those defined for 'Time' objects
-    // (but with additional precision).  Relational operators are disallowed on
+    // a 'Datetime' object are similar to those defined for 'Time' objects (but
+    // with additional precision).  Relational operators are disallowed on
     // 'Datetime' objects whose "time" part has the same value as that of a
-    // default consaructed 'Time' object.
+    // default constructed 'Time' object.
 
     // DATA
     bsls::Types::Uint64 d_value;  // encoded offset from the epoch
@@ -319,8 +322,7 @@ class Datetime {
     void setTimeIntervalFromEpoch(bsls::Types::Uint64 totalMicroseconds);
         // Assign to 'd_value' the representation of a datetime such that the
         // difference between this datetime and the epoch is the specified
-        // 'interval' (potentially truncated at microseconds depending on the
-        // date portion of the resultant datetime value).
+        // 'totalMicroseconds'.
 
     void setUnset(int totalDays);
         // Assign to 'd_value' the representation of a datetime such that the
@@ -330,17 +332,17 @@ class Datetime {
 
     // PRIVATE ACCESSORS
     void timeIntervalFromEpoch(bsls::Types::Uint64 *totalMicroseconds) const;
-        // Load into the specified 'interval' the difference between this
-        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
-        // and the epoch.
+        // Load into the specified 'totalMicroseconds' the difference between
+        // this datetime value, with 24:00:00.000000 converted to
+        // 0:00:00.000000, and the epoch.
 
     void timeIntervalFromEpoch(bsls::Types::Uint64 *totalMicroseconds,
                                bool                *unset) const;
-        // Load into the specified 'interval' the difference between this
-        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
-        // and the epoch and load into the specified 'unset' the value 'true'
-        // if the time portion of this datetime has the value 24:00:00.000000,
-        // and 'false' otherwise.
+        // Load into the specified 'totalMicroseconds' the difference between
+        // this datetime value, with 24:00:00.000000 converted to
+        // 0:00:00.000000, and the epoch, and load into the specified 'unset'
+        // the value 'true' if the time portion of this datetime has the value
+        // 24:00:00.000000, and 'false' otherwise.
 
   public:
     // CLASS METHODS
@@ -406,14 +408,14 @@ class Datetime {
         // and whose "time" part has the value represented by the optionally
         // specified 'hour', 'minute', 'second', 'millisecond', and
         // 'microsecond' attributes.  Unspecified trailing optional parameters
-        // default to 0.  The behavior is undefined unless the nine attributes
+        // default to 0.  The behavior is undefined unless the eight attributes
         // (collectively) represent a valid 'Datetime' value (see 'isValid').
 
     Datetime(const Datetime& original);
         // Create a 'Datetime' object having the value of the specified
         // 'original' object.
 
-//! ~Datetime() = default;
+    //! ~Datetime() = default;
         // Destroy this 'Datetime' object.
 
     // MANIPULATORS
@@ -467,7 +469,7 @@ class Datetime {
         // attributes, and whose "time" part has the value represented by the
         // optionally specified 'hour', 'minute', 'second', 'millisecond', and
         // 'microsecond' attributes.  Unspecified trailing optional parameters
-        // default to 0.  The behavior is undefined unless the nine attributes
+        // default to 0.  The behavior is undefined unless the eight attributes
         // (collectively) represent a valid 'Datetime' value (see 'isValid').
 
     int setDatetimeIfValid(int year,
@@ -482,7 +484,7 @@ class Datetime {
         // the specified 'year', 'month', and 'day' attributes, and set the
         // "time" part to have the value represented by the optionally
         // specified 'hour', 'minute', 'second', 'millisecond', and
-        // 'microsecond' attributes, *if* the nine attribute values
+        // 'microsecond' attributes, *if* the eight attribute values
         // (collectively) represent a valid 'Datetime' value (see 'isValid').
         // Unspecified trailing optional parameters default to 0.  Return 0 on
         // success, and a non-zero value (with no effect) otherwise.
@@ -924,7 +926,7 @@ bool Datetime::isValid(int year,
 inline
 int Datetime::maxSupportedBdexVersion(int versionSelector)
 {
-    if (versionSelector >= 20160314) {
+    if (versionSelector >= 20160411) {
         return 2;                                                     // RETURN
     }
     return 1;
@@ -996,6 +998,8 @@ Datetime& Datetime::operator=(const Datetime& rhs)
 
     return *this;
 }
+
+// TBD update asserts and add bsls::TimeInterval versions
 
 inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
@@ -1313,6 +1317,8 @@ void Datetime::addDays(int days)
                                          / TimeUnitRatio::k_US_PER_D));
     }
 }
+
+// TBD asserts in the add methods
 
 inline
 void Datetime::addTime(bsls::Types::Int64 hours,

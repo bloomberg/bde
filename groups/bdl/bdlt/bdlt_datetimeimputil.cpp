@@ -16,14 +16,6 @@ namespace bdlt {
 
 #ifdef BDE_USE_PROLEPTIC_DATES
 
-const bsls::Types::Int64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
-                                           719162LL * TimeUnitRatio::k_S_PER_D;
-                    // 719162 is 1970/01/01 - 0001/01/01 in Proleptic Gregorian
-
-const bsls::Types::Int64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
-                                           901784LL * TimeUnitRatio::k_S_PER_D;
-                    // 901784 is 2470/01/01 - 0001/01/01 in Proleptic Gregorian
-
 const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652058ULL + 1;
                    // 3652058 is 9999/12/31 - 0001/01/01 in Proleptic Gregorian
 
@@ -31,15 +23,13 @@ const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
    719162ULL * TimeUnitRatio::k_US_PER_D + DatetimeImpUtil::k_0001_01_01_VALUE;
                     // 719162 is 1970/01/01 - 0001/01/01 in Proleptic Gregorian
 
+const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
+                                         3652059ULL * TimeUnitRatio::k_US_PER_D
+                                       + DatetimeImpUtil::k_0001_01_01_VALUE
+                                       - 1;
+               // 3652059 is 9999/12/31 - 0001/01/01 + 1 in Proleptic Gregorian
+
 #else
-
-const bsls::Types::Int64 DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS =
-                                           719164LL * TimeUnitRatio::k_S_PER_D;
-                                  // 719164 is 1970/01/01 - 0001/01/01 in POSIX
-
-const bsls::Types::Int64 DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS =
-                                           901786LL * TimeUnitRatio::k_S_PER_D;
-                                  // 901786 is 2470/01/01 - 0001/01/01 in POSIX
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652060ULL + 1;
                                  // 3652060 is 9999/12/31 - 0001/01/01 in POSIX
@@ -48,11 +38,13 @@ const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
    719164ULL * TimeUnitRatio::k_US_PER_D + DatetimeImpUtil::k_0001_01_01_VALUE;
                                   // 719164 is 1970/01/01 - 0001/01/01 in POSIX
 
-#endif
+const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
+                                         3652061ULL * TimeUnitRatio::k_US_PER_D
+                                       + DatetimeImpUtil::k_0001_01_01_VALUE
+                                       - 1;
+                             // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
 
-const bsls::Types::Uint64 DatetimeImpUtil::k_2470_01_01_VALUE =
-   182622ULL * TimeUnitRatio::k_NS_PER_D + DatetimeImpUtil::k_1970_01_01_VALUE;
-                      // 182622 is 2470/01/01 - 1970/01/01
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

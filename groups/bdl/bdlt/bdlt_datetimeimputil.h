@@ -16,10 +16,8 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::DatetimeImpUtil', that defines a namespace for constants that are
 // useful to encoding datetimes.  The assumptions for this encoding are that a
 // collection of unset values, one per day over the valid range of
-// 'bdlt::Date', are encoded in the lowest values, then microsecond resolution
-// from the start of the 'bdlt::Date' range to 1970/01/01, then nanosecond
-// resolution throughy 2470/01/01, and finally microsecond resolution over the
-// residual of the 'bdlt::Date' range.
+// 'bdlt::Date', are encoded in the lowest values, and then microsecond
+// resolution over the entire 'bdlt::Date' range.
 //
 ///Usage
 ///-----
@@ -45,13 +43,9 @@ struct DatetimeImpUtil {
     // This 'struct' provides a namespace for datetime encoding constants.
 
     // CLASS DATA
-
-    static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
-    static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
-
     static const bsls::Types::Uint64 k_0001_01_01_VALUE;
     static const bsls::Types::Uint64 k_1970_01_01_VALUE;
-    static const bsls::Types::Uint64 k_2470_01_01_VALUE;
+    static const bsls::Types::Uint64 k_MAX_VALUE;
 };
 
 }  // close package namespace

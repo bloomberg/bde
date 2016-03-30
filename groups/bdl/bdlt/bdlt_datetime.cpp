@@ -47,7 +47,7 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     int rc = printToBuffer(buffer, k_BUFFER_SIZE);
 
     (void)rc;
-    BSLS_ASSERT(22 == rc);  // The datetime format contains 22 characters.
+    BSLS_ASSERT(25 == rc);  // The datetime format contains 22 characters.
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);    // 'true' -> suppress '['
@@ -89,31 +89,33 @@ int Datetime::printToBuffer(char *result, int numBytes) const
 
     const int rc = _snprintf(result,
                              numBytes,
-                             "%02d%s%04d_%02d:%02d:%02d.%03d",
+                             "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
                              day,
                              asciiMonth,
                              year,
                              hour,
                              minute,
                              second,
-                             millisecond);
+                             millisecond,
+                             microsecond);
 
     if ((0 > rc || rc == numBytes) && numBytes > 0) {
         result[numBytes - 1] = '\0';  // Make sure to null-terminate on
                                       // overflow.
     }
-    return 22;  // Format of 'bdlt::Datetime' always has 22 characters.
+    return 25;  // Format of 'bdlt::Datetime' always has 25 characters.
 #else
     return snprintf(result,
                     numBytes,
-                    "%02d%s%04d_%02d:%02d:%02d.%03d",
+                    "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
                     day,
                     asciiMonth,
                     year,
                     hour,
                     minute,
                     second,
-                    millisecond);
+                    millisecond,
+                    microsecond);
 #endif
 }
 

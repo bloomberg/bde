@@ -401,7 +401,7 @@ if (veryVerbose)
 //..
 // The streaming operator produces the following output on 'stdout':
 //..
-//  06JAN2013_20:43:00.000
+//  06JAN2013_20:43:00.000000
 //..
 //
 ///Example 2: Creating a Schedule of Equal Time Intervals
@@ -444,14 +444,14 @@ if (veryVerbose)
 //..
 // Finally, we observe:
 //..
-//  26JUN2014_20:31:23.000
-//  26JUN2014_21:47:52.714
-//  26JUN2014_23:04:22.428
-//  27JUN2014_00:20:52.142
-//  27JUN2014_01:37:21.856
-//  27JUN2014_02:53:51.570
-//  27JUN2014_04:10:21.284
-//  27JUN2014_05:26:50.998
+//  26JUN2014_20:31:23.000000
+//  26JUN2014_21:47:52.714000
+//  26JUN2014_23:04:22.428000
+//  27JUN2014_00:20:52.142000
+//  27JUN2014_01:37:21.856000
+//  27JUN2014_02:53:51.570000
+//  27JUN2014_04:10:21.284000
+//  27JUN2014_05:26:50.998000
 //..
 // Notice how our objects (since they manage both "date" and "time of day"
 // parts of each point in time) seamlessly handle the transition between the
@@ -4297,8 +4297,8 @@ if (veryVerbose)
         //:
         //:     3 Create an object 'Y', having the value 'R2'.
         //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!='.  (C-1..2, 5..7)
+        //:     4 Verify the commutative property and expected return value for
+        //:       both '==' and '!='.  (C-1..2, 5..7)
         //:
         //: 3 As for all test cases, the default and global allocators defined
         //:   just under 'main' are checked for any use by objects under test.

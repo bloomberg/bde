@@ -22,11 +22,8 @@ using namespace bsl;
 // can be tested in a single test case that simply checks the values defined in
 // the 'struct'.
 // ----------------------------------------------------------------------------
-// [ 1] static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
-// [ 1] static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
 // [ 1] static const bsls::Types::Uint64 k_0001_01_01_VALUE;
-// [ 1] static const bsls::Types::Uint64 k_1970_01_01_VALUE;
-// [ 1] static const bsls::Types::Uint64 k_2470_01_01_VALUE;
+// [ 1] static const bsls::Types::Uint64 k_MAX_VALUE;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -99,44 +96,50 @@ int main(int argc, char *argv[])
         //:   'TimeUnitRatio'.  (C-1)
         //
         // Testing:
-        //   static const bsls::Types::Int64  k_1970_01_01_TOTAL_SECONDS;
-        //   static const bsls::Types::Int64  k_2470_01_01_TOTAL_SECONDS;
         //   static const bsls::Types::Uint64 k_0001_01_01_VALUE;
-        //   static const bsls::Types::Uint64 k_1970_01_01_VALUE;
-        //   static const bsls::Types::Uint64 k_2470_01_01_VALUE;
+        //   static const bsls::Types::Uint64 k_MAX_VALUE;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'DatetimeImpUtil' VALUES" << endl
                           << "================================" << endl;
 
-        ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS
-                              == (bdlt::Date(1970, 1, 1) - bdlt::Date(1, 1, 1))
-                                             * bdlt::TimeUnitRatio::k_S_PER_D);
+        {
+            bsls::Types::Uint64 value =
+                            bdlt::Date(9999, 12, 31) - bdlt::Date(1, 1, 1) + 1;
 
-        ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS
-                              == (bdlt::Date(2470, 1, 1) - bdlt::Date(1, 1, 1))
-                                             * bdlt::TimeUnitRatio::k_S_PER_D);
+            ASSERTV(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE,
+                    value,
+                    bdlt::DatetimeImpUtil::k_0001_01_01_VALUE == value);
+        }
 
-        ASSERT(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
-                      == (bdlt::Date(9999, 12, 31) - bdlt::Date(1, 1, 1) + 1));
+        {
+            bsls::Types::Uint64 value =
+                       bdlt::TimeUnitRatio::k_US_PER_D *
+                                 (bdlt::Date(1970, 1, 1) - bdlt::Date(1, 1, 1))
+                     + bdlt::DatetimeImpUtil::k_0001_01_01_VALUE;
 
-        ASSERT(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE
-                      == (bdlt::Date(1970, 1, 1) - bdlt::Date(1, 1, 1))
-                                  * bdlt::TimeUnitRatio::k_US_PER_D
-                                  + bdlt::DatetimeImpUtil::k_0001_01_01_VALUE);
+            ASSERTV(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE,
+                    value,
+                    bdlt::DatetimeImpUtil::k_1970_01_01_VALUE == value);
+        }
 
-        ASSERT(bdlt::DatetimeImpUtil::k_2470_01_01_VALUE
-                      == (bdlt::Date(2470, 1, 1) - bdlt::Date(1970, 1, 1))
-                                  * bdlt::TimeUnitRatio::k_NS_PER_D
-                                  + bdlt::DatetimeImpUtil::k_1970_01_01_VALUE);
+        {
+            bsls::Types::Uint64 value =
+                       bdlt::TimeUnitRatio::k_US_PER_D *
+                           (bdlt::Date(9999, 12, 31) - bdlt::Date(1, 1, 1) + 1)
+                     + bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
+                     - 1;
+
+            ASSERTV(bdlt::DatetimeImpUtil::k_MAX_VALUE,
+                    value,
+                    bdlt::DatetimeImpUtil::k_MAX_VALUE == value);
+        }
 
         if (veryVerbose) {
-            P(bdlt::DatetimeImpUtil::k_1970_01_01_TOTAL_SECONDS);
-            P(bdlt::DatetimeImpUtil::k_2470_01_01_TOTAL_SECONDS);
             P(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE);
             P(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE);
-            P(bdlt::DatetimeImpUtil::k_2470_01_01_VALUE);
+            P(bdlt::DatetimeImpUtil::k_MAX_VALUE);
         }
 
       } break;
