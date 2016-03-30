@@ -91,12 +91,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bsls {
 
-                            // ===============
-                            // class Stopwatch
-                            // ===============
+                             // ===============
+                             // class Stopwatch
+                             // ===============
 
 class Stopwatch {
     // The 'class' provides an accumulator for the system, user, and wall times
@@ -112,18 +111,18 @@ class Stopwatch {
     // (RUNNING or STOPPED).
 
     // DATA
-    Types::Int64 d_startSystemTime;        // system time when
-                                           // started (nanoseconds)
+    Types::Int64 d_startSystemTime;        // system time when started
+                                           // (nanoseconds)
 
-    Types::Int64 d_startUserTime;          // user time when
-                                           // started (nanoseconds)
+    Types::Int64 d_startUserTime;          // user time when started
+                                           // (nanoseconds)
 
     TimeUtil::OpaqueNativeTime d_startWallTime;
-                                           // wall time when
-                                           // started (nanoseconds)
+                                           // wall time when started
+                                           // (nanoseconds)
 
-    Types::Int64 d_accumulatedSystemTime;  // accumulated system
-                                           // time (nanoseconds)
+    Types::Int64 d_accumulatedSystemTime;  // accumulated system time
+                                           // (nanoseconds)
 
     Types::Int64 d_accumulatedUserTime;    // accumulated user time
                                            // (nanoseconds)
@@ -131,11 +130,11 @@ class Stopwatch {
     Types::Int64 d_accumulatedWallTime;    // accumulated wall time
                                            // (nanoseconds)
 
-    bool         d_isRunning;              // state flag ('true' if
-                                           // RUNNING, 'false' if STOPPED)
+    bool         d_isRunning;              // state flag ('true' if RUNNING,
+                                           // 'false' if STOPPED)
 
-    bool         d_collectCpuTimesFlag;    // 'true' if cpu times
-                                           // are being collected
+    bool         d_collectCpuTimesFlag;    // 'true' if cpu times are being
+                                           // collected
 
     // CLASS DATA
     static const double      s_nanosecondsPerSecond;   // conversion factor
@@ -144,7 +143,6 @@ class Stopwatch {
 
   private:
     // NOT IMPLEMENTED
-    Stopwatch(const Stopwatch&);
     Stopwatch& operator=(const Stopwatch&);
 
   private:
@@ -169,6 +167,10 @@ class Stopwatch {
     Stopwatch();
         // Create a stopwatch in the STOPPED state having total accumulated
         // system, user, and wall times all equal to 0.0.
+
+    //! Stopwatch(const Stopwatch& other) = default;
+        // Create a stopwatch having the state and total accumulated system,
+        // user, and wall time of the specified 'other' object.
 
     //! ~Stopwatch();
         // Destroy this stopwatch.  Note that this method's definition is
@@ -230,12 +232,12 @@ class Stopwatch {
 };
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                            // ---------------
-                            // class Stopwatch
-                            // ---------------
+                             // ---------------
+                             // class Stopwatch
+                             // ---------------
 
 // PRIVATE ACCESSORS
 inline
@@ -254,7 +256,6 @@ Types::Int64 Stopwatch::elapsedWallTime(
     return TimeUtil::convertRawTime(rawWallTime)
          - TimeUtil::convertRawTime(d_startWallTime);
 }
-
 
 // CREATORS
 inline
@@ -372,9 +373,9 @@ bool Stopwatch::isRunning() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bsls::Stopwatch bsls_Stopwatch;
     // This alias is defined for backward compatibility.
@@ -385,7 +386,7 @@ typedef bsls::Stopwatch bsls_Stopwatch;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
