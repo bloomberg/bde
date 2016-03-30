@@ -22,7 +22,7 @@ Description: BSL
  groups/bsl development files
 
 Package: libbdl-dev
-Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev
+Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Description: BDL
  groups/bdl development files
