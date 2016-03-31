@@ -385,7 +385,7 @@ void SessionPool::handleDeleter(SessionPool_Handle *handle)
                                      0,
                                      handle->d_userData_p);
 
-            invokePoolStateCallback(CONNECT_ABORTED,
+            invokePoolStateCallback(e_CONNECT_ABORTED,
                                     0,
                                     0,
                                     handle->d_userData_p);
@@ -428,8 +428,7 @@ void SessionPool::poolStateCb(int state, int source, int platformError)
                                  handle->d_handleId,
                                  0,
                                  handle->d_userData_p);
-
-        invokePoolStateCallback(ACCEPT_FAILED,
+        invokePoolStateCallback(e_ACCEPT_FAILED,
                                 source,
                                 platformError,
                                 handle->d_userData_p);
@@ -461,7 +460,7 @@ void SessionPool::poolStateCb(int state, int source, int platformError)
                                      0,
                                      handle->d_userData_p);
 
-            invokePoolStateCallback(CONNECT_FAILED,
+            invokePoolStateCallback(e_CONNECT_FAILED,
                                     source,
                                     platformError,
                                     handle->d_userData_p);
@@ -479,7 +478,7 @@ void SessionPool::poolStateCb(int state, int source, int platformError)
                                      handle->d_handleId, 0,
                                      handle->d_userData_p);
 
-            invokePoolStateCallback(CONNECT_ATTEMPT_FAILED,
+            invokePoolStateCallback(e_CONNECT_ATTEMPT_FAILED,
                                     source,
                                     platformError,
                                     handle->d_userData_p);
