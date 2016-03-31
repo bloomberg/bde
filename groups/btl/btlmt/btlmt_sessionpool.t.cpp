@@ -1899,7 +1899,7 @@ int main(int argc, char *argv[])
         IPAddress            BA(getLocalAddress());             // Bad IPAddr
         BA.setPortNumber(BP);
 
-        Obj::ConnectResolutionMode CRM = Obj::RESOLVE_ONCE;
+        Obj::ConnectResolutionMode CRM = Obj::e_RESOLVE_ONCE;
 
         // Listening on an invalid port number through various 'listen'
         // overloads.
