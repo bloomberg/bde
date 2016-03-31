@@ -1894,7 +1894,7 @@ int main(int argc, char *argv[])
         const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
         const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
         void                *UD   = (void *) 0;                 // UserData
-        const int            BP   =   1;                        // Bad PortNum
+        const int            BP   = 0x7FFF;                     // Bad PortNum
         const TimeInterval   T;                                 // TimeInterval
         IPAddress            BA(getLocalAddress());             // Bad IPAddr
         BA.setPortNumber(BP);
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
 
         int h;
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+// #ifndef BSLS_PLATFORM_OS_WINDOWS
         {
             int error = 0;
 
