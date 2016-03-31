@@ -1413,7 +1413,18 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
-            // TBD
+          case 2: {
+            bsls::Types::Uint64 tmp;
+
+            stream.getUint64(tmp);
+
+            if (stream && tmp <= DatetimeImpUtil::k_MAX_VALUE) {
+                d_value = tmp;
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
           case 1: {
             Date date;
             Time time;
@@ -1626,7 +1637,9 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
-            // TBD
+          case 2: {
+            stream.putUint64(d_value);
+          } break;
           case 1: {
             date().bdexStreamOut(stream, 1);
             time().bdexStreamOut(stream, 1);
