@@ -76,22 +76,23 @@ int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhsString,
            /* else */                1;
 }
 
-int StringRefUtil::upperCaseCmp(const bslstl::StringRef& lhsString,
-                                const bslstl::StringRef& rhsString)
+int StringRefUtil::upperCaseCmp(const bslstl::StringRef& lhs,
+                                const bslstl::StringRef& rhs)
 {
-    const bsl::size_t lhsLength = lhsString.length();
-    const bsl::size_t rhsLength = rhsString.length();
+    const bsl::size_t lhsLength = lhs.length();
+    const bsl::size_t rhsLength = rhs.length();
     const bsl::size_t min       = lhsLength < rhsLength
                                 ? lhsLength : rhsLength;
 
     for (bsl::size_t i = 0;  i < min; ++i) {
-        int lhs = u_lowerToUpper((static_cast<unsigned char>(lhsString[i])));
-        int rhs = u_lowerToUpper((static_cast<unsigned char>(rhsString[i])));
+        int lhsChar = u_lowerToUpper((static_cast<unsigned char>(lhs[i])));
+        int rhsChar = u_lowerToUpper((static_cast<unsigned char>(rhs[i])));
 
-        if (lhs != rhs) {
-            return lhs < rhs ? -1 : 1;                                // RETURN
+        if (lhsChar != rhsChar) {
+            return lhsChar < rhsChar ? -1 : 1;                        // RETURN
         }
     }
+
     return lhsLength <  rhsLength ? -1:
            lhsLength == rhsLength ?  0:
            /* else */                1;

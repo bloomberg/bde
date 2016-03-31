@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // The 'bslstl::StringRef' class provides 'bsl::string'-like access to an array
 // of bytes that need not be null terminated and that can have non-ASCII values
 // (i.e., '[128 .. 255]').  Although a 'bslstl::StringRef' object can itself be
-// changed, it cannot change its referent data (the array of bytes) The
+// changed, it cannot change its referent data (the array of bytes).  The
 // lifetime of the referent data must exceed that of all 'bslstl::StringRef'
 // objects referring to it.  Equality comparison of 'bslstl::StringRef' objects
 // compares the content of the referent data (not whether or not the object
@@ -41,18 +41,18 @@ BSLS_IDENT("$Id: $")
 //..
 //  Function                   Purpose
 //  -------------------------- --------------------------------------------
-//  areEqualCaseless(STR, STR) case-insensitive equality comparison
-//      lowerCaseCmp(STR, STR) lexical comparison of lower-case conversion
-//      upperCaseCmp(STR, STR) lexical comparison of upper-case conversion
+//    areEqualCaseless(SR, SR) case-insensitive equality comparison
+//        lowerCaseCmp(SR, SR) lexical comparison of lower-case conversion
+//        upperCaseCmp(SR, SR) lexical comparison of upper-case conversion
 //
-//                 ltrim(*STR) exclude whitespace from left  side  of string
-//                 rtrim(*STR) exclude whitespace from right side  of string
-//                  trim(*STR) exclude whitespace from both  sides of string
+//                   ltrim(SR) exclude whitespace from left  side  of string
+//                   rtrim(SR) exclude whitespace from right side  of string
+//                    trim(SR) exclude whitespace from both  sides of string
 //
-//   strstr         (STR, SUB) find first substring in string
-//   strstrCaseless (STR, SUB) find first substring in string, case insensitive
-//   strrstr        (STR, SUB) find last  substring in string
-//   strrstrCaseless(STR, SUB) find last  substring in string, case insensitive
+//  strstr         (SR, SUBSR) find first substring in string
+//  strstrCaseless (SR, SUBSR) find first substring in string, case insensitive
+//  strrstr        (SR, SUBSR) find last  substring in string
+//  strrstrCaseless(SR, SUBSR) find last  substring in string, case insensitive
 //..
 //
 // Since 'bslstl::StringRef' objects know the length of the referent data these
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //      '\t'       horizontal tab
 //      '\v'       vertical   tab
 //..
-// This classification matches that of the 'bsl::isspace'.
+// This classification matches that of 'bsl::isspace'.
 //
 ///Usage
 ///-----
@@ -154,94 +154,97 @@ struct StringRefUtil {
     // CLASS METHODS
                         // Comparison
 
-    static bool areEqualCaseless(const bslstl::StringRef& lhsString,
-                                 const bslstl::StringRef& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString' specified
-        // 'lhsLength' and 'rhsLength'.  Return 'true' if 'lhsString' and
-        // 'rhsString' are equal up to a case conversion, and 'false'
+    static bool areEqualCaseless(const bslstl::StringRef& lhs,
+                                 const bslstl::StringRef& rhs);
+        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return
+        // 'true' if 'lhs' and 'rhs' are equal up to a case conversion, and
+        // 'false' otherwise.  See {Caseless Comparisons}.
+
+    static int lowerCaseCmp(const bslstl::StringRef& lhs,
+                            const bslstl::StringRef& rhs);
+        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return 1
+        // if, after a conversion to lower case, 'lhs' is greater than 'rhs', 0
+        // if 'lhs' and 'rhs' are equal up to a case conversion, and -1
         // otherwise.  See {Caseless Comparisons}.
 
-    static int lowerCaseCmp(const bslstl::StringRef& lhsString,
-                            const bslstl::StringRef& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString'.  Return 1 if,
-        // after a conversion to lower case, 'lhsString' is greater than
-        // 'rhsString', 0 if 'lhsString' and 'rhsString' are equal up to a case
-        // conversion, and -1 otherwise.  See {Caseless Comparisons}.
-
-    static int upperCaseCmp(const bslstl::StringRef& lhsString,
-                            const bslstl::StringRef& rhsString);
-        // Compare the specified 'lhsString' and 'rhsString'.  Return 1 if,
-        // after a conversion to upper case, 'lhsString' is greater than
-        // 'rhsString', 0 if 'lhsString' and 'rhsString' are equal up to a case
-        // conversion, and -1 otherwise.  See {Caseless Comparisons}.
+    static int upperCaseCmp(const bslstl::StringRef& lhs,
+                            const bslstl::StringRef& rhs);
+        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return 1
+        // if, after a conversion to upper case, 'lhs' is greater than 'rhs', 0
+        // if 'lhs' and 'rhs' are equal up to a case conversion, and -1
+        // otherwise.  See {Caseless Comparisons}.
 
                         // Trim
 
-    static void ltrim(bslstl::StringRef *string);
-        // Set the specified 'string' to exclude all leading whitespace
-        // characters in 'string' on entry.  The the position of 'string'
-        // (i.e., 'string.data()') is set to the first first non-whitespace
-        // character in 'string' on entry and 'string' length is reduced by the
-        // number of leading whitespace characters.  See {Whitespace Character
-        // Specification}.  Note that if 'string' has no non-whitespace
-        // characters, the position of 'string' is set to the value of
-        // 'string.end()' on entry and its length is set to 0.  Also note that
-        // 'string' is both an input and output parameter.
+    static bslstl::StringRef ltrim(const bslstl::StringRef& stringRef);
+        // Return a 'bslstl::StringRef' object referring to the substring of
+        // (the referent data of) 'stringRef' that excludes all leading
+        // whitespace.  See {Whitespace Character Specification}.  If
+        // 'stringRef' consists entirely of whitespace, return a zero-length
+        // reference to the end of 'stringRef' (i.e.,
+        // 'bslstl::StringRef(stringRef.end(), 0)').
 
-    static void rtrim(bslstl::StringRef *string);
-        // Set the specified 'string' to exclude all trailing whitespace
-        // characters in 'string' on entry.  The length of 'string' is reduced
-        // by the number of trailing whitespace characters.  See {Whitespace
-        // Character Specification}.  The position of 'string' (i.e.,
-        // 'string.data()' is never changed by this function.  Note that
-        // 'string' is both an input and output parameter.
+    static bslstl::StringRef rtrim(const bslstl::StringRef& stringRef);
+        // Return a 'bslstl::StringRef' object referring to the substring of
+        // (the referent data of) 'stringRef' that excludes all trailing
+        // whitespace.  See {Whitespace Character Specification}.  If
+        // 'stringRef' consists entirely of whitespace, return a zero-length
+        // reference to 'stringRef' (i.e.,
+        // 'bslstl::StringRef(stringRef.data(), 0)').
 
-    static void trim(bslstl::StringRef *string);
-        // Set the specified 'string' to exclude all leading *and* trailing
-        // whitespace characters in 'string' on entry.  The position of string
-        // 'string' (i.e.,, 'string.data()') is set to the first non-whitespace
-        // character in 'string' on entry and the length of 'string' is reduced
-        // by the sum of leading and trailing whitespace characters.  See
-        // {Whitespace Character Specification}.  If 'string' on entry consists
-        // of all whitespace characters, the position is unchanged but its
-        // length is set to zero.  Note that 'string' is both an input and
-        // output parameter.
+    static bslstl::StringRef trim(const bslstl::StringRef& stringRef);
+        // Return a 'bslstl::StringRef' object referring to the substring of
+        // (the referent data of) 'stringRef' that excludes all leading and
+        // trailing whitespace.  See {Whitespace Character Specification}.  If
+        // 'stringRef' consists entirely of whitespace, return a zero-length
+        // reference to 'stringRef' (i.e.,
+        // 'bslstl::StringRef(stringRef.data(), 0)').
 
                         // Find 'subString'
 
-    static bslstl::StringRef strstr(const bslstl::StringRef& string,
-                                    const bslstl::StringRef& subStr);
-        // Return a 'bslstl::StringRef' reference to the first occurence in the
-        // specified 'string' at which the specified 'subStr' is found, or
-        // 'bslstl::StringRef()' if there is no such occurence.  If 'subStr'
-        // has zero length then a zero-length reference to 'string' is returned
-        // (i.e., 'bslstl::StringRef(string.data(), 0)');
+    static bslstl::StringRef strstr(const bslstl::StringRef&    stringRef,
+                                    const bslstl::StringRef& subStringRef);
+        // Return a 'bslstl::StringRef' object referring to the first
+        // occurrence in (the referent data of) the specified 'stringRef' at
+        // which (the referent data of) the specified 'subStringRef' is found,
+        // or 'bslstl::StringRef()' if there is no such occurrence.  If
+        // 'subStringRef' has zero length then a zero-length reference to
+        // the beginning of 'stringRef' is returned (i.e.,
+        // 'bslstl::StringRef(stringRef.data(), 0)');
 
-    static bslstl::StringRef strstrCaseless(const bslstl::StringRef& string,
-                                            const bslstl::StringRef& subStr);
-        // Return a 'bslstl::StringRef' reference to the first occurence in the
-        // specified 'string' at which the specified 'subStr' is found using
-        // case-insensitive comparison, or 'bslstl::StringRef()' if there is no
-        // such occurence.  If 'subStr' has zero length then a zero-length
-        // reference to 'string' is returned (i.e.,
-        // 'bslstl::StringRef(string.data(), 0)').  See {Caseless Comparisons}.
+    static bslstl::StringRef strstrCaseless(
+                                        const bslstl::StringRef&    stringRef,
+                                        const bslstl::StringRef& subStringRef);
+        // Return a 'bslstl::StringRef' object referring to the first
+        // occurrence in (the referent data of) the specified 'stringRef' at
+        // which (the referent data of) the specified 'subStringRef' is found
+        // using case-insensitive comparisons, or 'bslstl::StringRef()' if
+        // there is no such occurrence.  See {Caseless Comparisons}.  If
+        // 'subStringRef' has zero length then a zero-length reference to
+        // the beginning of 'stringRef' is returned (i.e.,
+        // 'bslstl::StringRef(stringRef.data(), 0)');
+     
 
-    static bslstl::StringRef strrstr(const bslstl::StringRef& string,
-                                     const bslstl::StringRef& subStr);
-        // Return a 'bslstl::StringRef' reference to the last occurence in the
-        // specified 'string' at which the specified 'subStr' is found, or
-        // 'bslstl::StringRef()' if there is no such occurence.  If 'subStr'
-        // has zero length then a zero-length reference to the end of 'string'
-        // is returned (i.e., 'bslstl::StringRef(string.end(), 0)');
+    static bslstl::StringRef strrstr(const bslstl::StringRef&    stringRef,
+                                     const bslstl::StringRef& subStringRef);
+        // Return a 'bslstl::StringRef' object referring to the last
+        // occurrence in (the referent data of) the specified 'stringRef' at
+        // which (the referent data of) the specified 'subStringRef' is found,
+        // or 'bslstl::StringRef()' if there is no such occurrence.  If
+        // 'subStringRef' has zero length then a zero-length reference to
+        // the end of 'stringRef' is returned (i.e.,
+        // 'bslstl::StringRef(stringRef.end(), 0)');
 
     static bslstl::StringRef strrstrCaseless(const bslstl::StringRef& string,
                                              const bslstl::StringRef& subStr);
-        // Return a 'bslstl::StringRef' reference to the last occurence in the
-        // specified 'string' at which the specified 'subStr' is found using
-        // case-insenstive comparison, or 'bslstl::StringRef()' if there is no
-        // such occurence.  If 'subStr' has zero length (i.e., then a
-        // zero-length reference to the end of 'string' is returned (i.e.,
-        // 'bslstl::StringRef(string.end(), 0)').  See {Caseless Comparisons}.
+        // Return a 'bslstl::StringRef' object referring to the last
+        // occurrence in (the referent data of) the specified 'stringRef' at
+        // which (the referent data of) the specified 'subStringRef' is found
+        // using case-insensitive comparisons, or 'bslstl::StringRef()' if
+        // there is no such occurrence.  See {Caseless Comparisons}.  If
+        // 'subStringRef' has zero length then a zero-length reference to
+        // the end of 'stringRef' is returned (i.e.,
+        // 'bslstl::StringRef(stringRef.end(), 0)');
 };
 
 // ============================================================================
@@ -257,25 +260,22 @@ struct StringRefUtil {
                         // Comparison
 
 inline
-bool StringRefUtil::areEqualCaseless(const bslstl::StringRef& lhsString,
-                                     const bslstl::StringRef& rhsString)
+bool StringRefUtil::areEqualCaseless(const bslstl::StringRef& lhs,
+                                     const bslstl::StringRef& rhs)
 {
-    if (lhsString.length() != rhsString.length()) {
+    if (lhs.length() != rhs.length()) {
         return false;                                                 // RETURN
     }
 
-    return 0 == lowerCaseCmp(lhsString, rhsString);
+    return 0 == lowerCaseCmp(lhs, rhs);
 }
 
                         // Trim
 
 inline
-void StringRefUtil::trim(bslstl::StringRef *string)
+bslstl::StringRef StringRefUtil::trim(const bslstl::StringRef& stringRef);
 {
-    BSLS_ASSERT_SAFE(string);
-
-    rtrim(string);
-    ltrim(string);
+    return ltrim(rtrim(stringRef));
 }
 
 }  // close package namespace

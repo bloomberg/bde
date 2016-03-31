@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
     ASSERT(rawInput        == copyRawInput);  // content compared
 //..
 // Notice that, as expected, the 'text' object now refers to the "Hello,
-// world!" sequence in 'rawInput', while the data at 'rawIput remains
+// world!" sub-sequence within the 'rawInput' byte array.
 // unchanged.
       } break;
       case 4: {
