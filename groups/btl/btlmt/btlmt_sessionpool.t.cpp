@@ -1908,6 +1908,7 @@ int main(int argc, char *argv[])
 
         int h;
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         {
             int error = 0;
 
