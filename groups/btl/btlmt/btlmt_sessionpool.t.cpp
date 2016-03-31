@@ -242,8 +242,8 @@ void poolStateCallbackWithError(int             reason,
                                 bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
-        MTCOUT << "Pool state changed: (" << reason << ", " << source
-               << ", " << error << ") " << MTENDL;
+        MTCOUT << "Pool state changed: " << reason << ", " << " error: "
+               << *platformError << MTENDL;
     }
     *platformError = error;
     barrier->wait();
@@ -1988,7 +1988,6 @@ int main(int argc, char *argv[])
             rc = mX.closeHandle(lh);
             ASSERT(0 == rc);
         }
-#endif
 
         // 'listen' synchronous error - failure to set socket options
 
@@ -2024,6 +2023,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != rc);
             ASSERT(0 != error);
         }
+#endif
 
         // 'connect' synchronous error -- unresolvable address
 
@@ -2084,8 +2084,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
-
+#endif
             rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
                             CRM, &SO, LA, &error);
 
@@ -2094,7 +2095,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
 
         // 'connect' asynchronous error -- using an unreachable peer address
@@ -2176,7 +2179,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
 
         // Invoking the overload taking a 'btlb::BlobBufferFactory'
@@ -2221,8 +2226,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
-
+#endif
             rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
                             CRM, &SO, LA, &error);
 
@@ -2231,7 +2237,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
       } break;
       case 14: {
