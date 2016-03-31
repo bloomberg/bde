@@ -1894,7 +1894,7 @@ int main(int argc, char *argv[])
         const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
         const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
         void                *UD   = (void *) 0;                 // UserData
-        const int            BP   = 80;                         // Bad PortNum
+        const int            BP   =   1;                        // Bad PortNum
         const TimeInterval   T;                                 // TimeInterval
         IPAddress            BA(getLocalAddress());             // Bad IPAddr
         BA.setPortNumber(BP);
