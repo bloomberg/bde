@@ -3713,7 +3713,7 @@ if (veryVerbose)
                 }
             }
         }
-        
+
         if (verbose) {
             cout << "\tOn corrupted data." << endl;
         }
@@ -3872,7 +3872,6 @@ if (veryVerbose)
             ASSERT(!in);
             ASSERT(X == T);
         }
-
 
         if (verbose) {
              cout << "\nWire format direct tests." << endl;

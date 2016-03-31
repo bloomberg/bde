@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
-// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
+// etc.). In particular, note that adding units of time to a 'bdlt::Datetime'
 // object can affect the values of both the time and date parts of the object.
 // For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
 // is "1987/10/03_22:30:00.000000" updates the value to
@@ -319,7 +319,7 @@ class Datetime {
     friend bool operator>=(const Datetime&, const Datetime&);
 
     // PRIVATE MANIPULATOR
-    void setTimeIntervalFromEpoch(bsls::Types::Uint64 totalMicroseconds);
+    void setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds);
         // Assign to 'd_value' the representation of a datetime such that the
         // difference between this datetime and the epoch is the specified
         // 'totalMicroseconds'.
@@ -331,18 +331,17 @@ class Datetime {
         // datetime corresponds to a default constructed 'bdlt::Time' value.
 
     // PRIVATE ACCESSORS
-    void timeIntervalFromEpoch(bsls::Types::Uint64 *totalMicroseconds) const;
-        // Load into the specified 'totalMicroseconds' the difference between
-        // this datetime value, with 24:00:00.000000 converted to
-        // 0:00:00.000000, and the epoch.
+    bsls::Types::Uint64 microsecondsFromEpoch() const;
+        // Return the difference, measured in microseconds, between this
+        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
+        // and the epoch.
 
-    void timeIntervalFromEpoch(bsls::Types::Uint64 *totalMicroseconds,
-                               bool                *unset) const;
-        // Load into the specified 'totalMicroseconds' the difference between
-        // this datetime value, with 24:00:00.000000 converted to
-        // 0:00:00.000000, and the epoch, and load into the specified 'unset'
-        // the value 'true' if the time portion of this datetime has the value
-        // 24:00:00.000000, and 'false' otherwise.
+    bsls::Types::Uint64 microsecondsFromEpoch(bool *unset) const;
+        // Return the difference, measured in microseconds, between this
+        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
+        // and the epoch, and load into the specified 'unset' the value 'true'
+        // if the time portion of this datetime has the value 24:00:00.000000,
+        // and 'false' otherwise.
 
   public:
     // CLASS METHODS
@@ -862,7 +861,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
 
 // PRIVATE MANIPULATOR
 inline
-void Datetime::setTimeIntervalFromEpoch(bsls::Types::Uint64 totalMicroseconds)
+void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
 {
     d_value = totalMicroseconds + DatetimeImpUtil::k_0001_01_01_VALUE;
 }
@@ -875,24 +874,20 @@ void Datetime::setUnset(int totalDays)
 
 // PRIVATE ACCESSORS
 inline
-void Datetime::timeIntervalFromEpoch(
-                                  bsls::Types::Uint64 *totalMicroseconds) const
+bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                              DatetimeImpUtil::k_0001_01_01_VALUE <= d_value)) {
-        *totalMicroseconds = d_value - DatetimeImpUtil::k_0001_01_01_VALUE;
+        return d_value - DatetimeImpUtil::k_0001_01_01_VALUE;         // RETURN
     }
-    else {
-        *totalMicroseconds = d_value * TimeUnitRatio::k_US_PER_D;
-    }
+    return d_value * TimeUnitRatio::k_US_PER_D;
 }
 
 inline
-void Datetime::timeIntervalFromEpoch(bsls::Types::Uint64 *totalMicroseconds,
-                                     bool                *unset) const
+bsls::Types::Uint64 Datetime::microsecondsFromEpoch(bool *unset) const
 {
-    timeIntervalFromEpoch(totalMicroseconds);
     *unset = d_value < DatetimeImpUtil::k_0001_01_01_VALUE;
+    return microsecondsFromEpoch();
 }
 
 // CLASS METHODS
@@ -942,7 +937,7 @@ Datetime::Datetime()
 inline
 Datetime::Datetime(const Date& date)
 {
-    setTimeIntervalFromEpoch((date - Date()) * TimeUnitRatio::k_US_PER_D);
+    setMicrosecondsFromEpoch((date - Date()) * TimeUnitRatio::k_US_PER_D);
 }
 
 inline
@@ -971,7 +966,7 @@ Datetime::Datetime(int year,
                                        microsecond));
 
     if (24 != hour) {
-        setTimeIntervalFromEpoch(  (Date(year, month, day) - Date())
+        setMicrosecondsFromEpoch(  (Date(year, month, day) - Date())
                                                * TimeUnitRatio::k_US_PER_D
                                  + hour        * TimeUnitRatio::k_US_PER_H
                                  + minute      * TimeUnitRatio::k_US_PER_M
@@ -1007,11 +1002,10 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
     BSLS_ASSERT_SAFE(rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
     BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
-    totalMicroseconds += rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
-    setTimeIntervalFromEpoch(totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds =
+                          microsecondsFromEpoch()
+                        + rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+    setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
 }
@@ -1022,11 +1016,10 @@ Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
     BSLS_ASSERT_SAFE(-rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
     BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
-    totalMicroseconds -= rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
-    setTimeIntervalFromEpoch(totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds =
+                          microsecondsFromEpoch()
+                        - rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+    setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
 }
@@ -1040,7 +1033,7 @@ void Datetime::setDatetime(const Date& date,
                            int         microsecond)
 {
     if (24 != hour) {
-        setTimeIntervalFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
+        setMicrosecondsFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
                                  + hour            * TimeUnitRatio::k_US_PER_H
                                  + minute          * TimeUnitRatio::k_US_PER_M
                                  + second          * TimeUnitRatio::k_US_PER_S
@@ -1128,13 +1121,11 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
-    bsls::Types::Uint64 totalMicroseconds;
     bool                unset;
-
-    timeIntervalFromEpoch(&totalMicroseconds, &unset);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
 
     if (!unset) {
-        setTimeIntervalFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
+        setMicrosecondsFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
                                  + totalMicroseconds
                                                   % TimeUnitRatio::k_US_PER_D);
     }
@@ -1193,14 +1184,12 @@ void Datetime::setTime(int hour,
                 0                                 == millisecond &&
                 0                                 == microsecond));
 
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     int days = static_cast<int>(totalMicroseconds / TimeUnitRatio::k_US_PER_D);
 
     if (24 != hour) {
-        setTimeIntervalFromEpoch(  days        * TimeUnitRatio::k_US_PER_D
+        setMicrosecondsFromEpoch(  days        * TimeUnitRatio::k_US_PER_D
                                  + hour        * TimeUnitRatio::k_US_PER_H
                                  + minute      * TimeUnitRatio::k_US_PER_M
                                  + second      * TimeUnitRatio::k_US_PER_S
@@ -1218,12 +1207,10 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
 
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     if (24 != hour) {
-        setTimeIntervalFromEpoch(
+        setMicrosecondsFromEpoch(
                                 totalMicroseconds / TimeUnitRatio::k_US_PER_D
                                                     * TimeUnitRatio::k_US_PER_D
                               + totalMicroseconds % TimeUnitRatio::k_US_PER_H
@@ -1241,11 +1228,9 @@ void Datetime::setMinute(int minute)
     BSLS_ASSERT_SAFE(0 <= minute);
     BSLS_ASSERT_SAFE(     minute <= 59);
 
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_H
+    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_H
                                                     * TimeUnitRatio::k_US_PER_H
                              + totalMicroseconds % TimeUnitRatio::k_US_PER_M
                              + minute            * TimeUnitRatio::k_US_PER_M);
@@ -1257,11 +1242,9 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(0 <= second);
     BSLS_ASSERT_SAFE(     second <= 59);
 
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_M
+    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_M
                                                     * TimeUnitRatio::k_US_PER_M
                              + totalMicroseconds % TimeUnitRatio::k_US_PER_S
                              + second            * TimeUnitRatio::k_US_PER_S);
@@ -1273,11 +1256,9 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(0 <= millisecond);
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_S
+    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_S
                                                     * TimeUnitRatio::k_US_PER_S
                              + totalMicroseconds % TimeUnitRatio::k_US_PER_MS
                              + millisecond       * TimeUnitRatio::k_US_PER_MS);
@@ -1289,11 +1270,9 @@ void Datetime::setMicrosecond(int microsecond)
     BSLS_ASSERT_SAFE(0 <= microsecond);
     BSLS_ASSERT_SAFE(     microsecond <= 999);
 
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_MS
+    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_MS
                                                    * TimeUnitRatio::k_US_PER_MS
                              + microsecond);
 }
@@ -1303,13 +1282,11 @@ void Datetime::addDays(int days)
 {
     BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
 
-    bsls::Types::Uint64 totalMicroseconds;
     bool                unset;
-
-    timeIntervalFromEpoch(&totalMicroseconds, &unset);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
 
     if (!unset) {
-        setTimeIntervalFromEpoch(  days           * TimeUnitRatio::k_US_PER_D
+        setMicrosecondsFromEpoch(  days           * TimeUnitRatio::k_US_PER_D
                                  + totalMicroseconds);
     }
     else {
@@ -1327,9 +1304,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
                        bsls::Types::Int64 milliseconds,
                        bsls::Types::Int64 microseconds)
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     bsls::Types::Int64 days = hours        / TimeUnitRatio::k_H_PER_D
                             + minutes      / TimeUnitRatio::k_M_PER_D
@@ -1343,7 +1318,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     milliseconds %= TimeUnitRatio::k_MS_PER_D;
     microseconds %= TimeUnitRatio::k_US_PER_D;
 
-    setTimeIntervalFromEpoch(  days              * TimeUnitRatio::k_US_PER_D
+    setMicrosecondsFromEpoch(  days              * TimeUnitRatio::k_US_PER_D
                              + hours             * TimeUnitRatio::k_US_PER_H
                              + minutes           * TimeUnitRatio::k_US_PER_M
                              + seconds           * TimeUnitRatio::k_US_PER_S
@@ -1355,55 +1330,45 @@ void Datetime::addTime(bsls::Types::Int64 hours,
 inline
 void Datetime::addHours(bsls::Types::Int64 hours)
 {
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(hours * TimeUnitRatio::k_US_PER_H
+    setMicrosecondsFromEpoch(hours * TimeUnitRatio::k_US_PER_H
                                                           + totalMicroseconds);
 }
 
 inline
 void Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(minutes * TimeUnitRatio::k_US_PER_M
+    setMicrosecondsFromEpoch(minutes * TimeUnitRatio::k_US_PER_M
                                                           + totalMicroseconds);
 }
 
 inline
 void Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(seconds * TimeUnitRatio::k_US_PER_S
+    setMicrosecondsFromEpoch(seconds * TimeUnitRatio::k_US_PER_S
                                                           + totalMicroseconds);
 }
 
 inline
 void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(milliseconds * TimeUnitRatio::k_US_PER_MS
+    setMicrosecondsFromEpoch(milliseconds * TimeUnitRatio::k_US_PER_MS
                                                           + totalMicroseconds);
 }
 
 inline
 void Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
 {
-    bsls::Types::Uint64 totalMicroseconds;
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    timeIntervalFromEpoch(&totalMicroseconds);
-
-    setTimeIntervalFromEpoch(microseconds + totalMicroseconds);
+    setMicrosecondsFromEpoch(microseconds + totalMicroseconds);
 }
 
                                   // Aspects
@@ -1451,9 +1416,7 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     return Date() + static_cast<int>(  totalMicroseconds
                                      / TimeUnitRatio::k_US_PER_D);
@@ -1462,10 +1425,8 @@ Date Datetime::date() const
 inline
 Time Datetime::time() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
     bool                unset;
-
-    timeIntervalFromEpoch(&totalMicroseconds, &unset);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
 
     if (unset) {
         return Time(24);                                              // RETURN
@@ -1517,10 +1478,8 @@ void Datetime::getTime(int *hour,
                        int *millisecond,
                        int *microsecond) const
 {
-    bsls::Types::Uint64 totalMicroseconds;
     bool                unset;
-
-    timeIntervalFromEpoch(&totalMicroseconds, &unset);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
 
     if (!unset) {
         *hour = static_cast<int>(totalMicroseconds / TimeUnitRatio::k_US_PER_H
@@ -1569,10 +1528,8 @@ void Datetime::getTime(int *hour,
 inline
 int Datetime::hour() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
     bool                unset;
-
-    timeIntervalFromEpoch(&totalMicroseconds, &unset);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
 
     if (unset) {
         return 24;                                                    // RETURN
@@ -1586,9 +1543,7 @@ int Datetime::hour() const
 inline
 int Datetime::minute() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     return static_cast<int>(  totalMicroseconds
                             / TimeUnitRatio::k_US_PER_M
@@ -1598,9 +1553,7 @@ int Datetime::minute() const
 inline
 int Datetime::second() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     return static_cast<int>(  totalMicroseconds
                             / TimeUnitRatio::k_US_PER_S
@@ -1610,9 +1563,7 @@ int Datetime::second() const
 inline
 int Datetime::millisecond() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     return static_cast<int>(  totalMicroseconds
                             / TimeUnitRatio::k_US_PER_MS
@@ -1622,9 +1573,7 @@ int Datetime::millisecond() const
 inline
 int Datetime::microsecond() const
 {
-    bsls::Types::Uint64 totalMicroseconds;
-
-    timeIntervalFromEpoch(&totalMicroseconds);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     return static_cast<int>(  totalMicroseconds
                             % TimeUnitRatio::k_US_PER_MS);
@@ -1727,11 +1676,8 @@ inline
 bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
                                        const Datetime& rhs)
 {
-    bsls::Types::Uint64 lhsTotalMicroseconds;
-    bsls::Types::Uint64 rhsTotalMicroseconds;
-
-    lhs.timeIntervalFromEpoch(&lhsTotalMicroseconds);
-    rhs.timeIntervalFromEpoch(&rhsTotalMicroseconds);
+    bsls::Types::Uint64 lhsTotalMicroseconds = lhs.microsecondsFromEpoch();
+    bsls::Types::Uint64 rhsTotalMicroseconds = rhs.microsecondsFromEpoch();
 
     if (lhsTotalMicroseconds >= rhsTotalMicroseconds) {
         lhsTotalMicroseconds -= rhsTotalMicroseconds;
