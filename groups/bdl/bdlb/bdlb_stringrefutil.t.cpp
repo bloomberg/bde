@@ -217,6 +217,14 @@ static bool isEqual(const SR& a, const SR&b)
 static void testIsEqual()
     // Execute the validation test for the 'isEqual' helper function.
 {
+    struct Local {
+        static const char *dataLabel(const char *dataPtr) 
+        {
+            return 0 == dataPtr
+                   ? "null pointer"   
+                   : "non-null pointer";
+        }
+    };
     static const struct {
         int          d_line;
         const char  *d_data_p;
@@ -236,7 +244,12 @@ static void testIsEqual()
         const char        *DATA1   = DATA[ti].d_data_p;
         const bsl::size_t  LENGTH1 = DATA[ti].d_length;
 
-        if (u_veryVerbose) { T_ P_(LINE1) P_((void *)DATA1) P(LENGTH1) }
+        if (u_veryVerbose) {
+            T_
+            P_(LINE1)
+            P_(Local::dataLabel(DATA1))
+            P(LENGTH1)
+        }
 
         const SR mX1(DATA1, LENGTH1); const SR& X1 = mX1;
 
@@ -247,7 +260,12 @@ static void testIsEqual()
             const char        *DATA2   = DATA[tj].d_data_p;
             const bsl::size_t  LENGTH2 = DATA[tj].d_length;
 
-            if (u_veryVerbose) { T_ P_(LINE2) P_((void *)DATA2) P(LENGTH2) }
+            if (u_veryVerbose) {
+                T_
+                P_(LINE2)
+                P_(Local::dataLabel(DATA2))
+                P(LENGTH2)
+            }
 
             const SR mX2(DATA2, LENGTH2); const SR& X2 = mX2;
 
