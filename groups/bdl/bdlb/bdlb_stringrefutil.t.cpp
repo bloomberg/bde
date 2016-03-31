@@ -7,6 +7,7 @@
 
 #include <bsl_algorithm.h> // 'bsl::transform'
 #include <bsl_cctype.h>    // 'bsl::toupper', 'bsl::tolower'
+#include <bsl_cstdlib.h>   // 'bsl::atoi'
 #include <bsl_cstring.h>   // 'bsl::strlen'
 #include <bsl_iostream.h>
 #include <bsl_string.h>    // 'bsl::memcpy', 'bsl::memcmp'
@@ -81,9 +82,9 @@ using bsl::flush;
 // [ 2] lowerCaseCmp    (const bslstl::StringRef& lhs, rhs);
 // [ 2] upperCaseCmp    (const bslstl::StringRef& lhs, rhs);
 //
-// [ 3] ltrim(bslstl::StringRef *string);
-// [ 3] rtrim(bslstl::StringRef *string);
-// [ 3]  trim(bslstl::StringRef *string);
+// [ 3] ltrim(const bslstl::StringRef& string);
+// [ 3] rtrim(const bslstl::StringRef& string);
+// [ 3]  trim(const bslstl::StringRef& string);
 //
 // [ 4] strstr         (const bslstl::StringRef& string, subString);
 // [ 4] strstrCaseless (const bslstl::StringRef& string, subString);
@@ -341,6 +342,8 @@ int main(int argc, char *argv[])
 // Suppose the response entered by a user is captured in 'rawInput' below:
 //..
     const char * const rawInput    = "    \t\r\n  Hello, world!    \r\n";
+                                    //1234 5 6 789             1234 5 6
+                                    //            123456789ABCD
 //..
 // First, for this pedagogical example, we copy the contents at 'rawInput' for
 // later reference:
@@ -354,24 +357,27 @@ int main(int argc, char *argv[])
 //..
     bslstl::StringRef text(rawInput);
 
-    ASSERT(rawInput              == text.data());
-    ASSERT(bsl::strlen(rawInput) == text.length());
+    ASSERT(rawInput   == text.data());
+    ASSERT(9 + 13 + 6 == text.length());
 //..
-// Now, we invoke the 'bdlb::StringRefUtil::trim' method to modify 'text' to
-// refer to the "Hello, world!" sequence of 'rawInput'.
+// Now, we invoke the 'bdlb::StringRefUtil::trim' method to find the "Hello,
+// world!" sequence in 'rawInput'.
 //..
-    bdlb::StringRefUtil::trim(&text);
+    bslstl::StringRef textOfInterest = bdlb::StringRefUtil::trim(text);
 //..
 // Finally, we observe the results:
 //..
-    ASSERT("Hello, world!" == text);          // content compared
-    ASSERT(13              == text.length());
-    ASSERT(rawInput        <  text.data());
-    ASSERT(rawInput        == copyRawInput);  // content compared
+    ASSERT("Hello, world!"       == textOfInterest); // content comparison
+    ASSERT(13                    == textOfInterest.length());
+
+    ASSERT(text.data()   + 9     == textOfInterest.data());
+    ASSERT(text.length() - 9 - 6 == textOfInterest.length());
+
+    ASSERT(rawInput              == copyRawInput);   // content comparison
 //..
-// Notice that, as expected, the 'text' object now refers to the "Hello,
-// world!" sub-sequence within the 'rawInput' byte array.
-// unchanged.
+// Notice that, as expected, the 'textOfInterest' object refers to the "Hello,
+// world!" sub-sequence within the 'rawInput' byte array while the data at
+// 'rawInput' remains *unchanged*.
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -565,7 +571,7 @@ int main(int argc, char *argv[])
 
             bsl::string string(CSTRING);
             bsl::string substr(CSUBSTR);
-            bsl::size_t     lenCSUBSTR = substr.length();
+            bsl::size_t lenCSUBSTR = substr.length();
 
             bsl::string ucSubstr(substr);
             bsl::transform(ucSubstr.begin(),
@@ -616,7 +622,7 @@ int main(int argc, char *argv[])
 
             bsl::string string(CSTRING);
             bsl::string substr(CSUBSTR);
-            bsl::size_t     lenCSUBSTR = substr.length();
+            bsl::size_t lenCSUBSTR = substr.length();
 
             struct Local {
                 static unsigned char setMsb(const char& ch)
@@ -654,7 +660,7 @@ int main(int argc, char *argv[])
             const char    *empty = "";   const SR     EMPTY(   empty);
             const char *nonEmpty = "a";  const SR NON_EMPTY(nonEmpty);
 
-                                         const SR DEFAULT;
+            const SR DEFAULT;
  //------->|
  ASSERT(isEqual(SR(   empty, 0), Util::strstr         (    EMPTY,     EMPTY)));
  ASSERT(isEqual(SR(   empty, 0), Util::strstr         (    EMPTY,   DEFAULT)));
@@ -785,9 +791,9 @@ int main(int argc, char *argv[])
         //:   and not.
         //
         // Testing:
-        //   ltrim(bslstl::StringRef *string);
-        //   rtrim(bslstl::StringRef *string);
-        //    trim(bslstl::StringRef *string);
+        //   ltrim(const bslstl::StringRef& string);
+        //   rtrim(const bslstl::StringRef& string);
+        //    trim(const bslstl::StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "TRIM" "\n"
@@ -805,7 +811,7 @@ int main(int argc, char *argv[])
         }
         const unsigned char * const WHITESPACE_CHARS = whiteSpaceChars.data();
         const int               NUM_WHITESPACE_CHARS = whiteSpaceChars.size();
-        const int               PAD_LIMIT             = 3;
+        const int                   PAD_LIMIT        = 3;
 
         const char * const CSTRINGS[] = { ""
                                         , "a"
@@ -845,7 +851,7 @@ int main(int argc, char *argv[])
                                         , "a   b   c"
                                         , "a   b   c   d"
                                         };
-        const int NUM_CSTRINGS = sizeof CSTRINGS / sizeof *CSTRINGS;
+        const int          NUM_CSTRINGS = sizeof CSTRINGS / sizeof *CSTRINGS;
 
         const bsl::string  LEFT_SENTINEL("[");
         const bsl::string RIGHT_SENTINEL("]");
@@ -911,6 +917,7 @@ int main(int argc, char *argv[])
 
                         SR mX(content, adjustedLength); const SR& X = mX;
 
+
                         const SR expLTrim = "" == TEXT
                                          ? SR(X.data()      + PREFIX.length()
                                                             + SUFFIX.length(),
@@ -924,19 +931,19 @@ int main(int argc, char *argv[])
                                          : SR(X.data(),
                                               PREFIX.length() + TEXT.length());
 
-                        const SR expTrim  = "" == TEXT
-                                          ?  SR(X.data(),
-                                                0)
-                                          :  SR(X.data() + PREFIX.length(),
-                                                TEXT.length());
+                        const SR expTTrim  = "" == TEXT
+                                           ?  SR(X.data(),
+                                                 0)
+                                           :  SR(X.data() + PREFIX.length(),
+                                                 TEXT.length());
 
-                        SR calcLTrim(X);  Util::ltrim(&calcLTrim);
-                        SR calcRTrim(X);  Util::rtrim(&calcRTrim);
-                        SR calcTrim(X);   Util:: trim(&calcTrim);
+                        SR calcLTrim = Util::ltrim(X);
+                        SR calcRTrim = Util::rtrim(X);
+                        SR calcTTrim = Util:: trim(X);
 
                         ASSERT(isEqual(expLTrim, calcLTrim));
                         ASSERT(isEqual(expRTrim, calcRTrim));
-                        ASSERT(isEqual(expTrim , calcTrim ));
+                        ASSERT(isEqual(expTTrim, calcTTrim));
                     }
                 }
             }
@@ -959,7 +966,7 @@ int main(int argc, char *argv[])
                     mX.append(1, ch);
                     ASSERT(2 == X.length());
 
-                          SR actualL(X); Util::ltrim(&actualL);
+                          SR actualL = Util::ltrim(X);
                     const SR expectL = bsl::isspace(ch)
                                        ? SR(X.data() + 2, 0)
                                        : SR(X.data() + 1, 1);
@@ -985,7 +992,7 @@ int main(int argc, char *argv[])
                     mY.append(1, PAD_CHAR);
                     ASSERT(2 == Y.length());
 
-                          SR actualR(Y); Util::rtrim(&actualR);
+                          SR actualR = Util::rtrim(Y);
                     const SR expectR = bsl::isspace(ch)
                                        ? SR(Y.data() + 0, 0)
                                        : SR(Y.data() + 0, 1);
@@ -1018,11 +1025,11 @@ int main(int argc, char *argv[])
                     mZ.append(1, RPAD_CHAR);
                     ASSERT(3 == Z.length());
 
-                          SR actualT(Z); Util::trim(&actualT);
-                    const SR expectT = bsl::isspace(ch)
+                          SR   calcB = Util::trim(Z);
+                    const SR expectB = bsl::isspace(ch)
                                        ? SR(Z.data() + 0, 0)
                                        : SR(Z.data() + 1, 1);
-                    LOOP_ASSERT(ch, isEqual(expectT, actualT));
+                    LOOP_ASSERT(ch, isEqual(expectB, calcB));
                 }
             }
             }
@@ -1030,9 +1037,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "\n" "default constructed input" "\n"; }
         {
-            SR actualL; Util::ltrim(&actualL); ASSERT(isEqual(SR(), actualL));
-            SR actualR; Util::rtrim(&actualR); ASSERT(isEqual(SR(), actualR));
-            SR actualT; Util:: trim(&actualT); ASSERT(isEqual(SR(), actualT));
+            SR calcL = Util::ltrim(SR()); ASSERT(isEqual(SR(), calcL));
+            SR calcR = Util::rtrim(SR()); ASSERT(isEqual(SR(), calcR));
+            SR calcB = Util:: trim(SR()); ASSERT(isEqual(SR(), calcB));
         }
 
       } break;
@@ -1063,20 +1070,20 @@ int main(int argc, char *argv[])
                           << "'areEqualCaseless'/'lowerCaseCmp'/'upperCaseCmp'"
                           << "\n";
         {
-           static const bsl::size_t  STRLEN = bsl::string().max_size();
-           static const char * const aTOz   = "abcdefghijklmnopqrstuvwxyz";
-           static const char * const AtoZ   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            static const bsl::size_t  STRLEN = bsl::string().max_size();
+            static const char * const aTOz   = "abcdefghijklmnopqrstuvwxyz";
+            static const char * const AtoZ   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-           char msbSetChars[26];
-           for (bsl::size_t i = 0; i < sizeof msbSetChars; ++i) {
-               msbSetChars[i] = aTOz[i] | 0x80;
-           }
+            char msbSetChars[26];
+            for (bsl::size_t i = 0; i < sizeof msbSetChars; ++i) {
+                msbSetChars[i] = aTOz[i] | 0x80;
+            }
 
-           static const struct {
-               int         d_line;
-               const char *d_input_p;
-               bsl::size_t d_length;
-           } DATA[] = {
+            static const struct {
+                int         d_line;
+                const char *d_input_p;
+                bsl::size_t d_length;
+            } DATA[] = {
                 // LINE INPUT            LENGTH
                 // ---- ---------------  ------
                   // strings of length 0 or 1
@@ -1342,20 +1349,20 @@ int main(int argc, char *argv[])
         {
             const SR DEFAULT, nonDefault("a");
 
-           ASSERT(true  == Util::areEqualCaseless(   DEFAULT,    DEFAULT));
-           ASSERT(false == Util::areEqualCaseless(   DEFAULT, nonDefault));
-           ASSERT(false == Util::areEqualCaseless(nonDefault,    DEFAULT));
-           ASSERT(true  == Util::areEqualCaseless(nonDefault, nonDefault));
+            ASSERT(true  == Util::areEqualCaseless(   DEFAULT,    DEFAULT));
+            ASSERT(false == Util::areEqualCaseless(   DEFAULT, nonDefault));
+            ASSERT(false == Util::areEqualCaseless(nonDefault,    DEFAULT));
+            ASSERT(true  == Util::areEqualCaseless(nonDefault, nonDefault));
 
-           ASSERT( 0    == Util::lowerCaseCmp    (   DEFAULT,    DEFAULT));
-           ASSERT(-1    == Util::lowerCaseCmp    (   DEFAULT, nonDefault));
-           ASSERT( 1    == Util::lowerCaseCmp    (nonDefault,    DEFAULT));
-           ASSERT( 0    == Util::lowerCaseCmp    (nonDefault, nonDefault));
+            ASSERT( 0    == Util::lowerCaseCmp    (   DEFAULT,    DEFAULT));
+            ASSERT(-1    == Util::lowerCaseCmp    (   DEFAULT, nonDefault));
+            ASSERT( 1    == Util::lowerCaseCmp    (nonDefault,    DEFAULT));
+            ASSERT( 0    == Util::lowerCaseCmp    (nonDefault, nonDefault));
 
-           ASSERT( 0    == Util::upperCaseCmp    (   DEFAULT,    DEFAULT));
-           ASSERT(-1    == Util::upperCaseCmp    (   DEFAULT, nonDefault));
-           ASSERT( 1    == Util::upperCaseCmp    (nonDefault,    DEFAULT));
-           ASSERT( 0    == Util::upperCaseCmp    (nonDefault, nonDefault));
+            ASSERT( 0    == Util::upperCaseCmp    (   DEFAULT,    DEFAULT));
+            ASSERT(-1    == Util::upperCaseCmp    (   DEFAULT, nonDefault));
+            ASSERT( 1    == Util::upperCaseCmp    (nonDefault,    DEFAULT));
+            ASSERT( 0    == Util::upperCaseCmp    (nonDefault, nonDefault));
         }
       } break;
       case 1: {
@@ -1403,7 +1410,7 @@ int main(int argc, char *argv[])
         testLocalFunctions();
 
       } break;
-        default: {
+      default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
           testStatus = -1;
       }

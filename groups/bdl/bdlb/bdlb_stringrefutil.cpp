@@ -11,8 +11,8 @@ namespace bdlb {
 
 static inline int u_upperToLower(int ch)
     // Return the lower case analog of the specified 'ch' if 'ch' is an upper
-    // case character, and return 'ch' otherwise.  The sequence of characters
-    // '[A .. Z]' is mapped to '[a .. z]', The behavior is undefined unless
+    // case character, and return 'ch' otherwise; the sequence of characters
+    // '[A .. Z]' is mapped to '[a .. z]'.  The behavior is undefined unless
     // characters are ASCII encoded.
 {
     return 'A' <= ch && ch <= 'Z'
@@ -22,8 +22,8 @@ static inline int u_upperToLower(int ch)
 
 static inline int u_lowerToUpper(int ch)
     // Return the upper case analog of the specified 'ch' if 'ch' is a lower
-    // case character, and return 'ch' otherwise.  The sequence of characters
-    // '[a .. z]' is mapped to '[A .. Z]', The behavior is undefined unless
+    // case character, and return 'ch' otherwise; the sequence of characters
+    // '[a .. z]' is mapped to '[A .. Z]'.  The behavior is undefined unless
     // characters are ASCII encoded.
 {
     return 'a' <= ch && ch <= 'z'
@@ -31,7 +31,7 @@ static inline int u_lowerToUpper(int ch)
            : ch;
 }
 
-static inline bool u_isspace(unsigned char ch)
+static inline bool u_isWhitespace(unsigned char ch)
     // Return 'true' is the specified 'ch' is one of the ASCII whitespace
     // characters in the "C" and "POSIX" locales, and 'false' otherwise.
 {
@@ -55,20 +55,20 @@ static const bslstl::StringRef u_NOT_FOUND;
 // CLASS METHODS
                         // Comparison
 
-int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhsString,
-                                const bslstl::StringRef& rhsString)
+int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhs,
+                                const bslstl::StringRef& rhs)
 {
-    const bsl::size_t lhsLength = lhsString.length();
-    const bsl::size_t rhsLength = rhsString.length();
+    const bsl::size_t lhsLength = lhs.length();
+    const bsl::size_t rhsLength = rhs.length();
     const int         min       = lhsLength < rhsLength
                                 ? lhsLength : rhsLength;
 
     for (int i = 0; i < min; ++i) {
-        int lhs = u_upperToLower((static_cast<unsigned char>(lhsString[i])));
-        int rhs = u_upperToLower((static_cast<unsigned char>(rhsString[i])));
+        int lhsChar = u_upperToLower((static_cast<unsigned char>(lhs[i])));
+        int rhsChar = u_upperToLower((static_cast<unsigned char>(rhs[i])));
 
-        if (lhs != rhs) {
-            return lhs < rhs ? -1 : 1;                                // RETURN
+        if (lhsChar != rhsChar) {
+            return lhsChar < rhsChar ? -1 : 1;                        // RETURN
         }
     }
     return lhsLength <  rhsLength ? -1:
@@ -100,31 +100,33 @@ int StringRefUtil::upperCaseCmp(const bslstl::StringRef& lhs,
 
                         // Trim
 
-void StringRefUtil::ltrim(bslstl::StringRef *string)
+bslstl::StringRef StringRefUtil::ltrim(const bslstl::StringRef& stringRef)
 {
-    BSLS_ASSERT_SAFE(string);
+    bslstl::StringRef::const_iterator       itr = stringRef.begin();
+    bslstl::StringRef::const_iterator const end = stringRef.end();
 
-    bslstl::StringRef::const_iterator       itr = string->begin();
-    bslstl::StringRef::const_iterator const end = string->end();
-
-    while (end != itr && u_isspace(static_cast<unsigned char>(*itr))) {
+    while (end != itr && u_isWhitespace(static_cast<unsigned char>(*itr))) {
         ++itr;
     }
-    string->assign(itr, end);
+
+    return bslstl::StringRef(itr, end);
 }
 
-void StringRefUtil::rtrim(bslstl::StringRef *string)
+bslstl::StringRef StringRefUtil::rtrim(const bslstl::StringRef& stringRef)
 {
-    const bsl::size_t length = string->length();
+    const bsl::size_t length = stringRef.length();
 
     if (length) {
         int index = length - 1;
         while(   0 <= index
-              && u_isspace(static_cast<unsigned char>((*string)[index])))
+              && u_isWhitespace(static_cast<unsigned char>(stringRef[index])))
         {
             --index;
         }
-        string->assign(string->data(), index + 1);
+
+        return bslstl::StringRef(stringRef.data(), index + 1);        // RETURN
+    } else {
+        return bslstl::StringRef(stringRef.data(), 0);                // RETURN
     }
 }
 
@@ -143,12 +145,7 @@ bslstl::StringRef StringRefUtil::strstr(const bslstl::StringRef& string,
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    BSLS_ASSERT(string.data()); BSLS_ASSERT(0 < string.length());
-    BSLS_ASSERT(subStr.data()); BSLS_ASSERT(0 < subStr.length());
-
     const char * const end = string.end() - subStrLength + 1;
-    BSLS_ASSERT(string.data() <= end);
-    BSLS_ASSERT(                 end  <= string.end());
 
     for (const char *cur = string.data(); cur < end; ++cur) {
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
@@ -173,12 +170,7 @@ bslstl::StringRef StringRefUtil::strstrCaseless(
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    BSLS_ASSERT(string.data()); BSLS_ASSERT(0 < string.length());
-    BSLS_ASSERT(subStr.data()); BSLS_ASSERT(0 < subStr.length());
-
     const char * const end = string.end() - subStrLength + 1;
-    BSLS_ASSERT(string.data() <= end);
-    BSLS_ASSERT(                 end  <= string.end());
 
     for (const char *cur = string.data(); cur < end; ++cur) {
         if (0 == strncasecmp(cur, subStr.data(), subStrLength)) {
@@ -202,17 +194,10 @@ bslstl::StringRef StringRefUtil::strrstr(const bslstl::StringRef& string,
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    BSLS_ASSERT(string.data()); BSLS_ASSERT(0 < string.length());
-    BSLS_ASSERT(subStr.data()); BSLS_ASSERT(0 < subStr.length());
-
     const bsl::size_t  count = string.length() - subStrLength + 1;
     const char        *cur   = string.end()    - subStrLength;
-    BSLS_ASSERT(string.data() <= cur);
-    BSLS_ASSERT(                 cur  < string.end());
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
-        BSLS_ASSERT(string.begin() <= cur);
-
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
@@ -235,17 +220,10 @@ bslstl::StringRef StringRefUtil::strrstrCaseless(
         return u_NOT_FOUND;                                           // RETURN
     }
 
-    BSLS_ASSERT(string.data()); BSLS_ASSERT(0 < string.length());
-    BSLS_ASSERT(subStr.data()); BSLS_ASSERT(0 < subStr.length());
-
     const bsl::size_t  count = string.length() - subStrLength + 1;
     const char        *cur   = string.end()    - subStrLength;
-    BSLS_ASSERT(string.data() <= cur);
-    BSLS_ASSERT(                 cur  < string.end());
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
-        BSLS_ASSERT(string.begin() <= cur);
-
         if (0 == strncasecmp(cur, subStr.data(), subStrLength)) {
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
