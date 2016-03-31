@@ -10,9 +10,10 @@ namespace BloombergLP {
 namespace bdlma {
 
 // HELPER FUNCTIONS
-
-static inline
-int alignedAllocationSize(int size, int sizeOfBlock)
+inline
+static bsls::Types::size_type alignedAllocationSize(
+                                            bsls::Types::size_type size,
+                                            bsls::Types::size_type sizeOfBlock)
     // Return the allocation size (in bytes) required to ensure proper
     // alignment for a 'bdlma::BlockList::Block' containing a maximally-aligned
     // payload of the specified 'size', where the specified 'sizeOfBlock' is
@@ -46,10 +47,8 @@ BlockList::~BlockList()
 }
 
 // MANIPULATORS
-void *BlockList::allocate(int size)
+void *BlockList::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT(0 <= size);
-
     if (0 == size) {
         return 0;                                                     // RETURN
     }
@@ -102,7 +101,7 @@ void BlockList::release()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

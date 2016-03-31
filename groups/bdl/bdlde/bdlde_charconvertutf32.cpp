@@ -140,23 +140,23 @@ enum Utf8Bits {
     // Masks and shifts used to assemble and dismantle UTF-8 encodings.
 
     k_ONE_OCT_CONT_WID   = 7,               // content in a one-octet coding
-    k_ONE_OCTET_MASK     = 0xff & (~0 << k_ONE_OCT_CONT_WID),
+    k_ONE_OCTET_MASK     = 0xff & (~0u << k_ONE_OCT_CONT_WID),
 
     k_CONTINUE_CONT_WID  = 6,               // content in a continuation
                                           //                      octet
-    k_CONTINUE_MASK      = 0xff & (~0 << k_CONTINUE_CONT_WID),
+    k_CONTINUE_MASK      = 0xff & (~0u << k_CONTINUE_CONT_WID),
     k_CONTINUE_TAG       = k_ONE_OCTET_MASK,  // compare this to masked bits
 
     k_TWO_OCT_CONT_WID   = 5,               // content in a two-octet header
-    k_TWO_OCTET_MASK     = 0xff & (~0 << k_TWO_OCT_CONT_WID),
+    k_TWO_OCTET_MASK     = 0xff & (~0u << k_TWO_OCT_CONT_WID),
     k_TWO_OCTET_TAG      = k_CONTINUE_MASK,   // compare this to masked bits
 
     k_THREE_OCT_CONT_WID = 4,               // content in a 3-octet header
-    k_THREE_OCTET_MASK   = 0xff & (~0 << k_THREE_OCT_CONT_WID),
+    k_THREE_OCTET_MASK   = 0xff & (~0u << k_THREE_OCT_CONT_WID),
     k_THREE_OCTET_TAG    = k_TWO_OCTET_MASK,  // compare this to masked bits
 
     k_FOUR_OCT_CONT_WID  = 3,               // content in a four-octet header
-    k_FOUR_OCTET_MASK    = 0xff & (~0 << k_FOUR_OCT_CONT_WID),
+    k_FOUR_OCTET_MASK    = 0xff & (~0u << k_FOUR_OCT_CONT_WID),
     k_FOUR_OCTET_TAG     = k_THREE_OCTET_MASK // compare this to masked bits
 };
 

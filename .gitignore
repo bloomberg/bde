@@ -31,3 +31,10 @@ TAGS
 *.pyc
 .lock-waf*
 .waf-*
+.nfs*
+
+# gyp and generated Visual Studio files
+*.gyp
+*.sln
+*.vcxproj
+*.vcxproj.filters

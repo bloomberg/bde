@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlma_concurrentmultipool.h>
 #include <bdlma_concurrentpool.h>
 
@@ -60,12 +59,12 @@ using namespace bsl;  // automatically added by script
 // [ 8] bdlmca::MultipoolAllocator(numPools, poolNumObjects, Z);
 // [ 8] bdlmca::MultipoolAllocator(numPools, minSize, poolNumObjects, Z);
 // [ 2] ~bdlma::ConcurrentMultipool();
-// [ 3] void *allocate(int size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 9] void deleteObject(const TYPE *object);
 // [ 9] void deleteObjectRaw(const TYPE *object);
 // [ 5] void release();
-// [ 6] void reserveCapacity(int size, int numObjects);
+// [ 6] void reserveCapacity(bsls::Types::size_type size, int numObjects);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] CONCURRENCY TEST
@@ -302,8 +301,10 @@ extern "C" void *workerThread(void *arg) {
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipool' can be used by containers that hold different
 // types of elements, each of uniform size, for efficient memory allocation of
 // new elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -566,7 +567,7 @@ extern "C" void *workerThread(void *arg) {
 //..
 //
 ///Example 2: Implementing an Allocator Using 'bdlma::ConcurrentMultipool'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple
@@ -602,10 +603,10 @@ extern "C" void *workerThread(void *arg) {
             // this memory pool is released.
 
         // MANIPULATORS
-        virtual void *allocate(int size);
+        virtual void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of maximally-aligned
-            // memory of (at least) the specified 'size' (in bytes).  The
-            // behavior is undefined unless '1 <= size'.
+            // memory of (at least) the specified 'size' (in bytes).  If 'size'
+            // is 0, no memory is allocated and 0 is returned.
 
         virtual void deallocate(void *address);
             // Relinquish the memory block at the specified 'address' back to
@@ -628,7 +629,7 @@ extern "C" void *workerThread(void *arg) {
 
     // MANIPULATORS
     inline
-    void *my_MultipoolAllocator::allocate(int size)
+    void *my_MultipoolAllocator::allocate(bsls::Types::size_type size)
     {
         return d_multiPool.allocate(size);
     }
@@ -1844,7 +1845,7 @@ int main(int argc, char *argv[])
         //   standard 'bdema' exception-testing macro block.
         //
         // Testing:
-        //   void reserveCapacity(int size, int numObjects);
+        //   void reserveCapacity(bsls::Types::size_type size, int numObjects);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'reserveCapacity'"
@@ -2072,7 +2073,7 @@ int main(int argc, char *argv[])
         //   some white-box testing.
         //
         // Testing:
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'allocate'"
@@ -2489,7 +2490,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -6,6 +6,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
@@ -55,14 +56,14 @@ using namespace bsl;
 // [ 7] bdlma::Multipool(numPools, gs, *mbpc, Allocator *ba = 0);
 // [ 7] bdlma::Multipool(numPools, *gs, *mbpc, Allocator *ba = 0);
 // [ 2] ~bdlma::Multipool();
-// [ 3] void *allocate(int size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 8] template <class TYPE> void deleteObject(const TYPE *object);
 // [ 8] template <class TYPE> void deleteObjectRaw(const TYPE *object);
 // [ 5] void release();
-// [ 6] void reserveCapacity(int size, int numBlocks);
+// [ 6] void reserveCapacity(bsls::Types::size_type size, int numBlocks);
 // [ 9] int numPools() const;
-// [ 9] int maxPooledBlockSize() const;
+// [ 9] bsls::Types::size_type maxPooledBlockSize() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
@@ -251,7 +252,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::Multipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::Multipool' can be used by containers that hold different types of
 // elements, each of uniform size, for efficient memory allocation of new
 // elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -555,7 +556,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             // this memory pool is released.
 
         // MANIPULATORS
-        virtual void *allocate(size_type size);
+        virtual void *allocate(bsls::Types::size_type size);
             // Return the address of a contiguous block of maximally-aligned
             // memory of (at least) the specified 'size' (in bytes).  If 'size'
             // is 0, no memory is allocated and 0 is returned.
@@ -587,14 +588,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
     // MANIPULATORS
     inline
-    void *my_MultipoolAllocator::allocate(size_type size)
+    void *my_MultipoolAllocator::allocate(bsls::Types::size_type size)
     {
         if (0 == size) {
             return 0;                                                 // RETURN
         }
-        else {
-            return d_multiPool.allocate(static_cast<int>(size));      // RETURN
-        }
+
+        return d_multiPool.allocate(size);
     }
 
     inline
@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int numPools() const;
-        //   int maxPooledBlockSize() const;
+        //   bsls::Types::size_type maxPooledBlockSize() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1960,7 +1960,7 @@ int main(int argc, char *argv[])
         //   standard 'bslma' exception-testing macro block.
         //
         // Testing:
-        //   void reserveCapacity(int size, int numBlocks);
+        //   void reserveCapacity(bsls::Types::size_type size, int numBlocks);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing RESERVECAPACITY"
@@ -2024,8 +2024,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.reserveCapacity( 1,  1));
                 ASSERT_SAFE_PASS(mX.reserveCapacity(16,  0));
 
-                ASSERT_SAFE_FAIL(mX.reserveCapacity( 0,  1));
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(-1,  1));
+                ASSERT_SAFE_PASS(mX.reserveCapacity( 0,  1));
                 ASSERT_SAFE_FAIL(mX.reserveCapacity(17,  1));
 
                 ASSERT_SAFE_FAIL(mX.reserveCapacity(16, -1));
@@ -2207,8 +2206,6 @@ int main(int argc, char *argv[])
         //    3) The allocation request is distributed to the proper underlying
         //       pool, or to the "overflow" block list.
         //
-        //    QoI: Asserted precondition violations are detected when enabled.
-        //
         // Plan:
         //   Create multipools that manage a varying number of pools and
         //   allocate objects of varying sizes from each of the pools, as well
@@ -2227,7 +2224,7 @@ int main(int argc, char *argv[])
         //   some white-box testing.
         //
         // Testing:
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ALLOCATE"
@@ -2243,11 +2240,22 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
         {
+            bslma::TestAllocator allocator("allocator", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard guard(&allocator);
+
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
 
                 Obj mX(NUM_POOLS);
+
+                {
+                    // Test allocation with 'size == 0'.
+
+                    bsls::Types::Int64 numInUse = allocator.numBytesInUse();
+                    mX.allocate(0);
+                    LOOP_ASSERT(i, numInUse == allocator.numBytesInUse());
+                }
 
                 for (int j = 0; j < NUM_ODATA; ++j) {
 
@@ -2310,6 +2318,15 @@ int main(int argc, char *argv[])
 
                 Obj mX(NUM_POOLS, Z);
 
+                {
+                    // Test allocation with 'size == 0'.
+
+                    bsls::Types::Int64 numInUse =
+                                                 testAllocator.numBytesInUse();
+                    mX.allocate(0);
+                    LOOP_ASSERT(i, numInUse == testAllocator.numBytesInUse());
+                }
+
                 for (int j = 0; j < NUM_ODATA; ++j) {
 
                      for (int k = -1; k <= 1; ++k) {
@@ -2362,23 +2379,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX(2);
-
-            if (veryVerbose) cout << "\t'allocate(1 <= size)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-
-                ASSERT_SAFE_FAIL(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
-            }
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2666,7 +2666,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -385,7 +385,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Implementing an Allocator Using 'bdlma::ConcurrentMultipool'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple
@@ -421,10 +421,10 @@ BSLS_IDENT("$Id: $")
 //          // this memory pool is released.
 //
 //      // MANIPULATORS
-//      virtual void *allocate(int size);
+//      virtual void *allocate(bsls::Types::size_type size);
 //          // Return the address of a contiguous block of maximally-aligned
-//          // memory of (at least) the specified 'size' (in bytes).  The
-//          // behavior is undefined unless '1 <= size'.
+//          // memory of (at least) the specified 'size' (in bytes).  If 'size'
+//          // is 0, no memory is allocated and 0 is returned.
 //
 //      virtual void deallocate(void *address);
 //          // Relinquish the memory block at the specified 'address' back to
@@ -447,7 +447,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // MANIPULATORS
 //  inline
-//  void *my_MultipoolAllocator::allocate(int size)
+//  void *my_MultipoolAllocator::allocate(bsls::Types::size_type size)
 //  {
 //      return d_multiPool.allocate(size);
 //  }
@@ -491,6 +491,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -529,23 +533,23 @@ class ConcurrentMultipool {
     };
 
     // DATA
-    ConcurrentPool      *d_pools_p;       // array of memory pools, each
-                                          // dispensing
-                                      // fixed-size memory blocks
+    ConcurrentPool   *d_pools_p;       // array of memory pools, each
+                                       // dispensing fixed-size memory blocks
 
-    int              d_numPools;      // number of memory pools
+    int               d_numPools;      // number of memory pools
 
-    int              d_maxBlockSize;  // largest memory block size; dispensed
-                                      // by the 'd_numPools - 1'th pool; always
-                                      // a power of 2
+    bsls::Types::size_type
+                      d_maxBlockSize;  // largest memory block size; dispensed
+                                       // by the 'd_numPools - 1'th pool;
+                                       // always a power of 2
 
     bdlma::BlockList  d_blockList;     // memory manager for "large" memory
-                                      // blocks.
+                                       // blocks.
 
     bslmt::Mutex      d_mutex;         // synchronize data access
 
     ConcurrentAllocatorAdapter
-                     d_allocAdapter;  // thread-safe adapter
+                      d_allocAdapter;  // thread-safe adapter
 
   private:
     // NOT IMPLEMENTED
@@ -569,7 +573,7 @@ class ConcurrentMultipool {
         // within the array.
 
     // PRIVATE ACCESSORS
-    int findPool(int size) const;
+    int findPool(bsls::Types::size_type size) const;
         // Return the index of the memory pool in this multipool for an
         // allocation request of the specified 'size' (in bytes).  Note that
         // the index of the memory pool managing memory blocks having the
@@ -577,10 +581,12 @@ class ConcurrentMultipool {
 
   public:
     // CREATORS
-    ConcurrentMultipool(bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipool(int numPools, bslma::Allocator *basicAllocator = 0);
-    ConcurrentMultipool(bsls::BlockGrowth::Strategy  growthStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    explicit ConcurrentMultipool(bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipool(int               numPools,
+                                 bslma::Allocator *basicAllocator = 0);
+    explicit ConcurrentMultipool(
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
     ConcurrentMultipool(int                          numPools,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -675,14 +681,14 @@ class ConcurrentMultipool {
         // is released.
 
     // MANIPULATORS
-    void *allocate(int size);
+    void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of maximally-aligned memory
         // of (at least) the specified 'size' (in bytes).  If
         // 'size > maxPooledBlockSize()', the memory allocation is managed
         // directly by the underlying allocator, and will not be pooled, but
         // will be deallocated when the 'release' method is called, or when
-        // this object is destroyed.  The behavior is undefined unless
-        // '1 <= size'.
+        // this object is destroyed.  If 'size' is 0, no memory is allocated
+        // and 0 is returned.
 
     void deallocate(void *address);
         // Relinquish the memory block at the specified 'address' back to this
@@ -713,17 +719,18 @@ class ConcurrentMultipool {
     void release();
         // Relinquish all memory currently allocated via this multipool object.
 
-    void reserveCapacity(int size, int numBlocks);
+    void reserveCapacity(bsls::Types::size_type size, int numBlocks);
         // Reserve memory from this multipool to satisfy memory requests for at
         // least the specified 'numBlocks' having the specified 'size' (in
-        // bytes) before the pool replenishes.  The behavior is undefined
-        // unless '1 <= size <= maxPooledBlockSize()', and '0 <= numBlocks'.
+        // bytes) before the pool replenishes.  If 'size' is 0, this method has
+        // no effect.  The behavior is undefined unless
+        // 'size <= maxPooledBlockSize()' and '0 <= numBlocks'.
 
     // ACCESSORS
     int numPools() const;
         // Return the number of pools managed by this multipool object.
 
-    int maxPooledBlockSize() const;
+    bsls::Types::size_type maxPooledBlockSize() const;
         // Return the maximum size of memory blocks that are pooled by this
         // multipool object.  Note that the maximum value is defined as:
         //..
@@ -765,7 +772,7 @@ int ConcurrentMultipool::numPools() const
 }
 
 inline
-int ConcurrentMultipool::maxPooledBlockSize() const
+bsls::Types::size_type ConcurrentMultipool::maxPooledBlockSize() const
 {
     return d_maxBlockSize;
 }
@@ -776,7 +783,7 @@ int ConcurrentMultipool::maxPooledBlockSize() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

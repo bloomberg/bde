@@ -844,9 +844,15 @@ Datum Datum::createError(int                       code,
     // Allocate extra bytes for length of the string and the error code to be
     // stored before the string.
 
-    const Datum::SizeType  length = message.length();
+    static const int      align = sizeof(int);
+    const Datum::SizeType length = message.length();
+
+    // Allocate extra bytes (if needed) to make the allocated size a multiple
+    // of 'align'.  See 'copyString' for more explanation.
+
+    const Datum::SizeType  memlen = (length + align - 1) & ~(align - 1);
     void                  *mem =
-                            basicAllocator->allocate(length + 2 * sizeof(int));
+                            basicAllocator->allocate(memlen + 2 * sizeof(int));
 
     *static_cast<int *>(mem) = code;
     *(static_cast<int *>(mem) + 1) = static_cast<int>(length);

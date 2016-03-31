@@ -42,12 +42,10 @@ struct HeapBypassAllocator::BufferHeader {
     // beginning of the buffer it describes, and contains the size (in bytes)
     // of the buffer.
 
-    BufferHeader                *d_nextBuffer;  // pointer to linked list of
-                                                // buffers allocated after this
-                                                // one
+    BufferHeader           *d_nextBuffer;  // pointer to linked list of buffers
+                                           // allocated after this one
 
-    bslma::Allocator::size_type  d_size;        // size (in bytes) of this
-                                                // buffer
+    bsls::Types::size_type  d_size;        // size (in bytes) of this buffer
 };
 }  // close package namespace
 
@@ -58,8 +56,9 @@ struct HeapBypassAllocator::BufferHeader {
 // PRIVATE CLASS METHODS
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+namespace bdlma {
 
+char *HeapBypassAllocator::map(bsls::Types::size_type size)
 {
     // Note that passing 'MAP_ANONYMOUS' and a null file descriptor tells
     // 'mmap' to use a special system file to map to.
@@ -78,7 +77,7 @@ namespace bdlma {char *HeapBypassAllocator::map(size_type size)
     return (MAP_FAILED == address ? 0 : address);
 }
 
-void HeapBypassAllocator::unmap(void *address, size_type size) {
+void HeapBypassAllocator::unmap(void *address, bsls::Types::size_type size) {
     // On some platforms, munmap takes a 'char *', on others, a 'void *'.
 
     munmap((char *)address, size);
@@ -86,8 +85,9 @@ void HeapBypassAllocator::unmap(void *address, size_type size) {
 }  // close package namespace
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-namespace bdlma {char *HeapBypassAllocator::map(size_type size)
+namespace bdlma {
 
+char *HeapBypassAllocator::map(bsls::Types::size_type size)
 {
     char *address =
            (char *)VirtualAlloc(0,  // 'VirtualAlloc' chooses what address to
@@ -98,7 +98,7 @@ namespace bdlma {char *HeapBypassAllocator::map(size_type size)
     return NULL == address ? 0 : address;
 }
 
-void HeapBypassAllocator::unmap(void *address, size_type size)
+void HeapBypassAllocator::unmap(void *address, bsls::Types::size_type size)
 {
     VirtualFree(address, 0, MEM_RELEASE);
 }
@@ -110,16 +110,17 @@ void HeapBypassAllocator::unmap(void *address, size_type size)
 namespace bdlma {
 
 // PRIVATE MANIPULATORS
-int HeapBypassAllocator::replenish(size_type size)
+int HeapBypassAllocator::replenish(bsls::Types::size_type size)
 {
     // round size up to a multiple of page size
 
-    const size_type pageMask = d_pageSize - 1;
+    const bsls::Types::size_type pageMask = d_pageSize - 1;
 
     // '%' can be very slow -- if 'd_pageSize' is a power of 2, use '&'
 
-    const size_type mod = !(d_pageSize & pageMask) ? (size & pageMask)
-                                                   :  size % d_pageSize;
+    const bsls::Types::size_type mod =
+                                 !(d_pageSize & pageMask) ? (size & pageMask)
+                                                          :  size % d_pageSize;
     if (0 != mod) {
         size += d_pageSize - mod;
     }
@@ -188,12 +189,13 @@ HeapBypassAllocator::~HeapBypassAllocator()
 }
 
 // MANIPULATORS
-void *HeapBypassAllocator::allocate(size_type size)
+void *HeapBypassAllocator::allocate(bsls::Types::size_type size)
 {
     d_cursor_p = d_cursor_p + bsls::AlignmentUtil::calculateAlignmentOffset(
                                     d_cursor_p, static_cast<int>(d_alignment));
     if (d_endOfBuffer_p < d_cursor_p + size) {
-        size_type blockSize = size + d_alignment + sizeof(BufferHeader);
+        bsls::Types::size_type blockSize =
+                                     size + d_alignment + sizeof(BufferHeader);
         int sts = replenish(blockSize);    // 'replenish' will round up to
                                            // multiple of 'd_pageSize'
         if (0 != sts) {
@@ -221,7 +223,7 @@ void HeapBypassAllocator::deallocate(void *)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

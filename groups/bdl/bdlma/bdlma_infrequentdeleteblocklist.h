@@ -40,21 +40,23 @@ BSLS_IDENT("$Id: $")
 //  class my_StrPool {
 //
 //      // DATA
-//      char           *d_block_p;    // current memory block
+//      char                   *d_block_p;    // current memory block
 //
-//      int             d_blockSize;  // size of current memory block
+//      bsls::Types::size_type  d_blockSize;  // size of current memory block
 //
-//      int             d_cursor;     // offset to next available byte in block
+//      bsls::Types::IntPtr     d_cursor;     // offset to next available byte
+//                                            // in block
 //
 //      bdlma::InfrequentDeleteBlockList
-//                      d_blockList;  // supplies managed memory blocks
+//                              d_blockList;  // supplies managed memory blocks
 //
 //    private:
 //      // PRIVATE MANIPULATORS
-//      void *allocateBlock(int numBytes);
+//      void *allocateBlock(bsls::Types::size_type numBytes);
 //          // Request a memory block of at least the specified 'numBytes' size
 //          // and allocate the initial 'numBytes' from this block.  Return the
-//          // address of the allocated memory.
+//          // address of the allocated memory.  The behavior is undefined
+//          // unless '0 < numBytes'.
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -73,11 +75,10 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this object and release all associated memory.
 //
 //      // MANIPULATORS
-//      void *allocate(int size);
+//      void *allocate(bsls::Types::size_type size);
 //          // Return the address of a contiguous block of memory of the
 //          // specified 'size' (in bytes).  If 'size' is 0, no memory is
-//          // allocated and 0 is returned.  The behavior is undefined unless
-//          // 'size >= 0'.
+//          // allocated and 0 is returned.
 //
 //      void release();
 //          // Release all memory currently allocated through this object.
@@ -105,7 +106,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // PRIVATE MANIPULATORS
-//  void *my_StrPool::allocateBlock(int numBytes)
+//  void *my_StrPool::allocateBlock(bsls::Types::size_type numBytes)
 //  {
 //      assert(0 < numBytes);
 //
@@ -139,11 +140,12 @@ BSLS_IDENT("$Id: $")
 //  my_StrPool::~my_StrPool()
 //  {
 //      assert(k_INITIAL_SIZE <= d_blockSize);
-//      assert(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
+//      assert(d_block_p || (0 <= d_cursor && d_cursor <=
+//                             static_cast<bsls::Types::IntPtr>(d_blockSize)));
 //  }
 //
 //  // MANIPULATORS
-//  void *my_StrPool::allocate(int size)
+//  void *my_StrPool::allocate(bsls::Types::size_type size)
 //  {
 //      if (0 == size) {
 //          return 0;                                                 // RETURN
@@ -185,6 +187,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -236,11 +242,11 @@ class InfrequentDeleteBlockList {
         // managed by this object.
 
     // MANIPULATORS
-    void *allocate(int size);
+    void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes).  If 'size' is 0, no memory is allocated and 0 is
         // returned.  The returned memory is guaranteed to be maximally
-        // aligned.  The behavior is undefined unless '0 <= size'.
+        // aligned.
 
     void deallocate(void *address);
         // This method has no effect on the memory block at the specified
@@ -252,9 +258,11 @@ class InfrequentDeleteBlockList {
         // Deallocate all memory blocks managed by this object, returning it to
         // its default-constructed state.
 
-    void rewind();
-        // Deallocate all except the most-recently obtained of the memory
-        // blocks managed by this object.
+    // ACCESSORS
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
 // ============================================================================
@@ -280,13 +288,22 @@ void InfrequentDeleteBlockList::deallocate(void *)
 {
 }
 
+// ACCESSORS
+                                  // Aspects
+
+inline
+bslma::Allocator *InfrequentDeleteBlockList::allocator() const
+{
+    return d_allocator_p;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

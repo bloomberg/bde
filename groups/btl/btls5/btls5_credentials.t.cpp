@@ -2457,7 +2457,7 @@ int main(int argc, char *argv[])
             // Verify no temporary memory is allocated from the object
             // allocator.
 
-            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 3 == oa.numBlocksMax());
+            LOOP2_ASSERT(CONFIG, oa.numBlocksMax(), 2 == oa.numBlocksMax());
 
             // Reclaim dynamically allocated object under test.
 

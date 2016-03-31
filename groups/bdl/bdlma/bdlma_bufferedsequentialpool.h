@@ -24,9 +24,14 @@ BSLS_IDENT("$Id: $")
 // growth strategy is specified at construction, geometric growth is used.
 // Users can also optionally specify an alignment strategy at construction that
 // governs the alignment of allocated memory blocks.  If no alignment strategy
-// is specified, natural alignment is used.
+// is specified, natural alignment is used.  The 'release' method releases all
+// memory allocated through the pool, as does the destructor.  The 'rewind'
+// method releases all memory allocated through the pool and returns to the
+// underlying allocator *only* memory that was allocated outside of the typical
+// internal buffer growth of the pool (i.e., large blocks).  Note that
+// individually allocated memory blocks cannot be separately deallocated.
 //
-// 'bdlma::BufferedSequentialPool' is typically used when users have a
+// A 'bdlma::BufferedSequentialPool' is typically used when users have a
 // reasonable estimation of the amount of memory needed.  This amount of memory
 // would typically be created directly on the program stack, and used as the
 // initial external buffer of the pool for fast memory allocation.  While the
@@ -307,8 +312,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_buffermanager.h>
 #endif
 
-#ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
-#include <bdlma_infrequentdeleteblocklist.h>
+#ifndef INCLUDED_BDLMA_SEQUENTIALPOOL
+#include <bdlma_sequentialpool.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -319,8 +324,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -352,51 +365,38 @@ class BufferedSequentialPool {
     // attempt to deallocate the external buffer.
 
     // DATA
-    char                *d_initialBuffer_p;  // external buffer supplied at
-                                             // construction
+    char                   *d_initialBuffer_p;  // external buffer supplied at
+                                                // construction
 
-    int                  d_initialSize;      // size of external buffer
+    bsls::Types::size_type  d_initialSize;      // size of external buffer
 
-    BufferManager        d_buffer;           // memory manager for current
-                                             // buffer
+    BufferManager           d_bufferManager;    // memory manager for current
+                                                // buffer
 
-    bsls::BlockGrowth::Strategy
-                         d_growthStrategy;   // growth strategy for block list
-
-    int                  d_maxBufferSize;    // maximum internal buffer size
-
-    InfrequentDeleteBlockList
-                         d_blockList;        // memory manager used to supply
-                                             // dynamically allocated memory
-                                             // blocks
+    SequentialPool          d_pool;             // memory manager for
+                                                // allocations not from the
+                                                // buffer
 
   private:
     // NOT IMPLEMENTED
     BufferedSequentialPool(const BufferedSequentialPool&);
     BufferedSequentialPool& operator=(const BufferedSequentialPool&);
 
-  private:
-    // PRIVATE ACCESSORS
-    int calculateNextBufferSize(int size) const;
-        // Return the next buffer size (in bytes) that is sufficiently large to
-        // satisfy a memory allocation request of the specified 'size' (in
-        // bytes), or the maximum buffer size if the buffer can no longer grow.
-
   public:
     // CREATORS
-    BufferedSequentialPool(char             *buffer,
-                           int               size,
-                           bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialPool(char                   *buffer,
+                           bsls::Types::size_type  size,
+                           bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
+                           bsls::Types::size_type       size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialPool(char                      *buffer,
-                           int                        size,
+                           bsls::Types::size_type     size,
                            bsls::Alignment::Strategy  alignmentStrategy,
                            bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
+                           bsls::Types::size_type       size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bsls::Alignment::Strategy    alignmentStrategy,
                            bslma::Allocator            *basicAllocator = 0);
@@ -419,23 +419,23 @@ class BufferedSequentialPool {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialPool(char             *buffer,
-                           int               size,
-                           int               maxBufferSize,
-                           bslma::Allocator *basicAllocator = 0);
+    BufferedSequentialPool(char                   *buffer,
+                           bsls::Types::size_type  size,
+                           bsls::Types::size_type  maxBufferSize,
+                           bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
+                           bsls::Types::size_type       size,
+                           bsls::Types::size_type       maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
     BufferedSequentialPool(char                      *buffer,
-                           int                        size,
-                           int                        maxBufferSize,
+                           bsls::Types::size_type     size,
+                           bsls::Types::size_type     maxBufferSize,
                            bsls::Alignment::Strategy  alignmentStrategy,
                            bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
+                           bsls::Types::size_type       size,
+                           bsls::Types::size_type       maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bsls::Alignment::Strategy    alignmentStrategy,
                            bslma::Allocator            *basicAllocator = 0);
@@ -465,10 +465,10 @@ class BufferedSequentialPool {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining free
+        // construction.  If 'size' is 0, no memory is allocated and 0 is
+        // returned.  If the allocation request exceeds the remaining free
         // memory space in the external buffer supplied at construction, use
-        // memory obtained from the allocator supplied at construction.  The
-        // behavior is undefined unless '0 < size'.
+        // memory obtained from the allocator supplied at construction.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
@@ -483,22 +483,25 @@ class BufferedSequentialPool {
         // involved), and exists for consistency across memory pools.
 
     void release();
-        // Release all memory currently allocated through this pool.  This
-        // method deallocates all memory (if any) allocated with the allocator
-        // provided at construction, and makes the memory from the entire
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *all* memory except the external buffer
+        // supplied at construction.  The pool is reset to its
+        // default-constructed state, making the memory from the entire
         // external buffer supplied at construction available for subsequent
-        // allocations, but has no effect on the contents of the buffer.  Note
-        // that this pool is reset to its initial state by this method. The
-        // effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // allocations, retaining the alignment and growth strategies, and the
+        // initial and maximum buffer sizes in effect following construction.
+        // The effect of subsequently - to this invokation of 'release' - using
+        // a pointer obtained from this object prior to this call to 'release'
+        // is undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Return to the
-        // construction-time supplied allocator all but the last block obtained
-        // from it, if any, and satisfy subsequent allocations from that block,
-        // or from the buffer supplied upon construction, where possible. The
-        // effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // Release all memory allocated through this pool and return to the
+        // underlying allocator *only* memory that was allocated outside of the
+        // typical internal buffer growth of this pool (i.e., large blocks).
+        // All retained memory will be used to satisfy subsequent allocations.
+        // The effect of subsequently - to this invokation of 'rewind' - using
+        // a pointer obtained from this object prior to this call to 'rewind'
+        // is undefined.
 };
 
 }  // close package namespace
@@ -580,10 +583,26 @@ namespace bdlma {
 inline
 BufferedSequentialPool::~BufferedSequentialPool()
 {
-    d_blockList.release();
+    release();
 }
 
 // MANIPULATORS
+inline
+void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
+    }
+
+    void *result = d_bufferManager.allocate(size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        return result;                                                // RETURN
+    }
+
+    return d_pool.allocate(size);
+}
+
 template <class TYPE>
 inline
 void BufferedSequentialPool::deleteObjectRaw(const TYPE *object)
@@ -607,15 +626,19 @@ void BufferedSequentialPool::deleteObject(const TYPE *object)
 inline
 void BufferedSequentialPool::release()
 {
-    d_buffer.replaceBuffer(d_initialBuffer_p, d_initialSize);
-    d_blockList.release();
+    d_bufferManager.release();  // Reset the internal cursor in the current
+                                // block.
+
+    d_pool.release();
 }
 
 inline
 void BufferedSequentialPool::rewind()
 {
-    d_buffer.release();  // allocatefrom beginning of current block
-    d_blockList.rewind();  // free up previously allocated blocks
+    d_bufferManager.release();  // Reset the internal cursor in the current
+                                // block.
+
+    d_pool.rewind();
 }
 
 }  // close package namespace
@@ -638,7 +661,7 @@ void operator delete(void *, BloombergLP::bdlma::BufferedSequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

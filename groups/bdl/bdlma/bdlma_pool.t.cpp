@@ -62,7 +62,7 @@ using namespace bsl;
 // [10] template <class TYPE> void deleteObjectRaw(const TYPE *object);
 // [ 6] void release();
 // [11] void reserveCapacity(numBlocks);
-// [ 2] int blockSize() const;
+// [ 2] bsls::Types::size_type blockSize() const;
 // [ 7] void *operator new(bsl::size_t size, bdlma::Pool& pool);
 // [ 8] void operator delete(void *address, bdlma::Pool& pool);
 //-----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::Pool' for Efficient Memory Allocation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::Pool' can be used by node-based containers (such as lists, trees,
 // and hash tables that hold multiple elements of uniform size) for efficient
 // memory allocation of new elements.  The following container template class,
@@ -1374,7 +1374,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj( 1));
 
                 ASSERT_SAFE_FAIL(Obj( 0));
-                ASSERT_SAFE_FAIL(Obj(-1));
             }
 
             if (veryVerbose) cout << "\tThree argument constructor." << endl;
@@ -1384,7 +1383,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj( 1, CON));
 
                 ASSERT_SAFE_FAIL(Obj( 0, CON));
-                ASSERT_SAFE_FAIL(Obj(-1, CON));
             }
         }
 
@@ -1557,7 +1555,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj( 1, CON,  1));
 
                 ASSERT_SAFE_FAIL(Obj( 0, CON,  1));
-                ASSERT_SAFE_FAIL(Obj(-1, CON,  1));
 
                 ASSERT_SAFE_FAIL(Obj( 1, CON,  0));
                 ASSERT_SAFE_FAIL(Obj( 1, CON, -1));
@@ -1580,7 +1577,7 @@ int main(int argc, char *argv[])
         //   block size (taking alignment considerations into account).
         //
         // Testing:
-        //   int blockSize() const;
+        //   bsls::Types::size_type blockSize() const;
         //   'allocate' returns memory of the correct block size.
         // --------------------------------------------------------------------
 
@@ -1755,7 +1752,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

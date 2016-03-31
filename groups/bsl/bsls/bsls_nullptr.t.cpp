@@ -69,12 +69,24 @@ static void aSsErT(bool b, const char *s, int i)
 // form null pointer constants.  See the link below for furher details.
 //     http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#903
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)
+#if __cplusplus >= 201103L \
+   || (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700)
     // Note that Clang will pick up a fix for this standard issue when
     // Clang 3.4 is released.  This conversion is merely a warning in earlier
     // versions of Clang.
 
 # define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903
+#endif
+
+#if __cplusplus >= 201103L \
+   && !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 60000)
+    // There is a second issue related to which conversions form a null pointer
+    // literal that still needs to be tracked down to name this macro, but is
+    // not implemented in gcc 4.9.2 (the most recent version tested).  It may
+    // be fixed in gcc 5, we are optimistically assuming it will be fixed for
+    // gcc 6.
+
+# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX
 #endif
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -296,19 +308,41 @@ int main(int argc, char *argv[])
 
         enum { MY_NULL = 0 };
 
-        ASSERT(Local::isNullPointer(0));
-        ASSERT(Local::isNullPointer(NULL));
-        ASSERT(Local::isNullPointer(false));
+        ASSERT( Local::isNullPointer(0));
+        ASSERT( Local::isNullPointer(NULL));
+
+        // The following expressions have been valid null-pointer literals at
+        // some point in the evolution of C++.  Test them against the expected
+        // interpretation of the grammar indicated by the language-detection
+        // macro.
+
+#if defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)     \
+ && defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX)
+        ASSERT(!Local::isNullPointer(false));
+        ASSERT(!Local::isNullPointer(1-1));
+        ASSERT(!Local::isNullPointer(0*1));
+#else
+        ASSERT( Local::isNullPointer(false));
+        ASSERT( Local::isNullPointer(1-1));
+        ASSERT( Local::isNullPointer(0*1));
+#endif
+
+        // As the language evolved, gcc (and maybe other) compilers implemented
+        // an early version of the 'nullptr' rules that started being more
+        // explicit about what kind of expressions would correspond to a valid
+        // null-pointer literal.  Allow these to produce the results expected
+        // for such platforms.
+
 #if defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)     \
  && defined(BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903)
         ASSERT(!Local::isNullPointer(s_cZero));
         ASSERT(!Local::isNullPointer(cZero));
 #else
-        ASSERT(Local::isNullPointer(s_cZero));
-        ASSERT(Local::isNullPointer(cZero));
+        ASSERT( Local::isNullPointer(s_cZero));
+        ASSERT( Local::isNullPointer(cZero));
 #endif
-        ASSERT(Local::isNullPointer(1-1));
-        ASSERT(Local::isNullPointer(0*1));
+
+        // These expressions have never been null pointers.
 
         ASSERT(!Local::isNullPointer(Cptr));
         ASSERT(!Local::isNullPointer(ptr));

@@ -365,24 +365,24 @@ struct Utf8 {
         // Masks and shifts used to assemble and dismantle UTF-8 encodings.
 
         ONE_OCT_CONT_WID   = 7,               // Content in a one-octet coding
-        ONE_OCTET_MASK     = 0xff & (~0 << ONE_OCT_CONT_WID),
+        ONE_OCTET_MASK     = 0xff & (~0u << ONE_OCT_CONT_WID),
         ONE_OCTET_TAG      = 0xff & 0,        // Compare this to mask'd bits
 
         CONTINUE_CONT_WID  = 6,               // Content in a continuation
                                               //                      octet
-        CONTINUE_MASK      = 0xff & (~0 << CONTINUE_CONT_WID),
+        CONTINUE_MASK      = 0xff & (~0u << CONTINUE_CONT_WID),
         CONTINUE_TAG       = ONE_OCTET_MASK,  // Compare this to mask'd bits
 
         TWO_OCT_CONT_WID   = 5,               // Content in a two-octet header
-        TWO_OCTET_MASK     = 0xff & (~0 << TWO_OCT_CONT_WID),
+        TWO_OCTET_MASK     = 0xff & (~0u << TWO_OCT_CONT_WID),
         TWO_OCTET_TAG      = CONTINUE_MASK,   // Compare this to mask'd bits
 
         THREE_OCT_CONT_WID = 4,               // Content in a 3-octet header
-        THREE_OCTET_MASK   = 0xff & (~0 << THREE_OCT_CONT_WID),
+        THREE_OCTET_MASK   = 0xff & (~0u << THREE_OCT_CONT_WID),
         THREE_OCTET_TAG    = TWO_OCTET_MASK,  // Compare this to mask'd bits
 
         FOUR_OCT_CONT_WID  = 3,               // Content in a four-octet header
-        FOUR_OCTET_MASK    = 0xff & (~0 << FOUR_OCT_CONT_WID),
+        FOUR_OCTET_MASK    = 0xff & (~0u << FOUR_OCT_CONT_WID),
         FOUR_OCTET_TAG     = THREE_OCTET_MASK // Compare this to mask'd bits
     };
 
