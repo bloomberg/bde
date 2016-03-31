@@ -1894,7 +1894,7 @@ int main(int argc, char *argv[])
         const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
         const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
         void                *UD   = (void *) 0;                 // UserData
-        const int            BP   =  22;                        // Bad PortNum
+        const int            BP   =  80;                        // Bad PortNum
         const TimeInterval   T;                                 // TimeInterval
         IPAddress            BA(getLocalAddress());             // Bad IPAddr
         BA.setPortNumber(BP);
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
 
         int h;
 
-// #ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         {
             int error = 0;
 
@@ -1988,6 +1988,7 @@ int main(int argc, char *argv[])
             rc = mX.closeHandle(lh);
             ASSERT(0 == rc);
         }
+#endif
 
         // 'listen' synchronous error - failure to set socket options
 
@@ -1997,28 +1998,28 @@ int main(int argc, char *argv[])
             SocketOptions SO;
             SO.setSendTimeout(0);
 
-            int rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+            int rc = mX.listen(&h, scb, 0, B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, 0, B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BA, B, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, IPAddress(), B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BA, B, RA, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, IPAddress(), B, RA, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
