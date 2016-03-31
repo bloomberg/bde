@@ -114,20 +114,15 @@ bslstl::StringRef StringRefUtil::ltrim(const bslstl::StringRef& stringRef)
 
 bslstl::StringRef StringRefUtil::rtrim(const bslstl::StringRef& stringRef)
 {
-    const bsl::size_t length = stringRef.length();
 
-    if (length) {
-        int index = length - 1;
-        while(   0 <= index
-              && u_isWhitespace(static_cast<unsigned char>(stringRef[index])))
-        {
-            --index;
-        }
-
-        return bslstl::StringRef(stringRef.data(), index + 1);        // RETURN
-    } else {
-        return bslstl::StringRef(stringRef.data(), 0);                // RETURN
+    int index = static_cast<int>(stringRef.length()) - 1;
+    while(   0 <= index
+          && u_isWhitespace(static_cast<unsigned char>(stringRef[index])))
+    {
+        --index;
     }
+
+    return bslstl::StringRef(stringRef.data(), index + 1);
 }
 
                         // Find 'subString'
