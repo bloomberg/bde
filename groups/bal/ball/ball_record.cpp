@@ -60,7 +60,7 @@ bsl::ostream& Record::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    d_userFields.print(stream, levelPlus1, spacesPerLevel);
+    d_customFields.print(stream, levelPlus1, spacesPerLevel);
 
     if (0 <= spacesPerLevel) {
         stream << '\n';

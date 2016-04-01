@@ -101,7 +101,7 @@ typedef Obj::Enum           Enum;
 //                       GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-const int NUM_ENUMERATORS = 5;
+const int NUM_ENUMERATORS = 6;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
@@ -236,6 +236,7 @@ if (veryVerbose)
             {  L_,    Obj::e_DOUBLE,                         "DOUBLE"        },
             {  L_,    Obj::e_STRING,                         "STRING"        },
             {  L_,    Obj::e_DATETIMETZ,                     "DATETIMETZ"    },
+            {  L_,    Obj::e_CHAR_ARRAY,                     "CHAR_ARRAY"    },
 
             {  L_,    static_cast<Enum>(-1),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(NUM_ENUMERATORS),     UNKNOWN_FORMAT },
@@ -366,6 +367,7 @@ if (veryVerbose)
             { L_,    0,   4, Obj::e_DOUBLE,               "DOUBLE" NL        },
             { L_,    0,   4, Obj::e_STRING,               "STRING" NL        },
             { L_,    0,   4, Obj::e_DATETIMETZ,           "DATETIMETZ" NL    },
+            { L_,    0,   4, Obj::e_CHAR_ARRAY,           "CHAR_ARRAY" NL    },
 
             { L_,    0,   4, static_cast<Enum>(NUM_ENUMERATORS + 1),
                                                           UNKNOWN_FORMAT NL  },
@@ -502,6 +504,7 @@ if (veryVerbose)
             {  L_,    Obj::e_DOUBLE,                         "DOUBLE"        },
             {  L_,    Obj::e_STRING,                         "STRING"        },
             {  L_,    Obj::e_DATETIMETZ,                     "DATETIMETZ"    },
+            {  L_,    Obj::e_CHAR_ARRAY,                     "CHAR_ARRAY"    },
 
             {  L_,    static_cast<Enum>(-1),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(NUM_ENUMERATORS),     UNKNOWN_FORMAT },

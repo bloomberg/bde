@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  ball::Record record;
 //
-//  ASSERT(ball::RecordAttributes() == record.fixedFields());
-//  ASSERT(0                        == record.userFields().length());
+//  assert(ball::RecordAttributes() == record.fixedFields());
+//  assert(0                        == record.customFields().length());
 //..
 // Then, we set the fixed fields of the record to contain a simple message:
 //..
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //                                    "Simple Test Message");   // message
 //  record.setFixedFields(attributes);
 //
-//  ASSERT(attributes == record.fixedFields());
+//  assert(attributes == record.fixedFields());
 //..
 // Finally, we write the record to a stream:
 //..
@@ -144,14 +144,14 @@ class Record {
     // both source and destination) is supported in all cases.
 
     // DATA
-    CountingAllocator  d_allocator;    // memory allocator
+    CountingAllocator  d_allocator;     // memory allocator
 
-    RecordAttributes   d_fixedFields;  // bytes used by fixed fields
+    RecordAttributes   d_fixedFields;   // bytes used by fixed fields
 
-    ball::UserFields   d_userFields;   // bytes used by user fields
+    ball::UserFields   d_customFields;  // bytes used by user fields
 
-    bslma::Allocator  *d_allocator_p;  // allocator used to supply memory;
-                                       // held but not own
+    bslma::Allocator  *d_allocator_p;   // allocator used to supply memory;
+                                        // held but not own
 
     // FRIENDS
     friend bool operator==(const Record&, const Record&);
@@ -176,11 +176,11 @@ class Record {
         // installed default allocator is used.
 
     Record(const RecordAttributes&  fixedFields,
-           const ball::UserFields&  userFields,
+           const ball::UserFields&  customFields,
            bslma::Allocator        *basicAllocator = 0);
         // Create a log record with fixed fields having the value of the
         // specified 'fixedFields' and user-defined fields having the value of
-        // the specified 'userFields'.  Optionally specify a 'basicAllocator'
+        // the specified 'customFields'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
@@ -206,19 +206,21 @@ class Record {
         // Set the fixed fields of this log record to the value of the
         // specified 'fixedFields'.
 
-    void setUserFields(const ball::UserFields& userFields);
-        // Set the user-defined fields of this log record to the value of the
-        // specified 'userFields'.
+    void setCustomFields(const ball::UserFields& customFields);
+        // Set the custom user-defined fields of this log record to the value
+        // of the specified 'customFields'.
 
-    ball::UserFields& userFields();
-        // Return the modifiable user-defined fields of this log record.
+    ball::UserFields& customFields();
+        // Return a reference providing modifiable access to the custom
+        // user-defined fields of this log record.
 
     // ACCESSORS
     const RecordAttributes& fixedFields() const;
         // Return the non-modifiable fixed fields of this log record.
 
-    const ball::UserFields& userFields() const;
-        // Return the non-modifiable user-defined fields of this log record.
+    const ball::UserFields& customFields() const;
+        // Return a reference providing non-modifiable access to the custom
+        // user-defined fields of this log record.
 
     int numAllocatedBytes() const;
         // Return the total number of bytes of dynamic memory allocated by
@@ -278,18 +280,18 @@ inline
 Record::Record(bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(&d_allocator)
-, d_userFields(&d_allocator)
+, d_customFields(&d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
 inline
 Record::Record(const RecordAttributes&  fixedFields,
-               const ball::UserFields&  userFields,
+               const ball::UserFields&  customFields,
                bslma::Allocator        *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(fixedFields, &d_allocator)
-, d_userFields(userFields, &d_allocator)
+, d_customFields(customFields, &d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -299,7 +301,7 @@ Record::Record(const Record&     original,
                bslma::Allocator *basicAllocator)
 : d_allocator(basicAllocator)
 , d_fixedFields(original.d_fixedFields, &d_allocator)
-, d_userFields(original.d_userFields, &d_allocator)
+, d_customFields(original.d_customFields, &d_allocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -314,8 +316,8 @@ inline
 Record& Record::operator=(const Record& rhs)
 {
     if (this != &rhs) {
-        d_fixedFields = rhs.d_fixedFields;
-        d_userFields  = rhs.d_userFields;
+        d_fixedFields  = rhs.d_fixedFields;
+        d_customFields = rhs.d_customFields;
     }
     return *this;
 }
@@ -333,15 +335,15 @@ void Record::setFixedFields(const RecordAttributes& fixedFields)
 }
 
 inline
-void Record::setUserFields(const ball::UserFields& userFields)
+void Record::setCustomFields(const ball::UserFields& customFields)
 {
-    d_userFields = userFields;
+    d_customFields = customFields;
 }
 
 inline
-ball::UserFields& Record::userFields()
+ball::UserFields& Record::customFields()
 {
-    return d_userFields;
+    return d_customFields;
 }
 
 // ACCESSORS
@@ -352,9 +354,9 @@ const RecordAttributes& Record::fixedFields() const
 }
 
 inline
-const ball::UserFields& Record::userFields() const
+const ball::UserFields& Record::customFields() const
 {
-    return d_userFields;
+    return d_customFields;
 }
 
 inline
@@ -369,8 +371,8 @@ int Record::numAllocatedBytes() const
 inline
 bool ball::operator==(const Record& lhs, const Record& rhs)
 {
-    return lhs.d_fixedFields == rhs.d_fixedFields
-        && lhs.d_userFields  == rhs.d_userFields;
+    return lhs.d_fixedFields  == rhs.d_fixedFields
+        && lhs.d_customFields == rhs.d_customFields;
 }
 
 inline

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hversche)
 //
-//@SEE_ALSO: ball_userfieldvalue, ball_userfieldsschema
+//@SEE_ALSO: ball_userfieldvalue
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,
 // 'ball::UserFields', that represents a (randomly accessible) sequence of
@@ -40,36 +40,19 @@ BSLS_IDENT("$Id: $")
 // one described by the 'ball::LoggerManagerConfiguration'
 // 'UserFieldsPopulatorCallback'.
 //..
-//  void populateLoggingFields(ball::UserFields              *fields,
-//                             const ball::UserFieldsSchema&  fieldsSchema)
-//      // Populate the specifield 'fields' with the user name and current
-//      // task identifier so that in matches the specified 'fieldsSchema'.
-//      // The behavior is undefiend unless 'fields' is empty, and
-//      // 'fieldsSchema' describes a user fields object whose fist element is
-//      // a string called "username" and whose second element is a integer
-//      // called "taskId".
+//  void populateLoggingFields(ball::UserFields *fields)
+//      // Populate the specified 'fields' with the username and current task
+//      // identifier.  The behavior is undefined unless 'fields' is empty.
 //  {
 //..
-// Notice that we have decided for this application the schema for the custom
-// logging fields are fixed at compile time.
-//
-// Next, we assert that the schema matches the preconditions for this function:
-//..
-//    typedef ball::UserFieldType Type;
-//    BSLS_ASSERT(2 == fieldsSchema.length());
-//    BSLS_ASSERT("username"     == fieldsSchema.name(0));
-//    BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
-//    BSLS_ASSERT("taskId"       == fieldsSchema.name(1));
-//    BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
-//..
-// Then we assert the additional precondition that 'fields' is empty:
+// Next, we assert the precondition that 'fields' is empty:
 //..
 //    BSLS_ASSERT(0 == fields->length());
 //..
-// Now we populate the 'fields' object with the user name and current task
+// Now, we populate the 'fields' object with the username and current task
 // identifier (for the purpose of illustration, these are simply constants):
 //..
-//    static const char    *TEST_USER = "testUser";
+//    static const char         *TEST_USER = "testUser";
 //    static const bsl::int64_t  TEST_TASK = 4315;
 //
 //    fields->appendString(TEST_USER);
@@ -78,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // Finally, for the purposes of illustration, we verify that 'fields' has been
 // set correctly:
 //..
-//    assert(2 == fields->length());
+//    assert(2              == fields->length());
 //    assert(Type::e_STRING == fields->value(0).type());
 //    assert(TEST_USER      == fields->value(0).theString());
 //    assert(Type::e_INT64  == fields->value(1).type());
@@ -102,18 +85,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
-#endif
-
 #ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 namespace BloombergLP {
-
 namespace ball {
-
 
                         // ================
                         // class UserFields
@@ -172,6 +153,7 @@ class UserFields {
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
+    void appendCharArray(const bsl::vector<char>& value);
         // Append the specified 'value' to this object.
 
     ball::UserFieldValue& operator[](int index);
@@ -265,7 +247,6 @@ void swap(ball::UserFields& a, ball::UserFields& b);
     // guarantee if 'a.allocator()' is the same as 'b.allocator()', and the
     // basic exception guarantee otherwise.
 
-
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
@@ -274,6 +255,7 @@ void swap(ball::UserFields& a, ball::UserFields& b);
                         // class UserFields
                         // ----------------
 
+// CREATORS
 inline
 UserFields::UserFields(bslma::Allocator *basicAllocator)
 : d_values(basicAllocator)
@@ -327,6 +309,12 @@ void UserFields::appendString(bslstl::StringRef value)
 
 inline
 void UserFields::appendDatetimeTz(const bdlt::DatetimeTz& value)
+{
+    d_values.emplace_back(value);
+}
+
+inline
+void UserFields::appendCharArray(const bsl::vector<char>& value)
 {
     d_values.emplace_back(value);
 }
@@ -408,7 +396,6 @@ bsl::ostream& ball::operator<<(bsl::ostream&     stream,
     return object.print(stream, 0, -1);
 }
 
-
 // FREE FUNCTIONS
 inline
 void swap(ball::UserFields& a, ball::UserFields& b)
@@ -417,7 +404,6 @@ void swap(ball::UserFields& a, ball::UserFields& b)
 }
 
 }  // close enterprise namespace
-
 
 #endif
 

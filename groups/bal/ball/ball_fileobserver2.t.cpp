@@ -248,10 +248,9 @@ void logRecord1(bsl::ostream& stream, const ball::Record& record)
     stream << record.fixedFields().category()       << " ";
     stream << record.fixedFields().message ()       << " ";
 
-    ball::UserFields userFields = record.userFields();
-    for (int i = 0; i < userFields.length(); ++i)
-    {
-        stream << userFields[i] << "*";
+    const ball::UserFields& customFields = record.customFields();
+    for (int i = 0; i < customFields.length(); ++i) {
+        stream << customFields[i] << "*";
     }
 
     stream << '\n' << bsl::flush;
@@ -271,10 +270,9 @@ void logRecord2(bsl::ostream& stream, const ball::Record& record)
     stream << record.fixedFields().threadID()       << " ";
     stream << record.fixedFields().processID()      << ":";
 
-    ball::UserFields userFields = record.userFields();
-    for (int i = 0; i < userFields.length(); ++i)
-    {
-        stream << userFields[i] << "*";
+    const ball::UserFields& customFields = record.customFields();
+    for (int i = 0; i < customFields.length(); ++i) {
+        stream << customFields[i] << "*";
     }
 
     stream << '\n' << bsl::flush;

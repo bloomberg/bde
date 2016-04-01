@@ -41,8 +41,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  TYPE                                         'typedef' alias
 //  ------------------------------------------   ------------------------------
-//  bsl::function<void(ball::UserFields*, const ball::UserFieldsSchema&)>
-//                                               UserFieldsPopulatorCallback;
+//  bsl::function<void(ball::UserFields *)>      UserFieldsPopulatorCallback
 //
 //  bsl::function<void(bsl::string *, const char *)>
 //                                               CategoryNameFilterCallback
@@ -56,8 +55,6 @@ BSLS_IDENT("$Id: $")
 //  TYPE                                         NAME
 //  ------------------------------------------   ------------------------------
 //  ball::LoggerManagerDefaults                  defaults
-//
-//  ball::UserFieldsSchema                       userSchema
 //
 //  UserFieldsPopulatorCallback                  userFieldsPopulatorCallback
 //
@@ -73,9 +70,6 @@ BSLS_IDENT("$Id: $")
 //  -------------------             -------------------------------------------
 //  defaults                        constrained defaults for buffer size and
 //                                  thresholds
-//
-//  userSchema                      defines optional user-defined fields in a
-//                                  log record
 //
 //  userFieldsPopulatorCallback     populates user-defined fields in a log
 //                                  record
@@ -107,8 +101,7 @@ BSLS_IDENT("$Id: $")
 //  +--------------------------------+--------------------------------+
 //  | defaults                       | (a constrained-attribute type) |
 //  +--------------------------------+--------------------------------+
-//  | userSchema                     | (single attribute)             |
-//  | userFieldsPopulatorCallback    |                                |
+//  | userFieldsPopulatorCallback    | (none)                         |
 //  +--------------------------------+--------------------------------+
 //  | categoryNameFilterCallback     | (none)                         |
 //  +--------------------------------+--------------------------------+
@@ -138,20 +131,13 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code illustrate how to use a
 // 'ball::LoggerManagerConfiguration' object.
 //
-// First we define a simple function that will serve as a
+// First, we define a simple function that will serve as a
 // 'UserFieldsPopulatorCallback', a callback that will be invoked for each
 // logged message to populate user defined fields for the log record:
 //..
-//  void exampleCallback(ball::UserFields              *fields,
-//                       const ball::UserFieldsSchema&  schema)
+//  void exampleCallback(ball::UserFields *fields)
 //  {
-//    // Verify the schema matches this callbacks expectations.
-//
-//    BSLS_ASSERT(1                             == schema.length());
-//    BSLS_ASSERT(ball::UserFieldType::e_STRING == schema.type(0));
-//    BSLS_ASSERT("example"                     == schema.name(0));
-//
-//    fields->appendString("example user field value");
+//      fields->appendString("example user field value");
 //  }
 //..
 // Next, we define a function 'inititialize' in which we will create and
@@ -164,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //    ball::LoggerManagerConfiguration config;
 //
 //..
-// Here, we configure the default record buffer size, logger buffer size, and
+// Then, we configure the default record buffer size, logger buffer size, and
 // the various logging thresholds (see {'ball_loggermanager'} for more
 // information on the various threshold levels):
 //..
@@ -175,32 +161,24 @@ BSLS_IDENT("$Id: $")
 //       bsl::exit(-1);
 //    }
 //
-//    ASSERT(32768 == config.defaultRecordBufferSize());
-//    ASSERT( 1024 == config.defaultLoggerBufferSize());
-//    ASSERT(    0 == config.defaultRecordLevel());
-//    ASSERT(   64 == config.defaultPassLevel());
-//    ASSERT(    0 == config.defaultTriggerLevel());
-//    ASSERT(    0 == config.defaultTriggerAllLevel());
+//    assert(32768 == config.defaultRecordBufferSize());
+//    assert( 1024 == config.defaultLoggerBufferSize());
+//    assert(    0 == config.defaultRecordLevel());
+//    assert(   64 == config.defaultPassLevel());
+//    assert(    0 == config.defaultTriggerLevel());
+//    assert(    0 == config.defaultTriggerAllLevel());
 //..
-// Next, we create a user field schema, that will be used with the user field
-// populator callback 'exampleCallback':
+// Next, we populate the remaining attributes of our configuration object (note
+// that the following methods cannot fail and return 'void'):
 //..
-//    ball::UserFieldsSchema schema;
-//    schema.appendFieldDescription("example", ball::UserFieldType::e_STRING);
-//..
-// Now, we set populate the configuration options in our schema (note that the
-// following methods cannot fail and return 'void'):
-//..
-//    config.setUserFieldsSchema(schema, &exampleCallback);
+//    config.setUserFieldsPopulatorCallback(&exampleCallback);
 //    config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
-//    config.setTriggerMarkers(
-//                          ball::LoggerManagerConfiguration::e_NO_MARKERS);
+//    config.setTriggerMarkers(ball::LoggerManagerConfiguration::e_NO_MARKERS);
 //..
-// Then, we verify the options are configured correctly:
+// Now, we verify the options are configured correctly:
 //..
-//    ASSERT(schema == config.userFieldsSchema());
-//    ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
-//    ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
+//    assert(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
+//    assert(ball::LoggerManagerConfiguration::e_NO_MARKERS
 //                                                 == config.triggerMarkers());
 //..
 // Finally, we print the configuration value to 'stdout' and return:
@@ -222,10 +200,6 @@ BSLS_IDENT("$Id: $")
 //          triggerLevel     : 0
 //          triggerAllLevel  : 0
 //      ]
-//      User Fields Schema:
-//      [
-//          example = STRING
-//      ]
 //      User Fields Populator functor is not null
 //      Category Name Filter functor is null
 //      Default Threshold Callback functor is null
@@ -240,10 +214,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 #include <ball_loggermanagerdefaults.h>
-#endif
-
-#ifndef INCLUDED_BALL_USERFIELDSSCHEMA
-#include <ball_userfieldsschema.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -299,15 +269,11 @@ class LoggerManagerConfiguration {
 
   public:
     // PUBLIC TYPES
-    typedef bsl::function<void(ball::UserFields *,
-                               const ball::UserFieldsSchema&)>
+    typedef bsl::function<void(ball::UserFields *)>
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
         // callback functor used to populate the user-defined fields in each
-        // log record.  Note that the user-defined fields of each record must
-        // be type-consistent with the 'UserFieldsSchema' of the user
-        // populator callback.
-
+        // log record.
 
     typedef bsl::function<void(bsl::string *, const char *)>
                                                     CategoryNameFilterCallback;
@@ -366,11 +332,6 @@ class LoggerManagerConfiguration {
                                                   // set of constrained default
                                                   // severity threshold levels
                                                   // for logger manager
-
-    ball::UserFieldsSchema
-                          d_userFieldsSchema;     // describes the fields
-                                                  // returned by
-                                                  // 'd_userPopulatorCallback'
 
     UserFieldsPopulatorCallback
                           d_userPopulator;        // user callback to add
@@ -488,15 +449,10 @@ class LoggerManagerConfiguration {
         // Return 0 on success, and a non-zero value otherwise with no effect
         // on this object.
 
-    void setUserFieldsSchema(
-                       const ball::UserFieldsSchema       fieldDescriptions,
-                       const UserFieldsPopulatorCallback& populatorCallback);
-        // Set the user-defined-fields attributes of this object such that the
-        // specified 'populatorCallback' will be invoked and supplied the
-        // specified 'fieldDescriptions'.  Note that this method cannot fail
-        // per se, but it is the user's responsibility to make sure that
-        // 'populatorCallback' can populate a 'ball::UserFields' object in a
-        // way consistent with the 'fieldDescriptions'.
+    void setUserFieldsPopulatorCallback(
+                         const UserFieldsPopulatorCallback& populatorCallback);
+        // Set the user-fields populator callback attribute of this object to
+        // the specified 'populatorCallback'.
 
     void setCategoryNameFilterCallback(
                                  const CategoryNameFilterCallback& nameFilter);
@@ -548,14 +504,9 @@ class LoggerManagerConfiguration {
         // Return the default Trigger-All threshold level attribute of the
         // 'LoggerManagerDefaults' attribute of this object.
 
-
-    const ball::UserFieldsSchema& userFieldsSchema() const;
-        // Return a reference to the non-modifiable descriptors for user
-        // fields.
-
     const UserFieldsPopulatorCallback& userFieldsPopulatorCallback() const;
-        // Return a reference to the non-modifiable user populator functor
-        // attribute of this object.
+        // Return a reference providing non-modifiable access to the
+        // user-fields populator functor attribute of this object.
 
     const CategoryNameFilterCallback& categoryNameFilterCallback() const;
         // Return a reference to the non-modifiable category name filter
