@@ -1,0 +1,222 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_random.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLB_RANDOM
+#define INCLUDED_BDLB_RANDOM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a suite of procedures for random-number generation.
+//
+//@CLASSES:
+//  bdlb::Random: namespace for a suite of random-number generation procedures
+//
+//@DESCRIPTION: This component provides a utility &#39;struct&#39;, &#39;bdlb::Random&#39;,
+// that is a namespace for a suite of function used to efficiently generate
+// random numbers over a specific range of values.  The seed (or current state)
+// is maintained externally.  Two variants of each random number generator are
+// provided: one has a single [in/out] seed parameter, which is first used then
+// updated; the other takes the current seed as an [input] parameter, and
+// stores a new seed in an [output] parameter.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Simulating a Pair of Dice
+/// - - - - - - - - - - - - - - - - - -
+// This example shows how one might use &#39;bdlb::Random&#39; to create and use a
+// class to simulate the roll of a single die in a game, such as craps, that
+// uses dice.
+//
+// First, we define the &#39;Die&#39; class itself:
+//..
+//                      // =========
+//                      // class Die
+//                      // =========
+//
+//  class Die {
+//
+//      // DATA
+//      int d_seed;  // current state, used to generate next role of this die
+//
+//    public:
+//      // CREATORS
+//      Die(int initialSeed);
+//          // Create an object used to simulate a single die, using the
+//          // specified &#39;initialSeed&#39;.
+//
+//      // MANIPULATORS
+//      int roll();
+//          // Return the next pseudo-random value in the range &#39;[1 .. 6]&#39;,
+//          // based on the sequence of values established by the initial seed
+//          // value supplied at construction.
+//  };
+//
+//                      // ---------
+//                      // class Die
+//                      // ---------
+//
+//  // CREATORS
+//  inline
+//  Die::Die(int initialSeed)
+//  : d_seed(initialSeed)
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  int Die::roll()
+//  {
+//      int result;
+//
+//      do {
+//          result = bdlb::Random::generate15(&amp;d_seed) &amp; 7;
+//      } while (result &gt; 5);
+//
+//      return result + 1;
+//  }
+//..
+// Now, we can use our &#39;Dice&#39; class to get the random numbers needed to
+// simulate a game of craps.  Note that the game of craps requires two dice.
+//
+// We can instantiate a single &#39;Die&#39; and role it twice,
+//..
+//  void rollOneDieTwice()
+//  {
+//      Die a(123);
+//
+//      int d1 = a.roll();
+//      int d2 = a.roll();
+//
+//      cout &lt;&lt; &quot;d1 = &quot; &lt;&lt; d1 &lt;&lt; &quot;, d2 = &quot; &lt;&lt; d2 &lt;&lt; endl;  // d1 = 3, d2 = 5
+//  }
+//..
+// Alternatively, we could create two instances of &#39;Die&#39;, with separate initial
+// seeds, and role each one once:
+//..
+//  void rollTwoDice()
+//  {
+//      Die a(123);
+//      Die b(456);
+//
+//      int d1 = a.roll();
+//      int d2 = b.roll();
+//
+//      cout &lt;&lt; &quot;d1 = &quot; &lt;&lt; d1 &lt;&lt; &quot;, d2 = &quot; &lt;&lt; d2 &lt;&lt; endl;  // d1 = 3, d2 = 1
+//  }
+//..
+// Note that the specification of separate seeds is important to produce a
+// proper distribution for our game.  If we had shared the seed value each die
+// would always produce the same sequence of values as the other.
+//..
+//  void shareSeed()
+//  {
+//      Die a(123);  // BAD IDEA
+//      Die b(123);  // BAD IDEA
+//
+//      int d1 = a.roll();
+//      int d2 = b.roll();
+//      assert(d2 == d1);
+//
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+                               // =============
+                               // struct Random
+                               // =============
+
+struct Random {
+    // This &#39;struct&#39; provides a namespace for a suite of functions used for
+    // random-number generation.
+
+    // CLASS METHODS
+    static int generate15(int *nextSeed, int seed);
+        // Return a 15-bit random number in the range &#39;[ 0 .. 32,767 ]&#39;
+        // generated from the specified &#39;seed&#39;, and load into the specified
+        // &#39;nextSeed&#39; a value suitable for generating the next random number.
+
+    static int generate15(int *seed);
+        // Return a 15-bit random number in the range &#39;[ 0 .. 32,767 ]&#39;
+        // generated from the specified &#39;seed&#39;, and load into &#39;seed&#39; a value
+        // suitable for generating the next random number.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                               // -------------
+                               // struct Random
+                               // -------------
+
+// CLASS METHODS
+inline
+int Random::generate15(int *nextSeed, int seed)
+{
+    BSLS_ASSERT_SAFE(nextSeed);
+
+    unsigned int next = seed;
+
+    next *= 1103515245;
+    next += 12345;
+
+    *nextSeed = next;
+
+    return (next &gt;&gt; 16) &amp; 0x7FFF;
+}
+
+inline
+int Random::generate15(int *seed)
+{
+    BSLS_ASSERT_SAFE(seed);
+
+    return generate15(seed, *seed);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

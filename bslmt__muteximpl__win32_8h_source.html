@@ -1,0 +1,252 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_muteximpl_win32.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_MUTEXIMPL_WIN32
+#define INCLUDED_BSLMT_MUTEXIMPL_WIN32
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a win32 implementation of &#39;bslmt::Mutex&#39;.
+//
+//@CLASSES:
+//  bslmt::MutexImpl&lt;Platform::Win32Threads&gt;: win32 specialization
+//
+//@SEE_ALSO: bslmt_mutex
+//
+//@DESCRIPTION: This component provides an implementation of &#39;bslmt::Mutex&#39; for
+// Windows (win32), &#39;bslmt::MutexImpl&lt;Platform::Win32Threads&gt;&#39;, via the
+// template specialization:
+//..
+//  bslmt::MutexImpl&lt;Platform::Win32Threads&gt;
+//..
+// This template class should not be used (directly) by client code.  Clients
+// should instead use &#39;bslmt::Mutex&#39;.
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;bslmt&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLMT_PLATFORM_WIN32_THREADS
+
+// Platform-specific implementation starts here.
+
+// Rather than setting &#39;WINVER&#39; or &#39;NTDDI_VERSION&#39;, just forward declare the
+// Windows 2000 functions that are used.
+
+struct _RTL_CRITICAL_SECTION;
+
+typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION, *LPCRITICAL_SECTION;
+typedef int BOOL;
+typedef unsigned long DWORD;
+
+extern &quot;C&quot; {
+    __declspec(dllimport) BOOL __stdcall InitializeCriticalSectionAndSpinCount(
+                                    LPCRITICAL_SECTION lpCriticalSection,
+                                    DWORD dwSpinCount);
+
+    __declspec(dllimport) void __stdcall DeleteCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) BOOL __stdcall TryEnterCriticalSection(
+                                 LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall EnterCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+    __declspec(dllimport) void __stdcall LeaveCriticalSection(
+                                LPCRITICAL_SECTION lpCriticalSection);
+
+}  // extern &quot;C&quot;
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class THREAD_POLICY&gt;
+class MutexImpl;
+
+                 // =======================================
+                 // class MutexImpl&lt;Platform::Win32Threads&gt;
+                 // =======================================
+
+template &lt;&gt;
+class MutexImpl&lt;Platform::Win32Threads&gt; {
+    // This class provides a full specialization of &#39;MutexImpl&#39; for Windows.
+    // It provides an efficient proxy for Windows critical sections, and
+    // related operations.  Note that the mutex implemented in this class is
+    // *not* error checking, and is non-recursive.
+    // TYPES
+
+  public:
+    enum {
+        // Size of the buffer allocated for the critical section, in
+        // pointer-sized elements.  We have to make it public so we could
+        // access it in a .cpp file to verify the size.
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+        // 5*8 = 40 bytes
+        k_CRITICAL_SECTION_BUFFER_SIZE = 5
+#else
+        // 6*4 = 24 bytes
+        k_CRITICAL_SECTION_BUFFER_SIZE = 6
+#endif
+    };
+
+  private:
+    enum {
+        // A Windows critical section has a configurable spin count.  A lock
+        // operation spins this many iterations (on, presumably, some atomic
+        // integer) before sleeping on the underlying primitive.
+
+        k_SPIN_COUNT = 30
+    };
+
+    // DATA
+    void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
+
+    // NOT IMPLEMENTED
+    MutexImpl(const MutexImpl&amp;);
+    MutexImpl&amp; operator=(const MutexImpl&amp;);
+
+  public:
+    // PUBLIC TYPES
+    typedef _RTL_CRITICAL_SECTION NativeType;
+       // The underlying OS-level type.  Exposed so that other bslmt components
+       // can operate directly on this mutex.
+
+    // CREATORS
+    MutexImpl();
+        // Create a mutex initialized to an unlocked state.
+
+    ~MutexImpl();
+        // Destroy this mutex object.
+
+    // MANIPULATORS
+    void lock();
+        // Acquire a lock on this mutex object.  If this object is currently
+        // locked, then suspend execution of the current thread until a lock
+        // can be acquired.  Note that the behavior is undefined if the calling
+        // thread already owns the lock on this mutex, and will likely result
+        // in a deadlock.
+
+    NativeType&amp; nativeMutex();
+        // Return a reference to the modifiable OS-level mutex underlying this
+        // object.  This method is intended only to support other bslmt
+        // components that must operate directly on this mutex.
+
+    int tryLock();
+        // Attempt to acquire a lock on this mutex object.  Return 0 on
+        // success, and a non-zero value of this object is already locked, or
+        // if an error occurs.
+
+    void unlock();
+        // Release a lock on this mutex that was previously acquired through a
+        // successful call to &#39;lock&#39;, or &#39;tryLock&#39;.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                 // ---------------------------------------
+                 // class MutexImpl&lt;Platform::Win32Threads&gt;
+                 // ---------------------------------------
+
+// CREATORS
+inline
+bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::MutexImpl()
+{
+    InitializeCriticalSectionAndSpinCount(
+          reinterpret_cast&lt;_RTL_CRITICAL_SECTION *&gt;(d_lock), k_SPIN_COUNT);
+}
+
+inline
+bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::~MutexImpl()
+{
+    DeleteCriticalSection(
+        reinterpret_cast&lt;_RTL_CRITICAL_SECTION*&gt;(d_lock));
+}
+
+// MANIPULATORS
+inline
+void bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::lock()
+{
+    EnterCriticalSection(
+        reinterpret_cast&lt;_RTL_CRITICAL_SECTION*&gt;(d_lock));
+}
+
+inline
+bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::NativeType&amp;
+bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::nativeMutex()
+{
+    return *reinterpret_cast&lt;_RTL_CRITICAL_SECTION*&gt;(d_lock);
+}
+
+inline
+int bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::tryLock()
+{
+    return !TryEnterCriticalSection(
+        reinterpret_cast&lt;_RTL_CRITICAL_SECTION*&gt;(d_lock));
+}
+
+inline
+void bslmt::MutexImpl&lt;bslmt::Platform::Win32Threads&gt;::unlock()
+{
+    LeaveCriticalSection(
+        reinterpret_cast&lt;_RTL_CRITICAL_SECTION*&gt;(d_lock));
+}
+
+}  // close enterprise namespace
+
+#endif // BSLMT_PLATFORM_WIN32_THREADS
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktraceutil.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACEUTIL
+#define INCLUDED_BALST_STACKTRACEUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide low-level utilities for obtaining &amp; printing a stack-trace.
+//
+//@CLASSES:
+//   balst::StackTraceUtil: utilities for &#39;balst::StackTrace&#39; objects
+//
+//@SEE_ALSO: balst_stacktraceprintutil
+//
+//@DESCRIPTION: This component provides a namespace for functions used in
+// obtaining and printing a stack-trace.  Note that clients interested in
+// simply printing a stack-trace are encouraged to use the
+// &#39;balst_stacktraceprintutil&#39; component instead.
+//
+///Usage
+///-----
+// This section illustrates intended usage for this component.  The following
+// examples demonstrate two distinct ways to load and print a stack-trace with
+// &#39;balst::StackTraceUtil&#39; using (1) &#39;loadStackTraceFromStack&#39; and
+// (2) &#39;loadStackTraceFromAddresses&#39;.
+//
+///Example 1: Loading Stack-Trace Directly from the Stack
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We start by defining a routine, &#39;recurseExample1&#39;, that will recurse the
+// specified &#39;depth&#39; times, then call &#39;traceExample1&#39;:
+//..
+//  void traceExample1();    // forward declaration
+//
+//  void recurseExample1(int *depth)
+//      // Recurse the specified &#39;depth&#39; number of times, then call
+//      // &#39;traceExample1&#39;.
+//  {
+//      if (--*depth &gt; 0) {
+//          recurseExample1(depth);
+//      }
+//      else {
+//          traceExample1();
+//      }
+//
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop.
+//  }
+//..
+// Then, we define the function &#39;traceExample1&#39;, that will print a stack-trace:
+//..
+//  void traceExample1()
+//  {
+//..
+// Now, we create a &#39;balst::StackTrace&#39; object and call
+// &#39;loadStackTraceFrameStack&#39; to load the information from the stack of the
+// current thread into the stack-trace object.
+//
+// In this call to &#39;loadStackTraceFromStack&#39;, we use the default value of
+// &#39;maxFrames&#39;, which is at least 1024 and the default value for
+// &#39;demanglingPreferredFlag&#39;, which is &#39;true&#39;, meaning that the operation will
+// attempt to demangle function names.  Note that the object &#39;stackTrace&#39; takes
+// very little room on the stack, and by default allocates most of its memory
+// directly from virtual memory without going through the heap, minimizing
+// potential complications due to stack-size limits and possible heap
+// corruption.
+//..
+//      balst::StackTrace stackTrace;
+//      int rc = balst::StackTraceUtil::loadStackTraceFromStack(&amp;stackTrace);
+//      assert(0 == rc);
+//..
+// Finally, we use &#39;printFormatted&#39; to stream out the stack-trace, one frame
+// per line, in a concise, human-readable format.
+//..
+//      balst::StackTraceUtil::printFormatted(bsl::cout, stackTrace);
+//  }
+//..
+// The output from the preceding example on Solaris is as follows:
+//..
+// (0): traceExample1()+0x28 at 0x327d0 in balst_stacktraceutil.t.dbg_exc_mt
+// (1): recurseExample1(int*)+0x54 at 0x32e30 in balst_stacktraceutil.t.dbg_exc
+// (2): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
+// (3): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
+// (4): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
+// (5): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
+// (6): main+0x24c at 0x36c10 in balst_stacktraceutil.t.dbg_exc_mt
+// (7): _start+0x5c at 0x31d4c in balst_stacktraceutil.t.dbg_exc_mt
+//..
+// Notice that the lines have been truncated to fit this 79 column source file,
+// and that on AIX or Windows, source file name and line number information
+// will also be displayed.
+//
+///Example 2: Loading a Stack-Trace from an Array of Stack Addresses
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate obtaining return addresses from the stack
+// using &#39;balst::StackAddressUtil&#39;, and later using them to load a
+// &#39;balst::StackTrace&#39; object with a description of the stack.  This approach
+// may be desirable if one wants to quickly save the addresses that are the
+// basis for a stack-trace, postponing the more time-consuming translation of
+// those addresses to more human-readable debug information until later.  To do
+// this, we create an array of pointers to hold the return addresses from the
+// stack, which may not be desirable if we are in a situation where there isn&#39;t
+// much room on the stack.
+//
+// First, we define a routine &#39;recurseExample2&#39; which will recurse the
+// specified &#39;depth&#39; times, then call &#39;traceExample2&#39;.
+//..
+//  void traceExample2();    // forward declaration
+//
+//  static void recurseExample2(int *depth)
+//      // Recurse the specified &#39;depth&#39; number of times, then call
+//      // &#39;traceExample2&#39;, which will print a stack-trace.
+//  {
+//      if (--*depth &gt; 0) {
+//          recurseExample2(depth);
+//      }
+//      else {
+//          traceExample2();
+//      }
+//
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop.
+//  }
+//
+//  void traceExample2()
+//  {
+//..
+// Then, within &#39;traceExample2&#39;, we create a stack-trace object and an array
+// &#39;addresses&#39; to hold some addresses.
+//..
+//      balst::StackTrace stackTrace;
+//      enum { ARRAY_LENGTH = 50 };
+//      void *addresses[ARRAY_LENGTH];
+//..
+// Next, we call &#39;balst::StackAddressUtil::getStackAddresses&#39; to get the stored
+// return addresses from the stack and load them into the array &#39;addresses&#39;.
+// The call returns the number of addresses saved into the array, which will be
+// less than or equal to &#39;ARRAY_LENGTH&#39;.
+//..
+//      int numAddresses = balst::StackAddressUtil::getStackAddresses(
+//                                                           addresses,
+//                                                           ARRAY_LENGTH);
+//..
+// Then, we call &#39;loadStackTraceFromAddressArray&#39; to initialize the information
+// in the stack-trace object, such as function names, source file names, and
+// line numbers, if they are available.  The optional argument,
+// &#39;demanglingPreferredFlag&#39;, defaults to &#39;true&#39;.
+//..
+//      int rc = balst::StackTraceUtil::loadStackTraceFromAddressArray(
+//                                                               &amp;stackTrace,
+//                                                               addresses,
+//                                                               numAddresses);
+//      assert(0 == rc);
+//..
+// Finally, we can print out the stack-trace object using &#39;printFormatted&#39;, or
+// iterate through the stack-trace frames, printing them out one by one.  In
+// this example, we want instead to output only function names, and not line
+// numbers, source file names, or library names, so we iterate through the
+// stack-trace frames and print out only the properties we want.  Note that if
+// a string is unknown, it is represented as &quot;&quot;, here we print it out as
+// &quot;--unknown--&quot; to let the user see that the name was unresolved.
+//..
+//      for (int i = 0; i &lt; stackTrace.length(); ++i) {
+//          const balst::StackTraceFrame&amp; frame = stackTrace[i];
+//
+//          const char *symbol = frame.isSymbolNameKnown()
+//                             ? frame.symbolName().c_str()
+//                             : &quot;--unknown__&quot;;
+//          bsl::cout &lt;&lt; &#39;(&#39; &lt;&lt; i &lt;&lt; &quot;): &quot; &lt;&lt; symbol &lt;&lt; endl;
+//      }
+//  }
+//..
+// Running this example would produce the following output:
+//..
+// (0): traceExample2()
+// (1): recurseExample2(int*)
+// (2): recurseExample2(int*)
+// (3): recurseExample2(int*)
+// (4): recurseExample2(int*)
+// (5): recurseExample2(int*)
+// (6): main
+// (7): _start
+//..
+//
+///Example 3: Outputting a Hex Stack Trace
+///- - - - - - - - - - - - - - - - - - - -
+// In this example, we demonstrate how to output return addresses from the
+// stack to a stream in hex.  Note that in this case the stack trace is never
+// stored to a data object -- when the &#39;operator&lt;&lt;&#39; is passed a pointer to the
+// &#39;hexStackTrace&#39; function, it calls the &#39;hexStackTrace&#39; function, which
+// gathers the stack addresses and immediately streams them out.  After the
+// &#39;operator&lt;&lt;&#39; is finished, the stack addresses are no longer stored anywhere.
+//
+// First, we define a routine &#39;recurseExample3&#39; which will recurse the
+// specified &#39;depth&#39; times, then call &#39;traceExample3&#39;.
+//..
+//  void traceExample3();    // forward declaration
+//
+//  static void recurseExample3(int *depth)
+//      // Recurse the specified &#39;depth&#39; number of times, then call
+//      // &#39;traceExample3&#39;, which will print a stack-trace.
+//  {
+//      if (--*depth &gt; 0) {
+//          recurseExample3(depth);
+//      }
+//      else {
+//          traceExample3();
+//      }
+//
+//      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+//                  // loop.
+//  }
+//
+//  void traceExample3()
+//  {
+//..
+// Now, within &#39;traceExample3&#39;, we output the stack addresses in hex by
+// streaming the function pointer &#39;hexStackTrace&#39; to &#39;cout&#39;:
+//..
+//      bsl::cout &lt;&lt; balst::StackTraceUtil::hexStackTrace &lt;&lt; endl;
+//  }
+//..
+// Finally, the output appears as a collection of hex values streamed out
+// separated by spaces, which can be translated to symbol names using tools
+// outside of &#39;balst&#39;:
+//..
+// 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACE
+#include &lt;balst_stacktrace.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace balst {
+
+struct StackTraceUtil {
+    // This &#39;struct&#39; serves as a namespace for a collection of functions that
+    // are useful for initializing and printing a stack-trace object.
+
+    // CLASS METHODS
+    static
+    bsl::ostream&amp; hexStackTrace(bsl::ostream &amp;stream);
+        // Write to the specified &#39;stream&#39; the stack addresses from a stack
+        // trace of the current thread, in hex from top to bottom, and return
+        // &#39;stream&#39;.
+
+    static
+    int loadStackTraceFromAddressArray(
+                           StackTrace         *result,
+                           const void * const  addresses[],
+                           int                 numAddresses,
+                           bool                demanglingPreferredFlag = true);
+        // Populate the specified &#39;result&#39; with stack-trace information from
+        // the stack, described by the specified array of &#39;addresses&#39; of length
+        // &#39;numAddresses&#39;.  Optionally specify &#39;demanglingPreferredFlag&#39; to
+        // indicate whether or not to attempt to perform demangling, however,
+        // demangling is always performed on the Windows platform and never
+        // performed on Solaris using the CC compiler regardless of the value
+        // of &#39;demanglingPreferredFlag&#39;.  If &#39;demanglingPreferredFlag&#39; is not
+        // specified, demangling is performed on those platforms that support
+        // it.  Return 0 on success, and a non-zero value otherwise.  Any
+        // frames previously contained in the stack-trace object are discarded.
+        // The behavior is undefined unless &#39;addresses&#39; contains at least
+        // &#39;numAddresses&#39; addresses.  Note that the return addresses from the
+        // stack can be obtained by calling
+        // &#39;StackAddressUtil::getStackAddresses&#39;, and that demangling
+        // sometimes involves calling &#39;malloc&#39;.
+
+    static
+    int loadStackTraceFromStack(StackTrace *result,
+                                int         maxFrames = -1,
+                                bool        demanglingPreferredFlag = true);
+        // Populate the specified &#39;result&#39; object with information about the
+        // current thread&#39;s program stack.  Optionally specify &#39;maxFrames&#39; to
+        // indicate the maximum number of frames to take from the top of the
+        // stack.  If &#39;maxFrames&#39; is not specified, the default limit is at
+        // least 1024.  Optionally specify &#39;demanglingPreferredFlag&#39; to
+        // indicate whether to attempt to perform demangling, if possible.  If
+        // &#39;demanglingPreferredFlag&#39; is not specfied, demangling is assumed to
+        // be preferred, however, demangling is always performed on the Windows
+        // platform and never performed on Solaris using the CC compiler
+        // regardless of the value of &#39;demanglingPreferredFlag&#39;.  Any frames
+        // previously contained in the &#39;stackTrace&#39; object are discarded.
+        // Return 0 on success, and a non-zero value otherwise.  The behavior
+        // is undefined unless &#39;maxFrames&#39; (if specified) is greater than 0.
+        // Note that demangling may involve calling &#39;malloc&#39;.
+
+    static
+    bsl::ostream&amp; printFormatted(bsl::ostream&amp;     stream,
+                                 const StackTrace&amp; stackTrace);
+        // Stream the specified &#39;stackTrace&#39; to the specified &#39;stream&#39; in some
+        // multi-line, human-readable format.  Note that this operation
+        // attempts to avoid using the default allocator.
+
+    static
+    bsl::ostream&amp; printFormatted(bsl::ostream&amp;          stream,
+                                 const StackTraceFrame&amp; stackTraceFrame);
+        // Write the value of the specified &#39;stackTraceFrame&#39; to the specified
+        // output &#39;stream&#39; in some single-line, human-readable format and
+        // return a reference to &#39;stream&#39;.  The name of the symbol is
+        // represented by the &#39;symbolName&#39; property of &#39;stackTraceFrame&#39;, if
+        // known; otherwise, it is represented by the &#39;mangledSymbolName&#39;
+        // property, if known; otherwise, it is represented by &quot;--unknown--&quot;.
+        // Other frame attributes are written only if their values are known.
+        // Note that the format is not fully specified, and can change without
+        // notice.  Also note that this method attempts to avoid using the
+        // default allocator.
+
+    static
+    bsl::ostream&amp; printHexStackTrace(
+                                 bsl::ostream&amp;     stream,
+                                 char              delimiter = &#39; &#39;,
+                                 int               maxFrames = -1,
+                                 int               additionalIgnoreFrames = 0,
+                                 bslma::Allocator *allocator = 0);
+        // Write to the specified &#39;stream&#39; the stack addresses from a stack
+        // trace of the current thread, in hex from top to bottom, and return
+        // &#39;stream&#39;.  Optionally specify &#39;delimiter&#39;, that is to be written
+        // between stack addresses.  If &#39;delimiter is not specified, the
+        // addresses are separated by a single space.  Optionally specify
+        // &#39;maxFrames&#39;, the upper limit of the number of frames to obtain,
+        // where a negative or unspecified value will be interpreted as a large
+        // finite default value.  Optionally specify &#39;additionalIgnoreFrames&#39;
+        // to be added to the number of frames from the stack top to be ignored
+        // and not printed.  Optionally specify &#39;allocator&#39; to be used for
+        // temporary storage; if none is specified, a locally created heap
+        // bypass allocator will be used.  The behavior is undefined unless
+        // &#39;delimiter != 0&#39; and &#39;additionalIgnoreFrames &gt;= 0&#39;.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

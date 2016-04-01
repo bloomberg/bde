@@ -1,0 +1,623 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_nullablevaluefunctions.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
+#define INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace defining nullable value functions.
+//
+//@CLASSES:
+//  bdlat_NullableValueFunctions: namespace for nullable value functions
+//
+//@SEE_ALSO: bdlb_nullablevalue
+//
+// TBD: update this documentation to reflect the new overloaded functions
+//
+//@DESCRIPTION: The &#39;bdlat_NullableValueFunctions&#39; &#39;namespace&#39; provided in this
+// component defines parameterized functions that expose &quot;nullable&quot; behavior
+// for &quot;nullable&quot; types.  See the package-level documentation for a full
+// description of &quot;nullable&quot; types.  The functions in this namespace allow
+// users to:
+//..
+//      o make the nullable object contain a value (&#39;makeValue&#39;).
+//      o manipulate the value contained in a nullable object using a
+//        parameterized manipulator (&#39;manipulateValue&#39;).
+//      o access the value contained in a nullable object using a parameterized
+//        accessor (&#39;accessValue&#39;).
+//      o check whether the nullable object is null or not (&#39;isNull&#39;).
+//..
+// Also, the meta-function &#39;IsNullableValue&#39; contains a compile-time constant
+// &#39;VALUE&#39; that is non-zero if the parameterized &#39;TYPE&#39; exposes &quot;nullable&quot;
+// behavior through the &#39;bdlat_NullableValueFunctions&#39; &#39;namespace&#39;.
+//
+// The &#39;ValueType&#39; meta-function contains a typedef &#39;Type&#39; that specifies the
+// type of the value that can be stored in the parameterized &quot;nullable&quot; type.
+//
+// This component specializes all of these functions for
+// &#39;bdlb::NullableValue&lt;TYPE&gt;&#39;.
+//
+// Other &quot;nullable&quot; types may expose &quot;nullable&quot; behavior by overloading the
+// &#39;bdlat_nullableValue*&#39; functions inside the namespace of the plugged in
+// type.  For example, suppose there is a type called &#39;mine::MyNullable&#39;.  In
+// order to plug this type into the &#39;bdlat&#39; framework as a &quot;nullable&quot;, the
+// following functions must be declared and implemented in the &#39;mine&#39;
+// namespace:
+//..
+//  // MANIPULATORS
+//  template &lt;class TYPE&gt;
+//  void bdlat_nullableValueMakeValue(TYPE *object);
+//      // Assign to the specified &quot;nullable&quot; &#39;object&#39; the default value for
+//      // the contained type.
+//
+//  template &lt;class TYPE, class MANIPULATOR&gt;
+//  int bdlat_nullableValueManipulateValue(TYPE         *object,
+//                                         MANIPULATOR&amp;  manipulator);
+//      // Invoke the specified &#39;manipulator&#39; on the address of the value
+//      // stored in the specified &quot;nullable&quot; &#39;object&#39;.  Return the value from
+//      // the invocation of &#39;manipulator&#39;.  The behavior is undefined unless
+//      // &#39;object&#39; does not contain a null value.
+//
+//  // ACCESSORS
+//  template &lt;class TYPE, class ACCESSOR&gt;
+//  int bdlat_nullableValueAccessValue(const TYPE&amp; object,
+//                                     ACCESSOR&amp;   accessor);
+//      // Invoke the specified &#39;accessor&#39; on the non-modifiable value stored
+//      // in the specified &quot;nullable&quot; &#39;object&#39;.  Return the value from the
+//      // invocation of &#39;accessor&#39;.  The behavior is undefined unless &#39;object&#39;
+//      // does not contain a null value.
+//
+//  template &lt;class TYPE&gt;
+//  bool bdlat_nullableValueIsNull(const TYPE&amp; object);
+//      // Return &#39;true&#39; if the specified &quot;nullable&quot; &#39;object&#39; contains a null
+//      // value, and &#39;false&#39; otherwise.
+//..
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you wanted to create a function that prints values to a specified
+// output stream.  The function should also be able to handle nullable values.
+// If the value is null, it should print &#39;NULL&#39; otherwise it should print the
+// value.  We will use a stateful function object for this example.  First,
+// define a &#39;PrintValue&#39; function class:
+//..
+//  #include &lt;bdlat_nullablevaluefunctions.h&gt;
+//  #include &lt;bslmf::If.h&gt;
+//
+//  #include &lt;ostream&gt;
+//
+//  using namespace BloombergLP;
+//
+//  class PrintValue {
+//      // This function will print values to the specified output stream.
+//
+//      // PRIVATE DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//..
+// Define two tags, &#39;IsNotNullableValueType&#39; and &#39;IsNullableValueType&#39;.  These
+// two tags will be used to toggle between two implementations of the
+// &#39;PrintValue&#39; function:
+//..
+//      // PRIVATE TYPES
+//      struct IsNotNullableValueType { };
+//      struct IsNullableValueType    { };
+//..
+// Provide two implementations of the &#39;PrintValue&#39; function, one for
+// non-nullable types and another for nullable types:
+//..
+//      // PRIVATE OPERATIONS
+//      template &lt;class TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNotNullableValueType)
+//      {
+//          enum { SUCCESS = 0 };
+//
+//          (*d_stream_p) &lt;&lt; value;
+//
+//          return SUCCESS;
+//      }
+//
+//      template &lt;class TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNullableValueType)
+//      {
+//          enum { SUCCESS = 0 };
+//..
+// For the nullable type implementation, first we need to check if the value is
+// null.  If so, simply print &#39;NULL&#39; and return &#39;SUCCESS&#39;:
+//..
+//          if (bdlat_NullableValueFunctions::isNull(value)) {
+//              (*d_stream_p) &lt;&lt; &quot;NULL&quot;;
+//
+//              return SUCCESS;
+//          }
+//..
+// Otherwise, since the value is not null, we will access the value using a
+// reference to &#39;this&#39; object as the parameterized accessor:
+//..
+//          return bdlat_NullableValueFunctions::accessValue(value, *this);
+//      }
+//..
+// Since &#39;*this&#39; is used as the parameterized accessor, the &#39;accessValue&#39;
+// function will invoke the &#39;operator()&#39; method (defined below), passing to it
+// a non-modifiable reference to the actual value.
+//
+// Add a constructor that takes a pointer to the output stream:
+//..
+//    public:
+//      // CREATORS
+//      PrintValue(bsl::ostream *stream)
+//      : d_stream_p(stream)
+//      {
+//      }
+//..
+// Add a parameterized function call operator that toggles between nullable
+// types and non-nullable types and close the definition of the &#39;PrintValue&#39;
+// function class:
+//..
+//      // OPERATIONS
+//      template &lt;class TYPE&gt;
+//      int operator()(const TYPE&amp; value)
+//      {
+//          typedef typename
+//          bslmf::If&lt;
+//              bdlat_NullableValueFunctions::IsNullableValueType&lt;TYPE&gt;::VALUE,
+//              IsNullableValueType,
+//              IsNotNullableValueType&gt;::Type Toggle;
+//
+//          return execute(value, Toggle());
+//      }
+//  };  // end &#39;class PrintValue&#39;
+//..
+// The entire &#39;PrintValue&#39; function class is provided below, uninterrupted, for
+// clarity:
+//..
+//  class PrintValue {
+//      // This function will print values to the specified output stream.
+//
+//      // PRIVATE DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//
+//      // PRIVATE TYPES
+//      struct IsNotNullableValueType { };
+//      struct IsNullableValueType    { };
+//
+//      // PRIVATE OPERATIONS
+//      template &lt;class TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNotNullableValueType)
+//      {
+//          enum { SUCCESS = 0 };
+//
+//          (*d_stream_p) &lt;&lt; value;
+//
+//          return SUCCESS;
+//      }
+//
+//      template &lt;class TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNullableValueType)
+//      {
+//          enum { SUCCESS = 0 };
+//
+//          if (bdlat_NullableValueFunctions::isNull(value)) {
+//              (*d_stream_p) &lt;&lt; &quot;NULL&quot;;
+//
+//              return SUCCESS;
+//          }
+//
+//          return bdlat_NullableValueFunctions::accessValue(value, *this);
+//      }
+//
+//    public:
+//      // CREATORS
+//      PrintValue(bsl::ostream *stream)
+//      : d_stream_p(stream)
+//      {
+//      }
+//
+//      // OPERATIONS
+//      template &lt;class TYPE&gt;
+//      int operator()(const TYPE&amp; value)
+//      {
+//          typedef typename
+//          bslmf::If&lt;
+//              bdlat_NullableValueFunctions::IsNullableValue&lt;TYPE&gt;::VALUE,
+//              IsNullableValueType,
+//              IsNotNullableValueType&gt;::Type Toggle;
+//
+//          return execute(value, Toggle());
+//      }
+//  };  // end &#39;class PrintValue&#39;
+//..
+// The &#39;PrintValue&#39; function class can be used for types that expose &quot;nullable&quot;
+// behavior through the &#39;bdlat_NullableValueFunctions&#39; &#39;namespace&#39; (e.g.,
+// &#39;bdlb::NullableValue&#39;) and any other type that has &#39;operator&lt;&lt;&#39; defined for
+// it.  For example:
+//..
+//  #include &lt;iostream&gt;
+//  #include &lt;bdlb_nullablevalue.h&gt;
+//
+//  void usageExample()
+//  {
+//      PrintValue printValue(bsl::cout);
+//
+//      int intScalar = 123;
+//
+//      printValue(intScalar);  // expected output: &#39;123&#39;
+//
+//      bdlb::NullableValue&lt;int&gt; intNullable;
+//
+//      printValue(intNullable);  // expected output: &#39;NULL&#39;
+//
+//      intNullable.makeValue(321);
+//
+//      printValue(intNullable);  // expected output: &#39;321&#39;
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_NULLABLEVALUE
+#include &lt;bdlb_nullablevalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_NULLABLEALLOCATEDVALUE
+#include &lt;bdlb_nullableallocatedvalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include &lt;bslmf_matchanytype.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+                   // ======================================
+                   // namespace bdlat_NullableValueFunctions
+                   // ======================================
+
+namespace bdlat_NullableValueFunctions {
+    // This &#39;namespace&#39; provides functions that expose &quot;nullable&quot; behavior for
+    // &quot;nullable&quot; types.  See the component-level documentation for more
+    // information.
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct IsNullableValue {
+        // This &#39;struct&#39; should be specialized for third-party types that need
+        // to expose &quot;nullable&quot; behavior.  See the component-level
+        // documentation for further information.
+
+        enum {
+//ARB:VALUE
+            VALUE = 0
+        };
+    };
+
+    template &lt;class TYPE&gt;
+    struct ValueType;
+        // This meta-function should contain a typedef &#39;Type&#39; that specifies
+        // the type of value stored in a nullable type of the parameterized
+        // &#39;TYPE&#39;.
+
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    void makeValue(TYPE *object);
+        // Assign to the specified &quot;nullable&quot; &#39;object&#39; the default value for
+        // the contained type.
+
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateValue(TYPE         *object,
+                        MANIPULATOR&amp;  manipulator);
+        // Invoke the specified &#39;manipulator&#39; on the address of the value
+        // stored in the specified &quot;nullable&quot; &#39;object&#39;.  Return the value from
+        // the invocation of &#39;manipulator&#39;.  The behavior is undefined unless
+        // &#39;object&#39; does not contain a null value.
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessValue(const TYPE&amp; object,
+                    ACCESSOR&amp;   accessor);
+        // Invoke the specified &#39;accessor&#39; on the non-modifiable value stored
+        // in the specified &quot;nullable&quot; &#39;object&#39;.  Return the value from the
+        // invocation of &#39;accessor&#39;.  The behavior is undefined unless &#39;object&#39;
+        // does not contain a null value.
+
+    template &lt;class TYPE&gt;
+    bool isNull(const TYPE&amp; object);
+        // Return &#39;true&#39; if the specified &quot;nullable&quot; &#39;object&#39; contains a null
+        // value, and &#39;false&#39; otherwise.
+
+
+    // OVERLOADABLE FUNCTIONS
+
+    // The following functions should be overloaded for other types (in their
+    // respective namespaces).  The following functions are the default
+    // implementations (for &#39;bas_codegen.pl&#39;-generated types).  Do *not* call
+    // these functions directly.  Use the functions above instead.
+    //
+    // Also note that the following functions are commented out.  They are just
+    // included here for reference, and so that users can copy-paste the
+    // required functions easily.
+
+#if 0
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    void bdlat_nullableValueMakeValue(TYPE *object);
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_nullableValueManipulateValue(TYPE         *object,
+                                           MANIPULATOR&amp;  manipulator);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_nullableValueAccessValue(const TYPE&amp; object,
+                                       ACCESSOR&amp;   accessor);
+    template &lt;class TYPE&gt;
+    bool bdlat_nullableValueIsNull(const TYPE&amp; object);
+#endif
+
+}  // close namespace bdlat_NullableValueFunctions
+
+                  // =======================================
+                  // Specializations for bdlb::NullableValue
+                  // =======================================
+
+namespace bdlat_NullableValueFunctions {
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct IsNullableValue&lt;bdlb::NullableValue&lt;TYPE&gt; &gt; {
+        enum {
+//ARB:VALUE
+            VALUE = 1
+        };
+    };
+
+    template &lt;class TYPE&gt;
+    struct ValueType&lt;bdlb::NullableValue&lt;TYPE&gt; &gt; {
+        typedef TYPE Type;
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    void bdlat_nullableValueMakeValue(bdlb::NullableValue&lt;TYPE&gt; *object);
+
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_nullableValueManipulateValue(
+                                       bdlb::NullableValue&lt;TYPE&gt; *object,
+                                       MANIPULATOR&amp;               manipulator);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_nullableValueAccessValue(
+                                    const bdlb::NullableValue&lt;TYPE&gt;&amp; object,
+                                    ACCESSOR&amp;                        accessor);
+
+    template &lt;class TYPE&gt;
+    bool bdlat_nullableValueIsNull(const bdlb::NullableValue&lt;TYPE&gt;&amp; object);
+
+}  // close namespace bdlat_NullableValueFunctions
+
+              // ================================================
+              // Specializations for bdlb::NullableAllocatedValue
+              // ================================================
+
+namespace bdlat_NullableValueFunctions {
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct IsNullableValue&lt;bdlb::NullableAllocatedValue&lt;TYPE&gt; &gt; {
+        enum {
+//ARB:VALUE
+            VALUE = 1
+        };
+    };
+
+    template &lt;class TYPE&gt;
+    struct ValueType&lt;bdlb::NullableAllocatedValue&lt;TYPE&gt; &gt; {
+        typedef TYPE Type;
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    void bdlat_nullableValueMakeValue(
+                                   bdlb::NullableAllocatedValue&lt;TYPE&gt; *object);
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_nullableValueManipulateValue(
+                              bdlb::NullableAllocatedValue&lt;TYPE&gt; *object,
+                              MANIPULATOR&amp;                        manipulator);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_nullableValueAccessValue(
+                           const bdlb::NullableAllocatedValue&lt;TYPE&gt;&amp; object,
+                           ACCESSOR&amp;                                 accessor);
+    template &lt;class TYPE&gt;
+    bool bdlat_nullableValueIsNull(
+                             const bdlb::NullableAllocatedValue&lt;TYPE&gt;&amp; object);
+
+}  // close namespace bdlat_NullableValueFunctions
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                   // --------------------------------------
+                   // namespace bdlat_NullableValueFunctions
+                   // --------------------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+inline
+void bdlat_NullableValueFunctions::makeValue(TYPE *object)
+{
+    bdlat_nullableValueMakeValue(object);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_NullableValueFunctions::manipulateValue(TYPE         *object,
+                                                  MANIPULATOR&amp;  manipulator)
+{
+    return bdlat_nullableValueManipulateValue(object, manipulator);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_NullableValueFunctions::accessValue(const TYPE&amp; object,
+                                              ACCESSOR&amp;   accessor)
+{
+    return bdlat_nullableValueAccessValue(object, accessor);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_NullableValueFunctions::isNull(const TYPE&amp; object)
+{
+    return bdlat_nullableValueIsNull(object);
+}
+
+                  // ---------------------------------------
+                  // Specializations for bdlb::NullableValue
+                  // ---------------------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+inline
+void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
+                                             bdlb::NullableValue&lt;TYPE&gt; *object)
+{
+    object-&gt;makeValue();
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
+                                        bdlb::NullableValue&lt;TYPE&gt; *object,
+                                        MANIPULATOR&amp;               manipulator)
+{
+    BSLS_ASSERT_SAFE(!object-&gt;isNull());
+
+    return manipulator(&amp;object-&gt;value());
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
+                                     const bdlb::NullableValue&lt;TYPE&gt;&amp; object,
+                                     ACCESSOR&amp;                        accessor)
+{
+    BSLS_ASSERT_SAFE(!object.isNull());
+
+    return accessor(object.value());
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_NullableValueFunctions::bdlat_nullableValueIsNull(
+                                       const bdlb::NullableValue&lt;TYPE&gt;&amp; object)
+{
+    return object.isNull();
+}
+
+              // ------------------------------------------------
+              // Specializations for bdlb::NullableAllocatedValue
+              // ------------------------------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+inline
+void bdlat_NullableValueFunctions::bdlat_nullableValueMakeValue(
+                                    bdlb::NullableAllocatedValue&lt;TYPE&gt; *object)
+{
+    object-&gt;makeValue();
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
+                               bdlb::NullableAllocatedValue&lt;TYPE&gt; *object,
+                               MANIPULATOR&amp;                        manipulator)
+{
+    BSLS_ASSERT_SAFE(!object-&gt;isNull());
+
+    return manipulator(&amp;object-&gt;value());
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
+                            const bdlb::NullableAllocatedValue&lt;TYPE&gt;&amp; object,
+                            ACCESSOR&amp;                                 accessor)
+{
+    BSLS_ASSERT_SAFE(!object.isNull());
+
+    return accessor(object.value());
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_NullableValueFunctions::bdlat_nullableValueIsNull(
+                              const bdlb::NullableAllocatedValue&lt;TYPE&gt;&amp; object)
+{
+    return object.isNull();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlb_blobstreambuf.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLB_BLOBSTREAMBUF
+#define INCLUDED_BTLB_BLOBSTREAMBUF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide blob implementing the &#39;streambuf&#39; interface.
+//
+//@CLASSES:
+// btlb::InBlobStreamBuf: &#39;btlb::Blob&#39; input &#39;streambuf&#39;
+// btlb::OutBlobStreamBuf: &#39;btlb::Blob&#39; output &#39;streambuf&#39;
+//
+//@SEE_ALSO: btlb_blob
+//
+//@DESCRIPTION: This component implements the input and output
+// &#39;bsl::basic_streambuf&#39; protocol using a user-supplied &#39;btlb::Blob&#39;.  Method
+// names necessarily correspond to the protocol-specified method names.  Refer
+// to the C++ Standard, Section 27.5.2, for a full specification of the
+// interface.
+//
+// A &#39;btlb::Blob&#39; is an indexed sequence of &#39;btlb::BlobBuffer&#39; of potentially
+// different sizes.  The number of buffers in the sequence can increase or
+// decrease, but the order of the buffers cannot change.  Therefore, the blob
+// behaves logically as a single indexed buffer.  &#39;btlb::InBlobStreamBuf&#39; and
+// &#39;btlb::OutBlobStreamBuf&#39; can therefore respectively read from and write to
+// this buffer as if there were a single continuous index.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLB_BLOB
+#include &lt;btlb_blob.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOS
+#include &lt;bsl_ios.h&gt;  // for &#39;bsl::streamsize&#39;
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include &lt;bsl_streambuf.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;  // bsl::size_t
+#endif
+
+namespace BloombergLP {
+namespace btlb { class Blob; }
+namespace btlb {
+
+                          // =====================
+                          // class InBlobStreamBuf
+                          // =====================
+
+class InBlobStreamBuf : public bsl::streambuf {
+    // This class implements the input functionality of the &#39;basic_streambuf&#39;
+    // protocol, using a client-supplied &#39;btlb::Blob&#39;.
+
+    // PRIVATE TYPES
+    typedef bsl::ios_base ios_base;
+
+    // DATA
+    const btlb::Blob *d_blob_p;                 // &quot;streamed&quot; blob (held)
+    int               d_getBufferIndex;         // index of current buffer
+    int               d_previousBuffersLength;  // length of buffers before the
+                                                // current one
+
+    // NOT IMPLEMENTED
+    InBlobStreamBuf(const InBlobStreamBuf&amp;);
+    InBlobStreamBuf&amp; operator=(const InBlobStreamBuf&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void setGetPosition(bsl::size_t position);
+        // Set the current location to the specified &#39;position&#39;.
+
+    // PRIVATE ACCESSORS
+    int checkInvariant() const;
+        // Check this object&#39;s invariant.
+
+  protected:
+    // PROTECTED VIRTUAL FUNCTIONS
+    virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
+        // Return &#39;traits_type::eof()&#39; unconditionally.
+
+    virtual int_type pbackfail(
+                              int_type c = bsl::streambuf::traits_type::eof());
+        // Adjust the underlying blob and put the optionally specified
+        // character &#39;c&#39; at the newly valid &#39;gptr()&#39;.  Return &#39;c&#39; (or
+        // &#39;~traits_type::eof&#39; if &#39;c
+        // == traits_type::eof&#39;) on success, and &#39;traits_type::eof()&#39;
+        // otherwise.
+
+    virtual pos_type seekoff(
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+        // Set the location from which the next I/O operation indicated by the
+        // optionally specified &#39;which&#39; mode will occur to the specified
+        // &#39;offset&#39; position from the location indicated by the specified
+        // &#39;fixedPosition&#39;.  Return the new offset on success, and
+        // &#39;off_type(-1)&#39; otherwise.  &#39;offset&#39; may be negative.  Note that this
+        // method will fail if &#39;bsl::ios_base::out&#39; is set.
+
+    virtual pos_type seekpos(
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+        // Set the location from which the next I/O operation indicated by the
+        // optionally specified &#39;which&#39; mode will occur to the specified
+        // &#39;position&#39;.  Return &#39;position&#39; on success, and &#39;off_type(-1)&#39;
+        // otherwise.  Note that this method will fail if &#39;bsl::ios_base::out&#39;
+        // is set.
+
+    virtual bsl::streamsize showmanyc();
+        // Return the number of characters currently available for reading from
+        // this stream buffer, or 0 if there are none.
+
+    virtual int sync();
+        // Return 0 unconditionally.
+
+    virtual int_type underflow();
+        // Adjust the underlying blob so that the next read position is valid.
+        // Return the character at &#39;gptr()&#39; on success and &#39;traits_type::eof()&#39;
+        // otherwise.
+
+    virtual bsl::streamsize xsgetn(char_type       *destination,
+                                   bsl::streamsize  numChars);
+        // Read the specified &#39;numChars&#39; to the specified &#39;destination&#39;.
+        // Return the number of characters successfully read.  The behavior is
+        // undefined unless 0 &lt;= &#39;numChars&#39;.
+
+    virtual bsl::streamsize xsputn(const char_type *source,
+                                   bsl::streamsize  numChars);
+        // Return 0 unconditionally.
+
+  public:
+    // CREATORS
+    explicit InBlobStreamBuf(const btlb::Blob *blob);
+        // Create a &#39;BlobStreamBuf&#39; using the specified &#39;blob&#39;.
+
+    ~InBlobStreamBuf();
+        // Destroy this stream buffer.
+
+    // MANIPULATORS
+    void reset(const btlb::Blob *blob = 0);
+        // Reset the get areas.  Optionally set the underlying &#39;btlb::Blob&#39;
+        // value to the optionally specified &#39;blob&#39; if &#39;blob&#39; is not 0.
+
+    // ACCESSORS
+    int currentBufferIndex() const;
+        // Return the index of the current buffer.  The behavior is undefined
+        // unless the the &quot;streamed&quot; blob has at least one buffer.
+
+    const btlb::Blob *data() const;
+        // Return the address of the blob held by this stream buffer.
+
+    int previousBuffersLength() const;
+        // Return the number of bytes contained in the buffers located before
+        // the current one.  The behavior is undefined unless the the
+        // &quot;streamed&quot; blob has at least one buffer.
+};
+
+                          // ======================
+                          // class OutBlobStreamBuf
+                          // ======================
+
+class OutBlobStreamBuf : public bsl::streambuf {
+    // This class implements the output functionality of the &#39;basic_streambuf&#39;
+    // protocol, using a client-supplied &#39;btlb::Blob&#39;.
+
+    // PRIVATE TYPES
+    typedef bsl::ios_base ios_base;
+
+    // DATA
+    btlb::Blob *d_blob_p;                 // &quot;streamed&quot; blob (held)
+    int         d_putBufferIndex;         // index of current buffer
+    int         d_previousBuffersLength;  // length of buffers before
+
+    // NOT IMPLEMENTED
+    OutBlobStreamBuf(const OutBlobStreamBuf&amp;);
+    OutBlobStreamBuf&amp; operator=(const OutBlobStreamBuf&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void setPutPosition(bsl::size_t position);
+        // Set the current location to the specified &#39;position&#39;.
+
+    // PRIVATE ACCESSORS
+    int checkInvariant() const;
+        // Check this object&#39;s invariants and return 0.
+
+  protected:
+    // PROTECTED VIRTUAL FUNCTIONS
+    virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
+        // Append the optionally specified character &#39;c&#39; to this streambuf, and
+        // return &#39;c&#39;.  By default, &#39;traits_type::eof()&#39; is appended.
+
+    virtual int_type pbackfail(
+                              int_type c = bsl::streambuf::traits_type::eof());
+        // Return &#39;traits_type::eof()&#39; unconditionally.
+
+    virtual pos_type seekoff(
+       off_type                offset,
+       bsl::ios_base::seekdir  fixedPosition,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+        // Set the location from which the next I/O operation indicated by the
+        // optionally specified &#39;which&#39; mode will occur to the specified
+        // &#39;offset&#39; position from the location indicated by the specified
+        // &#39;fixedPosition&#39;.  Return the new offset on success, and
+        // &#39;off_type(-1)&#39; otherwise.  &#39;offset&#39; may be negative.  Note that this
+        // method will fail if &#39;bsl::ios_base::in&#39; is set.
+
+    virtual pos_type seekpos(
+       pos_type                position,
+       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
+        // Set the location from which the next I/O operation indicated by the
+        // optionally specified &#39;which&#39; mode will occur to the specified
+        // &#39;position&#39;.  Return &#39;position&#39; on success, and &#39;off_type(-1)&#39;
+        // otherwise.  Note that this method will fail if &#39;bsl::ios_base::in&#39;
+        // is set.
+
+    virtual bsl::streamsize showmanyc();
+        // Return 0 unconditionally.
+
+    virtual int sync();
+        // Synchronize the put position in the blob of this stream buffer.
+        // Return 0 unconditionally.
+
+    virtual int_type underflow();
+        // Return &#39;traits_type::eof()&#39; unconditionally.
+
+    virtual bsl::streamsize xsgetn(char_type       *destination,
+                                   bsl::streamsize  numChars);
+        // Return 0 unconditionally.
+
+    virtual bsl::streamsize xsputn(const char_type *source,
+                                   bsl::streamsize  numChars);
+        // Copy the specified &#39;numChars&#39; from the specified &#39;source&#39; to the
+        // blob held by this streambuf, starting at the current put area
+        // location.  The behavior is undefined unless 0 &lt;= &#39;numChars&#39;.
+
+  public:
+    // CREATORS
+    explicit OutBlobStreamBuf(btlb::Blob *blob);
+        // Create a &#39;OutBlobStreamBuf&#39; using the specified &#39;blob&#39;, and set the
+        // location at which the next write operation will occur to
+        // &#39;blob-&gt;length()&#39;.
+
+    ~OutBlobStreamBuf();
+        // Destroy this stream buffer.
+
+    // MANIPULATORS
+    btlb::Blob *data();
+        // Return the address of the blob held by this stream buffer.
+
+    void reset(btlb::Blob *blob = 0);
+        // Reset the get and put areas.  Optionally set the underlying
+        // &#39;btlb::Blob&#39; value to the optionally specified &#39;blob&#39; if &#39;blob&#39; is
+        // not 0.
+
+    // ACCESSORS
+    int currentBufferIndex() const;
+        // Return the index of the current buffer.  The behavior is undefined
+        // unless the the &quot;streamed&quot; blob has at least one buffer.
+
+    const btlb::Blob *data() const;
+        // Return the address of the blob held by this stream buffer.
+
+    int previousBuffersLength() const;
+        // Return the number of bytes contained in the buffers located before
+        // the current one.  The behavior is undefined unless the the
+        // &quot;streamed&quot; blob has at least one buffer.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                          // =====================
+                          // class InBlobStreamBuf
+                          // =====================
+
+// MANIPULATORS
+inline
+void InBlobStreamBuf::reset(const btlb::Blob *blob)
+{
+    if (blob) {
+        d_blob_p = blob;
+        d_getBufferIndex = 0;
+        d_previousBuffersLength = 0;
+        setg(0, 0, 0);
+        if (0 == d_blob_p-&gt;length()) {
+            return;                                                   // RETURN
+        }
+    }
+    setGetPosition(0);
+}
+
+// ACCESSORS
+inline
+int InBlobStreamBuf::currentBufferIndex() const
+{
+    BSLS_ASSERT_SAFE(d_getBufferIndex &lt; d_blob_p-&gt;numBuffers());
+    return d_getBufferIndex;
+}
+
+inline
+const btlb::Blob *InBlobStreamBuf::data() const
+{
+    return d_blob_p;
+}
+
+inline
+int InBlobStreamBuf::previousBuffersLength() const
+{
+    return d_previousBuffersLength;
+}
+
+                          // ======================
+                          // class OutBlobStreamBuf
+                          // ======================
+
+// MANIPULATORS
+inline
+btlb::Blob *OutBlobStreamBuf::data()
+{
+    return d_blob_p;
+}
+
+inline
+void OutBlobStreamBuf::reset(btlb::Blob *blob)
+{
+    if (blob) {
+        d_blob_p = blob;
+        d_putBufferIndex = 0;
+        d_previousBuffersLength = 0;
+        setp(0, 0);
+        if (0 == d_blob_p-&gt;totalSize()) {
+            return;                                                   // RETURN
+        }
+    }
+    setPutPosition(d_blob_p-&gt;length());
+}
+
+// ACCESSORS
+inline
+int OutBlobStreamBuf::currentBufferIndex() const
+{
+    BSLS_ASSERT_SAFE(d_putBufferIndex &lt; d_blob_p-&gt;numBuffers());
+    return d_putBufferIndex;
+}
+
+inline
+const btlb::Blob *OutBlobStreamBuf::data() const
+{
+    return d_blob_p;
+}
+
+inline
+int OutBlobStreamBuf::previousBuffersLength() const
+{
+    return d_previousBuffersLength;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

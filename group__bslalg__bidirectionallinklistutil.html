@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg_bidirectionallinklistutil Component</title>
+<title>BDE 3.0: bslalg_bidirectionallinklistutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -53,6 +53,9 @@
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>Component bslalg_bidirectionallinklistutil<br/>
 <small>
@@ -64,7 +67,17 @@
 <p>Provide utilities to maintain bidirectional list data structures.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structBloombergLP_1_1bslalg_1_1BidirectionalLinkListUtil.html">BloombergLP::bslalg::BidirectionalLinkListUtil</a></td></tr>
+<tr><td colspan="2"><h2><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__bidirectionallinklistutil.html#gab774df61024c46ab5a3dfd8e1825377d">BloombergLP::bslalg::BidirectionalLinkListUtil::insertLinkAfterTarget</a> (BidirectionalLink *newNode, BidirectionalLink *target)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__bidirectionallinklistutil.html#gaa7610e8bcc6ee1c7db73035d111a28b5">BloombergLP::bslalg::BidirectionalLinkListUtil::isWellFormed</a> (BidirectionalLink *head, BidirectionalLink *tail)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__bidirectionallinklistutil.html#ga62764f46ad27a4ef2cc6389bffeaff25">BloombergLP::bslalg::BidirectionalLinkListUtil::spliceListBeforeTarget</a> (BidirectionalLink *first, BidirectionalLink *last, BidirectionalLink *target)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__bidirectionallinklistutil.html#ga55c04daf72aa20fa514e261813e6a85b">BloombergLP::bslalg::BidirectionalLinkListUtil::unlink</a> (BidirectionalLink *node)</td></tr>
 </table>
+<hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
 <li>
 <a href="#1">Purpose</a> </li>
@@ -91,7 +104,7 @@
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bslalg::BidirectionalLinkListUtil </td><td>utilities to maintain linked lists  </td></tr>
+<td><a class="el" href="structBloombergLP_1_1bslalg_1_1BidirectionalLinkListUtil.html">bslalg::BidirectionalLinkListUtil</a> </td><td>utilities to maintain linked lists  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -99,7 +112,7 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a namespace, <code>bslalg::BidirectionalLinkListUtil</code>, containing utility functions for operating on doubly linked lists with nodes of type <code><a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a></code>. The operations assume that the linked lists are either 0 terminated (on both ends) or terminate with sentinel (valid) nodes. The main operations include insertion and removal of a node from a list of nodes, and the <em>splicing</em> of ranges from one list into another one. Splicing is the operation of moving a sub-list, or range, of elements from one linked list and into a second list, at a specified position. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a namespace, <code><a class="el" href="structBloombergLP_1_1bslalg_1_1BidirectionalLinkListUtil.html">bslalg::BidirectionalLinkListUtil</a></code>, containing utility functions for operating on doubly linked lists with nodes of type <code><a class="el" href="classbslalg_1_1BidirectionalLink.html">bslalg::BidirectionalLink</a></code>. The operations assume that the linked lists are either 0 terminated (on both ends) or terminate with sentinel (valid) nodes. The main operations include insertion and removal of a node from a list of nodes, and the <em>splicing</em> of ranges from one list into another one. Splicing is the operation of moving a sub-list, or range, of elements from one linked list and into a second list, at a specified position. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -252,8 +265,133 @@
 </pre></div><br/>
 <br/>
  </dd></dl>
+<hr/><h2>Function Documentation</h2>
+<a class="anchor" id="gab774df61024c46ab5a3dfd8e1825377d"></a><!-- doxytag: member="BloombergLP::bslalg::BidirectionalLinkListUtil::insertLinkAfterTarget" ref="gab774df61024c46ab5a3dfd8e1825377d" args="(BidirectionalLink *newNode, BidirectionalLink *target)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void BloombergLP::bslalg::BidirectionalLinkListUtil::insertLinkAfterTarget </td>
+          <td>(</td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>newNode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>target</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static, inherited]</code></td>
+        </tr>
+      </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<div class="memdoc">
+<p>Insert the specified <code>newNode</code> after the specified <code>target</code> node in the linked list that contains <code>target</code>. If the node following <code>target</code> is 0, then set the <code>nextLink</code> attribute of <code>newNode</code> to 0. After successful execution of this function the values of the <code>previousLink</code> and <code>nextLink</code> attributes of all the links in the list appropriately reflect the operation. The behavior is undefined unless <code>0 != newNode</code> and <code>0 != target</code>. The behavior is also undefined unless <code>0 == target-&gt;nextLink()</code> is true or <code>isWellFormed(target, target-&gt;nextLink())</code> are true. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaa7610e8bcc6ee1c7db73035d111a28b5"></a><!-- doxytag: member="BloombergLP::bslalg::BidirectionalLinkListUtil::isWellFormed" ref="gaa7610e8bcc6ee1c7db73035d111a28b5" args="(BidirectionalLink *head, BidirectionalLink *tail)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool BloombergLP::bslalg::BidirectionalLinkListUtil::isWellFormed </td>
+          <td>(</td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>head</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>tail</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return true if the bidirectional list starting from the specified <code>head</code>, and ending with the specified <code>tail</code> is well formed. A bidirectional list is well formed if <code>tail == head</code> (0 values are allowed) or all of the following conditions are met (note that <code>head</code> is renamed to <code>h</code> and <code>tail</code> to <code>t</code> for brevity):</p>
+<ol>
+<li>
+<code>h</code> and <code>t</code> are valid addresses.  </li>
+<li>
+<code>h-&gt;nextLink()-&gt;previousLink() == h</code> is true.  </li>
+<li>
+<code>!h-&gt;previousLink() || h-&gt;previousLink()-&gt;nextLink() == h</code> is true.  </li>
+<li>
+<code>t-&gt;previousLink()-&gt;nextLink() == t</code> is true.  </li>
+<li>
+<code>!t-&gt;nextLink() || t-&gt;nextLink()-&gt;previousLink() == t</code> is true.  </li>
+<li>
+For each <code>link</code> in the list different than <code>h</code> and <code>t</code> both <code>link-&gt;nextLink()-&gt;previousLink() == link</code> and <code>link-&gt;previousLink()-&gt;nextLink() == link</code> are true.  </li>
+</ol>
+<p>The behavior is undefined unless <code>tail</code> can be reached from <code>head</code> following the chain of <code>nextLink</code> attributes of all the nodes in the open range <code>[head, tail)</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga62764f46ad27a4ef2cc6389bffeaff25"></a><!-- doxytag: member="BloombergLP::bslalg::BidirectionalLinkListUtil::spliceListBeforeTarget" ref="ga62764f46ad27a4ef2cc6389bffeaff25" args="(BidirectionalLink *first, BidirectionalLink *last, BidirectionalLink *target)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void BloombergLP::bslalg::BidirectionalLinkListUtil::spliceListBeforeTarget </td>
+          <td>(</td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>last</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>target</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Unlink and move (splice) the elements of a doubly-linked list included in the closed range <code>[first, last]</code> out of their original list and into another doubly-linked list before the specified <code>target</code> node. If <code>target</code> is 0, then the the elements are extracted and form a new list such that <code>0 == first-&gt;previousLink()</code> and <code>0 == last-&gt;nextLink()</code> . After successful execution of this function the values of the <code>previousLink</code> and <code>nextLink</code> attributes of all the links in the origin and destination lists appropriately reflect the operation. The behavior is undefined unless both <code>first</code> and <code>last</code> are non-zero members of the same linked list; <code>first</code> precedes <code>last</code> in the list, or <code>first == last</code>; <code>target</code> is not a node contained in the closed range <code>[first, last]</code>; and <code>isWellFormed(first, last)</code> is true. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga55c04daf72aa20fa514e261813e6a85b"></a><!-- doxytag: member="BloombergLP::bslalg::BidirectionalLinkListUtil::unlink" ref="ga55c04daf72aa20fa514e261813e6a85b" args="(BidirectionalLink *node)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void BloombergLP::bslalg::BidirectionalLinkListUtil::unlink </td>
+          <td>(</td>
+          <td class="paramtype">BidirectionalLink *&nbsp;</td>
+          <td class="paramname"> <em>node</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Unlink the specified <code>node</code> from the linked list of which it is a member. After successful execution of this function the values of the <code>previousLink</code> and <code>nextLink</code> attributes of all the links in the origin and destination lists appropriately reflect the operation Note that this method does <em>not</em> change the value for the <code>nextLink</code> and <code>previousLink</code> attributes of <code>node</code>. The behavior is undefined unless <code>!node-&gt;previousLink()</code>, <code>!node-&gt;nextLink()</code>, or <code>isWellFormed(node-&gt;previousLink(), node-&gt;nextLink())</code> are true. </p>
+
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:51 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

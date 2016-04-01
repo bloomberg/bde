@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_intervalconversionutil Component</title>
+<title>BDE 3.0: bdlt_intervalconversionutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -117,7 +117,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Suppose we wish to pass the system time -- as returned by <code><a class="el" href="structbsls_1_1SystemTime.html#a6660573c743055976dfbbe09fb1b8fb1">bsls::SystemTime::nowRealtimeClock</a></code> -- to a function that displays a time that is represented as a <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code> since the UNIX epoch. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we include the declaration of the function that displays a <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> displayTime(<span class="keyword">const</span> <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a>&amp; timeSinceEpoch);
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> displayTime(<span class="keyword">const</span> bdlt::DatetimeInterval&amp; timeSinceEpoch);
 </pre></div><br/>
 <br/>
  Then, we obtain the current system time from <code><a class="el" href="structbsls_1_1SystemTime.html">bsls::SystemTime</a></code>, and store it in a <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code>: <br/>
@@ -127,7 +127,7 @@ Namespaces</h2></td></tr>
 <br/>
  Now, we convert the <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code> into a <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code> using <code>convertToDatetimeInterval</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> timeSinceEpoch =
+<div class="fragment"><pre class="fragment">  bdlt::DatetimeInterval timeSinceEpoch =
          <a class="code" href="structbdlt_1_1IntervalConversionUtil.html#a14a392ef7f8c2be4bb4805f3c356accc">bdlt::IntervalConversionUtil::convertToDatetimeInterval</a>(systemTime);
 
   assert(timeSinceEpoch.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a73a9bb5e904795902f1950be8afa60dc">totalMilliseconds</a>() ==
@@ -141,7 +141,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,372 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_entrypointfunctoradapter.h                                   -*-C++-*-
+#ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
+#define INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$: $&quot;)
+
+//@PURPOSE: Provide types and utilities to simplify thread creation.
+//
+//@CLASSES:
+//      EntryPointFunctorAdapter: Encapsulate invokable object with allocator.
+//  EntryPointFunctorAdapterUtil: Dynamic allocation of adapter objects.
+//
+//@DESCRIPTION: This component defines a type, &#39;EntryPointFunctorAdapter&#39;, that
+// contains a single instance of a parameterized invokable type along with an
+// allocator to manage it.  The parameterized type must provide a copy
+// constructor and &#39;void operator()()&#39;.
+//
+// This component also provides a C-linkage function
+// &#39;bslmt_EntryPointFunctorAdapter_invoker&#39; that operates on a pointer to
+// &#39;EntryPointFunctorAdapter&#39;, invoking the invokable object contained within
+// it and then deallocating the adapter object along with the contained
+// invokable object.  Together, &#39;EntryPointFunctorAdapter&#39; and
+// &#39;bldqq_EntryPointFunctorAdapter_invoker&#39; simplify the process of invoking a
+// generic functor as a C-style callback, such as a thread entry point.
+//
+// Finally, this component provides &#39;EntryPointFunctorAdapterUtil&#39;, a namespace
+// for a utility function that dynamically allocates instances of
+// &#39;EntryPointFunctorAdapter&#39;.
+//
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
+///Example 1: Wrapping a C++ Invokable Type
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we have an existing interface for invoking a C-linkage function and
+// passing a void* argument to it.  This situation may arise when starting
+// threads or in general when registering a C-style callback.  A simplistic
+// example of such a function is:
+//..
+// extern &quot;C&quot; {
+//    typedef void *(*CallbackFunction)(void*);
+// }
+//
+// void *executeWithArgument(CallbackFunction funcPtr, void *argument) {
+//    return funcPtr(argument);
+// }
+//..
+// In this example, we want to use this interface to invoke a C++-style
+// functor.  Our approach will be to use
+// &#39;bldqq_EntryPointFunctorAdapter_invoker&#39; as the C-linkage callback function,
+// and a dynamically allocated value of &#39;EntryPointFunctorAdapter&#39; as the
+// &#39;void*&#39; argument.
+//
+// First, we define a C++ functor type.  This type implements the job of
+// counting the number of words in a string held by value.
+//..
+// class WordCountJob {
+//     // DATA
+//     bsl::string  d_message;
+//     int         *d_result_p; // held, not owned
+//
+//   public:
+//     // TRAITS
+//     BSLALG_DECLARE_NESTED_TRAITS(WordCountJob,
+//                                  bslalg::TypeTraitUsesBslmaAllocator);
+//
+//     // CREATORS
+//     WordCountJob(const bslstl::StringRef&amp;  message,
+//                  int                      *result,
+//                  bslma::Allocator         *basicAllocator = 0);
+//       // Create a new functor that, upon execution, counts the number of
+//       // words (contiguous sequences of non-space characters) in the
+//       // specified &#39;message&#39; and stores the count in the specified
+//       // &#39;result&#39; address.  Use the specified &#39;basicAllocator&#39; to supply
+//       // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+//       // allocator is used.
+//
+//     WordCountJob(const WordCountJob&amp;  other,
+//                  bslma::Allocator    *basicAllocator = 0);
+//       // Create a new functor that performs the same calculation as the
+//       // specified &#39;other&#39; functor.  Use the specified &#39;basicAllocator&#39;
+//       // to supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+//       // default allocator is used.
+//
+//     // MANIPULATORS
+//     void operator()();
+//       // Count the number of words in the message and store the count in
+//       // the address specified on construction.
+// };
+//
+// inline WordCountJob::WordCountJob(const bslstl::StringRef&amp;  message,
+//                                   int                      *result,
+//                                   bslma::Allocator         *basicAllocator)
+// : d_message(message, basicAllocator)
+// , d_result_p(result)
+// {}
+//
+// inline WordCountJob::WordCountJob(const WordCountJob&amp;  other,
+//                                   bslma::Allocator    *basicAllocator)
+// : d_message(other.d_message, basicAllocator)
+// , d_result_p(other.d_result_p)
+// {}
+//
+// void WordCountJob::operator()() {
+//   bool inWord = false;
+//   *d_result_p = 0;
+//   for (int i = 0; i &lt; d_message.length(); ++i) {
+//     if (isspace(d_message[i])) {
+//        inWord = false;
+//     } else if (!inWord) {
+//        inWord = true;
+//        ++(*d_result_p);
+//     }
+//   }
+// }
+//..
+// Next, we dynamically allocate an &#39;EntryPointFunctorAdapter&#39; wrapping an
+// instance of this functor:
+//..
+// int result = 0;
+// WordCountJob job(&quot;The quick brown fox jumped over the lazy dog.&quot;, &amp;result);
+//
+// bslma::ManagedPtr&lt;
+//     bslmt::EntryPointFunctorAdapter&lt;WordCountJob&gt; &gt; threadData;
+// bslmt::EntryPointFunctorAdapterUtil::allocateAdapter(&amp;threadData, job);
+//..
+// Finally, we use &#39;bslmt_EntryPointFunctorAdapter_invoker&#39; to invoke the job
+// in the context of a C-linkage function.  Note that
+// &#39;bslmt_EntryPointFunctorAdapter_invoker&#39; will deallocate the adapter object
+// and the contained invokable job after executing it, so we must release the
+// adapter from memory management via &#39;ManagedPtr&#39;.  (In general, system APIs
+// that register callbacks may fail; newly allocated adapters are loaded into
+// &#39;ManagedPtr&#39; to aid in proper error and exception handling, outside the
+// scope of this example.)
+//..
+// executeWithArgument(bslmt_EntryPointFunctorAdapter_invoker,
+//                     threadData.ptr());
+// threadData.release();
+// assert(9 == result);
+//..
+//
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
+#include &lt;bslalg_constructorproxy.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include &lt;bslma_managedptr.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_RAWDELETERGUARD
+#include &lt;bslma_rawdeleterguard.h&gt;
+#endif
+
+namespace BloombergLP {
+
+extern &quot;C&quot; {
+
+void *bslmt_EntryPointFunctorAdapter_invoker(void* argument);
+    // Interpreting &#39;argument&#39; as an &#39;EntryPointFunctorAdapter_Base*&#39;, invoke
+    // &#39;argument-&gt;function(argument)&#39;.  Do not use outside this component.
+
+}
+
+namespace bslmt {
+
+struct EntryPointFunctorAdapterUtil;
+
+class EntryPointFunctorAdapter_Base {
+    // This component-private type provides a non-templated view of
+    // &#39;EntryPointFunctorAdapter&#39; for accessing the invoker function.  Do not
+    // use outside this component.
+
+  public:
+    // PUBLIC TYPES
+    typedef void (*InvokerFunction)(void*);
+        // &#39;InvokerFunction&#39; is an alias for the type of function pointer held
+        // in an EntryPointFunctorAdapter_Base.  Instances of the function are
+        // intended to interpret their argument as an
+        // &#39;EntryPointFunctorAdapter&lt;TYPE&gt;*&#39;.
+
+  private:
+    InvokerFunction d_function; // Function to operate on template object
+
+  protected:
+    // CREATORS
+    explicit EntryPointFunctorAdapter_Base(InvokerFunction function);
+        // Create a new object holding the specified &#39;function&#39;.
+
+  public :
+    // ACCESSORS
+    InvokerFunction function() const;
+        // Return the function supplied at construction.
+};
+
+template &lt;typename TYPE&gt;
+class EntryPointFunctorAdapter : private EntryPointFunctorAdapter_Base {
+    // Hold a copy of an instance of parameterized type, along with the
+    // allocator used to manage the copy.  &#39;TYPE&#39; shall have a copy
+    // constructor, and declare the &#39;bslma::UsesBslmaAllocator&#39; trait if it
+    // uses &#39;bslma::Allocator&#39; as an argument to its copy constructor.
+
+    // DATA
+    bslalg::ConstructorProxy&lt;TYPE&gt;  d_functor;
+    bslma::Allocator               *d_allocator_p;
+
+    friend struct EntryPointFunctorAdapterUtil;
+
+    // NOT IMPLEMENTED
+    EntryPointFunctorAdapter(const EntryPointFunctorAdapter&amp;);
+    EntryPointFunctorAdapter&amp; operator=(const EntryPointFunctorAdapter&amp;);
+
+    // CREATORS
+    EntryPointFunctorAdapter(const TYPE&amp; functor, bslma::Allocator *allocator);
+        // Create a new managed object holding a new copy of the specified
+        // &#39;functor&#39; value and using the specified &#39;allocator&#39; to manage
+        // memory.
+
+    // CLASS METHODS
+    static void invokerFunction(void *adapter);
+        // Interpreting the specified &#39;adapter&#39; as a
+        // &#39;EntryPointFunctorAdapter&lt;TYPE&gt;*&#39;, invoke &#39;d_object&#39; and then
+        // deallocate &#39;adapter&#39; using &#39;d_allocator_p&#39;.
+
+  public:
+    // ~EntryPointFunctorAdapter() = default;
+        // Destroy this object and the underlying managed object.  Note that
+        // this destructor is generated by the compiler.
+
+    // ACCESSORS
+    bslma::Allocator* allocator() const;
+        // Return the allocator supplied at construction.
+
+    // MANIPULATORS
+    TYPE&amp; functor();
+        // Return a reference to the functor.
+};
+
+struct EntryPointFunctorAdapterUtil {
+
+    template&lt;typename TYPE&gt;
+    static void allocateAdapter(
+       bslma::ManagedPtr&lt;EntryPointFunctorAdapter&lt;TYPE&gt; &gt; *adapter,
+       const TYPE&amp;                                         invokable,
+       bslma::Allocator                                   *basicAllocator = 0);
+        // Allocate a new &#39;EntryPointFunctorAdapter&#39; holding a copy of the
+        // specified &#39;invokable&#39; object, and load the result into the specified
+        // &#39;adapter&#39;.  Use &#39;basicAllocator&#39; to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                    // -----------------------------------
+                    // class EntryPointFunctorAdapter_Base
+                    // -----------------------------------
+// CREATORS
+inline
+EntryPointFunctorAdapter_Base::EntryPointFunctorAdapter_Base(
+                                                      InvokerFunction function)
+: d_function(function)
+{}
+
+// ACCESSORS
+inline EntryPointFunctorAdapter_Base::InvokerFunction
+EntryPointFunctorAdapter_Base::function() const {
+    return d_function;
+}
+
+                      // ------------------------------
+                      // class EntryPointFunctorAdapter
+                      // ------------------------------
+
+// CLASS METHODS
+template &lt;typename TYPE&gt;
+inline
+void EntryPointFunctorAdapter&lt;TYPE&gt;::invokerFunction(void *adapterRaw) {
+    EntryPointFunctorAdapter&lt;TYPE&gt; *adapter =
+        static_cast&lt;EntryPointFunctorAdapter&lt;TYPE&gt;*&gt;(adapterRaw);
+
+    bslma::RawDeleterGuard&lt;
+        EntryPointFunctorAdapter&lt;TYPE&gt;,
+        bslma::Allocator&gt; adapterGuard(adapter, adapter-&gt;allocator());
+
+    adapter-&gt;functor()();
+}
+
+// CREATORS
+template &lt;typename TYPE&gt;
+inline
+EntryPointFunctorAdapter&lt;TYPE&gt;::EntryPointFunctorAdapter(
+                                                   const TYPE&amp;       functor,
+                                                   bslma::Allocator *allocator)
+: EntryPointFunctorAdapter_Base(&amp;invokerFunction)
+, d_functor(functor, allocator)
+, d_allocator_p(allocator)
+{}
+
+// ACCESSORS
+template &lt;typename TYPE&gt;
+inline
+bslma::Allocator* EntryPointFunctorAdapter&lt;TYPE&gt;::allocator() const {
+    return d_allocator_p;
+}
+
+// MANIPULATORS
+template &lt;typename TYPE&gt;
+inline
+TYPE&amp; EntryPointFunctorAdapter&lt;TYPE&gt;::functor() {
+    return d_functor.object();
+}
+
+                    // ----------------------------------
+                    // class EntryPointFunctorAdapterUtil
+                    // ----------------------------------
+
+template &lt;typename TYPE&gt;
+inline
+void EntryPointFunctorAdapterUtil::allocateAdapter(
+          bslma::ManagedPtr&lt;EntryPointFunctorAdapter&lt;TYPE&gt; &gt; *adapter,
+          const TYPE&amp;                                         invokable,
+          bslma::Allocator                                   *basicAllocator) {
+
+    bslma::Allocator *allocator = bslma::Default::allocator(basicAllocator);
+    adapter-&gt;load(new (*allocator) EntryPointFunctorAdapter&lt;TYPE&gt;(invokable,
+                                                                  allocator),
+                  allocator);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

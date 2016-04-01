@@ -1,0 +1,207 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_defaultdeleter.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMA_DEFAULTDELETER
+#define INCLUDED_BDLMA_DEFAULTDELETER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a concrete default deleter w/optionally-supplied allocator.
+//
+//@CLASSES:
+//   bdlma::DefaultDeleter: concrete default &#39;bdema&#39;-based deleter
+//
+//@SEE_ALSO: bslma_allocator, bdlma_deleter
+//
+//@DESCRIPTION: This component provides a default concrete implementation of
+// the &#39;bdlma::Deleter&#39; protocol:
+//..
+//                      ( bdlma::DefaultDeleter )
+//                                 |       ctor
+//                                 v
+//                         ( bdlma::Deleter )
+//                                         dtor
+//                                         deleteObject
+//..
+// Upon construction, a &#39;bdlma::DefaultDeleter&#39; is optionally supplied with a
+// &#39;bdema&#39;-style allocator.  If an allocator is not specified, the currently
+// installed default allocator is used instead.  The memory footprint of
+// objects that are subsequently deleted via calls to the &#39;deleteObject&#39; method
+// of the deleter will be returned to the allocator that was established at
+// construction.  Note that the allocator used to create the footprint of
+// objects passed to &#39;deleteObject&#39; *must* be the same allocator that is used
+// by the deleter.
+//
+///Usage
+///-----
+// Suppose that we would like to transfer ownership of an object between
+// threads using &#39;bsl::shared_ptr&#39;.  For the sake of discussion, the type of
+// this object is &#39;my_Obj&#39; and we will suppose that it is created using a given
+// &#39;basicAllocator&#39;.  Note that we assume that &#39;my_Obj&#39; does not require an
+// allocator for any of its members:
+//..
+//  bslma::NewDeleteAllocator basicAllocator;
+//  my_Obj *object = new(basicAllocator) my_Obj;
+//..
+// Next, create a concrete deleter for &#39;object&#39; using the same allocator as was
+// used to allocate its footprint:
+//..
+//  bdlma::DefaultDeleter&lt;my_Obj&gt; deleter(&amp;basicAllocator);
+//..
+// Finally, create a shared pointer passing to it &#39;object&#39; and the address of
+// &#39;deleter&#39;:
+//..
+//  bsl::shared_ptr&lt;my_Obj&gt; handle(object, &amp;deleter, &amp;basicAllocator);
+//..
+// Now the &#39;handle&#39; can be passed to another thread or enqueued efficiently.
+// When the reference count of &#39;handle&#39; goes to 0, &#39;object&#39; is automatically
+// deleted via the &#39;deleteObject&#39; method of &#39;deleter&#39;, which in turn will
+// invoke the destructor of &#39;object&#39;.  Note that since the type of the deleter
+// used to instantiate &#39;handle&#39; is &#39;bdlma::Deleter&lt;my_Obj&gt;&#39;, any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of &#39;deleter&#39; must be longer than the lifetime of
+// all associated instances.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_DELETER
+#include &lt;bdlma_deleter.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                           // ====================
+                           // class DefaultDeleter
+                           // ====================
+
+template &lt;class TYPE&gt;
+class DefaultDeleter : public Deleter&lt;TYPE&gt; {
+    // This &#39;class&#39; provides a default concrete implementation of the &#39;Deleter&#39;
+    // protocol.  Instances of &#39;DefaultDeleter&lt;TYPE&gt;&#39; either use an allocator
+    // optionally supplied at construction, or the currently installed default
+    // allocator if an allocator is not provided.
+
+    // DATA
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
+
+    // NOT IMPLEMENTED
+    DefaultDeleter(const DefaultDeleter&lt;TYPE&gt;&amp;);
+    DefaultDeleter&lt;TYPE&gt;&amp; operator=(const DefaultDeleter&lt;TYPE&gt;&amp;);
+
+  public:
+    // CREATORS
+    DefaultDeleter(bslma::Allocator *basicAllocator = 0);
+        // Create a default deleter.  Optionally specify a &#39;basicAllocator&#39;
+        // used to manage the memory footprint of objects passed to the
+        // &#39;deleteObject&#39; method.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    virtual ~DefaultDeleter();
+        // Destroy this default deleter.
+
+    // MANIPULATORS
+    virtual void deleteObject(TYPE *instance);
+        // Destroy the specified &#39;instance&#39; based on its static type and return
+        // its memory footprint to the appropriate memory manager.  The
+        // behavior is undefined unless the memory for the footprint of
+        // &#39;instance&#39; was supplied by the same allocator as is used by this
+        // default deleter.  Note that this method does not destroy the deleter
+        // itself.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+DefaultDeleter&lt;TYPE&gt;::DefaultDeleter(bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+template &lt;class TYPE&gt;
+DefaultDeleter&lt;TYPE&gt;::~DefaultDeleter()
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+void DefaultDeleter&lt;TYPE&gt;::deleteObject(TYPE *instance)
+{
+    d_allocator_p-&gt;deleteObject(instance);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator&lt;bdlma::DefaultDeleter&lt;TYPE&gt; &gt; : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

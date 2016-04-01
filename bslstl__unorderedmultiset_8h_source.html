@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_unorderedmultiset.h                                         -*-C++-*-
@@ -34,7 +34,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // tested for equality.  It is even possible to instantiate
 // &#39;unordered_multiset&#39; with a key type that does not have an accessible
 // copy-constructor, in which case the &#39;unordered_multiset&#39; will not be
-// copyable.  Note that the equality comparison operator &#39;operator==&#39; for each
+// copyable.  Note that the equality-comparison operator &#39;operator==&#39; for each
 // element is used to determine when two &#39;unordered_multiset&#39; objects have the
 // same value, and not the equality comparator supplied at construction.
 //
@@ -123,7 +123,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // conform to the standard behavior of a &#39;bslma&#39;-allocator-enabled type.  Such
 // a set accepts an optional &#39;bslma::Allocator&#39; argument at construction.  If
 // the address of a &#39;bslma::Allocator&#39; object is explicitly supplied at
-// construction, it will be used to supply memory for the &#39;unordered_multiset&#39;
+// construction, it is used to supply memory for the &#39;unordered_multiset&#39;
 // throughout its lifetime; otherwise, the &#39;unordered_multiset&#39; will use the
 // default allocator installed at the time of the &#39;unordered_multiset&#39;s
 // construction (see &#39;bslma_default&#39;).  In addition to directly allocating
@@ -143,7 +143,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;unordered_multiset&lt;K&gt;&#39;
 //  &#39;n&#39;, &#39;m&#39;        - number of elements in &#39;a&#39; and &#39;b&#39; respectively
 //  &#39;w&#39;             - number of buckets of &#39;a&#39;
-//  &#39;value_type&#39;    - unoredered_multiset&lt;K&gt;::value_type
+//  &#39;value_type&#39;    - unordered_multiset&lt;K&gt;::value_type
 //  &#39;c&#39;             - comparator providing an ordering for objects of type &#39;K&#39;
 //  &#39;al             - an STL-style memory allocator
 //  &#39;i1&#39;, &#39;i2&#39;      - two iterators defining a sequence of &#39;value_type&#39; objects
@@ -255,8 +255,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  +----------------------------------------------------+--------------------+
 //..
 //
-///Iterator, pointer and reference invalidation
-///--------------------------------------------
+///Iterator, Pointer, and Reference Invalidation
+///---------------------------------------------
 // No method of &#39;unordered_multiset&#39; invalidates a pointer or reference to an
 // element in the set, unless it also erases that element, such as any &#39;erase&#39;
 // overload, &#39;clear&#39;, or the destructor (that erases all elements).  Pointers
@@ -400,7 +400,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // but also retain the unique financial data for each item.  The
 // &#39;bslstl_unorderedmultiset&#39; provides those semantics.
 //
-// First, as there are no standard methods for hashing or comparing our user
+// First, as there are no standard methods for hashing or comparing our user-
 // defined types, we define &#39;CustomerDatumHash&#39; and &#39;CustomerDatumEqual&#39;
 // classes, each a stateless functor.  Note that there is no meaningful
 // ordering of the attribute values, they are merely arbitrary code numbers;
@@ -416,7 +416,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      //! hash(const CustomerDatumHash&amp; original) = default;
 //          // Create a &#39;CustomerDatumHash&#39; object.  Note that as
 //          // &#39;CustomerDatumHash&#39; is an empty (stateless) type, this operation
-//          // will have no observable effect.
+//          // has no observable effect.
 //
 //      //! ~CustomerDatumHash() = default;
 //          // Destroy this object.
@@ -444,7 +444,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      //! CustomerDatumEqual(const CustomerDatumEqual&amp; original) = default;
 //          // Create a &#39;CustomerDatumEqual&#39; object.  Note that as
 //          // &#39;CustomerDatumEqual&#39; is an empty (stateless) type, this
-//          // operation will have no observable effect.
+//          // operation has no observable effect.
 //
 //      //! ~CustomerDatumEqual() = default;
 //          // Destroy this object.
@@ -765,7 +765,7 @@ class unordered_multiset
         // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is
         // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // installed default allocator is used to supply memory.
 
     explicit unordered_multiset(const allocator_type&amp; basicAllocator);
         // Construct an empty unordered multi-set that uses the specified
@@ -818,15 +818,14 @@ class unordered_multiset
         // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
         // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
-        // installed default allocator will be used to supply memory.  The
-        // (template parameter) type &#39;INPUT_ITERATOR&#39; shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // &#39;value_type&#39;.  The behavior is undefined unless &#39;first&#39; and &#39;last&#39;
-        // refer to a sequence of valid values where &#39;first&#39; is at a position
-        // at or before &#39;last&#39;.  This method requires that the (template
-        // parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on
-        // &#39;KEY&#39;}).
+        // installed default allocator is used to supply memory.  The (template
+        // parameter) type &#39;INPUT_ITERATOR&#39; shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to &#39;value_type&#39;.  The
+        // behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer to a sequence
+        // of valid values where &#39;first&#39; is at a position at or before &#39;last&#39;.
+        // Note that this method requires that the (template parameter) type
+        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
 
     ~unordered_multiset();
         // Destroy this object.
@@ -837,9 +836,9 @@ class unordered_multiset
         // the specified &#39;rhs&#39; object, propagate to this object the allocator
         // of &#39;rhs&#39; if the &#39;ALLOCATOR&#39; type has trait
         // &#39;propagate_on_container_copy_assignment&#39;, and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot;
-        // (see {Requirements on &#39;KEY&#39;}).
+        // providing modifiable access to this object.  Note that this method
+        // requires that the (template parameter) type &#39;KEY&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -896,9 +895,9 @@ class unordered_multiset
         // Remove from multi-set the &#39;value_type&#39; objects starting at the
         // specified &#39;first&#39; position up to, but including the specified &#39;last&#39;
         // position, and return &#39;last&#39;.  The behavior is undefined unless
-        // &#39;first&#39; and &#39;last&#39; either refer to elements in multi-set or are the
-        // &#39;end&#39; iterator, and the &#39;first&#39; position is at or before the &#39;last&#39;
-        // position in the ordered sequence provided by this container.
+        // &#39;first&#39; and &#39;last&#39; either refer to elements in this multi-set or are
+        // the &#39;end&#39; iterator, and the &#39;first&#39; position is at or before the
+        // &#39;last&#39; position in the ordered sequence provided by this container.
 
     iterator find(const key_type&amp; key);
         // Return an iterator providing modifiable access to the first
@@ -912,8 +911,9 @@ class unordered_multiset
         // already exists in multi-set, the operation is guaranteed to insert
         // &#39;value&#39; in a position contiguous to another value having the same
         // key.  Return an iterator referring to the &#39;value_type&#39; object
-        // inserted.  This method requires that the (template parameter) type
-        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+        // inserted.  Note that this method requires that the (template
+        // parameter) type &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on
+        // &#39;KEY&#39;}).
 
     iterator insert(const_iterator hint, const value_type&amp; value);
         // Insert the specified &#39;value&#39; into multi-set (in constant time if the
@@ -923,11 +923,11 @@ class unordered_multiset
         // is guaranteed to insert &#39;value&#39; in a position contiguous to another
         // value in the set having the same key.  Return an iterator referring
         // to the newly inserted &#39;value_type&#39; object.  If &#39;hint&#39; is not a
-        // position in the bucket of the key of &#39;value&#39;, this operation will
-        // have worst case O[N] and average case constant time complexity,
-        // where &#39;N&#39; is the size of multi-set.  The behavior is undefined
-        // unless &#39;hint&#39; is a valid iterator into this unordered multi set.
-        // This method requires that the (template parameter) type &#39;KEY&#39; be
+        // position in the bucket of the key of &#39;value&#39;, this operation has
+        // worst case &#39;O[N]&#39; and average case constant-time complexity, where
+        // &#39;N&#39; is the size of multi-set.  The behavior is undefined unless
+        // &#39;hint&#39; is a valid iterator into this unordered multi set.  Note that
+        // this method requires that the (template parameter) type &#39;KEY&#39; be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}), and that &#39;*hint&#39;
         // is an element contained in this container.
 
@@ -938,11 +938,13 @@ class unordered_multiset
         // immediately before the specified &#39;last&#39; iterator.  The (template
         // parameter) type &#39;INPUT_ITERATOR&#39; shall meet the requirements of an
         // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to &#39;value_type&#39;.  This method
-        // requires that the (template parameter) type &#39;KEY&#39; be
-        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
+        // access to values of a type convertible to &#39;value_type&#39;.  The
+        // behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer to a sequence
+        // of valid values where &#39;first&#39; is at a position at or before &#39;last&#39;.
+        // Note that this method requires that the (template parameter) type
+        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
 
-    void  max_load_factor(float newLoadFactor);
+    void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
         // &#39;newLoadFactor&#39;.
 
@@ -959,20 +961,20 @@ class unordered_multiset
         // the ratio between the specified &#39;numElements&#39; and this quantity does
         // not exceed &#39;max_load_factor&#39;.  Note that this guarantees that, after
         // the reserve, elements can be inserted to grow the container to
-        // &#39;size() == numElements&#39; without rehashing. Also note that memory
-        // allocations may still occur when growing the container to &#39;size() ==
-        // numElements&#39;.  Also note that this operation has no effect if
-        // &#39;numElements &lt;= size()&#39;.
+        // &#39;size() == numElements&#39; without rehashing.  Also note that memory
+        // allocations may still occur when growing the container to
+        // &#39;size() == numElements&#39;.  Also note that this operation has no
+        // effect if &#39;numElements &lt;= size()&#39;.
 
     void swap(unordered_multiset&amp; other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified &#39;other&#39; object.
-        // Additionally if
+        // Additionally, if
         // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
-        // &#39;true&#39; then exchange the allocator of this object with that of the
+        // &#39;true&#39;, then exchange the allocator of this object with that of the
         // &#39;other&#39; object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // guarantees &#39;O[1]&#39; complexity.  The behavior is undefined unless
         // either this object was created with the same allocator as &#39;other&#39; or
         // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
@@ -1019,9 +1021,8 @@ class unordered_multiset
         // container.
 
     size_type count(const key_type&amp; key) const;
-        // Return the number of &#39;value_type&#39; objects within this map having the
-        // specified &#39;key&#39;.  Note that since an unordered set maintains unique
-        // keys, the returned value will be either 0 or 1.
+        // Return the number of &#39;value_type&#39; objects within this set having the
+        // specified &#39;key&#39;.
 
     bool empty() const;
         // Return &#39;true&#39; if multi-set contains no elements, and &#39;false&#39;
@@ -1034,7 +1035,7 @@ class unordered_multiset
         // specified &#39;key&#39;, where the the first iterator is positioned at the
         // start of the sequence and the second iterator is positioned one past
         // the end of the sequence.  If multi-set contains no &#39;value_type&#39;
-        // objects having &#39;key&#39; then the two returned iterators will have the
+        // objects having &#39;key&#39;, then the two returned iterators will have the
         // same value.  Note that since a set maintains unique keys, the range
         // will contain at most one element.
 
@@ -1103,8 +1104,8 @@ bool operator==(const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp;
     // value, and &#39;false&#39; otherwise.  Two &#39;unordered_multiset&#39; objects have the
     // same value if they have the same number of value-elements, and for each
     // value-element that is contained in &#39;lhs&#39; there is a value-element
-    // contained in &#39;rhs&#39; having the same value, and vice-versa.  This method
-    // requires that the (template parameter) type &#39;KEY&#39; be
+    // contained in &#39;rhs&#39; having the same value, and vice-versa.  Note that
+    // this method requires that the (template parameter) type &#39;KEY&#39; be
     // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
@@ -1115,22 +1116,22 @@ bool operator!=(const unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp;
     // not have the same value if they do not have the same number of
     // value-elements, or that for some value-element contained in &#39;lhs&#39; there
     // is not a value-element in &#39;rhs&#39; having the same value, and vice-versa.
-    // This method requires that the (template parameter) type &#39;KEY&#39; and be
-    // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
+    // Note that this method requires that the (template parameter) type &#39;KEY&#39;
+    // and be &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39;}).
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
 void swap(unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
           unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; b);
     // Swap both the value and the comparator of the specified &#39;a&#39; object with
     // the value and comparator of the specified &#39;b&#39; object.  The behavior is
-    // undefined is unless this object was created with the same allocator as
-    // &#39;other&#39;.  Additionally if
+    // undefined unless this object was created with the same allocator as
+    // &#39;other&#39;.  Additionally, if
     // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
-    // &#39;true&#39; then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
+    // &#39;true&#39;, then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
     // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
-    // is undefined is unless either this object was created with the same
-    // allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+    // exception-safety guarantee and guarantees &#39;O[1]&#39; complexity.  The
+    // behavior is undefined unless either this object was created with the
+    // same allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1652,7 +1653,7 @@ struct HasStlIterators&lt;bsl::unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR
      : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -1664,7 +1665,7 @@ struct UsesBslmaAllocator&lt;bsl::unordered_multiset&lt;KEY,
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

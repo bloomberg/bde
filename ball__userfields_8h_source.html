@@ -1,0 +1,444 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_userfields.h                                                  -*-C++-*-
+#ifndef INCLUDED_BALL_USERFIELDS
+#define INCLUDED_BALL_USERFIELDS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container of user supplied field values.
+//
+//@CLASSES:
+//  ball::UserFields: a container of user supplied field values
+//
+//@SEE_ALSO: ball_userfieldvalue, ball_userfieldsschema
+//
+//@DESCRIPTION: This component provides a value-semantic container-type,
+// &#39;ball::UserFields&#39;, that represents a (randomly accessible) sequence of
+// &#39;ball::UserFieldValue&#39; objects.  Each user field value contained in the
+// sequence functions as a discriminated union of the types described by
+// &#39;ball::UserFieldType::Enum&#39; (integer, double, string, etc).  Values can be
+// added to the sequence using the &#39;append*&#39; manipulators, and can be
+// manipulated and accessed using &#39;operator[]&#39;.  Additionally,
+// &#39;ball::UserFields&#39; exposes a random-access iterator providing non-modifiable
+// access to the sequence through the &#39;begin&#39; and &#39;end&#39; methods.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;ball::UserFields&#39;
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the following example we demonstrate populating a &#39;ball::UserFields&#39;
+// object with a sequence of field values.
+//
+// First, we define the signature for a callback, &#39;populateUserFields&#39;.  Most
+// often &#39;ball::UserFields&#39; objects are populated by a callback, such as the
+// one described by the &#39;ball::LoggerManagerConfiguration&#39;
+// &#39;UserFieldsPopulatorCallback&#39;.
+//..
+//  void populateLoggingFields(ball::UserFields              *fields,
+//                             const ball::UserFieldsSchema&amp;  fieldsSchema)
+//      // Populate the specifield &#39;fields&#39; with the user name and current
+//      // task identifier so that in matches the specified &#39;fieldsSchema&#39;.
+//      // The behavior is undefiend unless &#39;fields&#39; is empty, and
+//      // &#39;fieldsSchema&#39; describes a user fields object whose fist element is
+//      // a string called &quot;username&quot; and whose second element is a integer
+//      // called &quot;taskId&quot;.
+//  {
+//..
+// Notice that we have decided for this application the schema for the custom
+// logging fields are fixed at compile time.
+//
+// Next, we assert that the schema matches the preconditions for this function:
+//..
+//    typedef ball::UserFieldType Type;
+//    BSLS_ASSERT(2 == fieldsSchema.length());
+//    BSLS_ASSERT(&quot;username&quot;     == fieldsSchema.name(0));
+//    BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
+//    BSLS_ASSERT(&quot;taskId&quot;       == fieldsSchema.name(1));
+//    BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
+//..
+// Then we assert the additional precondition that &#39;fields&#39; is empty:
+//..
+//    BSLS_ASSERT(0 == fields-&gt;length());
+//..
+// Now we populate the &#39;fields&#39; object with the user name and current task
+// identifier (for the purpose of illustration, these are simply constants):
+//..
+//    static const char    *TEST_USER = &quot;testUser&quot;;
+//    static const bsl::int64_t  TEST_TASK = 4315;
+//
+//    fields-&gt;appendString(TEST_USER);
+//    fields-&gt;appendInt64(TEST_TASK);
+//..
+// Finally, for the purposes of illustration, we verify that &#39;fields&#39; has been
+// set correctly:
+//..
+//    assert(2 == fields-&gt;length());
+//    assert(Type::e_STRING == fields-&gt;value(0).type());
+//    assert(TEST_USER      == fields-&gt;value(0).theString());
+//    assert(Type::e_INT64  == fields-&gt;value(1).type());
+//    assert(TEST_TASK      == fields-&gt;value(1).theInt64());
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_USERFIELDVALUE
+#include &lt;ball_userfieldvalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+
+                        // ================
+                        // class UserFields
+                        // ================
+
+class UserFields {
+    // This class implements a value-semantic type for representing a sequence
+    // of (randomly accessible) user field values.
+
+  private:
+    // DATA
+    bsl::vector&lt;ball::UserFieldValue&gt; d_values;  // sequence of values
+
+    // FRIENDS
+    friend bool operator==(const UserFields&amp;, const UserFields&amp;);
+
+  public:
+    // TYPES
+    typedef bsl::vector&lt;ball::UserFieldValue&gt;::const_iterator ConstIterator;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFields, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit UserFields(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;UserFields&#39; object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    UserFields(const UserFields&amp;  original,
+               bslma::Allocator  *basicAllocator = 0);
+        // Create a &#39;UserFields&#39; object having the same value as the specified
+        // &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    //! ~UserFields() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    UserFields&amp; operator=(const UserFields&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void removeAll();
+        // Remove all of the user field values from this object.  After this
+        // method is called &#39;length&#39; is 0.
+
+    void append(const UserFieldValue&amp; value);
+        // Append the specified &#39;value&#39; to this object.
+
+    void appendNull();
+        // Append an element having the unset value to this object.
+
+    void appendInt64(bsl::int64_t value);
+    void appendDouble(double value);
+    void appendString(bslstl::StringRef value);
+    void appendDatetimeTz(const bdlt::DatetimeTz&amp; value);
+        // Append the specified &#39;value&#39; to this object.
+
+    ball::UserFieldValue&amp; operator[](int index);
+    ball::UserFieldValue&amp; value(int index);
+        // Return a reference providing modifiable access to the value at the
+        // specified &#39;index&#39;.  The behavior is undefined unless
+        // &#39;0 &lt;= index &amp;&amp; index &lt; length()&#39;.
+
+                                  // Aspects
+
+    void swap(UserFields&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.   This method provides the no-throw
+        // exception guarantee if &#39;allocator&#39; is the same as
+        // &#39;other.allocator()&#39;, and the basic exception guarantee otherwise.
+
+    // ACCESSORS
+    ConstIterator begin() const;
+        // Return an iterator providing non-modifiable access to the first
+        // element in the sequence of user field values maintained by this
+        // object, or the &#39;end&#39; iterator if this object is empty.
+
+    ConstIterator end() const;
+        // Return an iterator providing non-modifiable access to the
+        // past-the-end element in the sequence of user field values
+        // maintained by this object.
+
+    int length () const;
+        // Return the number of user field values in this object.
+
+    const ball::UserFieldValue&amp; operator[](int index) const;
+    const ball::UserFieldValue&amp; value(int index) const;
+        // Return a reference providing non-modifiable access to the value at
+        // the specified &#39;index&#39;.  The behavior is undefined unless
+        // &#39;0 &lt;= index &amp;&amp; index &lt; length()&#39;.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in
+        // a human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute
+        // value indicates the number of spaces per indentation level for this
+        // and all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const UserFields&amp; lhs, const UserFields&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;ball::UserFields&#39; objects have the
+    // same value if they have the same number of elements, and each element in
+    // &#39;lhs&#39; has the same value as corresponding element at the same index in
+    // &#39;rhs&#39;.
+
+bool operator!=(const UserFields&amp; lhs, const UserFields&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;UserFields&#39; objects do not
+    // have the same value if they have a different number of elements, or if
+    // any element in &#39;lhs&#39; has a different value from the corresponding
+    // element at the same index in &#39;rhs&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;     stream,
+                         const UserFields&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
+// FREE FUNCTIONS
+void swap(ball::UserFields&amp; a, ball::UserFields&amp; b);
+    // Swap the value of the specified &#39;a&#39; object with the value of the
+    // specified &#39;b&#39; object.  This method provides the no-throw exception
+    // guarantee if &#39;a.allocator()&#39; is the same as &#39;b.allocator()&#39;, and the
+    // basic exception guarantee otherwise.
+
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // ----------------
+                        // class UserFields
+                        // ----------------
+
+inline
+UserFields::UserFields(bslma::Allocator *basicAllocator)
+: d_values(basicAllocator)
+{
+}
+
+inline
+UserFields::UserFields(const UserFields&amp;  original,
+                       bslma::Allocator  *basicAllocator)
+: d_values(original.d_values, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+UserFields&amp; UserFields::operator=(const UserFields&amp; rhs)
+{
+    d_values = rhs.d_values;
+    return *this;
+}
+
+inline
+void UserFields::removeAll()
+{
+    d_values.clear();
+}
+
+inline
+void UserFields::appendNull()
+{
+    d_values.emplace_back();
+}
+
+inline
+void UserFields::appendInt64(bsl::int64_t value)
+{
+    d_values.emplace_back(value);
+}
+
+inline
+void UserFields::appendDouble(double value)
+{
+    d_values.emplace_back(value);
+}
+
+inline
+void UserFields::appendString(bslstl::StringRef value)
+{
+    d_values.emplace_back(value);
+}
+
+inline
+void UserFields::appendDatetimeTz(const bdlt::DatetimeTz&amp; value)
+{
+    d_values.emplace_back(value);
+}
+
+inline
+UserFieldValue&amp; UserFields::operator[](int index)
+{
+    return d_values[index];
+}
+
+inline
+UserFieldValue&amp; UserFields::value(int index)
+{
+    return d_values[index];
+}
+
+inline
+void UserFields::swap(UserFields&amp; other)
+{
+    d_values.swap(other.d_values);
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *UserFields::allocator() const
+{
+    return d_values.get_allocator().mechanism();
+}
+
+inline
+UserFields::ConstIterator UserFields::begin() const
+{
+    return d_values.begin();
+}
+
+inline
+UserFields::ConstIterator UserFields::end() const
+{
+    return d_values.end();
+}
+
+inline
+int UserFields::length() const
+{
+    return static_cast&lt;int&gt;(d_values.size());
+}
+
+inline
+const UserFieldValue&amp; UserFields::operator[](int index) const
+{
+    return d_values[index];
+}
+
+inline
+const UserFieldValue&amp; UserFields::value(int index) const
+{
+    return d_values[index];
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const UserFields&amp; lhs, const UserFields&amp; rhs)
+{
+    return lhs.d_values == rhs.d_values;
+}
+
+inline
+bool ball::operator!=(const UserFields&amp; lhs, const UserFields&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;     stream,
+                               const UserFields&amp; object)
+{
+    return object.print(stream, 0, -1);
+}
+
+
+// FREE FUNCTIONS
+inline
+void swap(ball::UserFields&amp; a, ball::UserFields&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

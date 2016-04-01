@@ -1,0 +1,577 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_errorinfo.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_ERRORINFO
+#define INCLUDED_BALXML_ERRORINFO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide common error information for XML components.
+//
+//@CLASSES:
+//   balxml::ErrorInfo: details of XML parsing errors
+//
+//@SEE_ALSO: baexml_xmlreader
+//
+//@DESCRIPTION: This component provides an in-core value-semantic class,
+// &#39;balxml::ErrorInfo&#39;, that contains the following diagnostic information:
+//..
+//  - severity  (WARNING, ERROR, FATAL ERROR)
+//  - line number
+//  - column number
+//  - document source (name of document containing the error)
+//  - error message (error description)
+//..
+// Parsing components in the &#39;baexml&#39; package make use of &#39;balxml::ErrorInfo&#39;
+// as a standard way to report errors and warnings back to the caller.  The
+// information contained within a &#39;balxml::ErrorInfo&#39; object is sufficient to
+// report a single diagnostic in an input document.
+//
+///Usage
+///-----
+// In this example, we create a parser for a simple file of percentages.  The
+// file is formatted as a sequence of lines, with each line containing a
+// decimal number in the range &quot;0&quot; to &quot;100&quot;, inclusive.  Leading whitespace and
+// blank lines are ignored.  When an error occurs during parsing, the error
+// data is stored in a &#39;balxml::ErrorInfo&#39; object.  Our parser&#39;s interface is
+// as follows:
+//..
+//  #include &lt;balxml_errorinfo.h&gt;
+//  #include &lt;sstream&gt;
+//  #include &lt;cstdlib&gt;
+//  #include &lt;cstring&gt;
+//  #include &lt;climits&gt;
+//
+//  class PercentParser {
+//      // Parse a document stream consisting of a sequence of integral
+//      // percentages (0 to 100) in decimal text format, one per line.
+//
+//      bsl::istream *d_input;    // Input document stream
+//      bsl::string   d_docName;  // Document name
+//      int           d_line;     // Current line number
+//
+//    public:
+//      PercentParser(bsl::istream       *input,
+//                    const bsl::string&amp;  docName = &quot;INPUT&quot;);
+//          // Construct a parser to parse the data in the specified &#39;input&#39;
+//          // stream having the (optional) specified &#39;docName&#39;.  A valid
+//          // &#39;input&#39; stream contains a sequence of integers in the range 0
+//          // to 100, one per line, in decimal text format.  Each line may
+//          // contain leading but not trailing tabs and spaces.  Characters
+//          // after the 20th character on each line are ignored and will
+//          // generate a warning.
+//
+//      int parseNext(balxml::ErrorInfo *errorInfo);
+//          // Read and parse the next percentage in the input stream and
+//          // return the percentage or -1 on eof or -2 on error.  Set the
+//          // value of the specified &#39;errorInfo&#39; structure on error or
+//          // warning and leave it unchanged otherwise.  Do nothing and
+//          // return -2 if &#39;errorInfo-&gt;severity()&#39; &gt;= &#39;BAEXML_ERROR&#39;.
+//  };
+//..
+// The constructor is straight-forward:
+//..
+//  PercentParser::PercentParser(bsl::istream       *input,
+//                               const bsl::string&amp;  docName)
+//  : d_input(input), d_docName(docName), d_line(0)
+//  {
+//  }
+//..
+// The &#39;parseNext&#39; function begins by testing if a previous error occurred.  By
+// testing this condition, we can call &#39;parseNext&#39; several times, knowing that
+// the first error will stop the parse operation.
+//..
+//  int PercentParser::parseNext(balxml::ErrorInfo *errorInfo)
+//  {
+//      static const int MAX_LINE = 20;
+//
+//      if (errorInfo-&gt;isAnyError()) {
+//          // Don&#39;t advance if errorInfo shows a previous error.
+//          return -2;
+//      }
+//..
+// The parser skips leading whitespace and lines containing only whitespace.
+// It loops until a non-empty line is found:
+//..
+//      char buffer[MAX_LINE + 1];
+//      buffer[0] = &#39;\0&#39;;
+//
+//      // Skip empty lines empty line
+//      int len = 0;
+//      int startColumn = 0;
+//      while (startColumn == len) {
+//          ++d_line;
+//          d_input-&gt;getline(buffer, MAX_LINE + 1, &#39;\n&#39;);
+//          len = bsl::strlen(buffer);
+//..
+// The input stream reports that the input line is longer than &#39;MAX_LINE&#39; by
+// setting the fail() condition.  In this case, we set the error object to a
+// warning state, indicating the line and column where the problem occurred.
+// Then we clear the stream condition and discard the rest of the line.
+//..
+//          if (MAX_LINE == len &amp;&amp; d_input-&gt;fail()) {
+//              // 20 characters read without encountering newline.
+//              // Warn about long line and discard rest of line.
+//              errorInfo-&gt;setError(balxml::ErrorInfo::BAEXML_WARNING,
+//                                  d_line, len, d_docName,
+//                                  &quot;Text after 20th column was discarded&quot;);
+//              d_input-&gt;clear();
+//              d_input-&gt;ignore(INT_MAX, &#39;\n&#39;);
+//          }
+//..
+// If we detect an EOF condition, we just return -1.  Otherwise, we skip the
+// leading whitespace and go on.
+//..
+//          else if (0 == len &amp;&amp; d_input-&gt;eof()) {
+//              // Encountered eof before any other characters.
+//              return -1;
+//          }
+//
+//          // Skip leading whitespace
+//          startColumn = bsl::strspn(buffer, &quot; \t&quot;);
+//      }
+//
+//..
+// Now we perform two more error checks: one or superfluous characters after
+// the integer, the other for an out-of-range integer.  If the &#39;errorInfo&#39;
+// object is already in warning state, either of these errors will overwrite
+// the existing warning with the new error condition.
+//..
+//      char *endp = 0;
+//      long result = bsl::strtol(buffer + startColumn, &amp;endp, 10);
+//      int endColumn = endp - buffer;
+//      if (endColumn &lt; len) {
+//          // Conversion did not consume rest of buffer.
+//          errorInfo-&gt;setError(balxml::ErrorInfo::BAEXML_ERROR,
+//                              d_line, endColumn + 1, d_docName,
+//                              &quot;Bad input character&quot;);
+//          return -2;
+//      } else if (result &lt; 0 || 100 &lt; result) {
+//          // Range error.
+//          errorInfo-&gt;setError(balxml::ErrorInfo::BAEXML_ERROR,
+//                              d_line, startColumn + 1, d_docName,
+//                              &quot;Value is not between 0 and 100&quot;);
+//          return -2;
+//      }
+//..
+// If there were no errors, return the result.  Note that the &#39;errorInfo&#39;
+// object may contain a warning, but warnings typically do not cause a change
+// in the error value.
+//..
+//      return result;
+//  }
+//..
+// The main program uses the &#39;PercentParser&#39; class to parse a list of values
+// and compute the average.  Typically, the data would be stored in a file,
+// but we&#39;ll use a literal string for demonstration purposes:
+//..
+//  int main()
+//  {
+//      static const char INPUTS[] =
+//          &quot;    20\n&quot;                  // OK
+//          &quot;                   30\n&quot;   // Warning (&#39;0&#39; truncated)
+//          &quot;  \n&quot;                      // Skipped: empty line
+//          &quot;99x\n&quot;                     // Error: bad character
+//          &quot;     101\n&quot;                // Error: out of range
+//          &quot;                 1010\n&quot;;  // Out-of-range overrides warning
+//..
+// We convert the string into a stream and initialize the parser.  We name our
+// input stream &quot;Inputs&quot; for the purpose of error handling.  We also
+// initialize our working variables:
+//..
+//      bsl::istringstream inputstream(INPUTS);
+//      PercentParser parser(&amp;inputstream, &quot;Inputs&quot;);
+//      int result;
+//      int sum = 0;
+//      int numValues = 0;
+//..
+// Any error in parsing will be stored in the &#39;errorInfo&#39; object.  When first
+// constructed, it has a severity of &#39;BAEXML_NO_ERROR&#39;.
+//..
+//      balxml::ErrorInfo errorInfo;
+//      assert(errorInfo.isNoError());
+//..
+// Normally, parsing would proceed in a loop.  However, to illustrate the
+// different error-handling situations, we have unrolled the loop below.
+//
+// The first parse succeeds, and no error is reported:
+//..
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(20 == result);
+//      assert(errorInfo.isNoError());
+//      sum += result;
+//      ++numValues;
+//..
+// The next parse also succeeds but, because the input line was very long, a
+// warning was generated:
+//..
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(3 == result);  // Truncated at 20th column
+//      assert(errorInfo.isWarning());
+//      assert(2 == errorInfo.lineNumber());
+//      assert(20 == errorInfo.columnNumber());
+//      assert(&quot;Text after 20th column was discarded&quot; == errorInfo.message());
+//      sum += result;
+//      ++numValues;
+//..
+// After resetting the &#39;errorInfo&#39; object, the we call &#39;nextParse&#39; again.  This
+// time it fails with an error.  The line, column, and source of the error are
+// reported in the object.
+//..
+//      errorInfo.reset();
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(-2 == result);
+//      assert(&quot;Inputs&quot; == errorInfo.source());
+//      assert(errorInfo.isError());
+//      assert(4 == errorInfo.lineNumber());
+//      assert(3 == errorInfo.columnNumber());
+//      assert(&quot;Bad input character&quot; == errorInfo.message());
+//..
+// If the &#39;errorInfo&#39; object is not reset, calling &#39;parseNext&#39; becomes a
+// no-op:
+//..
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(-2 == result);
+//      assert(errorInfo.isError());
+//      assert(4 == errorInfo.lineNumber());
+//      assert(3 == errorInfo.columnNumber());
+//      assert(&quot;Bad input character&quot; == errorInfo.message());
+//..
+// After calling &#39;reset&#39;, the next call to &#39;parseNext&#39; produces a different
+// error message:
+//..
+//      errorInfo.reset();
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(-2 == result);
+//      assert(errorInfo.isError());
+//      assert(5 == errorInfo.lineNumber());
+//      assert(6 == errorInfo.columnNumber());
+//      assert(&quot;Value is not between 0 and 100&quot; == errorInfo.message());
+//..
+// The last line of the file contains two problems: a long line, which would
+// produce a warning, and a range error, which would produce an error.  The
+// warning message is overwritten by the error message because the error has a
+// higher severity.  Therefore, on return from &#39;parseNext&#39;, only the error
+// message is stored in &#39;errorInfo&#39; and the warning is lost:
+//..
+//      errorInfo.reset();
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(-2 == result);
+//      assert(errorInfo.isError());
+//      assert(6 == errorInfo.lineNumber());
+//      assert(18 == errorInfo.columnNumber());
+//      assert(&quot;Value is not between 0 and 100&quot; == errorInfo.message());
+//..
+// Writing the &#39;errorInfo&#39; object to a log or file will produce a readable
+// error message:
+//..
+//      bsl::cerr &lt;&lt; errorInfo &lt;&lt; bsl::endl;
+//..
+// The resulting message to standard error looks as follows:
+//..
+//  Inputs:6.18: Error: Value is not between 0 and 100
+//..
+// Finally, we reach the end of the input stream and can compute our average.
+//..
+//      errorInfo.reset();
+//      result = parser.parseNext(&amp;errorInfo);
+//      assert(-1 == result);
+//      assert(errorInfo.isNoError());
+//
+//      int average = sum / numValues;
+//      assert(11 == average);  // (20 + 3) / 2
+//
+//      return 0;
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP  {
+
+namespace balxml {
+                              // ===============
+                              // class ErrorInfo
+                              // ===============
+class ErrorInfo
+{
+    // This class provides detailed information for errors encounted during
+    // XML parsing.  Such information is common for most parsers and contains
+    // the following data: line number, column number, severity code,
+    // identification of source document and the parser error message.
+
+  public:
+    // PUBLIC TYPES
+    enum Severity
+    {
+        // Error severity level.  Each severity level is considered more severe
+        // than the one before.  Client software will typically continue
+        // processing on &#39;BAEXML_WARNING&#39; and will stop processing on
+        // &#39;BAEXML_ERROR&#39; or &#39;BAEXML_FATAL_ERROR&#39;.  The distinction between the
+        // latter two severities is somewhat arbitrary.  A component that sets
+        // the severity of a &#39;ErrorInfo&#39; object can use &#39;BAEXML_FATAL_ERROR&#39; to
+        // discard a less-severe error with &#39;BAEXML_ERROR&#39;.  As a general
+        // guideline, &#39;BAEXML_ERROR&#39; means that processing could continue,
+        // albeit with compromised results and &#39;BAEXML_FATAL_ERROR&#39; means that
+        // processing could not continue.  For example, a constraint error
+        // would typically have &#39;BAEXML_ERROR&#39; whereas a parsing (syntax) error
+        // would have &#39;BAEXML_FATAL_ERROR&#39;.
+        e_NO_ERROR,
+        e_WARNING,
+        e_ERROR,
+        e_FATAL_ERROR
+    };
+
+  private:
+    // PRIVATE DATA MEMBERS
+    Severity          d_severity;
+    int               d_lineNumber;
+    int               d_columnNumber;
+    bsl::string       d_source;
+    bsl::string       d_message;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ErrorInfo, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    ErrorInfo(bslma::Allocator *basicAllocator = 0);
+        // Construct an error info object using the (optionally) specified
+        // &#39;basicAllocator&#39;, or the default allocator of none is specified.
+        // After construction, &#39;severity()&#39; will return &#39;BAEXML_NO_ERROR&#39;,
+        // &#39;lineNumber()&#39; and &#39;columnNumber()&#39; will each return 0, and
+        // &#39;source()&#39; and &#39;message()&#39; will each return an empty string.
+
+    ErrorInfo(const ErrorInfo&amp; other, bslma::Allocator *basicAllocator = 0);
+        // Construct a copy of the specified &#39;other&#39; object using the
+        // (optionally) specified &#39;basicAllocator&#39;, or the default allocator
+        // of none is specified.
+
+    ~ErrorInfo();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ErrorInfo&amp; operator=(const ErrorInfo&amp; rhs);
+        // Copy the value of the specified &#39;rhs&#39; object into this object and
+        // return a modifiable reference to this object.
+
+    void setError(Severity                 severity,
+                  int                      lineNumber,
+                  int                      columnNumber,
+                  const bslstl::StringRef&amp; source,
+                  const bslstl::StringRef&amp; errorMsg);
+        // If the specified &#39;severity&#39; is greater than the current value of
+        // &#39;this-&gt;severity()&#39;, then set this object&#39;s severity to &#39;severity&#39;,
+        // line number to the specified &#39;lineNumber&#39;, column number to the
+        // specified &#39;columnNumber&#39;, source name to the specified &#39;source&#39;, and
+        // error message to the specified &#39;errorMsg&#39;, otherwise do nothing.
+
+    void setError(const ErrorInfo&amp; other);
+        // If the severity of the specified &#39;other&#39; object is greater than the
+        // current value of &#39;this-&gt;severity()&#39;, then assign this object the
+        // value of &#39;other&#39;, otherwise do nothing.
+
+    void reset();
+        // Reset this object to initial state, as if it were default
+        // constructed.
+
+    // ACCESSORS
+    bool isNoError() const;
+        // Return true if the &#39;severity() == &#39;BAEXML_NO_ERROR&#39; and false
+        // otherwise.
+
+    bool isWarning() const;
+        // Return true if the &#39;severity() == &#39;BAEXML_WARNING&#39; and false
+        // otherwise.
+
+    bool isError() const;
+        // Return true if the &#39;severity() == &#39;BAEXML_ERROR&#39; and false
+        // otherwise.
+
+    bool isFatalError() const;
+        // Return true if the &#39;severity() == &#39;BAEXML_FATAL_ERROR&#39; and false
+        // otherwise.
+
+    bool isAnyError() const;
+        // Return true if the &#39;severity() &gt;= &#39;BAEXML_ERROR&#39; (i.e.,
+        // &#39;BAEXML_ERROR&#39; or &#39;BAEXML_FATAL_ERROR&#39;) and false otherwise.
+
+    Severity severity() const;
+        // Return the severity level.
+
+    int lineNumber() const;
+        // Return the line number of the warning or error.  By convention, the
+        // first line is numbered 1.  The constructors and &#39;reset&#39; functions
+        // set the line number to 0, since there is no error line to report.
+
+    int columnNumber() const;
+        // Return the column number.  By convention, the first column is
+        // numbered 1.  The constructors and &#39;reset&#39; functions set the column
+        // number to 0, since there is no error column to report.
+
+    const bsl::string&amp; source() const;
+        // Return the string that identifies the document being parsed.
+
+    const bsl::string&amp; message() const;
+        // Return the string describing the error or warning.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+bool operator==(const ErrorInfo&amp; lhs, const ErrorInfo&amp; rhs);
+    // Return true if the specified &#39;lhs&#39; object has the same value as the
+    // specified &#39;rhs&#39; object.  The two objects have the same value if
+    // &#39;severity()&#39;, &#39;lineNumber()&#39;, &#39;columnNumber()&#39;, &#39;source()&#39;, and
+    // &#39;message()&#39; return equal values for both.
+
+inline
+bool operator!=(const ErrorInfo&amp; lhs, const ErrorInfo&amp; rhs);
+    // Return true if the specified &#39;lhs&#39; object does not have the same value
+    // as the specified &#39;rhs&#39; object.  The two objects have the same value if
+    // &#39;severity()&#39;, &#39;lineNumber()&#39;, &#39;columnNumber()&#39;, &#39;source()&#39;, and
+    // &#39;message()&#39; return equal values for both.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const ErrorInfo&amp; errInfo);
+    // Print the specified &#39;errInfo&#39; object to the specified &#39;stream&#39; in
+    // human-readable form and return a modifiable reference to &#39;stream&#39;.  The
+    // output is one-line without a terminating newline.
+
+// MANIPULATORS
+inline void
+ErrorInfo::setError(const ErrorInfo&amp; other)
+{
+    if (other.d_severity &gt; d_severity) {
+        *this = other;
+    }
+}
+
+// ACCESSORS
+inline ErrorInfo::Severity
+ErrorInfo::severity() const
+{
+    return d_severity;
+}
+
+inline bool
+ErrorInfo::isNoError() const
+{
+    return d_severity == e_NO_ERROR;
+}
+
+inline bool
+ErrorInfo::isWarning() const
+{
+    return d_severity == e_WARNING;
+}
+
+inline bool
+ErrorInfo::isError() const
+{
+    return d_severity == e_ERROR;
+}
+
+inline bool
+ErrorInfo::isFatalError() const
+{
+    return d_severity == e_FATAL_ERROR;
+}
+
+inline bool
+ErrorInfo::isAnyError() const
+{
+    return d_severity &gt;= e_ERROR;
+}
+
+inline int
+ErrorInfo::lineNumber() const
+{
+    return d_lineNumber;
+}
+
+inline int
+ErrorInfo::columnNumber() const
+{
+    return d_columnNumber;
+}
+
+inline const bsl::string &amp;
+ErrorInfo::source() const
+{
+    return d_source;
+}
+
+inline const bsl::string &amp;
+ErrorInfo::message() const
+{
+    return d_message;
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balxml::operator!=(const ErrorInfo&amp; lhs, const ErrorInfo&amp; rhs)
+{
+    return ! (lhs == rhs);
+}
+
+}  // close enterprise namespace
+
+#endif // INCLUDED_BALXML_ERRORINFO
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

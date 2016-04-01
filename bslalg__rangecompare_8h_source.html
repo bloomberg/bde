@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_rangecompare.h                                              -*-C++-*-
@@ -58,10 +58,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Defining Equality Comparison Operators on a Container
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Defining Equality-Comparison Operators on a Container
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will use the &#39;bslalg::RangeCompare::equal&#39; class method
-// to implement the equality comparison operators for an iterable container
+// to implement the equality-comparison operators for an iterable container
 // type residing in the &#39;bslstl&#39; package, and highlight the circumstances under
 // which the optimization provided by the class method may be applied.
 //
@@ -69,7 +69,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the &#39;bslstl&#39; package, and we wish to define comparison operators for the
 // container.  If the container has an iterator that provides access to the
 // container&#39;s elements in a consistent order, and the elements themselves are
-// equality-comparable, we can implement the container&#39;s equality comparison
+// equality-comparable, we can implement the container&#39;s equality-comparison
 // operators by pair-wise comparing each of the elements over the entire range
 // of elements in both containers.  In such cases the container can use the
 // &#39;bslalg::RangeCompare::equal&#39; class method to equal-compare the container&#39;s
@@ -133,7 +133,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the criteria required to enable the optimizations provided by the
 // &#39;bslalg::RangeCompare::equal&#39; class method.
 //
-// Then, we declare the equality comparison operators for &#39;MyContainer&#39;:
+// Then, we declare the equality-comparison operators for &#39;MyContainer&#39;:
 //..
 //  template &lt;class VALUE_TYPE&gt;
 //  bool operator==(const MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
@@ -152,7 +152,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      // any element in &#39;lhs&#39; does not have the same value as the
 //      // corresponding element in &#39;rhs&#39;.
 //..
-// Next, we implement the equality comparison operators using
+// Next, we implement the equality-comparison operators using
 // &#39;bslalg::RangeCompare::equal&#39;:
 //..
 //  template &lt;class VALUE_TYPE&gt;
@@ -399,7 +399,7 @@ struct RangeCompare {
         // of an object or the number of elements in a range.
 
     // CLASS METHODS
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static bool equal(INPUT_ITER start1,
                       INPUT_ITER end1,
                       INPUT_ITER start2);
@@ -413,12 +413,12 @@ struct RangeCompare {
         // comparisons, or bit-wise comparison if the value type has the
         // bit-wise equality-comparable trait.
 
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static bool equal(INPUT_ITER start1,
                       INPUT_ITER end1,
                       INPUT_ITER start2,
                       INPUT_ITER end2);
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static bool equal(INPUT_ITER start1, INPUT_ITER end1, size_type length1,
                       INPUT_ITER start2, INPUT_ITER end2, size_type length2);
         // Compare each element in the range beginning at the specified
@@ -438,12 +438,12 @@ struct RangeCompare {
         // has the bit-wise equality-comparable trait.  Also note that
         // providing lengths may reduce the runtime cost of this operation.
 
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static int lexicographical(INPUT_ITER start1,
                                INPUT_ITER end1,
                                INPUT_ITER start2,
                                INPUT_ITER end2);
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static int lexicographical(INPUT_ITER start1,
                                INPUT_ITER end1,
                                size_type  length1,
@@ -480,21 +480,21 @@ struct RangeCompare_Imp {
     // the presence of nested traits.
 
     // CLASS METHODS
-    template &lt;typename VALUE_TYPE&gt;
+    template &lt;class VALUE_TYPE&gt;
     static bool equal(const VALUE_TYPE  *start1,
                       const VALUE_TYPE  *end1,
                       const VALUE_TYPE  *start2,
                       const VALUE_TYPE  *end2,
                       const VALUE_TYPE&amp;,
                       bsl::true_type);
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static bool equal(INPUT_ITER         start1,
                       INPUT_ITER         end1,
                       INPUT_ITER         start2,
                       INPUT_ITER         end2,
                       const VALUE_TYPE&amp;,
                       bsl::false_type);
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static bool equal(INPUT_ITER         start1,
                       INPUT_ITER         end1,
                       INPUT_ITER         start2,
@@ -508,19 +508,19 @@ struct RangeCompare_Imp {
         // is for automatic type deduction, and is ignored.  The fifth argument
         // is for overloading resolution, and is also ignored.
 
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&amp;,
                       bsl::true_type);
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
                       const VALUE_TYPE&amp;,
                       bsl::false_type);
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static bool equal(INPUT_ITER        start1,
                       INPUT_ITER        end1,
                       INPUT_ITER        start2,
@@ -533,7 +533,7 @@ struct RangeCompare_Imp {
         // automatic type deduction, and is ignored.  The fifth argument is for
         // overloading resolution, and is also ignored.
 
-    template &lt;typename VALUE_TYPE&gt;
+    template &lt;class VALUE_TYPE&gt;
     static bool equalBitwiseEqualityComparable(const VALUE_TYPE  *start1,
                                                const VALUE_TYPE  *end1,
                                                const VALUE_TYPE  *start2,
@@ -546,7 +546,7 @@ struct RangeCompare_Imp {
         // ambiguities, and is not used.  Return &#39;true&#39; if the ranges are
         // bit-wise equal, and &#39;false&#39; otherwise.
 
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static bool equalBitwiseEqualityComparable(INPUT_ITER        start1,
                                                INPUT_ITER        end1,
                                                INPUT_ITER        start2,
@@ -560,7 +560,7 @@ struct RangeCompare_Imp {
         // first range is equal to the corresponding element in the second
         // range, and &#39;false&#39; otherwise.
 
-    template &lt;typename VALUE_TYPE&gt;
+    template &lt;class VALUE_TYPE&gt;
     static int lexicographical(const VALUE_TYPE  *start1,
                                const VALUE_TYPE  *end1,
                                const VALUE_TYPE  *start2,
@@ -578,7 +578,7 @@ struct RangeCompare_Imp {
         // a positive value if the first range compares lexicographically
         // greater than the second range.
 
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static int lexicographical(INPUT_ITER        start1,
                                INPUT_ITER        end1,
                                INPUT_ITER        start2,
@@ -596,7 +596,7 @@ struct RangeCompare_Imp {
         // lexicographically equal, and a positive value if the first range
         // compares lexicographically greater than the second range.
 
-    template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+    template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
     static int lexicographical(INPUT_ITER        start1,
                                INPUT_ITER        end1,
                                INPUT_ITER        start2,
@@ -634,12 +634,12 @@ struct RangeCompare_Imp {
     static int lexicographical(const wchar_t *start1,
                                const wchar_t *end1,
                                const wchar_t *start2);
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static int lexicographical(INPUT_ITER           start1,
                                INPUT_ITER           end1,
                                INPUT_ITER           start2,
                                bslmf::MatchAnyType);
-    template &lt;typename INPUT_ITER&gt;
+    template &lt;class INPUT_ITER&gt;
     static int lexicographical(INPUT_ITER     start1,
                                INPUT_ITER     end1,
                                INPUT_ITER     start2);
@@ -653,16 +653,16 @@ struct RangeCompare_Imp {
         // compares lexicographically greater than the second range.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // -------------------
                          // struct RangeCompare
                          // -------------------
 
 // CLASS METHODS
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 inline
 bool RangeCompare::equal(INPUT_ITER start1,
                          INPUT_ITER end1,
@@ -674,7 +674,7 @@ bool RangeCompare::equal(INPUT_ITER start1,
     return RangeCompare_Imp::equal(start1, end1, start2, *start1);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 inline
 bool RangeCompare::equal(INPUT_ITER start1,
                          INPUT_ITER end1,
@@ -687,7 +687,7 @@ bool RangeCompare::equal(INPUT_ITER start1,
     return RangeCompare_Imp::equal(start1, end1, start2, end2, *start1);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 inline
 bool RangeCompare::equal(INPUT_ITER start1,
                          INPUT_ITER end1,
@@ -705,7 +705,7 @@ bool RangeCompare::equal(INPUT_ITER start1,
     return RangeCompare_Imp::equal(start1, end1, start2, *start1);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 int RangeCompare::lexicographical(INPUT_ITER start1,
                                   INPUT_ITER end1,
                                   INPUT_ITER start2,
@@ -721,7 +721,7 @@ int RangeCompare::lexicographical(INPUT_ITER start1,
                                              *start1);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 int RangeCompare::lexicographical(INPUT_ITER start1,
                                   INPUT_ITER end1,
                                   size_type  length1,
@@ -760,7 +760,7 @@ int RangeCompare::lexicographical(INPUT_ITER start1,
 
                           // *** equal overloads: ***
 
-template &lt;typename VALUE_TYPE&gt;
+template &lt;class VALUE_TYPE&gt;
 inline
 bool RangeCompare_Imp::equal(const VALUE_TYPE  *start1,
                              const VALUE_TYPE  *end1,
@@ -777,7 +777,7 @@ bool RangeCompare_Imp::equal(const VALUE_TYPE  *start1,
                                end2 - start2);
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
@@ -793,7 +793,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
     return start1 == end1 &amp;&amp; start2 == end2;
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
@@ -811,7 +811,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                  CanUseLengthOptimization());
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 inline
 bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
@@ -834,7 +834,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                                           CanUseBitwiseCompareOptimization());
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
                              INPUT_ITER        start2,
@@ -849,7 +849,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
     return true;
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 inline
 bool RangeCompare_Imp::equal(INPUT_ITER        start1,
                              INPUT_ITER        end1,
@@ -863,7 +863,7 @@ bool RangeCompare_Imp::equal(INPUT_ITER        start1,
 
              // *** equalBitwiseEqualityComparable overloads: ***
 
-template &lt;typename VALUE_TYPE&gt;
+template &lt;class VALUE_TYPE&gt;
 inline
 bool RangeCompare_Imp::equalBitwiseEqualityComparable(
                                                      const VALUE_TYPE  *start1,
@@ -879,7 +879,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(
                             numBytes);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 inline
 bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
                                                       INPUT_ITER        end1,
@@ -893,7 +893,7 @@ bool RangeCompare_Imp::equalBitwiseEqualityComparable(INPUT_ITER        start1,
 
                      // *** lexicographical overloads: ***
 
-template &lt;typename VALUE_TYPE&gt;
+template &lt;class VALUE_TYPE&gt;
 inline
 int RangeCompare_Imp::lexicographical(const VALUE_TYPE  *start1,
                                       const VALUE_TYPE  *end1,
@@ -913,7 +913,7 @@ int RangeCompare_Imp::lexicographical(const VALUE_TYPE  *start1,
                                          end2 - start2);
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        end1,
                                       INPUT_ITER        start2,
@@ -938,7 +938,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
     return 0;
 }
 
-template &lt;typename INPUT_ITER, typename VALUE_TYPE&gt;
+template &lt;class INPUT_ITER, class VALUE_TYPE&gt;
 inline
 int RangeCompare_Imp::lexicographical(INPUT_ITER        start1,
                                       INPUT_ITER        end1,
@@ -981,7 +981,7 @@ int RangeCompare_Imp::lexicographical(const wchar_t *start1,
     return std::wmemcmp(start1, start2, end1 - start1);
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
                                       INPUT_ITER end1,
                                       INPUT_ITER start2,
@@ -998,7 +998,7 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
     return 0;
 }
 
-template &lt;typename INPUT_ITER&gt;
+template &lt;class INPUT_ITER&gt;
 inline
 int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
                                       INPUT_ITER end1,

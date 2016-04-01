@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlscm_versiontag.h                                                -*-C++-*-
@@ -17,9 +17,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@SEE_ALSO: bdlscm_version
 //
 //@DESCRIPTION: This component provides versioning information for the &#39;bdl&#39;
-// package group.  The &#39;BDL_VERSION&#39; and &#39;BDL_MAKE_VERSION&#39; macros that are
-// supplied can be used for conditional-compilation based on &#39;bdl&#39; version
-// information.  The following usage example illustrates this basic capability.
+// package group.  The &#39;BDL_VERSION&#39; macro that is supplied can be used for
+// conditional-compilation based on &#39;bdl&#39; version information.  The following
+// usage example illustrates this basic capability.
+//
+// Note that since &#39;bdl&#39; is always released in lock-step with &#39;bsl&#39;, they
+// share common versioning, and the &#39;BDL_VERSION&#39; will always equal the
+// &#39;BSL_VERSION&#39;.
 //
 ///Usage
 ///-----
@@ -31,9 +35,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // old or new name using conditional compilation.  In the following, the &#39;#if&#39;
 // preprocessor directive compares &#39;BDL_VERSION&#39; (i.e., the latest BDL version,
 // excluding the patch version) to a specified major and minor version composed
-// using the &#39;BDL_MAKE_VERSION&#39; macro:
+// using the &#39;BSL_MAKE_VERSION&#39; macro:
 //..
-//  #if BDL_VERSION &gt; BDL_MAKE_VERSION(1, 3)
+//  #if BDL_VERSION &gt; BSL_MAKE_VERSION(1, 3)
 //      // Call &#39;newFunction&#39; for BDL versions later than 1.3.
 //      int result = newFunction();
 //  #else

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_guardingallocator Component</title>
+<title>BDE 3.0: bdlma_guardingallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -124,7 +124,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  <em>WARNING</em>: Note that this allocator should <em>not</em> be used for production use; it is intended for debugging purposes only. In particular, clients should be aware that a multiple of the page size is allocated for <em>each</em> <code>allocate</code> invocation (unless the size of the request is 0). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Also note that, unlike many other BDE allocators, a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code> cannot be (optionally) supplied upon construction of a counting allocator; instead, a system facility is used that allocates blocks of memory in multiples of the system page size. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Also note that, unlike many other BDE allocators, a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code> cannot be (optionally) supplied upon construction of a <code>GuardingAllocator</code>; instead, a system facility is used that allocates blocks of memory in multiples of the system page size. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="guard_pages"></a> <a class="anchor" id="description.guard_pages"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Guard Pages: </b></dt><dd></dd></dl>
@@ -133,7 +133,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>To illustrate, the following diagram shows the memory layout resulting from an <code>N</code>-byte allocation request from a guarding allocator, where <code>N</code> is assumed to be less than or equal to the size of a memory page. Note that two pages of memory are consumed for each such allocation request: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  N` - N rounded up to the least multiple of the maximum alignment
-  A  - address of (2-page) block of memory returned by system allocator
+  <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>  - address of (2-page) block of memory returned by system allocator
   U  - address returned from &#39;allocate&#39; to user
   G  - address of the guard page
   PS - page size (in bytes)
@@ -146,7 +146,7 @@ Namespaces</h2></td></tr>
       |                 |  N` bytes  | ******* R/W protected ****** |
       ---------------------------------------------------------------
       ^                 ^            ^
-      A                 U == G - N`  G == A + PS
+      <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>                 U == G - N`  G == <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> + PS
 
                           e_BEFORE_USER_BLOCK
                           -------------------
@@ -155,10 +155,11 @@ Namespaces</h2></td></tr>
       | ******* R/W protected ****** |  N` bytes  |                 |
       ---------------------------------------------------------------
       ^                              ^
-      A == G                         U == A + PS
+      <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> == G                         U == <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> + PS
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbdlma_1_1GuardingAllocator.html">bdlma::GuardingAllocator</a></code> class is fully thread-safe (see <code>bsldoc_glossary</code>). </dd></dl>
@@ -190,13 +191,16 @@ Namespaces</h2></td></tr>
       <span class="keyword">static</span> <span class="keywordtype">int</span> outputSize(my_DataStyle outputStyle,
                             my_DataStyle inputStyle,
                             <span class="keywordtype">int</span>          inputLength);
-         <span class="comment">// Return the buffer size (in bytes) required to store the result of</span>
-         <span class="comment">// converting input data of the specified &#39;inputLength&#39; (in bytes),</span>
-         <span class="comment">// in the specified &#39;inputStyle&#39;, into the specified &#39;outputStyle&#39;.</span>
-         <span class="comment">// The behavior is undefined unless &#39;0 &lt;= inputLength&#39;.</span>
+          <span class="comment">// Return the buffer size (in bytes) required to store the result</span>
+          <span class="comment">// of converting input data of the specified &#39;inputLength&#39; (in</span>
+          <span class="comment">// bytes), in the specified &#39;inputStyle&#39;, into the specified</span>
+          <span class="comment">// &#39;outputStyle&#39;.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= inputLength&#39;.</span>
 
-      <span class="keyword">static</span> <span class="keywordtype">int</span> translate(      <span class="keywordtype">char</span> *output, my_DataStyle outputStyle,
-                           <span class="keyword">const</span> <span class="keywordtype">char</span> *input,  my_DataStyle inputStyle);
+      <span class="keyword">static</span> <span class="keywordtype">int</span> translate(<span class="keywordtype">char</span>         *output,
+                           my_DataStyle  outputStyle,
+                           <span class="keyword">const</span> <span class="keywordtype">char</span>   *input,
+                           my_DataStyle  inputStyle);
           <span class="comment">// Load into the specified &#39;output&#39; buffer the result of converting</span>
           <span class="comment">// the specified &#39;input&#39; data, in the specified &#39;inputStyle&#39;, into</span>
           <span class="comment">// the specified &#39;outputStyle&#39;.  Return 0 on success, and a</span>
@@ -219,6 +223,10 @@ Namespaces</h2></td></tr>
       my_DataStyle      d_altStyle;    <span class="comment">// alternative style (if requested)</span>
       <span class="keywordtype">char</span>             *d_altBuffer;   <span class="comment">// buffer for alternative style</span>
       <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p; <span class="comment">// memory allocator (held, not owned)</span>
+
+    <span class="keyword">private</span>:
+      <span class="comment">// Not implemented:</span>
+      my_DataHandler(<span class="keyword">const</span> my_DataHandler&amp;);
 
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
@@ -281,6 +289,7 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">int</span> altLength = my_DataTranslationUtil::outputSize(alternateStyle,
                                                          d_inStyle,
                                                          d_inCapacity);
+      (void)altLength;
 
       <span class="comment">// Oops!  Should have used &#39;altLength&#39;.</span>
       <span class="keywordtype">char</span> *tmpAltBuffer = (<span class="keywordtype">char</span> *)d_allocator_p-&gt;allocate(d_inCapacity);
@@ -301,14 +310,18 @@ Namespaces</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Next, we define some data (in <code>e_STYLE_A</code>) and define a <code>my_DataHandler</code> object, <code>handler</code>, to process that data. Note that our <code>handler</code> object uses the default allocator: <br/>
+ Next, we define some data (in <code>e_STYLE_A</code>): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span> *input = <span class="stringliteral">&quot;AAAAAAAAAAAAAAA@&quot;</span>;  <span class="comment">// data always terminated with &#39;@&#39;</span>
-
-  my_DataHandler handler(input, 16, e_STYLE_A);
 </pre></div><br/>
 <br/>
- Next, we request that an alternate data style, <code>e_STYLE_AA</code>, be generated by <code>handler</code>. Unfortunately, data in style <code>e_STYLE_AA</code> is twice as large as that in style <code>e_STYLE_A</code> making it a virtual certainty that the program will crash due to the insufficiently sized buffer that is allocated in the <code>generateAlternate</code> method to accommodate the <code>e_STYLE_AA</code> data: <br/>
+ Then, we define a <code>my_DataHandler</code> object, <code>handler</code>, to process that data: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  my_DataHandler handler(input, 16, e_STYLE_A);
+</pre></div><br/>
+<br/>
+ Note that our <code>handler</code> object uses the default allocator. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Next, we request that an alternate data style, <code>e_STYLE_AA</code>, be generated by <code>handler</code>. Unfortunately, data in style <code>e_STYLE_AA</code> is twice as large as that in style <code>e_STYLE_A</code> making it a virtual certainty that the program will crash due to the insufficiently sized buffer that is allocated in the <code>generateAlternate</code> method to accommodate the <code>e_STYLE_AA</code> data: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> rc = handler.generateAlternate(e_STYLE_AA);
   <span class="keywordflow">if</span> (!rc) {
@@ -316,7 +329,7 @@ Namespaces</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Suppose that after performing a brief post mortem on the resulting core file, we strongly suspect that a buffer overrun is the root cause, but the program crashed in a context far removed from that of the source of the problem (which is often the case with buffer overrun issues). </dd></dl>
+ Suppose that after performing a brief post-mortem on the resulting core file, we strongly suspect that a buffer overrun is the root cause, but the program crashed in a context far removed from that of the source of the problem (which is often the case with buffer overrun issues). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Consequently, we modify the code to supply a guarding allocator to the <code>handler</code> object, then rebuild and rerun the program. We have configured the guarding allocator (below) to place guard pages <em>after</em> user blocks. Note that <code>e_AFTER_USER_BLOCK</code> is the default, so it need not be specified at construction as we have (pedantically) done here: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <a class="code" href="classbdlma_1_1GuardingAllocator.html">bdlma::GuardingAllocator</a> GA;
@@ -327,7 +340,7 @@ Namespaces</h2></td></tr>
 <br/>
  With a guarding allocator now in place, a memory fault is triggered when a guard page is overwritten as a result of the buffer overrun bug. Hence, the program will dump core in a context that is more proximate to the buggy code, resulting in a core file that will be more amenable to revealing the issue when analyzed in a debugger. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

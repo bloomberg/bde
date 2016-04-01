@@ -1,0 +1,2152 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlc_queue.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLC_QUEUE
+#define INCLUDED_BDLC_QUEUE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an in-place double-ended queue of &#39;T&#39; values.
+//
+//@DEPRECATED: Use &#39;bsl::deque&#39; instead.
+//
+//@CLASSES:
+//   bdlc::Queue: memory manager for in-place queue of &#39;T&#39; values
+//
+//@DESCRIPTION: This component implements an efficient, in-place, indexable,
+// double-ended queue of &#39;T&#39; values, where &#39;T&#39; is a templatized, user-defined
+// type.  The functionality of a &#39;bdlc::Queue&#39; is relatively rich; it is almost
+// a proper superset of a vector, with efficient implementations of &#39;front&#39;,
+// &#39;back&#39;, &#39;pushFront&#39;, and &#39;popBack&#39; methods added.  However, the queue does
+// *not* provide a &#39;data&#39; method (yielding direct access to the underlying
+// memory), because its internal organization is not array-like.
+//
+// Typical usage involves pushing (appending) values to the back of the queue,
+// popping (removing) values from the front of the queue, and retrieving
+// (operator[]) values from a specified index; unlike the O[n] runtime cost for
+// an &#39;insert(0, v)&#39;, however, a &#39;pushFront&#39; has a constant average-case cost.
+//
+// Note that appending, inserting, removing or pushing (back and front)
+// elements potentially alters the memory address of other element in the
+// queue, and there is no guarantee of contiguous storage of consecutive queued
+// elements.
+//
+///Abstract Representation
+///-----------------------
+// The logical organization of an indexable, in-place, double-ended
+// &#39;bdlc::Queue&#39; object &#39;q&#39; is shown below, along with an illustration of some
+// of its most common methods:
+//..
+//                                    QUEUE
+//                 v = q.front()                          v = q.back()
+//                  +------+------+------+------+--//--+------+
+//   q.popFront() &lt;-|      |      |      |      |      |      |&lt;- pushBack(v)
+// q.pushFront(v) -&gt;|      |      |      |      |      |      |-&gt; popBack()
+//                  +------+------+------+------+--//--+------+
+//                    q[0]   q[1]                       q[n-1]
+//                  &lt;------------ n = q.length() --//---------&gt;
+//..
+//
+///Performance
+///-----------
+// The following characterizes the performance of representative operations
+// using big-oh notation, O[f(N,M)], where the names &#39;N&#39; and &#39;M&#39; also refer to
+// the number of respective elements in each container (i.e., its &#39;length&#39;).
+// Here the average case, A[f(N)], is the amortized cost, which is defined as
+// the cost of &#39;N&#39; successive invocations of the operation divided by &#39;N&#39;.
+//..
+//     Operation           Worst Case          Average Case
+//     ---------           ----------          ------------
+//     DEFAULT CTOR        O[1]
+//     COPY CTOR(N)        O[N]
+//     N.DTOR()            O[1]
+//     N.OP=(M)            O[M]
+//     OP==(N,M)           O[min(N,M)]
+//
+//     N.pushFront(value)  O[N]                A[1]
+//     N.pushBack(value)   O[N]                A[1]
+//     N.popFront()        O[1]
+//     N.popBack()         O[1]
+//
+//     N.append(value)     O[N]                A[1]
+//     N.insert(value)     O[N]
+//     N.replace(value)    O[1]
+//     N.remove(index)     O[N]
+//
+//     N.OP[]()            O[1]
+//     N.length()          O[1]
+//..
+//
+///Usage
+///-----
+// The following snippets of code illustrate how to create and use a queue.
+// First, create an empty &#39;bdlc::Queue&lt;double&gt;&#39; &#39;q&#39; and populate it with two
+// elements &#39;E1&#39; and &#39;E2&#39;.
+//..
+//      const double E1 = 100.01;
+//      const double E2 = 200.02;
+//
+//      bdlc::Queue&lt;double&gt; q;          assert( 0 == q.length());
+//
+//      q.append(E1);                   assert( 1 == q.length());
+//                                      assert(E1 == q[0]);
+//                                      assert(E1 == q.front());
+//                                      assert(E1 == q.back());
+//
+//      q.append(E2);                   assert( 2 == q.length());
+//                                      assert(E1 == q[0]);
+//                                      assert(E2 == q[1]);
+//                                      assert(E1 == q.front());
+//                                      assert(E2 == q.back());
+//..
+// Now, pop the first element (&#39;E1&#39;) from &#39;q&#39; and push the same value to the
+// front of the queue.
+//..
+//      q.popFront();                   assert( 1 == q.length());
+//                                      assert(E2 == q[0]);
+//                                      assert(E2 == q.front());
+//                                      assert(E2 == q.back());
+//
+//      q.pushFront(E1);                assert( 2 == q.length());
+//                                      assert(E1 == q[0]);
+//                                      assert(E2 == q[1]);
+//                                      assert(E1 == q.front());
+//                                      assert(E2 == q.back());
+//..
+// Then, pop the last element (&#39;E2&#39;) from the back of &#39;q&#39; and push a new value
+// &#39;E3&#39; at the end of the queue.
+//..
+//      const double E3 = 300.03;
+//
+//      q.popBack();                    assert( 1 == q.length());
+//                                      assert(E1 == q[0]);
+//                                      assert(E1 == q.front());
+//                                      assert(E1 == q.back());
+//
+//      q.pushBack(E3);                 assert( 2 == q.length());
+//                                      assert(E1 == q[0]);
+//                                      assert(E3 == q[1]);
+//                                      assert(E1 == q.front());
+//                                      assert(E3 == q.back());
+//..
+// Now, assign &#39;E2&#39; to the first element (index position 0) of &#39;q&#39;.
+//..
+//      q[0] = E2;                      assert( 2 == q.length());
+//                                      assert(E2 == q[0]);
+//                                      assert(E3 == q[1]);
+//..
+// Then, insert a new value in the middle (index position 1) of &#39;q&#39;.
+//..
+//      const double E4 = 400.04;
+//
+//      q.insert(1, E4);                assert( 3 == q.length());
+//                                      assert(E2 == q[0]);
+//                                      assert(E4 == q[1]);
+//                                      assert(E3 == q[2]);
+//..
+// Next, iterate over the elements in &#39;q&#39;, printing them in increasing order of
+// their index positions, &#39;[0 .. q.length() - 1]&#39;,
+//..
+//      bsl::cout &lt;&lt; &#39;[&#39;;
+//      int len = q.length();
+//      for (int i = 0; i &lt; len; ++i) {
+//          bsl::cout &lt;&lt; &#39; &#39; &lt;&lt; q[i];
+//      }
+//      bsl::cout &lt;&lt; &quot; ]&quot; &lt;&lt; bsl::endl;
+//
+//..
+// which produces the following output on &#39;stdout&#39;:
+//..
+//      [ 200.02 400.04 300.03 ]
+//..
+// Finally, remove the elements from queue &#39;q&#39;.
+//..
+//      q.remove(2);                    assert( 2 == q.length());
+//                                      assert(E2 == q[0]);
+//                                      assert(E4 == q[1]);
+//
+//      q.remove(0);                    assert( 1 == q.length());
+//                                      assert(E4 == q[0]);
+//
+//      q.remove(0);                    assert( 0 == q.length());
+//
+//..
+// Note that, in general, specifying index positions greater than or equal to
+// length() will result in undefined behavior.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include &lt;bslx_instreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include &lt;bslx_outstreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_PRINT
+#include &lt;bdlb_print.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_PRINTMETHODS
+#include &lt;bdlb_printmethods.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;        // memmove(), memcmp(), memcpy()
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_NEW
+#include &lt;bsl_new.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdlc {
+                                // ===========
+                                // class Queue
+                                // ===========
+
+template &lt;class T&gt;
+class Queue {
+    // This class implements an efficient, in-place double-ended queue of
+    // values of parameterized type &#39;T&#39;.  The physical capacity of this queue
+    // may grow, but never shrinks.  Capacity may be reserved initially via a
+    // constructor, or at any time thereafter by using the &#39;reserveCapacity&#39;
+    // and &#39;reserveCapacityRaw&#39; methods.  Note that there is no guarantee of
+    // contiguous storage of consecutive elements.
+    //
+    // More generally, this container class supports a complete set of *value*
+    // *semantics* operations, including copy construction, assignment,
+    // equality comparison, &#39;ostream&#39; printing, and &#39;bdex&#39; serialization.  (A
+    // precise operational definition of when two objects have the same value
+    // can be found in the description of &#39;operator==&#39; for the class.)  This
+    // container is *exception* *neutral* with no guarantee of rollback: if an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // object, the container is left in a valid state, but its value is
+    // undefined.  In no event is memory leaked.  Finally, *aliasing* (e.g.,
+    // using all or part of an object as both source and destination) is
+    // supported in all cases.
+
+    // PRIVATE TYPES
+    enum {
+        // The queue is full when &#39;d_front == d_back&#39;.  Hence, &#39;k_INITIAL_SIZE&#39;
+        // must be at least two.
+
+        k_INITIAL_SIZE   = 2,  // initial physical capacity (in elements)
+        k_GROW_FACTOR    = 2,  // multiplicative factor for growing &#39;d_size&#39;
+        k_EXTRA_CAPACITY = 2   // extra capacity needed by implementation
+    };
+
+  public:
+    // TYPES
+    struct InitialCapacity {
+        // Enable uniform use of an optional integral constructor argument to
+        // specify the initial internal capacity (in elements).  For example,
+        //..
+        //   Queue&lt;unsigned int&gt; x(Queue::InitialCapacity(8));
+        //..
+        // instantiates an object &#39;x&#39; with an initial capacity of 8 elements,
+        // but with a logical length of 0 elements.
+
+        unsigned int d_i;
+
+        // CREATORS
+        explicit InitialCapacity(unsigned int i) : d_i(i) { }
+        ~InitialCapacity() { }
+    };
+
+  private:
+    // DATA
+    T                *d_array_p;      // dynamically allocated array (&#39;d_size&#39;
+                                      // elements)
+
+    int               d_size;         // physical capacity of this array (in
+                                      // elements)
+
+    int               d_front;        // index of element before first stored
+                                      // element
+
+    int               d_back;         // index of element past last stored
+                                      // element
+
+    bslma::Allocator *d_allocator_p;  // holds (but not own) memory allocator
+
+  private:
+    // PRIVATE MANIPULATORS
+    int calculateSufficientSize(int minLength, int size);
+        // Grow geometrically the specified current &#39;size&#39; value while it is
+        // less than the specified &#39;minLength&#39; value plus any additional
+        // capacity required by the implementation (i.e., &#39;k_EXTRA_CAPACITY&#39;
+        // elements).  Return the new size value.  The behavior is undefined
+        // unless &#39;k_INITIAL_SIZE &lt;= size&#39; and &#39;0 &lt;= minLength&#39;.  Note that if
+        // &#39;minLength + k_EXTRA_CAPACITY &lt;= size&#39; then &#39;size&#39; is returned.
+
+    int memcpyCircular(T       *dstArray,
+                       int      dstSize,
+                       int      dstIndex,
+                       const T *srcArray,
+                       int      srcSize,
+                       int      srcIndex,
+                       int      numElements);
+        // Copy efficiently the specified &#39;numElements&#39; data values from the
+        // specified &#39;srcArray&#39; of the specified &#39;srcSize&#39; starting at the
+        // specified &#39;srcIndex&#39; into the specified &#39;dstArray&#39; of the specified
+        // &#39;dstSize&#39; starting at the specified &#39;dstIndex&#39;.  Return the new
+        // value for the back of the queue.  The &#39;srcArray&#39; and the &#39;dstArray&#39;
+        // are assumed to be queues; they are circular which implies copy may
+        // have to be broken into multiple parts since the underlying array is
+        // linear.  The behavior is undefined unless &#39;0 &lt;= dstSize&#39;,
+        // &#39;0 &lt;= dstIndex &lt; dstSize&#39;, &#39;0 &lt;= srcIndex &lt; srcSize&#39;,
+        // &#39;0 &lt;= numElements&#39;, &#39;numElements &lt;= dstSize - k_EXTRA_CAPACITY&#39;, and
+        // &#39;numElements &lt;= srcSize - k_EXTRA_CAPACITY&#39; (the &#39;k_EXTRA_CAPACITY&#39;
+        // accounts for the locations of &#39;d_front&#39; and &#39;d_back&#39;).  Note that
+        // aliasing is not handled properly.
+
+    void memShiftLeft(T   *array,
+                      int  size,
+                      int  dstIndex,
+                      int  srcIndex,
+                      int  numElements);
+        // Copy efficiently the specified &#39;numElements&#39; data values from the
+        // specified &#39;array&#39; of the specified &#39;size&#39; starting at the specified
+        // index &#39;srcIndex&#39; to the specified &#39;dstIndex&#39; assuming the elements
+        // are to be moved to the left (towards the front of the queue).
+        // &#39;array&#39; is assumed to be a queue; it is circular.  The behavior is
+        // undefined unless &#39;0 &lt;= size&#39;, &#39;0 &lt;= dstIndex &lt; size&#39;,
+        // &#39;0 &lt;= srcIndex &lt; size&#39;, and
+        // &#39;0 &lt;= numElements &lt;= size - k_EXTRA_CAPACITY&#39;.  Note that this
+        // function is alias safe.
+
+    void memShiftRight(T   *array,
+                       int  size,
+                       int  dstIndex,
+                       int  srcIndex,
+                       int  numElements);
+        // Copy efficiently the specified &#39;numElements&#39; data values from the
+        // specified &#39;array&#39; of the specified &#39;size&#39; starting at the specified
+        // index &#39;srcIndex&#39; to the specified &#39;dstIndex&#39; assuming the elements
+        // are to be moved to the right (towards the back of the queue).
+        // &#39;array&#39; is assumed to be a queue; it is circular.  The behavior is
+        // undefined unless &#39;0 &lt;= size&#39;, &#39;0 &lt;= dstIndex &lt; size&#39;,
+        // &#39;0 &lt;= srcIndex &lt; size&#39;, and
+        // &#39;0 &lt;= numElements &lt;= size - k_EXTRA_CAPACITY&#39;.  Note that this
+        // function is alias safe.
+
+    void copyData(T       *dstArray,
+                  int     *dstBack,
+                  int      dstSize,
+                  int      dstFront,
+                  const T *srcArray,
+                  int      srcSize,
+                  int      srcFront,
+                  int      srcBack);
+        // Copy efficiently the queue indicated by the specified &#39;srcArray&#39; of
+        // the specified &#39;srcSize&#39; with the specified &#39;srcFront&#39; and the
+        // specified &#39;srcBack&#39; into the queue indicated by the specified
+        // &#39;dstArray&#39; of the specified &#39;dstSize&#39;, with the specified
+        // &#39;dstFront&#39;.  The specified &#39;dstBack&#39; is set to make the length of
+        // the destination queue the same as the length of the source queue.
+        // The behavior is undefined unless &#39;0 &lt;= dstSize&#39;,
+        // &#39;0 &lt;= dstFront &lt; dstSize&#39;, &#39;0 &lt;= srcSize&#39;,
+        // &#39;0 &lt;= srcFront &lt; srcSize&#39;, and &#39;0 &lt;= srcBack &lt; srcSize&#39;.  Note that
+        // aliasing is not handled properly.
+
+    int increaseSizeImp(T                **addrArray,
+                        int               *front,
+                        int               *back,
+                        int                newSize,
+                        int                size,
+                        bslma::Allocator  *allocator);
+        // Increase the physical capacity of the queue represented by the
+        // specified &#39;addrArray&#39; to specified &#39;newSize&#39; from the specified
+        // &#39;size&#39;.  Return the new size of the queue.  This function copies the
+        // data contained within the queue between the specified &#39;front&#39; and
+        // &#39;back&#39; to the new queue and update the values of both &#39;front&#39; and
+        // &#39;back&#39;.  Use the specified &#39;allocator&#39; to supply and retrieve
+        // memory.  The behavior is undefined unless
+        // &#39;k_INITIAL_SIZE &lt;= newSize&#39;, &#39;k_INITIAL_SIZE &lt;= size&#39;,
+        // &#39;size &lt;= newSize&#39;, &#39;0 &lt;= *front &lt; size&#39;, and &#39;0 &lt;= *back &lt; size&#39;.
+
+    void increaseSize();
+        // Increase the physical capacity of this array by at least one
+        // element.
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS2(Queue,
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bdlb::TypeTraitHasPrintMethod);
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;
+        // method.  Note that it is highly recommended that &#39;versionSelector&#39;
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that
+        // &#39;versionSelector&#39; should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    // CREATORS
+    explicit
+    Queue(bslma::Allocator *basicAllocator = 0);
+    explicit
+    Queue(unsigned int      initialLength,
+          bslma::Allocator *basicAllocator = 0);
+    Queue(int               initialLength,
+          const T&amp;          initialValue,
+          bslma::Allocator *basicAllocator = 0);
+        // Create an in-place queue.  By default, the queue is empty.
+        // Optionally specify the &#39;initialLength&#39; of the queue.  Queue elements
+        // are initialized with the specified &#39;initialValue&#39;, or to 0.0 if
+        // &#39;initialValue&#39; is not specified.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless &#39;0 &lt;= initialLength&#39;.
+
+    explicit
+    Queue(const InitialCapacity&amp;  numElements,
+          bslma::Allocator       *basicAllocator = 0);
+        // Create an in-place queue with sufficient initial capacity to
+        // accommodate up to the specified &#39;numElements&#39; values without
+        // subsequent reallocation.  A valid reference returned by the
+        // &#39;operator[]&#39; method is guaranteed to remain valid unless the value
+        // returned by the &#39;length&#39; method exceeds &#39;numElements&#39; (which would
+        // potentially cause a reallocation).  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless &#39;0 &lt;= numElements&#39;.
+
+    Queue(const T          *srcArray,
+          int               numElements,
+          bslma::Allocator *basicAllocator = 0);
+        // Create an in-place queue initialized with the specified
+        // &#39;numElements&#39; leading values from the specified &#39;srcArray&#39;.
+        // Optionally specify the &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;0 &lt;= numElements&#39;.  Note
+        // that &#39;srcArray&#39; must refer to sufficient memory to hold
+        // &#39;numElements&#39; values.
+
+    Queue(const Queue&amp; original, bslma::Allocator* basicAllocator = 0);
+        // Create an in-place queue initialized to the value of the specified
+        // &#39;original&#39; queue.  Optionally specify the &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~Queue();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Queue&amp; operator=(const Queue&amp; rhs);
+        // Assign to this queue the value of the specified &#39;rhs&#39; queue and
+        // return a reference to this modifiable queue.
+
+    T&amp; operator[](int index);
+        // Return a reference to the modifiable element at the specified
+        // &#39;index&#39; position in this queue.  The reference will remain valid as
+        // long as this queue is not destroyed or modified (e.g., via &#39;insert&#39;,
+        // &#39;remove&#39;, or &#39;append&#39;).  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt; length()&#39;.
+
+    void append(const T&amp; item);
+        // Append to the end of this queue the value of the specified &#39;item&#39;.
+        // Note that this function is a synonym for &#39;pushBack&#39; and is logically
+        // equivalent to (but generally more efficient than):
+        //..
+        //   insert(length(), item);
+        //..
+
+    void append(const Queue&amp; srcQueue);
+        // Append to the end of this queue the sequence of values in the
+        // specified &#39;srcQueue&#39;.  Note that this function is logically
+        // equivalent to:
+        //..
+        //   insert(length(), srcQueue);
+        //..
+
+    void append(const Queue&amp; srcQueue, int srcIndex, int numElements);
+        // Append to the end of this queue the specified &#39;numElements&#39; value in
+        // the specified &#39;srcQueue&#39; starting at the specified index position
+        // &#39;srcIndex&#39;.  Note that this function is logically equivalent to:
+        //..
+        //   insert(length(), srcQueue, srcIndex, numElements);
+        //..
+        // The behavior is undefined unless &#39;0 &lt;= srcIndex&#39;,
+        // &#39;0 &lt;= numElements&#39;, and
+        // &#39;srcIndex + numElements &lt;= srcQueue.length()&#39;.
+
+    T&amp; back();
+        // Return a reference to the modifiable value at the back of this
+        // queue.  The reference will remain valid as long as the queue is not
+        // destroyed or modified (e.g., via &#39;insert&#39;, &#39;remove&#39;, or &#39;append&#39;).
+        // The behavior is undefined if the queue is empty.  Note that this
+        // function is logically equivalent to:
+        //..
+        //  operator[](length() - 1)
+        //..
+
+    T&amp; front();
+        // Return a reference to the modifiable value at the front of this
+        // queue.  The reference will remain valid as long as the queue is not
+        // destroyed or modified (e.g., via &#39;insert&#39;, &#39;remove&#39;, or &#39;append&#39;).
+        // The behavior is undefined if the queue is empty.  Note that this
+        // function is logically equivalent to:
+        //..
+        //  operator[](0)
+        //..
+
+    void insert(int dstIndex, const T&amp; item);
+        // Insert the specified &#39;item&#39; into this queue at the specified
+        // &#39;dstIndex&#39;.  All current values with indices at or above &#39;dstIndex&#39;
+        // are shifted up by one index position.  The behavior is undefined
+        // unless &#39;0 &lt;= dstIndex &lt;= length()&#39;.
+
+    void insert(int dstIndex, const Queue&amp; srcQueue);
+        // Insert the specified &#39;srcQueue&#39; into this queue at the specified
+        // &#39;dstIndex&#39;.  All current values with indices at or above &#39;dstIndex&#39;
+        // are shifted up by &#39;srcQueue.length()&#39; index positions.  The behavior
+        // is undefined unless &#39;0 &lt;= dstIndex &lt;= length()&#39;.
+
+    void insert(int          dstIndex,
+                const Queue&amp; srcQueue,
+                int          srcIndex,
+                int          numElements);
+        // Insert the specified &#39;numElements&#39; values starting at the specified
+        // &#39;srcIndex&#39; position from the specified &#39;srcQueue&#39; into this queue at
+        // the specified &#39;dstIndex&#39;.  All current values with indices at or
+        // above &#39;dstIndex&#39; are shifted up by &#39;numElements&#39; index positions.
+        // The behavior is undefined unless &#39;0 &lt;= dstIndex &lt;= length()&#39;,
+        // &#39;0 &lt;= srcIndex&#39;, &#39;0 &lt;= numElements&#39;, and
+        // &#39;srcIndex + numElements &lt;= srcQueue.length()&#39;.
+
+    void popBack();
+        // Remove the value from the back of this queue efficiently (in O[1]
+        // time).  The behavior is undefined if this queue is empty.  Note that
+        // this function is logically equivalent to (but more efficient than):
+        //..
+        //    remove(length() - 1)
+        //..
+
+    void popFront();
+        // Remove the value from the front of this queue efficiently (in O[1]
+        // time).  The behavior is undefined if this queue is empty.  Note that
+        // this function is logically equivalent to (but more efficient than):
+        //..
+        //    remove(0)
+        //..
+
+    void pushBack(const T&amp; item);
+        // Append the specified &#39;item&#39; to the back of this queue efficiently
+        // (in O[1] time when memory reallocation is not required).  Note that
+        // this function is logically equivalent to (but generally more
+        // efficient than):
+        //..
+        //    insert(length(), item);
+        //..
+
+    void pushFront(const T&amp; item);
+        // Insert the specified &#39;item&#39; into the front of this queue efficiently
+        // (in O[1] time when memory reallocation is not required).  Note that
+        // this function is logically equivalent to (but generally more
+        // efficient than):
+        //..
+        //    insert(0, item);
+        //..
+
+    void remove(int index);
+        // Remove from this queue the value at the specified &#39;index&#39;.  All
+        // values with initial indices above &#39;index&#39; are shifted down by one
+        // index position.  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt; length()&#39;.
+
+    void remove(int index, int numElements);
+        // Remove from this queue, beginning at the specified &#39;index&#39;, the
+        // specified &#39;numElements&#39; values.  All values with initial indices at
+        // or above &#39;index + numElements&#39; are shifted down by &#39;numElements&#39;
+        // index positions.  The behavior is undefined unless &#39;0 &lt;= index&#39;,
+        // &#39;0 &lt;= numElements&#39;, and &#39;index + numElements &lt;= length()&#39;.
+
+    void removeAll(bsl::vector&lt;T&gt; *buffer = 0);
+        // Remove all elements from this queue.  If the optionally specified
+        // &#39;buffer&#39; is not 0, append to &#39;buffer&#39; a copy of each element removed
+        // (in front-to-back order of the elements in the queue prior to the
+        // invocation of this method).
+
+    void replace(int dstIndex, const T&amp; item);
+        // Replace the element at the specified &#39;dstIndex&#39; in this queue with
+        // the specified &#39;item&#39;.  The behavior is undefined unless
+        // &#39;0 &lt;= dstIndex &lt; length()&#39;.  Note that this function is logically
+        // equivalent to (but more efficient than):
+        //..
+        //    insert(dstIndex, item);
+        //    remove(dstIndex + 1);
+        //..
+
+    void replace(int          dstIndex,
+                 const Queue&amp; srcQueue,
+                 int          srcIndex,
+                 int          numElements);
+        // Replace the specified &#39;numElements&#39; values beginning at the
+        // specified &#39;dstIndex&#39; in this queue with values from the specified
+        // &#39;srcQueue&#39; beginning at the specified &#39;srcIndex&#39;.  The behavior is
+        // undefined unless &#39;0 &lt;= dstIndex, 0 &lt;= numElements&#39;,
+        // &#39;dstIndex + numElements &lt;= length()&#39;, &#39;0 &lt;= srcIndex&#39;, and
+        // &#39;srcIndex + numElements &lt;= srcQueue.length()&#39;.  Note that this
+        // function is logically equivalent to (but more efficient than):
+        //..
+        //    insert(dstIndex, srcQueue, srcIndex, numElements);
+        //    remove(dstIndex + numElements, numElements);
+        //..
+
+    void reserveCapacity(int numElements);
+        // Reserve sufficient internal capacity to accommodate up to the
+        // specified &#39;numElements&#39; values without subsequent reallocation.
+        // Note that if &#39;numElements &lt;= length()&#39;, this operation has no
+        // effect.
+
+    void reserveCapacityRaw(int numElements);
+        // Reserve sufficient and minimal internal capacity to accommodate up
+        // to the specified &#39;numElements&#39; values without subsequent
+        // reallocation.  Beware, however, that repeated calls to this function
+        // may invalidate bounds on runtime complexity otherwise guaranteed by
+        // this container.  Note that if &#39;numElements &lt;= length()&#39;, this
+        // operation has no effect.
+
+    void setLength(int newLength);
+    void setLength(int newLength, const T&amp; initialValue);
+        // Set the length of this queue to the specified &#39;newLength&#39;.  If
+        // &#39;newLength&#39; is less than the current length, elements at index
+        // positions at or above &#39;newLength&#39; are removed.  Otherwise any new
+        // elements (at or above the current length) are initialized to the
+        // specified &#39;initialValue&#39;, or to 0.0 if &#39;initialValue&#39; is not
+        // specified.  The behavior is undefined unless &#39;0 &lt;= newLength&#39;.
+
+    void setLengthRaw(int newLength);
+        // Set the length of this queue to the specified &#39;newLength&#39;.  If
+        // &#39;newLength&#39; is less than the current length, elements at index
+        // positions at or above &#39;newLength&#39; are removed.  If &#39;newLength&#39; is
+        // equal to the current length, this function has no effect.  Otherwise
+        // new elements at or above the current length are not initialized to
+        // any value.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated, but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    void swap(int index1, int index2);
+        // Swap efficiently the values at the specified indices &#39;index1&#39; and
+        // &#39;index2&#39;.  The behavior is undefined unless &#39;0 &lt;= index1 &lt; length()&#39;
+        // and &#39;0 &lt;= index2 &lt; length()&#39;.
+
+    // ACCESSORS
+    const T&amp; operator[](int index) const;
+        // Return a reference to the non-modifiable element at the specified
+        // &#39;index&#39; position in this queue.  The reference will remain valid as
+        // long as this queue is not destroyed or modified (e.g., via &#39;insert&#39;,
+        // &#39;remove&#39;, or &#39;append&#39;).  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt; length()&#39;.
+
+    const T&amp; back() const;
+        // Return a reference to the non-modifiable element at the back of this
+        // queue.  The reference will remain valid as long as this queue is not
+        // destroyed or modified (e.g., via &#39;insert&#39;, &#39;remove&#39;, or &#39;append&#39;).
+        // The behavior is undefined if this queue is empty.  Note that this
+        // function is logically equivalent to:
+        //..
+        //    operator[](length() - 1)
+        //..
+
+    const T&amp; front() const;
+        // Return a reference to the non-modifiable element at the front of
+        // this queue.  The reference will remain valid as long as this queue
+        // is not destroyed or modified (e.g., via &#39;insert&#39;, &#39;remove&#39;, or
+        // &#39;append&#39;).  The behavior is undefined if this queue is empty.  Note
+        // that this function is logically equivalent to:
+        //..
+        //    operator[](0)
+        //..
+
+    int length() const;
+        // Return the number of elements in this queue.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level,
+                        int           spacesPerLevel) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multi-line mode only.
+
+    bsl::ostream&amp; streamOut(bsl::ostream&amp; stream) const
+        // Write the elements of this queue out to the specified &#39;stream&#39;.
+        // Note that for this method to compile, &#39;operator&lt;&lt;&#39; has to be defined
+        // for arguments &#39;stream&#39; and type &#39;T&#39;.
+    {
+        stream &lt;&lt; &#39;[&#39;;
+        for (int i = 0; i &lt; length(); ++i) {
+            stream &lt;&lt; &#39; &#39; &lt;&lt; (*this)[i];
+        }
+        return stream &lt;&lt; &quot; ]&quot;;
+    }
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write the value of this object, using the specified &#39;version&#39;
+        // format, to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no
+        // effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but
+        // otherwise unmodified.  Note that &#39;version&#39; is not written to
+        // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+};
+
+// FREE OPERATORS
+template &lt;class T&gt;
+inline
+bool operator==(const Queue&lt;T&gt;&amp; lhs, const Queue&lt;T&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; queues have the same
+    // value, and &#39;false&#39; otherwise.  Two queues have the same value if they
+    // have the same length and the same element value at each respective index
+    // position.
+
+template &lt;class T&gt;
+inline
+bool operator!=(const Queue&lt;T&gt;&amp; lhs, const Queue&lt;T&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; queues do not have the
+    // same value, and &#39;false&#39; otherwise.  Two queues do not have the same
+    // value if they have different lengths or differ in at least one index
+    // position.
+
+template &lt;class T&gt;
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Queue&lt;T&gt;&amp; queue);
+    // Write the specified &#39;queue&#39; to the specified output &#39;stream&#39; and return
+    // a reference to the modifiable &#39;stream&#39;.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// TBD pass through allocator
+// TBD isBitwise, etc.
+
+              // ---------------------------------------------
+              // inlined methods used by other inlined methods
+              // ---------------------------------------------
+
+template &lt;class T&gt;
+inline
+int bdlc::Queue&lt;T&gt;::length() const
+{
+    return d_back &gt; d_front ? d_back - d_front - 1
+                            : d_back + d_size - d_front - 1;
+}
+
+// PRIVATE MANIPULATORS
+template &lt;class T&gt;
+int bdlc::Queue&lt;T&gt;::calculateSufficientSize(int minLength, int size)
+{
+    const int len = minLength + k_EXTRA_CAPACITY;
+    while (size &lt; len) {
+        size *= k_GROW_FACTOR;
+    }
+    return size;
+}
+
+template &lt;class T&gt;
+int bdlc::Queue&lt;T&gt;::memcpyCircular(T       *dstArray,
+                                   int      dstSize,
+                                   int      dstIndex,
+                                   const T *srcArray,
+                                   int      srcSize,
+                                   int      srcIndex,
+                                   int      numElements)
+{
+    int dst;  // temporary value to store the current destination location
+
+    // Break the source queue into one or two linear arrays to copy.
+
+    int srcA = srcIndex;
+    if (srcA + numElements &lt;= srcSize) {  // one linear source array
+        int lenSrcA = numElements;
+
+        dst = dstIndex;
+
+        // Compute the maximum number of elements that can be copied to the
+        // destination array.
+
+        int dstLen = dstSize - dst;
+
+        if (dstLen &gt;= lenSrcA) {  // can copy everything from srcA
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcA; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[srcA + i]);
+            }
+            dst += lenSrcA;
+        }
+        else {  // can copy only part of srcA without changing dst
+            // TBD efficiency
+
+            for (int i = 0; i &lt; dstLen; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[srcA + i]);
+            }
+            srcA += dstLen;
+            lenSrcA -= dstLen;
+
+            // WARNING:  There seems to be an AIX compiler issue for the
+            // following four lines.  Removing the &#39;assert&#39; and moving the
+            // &#39;memcpy&#39; down two lines may cause the program to compile, but
+            // not execute properly.
+
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcA; ++i) {
+                new (&amp;dstArray[i]) T(srcArray[srcA + i]);
+            }
+            dstLen = dst;  // max numElements that can be copied to index 0
+            dst = lenSrcA;
+
+            // TBD doc above assert(lenSrcA &lt;= dstLen - k_EXTRA_CAPACITY);
+        }
+    }
+    else {  // two linear source arrays
+        int lenSrcA = srcSize - srcA;
+        int lenSrcB = numElements - lenSrcA;
+
+        dst = dstIndex;
+
+        // Compute the maximum number of elements that can be copied to the
+        // destination array.
+
+        int dstLen = dstSize - dst;
+
+        if (dstLen &gt;= lenSrcA) {  // can copy everything from srcA
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcA; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[srcA + i]);
+            }
+            dst += lenSrcA;
+        }
+        else {  // can copy only part of srcA without changing dst
+            // TBD efficiency
+
+            for (int i = 0; i &lt; dstLen; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[srcA + i]);
+            }
+            srcA += dstLen;
+            lenSrcA -= dstLen;
+
+            // WARNING:  There seems to be an AIX compiler issue for the
+            // following four lines.  Removing the &#39;assert&#39; and moving the
+            // &#39;memcpy&#39; down two lines may cause the program to compile, but
+            // not execute properly.
+
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcA; ++i) {
+                new (&amp;dstArray[i]) T(srcArray[srcA + i]);
+            }
+            dstLen = dst;  // max numElements that can be copied to index 0
+            dst = lenSrcA;
+
+            // TBD
+            // doc above assert(
+            // lenSrcA + lenSrcB &lt;= dstLen - k_EXTRA_CAPACITY);
+        }
+        dstLen -= lenSrcA;
+
+        if (dstLen &gt;= lenSrcB) {  // can copy everything from srcB
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcB; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[i]);
+            }
+            dst += lenSrcB;
+        }
+        else {  // can copy only part of srcB without changing dst
+            // NOTE: could not have had insufficient room for srcA
+            // TBD efficiency
+
+            for (int i = 0; i &lt; dstLen; ++i) {
+                new (&amp;dstArray[dst + i]) T(srcArray[i]);
+            }
+            lenSrcB -= dstLen;
+            dst = lenSrcB;
+
+            // TBD efficiency
+
+            for (int i = 0; i &lt; lenSrcB; ++i) {
+                new (&amp;dstArray[i]) T(srcArray[dstLen + i]);
+            }
+        }
+    }
+
+    return dst % dstSize;
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::memShiftLeft(T   *array,
+                                  int  size,
+                                  int  dstIndex,
+                                  int  srcIndex,
+                                  int  numElements)
+{
+    // Move the elements that do not wrap around the array end.
+
+    if (srcIndex &gt; dstIndex) {
+        int numMove = size - srcIndex;
+        if (numMove &gt;= numElements) {
+            // TBD efficiency
+
+            for (int i = 0; i &lt; numElements; ++i) {
+                new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+                array[srcIndex + i].~T();
+            }
+            return;                                                   // RETURN
+        }
+
+        // TBD efficiency
+
+        for (int i = 0; i &lt; numMove; ++i) {
+            new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+            array[srcIndex + i].~T();
+        }
+        numElements -= numMove;
+        dstIndex += numMove;
+        srcIndex = 0;
+    }
+    else if (srcIndex == dstIndex) {
+        return;                                                       // RETURN
+    }
+
+    // Move the elements of the source that will just precede the array end.
+
+    int numMove = size - dstIndex;
+    if (numMove &gt;= numElements) {
+        // TBD efficiency
+
+        for (int i = numElements - 1; i &gt;= 0; --i) {
+            new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+            array[srcIndex + i].~T();
+        }
+
+        return;                                                       // RETURN
+    }
+    // TBD efficiency
+
+    for (int i = numMove - 1; i &gt;= 0; --i) {
+        new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+        array[srcIndex + i].~T();
+    }
+    numElements -= numMove;
+    srcIndex += numMove;
+
+    // Move the elements of the source that are around the array end.
+
+    // TBD efficiency
+
+    for (int i = 0; i &lt; numElements; ++i) {
+        new (&amp;array[i]) T(array[srcIndex + i]);
+        array[srcIndex + i].~T();
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::memShiftRight(T   *array,
+                                   int  size,
+                                   int  dstIndex,
+                                   int  srcIndex,
+                                   int  numElements)
+{
+    if (dstIndex == srcIndex) {
+        return;                                                       // RETURN
+    }
+
+    {
+
+        // Move the elements of the source that wrap around the array end.
+
+        int numMove = srcIndex + numElements;
+        if (numMove &gt; size) {
+            numMove -= size;
+            // TBD efficiency
+
+            for (int i = numMove - 1; i &gt;= 0; --i) {
+                new (&amp;array[(dstIndex + numElements - numMove) % size + i])
+                                                                   T(array[i]);
+                array[i].~T();
+            }
+            numElements -= numMove;
+        }
+    }
+
+    {
+        // Move the elements of the source that will wrap around the array end.
+
+        int numMove = dstIndex + numElements;
+        if (numMove &gt; size) {
+            numMove -= size;
+            // TBD efficiency
+
+            for (int i = 0; i &lt; numMove; ++i) {
+                new (&amp;array[i])
+                       T(array[(srcIndex + numElements - numMove) % size + i]);
+                array[srcIndex + numElements - numMove + i].~T();
+            }
+            numElements -= numMove;
+        }
+    }
+
+    // Move the elements of the source that do not and will not wrap around
+    // the array end.
+
+    if (dstIndex &lt; srcIndex) {
+        // TBD efficiency
+
+        for (int i = 0; i &lt; numElements; ++i) {
+            new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+            array[srcIndex + i].~T();
+        }
+    }
+    else {
+        // TBD efficiency
+
+        for (int i = numElements - 1; i &gt;= 0; --i) {
+            new (&amp;array[dstIndex + i]) T(array[srcIndex + i]);
+            array[srcIndex + i].~T();
+        }
+    }
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::copyData(T       *dstArray,
+                              int     *dstBack,
+                              int      dstSize,
+                              int      dstFront,
+                              const T *srcArray,
+                              int      srcSize,
+                              int      srcFront,
+                              int      srcBack)
+{
+    const int dstIndex = (dstFront + 1) % dstSize;
+    const int srcIndex = (srcFront + 1) % srcSize;
+    const int numElements = (srcBack + srcSize - srcFront - 1) % srcSize;
+
+    *dstBack = memcpyCircular(dstArray,
+                              dstSize,
+                              dstIndex,
+                              srcArray,
+                              srcSize,
+                              srcIndex,
+                              numElements);
+}
+
+template &lt;class T&gt;
+int bdlc::Queue&lt;T&gt;::increaseSizeImp(T                **addrArray,
+                                    int               *front,
+                                    int               *back,
+                                    int                newSize,
+                                    int                size,
+                                    bslma::Allocator  *allocator)
+{
+    T *array = (T *)allocator-&gt;allocate(newSize * sizeof **addrArray);
+
+    // COMMIT
+
+    const int oldFront = *front;
+    const int oldBack = *back;
+    *front = newSize - 1;
+    copyData(array, back, newSize, *front, *addrArray, size, oldFront, *back);
+
+    // TBD efficiency
+
+    for (int i = (oldFront + 1) % size; i != oldBack; i = (i + 1) % size) {
+        (*addrArray)[i].~T();
+    }
+
+    allocator-&gt;deallocate(*addrArray);
+    *addrArray = array;
+    return newSize;
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::increaseSize()
+{
+    d_size = increaseSizeImp(&amp;d_array_p,
+                             &amp;d_front,
+                             &amp;d_back,
+                             d_size * k_GROW_FACTOR,
+                             d_size,
+                             d_allocator_p);
+}
+
+// CLASS METHODS
+template &lt;class T&gt;
+inline
+int bdlc::Queue&lt;T&gt;::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;  // Required by BDE policy; versions start at 1.
+}
+
+
+// CREATORS
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(bslma::Allocator *basicAllocator)
+: d_size(k_INITIAL_SIZE)
+, d_front(k_INITIAL_SIZE - 1)
+, d_back(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(unsigned int      initialLength,
+                      bslma::Allocator *basicAllocator)
+: d_back(initialLength)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_size = calculateSufficientSize(initialLength, k_INITIAL_SIZE);
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+    d_front = d_size - 1;
+
+    // initialize the array values
+    // TBD efficiency
+    // TBD exception neutrality
+
+    for (int i = 0; i &lt; d_back; ++i) {
+        new (d_array_p + i) T();
+    }
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(int               initialLength,
+                      const T&amp;          initialValue,
+                      bslma::Allocator *basicAllocator)
+: d_back(initialLength)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_size = calculateSufficientSize(initialLength, k_INITIAL_SIZE);
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+    d_front = d_size - 1;
+
+    // TBD efficiency
+    // TBD exception neutrality
+
+    for (int i = 0; i &lt; d_back; ++i) {
+        new (d_array_p + i) T(initialValue);
+    }
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(const InitialCapacity&amp;  numElements,
+                      bslma::Allocator       *basicAllocator)
+: d_size(numElements.d_i + k_EXTRA_CAPACITY) // to hold the empty positions
+, d_front(numElements.d_i + k_EXTRA_CAPACITY - 1)
+, d_back(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(const T          *srcArray,
+                      int               numElements,
+                      bslma::Allocator *basicAllocator)
+: d_back(numElements)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_size = calculateSufficientSize(numElements, k_INITIAL_SIZE);
+    d_front = d_size - 1;
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+
+    // TBD efficiency
+
+    for (int i = 0; i &lt; numElements; ++i) {
+        new (&amp;d_array_p[i]) T(srcArray[i]);
+    }
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::Queue(const Queue&amp; original, bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_size = calculateSufficientSize(original.length(), k_INITIAL_SIZE);
+    d_array_p = (T *)d_allocator_p-&gt;allocate(d_size * sizeof *d_array_p);
+    d_front = d_size - 1;
+    copyData(d_array_p,
+             &amp;d_back,
+             d_size,
+             d_front,
+             original.d_array_p,
+             original.d_size,
+             original.d_front,
+             original.d_back);
+}
+
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;::~Queue()
+{
+    // TBD efficiency
+
+    for (int i = (d_front + 1) % d_size; i != d_back; i = (i + 1) % d_size) {
+        d_array_p[i].~T();
+    }
+
+    d_allocator_p-&gt;deallocate(d_array_p);
+}
+
+// MANIPULATORS
+template &lt;class T&gt;
+bdlc::Queue&lt;T&gt;&amp; bdlc::Queue&lt;T&gt;::operator=(const Queue&amp; rhs)
+{
+    if (this != &amp;rhs) {
+        const int newSize =
+                         calculateSufficientSize(rhs.length(), k_INITIAL_SIZE);
+        if (newSize &gt; d_size) {
+            T *array =
+                     (T *)d_allocator_p-&gt;allocate(newSize * sizeof *d_array_p);
+
+            // TBD efficiency
+
+            for (int i = (d_front + 1) % d_size; i != d_back;
+                                                        i = (i + 1) % d_size) {
+                d_array_p[i].~T();
+            }
+
+            d_allocator_p-&gt;deallocate(d_array_p);
+            d_array_p = array;
+            d_size = newSize;
+        }
+        else {
+            // TBD efficiency
+
+            for (int i = (d_front + 1) % d_size; i != d_back;
+                                                        i = (i + 1) % d_size) {
+                d_array_p[i].~T();
+            }
+        }
+        copyData(d_array_p,
+                 &amp;d_back,
+                 d_size,
+                 d_front,
+                 rhs.d_array_p,
+                 rhs.d_size,
+                 rhs.d_front,
+                 rhs.d_back);
+    }
+    return *this;
+}
+
+template &lt;class T&gt;
+inline
+T&amp; bdlc::Queue&lt;T&gt;::operator[](int index)
+{
+    return d_array_p[(index + d_front + 1) % d_size];
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::append(const Queue&amp; srcQueue)
+{
+    const int numElements = srcQueue.length();
+    const int newLength = length() + numElements;
+    const int minSize = calculateSufficientSize(newLength, d_size);
+    if (d_size &lt; minSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 minSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+    d_back = memcpyCircular(d_array_p,
+                            d_size,
+                            d_back,
+                            srcQueue.d_array_p,
+                            srcQueue.d_size,
+                            (srcQueue.d_front + 1) % srcQueue.d_size,
+                            numElements);
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::append(const Queue&amp; srcQueue,
+                            int          srcIndex,
+                            int          numElements)
+{
+    const int newLength = length() + numElements;
+    const int minSize = calculateSufficientSize(newLength, d_size);
+    if (d_size &lt; minSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 minSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+    d_back = memcpyCircular(d_array_p,
+                            d_size,
+                            d_back,
+                            srcQueue.d_array_p,
+                            srcQueue.d_size,
+                            (srcQueue.d_front + 1 + srcIndex) %
+                                srcQueue.d_size,
+                            numElements);
+}
+
+template &lt;class T&gt;
+inline
+T&amp; bdlc::Queue&lt;T&gt;::back()
+{
+    return d_array_p[(d_back - 1 + d_size) % d_size];
+}
+
+template &lt;class T&gt;
+inline
+T&amp; bdlc::Queue&lt;T&gt;::front()
+{
+    return d_array_p[(d_front + 1) % d_size];
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::insert(int dstIndex, const T&amp; item)
+{
+    T itemCopy(item);  // TBD hack for aliased case
+
+    // The capacity must always be greater than or equal to
+    // &#39;length + k_EXTRA_CAPACITY&#39;.
+
+    const int originalLength = length();
+    const int newLength = originalLength + 1;
+    const int newSize = calculateSufficientSize(newLength, d_size);
+
+    if (d_size &lt; newSize) {
+        // resize, makes move easy
+
+        T *array = (T *)d_allocator_p-&gt;allocate(newSize * sizeof *d_array_p);
+
+        // COMMIT
+
+        const int start = d_front + 1;
+
+        // NOTE: newSize &gt;= size + 1 so &#39;% newSize&#39; is not needed in next line.
+
+        memcpyCircular(array,
+                       newSize,
+                       start,           // no &#39;% newSize&#39;
+                       d_array_p,
+                       d_size,
+                       start % d_size,
+                       dstIndex);
+        memcpyCircular(array,
+                       newSize,
+                       (start + dstIndex + 1) % newSize,
+                       d_array_p,
+                       d_size,
+                       (start + dstIndex) % d_size,
+                       originalLength - dstIndex);
+
+        // TBD efficiency
+
+        for (int i = (d_front + 1) % d_size; i != d_back;
+                                                        i = (i + 1) % d_size) {
+            d_array_p[i].~T();
+        }
+
+        d_allocator_p-&gt;deallocate(d_array_p);
+        d_array_p = array;
+
+        d_size = newSize;
+        d_back = (start + newLength) % d_size;
+        new (&amp;d_array_p[(start + dstIndex) % d_size]) T(itemCopy);
+    }
+    else {  // sufficient capacity
+
+        // No resize is required.  Copy as few elements as possible.
+
+        // Compute number of elements that are past the insertion point: the
+        // back length.
+
+        const int backLen = originalLength - dstIndex;
+
+        if (dstIndex &lt; backLen) {
+
+            // We will choose to shift &#39;dstIndex&#39; elements to the left.
+
+            const int src = (d_front + 1) % d_size;
+            const int dst = d_front;
+
+            memShiftLeft(d_array_p, d_size, dst, src, dstIndex);
+            new (&amp;d_array_p[(d_front + dstIndex) % d_size]) T(itemCopy);
+            d_front = (d_front - 1 + d_size) % d_size;
+        }
+        else {
+
+            // We will choose to shift &#39;backLen&#39; elements to the right.
+
+            const int src = (d_front + 1 + dstIndex) % d_size;
+            const int dst = (src + 1) % d_size;
+
+            memShiftRight(d_array_p,
+                          d_size,
+                          dst,
+                          src,
+                          backLen);
+            new (&amp;d_array_p[(d_front + 1 + dstIndex) % d_size]) T(itemCopy);
+            d_back = (d_back + 1) % d_size;
+        }
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::insert(int          dstIndex,
+                            const Queue&amp; srcQueue,
+                            int          srcIndex,
+                            int          numElements)
+{
+    // The capacity must always be greater than or equal to
+    // &#39;length + k_EXTRA_CAPACITY&#39;.
+
+    const int originalLength = length();
+    const int newLength = originalLength + numElements;
+    const int newSize = calculateSufficientSize(newLength, d_size);
+
+    if (d_size &lt; newSize) {
+        // resize, makes move easy
+
+        T *array = (T *)d_allocator_p-&gt;allocate(newSize * sizeof *d_array_p);
+
+        // COMMIT
+
+        const int start = d_front + 1;
+        const int startIndex = start + dstIndex;
+
+        // NOTE: newSize &gt;= size + 1 so &#39;% newSize&#39; is not needed in next line.
+
+        memcpyCircular(array,
+                       newSize,
+                       start,           // no &#39;% newSize&#39;
+                       d_array_p,
+                       d_size,
+                       start % d_size,
+                       dstIndex);
+        memcpyCircular(array,
+                       newSize,
+                       (startIndex + numElements) % newSize,
+                       d_array_p,
+                       d_size,
+                       (startIndex) % d_size,
+                       originalLength - dstIndex);
+        memcpyCircular(array,
+                       newSize,
+                       startIndex % newSize,
+                       srcQueue.d_array_p,
+                       srcQueue.d_size,
+                       (srcQueue.d_front + 1 + srcIndex) % srcQueue.d_size,
+                       numElements);
+
+        // TBD efficiency
+
+        for (int i = (d_front + 1) % d_size; i != d_back;
+                                                        i = (i + 1) % d_size) {
+            d_array_p[i].~T();
+        }
+
+        d_allocator_p-&gt;deallocate(d_array_p);
+        d_array_p = array;
+        d_size = newSize;
+        d_back = (start + newLength) % d_size;
+    }
+    else { // sufficient capacity
+
+        // No resize is required.  Copy as few elements as possible.
+
+        // Compute number of elements that are past the insertion point: the
+        // back length.
+
+        const int backLen = originalLength - dstIndex;
+        if (dstIndex &lt; backLen) {
+
+            // We will shift &#39;dstIndex&#39; elements to the left.
+
+            const int d = (d_front + 1 - numElements + d_size) % d_size;
+            memShiftLeft(d_array_p,
+                         d_size,
+                         d,
+                         (d_front + 1) % d_size,
+                         dstIndex);
+
+            if (this != &amp;srcQueue || srcIndex &gt;= dstIndex) {  // not aliased
+                memcpyCircular(d_array_p,
+                               d_size,
+                               (d + dstIndex) % d_size,
+                               srcQueue.d_array_p,
+                               srcQueue.d_size,
+                               (srcQueue.d_front + 1 + srcIndex) %
+                                                               srcQueue.d_size,
+                               numElements);
+            }
+            else { // aliased
+                const int distance = dstIndex - srcIndex;
+                if (distance &gt;= numElements) {
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   (d + dstIndex) % d_size,
+                                   d_array_p,
+                                   d_size,
+                                   (d + srcIndex) % d_size,
+                                   numElements);
+                }
+                else {
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   (d + dstIndex) % d_size,
+                                   d_array_p,
+                                   d_size,
+                                   (d + srcIndex) % d_size,
+                                   distance);
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   (d + dstIndex + distance) % d_size,
+                                   d_array_p,
+                                   d_size,
+                                   (d_front + 1 + dstIndex) % d_size,
+                                   numElements - distance);
+                }
+            }
+            d_front = (d_front - numElements + d_size) % d_size;
+        }
+        else {
+
+            // We will shift &#39;backLen&#39; elements to the right.
+
+            // Destination index is as close or closer to the back as to the
+            // front.
+
+            const int s = (d_front + 1 + dstIndex) % d_size;
+            memShiftRight(d_array_p,
+                          d_size,
+                          (s + numElements) % d_size,
+                          s,
+                          backLen);
+
+            if (this != &amp;srcQueue ||
+                           srcIndex + numElements &lt;= dstIndex) { // not aliased
+                memcpyCircular(d_array_p,
+                               d_size,
+                               s,
+                               srcQueue.d_array_p,
+                               srcQueue.d_size,
+                               (srcQueue.d_front + 1 + srcIndex) %
+                                                               srcQueue.d_size,
+                               numElements);
+            }
+            else { // aliased
+                if (dstIndex &lt;= srcIndex) {
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   s,
+                                   d_array_p,
+                                   d_size,
+                                   (d_front + 1 + srcIndex + numElements) %
+                                                                        d_size,
+                                   numElements);
+                }
+                else {
+                    const int distance = dstIndex - srcIndex;
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   s,
+                                   d_array_p,
+                                   d_size,
+                                   (d_front + 1 + srcIndex) % d_size,
+                                   distance);
+                    memcpyCircular(d_array_p,
+                                   d_size,
+                                   (s + distance) % d_size,
+                                   d_array_p,
+                                   d_size,
+                                   (d_front + 1 + srcIndex + distance +
+                                                         numElements) % d_size,
+                                   numElements - distance);
+                }
+            }
+            d_back = (d_back + numElements) % d_size;
+        }
+    }
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::insert(int dstIndex, const Queue&amp; srcQueue)
+{
+    insert(dstIndex, srcQueue, 0, srcQueue.length());
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::popBack()
+{
+    d_back = (d_back - 1 + d_size) % d_size;
+    d_array_p[d_back].~T();
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::popFront()
+{
+    d_front = (d_front + 1) % d_size;
+    d_array_p[d_front].~T();
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::pushBack(const T&amp; item)
+{
+    T itemCopy(item);  // TBD aliasing hack
+
+    int newBack = (d_back + 1) % d_size;
+    if (d_front == newBack) {
+        increaseSize();  // NOTE: this can change the value of d_back
+        newBack = (d_back + 1) % d_size;
+    }
+    new (&amp;d_array_p[d_back]) T(itemCopy);
+    d_back = newBack;
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::pushFront(const T&amp; item)
+{
+    T itemCopy(item);  // TBD aliasing hack
+
+    int newFront = (d_front - 1 + d_size) % d_size;
+    if (newFront == d_back) {
+        increaseSize();  // NOTE: this can change the value of d_front
+        newFront = (d_front - 1 + d_size) % d_size;
+    }
+    new (&amp;d_array_p[d_front]) T(itemCopy);
+    d_front = newFront;
+}
+
+template &lt;class T&gt;
+inline
+void bdlc::Queue&lt;T&gt;::append(const T&amp; item)
+{
+    pushBack(item);
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::remove(int index)
+{
+    d_array_p[(index + d_front + 1) % d_size].~T();
+
+    // Compute number of elements that are past the insertion point: the back
+    // length.
+
+    const int backLen =
+               (d_back - d_front - k_EXTRA_CAPACITY - index + d_size) % d_size;
+
+    if (index &lt; backLen) {
+        d_front = (d_front + 1) % d_size;
+        memShiftRight(d_array_p,
+                      d_size,
+                      (d_front + 1) % d_size,
+                      d_front,
+                      index);
+    }
+    else {
+        const int d = (d_front + 1 + index) % d_size;
+        memShiftLeft(d_array_p,
+                     d_size,
+                     d,
+                     (d + 1) % d_size,
+                     (d_back + d_size - d_front - 1) % d_size - 1 - index);
+        d_back = (d_back - 1 + d_size) % d_size;
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::remove(int index, int numElements)
+{
+    // TBD efficiency
+
+    for (int i = 0; i &lt; numElements; ++i) {
+        d_array_p[(index + d_front + 1 + i) % d_size].~T();
+    };
+
+    // Compute number of elements that are past the insertion point: the back
+    // length.
+
+    const int backLen = (d_back - d_front - 1
+                                      - index - numElements + d_size) % d_size;
+    if (index &lt; backLen) {
+        const int dst = (d_front + 1 + numElements) % d_size;
+        const int src = (d_front + 1) % d_size;
+
+        memShiftRight(d_array_p, d_size, dst, src, index);
+        d_front = (d_front + numElements) % d_size;
+    }
+    else {
+        const int dst = (d_front + 1 + index) % d_size;
+        const int src = (dst + numElements) % d_size;
+
+        memShiftLeft(d_array_p,
+                     d_size,
+                     dst,
+                     src,
+                     (d_back + d_size - d_front - 1) % d_size -
+                                                          numElements - index);
+        d_back = (d_back - numElements + d_size) % d_size;
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::removeAll(bsl::vector&lt;T&gt; *buffer)
+{
+    d_front = (d_front + 1) % d_size;
+
+    // TBD efficiency
+
+    if (buffer) {
+        while (d_back != d_front) {
+            buffer-&gt;push_back(d_array_p[d_front]);
+            d_array_p[d_front].~T();
+            d_front = (d_front + 1) % d_size;
+        }
+    } else {
+        while (d_back != d_front) {
+            d_array_p[d_front].~T();
+            d_front = (d_front + 1) % d_size;
+        }
+    }
+    d_front = (d_back - 1 + d_size) % d_size;
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::replace(int dstIndex, const T&amp; item)
+{
+    T itemCopy(item);  // TBD hack for aliased case
+
+    // TBD efficiency
+
+    d_array_p[(d_front + 1 + dstIndex) % d_size].~T();
+    new (&amp;d_array_p[(d_front + 1 + dstIndex) % d_size]) T(itemCopy);
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::replace(int          dstIndex,
+                             const Queue&amp; srcQueue,
+                             int          srcIndex,
+                             int          numElements)
+{
+    // TBD need placement new
+
+    if (this != &amp;srcQueue || srcIndex + numElements &lt;= dstIndex ||
+                          dstIndex + numElements &lt;= srcIndex) {  // not aliased
+        memcpyCircular(d_array_p,
+                       d_size,
+                       (d_front + 1 + dstIndex) % d_size,
+                       srcQueue.d_array_p,
+                       srcQueue.d_size,
+                       (srcQueue.d_front + 1 + srcIndex) % srcQueue.d_size,
+                       numElements);
+    }
+    else {  // aliased; do nothing if srcIndex == dstIndex
+        if (srcIndex &lt; dstIndex) {
+            memShiftRight(d_array_p,
+                          d_size,
+                          (d_front + 1 + dstIndex) % d_size,
+                          (d_front + 1 + srcIndex) % d_size,
+                          numElements);
+        }
+        else if (srcIndex &gt; dstIndex) {
+            memShiftLeft(d_array_p,
+                         d_size,
+                         (d_front + 1 + dstIndex) % d_size,
+                         (d_front + 1 + srcIndex) % d_size,
+                         numElements);
+        }
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::reserveCapacity(int numElements)
+{
+    const int newSize = calculateSufficientSize(numElements, d_size);
+    if (d_size &lt; newSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 newSize,
+                                 d_size,
+                                 d_allocator_p);
+
+        // To improve testability, all empty queues have canonical front and
+        // back values.
+
+        if (0 == length()) {
+            d_front = d_size - 1;
+            d_back = 0;
+        }
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::reserveCapacityRaw(int numElements)
+{
+    const int newSize = numElements + k_EXTRA_CAPACITY;
+                                            // to hold the front/back positions
+
+    if (d_size &lt; newSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 newSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::setLength(int newLength)
+{
+    const int newSize = newLength + k_EXTRA_CAPACITY;
+                                            // to hold the front/back positions
+
+    if (d_size &lt; newSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 newSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+    const int oldBack = d_back;
+    const int oldLength = length();
+    d_back = (d_front + 1 + newLength) % d_size;
+    if (newLength &gt; oldLength) {
+        if (oldBack &lt; d_back) {
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_back - oldBack; ++i) {
+                new (d_array_p + oldBack + i) T();
+            }
+        }
+        else {
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_size - oldBack; ++i) {
+                new (d_array_p + oldBack + i) T();
+            }
+
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_back; ++i) {
+                new (d_array_p + i) T();
+            }
+        }
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::setLength(int newLength, const T&amp; initialValue)
+{
+    const int newSize = newLength + k_EXTRA_CAPACITY;
+                                                 // to hold the empty positions
+
+    if (d_size &lt; newSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 newSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+    const int oldBack = d_back;
+    const int oldLength = length();
+    d_back = (d_front + 1 + newLength) % d_size;
+    if (newLength &gt; oldLength) {
+        if (oldBack &lt; d_back) {
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_back - oldBack; ++i) {
+                new (d_array_p + oldBack + i) T(initialValue);
+            }
+        }
+        else {
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_size - oldBack; ++i) {
+                new (d_array_p + oldBack + i) T(initialValue);
+            }
+            // TBD efficiency
+
+            for (int i = 0; i &lt; d_back; ++i) {
+                new (d_array_p + i) T(initialValue);
+            }
+        }
+    }
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::setLengthRaw(int newLength)
+{
+    const int newSize = newLength + k_EXTRA_CAPACITY;
+                                                 // to hold the empty positions
+
+    if (d_size &lt; newSize) {
+        d_size = increaseSizeImp(&amp;d_array_p,
+                                 &amp;d_front,
+                                 &amp;d_back,
+                                 newSize,
+                                 d_size,
+                                 d_allocator_p);
+    }
+    d_back = (d_front + 1 + newLength) % d_size;
+}
+
+template &lt;class T&gt;
+template &lt;class STREAM&gt;
+STREAM&amp; bdlc::Queue&lt;T&gt;::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            int newLength;
+            stream.getLength(newLength);
+
+            if (stream) {
+                int newSize = calculateSufficientSize(newLength, d_size);
+                if (d_size &lt; newSize) {
+                    d_size = increaseSizeImp(&amp;d_array_p,
+                                             &amp;d_front,
+                                             &amp;d_back,
+                                             newSize,
+                                             d_size,
+                                             d_allocator_p);
+                }
+                d_front = d_size - 1;
+                d_back = newLength;
+                for (int i = 0; i &lt; newLength &amp;&amp; stream; ++i) {
+                    bslx::InStreamFunctions::bdexStreamIn(
+                                                  stream, (*this)[i], version);
+                }
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+template &lt;class T&gt;
+void bdlc::Queue&lt;T&gt;::swap(int index1, int index2)
+{
+    if (index1 != index2) {
+        const int tmp = d_front + 1;
+        const int i1 = (tmp + index1) % d_size;
+        const int i2 = (tmp + index2) % d_size;
+
+        T temp(d_array_p[i1]);
+        d_array_p[i1].~T();
+        new (d_array_p + i1) T(d_array_p[i2]);
+        d_array_p[i2].~T();
+        new (d_array_p + i2) T(temp);
+    }
+}
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+const T&amp; bdlc::Queue&lt;T&gt;::operator[](int index) const
+{
+    return d_array_p[(index + d_front + 1) % d_size];
+}
+
+template &lt;class T&gt;
+inline
+const T&amp; bdlc::Queue&lt;T&gt;::back() const
+{
+    return d_array_p[(d_back - 1 + d_size) % d_size];
+}
+
+template &lt;class T&gt;
+inline
+const T&amp; bdlc::Queue&lt;T&gt;::front() const
+{
+    return d_array_p[(d_front + 1) % d_size];
+}
+
+template &lt;class T&gt;
+bsl::ostream&amp; bdlc::Queue&lt;T&gt;::print(bsl::ostream&amp; stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
+{
+    if (level &lt; 0) {
+        level = -level;
+    }
+    else {
+        bdlb::Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+    if (0 &lt;= spacesPerLevel) {
+
+        stream &lt;&lt; &quot;[\n&quot;;
+
+        const int len = length();
+        for (int i = 0; i &lt; len; ++i) {
+            bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+            stream &lt;&lt; d_array_p[(i + d_front + 1) % d_size] &lt;&lt; &#39;\n&#39;;
+        }
+
+        bdlb::Print::indent(stream, level, spacesPerLevel);
+        stream &lt;&lt; &quot;]\n&quot;;
+    }
+    else {
+        stream &lt;&lt; &quot;[ &quot;;
+
+        const int len = length();
+        for (int i = 0; i &lt; len; ++i) {
+            stream &lt;&lt; &#39; &#39;;
+            stream &lt;&lt; d_array_p[(i + d_front + 1) % d_size];
+        }
+
+        stream &lt;&lt; &quot; ] &quot;;
+    }
+    return stream &lt;&lt; bsl::flush;
+}
+
+template &lt;class T&gt;
+template &lt;class STREAM&gt;
+STREAM&amp; bdlc::Queue&lt;T&gt;::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            const int len = length();
+            stream.putLength(len);
+            for (int i = 0; i &lt; len &amp;&amp; stream; ++i) {
+                bslx::OutStreamFunctions::bdexStreamOut(
+                                                  stream, (*this)[i], version);
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+// FREE OPERATORS
+template &lt;class T&gt;
+bool bdlc::operator==(const Queue&lt;T&gt;&amp; lhs, const Queue&lt;T&gt;&amp; rhs)
+{
+    const int len = lhs.length();
+    if (rhs.length() != len) {
+        return 0;                                                     // RETURN
+    }
+
+    // Lengths are equal.
+
+    for (int i = 0; i &lt; len; ++i) {
+        if (!(lhs[i] == rhs[i])) {
+            return 0;                                                 // RETURN
+        }
+    }
+    return 1;
+}
+
+template &lt;class T&gt;
+inline
+bool bdlc::operator!=(const Queue&lt;T&gt;&amp; lhs, const Queue&lt;T&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+template &lt;class T&gt;
+inline
+bsl::ostream&amp; bdlc::operator&lt;&lt;(bsl::ostream&amp; stream, const Queue&lt;T&gt;&amp; queue)
+{
+    return queue.streamOut(stream);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

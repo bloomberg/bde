@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_stringref.h                                                 -*-C++-*-
@@ -19,10 +19,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      bslstl::StringRef: reference wrapper for a &#39;char&#39; string
 //  bslstl::StringRefWide: reference wrapper for a &#39;wchar_t&#39; string
 //
-//@DESCRIPTION: This component defines two classes, &#39;bsls::StringRef&#39; and
-// &#39;bsls::StringRefWide&#39;, each providing a reference to a non-modifiable string
-// value having an external representation.  The type of characters in the
-// string value can be either &#39;char&#39; (for &#39;bslstl::StringRef&#39;) or &#39;wchar_t&#39;
+//@DESCRIPTION: This component defines two classes, &#39;bslstl::StringRef&#39; and
+// &#39;bslstl::StringRefWide&#39;, each providing a reference to a non-modifiable
+// string value having an external representation.  The type of characters in
+// the string value can be either &#39;char&#39; (for &#39;bslstl::StringRef&#39;) or &#39;wchar_t&#39;
 // (for &#39;bslstl::StringRefWide&#39;).
 //
 // The invariant of &#39;bslstl::StringRef&#39; is that it always has a valid
@@ -261,6 +261,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_assert.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include &lt;bslstl_iterator.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLSTL_STRING
 #include &lt;bslstl_string.h&gt;
 #endif
@@ -292,7 +296,7 @@ namespace bslstl {
                     // class StringRefImp&lt;CHAR_TYPE&gt;
                     // =============================
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
     // This class provides a reference-semantic-like (see below) mechanism that
     // allows &#39;const&#39; &#39;std::string&#39; values, which are represented externally as
@@ -323,7 +327,7 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // Write the value of this string reference to the specified output
         // &#39;stream&#39; in the unformatted way.
 
-    template &lt;typename OTHER_CHAR_TYPE&gt;
+    template &lt;class OTHER_CHAR_TYPE&gt;
     friend
     std::basic_ostream&lt;OTHER_CHAR_TYPE&gt;&amp; operator&lt;&lt;(
                        std::basic_ostream&lt;OTHER_CHAR_TYPE&gt;&amp;         stream,
@@ -331,13 +335,14 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
 
   public:
     // PUBLIC TYPES
-    typedef const CHAR_TYPE     value_type;
-    typedef const CHAR_TYPE&amp;    reference;
-    typedef const CHAR_TYPE&amp;    const_reference;
-    typedef const CHAR_TYPE    *iterator;
-    typedef const CHAR_TYPE    *const_iterator;
-    typedef std::ptrdiff_t      difference_type;
-    typedef std::size_t         size_type;
+    typedef const CHAR_TYPE                        value_type;
+    typedef const CHAR_TYPE&amp;                       reference;
+    typedef const CHAR_TYPE&amp;                       const_reference;
+    typedef const CHAR_TYPE                       *iterator;
+    typedef const CHAR_TYPE                       *const_iterator;
+    typedef bsl::reverse_iterator&lt;const_iterator&gt;  const_reverse_iterator;
+    typedef std::ptrdiff_t                         difference_type;
+    typedef std::size_t                            size_type;
         // Standard Library general container requirements.
 
   public:
@@ -387,11 +392,12 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.
 
-    StringRefImp(const StringRefImp&amp; original);
+    //! StringRefImp(const StringRefImp&amp; original) = default;
         // Create a string-reference object having a valid &#39;std::string&#39; value,
         // whose external representation is defined by the specified &#39;original&#39;
         // object.  The external representation must remain valid as long as it
-        // is bound to this string reference.
+        // is bound to this string reference.  Note that this trivial copy
+        // constructor&#39;s definition is compiler generated.
 
     StringRefImp(const StringRefImp&amp; original,
                  int                 startIndex,
@@ -407,7 +413,7 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // Note that if &#39;startIndex&#39; is &#39;original.length()&#39; an empty string
         // reference is returned.
 
-    // ~StringRefImp() = default;
+    //! ~StringRefImp() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -482,17 +488,38 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // object is valid and is bound to the same string.
 
     const_iterator end() const;
-        // Return an STL-compatible iterator one past the last character of the
+        // Return an STL-compatible iterator one-past-the-last character of the
         // string bound to this string reference or &#39;begin()&#39; if the string
         // reference is empty.  The iterator remains valid as long as this
         // object is valid and is bound to the same string.
 
+    const_reverse_iterator rbegin() const;
+        // Return an STL-compatible reverse iterator to the last character of
+        // the string bound to this string reference or &#39;rend()&#39; if the string
+        // reference is empty.  The iterator remains valid as long as this
+        // object is valid and is bound to the same string.
+
+    const_reverse_iterator rend() const;
+        // Return an STL-compatible reverse iterator to the
+        // prior-to-the-beginning character of the string bound to this string
+        // reference or &#39;rbegin()&#39; if the string reference is empty.  The
+        // iterator remains valid as long as this object is valid and is bound
+        // to the same string.
+
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
-        // this string reference such that &#39;[data(), data()+length())&#39; is a
-        // valid half-open range of characters. Note that the range of
+        // this string reference such that &#39;[data() .. data()+length())&#39; is a
+        // valid half-open range of characters.  Note that the range of
         // characters might not be null-terminated and may contain embedded
         // null characters.
+
+    bool empty() const;
+        // Return &#39;true&#39; if this object represents an empty string value, and
+        // &#39;false&#39; otherwise.  This object represents an empty string value if
+        // &#39;begin() == end()&#39;.  Note that this method is functionally identical
+        // with the &#39;isEmpty&#39; method and allows developers to avoid distracting
+        // syntax differences when &#39;StringRef&#39; appears in juxtaposition with
+        // &#39;string&#39;, which defines &#39;empty&#39; but not &#39;isEmpty&#39;.
 
     bool isEmpty() const;
         // Return &#39;true&#39; if this object represents an empty string value, and
@@ -511,25 +538,25 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
 };
 
 // FREE OPERATORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                 const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                 const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const CHAR_TYPE                *lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                 const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the strings referred to by the specified &#39;lhs&#39; and
@@ -537,25 +564,25 @@ bool operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     // strings have the same lexicographic value if they have the same length,
     // and the respective values at each character position are the same.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                 const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                 const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const CHAR_TYPE                *lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                 const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the strings referred to by the specified &#39;lhs&#39; and
@@ -564,138 +591,138 @@ bool operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     // the same length, or respective values at any character position are not
     // the same.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const CHAR_TYPE                *lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the string referred to by the specified &#39;lhs&#39; is
     // lexicographically less than the string referred to by the specified
     // &#39;rhs&#39;, and &#39;false&#39; otherwise.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const CHAR_TYPE                *lhs,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the string referred to by the specified &#39;lhs&#39; is
     // lexicographically greater than the string referred to by the specified
     // &#39;rhs&#39;, and &#39;false&#39; otherwise.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                 const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                 const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const CHAR_TYPE                *lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                 const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the string referred to by the specified &#39;lhs&#39; is
     // lexicographically less than or equal to the string referred to by the
     // specified &#39;rhs&#39;, and &#39;false&#39; otherwise.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                 const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                 const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const CHAR_TYPE                *lhs,
                 const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bool operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                 const CHAR_TYPE                *rhs);
     // Return &#39;true&#39; if the string referred to by the specified &#39;lhs&#39; is
     // lexicographically greater than or equal to the string referred to by the
     // specified &#39;rhs&#39;, and &#39;false&#39; otherwise.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
               const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
               const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
               const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
               const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
               const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const CHAR_TYPE                *lhs,
               const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs);
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
               const CHAR_TYPE                *rhs);
     // Return a &#39;bsl::string&#39; having the value of the concatenation of the
     // strings referred to by the specified &#39;lhs&#39; and rhs&#39; values.
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 std::basic_ostream&lt;CHAR_TYPE&gt;&amp;
     operator&lt;&lt;(std::basic_ostream&lt;CHAR_TYPE&gt;&amp; stream,
                const StringRefImp&lt;CHAR_TYPE&gt;&amp; stringRef);
@@ -704,27 +731,27 @@ std::basic_ostream&lt;CHAR_TYPE&gt;&amp;
     // &#39;stream&#39;.
 
 // FREE FUNCTIONS
-template &lt;typename CHAR_TYPE, typename HASHALG&gt;
+template &lt;class CHAR_TYPE, class HASHALG&gt;
 void hashAppend(HASHALG&amp; hashAlg, const StringRefImp&lt;CHAR_TYPE&gt;&amp;  input);
     // Pass the specified &#39;input&#39; to the specified &#39;hashAlg&#39;
 
-// ===========================================================================
+// ============================================================================
 //                                  TYPEDEFS
-// ===========================================================================
+// ============================================================================
 
 typedef StringRefImp&lt;char&gt;       StringRef;
 typedef StringRefImp&lt;wchar_t&gt;    StringRefWide;
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                           // ------------------
                           // class StringRefImp
                           // ------------------
 
 // PRIVATE ACCESSORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::write(
                                    std::basic_ostream&lt;CHAR_TYPE&gt;&amp; stream) const
@@ -738,14 +765,14 @@ void StringRefImp&lt;CHAR_TYPE&gt;::write(
 }
 
 // CREATORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp()
 : Base(0, 0)
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const CHAR_TYPE *data,
                                       int              length)
@@ -755,7 +782,7 @@ StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const CHAR_TYPE *data,
     BSLS_ASSERT_SAFE(data || 0 == length);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const_iterator begin,
                                       const_iterator end)
@@ -763,21 +790,21 @@ StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const_iterator begin,
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const CHAR_TYPE *data)
 : Base(data, data + native_std::char_traits&lt;CHAR_TYPE&gt;::length(data))
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; str)
 : Base(str.data(), str.data() + str.length())
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
                                 const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; str)
@@ -785,14 +812,7 @@ StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
-inline
-StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const StringRefImp&lt;CHAR_TYPE&gt;&amp; original)
-: Base(original.begin(), original.end())
-{
-}
-
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
                                   const StringRefImp&lt;CHAR_TYPE&gt;&amp; original,
@@ -811,7 +831,7 @@ StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
 
 
 // MANIPULATORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefImp&lt;CHAR_TYPE&gt;&amp;
     StringRefImp&lt;CHAR_TYPE&gt;::operator=(const StringRefImp&amp; rhs)
@@ -820,7 +840,7 @@ StringRefImp&lt;CHAR_TYPE&gt;&amp;
     return *this;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::assign(const CHAR_TYPE *data,
                                      int              length)
@@ -831,7 +851,7 @@ void StringRefImp&lt;CHAR_TYPE&gt;::assign(const CHAR_TYPE *data,
     *this = StringRefImp(data, data + length);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::assign(const_iterator begin,
                                      const_iterator end)
@@ -839,7 +859,7 @@ void StringRefImp&lt;CHAR_TYPE&gt;::assign(const_iterator begin,
     *this = StringRefImp(begin, end);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::assign(const CHAR_TYPE *data)
 {
@@ -850,21 +870,21 @@ void StringRefImp&lt;CHAR_TYPE&gt;::assign(const CHAR_TYPE *data)
                 data + native_std::char_traits&lt;CHAR_TYPE&gt;::length(data));
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::assign(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; str)
 {
     *this = StringRefImp(str.data(), str.data() + str.length());
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::assign(const StringRefImp&lt;CHAR_TYPE&gt;&amp; stringRef)
 {
     *this = stringRef;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 void StringRefImp&lt;CHAR_TYPE&gt;::reset()
 {
@@ -872,7 +892,7 @@ void StringRefImp&lt;CHAR_TYPE&gt;::reset()
 }
 
 // ACCESSORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 typename StringRefImp&lt;CHAR_TYPE&gt;::const_reference
     StringRefImp&lt;CHAR_TYPE&gt;::operator[](int index) const
@@ -885,7 +905,7 @@ typename StringRefImp&lt;CHAR_TYPE&gt;::const_reference
 
 }  // close package namespace
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bslstl::StringRefImp&lt;CHAR_TYPE&gt;::
                            operator native_std::basic_string&lt;CHAR_TYPE&gt;() const
@@ -895,7 +915,7 @@ bslstl::StringRefImp&lt;CHAR_TYPE&gt;::
 
 namespace bslstl {
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 typename StringRefImp&lt;CHAR_TYPE&gt;::const_iterator
     StringRefImp&lt;CHAR_TYPE&gt;::begin() const
@@ -903,7 +923,7 @@ typename StringRefImp&lt;CHAR_TYPE&gt;::const_iterator
     return Base::begin();
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 typename StringRefImp&lt;CHAR_TYPE&gt;::const_iterator
     StringRefImp&lt;CHAR_TYPE&gt;::end() const
@@ -911,21 +931,44 @@ typename StringRefImp&lt;CHAR_TYPE&gt;::const_iterator
     return Base::end();
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
+inline
+typename StringRefImp&lt;CHAR_TYPE&gt;::const_reverse_iterator
+    StringRefImp&lt;CHAR_TYPE&gt;::rbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class CHAR_TYPE&gt;
+inline
+typename StringRefImp&lt;CHAR_TYPE&gt;::const_reverse_iterator
+    StringRefImp&lt;CHAR_TYPE&gt;::rend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+template &lt;class CHAR_TYPE&gt;
 inline
 const CHAR_TYPE *StringRefImp&lt;CHAR_TYPE&gt;::data() const
 {
     return begin();
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
+inline
+bool StringRefImp&lt;CHAR_TYPE&gt;::empty() const
+{
+    return begin() == end();
+}
+
+template &lt;class CHAR_TYPE&gt;
 inline
 bool StringRefImp&lt;CHAR_TYPE&gt;::isEmpty() const
 {
     return begin() == end();
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 typename StringRefImp&lt;CHAR_TYPE&gt;::size_type
     StringRefImp&lt;CHAR_TYPE&gt;::length() const
@@ -933,7 +976,7 @@ typename StringRefImp&lt;CHAR_TYPE&gt;::size_type
     return static_cast&lt;size_type&gt;(end() - begin());
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 int StringRefImp&lt;CHAR_TYPE&gt;::compare(
         const StringRefImp&lt;CHAR_TYPE&gt;&amp; other) const
@@ -943,13 +986,14 @@ int StringRefImp&lt;CHAR_TYPE&gt;::compare(
                     other.data(),
                     native_std::min(this-&gt;length(), other.length()));
 
-    return result != 0 ? result : this-&gt;length() - other.length();
+    return result != 0 ? result
+                       : static_cast&lt;int&gt;(this-&gt;length() - other.length());
 }
 
 }  // close package namespace
 
 // FREE OPERATORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -957,7 +1001,7 @@ bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return lhs.compare(rhs) == 0;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -965,7 +1009,7 @@ bool bslstl::operator==(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) == rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                         const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -973,7 +1017,7 @@ bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs == StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -981,7 +1025,7 @@ bool bslstl::operator==(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) == rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                         const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -989,7 +1033,7 @@ bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs
     return lhs == StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const CHAR_TYPE                *lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -997,7 +1041,7 @@ bool bslstl::operator==(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) == rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                         const CHAR_TYPE                *rhs)
@@ -1005,7 +1049,7 @@ bool bslstl::operator==(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs == StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1013,7 +1057,7 @@ bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return !(lhs == rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -1021,7 +1065,7 @@ bool bslstl::operator!=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) != rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                         const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1029,7 +1073,7 @@ bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs != StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -1037,7 +1081,7 @@ bool bslstl::operator!=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) != rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                         const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1045,7 +1089,7 @@ bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs
     return lhs != StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const CHAR_TYPE                *lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -1053,7 +1097,7 @@ bool bslstl::operator!=(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) != rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                         const CHAR_TYPE                *rhs)
@@ -1061,7 +1105,7 @@ bool bslstl::operator!=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs != StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1069,7 +1113,7 @@ bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return lhs.compare(rhs) &lt; 0;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -1077,7 +1121,7 @@ bool bslstl::operator&lt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                        const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1085,7 +1129,7 @@ bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs &lt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -1093,7 +1137,7 @@ bool bslstl::operator&lt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; l
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                        const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1101,7 +1145,7 @@ bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             l
     return lhs &lt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const CHAR_TYPE                *lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -1109,7 +1153,7 @@ bool bslstl::operator&lt;(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                        const CHAR_TYPE                *rhs)
@@ -1117,7 +1161,7 @@ bool bslstl::operator&lt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs &lt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1125,7 +1169,7 @@ bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return lhs.compare(rhs) &gt; 0;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -1133,7 +1177,7 @@ bool bslstl::operator&gt;(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                        const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1141,7 +1185,7 @@ bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs &gt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -1149,7 +1193,7 @@ bool bslstl::operator&gt;(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; l
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                        const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1157,7 +1201,7 @@ bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             l
     return lhs &gt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const CHAR_TYPE                *lhs,
                        const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -1165,7 +1209,7 @@ bool bslstl::operator&gt;(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt; rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                        const CHAR_TYPE                *rhs)
@@ -1173,7 +1217,7 @@ bool bslstl::operator&gt;(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs &gt; StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1181,7 +1225,7 @@ bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return !(lhs &gt; rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -1189,7 +1233,7 @@ bool bslstl::operator&lt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                         const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1197,7 +1241,7 @@ bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs &lt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -1205,7 +1249,7 @@ bool bslstl::operator&lt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; 
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                         const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1213,7 +1257,7 @@ bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             
     return lhs &lt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const CHAR_TYPE                *lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -1221,7 +1265,7 @@ bool bslstl::operator&lt;=(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &lt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                         const CHAR_TYPE                *rhs)
@@ -1229,7 +1273,7 @@ bool bslstl::operator&lt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs &lt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1237,7 +1281,7 @@ bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
     return !(lhs &lt; rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;      rhs)
@@ -1245,7 +1289,7 @@ bool bslstl::operator&gt;=(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
                         const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1253,7 +1297,7 @@ bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
     return lhs &gt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;             rhs)
@@ -1261,7 +1305,7 @@ bool bslstl::operator&gt;=(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; 
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
                         const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1269,7 +1313,7 @@ bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             
     return lhs &gt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const CHAR_TYPE                *lhs,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;  rhs)
@@ -1277,7 +1321,7 @@ bool bslstl::operator&gt;=(const CHAR_TYPE                *lhs,
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) &gt;= rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
                         const CHAR_TYPE                *rhs)
@@ -1285,7 +1329,7 @@ bool bslstl::operator&gt;=(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
     return lhs &gt;= StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp; lhs,
                       const StringRefImp&lt;CHAR_TYPE&gt;&amp; rhs)
@@ -1299,7 +1343,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return result;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const bsl::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
@@ -1308,7 +1352,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) + rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;      lhs,
@@ -1317,7 +1361,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return lhs + StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const native_std::basic_string&lt;CHAR_TYPE&gt;&amp; lhs,
@@ -1326,7 +1370,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) + rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;             lhs,
@@ -1335,7 +1379,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return lhs + StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const CHAR_TYPE                *lhs,
@@ -1344,7 +1388,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return StringRefImp&lt;CHAR_TYPE&gt;(lhs) + rhs;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 bsl::basic_string&lt;CHAR_TYPE&gt;
     bslstl::operator+(const StringRefImp&lt;CHAR_TYPE&gt;&amp;  lhs,
@@ -1353,7 +1397,7 @@ bsl::basic_string&lt;CHAR_TYPE&gt;
     return lhs + StringRefImp&lt;CHAR_TYPE&gt;(rhs);
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 std::basic_ostream&lt;CHAR_TYPE&gt;&amp;
 bslstl::operator&lt;&lt;(std::basic_ostream&lt;CHAR_TYPE&gt;&amp; stream,
                    const StringRefImp&lt;CHAR_TYPE&gt;&amp; stringRef)
@@ -1384,15 +1428,16 @@ bslstl::operator&lt;&lt;(std::basic_ostream&lt;CHAR_TYPE&gt;&amp; stream,
     }
     else {
         stringRef.write(stream);
-        stream.width(0);
     }
+
+    stream.width(0);
 
     return stream;
 }
 
-template &lt;typename CHAR_TYPE, typename HASHALG&gt;
+template &lt;class CHAR_TYPE, class HASHALG&gt;
 inline
-void bslstl::hashAppend(HASHALG&amp; hashAlg, 
+void bslstl::hashAppend(HASHALG&amp; hashAlg,
                         const StringRefImp&lt;CHAR_TYPE&gt;&amp;  input)
 {
     using ::BloombergLP::bslh::hashAppend;
@@ -1401,6 +1446,8 @@ void bslstl::hashAppend(HASHALG&amp; hashAlg,
 }
 
 }  // close enterprise namespace
+
+
 
 #endif
 

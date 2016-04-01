@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_sharedptrallocateinplacerep Component</title>
+<title>BDE 3.0: bslstl_sharedptrallocateinplacerep Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,7 +79,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Thread-Safety</a> </li>
+<a href="#3.1">Thread Safety</a> </li>
 </ul>
 </li>
 </ul>
@@ -103,12 +103,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a class template, <code><a class="el" href="classbslstl_1_1SharedPtrAllocateInplaceRep.html">bslstl::SharedPtrAllocateInplaceRep</a></code>, proving a concrete implementation of <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> for managing objects of the parameterized <code>TYPE</code> that are stored in-place in the representation, and are allocated by an allocator that satisfies the requirements of an Allocator type in the C++11 standard. Thus, only one memory allocation is required to create both the representation and the managed object. When all references to the in-place object are released (using <code>releaseRef</code>), the destructor of <code>TYPE</code> is invoked. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-safety"></a> <a class="anchor" id="description.thread-safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslstl_1_1SharedPtrAllocateInplaceRep.html">bslstl::SharedPtrAllocateInplaceRep</a></code> is thread-safe provided that <code>disposeObject</code> and <code>disposeRep</code> are not called explicitly, meaning that all non-creator operations other than <code>disposeObject</code> and <code>disposeRep</code> on a given instance can be safely invoked simultaneously from multiple threads (<code>disposeObject</code> and <code>disposeRep</code> are meant to be invoked only by <code>releaseRef</code> and <code>releaseWeakRef</code>). Note that there is no thread safety guarantees for operations on the managed object contained in <code><a class="el" href="classbslstl_1_1SharedPtrAllocateInplaceRep.html">bslstl::SharedPtrAllocateInplaceRep</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

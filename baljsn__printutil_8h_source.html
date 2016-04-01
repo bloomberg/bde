@@ -1,0 +1,404 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baljsn_printutil.h                                                 -*-C++-*-
+#ifndef INCLUDED_BALJSN_PRINTUTIL
+#define INCLUDED_BALJSN_PRINTUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a utility for encoding simple types in the JSON format.
+//
+//@CLASSES:
+//  baljsn::PrintUtil: utility for printing simple types in JSON
+//
+//@SEE_ALSO: baljsn_encoder, baljsn_parserutil
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39; of utility functions,
+// &#39;baljsn::PrintUtil&#39;, for encoding a &#39;bdeat&#39; Simple type in the JSON format.
+// The primary method is &#39;printValue&#39;, which encodes a specified object and is
+// overloaded for all &#39;bdeat&#39; Simple types.  The following table describes the
+// format in which various Simple types are encoded.
+//..
+//  Simple Type          JSON Type  Notes
+//  -----------          ---------  -----
+//  char                 number
+//  unsigned char        number
+//  int                  number
+//  unsigned int         number
+//  bsls::Types::Int64   number
+//  bsls::Types::Uint64  number
+//  float                number
+//  double               number
+//  bdldfp::Decimal64    number
+//  char *               string
+//  bsl::string          string
+//  bdlt::Date           string     ISO 8601 format
+//  bdlt::DateTz         string     ISO 8601 format
+//  bdlt::Time           string     ISO 8601 format
+//  bdlt::TimeTz         string     ISO 8601 format
+//  bdlt::Datetime       string     ISO 8601 format
+//  bdlt::DatetimeTz     string     ISO 8601 format
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding a Simple &#39;struct&#39; into JSON
+///-----------------------------------------------
+// Suppose we want to serialize some data into JSON.
+//
+// First, we define a struct, &#39;Employee&#39;, to contain the data:
+//..
+//  struct Employee {
+//      const char *d_firstName;
+//      const char *d_lastName;
+//      int         d_age;
+//  };
+//..
+// Then, we create an &#39;Employee&#39; object and populate it with data:
+//..
+//  Employee john;
+//  john.d_firstName = &quot;John&quot;;
+//  john.d_lastName = &quot;Doe&quot;;
+//  john.d_age = 20;
+//..
+//  Now, we create an output stream and manually construct the JSON string
+//  using &#39;baljsn::PrintUtil&#39;:
+//..
+//  bsl::ostringstream oss;
+//  oss &lt;&lt; &#39;{&#39; &lt;&lt; &#39;\n&#39;;
+//  baljsn::PrintUtil::printValue(oss, &quot;firstName&quot;);
+//  oss &lt;&lt; &#39;:&#39;;
+//  baljsn::PrintUtil::printValue(oss, john.d_firstName);
+//  oss &lt;&lt; &#39;,&#39; &lt;&lt; &#39;\n&#39;;
+//  baljsn::PrintUtil::printValue(oss, &quot;lastName&quot;);
+//  oss &lt;&lt; &#39;:&#39;;
+//  baljsn::PrintUtil::printValue(oss, john.d_lastName);
+//  oss &lt;&lt; &#39;,&#39; &lt;&lt; &#39;\n&#39;;
+//  baljsn::PrintUtil::printValue(oss, &quot;age&quot;);
+//  oss &lt;&lt; &#39;:&#39;;
+//  baljsn::PrintUtil::printValue(oss, john.d_age);
+//  oss &lt;&lt; &#39;\n&#39; &lt;&lt; &#39;}&#39;;
+//..
+//  Finally, we print out the JSON string:
+//..
+//  if (verbose) {
+//      bsl::cout &lt;&lt; oss.str();
+//  }
+//..
+//  The output should look like:
+//..
+//  {
+//  &quot;firstName&quot;:&quot;John&quot;,
+//  &quot;lastName&quot;:&quot;Doe&quot;,
+//  &quot;age&quot;:20
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_ISO8601UTIL
+#include &lt;bdlt_iso8601util.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_FLOAT
+#include &lt;bdlb_float.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include &lt;bdldfp_decimal.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOMANIP
+#include &lt;bsl_iomanip.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOS
+#include &lt;bsl_ios.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include &lt;bsl_limits.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALUTIL
+#include &lt;bdldfp_decimalutil.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baljsn {
+
+                              // ===============
+                              // class PrintUtil
+                              // ===============
+
+struct PrintUtil {
+    // This &#39;struct&#39; provides functions for printing objects to output streams
+    // in JSON format.
+
+    // PRIVATE CLASS METHODS
+    template &lt;class TYPE&gt;
+    static int printDateAndTime(bsl::ostream&amp; stream, const TYPE&amp; value);
+        // Encode the specified &#39;value&#39; into JSON using ISO 8601 format and
+        // output the result to the specified &#39;stream&#39;.
+
+    template &lt;class TYPE&gt;
+    static int printFloatingPoint(bsl::ostream&amp; stream, TYPE value);
+        // Encode the specified floating point &#39;value&#39; into JSON and output the
+        // result to the specified &#39;stream&#39;.
+
+    static int printString(bsl::ostream&amp;            stream,
+                           const bslstl::StringRef&amp; value);
+        // Encode the specified string &#39;value&#39; into JSON format and output the
+        // result to the specified &#39;stream&#39;.
+
+  public:
+    // CLASS METHODS
+    static int printValue(bsl::ostream&amp; stream, bool                    value);
+    static int printValue(bsl::ostream&amp; stream, char                    value);
+    static int printValue(bsl::ostream&amp; stream, signed char             value);
+    static int printValue(bsl::ostream&amp; stream, unsigned char           value);
+    static int printValue(bsl::ostream&amp; stream, short                   value);
+    static int printValue(bsl::ostream&amp; stream, unsigned short          value);
+    static int printValue(bsl::ostream&amp; stream, int                     value);
+    static int printValue(bsl::ostream&amp; stream, unsigned int            value);
+    static int printValue(bsl::ostream&amp; stream, bsls::Types::Int64      value);
+    static int printValue(bsl::ostream&amp; stream, bsls::Types::Uint64     value);
+    static int printValue(bsl::ostream&amp; stream, float                   value);
+    static int printValue(bsl::ostream&amp; stream, double                  value);
+    static int printValue(bsl::ostream&amp; stream, bdldfp::Decimal64       value);
+    static int printValue(bsl::ostream&amp; stream, const char             *value);
+    static int printValue(bsl::ostream&amp; stream, const bsl::string&amp;      value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::Time&amp;       value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::Date&amp;       value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::Datetime&amp;   value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::TimeTz&amp;     value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::DateTz&amp;     value);
+    static int printValue(bsl::ostream&amp; stream, const bdlt::DatetimeTz&amp; value);
+        // Encode the specified &#39;value&#39; into JSON format and output the result
+        // to the specified &#39;stream&#39;.  Return 0 on success and a non-zero value
+        // otherwise.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                              // ----------------
+                              // struct PrintUtil
+                              // ----------------
+
+// PRIVATE MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+int PrintUtil::printDateAndTime(bsl::ostream&amp; stream, const TYPE&amp; value)
+{
+    char buffer[bdlt::Iso8601Util::k_MAX_STRLEN + 1];
+    bdlt::Iso8601Util::generate(buffer, sizeof buffer, value);
+    return printValue(stream, buffer);
+}
+
+template &lt;class TYPE&gt;
+int PrintUtil::printFloatingPoint(bsl::ostream&amp; stream, TYPE value)
+{
+    if (bdlb::Float::isNan(value)
+     || value == bsl::numeric_limits&lt;TYPE&gt;::infinity()
+     || value == -bsl::numeric_limits&lt;TYPE&gt;::infinity()) {
+        return -1;                                                    // RETURN
+    }
+
+    bsl::streamsize         prec  = stream.precision();
+    bsl::ios_base::fmtflags flags = stream.flags();
+
+    stream.precision(bsl::numeric_limits&lt;TYPE&gt;::digits10);
+
+    stream &lt;&lt; value;
+
+    stream.precision(prec);
+    stream.flags(flags);
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, bool value)
+{
+    stream &lt;&lt; (value ? &quot;true&quot; : &quot;false&quot;);
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, short value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, int value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, bsls::Types::Int64 value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, unsigned char value)
+{
+    stream &lt;&lt; static_cast&lt;int&gt;(value);
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, unsigned short value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, unsigned int value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, bsls::Types::Uint64 value)
+{
+    stream &lt;&lt; value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, float value)
+{
+    return printFloatingPoint(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, double value)
+{
+    return printFloatingPoint(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, bdldfp::Decimal64 value)
+{
+    if (!bdldfp::DecimalUtil::isFinite(value)) {
+        return -1;                                                    // RETURN
+    }
+
+    stream &lt;&lt; value;
+    if (stream.bad()) {
+        return 1;                                                     // RETURN
+    }
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const char *value)
+{
+    return printString(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, char value)
+{
+    signed char tmp(value);  // Note that &#39;char&#39; is unsigned on IBM.
+
+    stream &lt;&lt; static_cast&lt;int&gt;(tmp);
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bsl::string&amp; value)
+{
+    return printString(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::Time&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::Date&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::Datetime&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::TimeTz&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::DateTz&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&amp; stream, const bdlt::DatetimeTz&amp; value)
+{
+    return printDateAndTime(stream, value);
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

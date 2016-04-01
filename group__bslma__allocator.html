@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma_allocator Component</title>
+<title>BDE 3.0: bslma_allocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -94,9 +94,9 @@ Functions</h2></td></tr>
 <li>
 <a href="#3.4">Usage</a> <ul>
 <li>
-<a href="#3.4.1">Usage 1: Container Objects</a> </li>
+<a href="#3.4.1">Example 1: Container Objects</a> </li>
 <li>
-<a href="#3.4.2">Usage 2: Derived Concrete Allocators</a> </li>
+<a href="#3.4.2">Example 2: Derived Concrete Allocators</a> </li>
 </ul>
 </li>
 </ul>
@@ -121,7 +121,7 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides the base-level protocol (pure abstract interface) class, <code>bslma_allocator</code>, that serves as a ubiquitous vocabulary type for various memory allocation mechanisms. The functional capabilities documented by this protocol are similar to those afforded by global operators <code>new</code> and <code>delete</code>: sufficiently (but not necessarily maximally) aligned memory is guaranteed for any object of a given size. Clients of this abstract base class will typically accept a supplied allocator (often at construction) and use its <code>allocate</code> and <code>deallocate</code> methods instead of <code>new</code> and <code>delete</code> directly. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The use of (abstract) allocators provide at least three distinct advantages over direct (hard-coded) calls to global <code>new</code> and <code>delete</code> (see <code>bslma_newdeleteallocator</code>): </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The use of (abstract) allocators provides at least three distinct advantages over direct (hard-coded) calls to global <code>new</code> and <code>delete</code> (see <code>bslma_newdeleteallocator</code>): </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
 The particular choice of allocator can be selected to improve performance on a per-object basis. Without allocators, the best we can do in C++ is to overload the class-specific new and delete. Class-specific allocators tend to hoard memory even when most objects of the class have been deallocated, and often mask memory leaks that would otherwise have been detected. See Lakos-96, Section 10.3.4.2, pp 705-711.  </li>
@@ -178,8 +178,8 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol provided in this component defines a bilateral contract between suppliers and consumers of raw memory. The following subsections illustrate (1) use, and (2) implementation of the abstract <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> base class: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_1~3A_container_objects"></a> <a class="anchor" id="usage.usage_1~3A_container_objects"></a> <a class="anchor" id="description.usage.usage_1~3A_container_objects"></a> <a class="anchor" id="usage_1"></a> <a class="anchor" id="usage.usage_1"></a> <a class="anchor" id="description.usage.usage_1"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
-<dl class="user"><dt><b>Usage 1: Container Objects: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_container_objects"></a> <a class="anchor" id="usage.example_1~3A_container_objects"></a> <a class="anchor" id="description.usage.example_1~3A_container_objects"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Container Objects: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Allocators are often supplied to objects requiring dynamically-allocated memory at construction. For example, consider the following <code>my_DoubleStack</code> class, parameterized by a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_doublestack.h</span>
@@ -238,7 +238,7 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
   <span class="comment">// ...</span>
 </pre></div><br/>
 <br/>
- The stack interface takes an optional <code>basicAllocator</code> supplied only at construction. (We avoid use of the name <code>allocator</code> so as not to conflict with the STL use of the word, which differs slightly.) If non-zero, the stack holds a pointer to this allocator, but does not own it. If no allocator is supplied, the implementation itself must either conditionally invoke global <code>new</code> and <code>delete</code> explicitly whenever memory dynamic memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts use of these global operators to the <code>bslma_allocator</code> interface (see <code>bslma_newdeleteallocator</code>). <br/>
+ The stack interface takes an optional <code>basicAllocator</code> supplied only at construction. (We avoid use of the name <code>allocator</code> so as not to conflict with the STL use of the word, which differs slightly.) If non-zero, the stack holds a pointer to this allocator, but does not own it. If no allocator is supplied, the implementation itself must either conditionally invoke global <code>new</code> and <code>delete</code> explicitly whenever dynamic memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts use of these global operators to the <code>bslma_allocator</code> interface (see <code>bslma_newdeleteallocator</code>). <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_doublestack.cpp</span>
 <span class="preprocessor">  #include &lt;my_doublestack.h&gt;</span>
@@ -316,8 +316,9 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="usage.usage_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="description.usage.usage_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="usage_2"></a> <a class="anchor" id="usage.usage_2"></a> <a class="anchor" id="description.usage.usage_2"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
-<dl class="user"><dt><b>Usage 2: Derived Concrete Allocators: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="usage.example_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="description.usage.example_2~3A_derived_concrete_allocators"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Derived Concrete Allocators: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In order for the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> interface to be useful, we must supply a concrete allocator that implements it. In this example we demonstrate how to adapt <code>operator new</code> and <code>operator delete</code> to this protocol base class. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_newdeleteallocator.h</span>
@@ -448,11 +449,11 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 <div class="fragment"><pre class="fragment">      <span class="keywordtype">void</span> deleteMyType(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator, my_Type *address)
       {
           address-&gt;~my_Type();
-          basicAllocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">deallocate</a>(<span class="keywordtype">object</span>);
+          basicAllocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">deallocate</a>(address);
       }
 </pre></div><p><br/>
 <br/>
- See also <code>deleteObjectRaw</code> for better performance when <code>address</code> is known not be a secondary base type of the object being deleted. </p>
+ See also <code>deleteObjectRaw</code> for better performance when <code>address</code> is known not to be a secondary base type of the object being deleted. </p>
 
 </div>
 </div>
@@ -541,7 +542,7 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:56 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

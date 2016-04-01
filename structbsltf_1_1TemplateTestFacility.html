@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bsltf::TemplateTestFacility</title>
+<title>BDE 3.0: Struct bsltf::TemplateTestFacility</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -92,6 +92,9 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a11339f1fd51b30025d395fe5dd68be89">emplace</a> (TYPE *address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#ab4fde0c1f9a41c55617c5428414fedbc">emplace</a> (TYPE **address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#af15b969ae5b685036d9cf56c582e33ab">emplace</a> (char *address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a18222c6259a6dfec405d571183fb01b5">emplace</a> (signed char *address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#ac1e4cb79db61463de09b9185341c747c">emplace</a> (unsigned char *address, int identifier, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsltf_1_1TemplateTestFacility.html#a91f486a0d3f8dcc79998da28c32ccbed">getIdentifier</a> (const TYPE &amp;object)</td></tr>
 </table>
@@ -193,7 +196,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an object of the parameterized <code>TYPE</code> at the specified <code>address</code> whose state is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= value &lt; 128</code> and <code>TYPE</code> is contained in the macro <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL</code>. </p>
+<p>Create an object of the parameterized <code>TYPE</code> at the specified <code>address</code> whose state is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= identifier &lt; 128</code> and <code>TYPE</code> is contained in the macro <code>BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL</code>. </p>
 
 </div>
 </div>
@@ -229,7 +232,107 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a pointer to the parameterized <code>TYPE</code> at the specified <code>address</code> whose value is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= value &lt; 128</code>. </p>
+<p>Create a pointer to the parameterized <code>TYPE</code> at the specified <code>address</code> whose value is unique for the specified <code>identifier</code>. The behavior is undefined unless <code>0 &lt;= identifier &lt; 128</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="af15b969ae5b685036d9cf56c582e33ab"></a><!-- doxytag: member="bsltf::TemplateTestFacility::emplace" ref="af15b969ae5b685036d9cf56c582e33ab" args="(char *address, int identifier, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsltf::TemplateTestFacility::emplace </td>
+          <td>(</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>identifier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a18222c6259a6dfec405d571183fb01b5"></a><!-- doxytag: member="bsltf::TemplateTestFacility::emplace" ref="a18222c6259a6dfec405d571183fb01b5" args="(signed char *address, int identifier, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsltf::TemplateTestFacility::emplace </td>
+          <td>(</td>
+          <td class="paramtype">signed char *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>identifier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac1e4cb79db61463de09b9185341c747c"></a><!-- doxytag: member="bsltf::TemplateTestFacility::emplace" ref="ac1e4cb79db61463de09b9185341c747c" args="(unsigned char *address, int identifier, bslma::Allocator *allocator)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsltf::TemplateTestFacility::emplace </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char *&nbsp;</td>
+          <td class="paramname"> <em>address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>identifier</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Set the character object at the specified <code>address</code> to the value of the specified <code>identifier</code>. The specified <code>allocator</code> is not used. The behavior is undefined unless <code>0 &lt;= identifier &lt; 128</code>. Note that these overloads are needed only to avoid narrowing conversion warnings that will occur in <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html">bslalg::ScalarPrimitives</a></code> when using this test facility. </p>
 
 </div>
 </div>
@@ -258,7 +361,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bsltf__templatetestfacility_8h_source.html">bsltf_templatetestfacility.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:45 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:11 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

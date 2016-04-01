@@ -1,0 +1,188 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_semaphoreimpl_darwin.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_DARWIN
+#define INCLUDED_BSLMT_SEMAPHOREIMPL_DARWIN
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a Darwin implementation of &#39;bslmt::Semaphore&#39;.
+//
+//@CLASSES:
+//  bslmt::SemaphoreImpl&lt;DarwinSemaphore&gt;: semaphore specialization for Darwin
+//
+//@SEE_ALSO: bslmt_semaphore
+//
+//@DESCRIPTION: This component provides an implementation of &#39;bslmt::Semaphore&#39;
+// for POSIX threads (&quot;pthreads&quot;) according to the POSIX support on Darwin
+// platform, &#39;bslmt::SemaphoreImpl&lt;DarwinSemaphore&gt;&#39;, via the template
+// specialization:
+//..
+//  bslmt::SemaphoreImpl&lt;Platform::DarwinSemaphore&gt;
+//..
+// This template class should not be used (directly) by client code.  Clients
+// should instead use &#39;bslmt::Semaphore&#39;.
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;bslmt&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
+#ifndef INCLUDED_SEMAPHORE
+#include &lt;semaphore.h&gt;
+#define INCLUDED_SEMAPHORE
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class SEMAPHORE_POLICY&gt;
+class SemaphoreImpl;
+
+              // ==============================================
+              // class SemaphoreImpl&lt;Platform::DarwinSemaphore&gt;
+              // ==============================================
+
+template &lt;&gt;
+class SemaphoreImpl&lt;Platform::DarwinSemaphore&gt; {
+    // This class provides a full specialization of &#39;SemaphoreImpl&#39; for
+    // pthreads on Darwin.  The implementation provided here defines an
+    // efficient proxy for the &#39;sem_t&#39; pthread type, and related operations.
+
+    // DATA
+    sem_t             *d_sem_p;           // pointer to native semaphore handle
+    static const char *s_semaphorePrefix; // prefix for a unique semaphore name
+
+    // NOT IMPLEMENTED
+    SemaphoreImpl(const SemaphoreImpl&amp;);
+    SemaphoreImpl&amp; operator=(const SemaphoreImpl&amp;);
+
+  public:
+    // CREATORS
+    SemaphoreImpl(int count);
+        // Create a semaphore initialized to the specified &#39;count&#39;.
+
+    ~SemaphoreImpl();
+        // Destroy a semaphore
+
+    // MANIPULATORS
+    void post();
+        // Atomically increment the count of this semaphore.
+
+    void post(int number);
+        // Atomically increment the count of this semaphore by the specified
+        // &#39;number&#39;.  The behavior is undefined unless &#39;number &gt; 0&#39;.
+
+    int tryWait();
+        // Decrement the count of this semaphore if it is positive and return
+        // 0.  Return a non-zero value otherwise.
+
+    void wait();
+        // Block until the count of this semaphore is a positive value and
+        // atomically decrement it.
+
+    // ACCESSORS
+    int getValue() const;
+        // Return the current value of this semaphore.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+              // ----------------------------------------------
+              // class SemaphoreImpl&lt;Platform::DarwinSemaphore&gt;
+              // ----------------------------------------------
+
+// CREATORS
+inline
+bslmt::SemaphoreImpl&lt;bslmt::Platform::DarwinSemaphore&gt;::~SemaphoreImpl()
+{
+    int result = ::sem_close(d_sem_p);
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
+}
+
+// MANIPULATORS
+inline
+void bslmt::SemaphoreImpl&lt;bslmt::Platform::DarwinSemaphore&gt;::post()
+{
+    int result = ::sem_post(d_sem_p);
+
+    (void) result;
+    BSLS_ASSERT(result == 0);
+}
+
+inline
+int bslmt::SemaphoreImpl&lt;bslmt::Platform::DarwinSemaphore&gt;::tryWait()
+{
+    return ::sem_trywait(d_sem_p);
+
+}
+
+// ACCESSORS
+inline
+int bslmt::SemaphoreImpl&lt;bslmt::Platform::DarwinSemaphore&gt;::getValue() const
+{
+    // Not implemented on Darwin, but sem_getvalue still returns success.
+    BSLS_ASSERT(false &amp;&amp;
+            &quot;sem_getvalue is optional in POSIX and not implemented on Darwin&quot;);
+    return 0;
+}
+
+}  // close enterprise namespace
+
+#endif  // BSLS_PLATFORM_OS_DARWIN
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

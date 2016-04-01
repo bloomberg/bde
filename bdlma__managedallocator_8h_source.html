@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlma_managedallocator.h                                           -*-C++-*-
@@ -19,10 +19,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bdlma_bufferedsequentialallocator
 //
-//@DESCRIPTION: This component extends the &#39;bslma::Allocator&#39; protocol to
-// allocators that support the ability to &#39;release&#39; all memory currently
-// allocated through the protocol back to the memory supplier of the derived
-// concrete allocator object.
+//@DESCRIPTION: This component provides a &#39;class&#39;, &#39;bdlma::ManagedAllocator&#39;,
+// that extends the &#39;bslma::Allocator&#39; protocol to allocators that support the
+// ability to &#39;release&#39; all memory currently allocated through the protocol
+// back to the memory supplier of the derived concrete allocator object.
 //..
 //   ,-----------------------.
 //  ( bdlma::ManagedAllocator )
@@ -36,12 +36,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                        allocate
 //                        deallocate
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing the &#39;bdlma::ManagedAllocator&#39; Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The &#39;bdlma::ManagedAllocator&#39; interface is especially useful for allocators
 // that are based on an underlying pooling mechanism (e.g., &#39;bdlma::Multipool&#39;
 // or &#39;bdlma::BufferedSequentialPool&#39;).  In particular, such an allocator that
@@ -102,11 +103,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // construction.
 //  };
 //..
-// Next, we define the &#39;inline&#39; methods of &#39;my_BufferAllocator&#39;.  Note that
-// the &#39;release&#39; method resets the internal cursor to 0, effectively making
-// the memory from the entire external buffer supplied at construction
-// available for subsequent allocations, but has no effect on the contents of
-// the buffer:
+// Next, we define the &#39;inline&#39; methods of &#39;my_BufferAllocator&#39;.  Note that the
+// &#39;release&#39; method resets the internal cursor to 0, effectively making the
+// memory from the entire external buffer supplied at construction available
+// for subsequent allocations, but has no effect on the contents of the buffer:
 //..
 //  // CREATORS
 //  inline
@@ -135,7 +135,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;allocate&#39; method:
 //..
 //  // my_bufferallocator.cpp
-//  #include &lt;my_bufferallocator.h&gt;
 //
 //  // STATIC HELPER FUNCTIONS
 //  static
@@ -159,7 +158,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 //
 //      if (*cursor + offset + size &gt; bufferSize) {  // insufficient space
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //
 //      void *result = &amp;buffer[*cursor + offset];
@@ -191,14 +190,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // only add unnecessary complications to the usage example.  The portions shown
 // are sufficient to illustrate the use of &#39;bdlma::ManagedAllocator&#39;.
 //
-// The domain of our example is financial markets.  Suppose that we are given
-// a list of market indices (e.g., Dow Jones Industrial Average, S&amp;P 500,
-// etc.), and we want to perform some computation on each index, in turn.  In
-// this example, the essential attributes of an index are held in a &#39;bsl::pair&#39;
+// The domain of our example is financial markets.  Suppose that we are given a
+// list of market indices (e.g., Dow Jones Industrial Average, S&amp;P 500, etc.),
+// and we want to perform some computation on each index, in turn.  In this
+// example, the essential attributes of an index are held in a &#39;bsl::pair&#39;
 // consisting of the name of the index (e.g., &quot;DJIA&quot;) and the number of
 // securities that comprise the index (e.g., 30 in the case of the DJIA).  The
-// collection of market indices that we wish to process is given by a vector
-// of such pairs.  Thus, we make use of these types related to indices:
+// collection of market indices that we wish to process is given by a vector of
+// such pairs.  Thus, we make use of these types related to indices:
 //..
 //  typedef bsl::pair&lt;const char *, int&gt; IndexAttributes;
 //  typedef bsl::vector&lt;IndexAttributes&gt; IndexCollection;
@@ -343,9 +342,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ======================
-                        // class ManagedAllocator
-                        // ======================
+                          // ======================
+                          // class ManagedAllocator
+                          // ======================
 
 class ManagedAllocator : public bslma::Allocator {
     // This protocol class extends &#39;bslma::Allocator&#39; for allocators with the
@@ -356,6 +355,8 @@ class ManagedAllocator : public bslma::Allocator {
     // MANIPULATORS
     virtual void release() = 0;
         // Release all memory currently allocated through this allocator.
+        // The effect of using a pointer after this call that was obtained
+        // from this allocator before this call is undefined.
 };
 
 }  // close package namespace
@@ -364,7 +365,7 @@ class ManagedAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_alignedbuffer.h                                               -*-C++-*-
@@ -32,7 +32,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // a union.  It is a convenient way to create a small heap from which one or
 // more objects are allocated at run-time.
 //
-///Single-object buffers
+///Single-Object Buffers
 ///---------------------
 // Although, for a given type &#39;T&#39;,
 // &#39;bsls::AlignedBuffer&lt;sizeof(T), bsls::AlignmentFromType&lt;T&gt;::VALUE&gt;&#39; will
@@ -159,11 +159,11 @@ union AlignedBuffer_Data {
         // Note that to allow the union to access this typedef it must be
         // declared with public access.
 
-#if defined(BSLS_COMPILERFEATURES_ALIGNAS)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
     // The C++11 implementation uses the &#39;alignas&#39; keyword to ensure the
     // alignment of &#39;d_buffer&#39;.
 
-    char alignas(ALIGNMENT) d_buffer[SIZE];
+    alignas(ALIGNMENT) char d_buffer[SIZE];
 #else
     // The C++03 implementation uses a union data member to ensure the
     // alignment of &#39;d_buffer&#39;.
@@ -173,7 +173,7 @@ union AlignedBuffer_Data {
 #endif
 };
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; !defined(BSLS_COMPILERFEATURES_ALIGNAS)
+#if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
 // We provide template specializations for MSVC using __declspec(align).
 // Note that MSVC does not enforce the alignment of (at least) &#39;double&#39;
 // variables on the stack.  (internal issue 64140445).
@@ -227,9 +227,9 @@ class AlignedBuffer {
         // &#39;const char*&#39; pointer.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 template &lt;int SIZE, int ALIGNMENT&gt;

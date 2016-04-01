@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_selecttrait Component</title>
+<title>BDE 3.0: bslmf_selecttrait Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -75,7 +75,7 @@
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Dispatch on traits</a> </li>
+<a href="#3.1.1">Example 1: Dispatch On Traits</a> </li>
 </ul>
 </li>
 </ul>
@@ -89,7 +89,7 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>bslmf::SelectTrait Template that selects the first of multiple traits bslmf::SelectTraitCase Template that identifies a selected trait bslmf::SelectTraitDefault Class that identifies no traits </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>bslmf::SelectTrait Template that selects the first of multiple traits bslmf::SelectTraitCase Template that identifies a selected trait </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -102,7 +102,7 @@
 <dl class="user"><dt><b></b></dt><dd>This section illustrates the intended usage of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_dispatch_on_traits"></a> <a class="anchor" id="usage.example_1~3A_dispatch_on_traits"></a> <a class="anchor" id="description.usage.example_1~3A_dispatch_on_traits"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Dispatch on traits: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 1: Dispatch On Traits: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We would like to create a function template, <code>ScalarPrimitives::copyConstruct</code>, that takes an original object and an allocator constructs a copy of <code>original</code> using the most efficient valid mechanism. The function should take into account that the original type might be bitwise copyable, or have an allocator that can be different in the copy than in the original object, or that the original might be a pair type, where the correct method of copying <code>first</code> and <code>second</code> is (recursively) governed by the same concerns. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The old (legacy) <code>bsls::HasTrait</code> mechanism has a clumsy mechanism for dispatching on multiple traits at once. For example, the <code>bslalg::scalarprimitives::copyConstruct</code>, function uses four different implementations, depending on the traits of the object being copied. The existing code looks like this: <br/>
 <br/>
@@ -240,7 +240,7 @@
 <div class="fragment"><pre class="fragment">      <span class="keyword">typedef</span> <span class="keyword">typename</span> bslmf::SelectTrait&lt;TARGET_TYPE,
                                           UsesBslmaAllocator,
                                           IsBitwiseCopyable,
-                                          IsPair&gt;::Type Selection;
+                                          IsPair&gt;<a class="code" href="classBind__ImplSelector_1_1Type.html">::Type</a> Selection;
 </pre></div><br/>
 <br/>
  Now, we use <code>Selection</code> to choose (at compile time), one of the <code>Imp::copyConstruct</code> overloads defined above: <br/>
@@ -404,7 +404,7 @@
 <br/>
  Note that using <code>SelectTraits</code> for dispatching using overloading imposes little or no overhead, since the compiler typically generates no code for the constructor or copy constructor of the trait argument to the overloaded functions. When inlining is in effect, the result is very efficient. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

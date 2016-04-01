@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdldfp_decimal.h                                                   -*-C++-*-
@@ -26,7 +26,7 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //  BDLDFP_DECIMAL_DD: Portable Decimal64 literal macro
 //  BDLDFP_DECIMAL_DL: Portable Decimal128 literal macro
 //
-//@SEE ALSO: bdldfp_decimalutil, bdldfp_decimalconvertutil,
+//@SEE_ALSO: bdldfp_decimalutil, bdldfp_decimalconvertutil,
 //           bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides classes that implement decimal
@@ -329,8 +329,8 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // (in memory), CPU cycles (for calculations) and still provide useful accuracy
 // for computations.  Decimal floating-point types represent further
 // compromises (compared to binary floating-points) in being able to represent
-// less numbers (than their binary counterpats) and being slower, but providing
-// exact representations for the numbers humans care about.
+// less numbers (than their binary counterparts) and being slower, but
+// providing exact representations for the numbers humans care about.
 //
 // In decimal floating-point world &#39;0.1 + 0.2 == 0.3&#39;, as humans expect;
 // because each of those 3 numbers can be represented *exactly* in a decimal
@@ -403,7 +403,7 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // operators and aspects.  According to BDE design principles all such
 // functions are placed into a utility component.
 //
-///All Converting Constructors From Integer Types Are Explicit
+///All Converting Constructors from Integer Types are Explicit
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This change is necessary to disable the use of comparison operators without
 // explicit casting.  See No Heterogeneous Comparisons Without Casting.
@@ -467,7 +467,7 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //
 ///&#39;Decimal64&#39; Type
 ///----------------
-// An basic format type that supports input, output, relational operators
+// A basic format type that supports input, output, relational operators
 // construction from the TR mandates data types and arithmetic or operations.
 // The type has the size of exactly 64 bits.  It supports 16 significant
 // decimal digits and an exponent range of -383 to 384.  The smallest non-zero
@@ -478,7 +478,7 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //
 ///&#39;Decimal128&#39; Type
 ///-----------------
-// An basic format type that supports input, output, relational operators
+// A basic format type that supports input, output, relational operators
 // construction from the TR mandates data types and arithmetic or operations.
 // The type has the size of exactly 128 bits.  It supports 34 significant
 // decimal digits and an exponent range of -6143 to 6144.  The smallest
@@ -489,13 +489,13 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //
 ///Decimal Number Formatting
 ///-------------------------
-// Streaming decimal floating point nubmers to an output stream currently
+// Streaming decimal floating point numbers to an output stream currently
 // supports formatting flags for width, capitalization, and justification.
 // Because of potential for future improvements in format handling, the
 // operations should not be used for serialization.
 //
-///Preliminary Release - Known Bugs
-///--------------------------------
+///Preliminary Release: Known Bugs
+///-------------------------------
 // Stream output operators do not obey formatting flags or the precision
 // algorithm as required by the TR; they instead print all significant digits
 // all the time.
@@ -618,9 +618,9 @@ typedef Decimal_Type128 Decimal128;
                             // ====================
 
 class Decimal_Type32 {
-    // This value semantic class implements the IEEE-754 32 bit decimal
+    // This value-semantic class implements the IEEE-754 32 bit decimal
     // floating-point interchange format type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is &#39;const&#39; thread-safe and exception-neutral.
 
   private:
     // DATA
@@ -965,15 +965,32 @@ operator&lt;&lt;(bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal
                             // ====================
 
 class Decimal_Type64 {
-    // This value semantic class implements the IEEE-754 64 bit decimal
+    // This value-semantic class implements the IEEE-754 64 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is &#39;const&#39; thread-safe and exception-neutral.
 
   private:
     // DATA
     DecimalImpUtil::ValueType64 d_value; // The underlying IEEE representation
 
   public:
+    // CLASS METHODS
+
+                                  // Aspects
+
+    static int maxSupportedBdexVersion();
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;
+        // method.  Note that it is highly recommended that &#39;versionSelector&#39;
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that
+        // &#39;versionSelector&#39; should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(Decimal_Type64,
                                  bslalg::TypeTraitBitwiseCopyable);
@@ -1440,12 +1457,57 @@ class Decimal_Type64 {
     DecimalImpUtil::ValueType64 *data();
         // Return a modifiable pointer to the underlying implementation.
 
+                                  // Aspects
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated, but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
     // ACCESSORS
     const DecimalImpUtil::ValueType64 *data() const;
         // Return a non-modifiable pointer to the underlying implementation.
 
     DecimalImpUtil::ValueType64 value() const;
         // Return the value of the underlying implementation.
+
+                                  // Aspects
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write the value of this object, using the specified &#39;version&#39;
+        // format, to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no
+        // effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but
+        // otherwise unmodified.  Note that &#39;version&#39; is not written to
+        // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
 };
 
 // FREE OPERATORS
@@ -2116,9 +2178,9 @@ operator&lt;&lt; (bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decima
                            // =====================
 
 class Decimal_Type128 {
-    // This value semantic class implements the IEEE-754 128 bit decimal
+    // This value-semantic class implements the IEEE-754 128 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
-    // type that is const thread-safe and exception agnostic.
+    // type that is &#39;const&#39; thread-safe and exception-neutral.
 
   private:
     // DATA
@@ -2917,7 +2979,7 @@ Decimal128 operator/(unsigned long long lhs, Decimal128 rhs);
     //:   zero, raise the &quot;invalid&quot; floating-point exception and return a NaN.
     //:
     //: o Otherwise if &#39;rhs&#39; is zero (positive or negative), raise the
-    //:   &quot;overflow&quot; floating-pointexception return zero with the sign of
+    //:   &quot;overflow&quot; floating-point exception return zero with the sign of
     //:   &#39;lhs&#39;.
     //:
     //: o Otherwise if the quotient of &#39;rhs&#39; and the value of &#39;rhs&#39; results in
@@ -3151,7 +3213,7 @@ bool operator&gt;=(Decimal128 lhs, Decimal128 rhs);
     // &#39;rhs&#39; if the &#39;compareQuietGreaterEqual&#39; operation (IEEE-754 defined,
     // non-total ordering comparison ) considers the underlying IEEE
     // representation of &#39;lhs&#39; to be greater or equal to that of &#39;rhs&#39;.  In
-    // otherwords, &#39;lhs&#39; is greater than or equal to &#39;rhs&#39; if:
+    // other words, &#39;lhs&#39; is greater than or equal to &#39;rhs&#39; if:
     //
     //: o neither &#39;lhs&#39; nor &#39;rhs&#39; are NaN, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; are both zero (positive or negative), or
@@ -3461,11 +3523,11 @@ class Decimal_StandardNamespaceCanary {
     // name of the standard namespace.  Do not use it.
 };
 
-          // =======================================================
-          // template&lt;...&gt; class faux_numeric_limits&lt;NUMERIC, DUMMY&gt;
-          // =======================================================
+    // =================================================================
+    // template&lt;...&gt; class faux_numeric_limits&lt;NUMERIC_TYPE, DUMMY_TYPE&gt;
+    // =================================================================
 
-template&lt;class NUMERIC, class DUMMY = void&gt;
+template&lt;class NUMERIC_TYPE, class DUMMY_TYPE = void&gt;
 class faux_numeric_limits;
     // This class is used as a base-class for manifest constants in the
     // &#39;std::numeric_limits&#39; specializations to overcome a Sun compiler issue.
@@ -3474,8 +3536,8 @@ class faux_numeric_limits;
       // class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, ...&gt;
       // ===============================================================
 
-template&lt;class DUMMY&gt;
-class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
+class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, DUMMY_TYPE&gt;
 {
     // Explicit full specialization of the standard &quot;traits&quot; template
     // &#39;std::numeric_limits&#39; for the type
@@ -3490,12 +3552,12 @@ class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, DUMMY&gt;
         // numeric type.
 };
 
-         // =========================================================
-         // template&lt;...&gt; class faux_numeric_limits&lt;Decimal32, DUMMY&gt;
-         // =========================================================
+    // ==============================================================
+    // template&lt;...&gt; class faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;
+    // ==============================================================
 
-template&lt;class DUMMY&gt;
-class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY&gt; {
+template&lt;class DUMMY_TYPE&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY_TYPE&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal32&#39;.
 
@@ -3547,7 +3609,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY&gt; {
         // The lowest possible negative decimal exponent in the
         // &#39;BloombergLP::bdldfp::Decimal32&#39; type that does not yet represent a
         // denormal number.  Defined to be -94 by IEEE-754.  Note that
-        // &#39;min_exponent10&#39; os the same as &#39;min_exponent&#39; for decimal types.
+        // &#39;min_exponent10&#39; is the same as &#39;min_exponent&#39; for decimal types.
 
     static const int max_exponent = 96;
         // The highest possible positive exponent for the native base of the
@@ -3557,7 +3619,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY&gt; {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal32&#39; type that represents a finite
-        // value.  Defined to be 97 by IEEE-754.  Note that &#39;max_exponent10&#39; os
+        // value.  Defined to be 97 by IEEE-754.  Note that &#39;max_exponent10&#39; is
         // the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
@@ -3602,12 +3664,12 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY&gt; {
         // by the C and C++ Decimal TRs.
 };
 
-         // =========================================================
-         // template&lt;...&gt; class faux_numeric_limits&lt;Decimal64, DUMMY&gt;
-         // =========================================================
+    // ==============================================================
+    // template&lt;...&gt; class faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;
+    // ==============================================================
 
-template&lt;class DUMMY&gt;
-class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY&gt; {
+template&lt;class DUMMY_TYPE&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY_TYPE&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal64&#39;.
 
@@ -3659,7 +3721,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY&gt; {
         // The lowest possible negative decimal exponent in the
         // &#39;BloombergLP::bdldfp::Decimal64&#39; type that does not yet represent a
         // denormal number.  Defined to be -382 by IEEE-754.  Note that
-        // &#39;min_exponent10&#39; os the same as &#39;min_exponent&#39; for decimal types.
+        // &#39;min_exponent10&#39; is the same as &#39;min_exponent&#39; for decimal types.
 
     static const int max_exponent = 385;
         // The highest possible positive exponent for the native base of the
@@ -3670,7 +3732,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY&gt; {
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal64&#39; type that represents a finite
         // value.  Defined to be 385 by IEEE-754.  Note that &#39;max_exponent10&#39;
-        // os the same as &#39;max_exponent&#39; for decimal types.
+        // is the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; can represent infinity.
@@ -3712,12 +3774,12 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY&gt; {
         // by the C and C++ Decimal TRs.
 };
 
-         // ==========================================================
-         // template&lt;...&gt; class faux_numeric_limits&lt;Decimal128, DUMMY&gt;
-         // ==========================================================
+    // ===============================================================
+    // template&lt;...&gt; class faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;
+    // ===============================================================
 
-template&lt;class DUMMY&gt;
-class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY&gt; {
+template&lt;class DUMMY_TYPE&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY_TYPE&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type
         // &#39;BloombergLP::bdldfp::Decimal128&#39;.
@@ -3770,7 +3832,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY&gt; {
         // The lowest possible negative decimal exponent in the
         // &#39;BloombergLP::bdldfp::Decimal128&#39; type that does not yet represent a
         // denormal number.  Defined to be -6142 by IEEE-754.  Note that
-        // &#39;min_exponent10&#39; os the same as &#39;min_exponent&#39; for decimal types.
+        // &#39;min_exponent10&#39; is the same as &#39;min_exponent&#39; for decimal types.
 
     static const int max_exponent = 6145;
         // The highest possible positive exponent for the native base of the
@@ -3781,7 +3843,7 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY&gt; {
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal128&#39; type that represents a finite
         // value.  Defined to be 6145 by IEEE-754.  Note that &#39;max_exponent10&#39;
-        // os the same as &#39;max_exponent&#39; for decimal types.
+        // is the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; can represent infinity.
@@ -3828,226 +3890,226 @@ class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY&gt; {
              // faux_numeric_limits&lt;Decimal32, ...&gt; member storage
              // --------------------------------------------------
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_specialized;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_specialized;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::digits;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::digits;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::digits10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::max_digits10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_signed;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_signed;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_integer;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_integer;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_exact;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_exact;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::radix;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::radix;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::min_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::min_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::min_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::min_exponent10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::max_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::max_exponent10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_infinity;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::has_infinity;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_quiet_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::has_quiet_NaN;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_signaling_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::has_signaling_NaN;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_denorm_style
-faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_denorm;
+faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::has_denorm;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_denorm_loss;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::has_denorm_loss;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_iec559;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_iec559;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_bounded;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_bounded;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_modulo;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::is_modulo;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::traps;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::traps;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::tinyness_before;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::tinyness_before;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_round_style
-faux_numeric_limits&lt;Decimal32, DUMMY&gt;::round_style;
+faux_numeric_limits&lt;Decimal32, DUMMY_TYPE&gt;::round_style;
 
              // --------------------------------------------------
              // faux_numeric_limits&lt;Decimal64, ...&gt; member storage
              // --------------------------------------------------
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_specialized;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_specialized;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::digits;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::digits;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::digits10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::max_digits10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_signed;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_signed;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_integer;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_integer;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_exact;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_exact;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::radix;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::radix;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::min_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::min_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::min_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::min_exponent10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::max_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::max_exponent10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_infinity;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::has_infinity;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_quiet_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::has_quiet_NaN;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_signaling_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::has_signaling_NaN;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_denorm_style
-faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_denorm;
+faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::has_denorm;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_denorm_loss;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::has_denorm_loss;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_iec559;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_iec559;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_bounded;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_bounded;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_modulo;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::is_modulo;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::traps;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::traps;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::tinyness_before;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::tinyness_before;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_round_style
-faux_numeric_limits&lt;Decimal64, DUMMY&gt;::round_style;
+faux_numeric_limits&lt;Decimal64, DUMMY_TYPE&gt;::round_style;
 
             // ---------------------------------------------------
             // faux_numeric_limits&lt;Decimal128, ...&gt; member storage
             // ---------------------------------------------------
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_specialized;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_specialized;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::digits;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::digits;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::digits10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_digits10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::max_digits10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_signed;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_signed;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_integer;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_integer;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_exact;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_exact;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::radix;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::radix;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::min_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::min_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::min_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::min_exponent10;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_exponent;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::max_exponent;
 
-template&lt;class DUMMY&gt;
-const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_exponent10;
+template&lt;class DUMMY_TYPE&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::max_exponent10;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_infinity;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::has_infinity;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_quiet_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::has_quiet_NaN;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_signaling_NaN;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::has_signaling_NaN;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_denorm_style
-faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_denorm;
+faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::has_denorm;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_denorm_loss;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::has_denorm_loss;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_iec559;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_iec559;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_bounded;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_bounded;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_modulo;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::is_modulo;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::traps;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::traps;
 
-template&lt;class DUMMY&gt;
-const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::tinyness_before;
+template&lt;class DUMMY_TYPE&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::tinyness_before;
 
-template&lt;class DUMMY&gt;
+template&lt;class DUMMY_TYPE&gt;
 const std::float_round_style
-faux_numeric_limits&lt;Decimal128, DUMMY&gt;::round_style;
+faux_numeric_limits&lt;Decimal128, DUMMY_TYPE&gt;::round_style;
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -4220,7 +4282,7 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt;
 
 };
 
-}  // close std namespace
+}  // close namespace std
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
@@ -4330,6 +4392,21 @@ DecimalImpUtil::ValueType32 Decimal_Type32::value() const
                             // class Decimal_Type64
                             // --------------------
 
+// CLASS METHODS
+
+                                  // Aspects
+inline
+int Decimal_Type64::maxSupportedBdexVersion()
+{
+    return 1;
+}
+
+inline
+int Decimal_Type64::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
 // CREATORS
 inline
 Decimal_Type64::Decimal_Type64()
@@ -4406,6 +4483,9 @@ Decimal_Type64::Decimal_Type64(unsigned long long other)
 : d_value(DecimalImpUtil::uint64ToDecimal64(other))
 {
 }
+
+
+// MANIPULATORS
 
                      // Incrementation and Decrementation
 
@@ -4611,6 +4691,36 @@ inline Decimal_Type64&amp; Decimal_Type64::operator/=(unsigned long long rhs)
     return *this /= Decimal64(rhs);
 }
 
+
+                                  // Aspects
+
+template &lt;class STREAM&gt;
+STREAM&amp; Decimal_Type64::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            BinaryIntegralDecimalImpUtil::StorageType64 bidVal;
+            stream.getUint64(bidVal.d_raw);
+
+            if (stream) {
+                d_value = DecimalImpUtil::convertFromBID(bidVal);
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+
+    return stream;
+}
+
+//ACCESSORS
+
                             // Internals Accessors
 
 inline DecimalImpUtil::ValueType64 *Decimal_Type64::data()
@@ -4626,6 +4736,26 @@ inline const DecimalImpUtil::ValueType64 *Decimal_Type64::data() const
 inline DecimalImpUtil::ValueType64 Decimal_Type64::value() const
 {
     return d_value;
+}
+
+                                  // Aspects
+
+template &lt;class STREAM&gt;
+STREAM&amp; Decimal_Type64::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            BinaryIntegralDecimalImpUtil::StorageType64 bidVal =
+                DecimalImpUtil::convertToBID(d_value);
+            stream.putUint64(bidVal.d_raw);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
 }
 
                            // ---------------------

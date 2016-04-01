@@ -1,0 +1,435 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_attribute.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_ATTRIBUTE
+#define INCLUDED_BALL_ATTRIBUTE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a representation of (literal) name/value pairs.
+//
+//@CLASSES:
+//     ball::Attribute: (literal) name/value pair
+//
+//@SEE_ALSO: ball_attributeset
+//
+//@DESCRIPTION: This component implements an unusual in-core value-semantic
+// class, &#39;ball::Attribute&#39;.  Each instance of this type represents an
+// attribute that consists of a (literal) name (held but not owned), and an
+// associated value (owned) that can be an &#39;int&#39;, a 64-bit integer, or a
+// &#39;bsl::string&#39;.
+//
+// IMPORTANT: The attribute name, whose type is &#39;const char *&#39;, must therefore
+// remain valid throughout the life time of the &#39;ball::Attribute&#39; object and
+// that of any other &#39;ball::Attribute&#39; objects that are copied or assigned from
+// the original object.  It is recommended that only null-terminated C-string
+// literals be used for names.
+//
+///Usage
+///-----
+// The following code creates three attributes having the same name, but
+// different attribute value types.
+//..
+//    ball::Attribute a1(&quot;day&quot;, &quot;Sunday&quot;);
+//    ball::Attribute a2(&quot;day&quot;, 7);
+//    ball::Attribute a3(&quot;day&quot;, static_cast&lt;bsls::Types::Int64&gt;(7));
+//..
+// The names of the attributes can be found by calling the &#39;name&#39; method:
+//..
+//    assert(0 == bsl::strcmp(&quot;day&quot;, a1.name()));
+//    assert(0 == bsl::strcmp(&quot;day&quot;, a2.name()));
+//    assert(0 == bsl::strcmp(&quot;day&quot;, a3.name()));
+//..
+// The &#39;value&#39; method returns a non-modifiable reference to the
+// &#39;bdlb::Variant&#39; object that manages the value of the attribute:
+//..
+//    assert(true     == a1.value().is&lt;bsl::string&gt;());
+//    assert(&quot;Sunday&quot; == a1.value().the&lt;bsl::string&gt;());
+//
+//    assert(true     == a2.value().is&lt;int&gt;());
+//    assert(7        == a2.value().the&lt;int&gt;());
+//
+//    assert(true     == a3.value().is&lt;bsls::Types::Int64&gt;());
+//    assert(7        == a3.value().the&lt;bsls::Types::Int64&gt;());
+//..
+// Note that the name string that is passed to the constructor of
+// &#39;ball::Attribute&#39; *must* remain valid and unchanged after the
+// &#39;ball::Attribute&#39; object is created.  In the next example, we create a
+// temporary buffer to store the name string, and then use the buffer to
+// create an attribute.  Note that any subsequent changes to this temporary
+// buffer will also modify the name of the attribute:
+//..
+//    char buffer[] = &quot;Hello&quot;;
+//    ball::Attribute a4(buffer, 1);                   // BAD IDEA!!!
+//    bsl::strcpy(buffer, &quot;World&quot;);
+//    assert(0 == bsl::strcmp(&quot;World&quot;, a4.name()));
+//..
+// The &#39;ball::Attribute&#39; class also provides a constructor that takes a value
+// of type &#39;ball::Attribute::Value&#39;:
+//..
+//    ball::Attribute::Value value;
+//    value.assign&lt;bsl::string&gt;(&quot;Sunday&quot;);
+//    ball::Attribute a5(&quot;day&quot;, value);
+//    assert(a5 == a1);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_VARIANT
+#include &lt;bdlb_variant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                        // ===============
+                        // class Attribute
+                        // ===============
+
+class Attribute {
+    // An &#39;Attribute&#39; object contains an attribute name which is not managed
+    // and an attribute value which is managed.
+
+  public:
+    // TYPES
+    typedef bdlb::Variant&lt;int,
+                          bsls::Types::Int64,
+                          bsl::string&gt; Value;
+
+  private:
+    // DATA
+    const char  *d_name;       // attribute name
+
+    Value        d_value;      // attribute value
+
+    mutable int  d_hashValue;  // hash value (-1 means unset)
+
+    mutable int  d_hashSize;   // hash size from which the hash value was
+                               // calculated
+
+    // FRIENDS
+    friend bool operator==(const Attribute&amp;, const Attribute&amp;);
+    friend bool operator!=(const Attribute&amp;, const Attribute&amp;);
+    friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;, const Attribute&amp;);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Attribute, bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static int hash(const Attribute&amp; attribute, int size);
+        // Return a hash value calculated from the specified &#39;attribute&#39; using
+        // the specified &#39;size&#39; as the number of slots.  The hash value is
+        // guaranteed to be in the range [0 ..size - 1].  The behavior is
+        // undefined unless &#39;0 &lt;= size&#39;.
+
+    // CREATORS
+    Attribute(const char       *name,
+              int               value,
+              bslma::Allocator *basicAllocator = 0 );
+        // Create a &#39;Attribute&#39; object having the specified (literal) &#39;name&#39;
+        // and (32-bit integer) &#39;value&#39;.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.  Note that &#39;name&#39; is not
+        // managed by this object and therefore must remain valid while in use
+        // by any &#39;Attribute&#39; object.
+
+    Attribute(const char         *name,
+              bsls::Types::Int64  value,
+              bslma::Allocator   *basicAllocator = 0 );
+        // Create a &#39;Attribute&#39; object having the specified (literal) &#39;name&#39;
+        // and (64-bit integer) &#39;value&#39;.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.  Note that &#39;name&#39; is not
+        // managed by this object and therefore must remain valid while in use
+        // by any &#39;Attribute&#39; object.
+
+    Attribute(const char               *name,
+              const bslstl::StringRef&amp;  value,
+              bslma::Allocator         *basicAllocator = 0 );
+        // Create a &#39;Attribute&#39; object having the specified (literal) &#39;name&#39;
+        // and (character string)&#39;value&#39;.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator will be used.  Note that
+        // &#39;name&#39; is not managed by this object and therefore must remain valid
+        // while in use by any &#39;Attribute&#39; object.
+
+    Attribute(const char       *name,
+              const Value&amp;      value,
+              bslma::Allocator *basicAllocator = 0 );
+        // Create a &#39;Attribute&#39; object having the specified (literal) &#39;name&#39;
+        // and &#39;value&#39;.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator will be used.  Note that &#39;name&#39; is not managed by this
+        // object and therefore must remain valid while in use by any
+        // &#39;Attribute&#39; object.
+
+    Attribute(const Attribute&amp;  original,
+              bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Attribute&#39; object having the same (literal) name and
+        // attribute value as the specified &#39;original&#39; object.  Optionally
+        // specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator
+        // will be used.
+
+    ~Attribute();
+        // Destroy this attribute object.
+
+    // MANIPULATORS
+    Attribute&amp; operator=(const Attribute&amp; rhs);
+        // Assign the value of the specified &#39;rhs&#39; object to this object.
+
+    void setName(const char *name);
+        // Set the attribute name of this object to the specified (literal)
+        // &#39;name&#39;.  Note that &#39;name&#39; is not managed by this object and
+        // therefore must remain valid while in use by any &#39;Attribute&#39; object.
+
+    void setValue(const Value&amp; value);
+    void setValue(int value);
+    void setValue(bsls::Types::Int64 value);
+    void setValue(const bslstl::StringRef&amp; value);
+        // Set the attribute value of this object to the specified &#39;value&#39;.
+
+    // ACCESSORS
+    const char *name() const;
+        // Return the name of this object.
+
+    const Value&amp; value() const;
+        // Return a reference to the non-modifiable attribute value of this
+        // object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bool operator==(const Attribute&amp; lhs, const Attribute&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;Attribute&#39; objects have the same
+    // value if they have the same name (but not necessarily the identical
+    // representation in memory), the same attribute value type, and the same
+    // attribute value.
+
+bool operator!=(const Attribute&amp; lhs, const Attribute&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;Attribute&#39; objects do not have
+    // the same value if any of their respective names (value, not address),
+    // attribute value types, or attribute values differ.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; output, const Attribute&amp; attribute);
+    // Write the value of the specified &#39;attribute&#39; to the specified &#39;output&#39;
+    // stream.  Return the specified &#39;output&#39; stream.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // ---------------
+                        // class Attribute
+                        // ---------------
+
+// CREATORS
+inline
+Attribute::Attribute(const char       *name,
+                     int               value,
+                     bslma::Allocator *basicAllocator)
+: d_name(name)
+, d_value(basicAllocator)
+, d_hashValue(-1)
+{
+    d_value.assign&lt;int&gt;(value);
+}
+
+inline
+Attribute::Attribute(const char         *name,
+                     bsls::Types::Int64  value,
+                     bslma::Allocator   *basicAllocator)
+: d_name(name)
+, d_value(basicAllocator)
+, d_hashValue(-1)
+{
+    d_value.assign&lt;bsls::Types::Int64&gt;(value);
+}
+
+inline
+Attribute::Attribute(const char               *name,
+                     const bslstl::StringRef&amp;  value,
+                     bslma::Allocator         *basicAllocator)
+: d_name(name)
+, d_value(basicAllocator)
+, d_hashValue(-1)
+{
+    d_value.assign&lt;bsl::string&gt;(bsl::string(value.data(), value.length()));
+}
+
+inline
+Attribute::Attribute(const char       *name,
+                     const Value&amp;      value,
+                     bslma::Allocator *basicAllocator)
+: d_name(name)
+, d_value(value, basicAllocator)
+, d_hashValue(-1)
+{
+}
+
+inline
+Attribute::Attribute(const Attribute&amp;  original,
+                     bslma::Allocator *basicAllocator)
+: d_name(original.d_name)
+, d_value(original.d_value, basicAllocator)
+, d_hashValue(original.d_hashValue)
+, d_hashSize(original.d_hashSize)
+{
+}
+
+inline
+Attribute::~Attribute()
+{
+}
+
+// MANIPULATORS
+inline
+Attribute&amp; Attribute::operator=(const Attribute&amp; rhs)
+{
+    d_name      = rhs.d_name;
+    d_value     = rhs.d_value;
+    d_hashValue = rhs.d_hashValue;
+    d_hashSize  = rhs.d_hashSize;
+    return *this;
+}
+
+inline
+void Attribute::setName(const char *name)
+{
+    d_name = name;
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(const Value&amp; value)
+{
+    d_value = value;
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(int value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(bsls::Types::Int64 value)
+{
+    d_value.assign(value);
+    d_hashValue = -1;
+}
+
+inline
+void Attribute::setValue(const bslstl::StringRef&amp; value)
+{
+    d_value.assign(bsl::string(value.data(), value.length()));
+    d_hashValue = -1;
+}
+
+// ACCESSORS
+inline
+const char *Attribute::name() const
+{
+    return d_name;
+}
+
+inline
+const Attribute::Value&amp; Attribute::value() const
+{
+    return d_value;
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const Attribute&amp; lhs, const Attribute&amp; rhs)
+{
+    return 0 == bsl::strcmp(lhs.d_name, rhs.d_name)
+        &amp;&amp; lhs.d_value == rhs.d_value;
+}
+
+inline
+bool ball::operator!=(const Attribute&amp; lhs, const Attribute&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

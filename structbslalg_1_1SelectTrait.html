@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bslalg::SelectTrait</title>
+<title>BDE 3.0: Struct bslalg::SelectTrait</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,7 +79,7 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbslalg_1_1SelectTrait.html#a98aec855d21926825378c6b8c2cfd619a4680bbafce5e866186d19a89236edf31">SELECTION</a>
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbslalg_1_1SelectTrait.html#a5d570bdf4675112a3ea8fe1547617d0ca4680bbafce5e866186d19a89236edf31">SELECTION</a>
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; SELECTION &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1SelectTrait.html#a4e1a29158188c1f2f939b1535f218e20">MetaSelection</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbslmf_1_1Switch.html">bslmf::Switch</a><br class="typebreak"/>
@@ -88,7 +88,7 @@ TRAIT1, TRAIT2, TRAIT3, TRAIT4, <br class="typebreak"/>
 TRAIT5 &gt;::<a class="el" href="structbslmf_1_1Nil.html">Type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1SelectTrait.html#af46fbd9d419e09f0d3e84416a699a86a">Type</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename TYPE, typename TRAIT1, typename TRAIT2 = TypeTraitNil, typename TRAIT3 = TypeTraitNil, typename TRAIT4 = TypeTraitNil, typename TRAIT5 = TypeTraitNil&gt;<br/>
+<h3>template&lt;class TYPE, class TRAIT1, class TRAIT2 = TypeTraitNil, class TRAIT3 = TypeTraitNil, class TRAIT4 = TypeTraitNil, class TRAIT5 = TypeTraitNil&gt;<br/>
  struct bslalg::SelectTrait&lt; TYPE, TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 &gt;</h3>
 
 <p>Select one trait out of several that the parameterized type <code>T</code> may possess. If <code>T</code> has the parameterized trait <code>TRAIT1</code>, then the nested <code>Type</code> is <code>TRAIT1</code>, else if <code>T</code> has an optionally parameterized <code>TRAIT2</code>, then <code>Type</code> is <code>TRAIT2</code>, etc. Also computes an integral selection constant and meta-value. If <code>T</code> has none of the parameterized <code>TRAIT*</code>, then the nested <code>Type</code> is <code><a class="el" href="structbslalg_1_1TypeTraitNil.html">TypeTraitNil</a></code>. </p>
@@ -97,7 +97,7 @@ TRAIT5 &gt;::<a class="el" href="structbslmf_1_1Nil.html">Type</a>&nbsp;</td><td
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, typename TRAIT3  = TypeTraitNil, typename TRAIT4  = TypeTraitNil, typename TRAIT5  = TypeTraitNil&gt; </div>
+template&lt;class TYPE , class TRAIT1 , class TRAIT2  = TypeTraitNil, class TRAIT3  = TypeTraitNil, class TRAIT4  = TypeTraitNil, class TRAIT5  = TypeTraitNil&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt;SELECTION&gt; <a class="el" href="structbslalg_1_1SelectTrait.html">bslalg::SelectTrait</a>&lt; TYPE, TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 &gt;::<a class="el" href="structbslmf_1_1MetaInt.html">MetaSelection</a></td>
@@ -112,7 +112,7 @@ template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, t
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, typename TRAIT3  = TypeTraitNil, typename TRAIT4  = TypeTraitNil, typename TRAIT5  = TypeTraitNil&gt; </div>
+template&lt;class TYPE , class TRAIT1 , class TRAIT2  = TypeTraitNil, class TRAIT3  = TypeTraitNil, class TRAIT4  = TypeTraitNil, class TRAIT5  = TypeTraitNil&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef <a class="el" href="structbslmf_1_1Switch.html">bslmf::Switch</a>&lt;SELECTION, <a class="el" href="structbslalg_1_1TypeTraitNil.html">TypeTraitNil</a>, TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5&gt;::<a class="el" href="structbslmf_1_1Nil.html">Type</a> <a class="el" href="structbslalg_1_1SelectTrait.html">bslalg::SelectTrait</a>&lt; TYPE, TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 &gt;::<a class="el" href="structbslmf_1_1Nil.html">Type</a></td>
@@ -124,11 +124,11 @@ template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, t
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="a98aec855d21926825378c6b8c2cfd619"></a><!-- doxytag: member="bslalg::SelectTrait::@16" ref="a98aec855d21926825378c6b8c2cfd619" args="" -->
+<a class="anchor" id="a5d570bdf4675112a3ea8fe1547617d0c"></a><!-- doxytag: member="bslalg::SelectTrait::@229" ref="a5d570bdf4675112a3ea8fe1547617d0c" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, typename TRAIT3  = TypeTraitNil, typename TRAIT4  = TypeTraitNil, typename TRAIT5  = TypeTraitNil&gt; </div>
+template&lt;class TYPE , class TRAIT1 , class TRAIT2  = TypeTraitNil, class TRAIT3  = TypeTraitNil, class TRAIT4  = TypeTraitNil, class TRAIT5  = TypeTraitNil&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">anonymous enum</td>
@@ -137,7 +137,7 @@ template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, t
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a98aec855d21926825378c6b8c2cfd619a4680bbafce5e866186d19a89236edf31"></a><!-- doxytag: member="SELECTION" ref="a98aec855d21926825378c6b8c2cfd619a4680bbafce5e866186d19a89236edf31" args="" -->SELECTION</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a5d570bdf4675112a3ea8fe1547617d0ca4680bbafce5e866186d19a89236edf31"></a><!-- doxytag: member="SELECTION" ref="a5d570bdf4675112a3ea8fe1547617d0ca4680bbafce5e866186d19a89236edf31" args="" -->SELECTION</em>&nbsp;</td><td>
 <p>Integral value indicating which trait was selected: 1 for <code>TRAIT1</code>, 2 for <code>TRAIT2</code>, etc. and 0 if none were selected. </p>
 </td></tr>
 </table>
@@ -150,7 +150,7 @@ template&lt;typename TYPE , typename TRAIT1 , typename TRAIT2  = TypeTraitNil, t
 <li><a class="el" href="bslalg__selecttrait_8h_source.html">bslalg_selecttrait.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:33 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

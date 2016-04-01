@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_movableref.h                                                 -*-C++-*-
@@ -82,6 +82,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:   won&#39;t be deduced.  When using a C++03 the type /can/ be deduced.
 //:   However, a program depending on the &#39;TYPE&#39; being deduced from a
 //:   &#39;bslmf::MovableRef&lt;TYPE&gt;&#39; will not compile with a C++11 implementation.
+//:
 //: 2 Returning &#39;MovableRef&lt;TYPE&gt;&#39; (or &#39;TYPE&amp;&amp;&#39;) from a function is almost
 //:   always wrong.  In particular note that the same life-time issues apply to
 //:   &#39;MovableRef&lt;TYPE&gt;&#39; as they do to references of objects: when returning a
@@ -89,6 +90,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:   a &#39;MovableRef&lt;TYPE&gt;&#39; refering to a local variable or a by-value function
 //:   parameter is certainly wrong.  Returning a &#39;MovableRef&lt;TYPE&gt;&#39; to a
 //:   function parameter received as a reference type can be correct.
+//:
 //: 3 Using the argument of type &#39;MovableRef&lt;TYPE&gt;&#39; directly in a function
 //:   typically results in incorrect behavior either when using C++03 or when
 //:   using C++11.  Instead, use these arguments together with

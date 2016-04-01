@@ -1,0 +1,185 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_errorcode.h                                                 -*-C++-*-
+#ifndef INCLUDED_BALTZO_ERRORCODE
+#define INCLUDED_BALTZO_ERRORCODE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of named errors for the &#39;baltzo&#39; package.
+//
+//@CLASSES:
+//  baltzo::ErrorCode: namespace for error status &#39;enum&#39;
+//
+//@SEE_ALSO: baltzo_localtimedescriptor, baltzo_timezoneutil
+//
+//@DESCRIPTION: This component provides a namespace, &#39;baltzo::ErrorCode&#39;, for
+// the &#39;enum&#39; type &#39;baltzo::ErrorCode::Enum&#39;, which enumerates the set of named
+// error codes returned by functions across the &#39;baltzo&#39; package.
+//
+///Enumerators
+///-----------
+//..
+//  Name               Description
+//  ----------------   --------------------------------------
+//  k_UNSUPPORTED_ID   Time zone identifier is not supported.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// &#39;baltzo::ErrorCode&#39; usage.
+//
+// First, we create a variable &#39;value&#39; of type &#39;baltzo::ErrorCode::Enum&#39; and
+// initialize it with the enumerator value
+// &#39;baltzo::ErrorCode::k_UNSUPPORTED_ID&#39;:
+//..
+//  baltzo::ErrorCode::Enum value = baltzo::ErrorCode::k_UNSUPPORTED_ID;
+//..
+// Now, we store a pointer to its ASCII representation in a variable
+// &#39;asciiValue&#39; of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = baltzo::ErrorCode::toAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, &quot;UNSUPPORTED_ID&quot;));
+//..
+// Finally, we print &#39;value&#39; to &#39;bsl::cout&#39;.
+//..
+//  bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  UNSUPPORTED_ID
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                              // ================
+                              // struct ErrorCode
+                              // ================
+
+struct ErrorCode {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of named
+    // error codes that may be returned by functions in the &#39;baltzo&#39; package
+    // that take a Zoneinfo string identifier as input.  See &#39;Enum&#39; in the
+    // TYPES sub-section for details.
+    //
+    // This class:
+    //: o supports a complete set of *enumeration* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum Enum {
+        k_UNSUPPORTED_ID = 1  // Time zone identifier is not supported.
+
+
+    };
+
+  public:
+    // CLASS METHODS
+    static bsl::ostream&amp; print(bsl::ostream&amp;   stream,
+                               ErrorCode::Enum value,
+                               int             level          = 0,
+                               int             spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration &#39;value&#39;
+        // to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  See &#39;toAscii&#39; for
+        // what constitutes the string representation of a &#39;ErrorCode::Enum&#39;
+        // value.
+
+    static const char *toAscii(ErrorCode::Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches its
+        // corresponding enumerator name with the &quot;k_&quot; prefix elided.  For
+        // example:
+        //..
+        //  bsl::cout &lt;&lt; ErrorCode::toAscii(ErrorCode::k_UNSUPPORTED_ID);
+        //..
+        // will print the following on standard output:
+        //..
+        //  UNSUPPORTED_ID
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, ErrorCode::Enum value);
+    // Write the string representation of the specified enumeration &#39;value&#39; to
+    // the specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  See &#39;toAscii&#39; for what constitutes the string
+    // representation of a &#39;baltzo::ErrorCode::Enum&#39; value.  Note that this
+    // method has the same behavior as
+    //..
+    //  baltzo::ErrorCode::print(stream, value, 0, -1);
+    //..
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                              // ----------------
+                              // struct ErrorCode
+                              // ----------------
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; baltzo::operator&lt;&lt;(bsl::ostream&amp; stream, ErrorCode::Enum value)
+{
+    return ErrorCode::print(stream, value, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

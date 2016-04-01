@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_bitset Component</title>
+<title>BDE 3.0: bslstl_bitset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -191,7 +191,7 @@ Friends</h2></td></tr>
 <br/>
  Then, we declare a <code><a class="el" href="classbsl_1_1bitset.html">bsl::bitset</a></code>, <code>compositeFlags</code>, that will contain flags indicating whether a value corresponding to a given index is known to be composite (<code>true</code>) or is still potentially prime (<code>false</code>) up to and including the compile-time constant template parameter, <code>MAX_VALUE</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      <span class="comment">// Candidate primes in the &#39;[2, MAX_VALUE]&#39; range.</span>
+<div class="fragment"><pre class="fragment">      <span class="comment">// Candidate primes in the &#39;[2 .. MAX_VALUE]&#39; range.</span>
 
       <a class="code" href="classbsl_1_1bitset.html">bsl::bitset&lt;MAX_VALUE + 1&gt;</a> compositeFlags;
 </pre></div><br/>
@@ -880,7 +880,7 @@ template&lt;class CHAR_TYPE , class TRAITS , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> representation of this bitset, where bit value 1 will be represented with <code>1</code> and bit value 0 will be represented with <code>0</code>. The most significant bit will be placed at the beginning of the string, and the least significant bit will be placed at the end of the string. </p>
+<p>Return a <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> representation of this bitset, where bit value 1 is represented with <code>1</code> and bit value 0 is represented with <code>0</code>. The most-significant bit is placed at the beginning of the string, and the least-significant bit is placed at the end of the string. </p>
 
 </div>
 </div>
@@ -1233,7 +1233,7 @@ template&lt;std::size_t N&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:04 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

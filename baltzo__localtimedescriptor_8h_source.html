@@ -1,0 +1,534 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_localtimedescriptor.h                                       -*-C++-*-
+#ifndef INCLUDED_BALTZO_LOCALTIMEDESCRIPTOR
+#define INCLUDED_BALTZO_LOCALTIMEDESCRIPTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class for characterizing local time values.
+//
+//@CLASSES:
+//  baltzo::LocalTimeDescriptor: attributes characterizing a local time
+//
+//@SEE_ALSO: baltzo_zoneinfo
+//
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, &#39;baltzo::LocalTimeDescriptor&#39;, that is
+// used to characterize subsets of local time values within time zones.  Note
+// that this class is consistent with the &quot;local-time types&quot; found in the
+// &quot;Zoneinfo&quot; representation of a time zone (see &#39;baltzo_zoneinfo&#39;).
+//
+///Attributes
+///----------
+//..
+//  Name                Type         Default  Simple Constraints
+//  ------------------  -----------  -------  ------------------
+//  description         bsl::string  &quot;&quot;       none
+//  dstInEffectFlag     bool         false    none
+//  utcOffsetInSeconds  int          0        [-86399 .. 86399]
+//..
+//: o &#39;description&#39;: non-canonical, non-localized name (intended for
+//:   debugging).
+//:
+//: o &#39;dstInEffectFlag&#39;: &#39;true&#39; if the described local times are
+//:   Daylight-Saving-Time (DST) values.
+//:
+//: o &#39;utcOffsetInSeconds&#39;: offset from UTC of the described local times.
+//
+// For example, in New York on January 1, 2011, the local time is Eastern
+// Standard Time, Daylight-Saving Time (DST) is not in effect, and the offset
+// from UTC is -5 hours.  We can represent this information using a
+// &#39;baltzo::LocalTimeDescriptor&#39; object whose &#39;description&#39; is &quot;EST&quot;,
+// &#39;dstInEffectFlag&#39; is &#39;false&#39;, and &#39;utcOffsetInSeconds&#39; is -18,000 (-5 * 60
+// * 60).  Note that &#39;description&#39; is *not* canonical, and is intended for
+// development and debugging only.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Converting Between UTC and Local Times
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// When using the &quot;Zoneinfo&quot; database, we want to represent and access the
+// local time information contained in the &quot;Zoneinfo&quot; binary data files.  Once
+// we have obtained this information, we can use it to convert times from one
+// time zone to another.  The following code illustrates how to perform such
+// conversions using &#39;baltzo::LocalTimeDescriptor&#39;.
+//
+// First, we define a &#39;baltzo::LocalTimeDescriptor&#39; object that characterizes
+// the local time in effect for New York Daylight-Saving Time in 2010:
+//..
+//  enum { NEW_YORK_DST_OFFSET = -4 * 60 * 60 };  // -4 hours in seconds
+//
+//  baltzo::LocalTimeDescriptor newYorkDst(NEW_YORK_DST_OFFSET, true, &quot;EDT&quot;);
+//
+//  assert(NEW_YORK_DST_OFFSET == newYorkDst.utcOffsetInSeconds());
+//  assert(               true == newYorkDst.dstInEffectFlag());
+//  assert(              &quot;EDT&quot; == newYorkDst.description());
+//..
+// Then, we create a &#39;bdlt::Datetime&#39; representing the time
+// &quot;Jul 20, 2010 11:00&quot; in New York:
+//..
+//  bdlt::Datetime newYorkDatetime(2010, 7, 20, 11, 0, 0);
+//..
+// Next, we convert &#39;newYorkDatetime&#39; to its corresponding UTC value using the
+// &#39;newYorkDst&#39; descriptor (created above); note that, when converting from a
+// local time to a UTC time, the *signed* offset from UTC is *subtracted* from
+// the local time:
+//..
+//  bdlt::Datetime utcDatetime = newYorkDatetime;
+//  utcDatetime.addSeconds(-newYorkDst.utcOffsetInSeconds());
+//..
+// Then, we verify that the result corresponds to the expected UTC time,
+// &quot;Jul 20, 2010 15:00&quot;:
+//..
+//  assert(bdlt::Datetime(2010, 7, 20, 15, 0, 0) == utcDatetime);
+//..
+// Next, we define a &#39;baltzo::LocalTimeDescriptor&#39; object that describes the
+// local time in effect for Rome in the summer of 2010:
+//..
+//  enum { ROME_DST_OFFSET = 2 * 60 * 60 };  // 2 hours in seconds
+//
+//  baltzo::LocalTimeDescriptor romeDst(ROME_DST_OFFSET, true, &quot;CEST&quot;);
+//
+//  assert(ROME_DST_OFFSET == romeDst.utcOffsetInSeconds());
+//  assert(           true == romeDst.dstInEffectFlag());
+//  assert(         &quot;CEST&quot; == romeDst.description());
+//..
+// Now, we convert &#39;utcDatetime&#39; to its corresponding local-time value in Rome
+// using the &#39;romeDst&#39; descriptor (created above):
+//..
+//  bdlt::Datetime romeDatetime = utcDatetime;
+//  romeDatetime.addSeconds(romeDst.utcOffsetInSeconds());
+//..
+// Notice that, when converting from UTC time to local time, the signed offset
+// from UTC is *added* to UTC time rather than subtracted.
+//
+// Finally, we verify that the result corresponds to the expected local time,
+// &quot;Jul 20, 2010 17:00&quot;:
+//..
+//  assert(bdlt::Datetime(2010, 7, 20, 17, 0, 0) == romeDatetime);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                         // =========================
+                         // class LocalTimeDescriptor
+                         // =========================
+
+class LocalTimeDescriptor {
+    // This simply constrained (value-semantic) attribute class characterizes a
+    // subset of local time values.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral* (agnostic)
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    int         d_utcOffsetInSeconds;  // *signed* offset *from* UTC
+
+    bool        d_dstInEffectFlag;     // &#39;true&#39; if Daylight-Saving Time is in
+                                       // effect, and &#39;false&#39; otherwise
+
+    bsl::string d_description;         // *non-canonical* identifier for this
+                                       // descriptor
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS2(LocalTimeDescriptor,
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
+
+    // CLASS METHODS
+    static bool isValidUtcOffsetInSeconds(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is in the range
+        // &#39;[-86399 .. 86399]&#39;, and &#39;false&#39; otherwise.
+
+    // CREATORS
+    explicit LocalTimeDescriptor(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;LocalTimeDescriptor&#39; object having the (default)
+        // attribute values:
+        //..
+        //  utcOffsetInSeconds() == 0
+        //  dstInEffectFlag()    == false
+        //  description()        == &quot;&quot;
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    LocalTimeDescriptor(int                       utcOffsetInSeconds,
+                        bool                      dstInEffectFlag,
+                        const bslstl::StringRef&amp;  description,
+                        bslma::Allocator         *basicAllocator = 0);
+    LocalTimeDescriptor(int                       utcOffsetInSeconds,
+                        bool                      dstInEffectFlag,
+                        const char               *description,
+                        bslma::Allocator         *basicAllocator = 0);
+        // Create a &#39;LocalTimeDescriptor&#39; object having the specified
+        // &#39;utcOffsetInSeconds&#39;, &#39;dstInEffectFlag&#39;, and &#39;description&#39; attribute
+        // values.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // &#39;-86339 &lt;= utcOffsetInSeconds &lt;= 86399&#39;.
+
+    LocalTimeDescriptor(const LocalTimeDescriptor&amp;  original,
+                        bslma::Allocator           *basicAllocator = 0);
+        // Create a &#39;LocalTimeDescriptor&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    ~LocalTimeDescriptor();
+        // Destroy this object.
+
+    // MANIPULATORS
+    LocalTimeDescriptor&amp; operator=(const LocalTimeDescriptor&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setDescription(const bslstl::StringRef&amp;  value);
+    void setDescription(const char               *value);
+        // Set the &#39;description&#39; attribute of this object to the specified
+        // &#39;value&#39;.  Note that &#39;value&#39; is not canonical, and is intended for
+        // debugging only.
+
+    void setDstInEffectFlag(bool value);
+        // Set the &#39;dstInEffectFlag&#39; attribute of this object to the specified
+        // &#39;value&#39;.  Note that &#39;true&#39; implies Daylight-Saving Time (DST) is in
+        // effect.
+
+    void setUtcOffsetInSeconds(int value);
+        // Set the &#39;utcOffsetInSeconds&#39; attribute of this object to the
+        // specified &#39;value&#39;.  The behavior is undefined unless
+        // &#39;-86399 &lt;= value &lt;= 86399&#39;.
+
+                                  // Aspects
+
+    void swap(LocalTimeDescriptor&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    const bsl::string&amp; description() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;description&#39; attribute of this object.  Note that &#39;description&#39; is
+        // not canonical, and is intended for debugging only.
+
+    bool dstInEffectFlag() const;
+        // Return the value of the &#39;dstInEffectFlag&#39; attribute of this object.
+        // Note that &#39;true&#39; implies Daylight-Saving Time (DST) is in effect.
+
+    int utcOffsetInSeconds() const;
+        // Return the value of the &#39;utcOffsetInSeconds&#39; attribute of this
+        // object.  Note that this value is in the range &#39;[-86399 .. 86399]&#39;.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const LocalTimeDescriptor&amp; lhs,
+                const LocalTimeDescriptor&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;LocalTimeDescriptor&#39; objects have
+    // the same value if all of the corresponding values of their
+    // &#39;utcOffsetInSeconds&#39;, &#39;dstInEffectFlag&#39;, and &#39;description&#39; attributes
+    // are the same.
+
+bool operator!=(const LocalTimeDescriptor&amp; lhs,
+                const LocalTimeDescriptor&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;LocalTimeDescriptor&#39; objects do
+    // not have the same value if any of the corresponding values of their
+    // &#39;utcOffsetInSeconds&#39;, &#39;dstInEffectFlag&#39;, or &#39;description&#39; attributes are
+    // not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;              stream,
+                         const LocalTimeDescriptor&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39;, but with
+    // the attribute names elided.
+
+// FREE FUNCTIONS
+void swap(LocalTimeDescriptor&amp; a, LocalTimeDescriptor&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                         // -------------------------
+                         // class LocalTimeDescriptor
+                         // -------------------------
+
+// CLASS METHODS
+    inline
+bool baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
+{
+    return value &gt;= -86399 &amp;&amp; value &lt;= 86399;
+}
+
+// CREATORS
+inline
+baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+                                              bslma::Allocator *basicAllocator)
+: d_utcOffsetInSeconds(0)
+, d_dstInEffectFlag(false)
+, d_description(basicAllocator)
+{
+}
+
+inline
+baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+                                  int                       utcOffsetInSeconds,
+                                  bool                      dstInEffectFlag,
+                                  const bslstl::StringRef&amp;  description,
+                                  bslma::Allocator         *basicAllocator)
+: d_utcOffsetInSeconds(utcOffsetInSeconds)
+, d_dstInEffectFlag(dstInEffectFlag)
+, d_description(description.begin(), description.end(), basicAllocator)
+{
+    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
+    BSLS_ASSERT_SAFE(0 != description.data());
+}
+
+inline
+baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+                                          int               utcOffsetInSeconds,
+                                          bool              dstInEffectFlag,
+                                          const char       *description,
+                                          bslma::Allocator *basicAllocator)
+: d_utcOffsetInSeconds(utcOffsetInSeconds)
+, d_dstInEffectFlag(dstInEffectFlag)
+, d_description(basicAllocator)
+{
+    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
+    BSLS_ASSERT_SAFE(description);
+
+    bsl::string(description, basicAllocator).swap(d_description);
+}
+
+inline
+baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+                                    const LocalTimeDescriptor&amp;  original,
+                                    bslma::Allocator           *basicAllocator)
+: d_utcOffsetInSeconds(original.d_utcOffsetInSeconds)
+, d_dstInEffectFlag(original.d_dstInEffectFlag)
+, d_description(original.d_description, basicAllocator)
+{
+}
+
+inline
+baltzo::LocalTimeDescriptor::~LocalTimeDescriptor()
+{
+    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
+}
+
+// MANIPULATORS
+inline
+baltzo::LocalTimeDescriptor&amp; baltzo::LocalTimeDescriptor::operator=(
+                                                const LocalTimeDescriptor&amp; rhs)
+{
+    d_description        = rhs.d_description;         // first for strong
+                                                      // exception guarantee
+    d_utcOffsetInSeconds = rhs.d_utcOffsetInSeconds;
+    d_dstInEffectFlag    = rhs.d_dstInEffectFlag;
+    return *this;
+}
+
+inline
+void baltzo::LocalTimeDescriptor::setDescription(
+                                                const bslstl::StringRef&amp; value)
+{
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_description.assign(value.begin(), value.end());
+}
+
+inline
+void baltzo::LocalTimeDescriptor::setDescription(const char* value)
+{
+    BSLS_ASSERT_SAFE(value);
+
+    bsl::string(value, d_description.allocator()).swap(d_description);
+}
+
+inline
+void baltzo::LocalTimeDescriptor::setDstInEffectFlag(bool value)
+{
+    d_dstInEffectFlag = value;
+}
+
+inline
+void baltzo::LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
+{
+    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(value));
+
+    d_utcOffsetInSeconds = value;
+}
+
+                                  // Aspects
+
+inline
+void baltzo::LocalTimeDescriptor::swap(LocalTimeDescriptor&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&amp;d_description,        &amp;other.d_description);
+    bslalg::SwapUtil::swap(&amp;d_dstInEffectFlag,    &amp;other.d_dstInEffectFlag);
+    bslalg::SwapUtil::swap(&amp;d_utcOffsetInSeconds, &amp;other.d_utcOffsetInSeconds);
+}
+
+// ACCESSORS
+inline
+const bsl::string&amp; baltzo::LocalTimeDescriptor::description() const
+{
+    return d_description;
+}
+
+inline
+bool baltzo::LocalTimeDescriptor::dstInEffectFlag() const
+{
+    return d_dstInEffectFlag;
+}
+
+inline
+int baltzo::LocalTimeDescriptor::utcOffsetInSeconds() const
+{
+    return d_utcOffsetInSeconds;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *baltzo::LocalTimeDescriptor::allocator() const
+{
+    return d_description.get_allocator().mechanism();
+}
+
+// FREE OPERATORS
+inline
+bool baltzo::operator==(const LocalTimeDescriptor&amp; lhs,
+                        const LocalTimeDescriptor&amp; rhs)
+{
+    return lhs.utcOffsetInSeconds() == rhs.utcOffsetInSeconds()
+        &amp;&amp; lhs.dstInEffectFlag()    == rhs.dstInEffectFlag()
+        &amp;&amp; lhs.description()        == rhs.description();
+}
+
+inline
+bool baltzo::operator!=(const LocalTimeDescriptor&amp; lhs,
+                        const LocalTimeDescriptor&amp; rhs)
+{
+    return lhs.utcOffsetInSeconds() != rhs.utcOffsetInSeconds()
+        || lhs.dstInEffectFlag()    != rhs.dstInEffectFlag()
+        || lhs.description()        != rhs.description();
+}
+
+// FREE FUNCTIONS
+inline
+void baltzo::swap(LocalTimeDescriptor&amp; a, LocalTimeDescriptor&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

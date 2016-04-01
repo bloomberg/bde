@@ -1,0 +1,645 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_socketoptions.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_SOCKETOPTIONS
+#define INCLUDED_BTLSO_SOCKETOPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a value-semantic class to store socket options.
+//
+//@CLASSES:
+//  btlso::SocketOptions: container for storing socket options
+//
+//@SEE_ALSO: btlso_socketimputil, btlso_lingeroptions
+//
+//@DESCRIPTION: This component provides a class, &#39;btlso::SocketOptions&#39;, that
+// contains various options that can be set on a socket.
+//
+// The options that can be set on a socket are specified below:
+//..
+//  Option                     btlso::SocketOptUtil   Description
+//  ------                     -------------------   -----------
+//
+//  debugFlag                  BTESO_DEBUGINFO       This option indicates
+//                                                   whether debug information
+//                                                   should be recorded.
+//
+//  allowBroadcasting          BTESO_BROADCAST       This option indicates
+//                                                   whether broadcast messages
+//                                                   can be sent.
+//
+//  reuseAddress               BTESO_REUSEADDRESS    This option indicates
+//                                                   whether local addresses
+//                                                   can be reused.
+//
+//  keepAlive                  BTESO_KEEPALIVE       This option indicates
+//                                                   whether connections should
+//                                                   be kept alive by enabling
+//                                                   periodic transmission of
+//                                                   messages.  Not support for
+//                                                   stream sockets on windows.
+//
+//  bypassNormalRouting        BTESO_DONTROUTE       This option indicates
+//                                                   whether out-going messages
+//                                                   should bypass normal
+//                                                   message routing
+//                                                   facilities.
+//
+//  linger                     BTESO_LINGER          See &#39;btlso_lingeroptions&#39;
+//                                                   for details on the linger
+//                                                   options.
+//
+//  leaveOutOfBandDataInline   BTESO_OOBINLINE       This option indicates
+//                                                   whether out-of-band data
+//                                                   (i.e., data marked urgent)
+//                                                   should be left in the
+//                                                   normal input queue.
+//
+//  sendBufferSize             BTESO_SENDBUFFER      This option specifies the
+//                                                   size of the output buffer
+//                                                   (in bytes).
+//
+//  receiveBufferSize          BTESO_RECEIVEBUFFER   This option specifies the
+//                                                   size of the input buffer
+//                                                   (in bytes).
+//
+//  minimumSendBufferSize      BTESO_SENDLOWATER     This option specifies the
+//                                                   minimum number of bytes
+//                                                   that must be cached before
+//                                                   data is passed to lower
+//                                                   layers.
+//
+//  minimumReceiveBufferSize   BTESO_RECEIVELOWATER  This option specifies the
+//                                                   minimum number of bytes
+//                                                   that must be cached before
+//                                                   data is passed to the
+//                                                   application layer.
+//
+//  sendTimeout                BTESO_SENDTIMEOUT     This option specifies the
+//                                                   timeout (in seconds) for
+//                                                   blocking send calls.
+//
+//  receiveTimeout             BTESO_RECEIVETIMEOUT  This option specifies the
+//                                                   timeout (in seconds) for
+//                                                   blocking receive calls.
+//
+//  tcpNoDelay                 BTESO_TCPNODELAY      This option indicates
+//                                                   whether the Nagle
+//                                                   algorithm for packet
+//                                                   coalescing should be
+//                                                   disabled.  A value of
+//                                                   &#39;true&#39; indicates packet
+//                                                   coalescing should be
+//                                                   disabled , and packets
+//                                                   should be sent as soon as
+//                                                   possible even if there is
+//                                                   only a small amount of
+//                                                   data.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Setting the Socket Option on a Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// &#39;btlso::SocketOptions&#39; can be used to specify whether local addresses should
+// be reused.  The following snippets of code illustrate how to set the
+// &#39;BTESO_REUSEADDRESS&#39; flag on a socket.  Note that we assume that a socket of
+// type &#39;SOCK_STREAM&#39; has already been created and that it can be accessed
+// using &#39;socketHandle&#39;:
+//..
+//  bool                 reuseLocalAddr = true;
+//  btlso::SocketOptions options;
+//  options.setReuseAddress(reuseLocalAddr);
+//  assert(reuseLocalAddr == options.reuseAddress().value());
+//
+//  // Set &#39;options&#39; on &#39;socketHandle&#39;
+//
+//  // . . .
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_LINGEROPTIONS
+#include &lt;btlso_lingeroptions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_NULLABLEVALUE
+#include &lt;bdlb_nullablevalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                       // ===================
+                       // class SocketOptions
+                       // ===================
+
+class SocketOptions {
+    // This class provides an value-semantic object that contains the various
+    // options that can be set on a socket.
+    //
+    // More generally, this class supports a complete set of *value* *semantic*
+    // operations, including copy construction, assignment, equality
+    // comparison, &#39;ostream&#39; printing.  (A precise operational definition of
+    // when two objects have the same value can be found in the description of
+    // the homogeneous (free) &#39;operator==&#39; for this class.)  This class is
+    // *exception* *safe*, but provides no general guarantee of rollback: If an
+    // exception is thrown during the invocation of a method on a pre-existing
+    // object, the object will be left in a coherent state, but (unless
+    // otherwise stated) its value is not defined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) for the same operation is supported in all
+    // cases.
+
+    // DATA
+    bdlb::NullableValue&lt;LingerOptions&gt; d_linger;  // should lingering be used
+
+    bdlb::NullableValue&lt;int&gt;           d_sendBufferSize;
+                                                  // send buffer size
+
+    bdlb::NullableValue&lt;int&gt;           d_receiveBufferSize;
+                                                  // receive buffer size
+
+    bdlb::NullableValue&lt;int&gt;           d_minimumSendBufferSize;
+                                                  // minimum number of output
+                                                  // bytes
+
+    bdlb::NullableValue&lt;int&gt;           d_minimumReceiveBufferSize;
+                                                  // minimum number of input
+                                                  // bytes
+
+    bdlb::NullableValue&lt;int&gt;           d_sendTimeout;
+                                                  // timeout (in seconds) for
+                                                  // sending messages
+
+    bdlb::NullableValue&lt;int&gt;           d_receiveTimeout;
+                                                  // timeout (in seconds) for
+                                                  // receiving messages
+
+    bdlb::NullableValue&lt;bool&gt;          d_debugFlag;
+                                                  // should debug information
+                                                  // be recorded
+
+    bdlb::NullableValue&lt;bool&gt;          d_allowBroadcasting;
+                                                  // can broadcast messages be
+                                                  // sent
+
+    bdlb::NullableValue&lt;bool&gt;          d_reuseAddress;
+                                                  // can local addresses be
+                                                  // reused
+
+    bdlb::NullableValue&lt;bool&gt;          d_keepAlive;
+                                                  // should connections be
+                                                  // kept alive by enabling
+                                                  // periodic transmission of
+                                                  // messages
+
+    bdlb::NullableValue&lt;bool&gt;          d_bypassNormalRouting;
+                                                  // should out-going messages
+                                                  // bypass normal message
+                                                  // routing facilities
+
+    bdlb::NullableValue&lt;bool&gt;          d_leaveOutOfBandDataInline;
+                                                  // should out-of-band data
+                                                  // (data marked urgent) be
+                                                  // left inline
+
+    bdlb::NullableValue&lt;bool&gt;          d_tcpNoDelay;
+                                                  // disable the Nagle
+                                                  // algorithm for send
+                                                  // coalescing
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(SocketOptions, bslmf::IsBitwiseMoveable)
+
+    // CREATORS
+    SocketOptions();
+        // Create a socket options object having none of the option values
+        // non-null.
+
+    SocketOptions(const SocketOptions&amp; original);
+        // Create a socket options object having the value of the specified
+        // &#39;original&#39; object.
+
+    ~SocketOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    SocketOptions&amp; operator=(const SocketOptions&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    void reset();
+        // Reset this socket options object to the default value (i.e., its
+        // value upon default construction).
+
+    void setDebugFlag(bool value);
+        // Set the &#39;debugFlag&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setAllowBroadcasting(bool value);
+        // Set the &#39;allowBroadcasting&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setReuseAddress(bool value);
+        // Set the &#39;reuseAddress&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setKeepAlive(bool value);
+        // Set the &#39;keepAlive&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setBypassNormalRouting(bool value);
+        // Set the &#39;bypassNormalRouting&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setLinger(const LingerOptions&amp; value);
+        // Set the &#39;linger&#39; attribute of this object to the specified &#39;value&#39;.
+
+    void setLeaveOutOfBandDataInline(bool value);
+        // Set the &#39;leaveOutOfBandDataInline&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setSendBufferSize(int value);
+        // Set the &#39;sendBufferSize&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setReceiveBufferSize(int value);
+        // Set the &#39;receiveBufferSize&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setMinimumSendBufferSize(int value);
+        // Set the &#39;minimumSendBufferSize&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setMinimumReceiveBufferSize(int value);
+        // Set the &#39;minimumReceiveBufferSize&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setSendTimeout(int value);
+        // Set the &#39;sendTimeout&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setReceiveTimeout(int value);
+        // Set the &#39;receiveTimeout&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setTcpNoDelay(bool value);
+        // Set the &#39;tcpNoDelay&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    // ACCESSORS
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; debugFlag() const;
+        // Return a reference to the non-modifiable &#39;debugFlag&#39; attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; allowBroadcasting() const;
+        // Return a reference to the non-modifiable &#39;allowBroadcasting
+        // attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; reuseAddress() const;
+        // Return a reference to the non-modifiable &#39;reuseAddress&#39; attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; keepAlive() const;
+        // Return a reference to the non-modifiable &#39;keepAlive&#39; attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; bypassNormalRouting() const;
+        // Return a reference to the non-modifiable &#39;bypassNormalRouting&#39;
+        // attribute.
+
+    const bdlb::NullableValue&lt;LingerOptions&gt;&amp; linger() const;
+        // Return a reference to the non-modifiable &#39;linger&#39; attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; leaveOutOfBandDataInline() const;
+        // Return a reference to the non-modifiable &#39;leaveOutOfBandDataInline&#39;
+        // attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; sendBufferSize() const;
+        // Return a reference to the non-modifiable &#39;sendBufferSize&#39; attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; receiveBufferSize() const;
+        // Return a reference to the non-modifiable &#39;receiveBufferSize&#39;
+        // attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; minimumSendBufferSize() const;
+        // Return a reference to the non-modifiable &#39;minimumSendBufferSize&#39;
+        // attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; minimumReceiveBufferSize() const;
+        // Return a reference to the non-modifiable &#39;minimumReceiveBufferSize&#39;
+        // attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; sendTimeout() const;
+        // Return a reference to the non-modifiable &#39;sendTimeout&#39; attribute.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; receiveTimeout() const;
+        // Return a reference to the non-modifiable &#39;receiveTimeout&#39; attribute.
+
+    const bdlb::NullableValue&lt;bool&gt;&amp; tcpNoDelay() const;
+        // Return a reference to the non-modifiable &#39;tcpNoDelay&#39; attribute.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const SocketOptions&amp; lhs, const SocketOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects have
+    // the same value, and &#39;false&#39; otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const SocketOptions&amp; lhs, const SocketOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects do not
+    // have the same value, and &#39;false&#39; otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const SocketOptions&amp; rhs);
+    // Format the specified &#39;rhs&#39; to the specified output &#39;stream&#39; and
+    // return a reference to the modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                       // -------------------
+                       // class SocketOptions
+                       // -------------------
+
+// MANIPULATORS
+inline
+void SocketOptions::setDebugFlag(bool value)
+{
+    d_debugFlag.makeValue(value);
+}
+
+inline
+void SocketOptions::setAllowBroadcasting(bool value)
+{
+    d_allowBroadcasting.makeValue(value);
+}
+
+inline
+void SocketOptions::setReuseAddress(bool value)
+{
+    d_reuseAddress.makeValue(value);
+}
+
+inline
+void SocketOptions::setKeepAlive(bool value)
+{
+    d_keepAlive.makeValue(value);
+}
+
+inline
+void SocketOptions::setBypassNormalRouting(bool value)
+{
+    d_bypassNormalRouting.makeValue(value);
+}
+
+inline
+void SocketOptions::setLinger(const LingerOptions&amp; value)
+{
+    d_linger.makeValue(value);
+}
+
+inline
+void SocketOptions::setLeaveOutOfBandDataInline(bool value)
+{
+    d_leaveOutOfBandDataInline.makeValue(value);
+}
+
+inline
+void SocketOptions::setSendBufferSize(int value)
+{
+    d_sendBufferSize.makeValue(value);
+}
+
+inline
+void SocketOptions::setReceiveBufferSize(int value)
+{
+    d_receiveBufferSize.makeValue(value);
+}
+
+inline
+void SocketOptions::setMinimumSendBufferSize(int value)
+{
+    d_minimumSendBufferSize.makeValue(value);
+}
+
+inline
+void SocketOptions::setMinimumReceiveBufferSize(int value)
+{
+    d_minimumReceiveBufferSize.makeValue(value);
+}
+
+inline
+void SocketOptions::setSendTimeout(int value)
+{
+    d_sendTimeout.makeValue(value);
+}
+
+inline
+void SocketOptions::setReceiveTimeout(int value)
+{
+    d_receiveTimeout.makeValue(value);
+}
+
+inline
+void SocketOptions::setTcpNoDelay(bool value)
+{
+    d_tcpNoDelay.makeValue(value);
+}
+
+// ACCESSORS
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp; SocketOptions::debugFlag() const
+{
+    return d_debugFlag;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp; SocketOptions::allowBroadcasting() const
+{
+    return d_allowBroadcasting;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp; SocketOptions::reuseAddress() const
+{
+    return d_reuseAddress;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp; SocketOptions::keepAlive() const
+{
+    return d_keepAlive;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp;
+SocketOptions::bypassNormalRouting() const
+{
+    return d_bypassNormalRouting;
+}
+
+inline
+const bdlb::NullableValue&lt;LingerOptions&gt;&amp;
+SocketOptions::linger() const
+{
+    return d_linger;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp;
+SocketOptions::leaveOutOfBandDataInline() const
+{
+    return d_leaveOutOfBandDataInline;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; SocketOptions::sendBufferSize() const
+{
+    return d_sendBufferSize;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; SocketOptions::receiveBufferSize() const
+{
+    return d_receiveBufferSize;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp;
+SocketOptions::minimumSendBufferSize() const
+{
+    return d_minimumSendBufferSize;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp;
+SocketOptions::minimumReceiveBufferSize() const
+{
+    return d_minimumReceiveBufferSize;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; SocketOptions::sendTimeout() const
+{
+    return d_sendTimeout;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; SocketOptions::receiveTimeout() const
+{
+    return d_receiveTimeout;
+}
+
+inline
+const bdlb::NullableValue&lt;bool&gt;&amp; SocketOptions::tcpNoDelay() const
+{
+    return d_tcpNoDelay;
+}
+
+}  // close package namespace
+
+// FREE FUNCTIONS
+inline
+bool btlso::operator==(const SocketOptions&amp; lhs, const SocketOptions&amp; rhs)
+{
+    return  lhs.debugFlag()                == rhs.debugFlag()
+         &amp;&amp; lhs.allowBroadcasting()        == rhs.allowBroadcasting()
+         &amp;&amp; lhs.reuseAddress()             == rhs.reuseAddress()
+         &amp;&amp; lhs.keepAlive()                == rhs.keepAlive()
+         &amp;&amp; lhs.bypassNormalRouting()      == rhs.bypassNormalRouting()
+         &amp;&amp; lhs.linger()                   == rhs.linger()
+         &amp;&amp; lhs.leaveOutOfBandDataInline() == rhs.leaveOutOfBandDataInline()
+         &amp;&amp; lhs.sendBufferSize()           == rhs.sendBufferSize()
+         &amp;&amp; lhs.receiveBufferSize()        == rhs.receiveBufferSize()
+         &amp;&amp; lhs.minimumSendBufferSize()    == rhs.minimumSendBufferSize()
+         &amp;&amp; lhs.minimumReceiveBufferSize() == rhs.minimumReceiveBufferSize()
+         &amp;&amp; lhs.sendTimeout()              == rhs.sendTimeout()
+         &amp;&amp; lhs.receiveTimeout()           == rhs.receiveTimeout()
+         &amp;&amp; lhs.tcpNoDelay()               == rhs.tcpNoDelay();
+}
+
+inline
+bool btlso::operator!=(const SocketOptions&amp; lhs, const SocketOptions&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp; stream, const SocketOptions&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

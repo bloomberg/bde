@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_performancehint Component</title>
+<title>BDE 3.0: bsls_performancehint Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -95,13 +95,15 @@
 </ul>
 </li>
 <li>
-<a href="#4.4">Usage</a> </li>
+<a href="#4.4">Usage</a> <ul>
 <li>
-<a href="#4.5">Example 1 -- USING BRANCH PREDICTION MACROS</a> </li>
+<a href="#4.4.1">Example 1: Using the Branch Prediction Macros</a> </li>
 <li>
-<a href="#4.6">Example 2 -- USING <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code></a> </li>
+<a href="#4.4.2">Example 2: Using <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code></a> </li>
 <li>
-<a href="#4.7">Example 3 -- Cache Line Prefetching</a> </li>
+<a href="#4.4.3">Example 3: Cache Line Prefetching</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -150,8 +152,8 @@ data cache prefetching  </li>
 <dl class="user"><dt><b></b></dt><dd>The three macros provided, <code>BSLS_PERFORMANCEHINT_PREDICT_LIKELY</code>, <code>BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</code>, and <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code>, can be used to optimize compiler generated code for branch prediction. The compiler, when given the hint under <em>optimized</em> mode (i.e., with <code>BDE_BUILD_TARGET_OPT</code> defined) will rearrange the assembly instructions it generates to minimize the number of jumps needed. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following describes the macros provided by this component: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">/               Macro Name                          Description of Macro
-/----------------------------------------       -----------------------------
+<div class="fragment"><pre class="fragment">                Macro Name                          Description of Macro
+ ----------------------------------------       -----------------------------
  BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)      Hint to the compiler that the
                                                 specified *integral* &#39;expr&#39;
                                                 expression is likely to
@@ -185,6 +187,7 @@ data cache prefetching  </li>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="warning"></a> <a class="anchor" id="branch_prediction.warning"></a> <a class="anchor" id="description.branch_prediction.warning"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Warning: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Please use the macros provided in this component <em>with</em> <em>caution</em>. Always profile your code to get an idea of actual usage before attempting to optimize with these macros. Furthermore, these macros are merely <em>hints</em> to the compiler. Whether or not they will have visible effect on performance is not guaranteed. Note that one can perform similar optimization with a profile-based compilation. When compiled with the proper options, the compiler can collect usage information of the code, and such information can then be passed back to recompile the code in a more optimized form. Please refer to the compiler manual for more information. </dd></dl>
@@ -244,8 +247,8 @@ data cache prefetching  </li>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following series of examples illustrates use of the macros and functions provided by this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="description.example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="4.5"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1 -- USING BRANCH PREDICTION MACROS: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_the_branch_prediction_macros"></a> <a class="anchor" id="usage.example_1~3A_using_the_branch_prediction_macros"></a> <a class="anchor" id="description.usage.example_1~3A_using_the_branch_prediction_macros"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Using the Branch Prediction Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following demonstrates the use of <code>BSLS_PERFORMANCEHINT_PREDICT_LIKELY</code> and <code>BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</code> to generate more efficient assembly instructions. Note the use of <code>BSLS_PERFORMANCEHINT_UNLIKELY_HINT</code> inside the <code>if</code> branch for maximum portability. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> global;
@@ -328,8 +331,9 @@ data cache prefetching  </li>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="description.example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="4.6"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2 -- USING BSLS_PERFORMANCEHINT_PREDICT_EXPECT: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="usage.example_2~3A_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="description.usage.example_2~3A_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.4.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Using BSLS_PERFORMANCEHINT_PREDICT_EXPECT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is essentially the same as the <code>__builtin_expect(expr, value)</code> macro that is provided by some compilers. This macro allows the user to define more complex hints to the compiler, such as the optimization of <code>switch</code> statements. For example, given: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> x = std::rand() % 4;
@@ -350,8 +354,8 @@ data cache prefetching  </li>
 <br/>
  However, this is sufficient to illustrate the intent of this macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3_--_cache_line_prefetching"></a> <a class="anchor" id="description.example_3_--_cache_line_prefetching"></a> <a class="anchor" id="4.7"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3 -- Cache Line Prefetching: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_cache_line_prefetching"></a> <a class="anchor" id="usage.example_3~3A_cache_line_prefetching"></a> <a class="anchor" id="description.usage.example_3~3A_cache_line_prefetching"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="4.4.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Cache Line Prefetching: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following demonstrates use of <code>prefetchForReading</code> and <code>prefetchForWriting</code> to prefetch data cache lines: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">int</span> SIZE = 10 * 1024 * 1024;
@@ -427,7 +431,7 @@ data cache prefetching  </li>
 <br/>
  And we get less of an improvement in speed. Similarly, if we prefetch too far away from the data use, the data might be removed from the cache before it is looked at and the prefetch is wasted. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:02 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

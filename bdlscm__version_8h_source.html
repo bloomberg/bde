@@ -1,13 +1,13 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlscm_version.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLSCM_VERSION
 #define INCLUDED_BDLSCM_VERSION
 
-#ifndef INCLUDED_BDLS_IDENT
+#ifndef INCLUDED_BSLS_IDENT
 #include &lt;bsls_ident.h&gt;
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
@@ -38,7 +38,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // printing the version string returned by &#39;bdlscm::Version::version()&#39; to
 // &#39;stdout&#39; as follows:
 //..
-//  bsl::printf(&quot;BDL version: %s\n&quot;, bdlscm::Version::version());
+//  bsl::cout &lt;&lt; &quot;BDL version: &quot; &lt;&lt;  bdlscm::Version::version() &lt;&lt; bsl::endl;
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -88,6 +88,10 @@ struct Version {
 
     static const char *version();
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 inline
 const char *Version::version()

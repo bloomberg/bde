@@ -1,0 +1,1383 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_symbolicconverter.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_SYMBOLICCONVERTER
+#define INCLUDED_BDLAT_SYMBOLICCONVERTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a utility for convert types with matching member symbols.
+//
+//@CLASSES:
+//  bdlat_SymbolicConverter: symbolic converter utility
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: The &#39;bdlat_SymbolicConverter&#39; utility provided by this
+// component defines a single parameterized function &#39;convert&#39;.  The &#39;convert&#39;
+// function takes two arguments: a destination and a source object.  The
+// destination and source objects may be of different types.
+//
+// Each type can fall into one of the following categories:
+//..
+//  Category          Reference
+//  --------          ---------
+//  Sequence          bdlat_sequencefunctions
+//  Choice            bdlat_choicefunctions
+//  Array             bdlat_arrayfunctions
+//  Enumeration       bdlat_enumfunctions
+//  NullableValue     bdlat_nullablevaluefunctions
+//  CustomizedType    bdlat_customizedtypefunctions
+//  Simple            basic C++ fundamental types &amp; other value-semantic types
+//..
+// The &#39;bdlat_SymbolicConverter&#39; utility converts from one type to another
+// using the following criteria:
+//..
+//  Destination Category  Source Category   Comments
+//  --------------------  ---------------   --------
+//  Sequence              Sequence          The conversion will fail if each
+//                                          attribute in the set of attributes
+//                                          from the source does not have a
+//                                          corresponding attribute (with the
+//                                          same name) in the destination.  The
+//                                          conversion will also fail if any
+//                                          attributes from the source fail to
+//                                          convert to the corresponding
+//                                          attribute in the destination.  Any
+//                                          attribute in the destination that
+//                                          does not have a corresponding
+//                                          attribute in the source will be set
+//                                          to its default value.
+//
+//  Choice                Choice            The conversion will fail if the
+//                                          destination does not have a
+//                                          selection with the same name as the
+//                                          current selection in the source.
+//                                          The conversion will also fail if
+//                                          the selection from the source fails
+//                                          to convert to the corresponding
+//                                          selection in the destination.  If
+//                                          nothing is selected in the source,
+//                                          then the destination will be reset.
+//
+//  Array                 Array             The conversion will fail if the
+//                                          elements in the source fail to
+//                                          convert to the elements in the
+//                                          destination.  Upon completion, the
+//                                          destination array will contain the
+//                                          same number of elements as the
+//                                          source array.
+//
+//  Enumeration           Enumeration       The conversion will fail if the
+//                                          destination does not have a string
+//                                          value that is identical to the
+//                                          string value of the source.
+//
+//  Enumeration           char/short/int    The conversion will fail if the
+//                                          destination does not have an
+//                                          enumerator with the numeric value
+//                                          of the source.
+//
+//  char/short/int        Enumeration       The conversion will fail if the
+//                                          numeric value of the enumeration is
+//                                          outside the bounds of the
+//                                          destination type.
+//
+//  Enumeration           bsl::string       The conversion will fail if the
+//                                          destination does not have an
+//                                          enumerator with the symbolic string
+//                                          name of the source.
+//
+//  bsl::string           Enumeration       This conversion always succeeds.
+//
+//  NullableValue         NullableValue     The conversion will fail if the
+//                                          source has a value that fails to
+//                                          convert to the destination value.
+//                                          If the source is null, then the
+//                                          destination is nulled.
+//
+//  NullableValue         AnyType           The conversion will fail if the
+//                                          source fails to convert to the
+//                                          destination value.
+//
+//  AnyType               NullableValue     The conversion will fail if the
+//                                          source is not null and the value in
+//                                          the source fails to convert to the
+//                                          destination.  If the source is
+//                                          null, then the destination will
+//                                          be set to its default value.
+//
+//  CustomizedType        CustomizedType    The conversion will fail if the
+//                                          base value in the source fails to
+//                                          convert to the base value in the
+//                                          destination and the base value is
+//                                          able to convert to the customized
+//                                          value.
+//
+//  CustomizedType        AnyType           The conversion will fail if the
+//                                          source fails to convert to the base
+//                                          value in the destination and the
+//                                          base value is able to convert to
+//                                          the customized value.
+//
+//  AnyType               CustomizedType    The conversion will fail if the
+//                                          base value in the source fails to
+//                                          convert to the destination.
+//
+//  SimpleType            SimpleType        The conversion will fail if there
+//                                          is no accessible compile-time
+//                                          assignment operator from the
+//                                          destination to the source.  This is
+//                                          determined using
+//                                          &#39;bslmf_isconvertible&#39;.
+//..
+// Any other combination of destination and source categories will fail to
+// convert.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.  This
+// component can be used with types supported by the &#39;bdlat&#39; framework.  In
+// particular, types generated by the &#39;bas_codegen.pl&#39; tool can be used.  For
+// example, suppose we have the following XML schema inside a file called
+// &#39;xsdfile.xsd&#39;:
+//..
+//  &lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;
+//  &lt;xs:schema xmlns:xs=&#39;http://www.w3.org/2001/XMLSchema&#39;
+//             xmlns:bdem=&#39;http://bloomberg.com/schemas/bdem&#39;
+//             elementFormDefault=&#39;unqualified&#39;&gt;
+//
+//      &lt;xs:complexType name=&#39;Employee&#39;&gt;
+//          &lt;xs:sequence&gt;
+//              &lt;xs:element name=&#39;Name&#39;   type=&#39;string&#39;/&gt;
+//              &lt;xs:element name=&#39;Dept&#39;   type=&#39;string&#39;/&gt;
+//              &lt;xs:element name=&#39;Age&#39;    type=&#39;int&#39;/&gt;
+//              &lt;xs:element name=&#39;Salary&#39; type=&#39;float&#39;/&gt;
+//          &lt;/xs:sequence&gt;
+//      &lt;/xs:complexType&gt;
+//
+//      &lt;xs:complexType name=&#39;Trainee&#39;&gt;
+//          &lt;xs:sequence&gt;
+//              &lt;xs:element name=&#39;Name&#39; type=&#39;string&#39;/&gt;
+//              &lt;xs:element name=&#39;Dept&#39; type=&#39;string&#39;/&gt;
+//              &lt;xs:element name=&#39;Age&#39;  type=&#39;int&#39;/&gt;
+//          &lt;/xs:sequence&gt;
+//      &lt;/xs:complexType&gt;
+//
+//  &lt;/xs:schema&gt;
+//..
+// Using the &#39;bas_codegen.pl&#39; tool, we can generate C++ classes for this
+// schema:
+//..
+//  $ bas_codegen.pl -g h -g cpp -p test xsdfile.xsd
+//..
+// This tool will generate the header and implementation files for the
+// &#39;test_employee&#39; and &#39;test_trainee&#39; components in the current directory.
+//
+// Now suppose we want to create a &#39;hireTrainee&#39; function, that converts a
+// trainee to an employee.  Such a function could be written as follows:
+//..
+//  #include &lt;test_employee.h&gt;
+//  #include &lt;test_trainee.h&gt;
+//
+//  #include &lt;bdlat_symbolicconverter.h&gt;
+//
+//  using namespace BloombergLP;
+//
+//  int hireTrainee(test::Employee       *result,
+//                  const test::Trainee&amp;  trainee,
+//                  float                 salary)
+//  {
+//      int retCode = bdlat_SymbolicConverter::convert(result, trainee);
+//
+//      result-&gt;salary() = salary;
+//
+//      return retCode;
+//  }
+//..
+//  The &#39;hireTrainee&#39; function can be used as follows:
+//..
+//  void usageExample()
+//  {
+//      test::Trainee trainee;
+//
+//      trainee.name() = &quot;Bob&quot;;
+//      trainee.dept() = &quot;RnD&quot;;
+//      trainee.age()  = 24;
+//
+//      test::Employee employee;
+//
+//      int result = hireTrainee(&amp;employee, trainee, 20000.00f);
+//
+//      assert(0         == result);
+//      assert(&quot;Bob&quot;     == employee.name());
+//      assert(&quot;RnD&quot;     == employee.dept());
+//      assert(24        == employee.age());
+//      assert(20000.00f == employee.salary());
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
+#include &lt;bdlat_arrayfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
+#include &lt;bdlat_choicefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
+#include &lt;bdlat_customizedtypefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
+#include &lt;bdlat_enumfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
+#include &lt;bdlat_nullablevaluefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
+#include &lt;bdlat_sequencefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPECATEGORY
+#include &lt;bdlat_typecategory.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
+#include &lt;bdlat_valuetypefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_PRINTMETHODS
+#include &lt;bdlb_printmethods.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_SWITCH
+#include &lt;bslmf_switch.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                       // ==============================
+                       // struct bdlat_SymbolicConverter
+                       // ==============================
+
+struct bdlat_SymbolicConverter {
+    // This utility contains a single &#39;convert&#39; function that converts a value
+    // from one type to another compatible type.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    static
+    int convert(LHS_TYPE *lhs, const RHS_TYPE &amp;rhs);
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    static
+    int convert(LHS_TYPE *lhs, const RHS_TYPE &amp;rhs, bsl::ostream &amp;errorStream);
+        // Convert the value of the specified &#39;rhs&#39; object to the specified
+        // (modifiable) &#39;lhs&#39; object.  Optionally specify an &#39;errorStream&#39; to
+        // print error messages.  Return 0 on success and a non-zero value
+        // otherwise.  The supported conversions are described in the
+        // &#39;bdlat_symbolicconverter&#39; component-level documentation.
+};
+
+// ---  Anything below this line is implementation specific.  Do not use.  ----
+
+                     // =================================
+                     // class bdlat_SymbolicConverter_Imp
+                     // =================================
+
+class bdlat_SymbolicConverter_Imp {
+    // This class contains implementation functions for this component.
+
+    // PRIVATE DATA MEMBERS
+    bsl::ostream *d_errorStream_p;  // held, not owned
+
+  public:
+    // IMPLEMENTATION MANIPULATORS
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                     *lhs,
+                bdlat_TypeCategory::Sequence  lhsCategory,
+                const RHS_TYPE&amp;               rhs,
+                bdlat_TypeCategory::Sequence  rhsCategory);
+        // Convert to sequence from sequence.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                   *lhs,
+                bdlat_TypeCategory::Choice  lhsCategory,
+                const RHS_TYPE&amp;             rhs,
+                bdlat_TypeCategory::Choice  rhsCategory);
+        // Convert to choice from choice.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                  *lhs,
+                bdlat_TypeCategory::Array  lhsCategory,
+                const RHS_TYPE&amp;            rhs,
+                bdlat_TypeCategory::Array  rhsCategory);
+        // Convert to array from array.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                        *lhs,
+                bdlat_TypeCategory::Enumeration  lhsCategory,
+                const RHS_TYPE&amp;                  rhs,
+                bdlat_TypeCategory::Enumeration  rhsCategory);
+        // Convert to enum from enum.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                        *lhs,
+                bdlat_TypeCategory::Enumeration  lhsCategory,
+                const RHS_TYPE&amp;                  rhs,
+                bdlat_TypeCategory::Simple       rhsCategory);
+        // Convert to enum from simple type.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                        *lhs,
+                bdlat_TypeCategory::Simple       lhsCategory,
+                const RHS_TYPE&amp;                  rhs,
+                bdlat_TypeCategory::Enumeration  rhsCategory);
+        // Convert to simple type from enum.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                          *lhs,
+                bdlat_TypeCategory::NullableValue  lhsCategory,
+                const RHS_TYPE&amp;                    rhs,
+                bdlat_TypeCategory::NullableValue  rhsCategory);
+        // Convert to nullable from nullable.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY&gt;
+    int convert(LHS_TYPE                          *lhs,
+                bdlat_TypeCategory::NullableValue  lhsCategory,
+                const RHS_TYPE&amp;                    rhs,
+                RHS_CATEGORY                       rhsCategory);
+        // Convert to nullable from non-nullable.
+
+    template &lt;class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                          *lhs,
+                LHS_CATEGORY                       lhsCategory,
+                const RHS_TYPE&amp;                    rhs,
+                bdlat_TypeCategory::NullableValue  rhsCategory);
+        // Convert to non-nullable from nullable.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                           *lhs,
+                bdlat_TypeCategory::CustomizedType  lhsCategory,
+                const RHS_TYPE&amp;                     rhs,
+                bdlat_TypeCategory::NullableValue   rhsCategory);
+        // Convert to customized type from nullable.  Note that this overload
+        // is required to resolve ambiguities when there are nullable and
+        // customized types in the same sequence.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                           *lhs,
+                bdlat_TypeCategory::CustomizedType  lhsCategory,
+                const RHS_TYPE&amp;                     rhs,
+                bdlat_TypeCategory::CustomizedType  rhsCategory);
+        // Convert to customized from customized.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY&gt;
+    int convert(LHS_TYPE                           *lhs,
+                bdlat_TypeCategory::CustomizedType  lhsCategory,
+                const RHS_TYPE&amp;                     rhs,
+                RHS_CATEGORY                        rhsCategory);
+        // Convert to customized from non-customized.
+
+    template &lt;class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                           *lhs,
+                LHS_CATEGORY                        lhsCategory,
+                const RHS_TYPE&amp;                     rhs,
+                bdlat_TypeCategory::CustomizedType  rhsCategory);
+        // Convert to non-customized from customized.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                           *lhs,
+                bdlat_TypeCategory::NullableValue   lhsCategory,
+                const RHS_TYPE&amp;                     rhs,
+                bdlat_TypeCategory::CustomizedType  rhsCategory);
+        // Convert to nullable from customized.  Note that this overload is
+        // required to resolve ambiguities when there are nullable and
+        // customized types in the same sequence.
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE                   *lhs,
+                bdlat_TypeCategory::Simple  lhsCategory,
+                const RHS_TYPE&amp;             rhs,
+                bdlat_TypeCategory::Simple  rhsCategory);
+        // Convert to simple from simple of the same type.  Note that this just
+        // evaluates to an assignment using the assignment operator.
+
+    template &lt;class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE,
+              class RHS_CATEGORY&gt;
+    int convert(LHS_TYPE        *lhs,
+                LHS_CATEGORY     lhsCategory,
+                const RHS_TYPE&amp;  rhs,
+                RHS_CATEGORY     rhsCategory);
+        // No match found.  This function does nothing, it just returns a
+        // FAILURE code (to be used to detect type-mismatch at runtime).
+
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int resolveDynamicTypes(LHS_TYPE                        *lhs,
+                            bdlat_TypeCategory::DynamicType  lhsCategory,
+                            const RHS_TYPE&amp;                  rhs,
+                            bdlat_TypeCategory::DynamicType  rhsCategory);
+    template &lt;class LHS_TYPE,
+              class RHS_TYPE,
+              class RHS_CATEGORY&gt;
+    int resolveDynamicTypes(LHS_TYPE                        *lhs,
+                            bdlat_TypeCategory::DynamicType  lhsCategory,
+                            const RHS_TYPE&amp;                  rhs,
+                            RHS_CATEGORY                     rhsCategory);
+    template &lt;class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE&gt;
+    int resolveDynamicTypes(LHS_TYPE                        *lhs,
+                            LHS_CATEGORY                     lhsCategory,
+                            const RHS_TYPE&amp;                  rhs,
+                            bdlat_TypeCategory::DynamicType  rhsCategory);
+    template &lt;class LHS_TYPE,
+              class LHS_CATEGORY,
+              class RHS_TYPE,
+              class RHS_CATEGORY&gt;
+    int resolveDynamicTypes(LHS_TYPE        *lhs,
+                            LHS_CATEGORY     lhsCategory,
+                            const RHS_TYPE&amp;  rhs,
+                            RHS_CATEGORY     rhsCategory);
+        // Resolve dynamic types.
+
+  private:
+    // NOT IMPLEMENTED
+    bdlat_SymbolicConverter_Imp(const bdlat_SymbolicConverter_Imp&amp;);
+    bdlat_SymbolicConverter_Imp&amp; operator=(const bdlat_SymbolicConverter_Imp&amp;);
+
+  public:
+    // CREATORS
+    bdlat_SymbolicConverter_Imp(bsl::ostream *errorStream);
+        // Create the imp object.
+
+    // ~bdlat_SymbolicConverter_Imp();
+        // Destroy this object.  Note that this trivial destructor is generated
+        // by the compiler.
+
+    // MANIPULATORS
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+    int convert(LHS_TYPE        *lhs,
+                const RHS_TYPE&amp;  rhs);
+        // Implementation for convert function.
+
+    bsl::ostream&amp; errorStream();
+        // Return a reference to the error stream.
+};
+
+           // =====================================================
+           // class bdlat_SymbolicConverter_StoreValue&lt;LVALUE_TYPE&gt;
+           // =====================================================
+
+template &lt;class LVALUE_TYPE&gt;
+class bdlat_SymbolicConverter_StoreValue {
+    // This visitor assigns the value of the visited member to
+    // &#39;d_destination_p&#39;.
+
+    // PRIVATE DATA MEMBERS
+    LVALUE_TYPE                 *d_destination_p;  // held, not owned
+    bdlat_SymbolicConverter_Imp *d_imp_p;          // held, not owned
+
+  public:
+    // CREATORS
+    explicit bdlat_SymbolicConverter_StoreValue(
+                                      LVALUE_TYPE                 *destination,
+                                      bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class RVALUE_TYPE, class INFO_TYPE&gt;
+    int operator()(const RVALUE_TYPE&amp; object,
+                   const INFO_TYPE&amp;) const;
+        // Assign the specified &#39;object&#39; to &#39;*d_lValue_p&#39;.
+
+    template &lt;class RVALUE_TYPE&gt;
+    int operator()(const RVALUE_TYPE&amp; object) const;
+        // Assign the specified &#39;object&#39; to &#39;*d_lValue_p&#39;.
+};
+
+            // ====================================================
+            // class bdlat_SymbolicConverter_LoadValue&lt;RVALUE_TYPE&gt;
+            // ====================================================
+
+template &lt;class RVALUE_TYPE&gt;
+class bdlat_SymbolicConverter_LoadValue {
+    // This visitor assigns &#39;d_value&#39; to the visited member.
+
+    // PRIVATE DATA MEMBERS
+    bdlat_SymbolicConverter_Imp *d_imp_p;  // held, not owned
+    const RVALUE_TYPE&amp;           d_value;  // held, not owned
+
+  public:
+    // CREATORS
+    explicit bdlat_SymbolicConverter_LoadValue(
+                                            const RVALUE_TYPE&amp;           value,
+                                            bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class LVALUE_TYPE, class INFO_TYPE&gt;
+    int operator()(LVALUE_TYPE *object,
+                   const INFO_TYPE&amp;) const;
+        // Assign &#39;d_value&#39; to the specified &#39;*object&#39;.
+
+    template &lt;class LVALUE_TYPE&gt;
+    int operator()(LVALUE_TYPE *object) const;
+        // Assign &#39;d_value&#39; to the specified &#39;*object&#39;.
+};
+
+        // ============================================================
+        // class bdlat_SymbolicConverter_StoreInSequence&lt;SEQUENCE_TYPE&gt;
+        // ============================================================
+
+template &lt;class SEQUENCE_TYPE&gt;
+class bdlat_SymbolicConverter_StoreInSequence {
+    // This visitor is used when assigning to a sequence.  It will visit each
+    // member from the source object.  Each time a member is visited, it will
+    // use the &#39;LoadValue&#39; visitor template to visit the member with the same
+    // name in the destination sequence.  This will cause the value of the
+    // member in the source object to be assigned to the member (with the same
+    // name) of the destination sequence object.
+
+    // PRIVATE DATA MEMBERS
+    SEQUENCE_TYPE               *d_destination_p;  // held, not owned
+    bdlat_SymbolicConverter_Imp *d_imp_p;          // held, not owned
+
+  public:
+    // CREATORS
+    explicit bdlat_SymbolicConverter_StoreInSequence(
+                                      SEQUENCE_TYPE               *destination,
+                                      bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class SOURCE_MEMBER_TYPE, class INFO_TYPE&gt;
+    int operator()(const SOURCE_MEMBER_TYPE&amp; sourceMember,
+                   const INFO_TYPE&amp;          info) const;
+};
+
+          // ========================================================
+          // class bdlat_SymbolicConverter_StoreInChoice&lt;CHOICE_TYPE&gt;
+          // ========================================================
+
+template &lt;class CHOICE_TYPE&gt;
+class bdlat_SymbolicConverter_StoreInChoice {
+    // Similar to &#39;StoreInSequence&#39; but this is for choice.
+
+    // PRIVATE DATA MEMBERS
+    CHOICE_TYPE                 *d_destination_p;  // held, not owned
+    bdlat_SymbolicConverter_Imp *d_imp_p;          // held, not owned
+
+  public:
+    // CREATORS
+    explicit bdlat_SymbolicConverter_StoreInChoice(
+                                      CHOICE_TYPE                 *destination,
+                                      bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class SOURCE_MEMBER_TYPE, class INFO_TYPE&gt;
+    int operator()(const SOURCE_MEMBER_TYPE&amp; sourceMember,
+                   const INFO_TYPE&amp;          info) const;
+};
+
+       // =============================================================
+       // class bdlat_SymbolicConverter_StoreInArrayElement&lt;ARRAY_TYPE&gt;
+       // =============================================================
+
+template &lt;class ARRAY_TYPE&gt;
+class bdlat_SymbolicConverter_StoreInArrayElement {
+    // Assign the value of the visited object to the &#39;d_index&#39;th element inside
+    // &#39;d_array_p&#39;.
+
+    // PRIVATE DATA MEMBERS
+    ARRAY_TYPE                  *d_array_p;  // held, not owned
+    bdlat_SymbolicConverter_Imp *d_imp_p;    // held, not owned
+    int                          d_index;    // element index to assign to
+
+  public:
+    // CREATORS
+    bdlat_SymbolicConverter_StoreInArrayElement(
+                                            ARRAY_TYPE                  *array,
+                                            int                          index,
+                                            bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class SOURCE_ELEMENT_TYPE&gt;
+    int operator()(const SOURCE_ELEMENT_TYPE&amp; sourceElement) const;
+};
+
+        // ============================================================
+        // class bdlat_SymbolicConverter_StoreInNullable&lt;NULLABLE_TYPE&gt;
+        // ============================================================
+
+template &lt;class NULLABLE_TYPE&gt;
+class bdlat_SymbolicConverter_StoreInNullable {
+    // Similar to &#39;StoreInSequence&#39; but this is for nullable.
+
+    // PRIVATE DATA MEMBERS
+    NULLABLE_TYPE               *d_destination_p;  // held, not owned
+    bdlat_SymbolicConverter_Imp *d_imp_p;          // held, not owned
+
+  public:
+    // CREATORS
+    explicit bdlat_SymbolicConverter_StoreInNullable(
+                                      NULLABLE_TYPE               *destination,
+                                      bdlat_SymbolicConverter_Imp *imp);
+
+    // ACCESSORS
+    template &lt;class VALUE_TYPE&gt;
+    int operator()(const VALUE_TYPE&amp; value) const;
+};
+
+// ============================================================================
+//                               PROXY CLASSES
+// ============================================================================
+
+         // =========================================================
+         // struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy
+         // =========================================================
+
+template &lt;class LHS_TYPE, class LHS_CATEGORY&gt;
+struct bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy {
+    // Component-private struct.  Do not use.
+
+    // DATA MEMBERS
+    bdlat_SymbolicConverter_Imp *d_instance_p;
+    LHS_TYPE                    *d_lhs_p;
+
+    // CREATORS
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
+
+    // FUNCTIONS
+    template &lt;class TYPE&gt;
+    inline
+    int operator()(const TYPE&amp;, bslmf::Nil)
+    {
+        BSLS_ASSERT_SAFE(0);
+        return -2;
+    }
+
+    template &lt;class TYPE, class ANY_CATEGORY&gt;
+    inline
+    int operator()(const TYPE&amp; object, ANY_CATEGORY category)
+    {
+        return d_instance_p-&gt;resolveDynamicTypes(d_lhs_p,
+                                                 LHS_CATEGORY(),
+                                                 object,
+                                                 category);
+    }
+};
+
+         // =========================================================
+         // struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy
+         // =========================================================
+
+template &lt;class RHS_TYPE, class RHS_CATEGORY&gt;
+struct bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy {
+    // Component-private struct.  Do not use.
+
+    // DATA MEMBERS
+    bdlat_SymbolicConverter_Imp *d_instance_p;
+    const RHS_TYPE              *d_rhs_p;
+
+    // CREATORS
+
+    // Creators have been omitted to allow simple static initialization of this
+    // struct.
+
+    // FUNCTIONS
+    template &lt;class TYPE&gt;
+    inline
+    int operator()(TYPE *object, bslmf::Nil)
+    {
+        BSLS_ASSERT_SAFE(0);
+        return -3;
+    }
+
+    template &lt;class TYPE, class ANY_CATEGORY&gt;
+    inline
+    int operator()(TYPE *object, ANY_CATEGORY category)
+    {
+        return d_instance_p-&gt;resolveDynamicTypes(object,
+                                                 category,
+                                                 *d_rhs_p,
+                                                 RHS_CATEGORY());
+    }
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                     // ---------------------------------
+                     // class bdlat_SymbolicConverter_Imp
+                     // ---------------------------------
+
+// PRIVATE MANIPULATORS
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                      *lhs,
+                                         bdlat_TypeCategory::Sequence,
+                                         const RHS_TYPE&amp;                rhs,
+                                         bdlat_TypeCategory::Sequence)
+{
+    bdlat_SymbolicConverter_StoreInSequence&lt;LHS_TYPE&gt; storeInLhs(lhs, this);
+
+    return bdlat_SequenceFunctions::accessAttributes(rhs, storeInLhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
+                                         bdlat_TypeCategory::Choice,
+                                         const RHS_TYPE&amp;              rhs,
+                                         bdlat_TypeCategory::Choice)
+{
+    enum { k_SUCCESS = 0 };
+
+    bdlat_SymbolicConverter_StoreInChoice&lt;LHS_TYPE&gt; storeInLhs(lhs, this);
+
+    if (bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID
+                                  == bdlat_ChoiceFunctions::selectionId(rhs)) {
+        bdlat_ValueTypeFunctions::reset(lhs);
+
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    return bdlat_ChoiceFunctions::accessSelection(rhs, storeInLhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                   *lhs,
+                                         bdlat_TypeCategory::Array,
+                                         const RHS_TYPE&amp;             rhs,
+                                         bdlat_TypeCategory::Array)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -4 };
+
+    const int size = static_cast&lt;int&gt;(bdlat_ArrayFunctions::size(rhs));
+
+    bdlat_ArrayFunctions::resize(lhs, size);
+
+    for (int i = 0; i &lt; size; ++i) {
+        bdlat_SymbolicConverter_StoreInArrayElement&lt;LHS_TYPE&gt;
+                                                      storeInLhs(lhs, i, this);
+
+        if (0 != bdlat_ArrayFunctions::accessElement(rhs, storeInLhs, i)) {
+            return k_FAILURE;                                         // RETURN
+        }
+    }
+
+    return k_SUCCESS;
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
+                                         const RHS_TYPE&amp;                   rhs,
+                                         bdlat_TypeCategory::Enumeration)
+{
+    bsl::string str;
+
+    bdlat_EnumFunctions::toString(&amp;str, rhs);
+
+    return bdlat_EnumFunctions::fromString(lhs,
+                                           str.data(),
+                                           static_cast&lt;int&gt;(str.length()));
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Enumeration,
+                                         const RHS_TYPE&amp;                   rhs,
+                                         bdlat_TypeCategory::Simple)
+{
+    return bdlat_ValueTypeFunctions::assign(lhs, rhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::Simple,
+                                         const RHS_TYPE&amp;                   rhs,
+                                         bdlat_TypeCategory::Enumeration)
+{
+    return bdlat_ValueTypeFunctions::assign(lhs, rhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+int bdlat_SymbolicConverter_Imp::convert(
+                                       LHS_TYPE                           *lhs,
+                                       bdlat_TypeCategory::NullableValue,
+                                       const RHS_TYPE&amp;                     rhs,
+                                       bdlat_TypeCategory::NullableValue)
+{
+    enum { k_SUCCESS = 0 };
+
+    if (bdlat_NullableValueFunctions::isNull(rhs)) {
+        bdlat_ValueTypeFunctions::reset(lhs);
+
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    bdlat_SymbolicConverter_StoreInNullable&lt;LHS_TYPE&gt; storeInLhs(lhs, this);
+
+    return bdlat_NullableValueFunctions::accessValue(rhs, storeInLhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(
+                                       LHS_TYPE                           *lhs,
+                                       bdlat_TypeCategory::NullableValue,
+                                       const RHS_TYPE&amp;                     rhs,
+                                       RHS_CATEGORY)
+{
+    bdlat_SymbolicConverter_StoreInNullable&lt;LHS_TYPE&gt; storeInLhs(lhs, this);
+
+    return storeInLhs(rhs);
+}
+
+template &lt;class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE&gt;
+int bdlat_SymbolicConverter_Imp::convert(
+                                       LHS_TYPE                           *lhs,
+                                       LHS_CATEGORY,
+                                       const RHS_TYPE&amp;                     rhs,
+                                       bdlat_TypeCategory::NullableValue)
+{
+    enum { k_SUCCESS = 0 };
+
+    if (bdlat_NullableValueFunctions::isNull(rhs)) {
+        // ignore the value and let &#39;*lhs&#39; contain its *default* value
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    bdlat_SymbolicConverter_StoreValue&lt;LHS_TYPE&gt; storeIntoLhs(lhs, this);
+
+    return bdlat_NullableValueFunctions::accessValue(rhs, storeIntoLhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+int bdlat_SymbolicConverter_Imp::convert(
+                                      LHS_TYPE                            *lhs,
+                                      bdlat_TypeCategory::CustomizedType,
+                                      const RHS_TYPE&amp;                      rhs,
+                                      bdlat_TypeCategory::NullableValue)
+{
+    enum { k_SUCCESS = 0 };
+
+    if (bdlat_NullableValueFunctions::isNull(rhs)) {
+        // ignore the value and let &#39;*lhs&#39; contain its *default* value
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    bdlat_SymbolicConverter_StoreValue&lt;LHS_TYPE&gt; storeIntoLhs(lhs, this);
+
+    return bdlat_NullableValueFunctions::accessValue(rhs, storeIntoLhs);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(
+                                      LHS_TYPE                            *lhs,
+                                      bdlat_TypeCategory::CustomizedType,
+                                      const RHS_TYPE&amp;                      rhs,
+                                      bdlat_TypeCategory::CustomizedType)
+{
+    return convert(lhs,
+                   bdlat_CustomizedTypeFunctions::convertToBaseType(rhs));
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY&gt;
+int bdlat_SymbolicConverter_Imp::convert(
+                                      LHS_TYPE                            *lhs,
+                                      bdlat_TypeCategory::CustomizedType,
+                                      const RHS_TYPE&amp;                      rhs,
+                                      RHS_CATEGORY)
+{
+    enum { k_FAILURE = -5 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType&lt;LHS_TYPE&gt;::Type LhsBaseType;
+
+    LhsBaseType lhsBaseValue;
+
+    if (0 != convert(&amp;lhsBaseValue, rhs)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(lhs,
+                                                              lhsBaseValue);
+}
+
+template &lt;class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(
+                                      LHS_TYPE                            *lhs,
+                                      LHS_CATEGORY,
+                                      const RHS_TYPE&amp;                      rhs,
+                                      bdlat_TypeCategory::CustomizedType)
+{
+    return convert(lhs,
+                   bdlat_CustomizedTypeFunctions::convertToBaseType(rhs));
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(
+                                      LHS_TYPE                            *lhs,
+                                      bdlat_TypeCategory::NullableValue,
+                                      const RHS_TYPE&amp;                      rhs,
+                                      bdlat_TypeCategory::CustomizedType)
+{
+    return convert(lhs,
+                   bdlat_CustomizedTypeFunctions::convertToBaseType(rhs));
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE                    *lhs,
+                                         bdlat_TypeCategory::Simple,
+                                         const RHS_TYPE&amp;              rhs,
+                                         bdlat_TypeCategory::Simple)
+{
+    return bdlat_ValueTypeFunctions::assign(lhs, rhs);
+}
+
+template &lt;class LHS_TYPE,
+          class LHS_CATEGORY,
+          class RHS_TYPE,
+          class RHS_CATEGORY&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE        *,
+                                         LHS_CATEGORY,
+                                         const RHS_TYPE&amp;,
+                                         RHS_CATEGORY)
+{
+    enum { k_FAILURE = -6 };
+
+    return k_FAILURE;
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
+                                         LHS_TYPE                         *lhs,
+                                         bdlat_TypeCategory::DynamicType,
+                                         const RHS_TYPE&amp;                   rhs,
+                                         bdlat_TypeCategory::DynamicType)
+{
+    bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy&lt;
+                        LHS_TYPE,
+                        bdlat_TypeCategory::DynamicType&gt; proxy = { this, lhs };
+
+    return bdlat_TypeCategoryUtil::accessByCategory(rhs, proxy);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY&gt;
+inline
+int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
+                                          LHS_TYPE                        *lhs,
+                                          bdlat_TypeCategory::DynamicType,
+                                          const RHS_TYPE&amp;                  rhs,
+                                          RHS_CATEGORY)
+{
+    bdlat_SymbolicConverter_Imp_resolveDynamicLhsProxy&lt;
+                                          RHS_TYPE,
+                                          RHS_CATEGORY&gt; proxy = { this, &amp;rhs };
+
+    return bdlat_TypeCategoryUtil::manipulateByCategory(lhs, proxy);
+}
+
+template &lt;class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
+                                         LHS_TYPE                         *lhs,
+                                         LHS_CATEGORY,
+                                         const RHS_TYPE&amp;                   rhs,
+                                         bdlat_TypeCategory::DynamicType)
+{
+    bdlat_SymbolicConverter_Imp_resolveDynamicRhsProxy&lt;
+                                           LHS_TYPE,
+                                           LHS_CATEGORY&gt; proxy = { this, lhs };
+
+    return bdlat_TypeCategoryUtil::accessByCategory(rhs, proxy);
+}
+
+template &lt;class LHS_TYPE,
+          class LHS_CATEGORY,
+          class RHS_TYPE,
+          class RHS_CATEGORY&gt;
+inline
+int bdlat_SymbolicConverter_Imp::resolveDynamicTypes(
+                                                  LHS_TYPE        *lhs,
+                                                  LHS_CATEGORY     lhsCategory,
+                                                  const RHS_TYPE&amp;  rhs,
+                                                  RHS_CATEGORY     rhsCategory)
+{
+    return convert(lhs, lhsCategory, rhs, rhsCategory);
+}
+
+// CREATORS
+
+inline
+bdlat_SymbolicConverter_Imp::bdlat_SymbolicConverter_Imp(
+                                                     bsl::ostream *errorStream)
+: d_errorStream_p(errorStream)
+{
+    BSLS_ASSERT_SAFE(d_errorStream_p);
+}
+
+// MANIPULATORS
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_Imp::convert(LHS_TYPE        *lhs,
+                                         const RHS_TYPE&amp;  rhs)
+{
+    typedef typename bdlat_TypeCategory::Select&lt;LHS_TYPE&gt;::Type LhsCategory;
+    typedef typename bdlat_TypeCategory::Select&lt;RHS_TYPE&gt;::Type RhsCategory;
+
+    return resolveDynamicTypes(lhs, LhsCategory(), rhs, RhsCategory());
+}
+
+inline
+bsl::ostream&amp; bdlat_SymbolicConverter_Imp::errorStream()
+{
+    return *d_errorStream_p;
+}
+
+           // -----------------------------------------------------
+           // class bdlat_SymbolicConverter_StoreValue&lt;LVALUE_TYPE&gt;
+           // -----------------------------------------------------
+
+// CREATORS
+
+template &lt;class LVALUE_TYPE&gt;
+inline
+bdlat_SymbolicConverter_StoreValue&lt;LVALUE_TYPE&gt;::
+bdlat_SymbolicConverter_StoreValue(LVALUE_TYPE                 *destination,
+                                   bdlat_SymbolicConverter_Imp *imp)
+: d_destination_p(destination)
+, d_imp_p(imp)
+{
+}
+
+// ACCESSORS
+
+template &lt;class LVALUE_TYPE&gt;
+template &lt;class RVALUE_TYPE, class INFO_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_StoreValue&lt;LVALUE_TYPE&gt;::operator()(
+                                                     const RVALUE_TYPE&amp; object,
+                                                     const INFO_TYPE&amp;) const
+{
+    return d_imp_p-&gt;convert(d_destination_p, object);
+}
+
+template &lt;class LVALUE_TYPE&gt;
+template &lt;class RVALUE_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_StoreValue&lt;LVALUE_TYPE&gt;::operator()(
+                                               const RVALUE_TYPE&amp; object) const
+{
+    return d_imp_p-&gt;convert(d_destination_p, object);
+}
+
+            // ----------------------------------------------------
+            // class bdlat_SymbolicConverter_LoadValue&lt;RVALUE_TYPE&gt;
+            // ----------------------------------------------------
+
+// CREATORS
+
+template &lt;class RVALUE_TYPE&gt;
+inline
+bdlat_SymbolicConverter_LoadValue&lt;RVALUE_TYPE&gt;::
+                    bdlat_SymbolicConverter_LoadValue(
+                                            const RVALUE_TYPE&amp;           value,
+                                            bdlat_SymbolicConverter_Imp *imp)
+: d_imp_p(imp)
+, d_value(value)
+{
+}
+
+// ACCESSORS
+
+template &lt;class RVALUE_TYPE&gt;
+template &lt;class LVALUE_TYPE, class INFO_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_LoadValue&lt;RVALUE_TYPE&gt;::operator()(
+                                                        LVALUE_TYPE *object,
+                                                        const INFO_TYPE&amp;) const
+{
+    return d_imp_p-&gt;convert(object, d_value);
+}
+
+template &lt;class RVALUE_TYPE&gt;
+template &lt;class LVALUE_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_LoadValue&lt;RVALUE_TYPE&gt;::operator()(
+                                                     LVALUE_TYPE *object) const
+{
+    return d_imp_p-&gt;convert(object, d_value);
+}
+
+        // ------------------------------------------------------------
+        // class bdlat_SymbolicConverter_StoreInSequence&lt;SEQUENCE_TYPE&gt;
+        // ------------------------------------------------------------
+
+// CREATORS
+
+template &lt;class SEQUENCE_TYPE&gt;
+inline
+bdlat_SymbolicConverter_StoreInSequence&lt;SEQUENCE_TYPE&gt;::
+bdlat_SymbolicConverter_StoreInSequence(
+                                      SEQUENCE_TYPE               *destination,
+                                      bdlat_SymbolicConverter_Imp *imp)
+: d_destination_p(destination)
+, d_imp_p(imp)
+{
+}
+
+// ACCESSORS
+
+template &lt;class SEQUENCE_TYPE&gt;
+template &lt;class SOURCE_MEMBER_TYPE, class INFO_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_StoreInSequence&lt;SEQUENCE_TYPE&gt;::operator()(
+                                        const SOURCE_MEMBER_TYPE&amp; sourceMember,
+                                        const INFO_TYPE&amp;          info) const
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -7 };
+
+    bdlat_SymbolicConverter_LoadValue&lt;SOURCE_MEMBER_TYPE&gt; loadSourceValue(
+                                                                  sourceMember,
+                                                                  d_imp_p);
+
+    if (0 != bdlat_SequenceFunctions::manipulateAttribute(d_destination_p,
+                                                          loadSourceValue,
+                                                          info.name(),
+                                                          info.nameLength())) {
+        d_imp_p-&gt;errorStream()
+                 &lt;&lt; &quot;Failed to convert attribute &#39;&quot;
+                 &lt;&lt; bslstl::StringRef(info.name(), info.nameLength()) &lt;&lt; &quot;&#39;\n&quot;;
+
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return k_SUCCESS;
+}
+
+          // --------------------------------------------------------
+          // class bdlat_SymbolicConverter_StoreInChoice&lt;CHOICE_TYPE&gt;
+          // --------------------------------------------------------
+
+// CREATORS
+
+template &lt;class CHOICE_TYPE&gt;
+inline
+bdlat_SymbolicConverter_StoreInChoice&lt;CHOICE_TYPE&gt;::
+bdlat_SymbolicConverter_StoreInChoice(CHOICE_TYPE                 *destination,
+                                      bdlat_SymbolicConverter_Imp *imp)
+: d_destination_p(destination)
+, d_imp_p(imp)
+{
+}
+
+// ACCESSORS
+
+template &lt;class CHOICE_TYPE&gt;
+template &lt;class SOURCE_MEMBER_TYPE, class INFO_TYPE&gt;
+int bdlat_SymbolicConverter_StoreInChoice&lt;CHOICE_TYPE&gt;::operator()(
+                                        const SOURCE_MEMBER_TYPE&amp; sourceMember,
+                                        const INFO_TYPE&amp;          info) const
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -8 };
+
+    // Make the selection.
+
+    if (0 != bdlat_ChoiceFunctions::makeSelection(d_destination_p,
+                                                  info.name(),
+                                                  info.nameLength())) {
+        d_imp_p-&gt;errorStream()
+                 &lt;&lt; &quot;Failed to make selection &#39;&quot;
+                 &lt;&lt; bslstl::StringRef(info.name(), info.nameLength()) &lt;&lt; &quot;&#39;\n&quot;;
+
+        return k_FAILURE;                                             // RETURN
+    }
+
+    // Assign the value.
+
+    bdlat_SymbolicConverter_LoadValue&lt;SOURCE_MEMBER_TYPE&gt; loadSourceValue(
+                                                                  sourceMember,
+                                                                  d_imp_p);
+
+    if (0 != bdlat_ChoiceFunctions::manipulateSelection(d_destination_p,
+                                                        loadSourceValue)) {
+        d_imp_p-&gt;errorStream()
+                 &lt;&lt; &quot;Failed to convert selection &#39;&quot;
+                 &lt;&lt; bslstl::StringRef(info.name(), info.nameLength()) &lt;&lt; &quot;&#39;\n&quot;;
+
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return k_SUCCESS;
+}
+
+       // -------------------------------------------------------------
+       // class bdlat_SymbolicConverter_StoreInArrayElement&lt;ARRAY_TYPE&gt;
+       // -------------------------------------------------------------
+
+// CREATORS
+
+template &lt;class ARRAY_TYPE&gt;
+inline
+bdlat_SymbolicConverter_StoreInArrayElement&lt;ARRAY_TYPE&gt;::
+bdlat_SymbolicConverter_StoreInArrayElement(ARRAY_TYPE                  *array,
+                                            int                          index,
+                                            bdlat_SymbolicConverter_Imp *imp)
+: d_array_p(array)
+, d_imp_p(imp)
+, d_index(index)
+{
+}
+
+// ACCESSORS
+
+template &lt;class ARRAY_TYPE&gt;
+template &lt;class SOURCE_ELEMENT_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_StoreInArrayElement&lt;ARRAY_TYPE&gt;::operator()(
+                                const SOURCE_ELEMENT_TYPE&amp; sourceElement) const
+{
+    bdlat_SymbolicConverter_LoadValue&lt;SOURCE_ELEMENT_TYPE&gt; loadSourceValue(
+                                                                 sourceElement,
+                                                                 d_imp_p);
+
+    return bdlat_ArrayFunctions::manipulateElement(d_array_p,
+                                                   loadSourceValue,
+                                                   d_index);
+}
+
+        // ------------------------------------------------------------
+        // class bdlat_SymbolicConverter_StoreInNullable&lt;NULLABLE_TYPE&gt;
+        // ------------------------------------------------------------
+
+// CREATORS
+
+template &lt;class NULLABLE_TYPE&gt;
+inline
+bdlat_SymbolicConverter_StoreInNullable&lt;NULLABLE_TYPE&gt;::
+bdlat_SymbolicConverter_StoreInNullable(
+                                      NULLABLE_TYPE               *destination,
+                                      bdlat_SymbolicConverter_Imp *imp)
+: d_destination_p(destination)
+, d_imp_p(imp)
+{
+}
+
+// ACCESSORS
+
+template &lt;class NULLABLE_TYPE&gt;
+template &lt;class VALUE_TYPE&gt;
+inline
+int bdlat_SymbolicConverter_StoreInNullable&lt;NULLABLE_TYPE&gt;::operator()(
+                                                 const VALUE_TYPE&amp; value) const
+{
+    bdlat_NullableValueFunctions::makeValue(d_destination_p);
+
+    // Assign the value.
+
+    bdlat_SymbolicConverter_LoadValue&lt;VALUE_TYPE&gt; loadSourceValue(value,
+                                                                  d_imp_p);
+
+    return bdlat_NullableValueFunctions::manipulateValue(d_destination_p,
+                                                         loadSourceValue);
+}
+
+                       // ------------------------------
+                       // struct bdlat_SymbolicConverter
+                       // ------------------------------
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter::convert(LHS_TYPE        *lhs,
+                                     const RHS_TYPE&amp;  rhs)
+{
+    bsl::ostream nullStream(0);
+    return bdlat_SymbolicConverter::convert(lhs, rhs, nullStream);
+}
+
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
+inline
+int bdlat_SymbolicConverter::convert(LHS_TYPE        *lhs,
+                                     const RHS_TYPE&amp;  rhs,
+                                     bsl::ostream&amp;    errorStream)
+{
+    bdlat_ValueTypeFunctions::reset(lhs);
+
+    bdlat_SymbolicConverter_Imp imp(&amp;errorStream);
+
+    return imp.convert(lhs, rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

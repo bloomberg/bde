@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_nestedtraitdeclaration Component</title>
+<title>BDE 3.0: bslmf_nestedtraitdeclaration Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -137,12 +137,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates the intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="usage.example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="description.usage.example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Testing a Type for a Custom Trait: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>When writing generic infrastructure code, we often need to choose among multiple code paths based on the capabilities of the types on which we are operating. If those capabilities are reflected in a type's public interface, we may be able to use techniques such as SFINAE to choose the appropriate code path. However, SFINAE cannot detect all of a type's capabilities. In particular, SFINAE cannot detect constructors, memory allocation, thread-safety characteristics, and so on. Functions that depend on these capabilities must use another technique to determine the correct code path to use for a given type. We can solve this sort of problem by associating types with custom traits that indicate what capabilities are provided by a given type. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, assume that a compatible trait, <code>abcd::RequiresLockTrait</code>, has been defined that indicates that a type's methods must not be called unless a known lock it first acquired: <br/>
+<dl class="user"><dt><b></b></dt><dd>First, assume that a compatible trait, <code>abcd::RequiresLockTrait</code>, has been defined that indicates that a type's methods must not be called unless a known lock is first acquired: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>abcd { <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt; <span class="keyword">struct </span>RequiresLockTrait; }
 </pre></div><br/>
@@ -199,7 +199,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, code interacting with <code>xyza::DoesNotRequireLockType</code>, <code>xyza::RequiresLockType</code> or <code>xyza::Container</code> objects will be able to choose the appropriate code path by checking for the <code>abcd::RequiresLockTrait</code> trait. See <code>bslmf_detectnestedtrait</code> for an example of how generic code would use such a trait. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

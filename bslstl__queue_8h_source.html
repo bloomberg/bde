@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_queue.h                                                     -*-C++-*-
@@ -210,9 +210,9 @@ struct Queue_HasAllocatorType {
     struct NoType { char a[2]; };
 
   public:
-    template &lt;typename TYPE&gt;
+    template &lt;class TYPE&gt;
     static YesType match(const typename TYPE::allocator_type *);
-    template &lt;typename TYPE&gt;
+    template &lt;class TYPE&gt;
     static NoType match(...);
 
     enum { VALUE = (sizeof(YesType) == sizeof(match&lt;CONTAINER&gt;(0))) };

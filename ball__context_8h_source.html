@@ -1,0 +1,541 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_context.h                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_CONTEXT
+#define INCLUDED_BALL_CONTEXT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for the context of a transmitted log record.
+//
+//@CLASSES:
+//  ball::Context: context of a transmitted log record
+//
+//@SEE_ALSO: ball_transmission, ball_observer, ball_record
+//
+//@DESCRIPTION: This component defines a container for aggregating a message&#39;s
+// publication cause, as well as the record (or message) index and sequence
+// length of messages delivered as part of a message sequence.  Note that
+// messages that are not part of a sequence (i.e., PASSTHROUGH) will have the
+// index and sequence length fields set to 0 and 1, respectively.
+//
+// The context attributes held by &#39;ball::Context&#39; are detailed in the following
+// table:
+//..
+//  Attribute          Type                      Description        Default
+//  -----------------  ------------------------  -----------------  -----------
+//  transmissionCause  ball::Transmission::Cause cause of output    PASSTHROUGH
+//  recordIndex        int                       index in sequence  0
+//  sequenceLength     int                       # records in seq.  1
+//..
+//
+///Constraints
+///-----------
+// This attribute class assumes that the following constraints on contained
+// values hold:
+//..
+//    if (ball::Transmission::e_PASSTHROUGH == transmissionCause()) {
+//        assert(0 == recordIndex());
+//        assert(1 == sequenceLength());
+//    }
+//    else {
+//        assert(
+//         ball::Transmission::e_TRIGGER            == transmissionCause()
+//      || ball::Transmission::e_TRIGGER_ALL        == transmissionCause()
+//      || ball::Transmission::e_MANUAL_PUBLISH     == transmissionCause()
+//      || ball::Transmission::e_MANUAL_PUBLISH_ALL == transmissionCause());
+//        assert(0 &lt;= recordIndex());
+//        assert(1 &lt;= sequenceLength());
+//        assert(recordIndex() &lt; sequenceLength());
+//    }
+//..
+// A static &#39;isValid&#39; method is provided to verify that particular
+// &#39;transmissionCause&#39;, &#39;recordIndex&#39;, and &#39;sequenceLength&#39; values are valid
+// before they are used to create or (unilaterally) modify a context object.
+//
+///Usage
+///-----
+// A &#39;ball::Context&#39; object holds sufficient information to determine the
+// length of a message sequence and the index of a message within that
+// sequence.  In addition, &#39;ball::Context&#39; indicates the cause for the
+// transmission of a message.  The following example illustrates the essentials
+// of working with these contextual attributes.
+//
+// This example illustrates the use of &#39;ball::Context&#39; by a hypothetical
+// logging system.  First we define a simple logger class named &#39;my_Logger&#39;:
+//..
+//    // my_logger.h
+//
+//    #include &lt;string&gt;
+//    #include &lt;vector&gt;
+//
+//    class my_Logger {
+//
+//        bsl::vector&lt;bsl::string&gt; archive;  // log message archive
+//
+//        // NOT IMPLEMENTED
+//        my_Logger(const my_Logger&amp;);
+//        my_Logger&amp; operator=(const my_Logger&amp;);
+//
+//        // PRIVATE MANIPULATORS
+//        void publish(const bsl::string&amp;  message,
+//                     const ball::Context&amp; context);
+//
+//      public:
+//        // TYPES
+//        enum Severity { ERROR = 0, WARN = 1, TRACE = 2 };
+//
+//        // CREATORS
+//        my_Logger();
+//        ~my_Logger();
+//
+//        // MANIPULATORS
+//        void logMessage(const bsl::string&amp; message, Severity severity);
+//    };
+//..
+// Clients of &#39;my_Logger&#39; log messages at one of three severity levels through
+// the &#39;logMessage&#39; method.  Messages logged with &#39;TRACE&#39; severity are simply
+// archived by &#39;my_Logger&#39;.  Messages logged with &#39;WARN&#39; severity are archived
+// and also output to &#39;stdout&#39; (say, to a console terminal overseen by an
+// operator) through the &#39;publish&#39; method.  Messages logged with &#39;ERROR&#39;
+// severity report serious conditions; these trigger a dump of the backlog of
+// messages that &#39;my_Logger&#39; has archived to that point.  The &#39;ball::Context&#39;
+// argument passed to &#39;publish&#39; provides contextual information regarding the
+// message it is being asked to publish.
+//
+// A complete implementation of this trivial logger follows:
+//..
+//    // my_Logger.cpp
+//
+//    // PRIVATE MANIPULATORS
+//    void my_Logger::publish(const bsl::string&amp;  message,
+//                            const ball::Context&amp; context)
+//    {
+//        using namespace std;
+//
+//        switch (context.transmissionCause()) {
+//          case ball::Transmission::e_PASSTHROUGH: {
+//            cout &lt;&lt; &quot;Single Pass-through Message: &quot;;
+//          } break;
+//          case ball::Transmission::e_TRIGGER_ALL: {
+//            cout &lt;&lt; &quot;Remotely &quot;;               // no &#39;break&#39;; concatenated
+//                                               // output
+//          } break;
+//          case ball::Transmission::e_TRIGGER: {
+//            cout &lt;&lt; &quot;Triggered Publication Sequence: Message &quot;
+//                 &lt;&lt; context.recordIndex() + 1  // Account for 0-based index.
+//                 &lt;&lt; &quot; of &quot; &lt;&lt; context.sequenceLength() &lt;&lt; &quot;: &quot;;
+//          } break;
+//          case ball::Transmission::e_MANUAL_PUBLISH: {
+//            cout &lt;&lt; &quot;Manually triggered Message: &quot;;
+//          } break;
+//          default: {
+//            cout &lt;&lt; &quot;***ERROR*** Unsupported Message Cause: &quot;;
+//            return;
+//          } break;
+//        }
+//        cout &lt;&lt; message &lt;&lt; endl;
+//    }
+//
+//    // CREATORS
+//    my_Logger::my_Logger() { }
+//    my_Logger::~my_Logger() { }
+//
+//    // MANIPULATORS
+//    void my_Logger::logMessage(const bsl::string&amp; message, Severity severity)
+//    {
+//        archive.append(message);
+//        switch (severity) {
+//          case TRACE: {
+//            // Do nothing beyond archiving the message.
+//          } break;
+//          case WARN: {
+//            ball::Context context(ball::Transmission::e_PASSTHROUGH,
+//                                  0,
+//                                  1);
+//            publish(message, context);
+//          } break;
+//          case ERROR: {
+//            int index  = 0;
+//            int length = archive.length();
+//            ball::Context context(ball::Transmission::e_TRIGGER,
+//                                 index, length);
+//            while (length--) {
+//                publish(archive[length], context);
+//                context.setRecordIndexRaw(++index);
+//            }
+//            archive.removeAll();  // flush archive
+//          } break;
+//        }
+//    }
+//..
+// Note that &#39;ball::Transmission::e_TRIGGER_ALL&#39; is not used by &#39;my_Logger&#39;,
+// but is included in the switch statement for completeness.
+//
+// Finally, we declare a &#39;my_Logger&#39; named &#39;logger&#39; and simulate the logging of
+// several messages of varying severity:
+//..
+//      my_Logger   logger;
+//      bsl::string message;
+//
+//      message = &quot;TRACE 1&quot;;  logger.logMessage(message, my_Logger::TRACE);
+//      message = &quot;TRACE 2&quot;;  logger.logMessage(message, my_Logger::TRACE);
+//      message = &quot;WARNING&quot;;  logger.logMessage(message, my_Logger::WARN);
+//      message = &quot;TRACE 3&quot;;  logger.logMessage(message, my_Logger::TRACE);
+//      message = &quot;TROUBLE!&quot;; logger.logMessage(message, my_Logger::ERROR);
+//..
+// The following output is produced on &#39;stdout&#39;:
+//..
+//      Single Pass-through Message: WARNING
+//      Triggered Publication Sequence: Message 1 of 5: TROUBLE!
+//      Triggered Publication Sequence: Message 2 of 5: TRACE 3
+//      Triggered Publication Sequence: Message 3 of 5: WARNING
+//      Triggered Publication Sequence: Message 4 of 5: TRACE 2
+//      Triggered Publication Sequence: Message 5 of 5: TRACE 1
+//..
+// Note that the warning message (severity &#39;WARN&#39;) was emitted first since the
+// trace messages (severity &#39;TRACE&#39;) were simply archived.  When the error
+// message (severity &#39;ERROR&#39;) was logged, it triggered a dump of the complete
+// message archive (in reverse order).
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_TRANSMISSION
+#include &lt;ball_transmission.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+namespace ball {
+                        // =============
+                        // class Context
+                        // =============
+
+class Context {
+    // This class provides a container for aggregating the auxiliary
+    // information needed to transmit a log record.  For each context attribute
+    // in this class (e.g., &#39;recordIndex&#39;), there is an accessor for obtaining
+    // the attribute&#39;s value (&#39;recordIndex&#39;) and there are manipulators for
+    // changing the contained attribute values (&#39;setAttributes&#39; checks
+    // attribute constraints; &#39;setAttributesRaw&#39; and &#39;setRecordIndexRaw&#39; do
+    // not).  A static &#39;isValid&#39; method is also provided to verify that
+    // particular attribute values are consistent before they are used to
+    // create or modify a context object.  Note that it is the client&#39;s
+    // responsibility not to construct or unilaterally modify a context object
+    // to hold incompatible attribute values.
+    //
+    // Additionally, this class supports a complete set of *value* *semantic*
+    // operations, including copy construction, assignment and equality
+    // comparison, and &#39;ostream&#39; printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of &#39;operator==&#39; for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: if an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
+
+    // DATA
+    Transmission::Cause d_transmissionCause;  // cause of transmitted record
+    int                 d_recordIndex;        // 0-based index within sequence
+    int                 d_sequenceLength;     // number of records in sequence
+
+    // PRIVATE TYPES
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    // FRIENDS
+    friend bool operator==(const Context&amp;, const Context&amp;);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Context, bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static bool isValid(Transmission::Cause transmissionCause,
+                        int                 recordIndex,
+                        int                 sequenceLength);
+        // Return &#39;true&#39; if the specified &#39;transmissionCause&#39;, &#39;recordIndex&#39;,
+        // and &#39;sequenceLength&#39; represent a valid context, and &#39;false&#39;
+        // otherwise.  (See the CONSTRAINTS section of the component-level
+        // documentation above for a complete specification of the constraints
+        // on attribute values.)
+
+
+    // CREATORS
+    Context(bslma::Allocator *basicAllocator = 0);
+        // Create a context object with all attributes having default values.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    Context(Transmission::Cause  transmissionCause,
+            int                  recordIndex,
+            int                  sequenceLength,
+            bslma::Allocator    *basicAllocator = 0);
+        // Create a context object indicating the specified
+        // &#39;transmissionCause&#39;, &#39;recordIndex&#39;, and &#39;sequenceLength&#39; values.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined if the resulting attribute values
+        // are incompatible.
+
+    Context(const Context&amp;    original,
+            bslma::Allocator *basicAllocator = 0);
+        // Create a context object having the value of the specified &#39;original&#39;
+        // context object.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    // ~Context();
+        // Destroy this context object.  Note that this trivial destructor is
+        // generated by the compiler.
+
+    // MANIPULATORS
+    Context&amp; operator=(const Context&amp; rhs);
+        // Assign to this context object the value of the specified &#39;rhs&#39;
+        // context object.
+
+    int setAttributes(Transmission::Cause transmissionCause,
+                      int                 recordIndex,
+                      int                 sequenceLength);
+        // Set the value of this context object to the specified
+        // &#39;transmissionCause&#39;, &#39;recordIndex&#39;, and &#39;sequenceLength&#39; values if
+        // &#39;transmissionCause&#39;, &#39;recordIndex&#39;, and &#39;sequenceLength&#39; represent a
+        // valid context.  Return 0 on success, and a non-zero value (with no
+        // effect on this context object) otherwise.
+
+    void setAttributesRaw(Transmission::Cause transmissionCause,
+                          int                 recordIndex,
+                          int                 sequenceLength);
+        // Set the value of this context object to the specified
+        // &#39;transmissionCause&#39;, &#39;recordIndex&#39;, and &#39;sequenceLength&#39; values.
+        // The behavior is undefined if the resulting attribute values are
+        // incompatible.
+
+    void setRecordIndexRaw(int index);
+        // Set the record index attribute of this context object to the
+        // specified &#39;index&#39;.  The behavior is undefined if the resulting
+        // attribute values are incompatible.
+
+    // ACCESSORS
+    Transmission::Cause transmissionCause() const;
+        // Return the transmission cause attribute of this context object.
+
+    int recordIndex() const;
+        // Return the record index attribute of this context object.
+
+    int sequenceLength() const;
+        // Return the sequence length attribute of this context object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const Context&amp; lhs, const Context&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; context objects have the
+    // same value, and &#39;false&#39; otherwise.  Two context objects have the same
+    // value if each respective pair of corresponding attributes have the same
+    // value.
+
+bool operator!=(const Context&amp; lhs, const Context&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; context objects do not
+    // have the same value, and &#39;false&#39; otherwise.  Two context objects do not
+    // have the same value if one or more respective attributes differ in
+    // value.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Context&amp; rhs);
+    // Write the specified &#39;rhs&#39; context to the specified output &#39;stream&#39; and
+    // return a reference to the modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // -------------
+                        // class Context
+                        // -------------
+
+// CREATORS
+inline
+Context::Context(bslma::Allocator *basicAllocator)
+: d_transmissionCause(Transmission::e_PASSTHROUGH)
+, d_recordIndex(0)
+, d_sequenceLength(1)
+{
+    (void) basicAllocator;
+}
+
+inline
+Context::Context(Transmission::Cause  transmissionCause,
+                 int                  recordIndex,
+                 int                  sequenceLength,
+                 bslma::Allocator    *basicAllocator)
+: d_transmissionCause(transmissionCause)
+, d_recordIndex(recordIndex)
+, d_sequenceLength(sequenceLength)
+{
+    (void) basicAllocator;
+}
+
+inline
+Context::Context(const Context&amp;    original,
+                 bslma::Allocator *basicAllocator)
+: d_transmissionCause(original.d_transmissionCause)
+, d_recordIndex(original.d_recordIndex)
+, d_sequenceLength(original.d_sequenceLength)
+{
+    (void) basicAllocator;
+}
+
+// MANIPULATORS
+inline
+Context&amp; Context::operator=(const Context&amp; rhs)
+{
+    d_transmissionCause = rhs.d_transmissionCause;
+    d_recordIndex       = rhs.d_recordIndex;
+    d_sequenceLength    = rhs.d_sequenceLength;
+    return *this;
+}
+
+inline
+void Context::setAttributesRaw(Transmission::Cause transmissionCause,
+                               int                 recordIndex,
+                               int                 sequenceLength)
+{
+    d_transmissionCause = transmissionCause;
+    d_recordIndex       = recordIndex;
+    d_sequenceLength    = sequenceLength;
+}
+
+inline
+int Context::setAttributes(Transmission::Cause transmissionCause,
+                           int                 recordIndex,
+                           int                 sequenceLength)
+{
+    if (isValid(transmissionCause, recordIndex, sequenceLength)) {
+        setAttributesRaw(transmissionCause, recordIndex, sequenceLength);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+void Context::setRecordIndexRaw(int index)
+{
+    d_recordIndex = index;
+}
+
+// ACCESSORS
+inline
+Transmission::Cause Context::transmissionCause() const
+{
+    return d_transmissionCause;
+}
+
+inline
+int Context::recordIndex() const
+{
+    return d_recordIndex;
+}
+
+inline
+int Context::sequenceLength() const
+{
+    return d_sequenceLength;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const Context&amp; lhs, const Context&amp; rhs)
+{
+    return lhs.d_transmissionCause == rhs.d_transmissionCause
+        &amp;&amp; lhs.d_recordIndex       == rhs.d_recordIndex
+        &amp;&amp; lhs.d_sequenceLength    == rhs.d_sequenceLength;
+}
+
+inline
+bool ball::operator!=(const Context&amp; lhs, const Context&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp; stream, const Context&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

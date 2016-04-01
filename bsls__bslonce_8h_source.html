@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_bslonce.h                                                     -*-C++-*-
@@ -20,8 +20,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a pair of classes, &#39;bsls::BslOnce&#39;
 // and &#39;bsls::BslOnceGuard&#39;, which give the caller a way to run a block of
 // code exactly once within the current process, particularly in the presence
@@ -33,8 +31,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // sections using a spin-lock.  Equivalent components that are more robust and
 // efficient will be provided at a higher level (see &#39;bcemt_once&#39;).
 //
-// A &#39;bsls::Bslnce&#39; object can be statically initialized using the
-// &#39;BSLS_BSLONCE_INTIALIZER&#39; macro.
+// A &#39;bsls::BslOnce&#39; object can be statically initialized using the
+// &#39;BSLS_BSLONCE_INITIALIZER&#39; macro.
 //
 ///Usage
 ///-----
@@ -110,10 +108,10 @@ struct BslOnce {
      // This &#39;struct&#39; provides a simple data type for ensuring a block of code
      // is executed (only) once.  Note that this is defined as a &#39;struct&#39; to
      // allow constant initialization in a global or static context using
-     // BSLS_BSLONCE_INTIALIZER.
+     // &#39;BSLS_BSLONCE_INITIALIZER&#39;.
 
   public:
-     // PUBLID DATA
+     // PUBLIC DATA
      bsls::AtomicOperations::AtomicTypes::Int d_onceState;
                            // The state of the one-time block of code managed
                            // by this object (must be one of the &#39;State&#39;

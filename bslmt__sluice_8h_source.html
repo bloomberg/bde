@@ -1,0 +1,247 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_sluice.h                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_SLUICE
+#define INCLUDED_BSLMT_SLUICE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a &quot;sluice&quot; class.
+//
+//@CLASSES:
+//  bslmt::Sluice: thread-aware sluice class
+//
+//@SEE_ALSO: bslmt_conditionimpl_win32
+//
+//@DESCRIPTION: This component provides a &quot;sluice&quot; class, &#39;bslmt::Sluice&#39;.  A
+// sluice is useful for controlling the release of threads from a common
+// synchronization point.  One or more threads may &quot;enter&quot; a &#39;bslmt::Sluice&#39;
+// object (via the &#39;enter&#39; method), and then wait to be released (via either
+// the &#39;wait&#39; or &#39;timedWait&#39; method).  Either one waiting thread (via the
+// &#39;signalOne&#39; method), or all waiting threads (via the &#39;signalAll&#39; method),
+// may be signaled for release.  In either case, &#39;bslmt::Sluice&#39; provides a
+// guarantee against starvation; newly-entering threads will not indefinitely
+// prevent threads that previously entered from being signaled.
+//
+///Supported Clock-Types
+///---------------------
+// The component &#39;bsls::SystemClockType&#39; supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_REALTIME&#39;, the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)&#39;.  If the
+// clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_MONOTONIC&#39;, the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)&#39;.
+//
+///Usage
+///-----
+// &#39;bslmt::Sluice&#39; is intended to be used to implement other synchronization
+// mechanisms.  In particular, the functionality provided by &#39;bslmt::Sluice&#39; is
+// useful for implementing a condition variable:
+//..
+//  class MyCondition {
+//      // This class implements a condition variable based on &#39;bslmt::Sluice&#39;.
+//
+//      // DATA
+//      bslmt::Sluice d_waitSluice;  // sluice object
+//
+//    public:
+//      // MANIPULATORS
+//      void wait(bslmt::Mutex *mutex)
+//      {
+//          const void *token = d_waitSluice.enter();
+//          mutex-&gt;unlock();
+//          d_waitSluice.wait(token);
+//          mutex-&gt;lock();
+//      }
+//
+//      void signal()
+//      {
+//          d_waitSluice.signalOne();
+//      }
+//
+//      void broadcast()
+//      {
+//          d_waitSluice.signalAll();
+//      }
+//  };
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHORE
+#include &lt;bslmt_timedsemaphore.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include &lt;bsls_systemclocktype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                               // ============
+                               // class Sluice
+                               // ============
+
+class Sluice {
+    // This class controls the release of threads from a common synchronization
+    // point.  One or more threads may &quot;enter&quot; a &#39;Sluice&#39; object, and then wait
+    // to be released.  Either one waiting thread (via the &#39;signalOne&#39; method),
+    // or all waiting threads (via the &#39;signalAll&#39; method), may be signaled for
+    // release.  In any case, &#39;Sluice&#39; provides a guarantee against starvation.
+
+  private:
+    // PRIVATE TYPES
+    struct GenerationDescriptor {
+        // This object represents one &quot;generation&quot; in a sluice.  A generation
+        // begins when a thread enters the sluice, and ends (ceases accepting
+        // new entering threads) when &#39;signalOne&#39; or &#39;signalAll&#39; is invoked.
+        // The last thread in the generation to invoke &#39;wait&#39; is responsible
+        // for returning the descriptor to the pool.
+
+        // DATA
+        int                   d_numThreads;   // number of threads entered, but
+                                              // not yet finished waiting
+
+        int                   d_numSignaled;  // number of threads signaled,
+                                              // but not yet finished waiting
+
+        TimedSemaphore        d_sema;         // semaphore on which to wait
+
+        GenerationDescriptor *d_next;         // pointer to the next free
+                                              // descriptor in the pool
+
+        // CREATORS
+        explicit GenerationDescriptor(bsls::SystemClockType::Enum clockType);
+            // Create a generation descriptor object with the specified
+            // &#39;clockType&#39;.
+    };
+
+    // DATA
+    Mutex                 d_mutex;               // for synchronizing access to
+                                                 // data members
+
+    GenerationDescriptor *d_signaledGeneration;  // generation in which at
+                                                 // least one, but not all,
+                                                 // threads have been signaled
+
+    GenerationDescriptor *d_pendingGeneration;   // generation in which no
+                                                 // threads have been signaled
+                                                 // yet
+
+    GenerationDescriptor *d_descriptorPool;      // pool of available
+                                                 // generation descriptors
+
+    bsls::SystemClockType::Enum
+                          d_clockType;           // the type of clock used for
+                                                 // timeout in &#39;timedWait&#39;
+
+    bslma::Allocator     *d_allocator_p;         // memory allocator (held, not
+                                                 // owned)
+
+    // NOT IMPLEMENTED
+    Sluice(const Sluice&amp;);
+    Sluice&amp; operator=(const Sluice&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    Sluice(bslma::Allocator *basicAllocator = 0);
+    explicit
+    Sluice(bsls::SystemClockType::Enum  clockType,
+           bslma::Allocator            *basicAllocator = 0);
+        // Create a sluice.  Optionally specify a &#39;clockType&#39; indicating the
+        // type of the system clock against which the &#39;bsls::TimeInterval&#39;
+        // timeouts passed to the &#39;timedWait&#39; method are to be interpreted.  If
+        // &#39;clockType&#39; is not specified then the realtime system clock is used.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    ~Sluice();
+        // Destroy this sluice.
+
+    // MANIPULATORS
+    const void *enter();
+        // Enter this sluice, and return the token on which the calling thread
+        // must subsequently wait.  The behavior is undefined unless &#39;wait&#39; or
+        // &#39;timedWait&#39; is invoked with the token before this sluice is
+        // destroyed.
+
+    void signalAll();
+        // Signal all threads that have entered this sluice and have not yet
+        // been released.
+
+    void signalOne();
+        // Signal one thread that has entered this sluice and has not yet been
+        // released.
+
+    int timedWait(const void *token, const bsls::TimeInterval&amp; timeout);
+        // Wait for the specified &#39;token&#39; to be signaled, or until the
+        // specified &#39;timeout&#39; expires.  The &#39;timeout&#39; is an absolute time
+        // represented as an interval from some epoch, which is determined by
+        // the clock indicated at construction (see {&#39;Supported Clock-Types&#39;}
+        // in the component documentation).  Return 0 on success, and a
+        // non-zero value on timeout.  The &#39;token&#39; is released whether or not a
+        // timeout occurred.  The behavior is undefined unless &#39;token&#39; was
+        // obtained from a call to &#39;enter&#39; by this thread, and was not
+        // subsequently released (via a call to &#39;timedWait&#39; or &#39;wait&#39;).
+
+    void wait(const void *token);
+        // Wait for the specified &#39;token&#39; to be signaled, and release the
+        // &#39;token&#39;.  The behavior is undefined unless &#39;token&#39; was obtained from
+        // a call to &#39;enter&#39; by this thread, and was not subsequently released
+        // (via a call to &#39;timedWait&#39; or &#39;wait&#39;).
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

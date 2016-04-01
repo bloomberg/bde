@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_deque.h                                                     -*-C++-*-
@@ -495,7 +495,7 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
     //
     // More generally, this class supports an almost complete set of *in-core*
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison (but excluding &#39;ostream&#39; printing since this is
+    // equality comparison (but excluding &#39;ostream&#39; printing since this
     // component is below STL).  A precise operational definition of when two
     // objects have the same value can be found in the description of
     // &#39;operator==&#39; for the class.  This class is *exception* *neutral* with no
@@ -592,9 +592,11 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
     size_type privateAppend(INPUT_ITER                     first,
                             INPUT_ITER                     last,
                             std::random_access_iterator_tag);
-        // Append the elements in the range specified as &#39;[first, last)&#39; to
+        // Append the elements in the range specified as &#39;[first .. last)&#39; to
         // this deque, and return the number of elements appended.  The third
-        // argument is used for overload resolution.
+        // argument is used for overload resolution.  The behavior is undefined
+        // unless &#39;first&#39; and &#39;last&#39; refer to a sequence of valid values where
+        // &#39;first&#39; is at a position at or before &#39;last&#39;.
 
     void privateAppendRaw(size_type numElements, const VALUE_TYPE&amp; value);
         // Append the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
@@ -622,7 +624,7 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // into this deque at the specified &#39;position&#39;.  This overload matches
         // &#39;privateInsert&#39; when the second and third arguments are of the same
         // type which happens to be an integral type.  The fourth and fifth
-        // arguments are used only for overload resolution.
+        // arguments are used for overload resolution only.
 
     template &lt;class INPUT_ITER&gt;
     void privateInsertDispatch(const_iterator                   position,
@@ -630,10 +632,13 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
                                INPUT_ITER                       last,
                                BloombergLP::bslmf::MatchAnyType ,
                                BloombergLP::bslmf::MatchAnyType );
-        // Insert the elements in the range specified as &#39;[first, last)&#39; into
+        // Insert the elements in the range specified as &#39;[first .. last)&#39; into
         // this deque at the specified &#39;position&#39;.  The third and fourth
-        // arguments are used only for overload resolution so that this
+        // arguments are used for overload resolution only, so that this
         // function is not called if &#39;first&#39; and &#39;last&#39; are of integral type.
+        // The behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer to a
+        // sequence of valid values where &#39;first&#39; is at a position at or before
+        // &#39;last&#39;.
 
     template &lt;class INPUT_ITER&gt;
     void privateInsert(const_iterator            position,
@@ -672,9 +677,11 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
     size_type privatePrepend(INPUT_ITER                        first,
                              INPUT_ITER                        last,
                              std::random_access_iterator_tag);
-        // Prepend the elements in the range specified as &#39;[first, last)&#39; to
+        // Prepend the elements in the range specified as &#39;[first .. last)&#39; to
         // this deque, and return the number of elements appended.  The third
-        // argument is used only for overload resolution.
+        // argument is used for overload resolution only.  The behavior is
+        // undefined unless &#39;first&#39; and &#39;last&#39; refer to a sequence of valid
+        // values where &#39;first&#39; is at a position at or before &#39;last&#39;.
 
     void privatePrependRaw(size_type numElements, const VALUE_TYPE&amp; value);
         // Prepend the specified &#39;numElements&#39; copies of the specified &#39;value&#39;
@@ -682,8 +689,8 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
 
     void privateSplit(deque *other, IteratorImp pos);
         // Split this deque in two.  After the split, &#39;*this&#39; contains elements
-        // formerly in the range &#39;[d_start, pos)&#39; and the specified &#39;other&#39;
-        // contains elements formerly in the range &#39;[pos, d_finish)&#39;.  The
+        // formerly in the range &#39;[d_start .. pos)&#39; and the specified &#39;other&#39;
+        // contains elements formerly in the range &#39;[pos .. d_finish)&#39;.  The
         // behavior is undefined unless &#39;other&#39; is a raw deque, i.e., the
         // &#39;RawInit&#39; constructor is used to create &#39;other&#39;.
 
@@ -733,8 +740,10 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // &#39;INPUT_ITER&#39; type.  Optionally specify the &#39;basicAllocator&#39; used to
         // supply memory.  If &#39;basicAllocator&#39; is not specified, a
         // default-constructed allocator is used.  Throw &#39;bsl::length_error&#39; if
-        // the number of elements in &#39;[ first, last )&#39; exceeds the size
-        // returned by &#39;max_size&#39;.
+        // the number of elements in &#39;[first .. last)&#39; exceeds the size
+        // returned by &#39;max_size&#39;.  The behavior is undefined unless &#39;first&#39;
+        // and &#39;last&#39; refer to a sequence of valid values where &#39;first&#39; is at a
+        // position at or before &#39;last&#39;.
 
     deque(const deque&amp;     original);
     deque(const deque&amp;     original,
@@ -757,17 +766,19 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
     void assign(INPUT_ITER first, INPUT_ITER last);
         // Assign to this deque the values in the range starting at the
         // specified &#39;first&#39; and ending immediately before the specified &#39;last&#39;
-        // iterators of the parameterized &#39;INPUT_ITER&#39; type.  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
-        // operator.
+        // iterators of the parameterized &#39;INPUT_ITER&#39; type.  This method
+        // offers full guarantee of rollback in case an exception is thrown
+        // other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.  The behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer
+        // to a sequence of valid values where &#39;first&#39; is at a position at or
+        // before &#39;last&#39;.
 
     void assign(size_type numElements, const VALUE_TYPE&amp; value);
         // Assign to this deque the value of the string of the specified
         // &#39;numElements&#39; length whose every elements equal the specified
-        // &#39;value&#39;.  Note that this method offers full guarantee of rollback in
-        // case an exception is thrown other than by the &#39;VALUE_TYPE&#39; copy
-        // constructor or assignment operator.
+        // &#39;value&#39;.  This method offers full guarantee of rollback in case an
+        // exception is thrown other than by the &#39;VALUE_TYPE&#39; copy constructor
+        // or assignment operator.
 
     // *** 23.2.1.2 capacity: ***
 
@@ -793,17 +804,16 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
     void push_front(const VALUE_TYPE&amp; value);
         // Append a copy of the specified &#39;value&#39; at the end of this deque.  If
         // &#39;value&#39; has move semantics, then its value is valid but unspecified
-        // upon returning from this function.  Note that this method offers
-        // full guarantee of rollback in case an exception is thrown other than
-        // by the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+        // upon returning from this function.  This method offers full
+        // guarantee of rollback in case an exception is thrown other than by
+        // the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
 
     void push_back(const VALUE_TYPE&amp; value);
         // Prepend a copy of the specified &#39;value&#39; before the beginning of this
         // deque.  If &#39;value&#39; has move semantics, then its value is valid but
-        // unspecified upon returning from this function.  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
-        // operator.
+        // unspecified upon returning from this function.  This method offers
+        // full guarantee of rollback in case an exception is thrown other than
+        // by the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
 
     void pop_front();
         // Erase the first element from this deque.  The behavior is undefined
@@ -817,32 +827,33 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // Insert at the specified &#39;position&#39; in this deque a copy of the
         // specified &#39;value&#39;, and return an iterator pointing to the newly
         // inserted element.  If &#39;value&#39; has move semantics, then its value is
-        // valid but unspecified upon returning from this function.  The
-        // behavior is undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39;.  Note that this method offers full guarantee
-        // of rollback in case an exception is thrown other than by the
-        // &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+        // valid but unspecified upon returning from this function.  This
+        // method offers full guarantee of rollback in case an exception is
+        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.  The behavior is undefined unless &#39;position&#39; is an
+        // iterator in the range &#39;[begin() .. end()]&#39;.
 
     void insert(const_iterator    position,
                 size_type         numElements,
                 const VALUE_TYPE&amp; value);
         // Insert at the specified &#39;position&#39; in this deque the specified
-        // &#39;numElements&#39; copies of the specified &#39;value&#39;.  The behavior is
-        // undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39;.  Note that this method offers full guarantee
-        // of rollback in case an exception is thrown other than by the
-        // &#39;VALUE_TYPE&#39; copy constructor or assignment operator.
+        // &#39;numElements&#39; copies of the specified &#39;value&#39;.  This method offers
+        // full guarantee of rollback in case an exception is thrown other than
+        // by the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.  The
+        // behavior is undefined unless &#39;position&#39; is an iterator in the range
+        // &#39;[begin() .. end()]&#39;.
 
     template &lt;class INPUT_ITER&gt;
     void insert(const_iterator position, INPUT_ITER first, INPUT_ITER last);
         // Insert at the specified &#39;position&#39; in this deque the values in the
         // range starting at the specified &#39;first&#39; and ending immediately
         // before the specified &#39;last&#39; iterators of the parameterized
-        // &#39;INPUT_ITER&#39; type.  The behavior is undefined unless &#39;position&#39; is
-        // an iterator in the range &#39;[ begin(), end() ]&#39;.  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
-        // operator.
+        // &#39;INPUT_ITER&#39; type.  This method offers full guarantee of rollback in
+        // case an exception is thrown other than by the &#39;VALUE_TYPE&#39; copy
+        // constructor or assignment operator.  The behavior is undefined
+        // unless &#39;position&#39; is an iterator in the range &#39;[begin() .. end()]&#39;,
+        // and &#39;first&#39; and &#39;last&#39; refer to a sequence of valid values where
+        // &#39;first&#39; is at a position at or before &#39;last&#39;.
 
     iterator erase(const_iterator position);
         // Remove from this deque the element at the specified &#39;position&#39;, and
@@ -850,7 +861,7 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // removed element, or the position returned by the method &#39;end&#39; if the
         // removed element was the last in the sequence.  The behavior is
         // undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() )&#39;.
+        // &#39;[begin() .. end())&#39;.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this deque the sequence of elements starting at the
@@ -859,8 +870,8 @@ class deque : public  Deque_Base&lt;VALUE_TYPE&gt;
         // following the last removed element, or the position returned by the
         // method &#39;end&#39; if the removed elements were last in the sequence.  The
         // behavior is undefined unless &#39;first&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39; and &#39;last&#39; is an iterator in the range
-        // &#39;[ first, end() ]&#39;.
+        // &#39;[begin() .. end()]&#39; and &#39;last&#39; is an iterator in the range
+        // &#39;[first .. end()]&#39;.
 
     void swap(deque&lt;VALUE_TYPE,ALLOCATOR&gt;&amp; other);
         // Exchange the value of this deque with that of the specified &#39;rhs&#39;
@@ -1016,22 +1027,22 @@ class Deque_BlockCreator {
     // MANIPULATORS
     void insertAtFront(size_type n);
         // Allocate the specified &#39;n&#39; blocks at the front of the block array.
-        // Note that this method invalidates all iterators except
-        // &#39;d_deque_p-&gt;d_start&#39; and &#39;d_deque_p-&gt;d_finish&#39;.
+        // This method invalidates all iterators except &#39;d_deque_p-&gt;d_start&#39;
+        // and &#39;d_deque_p-&gt;d_finish&#39;.
 
     void insertAtBack(size_type n);
         // Allocate the specified &#39;n&#39; blocks at the back of the block array.
-        // Note that this method invalidates all iterators except
-        // &#39;d_deque_p-&gt;d_start&#39; and &#39;d_deque_p-&gt;d_finish&#39;.
+        // This method invalidates all iterators except &#39;d_deque_p-&gt;d_start&#39;
+        // and &#39;d_deque_p-&gt;d_finish&#39;.
 
     BlockPtr *reserveBlockSlots(size_type numNewBlocks, bool atFront);
         // Make room for the specified &#39;numNewBlocks&#39; pointers in the blocks
-        // array.  If the specified &#39;atFront&#39; is true, then make room at the
+        // array.  If the specified &#39;atFront&#39; is &#39;true&#39;, then make room at the
         // front of the array, else make room at the end of the array.  Return
         // a pointer to the insertion point, i.e., the point where new blocks
         // can be stored into the array, working backwards if &#39;atFront&#39; is
-        // true, or working forwards if &#39;atFront&#39; is false.  Note that this
-        // method invalidates all iterators except &#39;d_deque_p-&gt;d_start&#39; and
+        // &#39;true&#39;, or working forwards if &#39;atFront&#39; is &#39;false&#39;.  This method
+        // invalidates all iterators except &#39;d_deque_p-&gt;d_start&#39; and
         // &#39;d_deque_p-&gt;d_finish&#39;.
 
     void release();
@@ -1078,8 +1089,8 @@ class Deque_Guard {
     // elements constructed at the beginning or end of a deque, but not yet
     // committed to the deque&#39;s range of valid elements; if the count is
     // non-zero at destruction, the destructor destroys the elements in the
-    // range &#39;[d_deque_p-&gt;end(), d_deque_p-&gt;end() + d_count)&#39;, or the range
-    // &#39;[d_deque_p-&gt;begin() - d_count, d_deque_p-&gt;begin())&#39;, depending on
+    // range &#39;[d_deque_p-&gt;end() .. d_deque_p-&gt;end() + d_count)&#39;, or the range
+    // &#39;[d_deque_p-&gt;begin() - d_count .. d_deque_p-&gt;begin())&#39;, depending on
     // whether this proctor guards the end or beginning.  This guard is used to
     // undo element constructors in the event of an exception.  It is up to the
     // client code to increment the count whenever a new element is constructed
@@ -1111,10 +1122,10 @@ class Deque_Guard {
 
     ~Deque_Guard();
         // Call the parameterized &#39;VALUE_TYPE&#39; destructor on objects in the
-        // range &#39;[d.end(), d.end() + count())&#39; if &#39;isTail&#39; was specified as
-        // &#39;true&#39; during construction, or &#39;[d.start() - count(), d.start()]&#39; if
-        // &#39;isTail&#39; was specified as &#39;false&#39; during construction, where &#39;d&#39; is
-        // the deque used to construct this guard.
+        // range &#39;[d.end() .. d.end() + count())&#39; if &#39;isTail&#39; was specified as
+        // &#39;true&#39; during construction, or &#39;[d.start() - count() .. d.start()]&#39;
+        // if &#39;isTail&#39; was specified as &#39;false&#39; during construction, where &#39;d&#39;
+        // is the deque used to construct this guard.
 
     // MANIPULATORS
     std::size_t operator++();
@@ -1718,9 +1729,9 @@ void deque&lt;VALUE_TYPE,ALLOCATOR&gt;::privateSplit(
     //..
     // Now we split the block containing &quot;BBBxx&quot; into two blocks, with the &quot;xx&quot;
     // part going into &#39;*newBlockPtr&#39;.  An exception can safely occur here
-    // because the &#39;bslstl::ArrayPrimitive&#39; functions are exception-neutral and
-    // because all class invariants for both &#39;*this&#39; and &#39;other&#39; hold going in
-    // to this section.
+    // because the &#39;bslalg::ArrayPrimitives&#39; functions are exception-neutral
+    // and because all class invariants for both &#39;*this&#39; and &#39;other&#39; hold going
+    // in to this section.
 
     size_type splitOffset = pos.offsetInBlock();
     if (splitOffset &gt;= pos.remainingInBlock()) {
@@ -3008,29 +3019,29 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 struct HasStlIterators&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 struct IsBitwiseMoveable&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
     : IsBitwiseMoveable&lt;ALLOCATOR&gt;
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
-template &lt;typename VALUE_TYPE, typename ALLOCATOR&gt;
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 struct UsesBslmaAllocator&lt;bsl::deque&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

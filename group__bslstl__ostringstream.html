@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_ostringstream Component</title>
+<title>BDE 3.0: bslstl_ostringstream Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -152,7 +152,7 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to implement a simplified converter from a generic type, <code>TYPE</code>, to <code>bsl::string</code>. We use <code>bsl::ostringstream</code> to implement the <code>toString</code> function. We write the data into the stream with <code>operator&lt;&lt;</code> and then use the <code>str</code> method to retrieve the resulting string from the stream: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> toString(<span class="keyword">const</span> TYPE&amp; what)
+  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> <a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(<span class="keyword">const</span> TYPE&amp; what)
   {
       <a class="code" href="classbsl_1_1basic__ostringstream.html">bsl::ostringstream</a> out;
       out &lt;&lt; what;
@@ -162,11 +162,11 @@ Functions</h2></td></tr>
 <br/>
  Finally, we verify that our <code>toString</code> function works on some simple test cases: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(toString(1234) == <span class="stringliteral">&quot;1234&quot;</span>);
+<div class="fragment"><pre class="fragment">  assert(<a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(1234) == <span class="stringliteral">&quot;1234&quot;</span>);
 
   assert(toString&lt;short&gt;(-5) == <span class="stringliteral">&quot;-5&quot;</span>);
 
-  assert(toString(<span class="stringliteral">&quot;abc&quot;</span>) == <span class="stringliteral">&quot;abc&quot;</span>);
+  assert(<a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(<span class="stringliteral">&quot;abc&quot;</span>) == <span class="stringliteral">&quot;abc&quot;</span>);
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -468,7 +468,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:05 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

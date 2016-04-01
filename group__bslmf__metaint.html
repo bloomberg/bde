@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_metaint Component</title>
+<title>BDE 3.0: bslmf_metaint Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -83,7 +83,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1.1">Example 1: Compile-Time Function Dispatching</a> </li>
 <li>
-<a href="#3.1.2">Example 2: Reading the <code>VALUE</code> member</a> </li>
+<a href="#3.1.2">Example 2: Reading the <code>VALUE</code> Member</a> </li>
 </ul>
 </li>
 </ul>
@@ -95,7 +95,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide a meta-function to map integral constants to unique types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>Use <code>bslmf_integralconstant</code> instead. </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000008">Deprecated:</a></b></dt><dd>Use <code>bslmf_integralconstant</code> instead. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -155,16 +155,17 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_reading_the_value_member"></a> <a class="anchor" id="usage.example_2~3A_reading_the_value_member"></a> <a class="anchor" id="description.usage.example_2~3A_reading_the_value_member"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Reading the VALUE member: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: Reading the VALUE Member: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In addition to forming new types, the value of the integral parameter to <code>MetaInt</code> is "saved" in the enum member <code>VALUE</code>, and is accessible for use in compile-time or run-time operations. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> V&gt;
   <span class="keywordtype">unsigned</span> g()
   {
       <a class="code" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt&lt;V&gt;</a> i;
-      assert(V == i.<a class="code" href="structbslmf_1_1MetaInt.html#aec425930053212b5e7bfb4b38a19e2fcaf5a6d39be755a660e59a7c7688465533">VALUE</a>);
-      assert(V == <a class="code" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt&lt;V&gt;::VALUE</a>);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a> == i.<a class="code" href="structbslmf_1_1MetaInt.html#a7a97edf6a85fcd5d99f2f33f667fb8d8af5a6d39be755a660e59a7c7688465533">VALUE</a>);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a> == <a class="code" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt&lt;V&gt;::VALUE</a>);
       <span class="keywordflow">return</span> <a class="code" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt&lt;V&gt;::VALUE</a>;
   }
 
@@ -178,7 +179,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

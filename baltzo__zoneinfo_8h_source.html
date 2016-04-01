@@ -1,0 +1,797 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_zoneinfo.h                                                  -*-C++-*-
+#ifndef INCLUDED_BALTZO_ZONEINFO
+#define INCLUDED_BALTZO_ZONEINFO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a value type to represent a time zone.
+//
+//@CLASSES:
+//  baltzo::Zoneinfo: information about a time zone
+//  baltzo::ZoneinfoTransition: attributes representing a time transition
+//
+//@SEE_ALSO: baltzo_localtimedescriptor, baltzo_zoneinfoutil
+//
+//@DESCRIPTION: This component provides a *value* *semantic* type,
+// &#39;baltzo::Zoneinfo&#39;, that represents the information about a specific time
+// zone contained in the Zoneinfo database.  In addition, this component
+// provides an unconstrained *in-core* *value-semantic* type
+// &#39;baltzo::ZoneinfoTransition&#39; that can be used to characterize a transition
+// for time zones.
+//
+///&#39;baltzo::ZoneinfoTransition&#39;
+///----------------------------
+// A &#39;baltzo::ZoneinfoTransition&#39; contains:
+//..
+//  Name        Type
+//  ----------  --------------------------
+//  utcTime     bdlt::EpochUtil::TimeT64
+//  descriptor  baltzo::LocalTimeDescriptor
+//..
+//: o &#39;utcTime&#39;: UTC time when a transition occurs
+//:
+//: o &#39;descriptor&#39;: local time value corresponding to the time transition
+//
+// For example, in New York on March 14, 2011, at the instant 1 a.m., clocks
+// are set forward by an hour to mark the transition from Eastern Standard Time
+// to Eastern Daylight Time.  This change can be represented by a
+// &#39;baltzo::ZoneinfoTransition&#39; object whose &#39;utcTime&#39; refers to March 14,
+// 2011, 1am and whose &#39;descriptor&#39; describes Eastern Daylight Time (i.e.,
+// description is &quot;EDT&quot;, &#39;dstInEffectFlag&#39; is &#39;true&#39;, and &#39;utcOffsetInSeconds&#39;
+// is -14,400 (-4 * 60 * 60)).
+//
+///&#39;baltzo::Zoneinfo&#39;
+///------------------
+// A &#39;baltzo::Zoneinfo&#39; contains:
+//
+//: o the time zone identifier (e.g., &quot;America/New_York&quot; or &quot;Asia/Tokyo&quot;)
+//:
+//: o the ordered sequence of &#39;baltzo::ZoneinfoTransition&#39; objects,
+//:   representing the various transitions from UTC for this time zone.
+//
+// A &#39;baltzo::Zoneinfo&#39; object also provides the method
+// &#39;findTransitionForUtcTime&#39; that allows a client to find, in the sequence of
+// transitions, the appropriate transition whose local-time descriptor
+// describes the properties of local time, at a specified UTC time, for the
+// time zone in question.  Note that, even though this information is
+// sufficient for converting local date and time, to their corresponding values
+// in other time zones, clients are encouraged to use the utilities provided in
+// &#39;baltzo_timezoneutil&#39;.  Also note that, &#39;baltzo::Zoneinfo&#39; objects are
+// typically populated by the client through the &#39;baltzo::Loader&#39; protocol, and
+// not directly.
+//
+///Zoneinfo Database
+///-----------------
+// This database, also referred to as either the TZ database or the Olson
+// database (after its creator, Arthur Olson), is a standard, public-domain
+// time-zone information distribution used by many software systems (including
+// a number of Unix variants and the Java Runtime Environment).  Information
+// about the Zoneinfo database -- including the time zone rules for the
+// supported time zones, and source code for the &#39;zic&#39; compiler (for compiling
+// those rules into the binary representation used by this component) -- can be
+// found online at &#39;http://www.twinsun.com/tz/tz-link.htm&#39;.  This time-zone
+// information can be used to perform the conversion of dates and times from
+// UTC to their corresponding dates and times in a given time zone and
+// vice-versa.  (See &#39;baltzo_zoneinfobinaryreader&#39; for more information about
+// the binary file format.)
+//
+///Usage
+///-----
+// The following usage examples illustrate how to populate a &#39;baltzo::Zoneinfo&#39;
+// object and use it to transform a UTC time into a local time.
+//
+///Example 1: Populate a &#39;baltzo::Zoneinfo&#39;
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to represent the time-zone information for New York, in 2010
+// using a &#39;baltzo::Zoneinfo&#39; object.  In order to do so, we need to provide
+// the UTC date-times (transitions) after which the time zone changes its
+// offset from UTC, or daylight-saving Time starts or ends.
+//
+// First, we define two times &quot;Mar 14, 2010 6:00 AM&quot; and &quot;Nov 07, 2010 7:00 AM&quot;
+// representing respectively the UTC time at which New York transitions to
+// Eastern Daylight-saving Time (EDT) and Eastern Standard Time (EST) in 2010:
+//..
+//  bdlt::Datetime edtDatetime(2010, 03, 14, 2, 0);
+//  bdlt::Datetime estDatetime(2010, 11, 07, 2, 0);
+//..
+// Then, we create two local-time descriptors that hold the offset from UTC and
+// DST status for EST and EDT in New York in 2010, in terms of their
+// &#39;offsetFromUtcInSeconds&#39;, &#39;dstInEffectFlag&#39; and &#39;description&#39; attributes:
+//..
+//  const baltzo::LocalTimeDescriptor est(-5 * 60 * 60, false, &quot;EST&quot;);
+//  const baltzo::LocalTimeDescriptor edt(-4 * 60 * 60, true,  &quot;EDT&quot;);
+//..
+// Note that these descriptors will be associated with the created transition
+// times, to reflect how local time in New York changes its offset from UTC and
+// DST status after specific times.
+//
+// Next, we create an empty &#39;baltzo::Zoneinfo&#39; object that will be populated
+// with the information necessary to describe the time zone for New York:
+//..
+//  baltzo::Zoneinfo newYorkTimeZone;
+//..
+// Then, before being able to associate the transition times with their
+// corresponding descriptors, we need translate the transition times to
+// &#39;bdlt::EpochUtil::TimeT64&#39;:
+//..
+//  bdlt::EpochUtil::TimeT64 edtTransitionTime =
+//                              bdlt::EpochUtil::convertToTimeT64(edtDatetime);
+//  bdlt::EpochUtil::TimeT64 estTransitionTime =
+//                              bdlt::EpochUtil::convertToTimeT64(estDatetime);
+//..
+// Now, we associate the created descriptors with the transitions we indicated
+// previously and add them to &#39;newYorkTimeZone&#39; using the &#39;addTransition&#39;
+// method:
+//..
+//  newYorkTimeZone.addTransition(edtTransitionTime, edt);
+//  newYorkTimeZone.addTransition(estTransitionTime, est);
+//..
+// Note that this insertion operation maintains the transitions in order of
+// transition time, and therefore inserting transitions out-of-order, while not
+// illegal, is very inefficient.
+//
+// Finally we verify that the &#39;newYorkTimeZone&#39; contains the transitions we
+// indicated:
+//..
+//  {
+//      baltzo::Zoneinfo::TransitionConstIterator it =
+//                                          newYorkTimeZone.beginTransitions();
+//
+//      assert(it-&gt;utcTime()    == edtTransitionTime);
+//      assert(it-&gt;descriptor() == edt);
+//      ++it;
+//      assert(it-&gt;utcTime()    == estTransitionTime);
+//      assert(it-&gt;descriptor() == est);
+//  }
+//..
+// Notice that the iterator refers to a &#39;baltzo::ZoneinfoTransition&#39; object.
+//
+///Example 2: Converting UTC to Local Time
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose that we want to program a function, &#39;utcToLocalTime&#39; to perform the
+// conversion from a UTC time value to the corresponding local time value, in a
+// given time zone, and return the computed local time:
+//
+// First we declare the function &#39;utcToLocalTime&#39; and its contract:
+//..
+//  static bdlt::DatetimeTz utcToLocalTime(const bdlt::Datetime&amp;   utcTime,
+//                                        const baltzo::Zoneinfo&amp; timeZone)
+//  {
+//      // Return the &#39;bdlt::DatetimeTz&#39; value representing the date, time and
+//      // offset from UTC (rounded to the minute) value of the local time,
+//      // corresponding to the specified &#39;utcTime&#39; in the specified
+//      // &#39;timeZone&#39;.  The behavior is undefined if the &#39;utcTime&#39; precedes the
+//      // time of the first transition contained in &#39;timeZone&#39; and
+//      // &#39;0 &lt; timeZone.numTransitions()&#39;.
+//..
+// Then, we check the precondition of &#39;utcToLocalTime&#39;, by checking that
+// &#39;timeZone&#39; contains at least one transitions and comparing &#39;utcTime&#39; to the
+// first transition time in &#39;timeZone&#39;:
+//..
+//      BSLS_ASSERT(0 &lt; timeZone.numTransitions());
+//      BSLS_ASSERT(timeZone.firstTransition().utcTime() &lt;=
+//                                 bdlt::EpochUtil::convertToTimeT64(utcTime));
+//..
+// Next, we obtain the appropriate &#39;baltzo::ZoneinfoTransition&#39; object,
+// invoking the method &#39;findTransitionForUtcTime&#39; on &#39;timeZone&#39;:
+//..
+//      baltzo::Zoneinfo::TransitionConstIterator it =
+//                                  timeZone.findTransitionForUtcTime(utcTime);
+//..
+// Then, we access the descriptor associated with the transition to which &#39;it&#39;
+// refers, and calculate the offset from UTC rounded to the minute:
+//..
+//      const baltzo::ZoneinfoTransition&amp; transition = *it;
+//      const int offsetInMinutes =
+//                           transition.descriptor().utcOffsetInSeconds() / 60;
+//..
+// Now, we apply the obtained &#39;offsetInMinutes&#39; to the originally specified
+// &#39;utcTime&#39; obtaining the corresponding local time in the specified
+// &#39;timeZone&#39;:
+//..
+//      bdlt::Datetime temp(utcTime);
+//      temp.addMinutes(offsetInMinutes);
+//..
+// Finally, return the local time value together with its offset from UTC:
+//..
+//      return bdlt::DatetimeTz(temp, offsetInMinutes);
+//  }
+//..
+// Suppose, now, we want to convert UTC time to the corresponding local time in
+// New York.  We can do so using the previously defined function
+// &#39;utcToLocalTime&#39; and reusing the &#39;baltzo::Zoneinfo&#39; object,
+// &#39;newYorkTimeZone&#39; of Example 1.
+//
+// First, we define &#39;bdlt::Datetime&#39; object representing the UTC time &quot;Apr 10,
+// 2010 12:00&quot;:
+//..
+//  bdlt::Datetime utcDatetime(2010, 04, 10, 12, 0, 0);
+//..
+// Then, we invoke &#39;utcToLocalTime&#39; passing &#39;newYorkTimeZone&#39; as a time zone
+// and save the result:
+//..
+//  bdlt::DatetimeTz nyDatetime = utcToLocalTime(utcDatetime, newYorkTimeZone);
+//..
+// Finally, we compute the New York local time corresponding to &#39;utcDatetime&#39;,
+// verify that &quot;April 10, 2010 8:00&quot; is the computed time:
+//..
+//  const bdlt::Datetime expectedTime(2010, 4, 10, 8, 0, 0);
+//  assert(-4 * 60      == nyDatetime.offset());
+//  assert(expectedTime == nyDatetime.localDatetime());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_LOCALTIMEDESCRIPTOR
+#include &lt;baltzo_localtimedescriptor.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_EPOCHUTIL
+#include &lt;bdlt_epochutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_SET
+#include &lt;bsl_set.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                          // ========================
+                          // class ZoneinfoTransition
+                          // ========================
+
+class ZoneinfoTransition {
+    // This class is an unconstrained *in-core* value-semantic class that
+    // characterizes a transition when the local time value of a time-zone
+    // changes.  The salient attributes of this type are the &#39;utcTime&#39;
+    // (representing seconds from UTC), and &#39;descriptor&#39; representing the local
+    // time value after the transition.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology: see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    bdlt::EpochUtil::TimeT64   d_utcTime;       // UTC time (representing in
+                                                // seconds from epoch) when the
+                                                // time transition occurs
+
+    const LocalTimeDescriptor *d_descriptor_p;  // pointer to the descriptor
+                                                // associated with this
+                                                // transition (held, not owned)
+
+    // FRIENDS
+    friend class Zoneinfo;
+
+    // PRIVATE CREATORS
+    ZoneinfoTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                       const LocalTimeDescriptor *descriptor);
+        // Create a &#39;ZoneinfoTransition&#39; object having the specified &#39;utcTime&#39;
+        // and, &#39;descriptor&#39; attribute values.  The behavior is undefined
+        // unless &#39;descriptor&#39; remains valid for the lifetime of this object.
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(ZoneinfoTransition,
+                                 bslalg::TypeTraitBitwiseMoveable);
+
+    // CREATORS
+    ~ZoneinfoTransition();
+        // Destroy this object.
+
+    // ACCESSORS
+    const LocalTimeDescriptor&amp; descriptor() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;descriptor&#39; attribute of this object.
+
+    bdlt::EpochUtil::TimeT64 utcTime() const;
+        // Return the value of the &#39;utcTime&#39; attribute of this object.
+
+                                // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const ZoneinfoTransition&amp; lhs, const ZoneinfoTransition&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;ZoneinfoTransition&#39; objects have the
+    // same value if the corresponding value of their &#39;utcTime&#39; attribute is
+    // the same and both refer to the same &#39;descriptor&#39; address.
+
+bool operator!=(const ZoneinfoTransition&amp; lhs, const ZoneinfoTransition&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;ZoneinfoTransition&#39; objects do
+    // not have the same value if the corresponding value of their &#39;utcTime&#39; is
+    // not the same or if they do not refer to the same &#39;descriptor&#39; address.
+
+bool operator&lt;(const ZoneinfoTransition&amp; lhs, const ZoneinfoTransition&amp; rhs);
+    // Return &#39;true&#39; if the value of the specified &#39;lhs&#39; is less than (ordered
+    // before) the value of the specified &#39;rhs&#39;.  Note that the value of &#39;lhs&#39;
+    // is less than the value of &#39;rhs&#39; if the value of the &#39;utcTime&#39; attribute
+    // of &#39;lhs&#39; is less than the value of the &#39;utcTime&#39; attribute of &#39;rhs&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;             stream,
+                         const ZoneinfoTransition&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // &#39;object.print(stream, 0, -1)&#39; with the attribute names elided.
+
+                               // ==============
+                               // class Zoneinfo
+                               // ==============
+
+class Zoneinfo {
+    // This class is a value-semantic type holding a structured representation
+    // of the information contained in an Zoneinfo (or &quot;Olson&quot;) time zone
+    // database for a *single* locale (e.g., &quot;America/New_York&quot;).  The salient
+    // attributes of this type are the string identifier and the ordered
+    // sequence of &#39;ZoneinfoTransition&#39; objects.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology: &#39;see bsldoc_glossary&#39;.
+
+    // PRIVATE TYPES
+    class DescriptorLess {
+        // This &#39;class&#39; is a private functor that provides a comparator
+        // predicate for the type &#39;LocalTimeDescriptor&#39;, so that it can be
+        // stored in associative containers such as &#39;bsl::set&#39;.
+
+      public:
+        bool operator()(const LocalTimeDescriptor&amp; lhs,
+                        const LocalTimeDescriptor&amp; rhs) const;
+            // Return &#39;true&#39; if the value of the specified &#39;lhs&#39; is less than
+            // (ordered before) the value of the specified &#39;rhs&#39;.  Note that
+            // the value of &#39;lhs&#39; is less than the value of &#39;rhs&#39; if the value
+            // of the corresponding &#39;utcOffsetInSeconds&#39;, &#39;description&#39;, and
+            // &#39;dstInEffectFlag&#39; attributes of &#39;lhs&#39; when incrementally
+            // compared one at a time in that order is less than the attribute
+            // value of &#39;rhs&#39;.  Also note that the comparison moves to the next
+            // attribute only when the corresponding attribute values compare
+            // equal.
+    };
+
+    typedef bsl::vector&lt;ZoneinfoTransition&gt; TransitionSequence;
+        // Alias for the sequence of transitions that characterize a &#39;Zoneinfo&#39;
+        // object.
+
+    typedef bsl::set&lt;LocalTimeDescriptor, DescriptorLess&gt; DescriptorSet;
+        // Alias for the set of unique local-time descriptors that are managed
+        // by a &#39;Zoneinfo&#39; object.
+
+    // DATA
+    bsl::string         d_identifier;   // this time zone&#39;s id
+
+    DescriptorSet       d_descriptors;  // set of local time descriptors for
+                                        // this time zone (e.g., &#39;EST&#39;)
+
+    TransitionSequence  d_transitions;  // transitions, from one local time
+                                        // descriptor to another (e.g., &#39;EST&#39;
+                                        // to &#39;EDT&#39;), ordered by the time the
+                                        // transition occurred (or will occur)
+
+    bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
+                                        // (held, not owned)
+
+    // FRIENDS
+    friend bool operator==(const Zoneinfo&amp;, const Zoneinfo&amp;);
+
+  public:
+    // CLASS METHODS
+
+    // TYPES
+    typedef TransitionSequence::const_iterator TransitionConstIterator;
+        // Alias for a bi-directional &#39;const&#39; iterator over the sequence of
+        // transitions maintained by a &#39;Zoneinfo&#39; object.
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(Zoneinfo,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit Zoneinfo(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Zoneinfo&#39; object having the values:
+        //..
+        //  numTransitions() == 0
+        //  identifier()     == &quot;&quot;
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    Zoneinfo(const Zoneinfo&amp;   original,
+             bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Zoneinfo&#39; object having the same value as the specified
+        // &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    // MANIPULATORS
+    Zoneinfo&amp; operator=(const Zoneinfo&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void addTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                       const LocalTimeDescriptor&amp; descriptor);
+        // Add to this object a transition occurring at the specified &#39;utcTime&#39;
+        // when the local time in the described time-zone adopts the
+        // characteristics of the specified &#39;descriptor&#39;.  If a transition at
+        // &#39;utcTime&#39; is already present, replace it&#39;s local-time descriptor
+        // with &#39;descriptor&#39;.
+
+    void setIdentifier(const bslstl::StringRef&amp;  value);
+    void setIdentifier(const char               *value);
+        // Set the &#39;identifier&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void swap(Zoneinfo&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    TransitionConstIterator findTransitionForUtcTime(
+                                          const bdlt::Datetime&amp; utcTime) const;
+        // Return an iterator providing non-modifiable access to the transition
+        // that holds the local-time descriptor associated with the specified
+        // &#39;utcTime&#39;.  The behavior is undefined unless &#39;numTransitions() &gt; 0&#39;
+        // and &#39;utcTime&#39; is later than the transition returned by
+        // &#39;firstTransition&#39;.
+
+    const ZoneinfoTransition&amp; firstTransition() const;
+        // Return a reference providing non-modifiable access to the first
+        // transition contained in this object.  The behavior is undefined
+        // unless &#39;numTransitions() &gt; 0&#39;.
+
+    const bsl::string&amp; identifier() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;identifier&#39; attribute of this object.
+
+    bsl::size_t numTransitions() const;
+        // Return the number of transitions maintained by this zone info.
+
+    TransitionConstIterator beginTransitions() const;
+        // Return an iterator providing non-modifiable access to the first
+        // transition in the ordered sequence of transitions maintained by this
+        // object.  Note that if &#39;beginTransitions() == endTransitions()&#39; then
+        // there are no transitions stored by this object.
+
+    TransitionConstIterator endTransitions() const;
+        // Return an iterator providing non-modifiable access to the one-past
+        // the last transition in the ordered sequence of transitions that is
+        // associated with this object.  Note that if
+        // &#39;beginTransitions() == endTransitions()&#39; then there are no
+        // transitions stored by this object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const Zoneinfo&amp; lhs, const Zoneinfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;Zoneinfo&#39; objects have the same
+    // value if the corresponding value of their &#39;identifier&#39; attribute is the
+    // same and if both store the same sequence of transitions, ordered by
+    // time.
+
+bool operator!=(const Zoneinfo&amp; lhs, const Zoneinfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;Zoneinfo&#39; objects do not have
+    // the same value if their corresponding &#39;identifier&#39; attribute does not
+    // have the same value, or if both do *not* store the same sequence of
+    // transitions, ordered by time.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Zoneinfo&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
+// FREE FUNCTIONS
+void swap(Zoneinfo&amp; a, Zoneinfo&amp; b);
+    // Swap the value of the specified &#39;a&#39; object with the value of the
+    // specified &#39;b&#39; object.  This method provides the no-throw guarantee.  The
+    // behavior is undefined if the two objects being swapped have non-equal
+    // allocators.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                          // ------------------------
+                          // class ZoneinfoTransition
+                          // ------------------------
+
+// PRIVATE CREATORS
+inline
+baltzo::ZoneinfoTransition::ZoneinfoTransition(
+                                         bdlt::EpochUtil::TimeT64   utcTime,
+                                         const LocalTimeDescriptor *descriptor)
+: d_utcTime(utcTime)
+, d_descriptor_p(descriptor)
+{
+    BSLS_ASSERT_SAFE(descriptor);
+}
+
+// CREATORS
+inline
+baltzo::ZoneinfoTransition::~ZoneinfoTransition()
+{
+    BSLS_ASSERT_SAFE(d_descriptor_p);
+}
+
+// ACCESSORS
+inline
+const baltzo::LocalTimeDescriptor&amp;
+baltzo::ZoneinfoTransition::descriptor() const
+{
+    return *d_descriptor_p;
+}
+
+inline
+bdlt::EpochUtil::TimeT64 baltzo::ZoneinfoTransition::utcTime() const
+{
+    return d_utcTime;
+}
+
+// FREE OPERATORS
+inline
+bool baltzo::operator==(const ZoneinfoTransition&amp; lhs,
+                        const ZoneinfoTransition&amp; rhs)
+{
+    return  lhs.utcTime()    == rhs.utcTime()
+         &amp;&amp; lhs.descriptor() == rhs.descriptor();
+}
+
+inline
+bool baltzo::operator!=(const ZoneinfoTransition&amp; lhs,
+                        const ZoneinfoTransition&amp; rhs)
+{
+    return  !(lhs == rhs);
+}
+
+inline
+bool baltzo::operator&lt;(const ZoneinfoTransition&amp; lhs,
+                       const ZoneinfoTransition&amp; rhs)
+{
+    return lhs.utcTime() &lt; rhs.utcTime();
+}
+
+                               // --------------
+                               // class Zoneinfo
+                               // --------------
+
+// CREATORS
+inline
+baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
+: d_identifier(basicAllocator)
+, d_descriptors(basicAllocator)
+, d_transitions(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+// MANIPULATORS
+inline
+baltzo::Zoneinfo&amp; baltzo::Zoneinfo::operator=(const Zoneinfo&amp; rhs)
+{
+    Zoneinfo(rhs, d_allocator_p).swap(*this);
+    return *this;
+}
+
+inline
+void baltzo::Zoneinfo::setIdentifier(const bslstl::StringRef&amp; value)
+{
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_identifier.assign(value.begin(), value.end());
+}
+
+inline
+void baltzo::Zoneinfo::setIdentifier(const char *value)
+{
+    BSLS_ASSERT_SAFE(value);
+
+    bsl::string(value, d_identifier.allocator()).swap(d_identifier);
+}
+
+inline
+void baltzo::Zoneinfo::swap(Zoneinfo&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bsl::swap(d_identifier,  other.d_identifier);
+    bsl::swap(d_descriptors, other.d_descriptors);
+    bsl::swap(d_transitions, other.d_transitions);
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *baltzo::Zoneinfo::allocator() const
+{
+    return d_allocator_p;
+}
+
+inline
+const baltzo::ZoneinfoTransition&amp; baltzo::Zoneinfo::firstTransition() const
+{
+    BSLS_ASSERT_SAFE(numTransitions() &gt; 0);
+
+    return d_transitions.front();
+}
+
+inline
+const bsl::string&amp; baltzo::Zoneinfo::identifier() const
+{
+    return d_identifier;
+}
+
+inline
+bsl::size_t baltzo::Zoneinfo::numTransitions() const
+{
+    return d_transitions.size();
+}
+
+inline
+baltzo::Zoneinfo::TransitionConstIterator
+baltzo::Zoneinfo::beginTransitions() const
+{
+    return d_transitions.begin();
+}
+
+inline
+baltzo::Zoneinfo::TransitionConstIterator
+baltzo::Zoneinfo::endTransitions() const
+{
+    return d_transitions.end();
+}
+
+// FREE OPERATORS
+inline
+bool baltzo::operator==(const Zoneinfo&amp; lhs, const Zoneinfo&amp; rhs)
+{
+    return lhs.identifier()     == rhs.identifier()
+        &amp;&amp; lhs.numTransitions() == rhs.numTransitions()
+        &amp;&amp; bsl::equal(lhs.d_transitions.begin(),
+                      lhs.d_transitions.end(),
+                      rhs.d_transitions.begin());
+}
+
+inline
+bool baltzo::operator!=(const Zoneinfo&amp; lhs, const Zoneinfo&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+// FREE FUNCTIONS
+inline
+void baltzo::swap(Zoneinfo&amp; a, Zoneinfo&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

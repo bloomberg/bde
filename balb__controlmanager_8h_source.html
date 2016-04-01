@@ -1,0 +1,370 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balb_controlmanager.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALB_CONTROLMANAGER
+#define INCLUDED_BALB_CONTROLMANAGER
+
+//@PURPOSE: Provide a mechanism for mapping control messages to callbacks.
+//
+//@CLASSES:
+//   balb::ControlManager: mechanism that maps control messages
+//
+//@DESCRIPTION: The &#39;balb::ControlManager&#39; mechanism provided by this component
+// maps control messages to callback functions on the basis of message
+// prefixes.
+//
+///Callback Function Requirements
+///------------------------------
+// Functions registered as callbacks for messages must be invokable as
+// &#39;void(*)(const bsl::string&amp;, bsl::istream&amp;).  (This signature is
+// &#39;balb::ControlManager::ControlHandler&#39;).  When the function is invoked, the
+// first argument is the message prefix, and the second is a stream on the
+// remainder of the message.
+//
+///Thread Safety
+///-------------
+// This component is thread-safe and thread-enabled: it is safe to access and
+// manipulate multiple distinct instances from different threads, and it is
+// safe to access and manipulate a single shared instance from different
+// threads.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating an ECHO Message Handler
+///- - - - - - - - - - - - - - - - - - - - - -
+// First define a trivial callback to be invoked when an &quot;ECHO&quot; message is
+// received:
+//..
+//  void onEcho(const bsl::string&amp; prefix, bsl::istream&amp; stream)
+//  {
+//     bsl::string word;
+//     bsl::cout &lt;&lt; &quot;onEcho: \&quot;&quot; &lt;&lt; prefix;
+//     while (stream.good()) {
+//        stream &gt;&gt; word;
+//        bsl::cout &lt;&lt; &#39; &#39; &lt;&lt; word;
+//     }
+//     bsl::cout &lt;&lt; &#39;\&quot;&#39; &lt;&lt; bsl::endl;
+//  }
+//..
+// Now create a &#39;balb::ControlManager&#39; object and register a handler for
+// &quot;ECHO&quot;.  Also register a handler for HELP to observe the auto-generated
+// documentation for ECHO:
+//..
+//  balb::ControlManager manager;
+//  manager.registerHandler(&quot;ECHO&quot;, &quot;&lt;text&gt;&quot;,
+//                          &quot;Print specified text to the standard output&quot;,
+//                          &amp;onEcho);
+//  manager.registerHandler(&quot;HELP&quot;, &quot;&quot;,
+//                          &quot;Print documentation&quot;,
+//                          bdlf::BindUtil::bind(
+//                                  &amp;balb::ControlManager::printUsageHelper,
+//                                  &amp;manager, &amp;bsl::cout, bsl::string(
+//               &quot;The following commands are accepted by the test driver:&quot;)));
+//
+//  manager.dispatchMessage(&quot;ECHO repeat this text&quot;);
+//  manager.dispatchMessage(&quot;echo matching is case-insensitive&quot;);
+//  manager.dispatchMessage(&quot;HELP&quot;);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include &lt;bslmt_rwmutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace balb {
+
+class ControlManager_Entry;
+
+                            // ====================
+                            // class ControlManager
+                            // ====================
+
+class ControlManager {
+    // Dispatch control messages to callbacks by name.
+
+    // PRIVATE TYPES
+    typedef bsl::map&lt;bsl::string,
+                     ControlManager_Entry,
+                     bool(*)(const bsl::string&amp;, const bsl::string&amp;)&gt; Registry;
+        // Defines a type alias for the ordered associative data structure
+        // that maps a message prefix to a &#39;StringComparator&#39; functor.
+
+    // INSTANCE DATA
+    bslma::Allocator       *d_allocator_p;    // memory allocator (held)
+    Registry                d_registry;       // registry
+    mutable bslmt::RWMutex  d_registryMutex;  // registry mutex
+
+    // NOT IMPLEMENTED
+    ControlManager(const ControlManager&amp;);             // = deleted
+    ControlManager&amp; operator=(const ControlManager&amp;);  // = deletd
+
+  public:
+    // TYPES
+    typedef bsl::function&lt;void(const bsl::string&amp; prefix,
+                               bsl::istream&amp;      stream)&gt; ControlHandler;
+        // Defines a type alias for the function called to handle control
+        // messages.  The &#39;prefix&#39; argument is the first space-delimited word
+        // read from the message, and the &#39;stream&#39; argument is the
+        // &#39;bsl::istream&#39; containing the remainder of the message.
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(ControlManager,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit
+    ControlManager(bslma::Allocator *basicAllocator = 0);
+        // Create a control manager object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    ~ControlManager();
+        // Destroy this object.
+
+    // MANIPULATORS
+    int registerHandler(const bsl::string&amp;    prefix,
+                        const bsl::string&amp;    arguments,
+                        const bsl::string&amp;    description,
+                        const ControlHandler&amp; handler);
+        // Register the specified &#39;handler&#39; to be invoked whenever a control
+        // message having the specified case-insensitive &#39;prefix&#39; is received
+        // for this control manager.  Also register the specified &#39;arguments&#39;
+        // string to describe the arguments accepted by the message, and the
+        // specified &#39;description&#39; to describe its operation; these are
+        // printed by &#39;printUsage&#39;.  Return a positive value if an existing
+        // callback was replaced, return 0 if no replacement occurred, and
+        // return a negative value otherwise.
+
+    int deregisterHandler(const bsl::string&amp; prefix);
+        // Deregister the callback function previously registered to handle the
+        // specified &#39;prefix&#39;.  Return 0 on success or a non-zero value
+        // otherwise.
+
+    // ACCESSOR
+    int dispatchMessage(const bsl::string&amp; message) const;
+        // Parse the specified complete &#39;message&#39; and dispatch it.  Return
+        // 0 on success, and a non-zero value otherwise; in particular return
+        // non-zero if no registered callback could be found for the
+        // case-insensitive prefix in &#39;message&#39;.
+
+    int dispatchMessage(const bsl::string&amp; prefix, bsl::istream&amp; stream) const;
+        // Dispatch the message contained in the specified &#39;stream&#39; to the
+        // callback associated with the specified &#39;prefix&#39;.  Return 0 on
+        // success, and a non-zero value otherwise; in particular return
+        // non-zero if no registered callback could be found for the
+        // case-insensitive &#39;prefix&#39;.
+
+    void printUsage(bsl::ostream&amp; stream, const bsl::string&amp; preamble) const;
+        // Print to the specified &#39;stream&#39; the specified &#39;preamble&#39; text,
+        // followed by the registered commands and documentation for this
+        // control manager.  Note that a newline is appended to &#39;preamble&#39; in
+        // the output.
+
+    void printUsageHelper(bsl::ostream       *stream,
+                          const bsl::string&amp;  preamble) const;
+        // Invoke &#39;printUsage&#39; passing the specified &#39;*stream&#39; and &#39;preamble&#39;.
+        // Suitable for binding using the bdlf::BindUtil package.
+
+};
+
+                         // ==========================
+                         // class ControlManager_Entry
+                         // ==========================
+
+class ControlManager_Entry {
+    // This component-private class represents a function with documentation.
+
+    // INSTANCE DATA
+    ControlManager::ControlHandler d_callback;    // processing callback
+    bsl::string                    d_arguments;   // argument description
+    bsl::string                    d_description; // function description
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(ControlManager_Entry,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit
+    ControlManager_Entry(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;ControlManager_Entry&#39; object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    ControlManager_Entry(
+                    const ControlManager::ControlHandler&amp;  callback,
+                    const bsl::string&amp;                     arguments,
+                    const bsl::string&amp;                     description,
+                    bslma::Allocator                      *basicAllocator = 0);
+        // Create an ControlManager_Entry object with the specified initial
+        // values.
+
+    ControlManager_Entry(const ControlManager_Entry&amp;  original,
+                         bslma::Allocator            *basicAllocator = 0);
+        // Create an ControlManager_Entry object having the value of the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    ~ControlManager_Entry();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ControlManager_Entry&amp; operator=(const ControlManager_Entry&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    void setCallback(const ControlManager::ControlHandler&amp; callback);
+        // Set the specified &#39;callback&#39; as the value of the &#39;callback&#39; member
+        // of this object.
+
+    bsl::string&amp; arguments();
+        // Return a modifiable reference to the &#39;arguments&#39; member of this
+        // object.
+
+    bsl::string&amp; description();
+        // Return a modifiable reference to the &#39;description&#39; member of this
+        // object.
+
+    // ACCESSORS
+    const ControlManager::ControlHandler&amp; callback() const;
+        // Return a non-modifiable reference to the &#39;callback&#39; member of this
+        // object.
+
+    const bsl::string&amp; arguments() const;
+        // Return a non-modifiable reference to the &#39;arguments&#39; member of this
+        // object.
+
+    const bsl::string&amp; description() const;
+        // Return a non-modifiable reference to the &#39;arguments&#39; member of this
+        // object.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                        // --------------------------
+                        // class ControlManager_Entry
+                        // --------------------------
+
+// MANIPULATORS
+inline
+void ControlManager_Entry::setCallback(
+                                const ControlManager::ControlHandler&amp; callback)
+{
+    d_callback = callback;
+}
+
+inline
+bsl::string&amp; ControlManager_Entry::arguments()
+{
+    return d_arguments;
+}
+
+inline
+bsl::string&amp; ControlManager_Entry::description()
+{
+    return d_description;
+}
+
+// ACCESSORS
+inline
+const ControlManager::ControlHandler&amp; ControlManager_Entry::callback() const
+{
+    return d_callback;
+}
+
+inline
+const bsl::string&amp; ControlManager_Entry::arguments() const
+{
+    return d_arguments;
+}
+
+inline
+const bsl::string&amp; ControlManager_Entry::description() const
+{
+    return d_description;
+}
+
+                            // --------------------
+                            // class ControlManager
+                            // --------------------
+
+// ACCESSORS
+inline
+void ControlManager::printUsageHelper(bsl::ostream       *stream,
+                                      const bsl::string&amp;  preamble) const
+{
+    printUsage(*stream, preamble);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

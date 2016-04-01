@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_isenum.h                                                     -*-C++-*-
@@ -60,8 +60,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include &lt;bslmf_conditional.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCLASS
+#include &lt;bslmf_isclass.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
@@ -78,10 +86,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include &lt;bslmf_isreference.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include &lt;bslmf_removecv.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -121,6 +125,13 @@ struct IsEnum_AnyArithmeticType {
         // ambiguous.
 };
 
+template &lt;class COMPLETE_TYPE&gt;
+struct IsEnum_TestConversions
+     : bsl::integral_constant&lt;bool,
+       bsl::is_convertible&lt;COMPLETE_TYPE, IsEnum_AnyArithmeticType&gt;::value
+        &amp;&amp; !IsConvertibleToAny&lt;COMPLETE_TYPE&gt;::value&gt;::type {
+};
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -132,18 +143,30 @@ namespace bsl {
 
 template &lt;class TYPE&gt;
 struct is_enum
-    : integral_constant&lt;
-        bool,
+    : conditional&lt;
         !is_fundamental&lt;TYPE&gt;::value
         &amp;&amp; !is_reference&lt;TYPE&gt;::value
-        &amp;&amp; is_convertible&lt;TYPE,
-                        BloombergLP::bslmf::IsEnum_AnyArithmeticType&gt;::value
-        &amp;&amp; !BloombergLP::bslmf::IsConvertibleToAny&lt;TYPE&gt;::value&gt; {
+        &amp;&amp; !is_class&lt;TYPE&gt;::value,
+        BloombergLP::bslmf::IsEnum_TestConversions&lt;TYPE&gt;,
+        false_type&gt;::type {
     // This &#39;struct&#39; template implements the &#39;is_enum&#39; meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) &#39;TYPE&#39; is an enumerated type.  This &#39;struct&#39; derives from
     // &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is an enumerated type, and from
     // &#39;bsl::false_type&#39; otherwise.
+};
+
+template &lt;class TYPE&gt;
+struct is_enum&lt;TYPE *&gt; : false_type {
+    // Pointers are not enumerated types.  This is captured above without this
+    // partial specialization, but the convertability tests can trigger ADL
+    // such that the compiler will want TYPE to be complete, breaking some
+    // desirable usages involving forward-declarations.
+};
+
+template &lt;&gt;
+struct is_enum&lt;void&gt;
+    : bsl::false_type {
 };
 
 // Additional partial specializations for cv-qualified types ensure that the
@@ -165,11 +188,6 @@ struct is_enum&lt;volatile TYPE&gt;
 template &lt;class TYPE&gt;
 struct is_enum&lt;const volatile TYPE&gt;
     : is_enum&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::type {
-};
-
-template &lt;&gt;
-struct is_enum&lt;void&gt;
-    : bsl::false_type {
 };
 
 }  // close namespace bsl

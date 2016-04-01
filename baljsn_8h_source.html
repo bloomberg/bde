@@ -1,0 +1,60 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ baljsn.txt
+
+@PURPOSE: Provide components for encoding/decoding in the JSON format.
+
+@MNEMONIC: Basic Application Environment JSoN (baljsn)
+
+@DESCRIPTION: The &#39;baljsn&#39; package provides facilities for encoding and
+ decoding value-semantic objects in the JSON encoding format.  Currently, the
+ encoder and decoder provided in this package work with types that support the
+ &#39;bdeat&#39; framework (see the {&#39;bdlat&#39;} package for details), which is a
+ compile-time interface for manipulating struct-like and union-like objects.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;baljsn&#39; package currently has 7 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  3. baljsn_decoder
+
+  2. baljsn_encoder
+     baljsn_tokenizer
+
+  1. baljsn_decoderoptions
+     baljsn_encoderoptions
+     baljsn_parserutil
+     baljsn_printutil
+..
+
+/Component Synopsis
+/------------------
+: &#39;baljsn_decoder&#39;:
+:      Provide a JSON decoder for &#39;bdeat&#39; compatible types.
+:
+: &#39;baljsn_decoderoptions&#39;:
+:      Provide an attribute class for specifying JSON decoding options.
+:
+: &#39;baljsn_encoder&#39;:
+:      Provide a JSON encoder for &#39;bdeat&#39; compatible types.
+:
+: &#39;baljsn_encoderoptions&#39;:
+:      Provide an attribute class for specifying JSON encoding options.
+:
+: &#39;baljsn_parserutil&#39;:
+:      Provide a utility for decoding JSON data into simple types.
+:
+: &#39;baljsn_printutil&#39;:
+:      Provide a utility for encoding simple types in the JSON format.
+:
+: &#39;baljsn_tokenizer&#39;:
+:      Provide a tokenizer for extracting JSON data from a &#39;streambuf&#39;.
+</pre>
+</body>
+</html>

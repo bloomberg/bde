@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_byteorderutil.h                                               -*-C++-*-
@@ -17,7 +17,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@CLASSES:
 //   bsls::ByteOrderUtil: namespace for byte-order swapping functions
 //
-//@SEE ALSO: bsls_byteorder
+//@SEE_ALSO: bsls_byteorder
 //
 //@DESCRIPTION: This component provides a utility &#39;class&#39;,
 // &#39;bsls::ByteOrderUtil&#39;, that contains a suite of static functions for
@@ -179,7 +179,7 @@ ByteOrderUtil::swapBytes(short          x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(short, &amp;x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);                 // RETURN
 #endif
 }
 
@@ -194,7 +194,7 @@ ByteOrderUtil::swapBytes(unsigned short x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &amp;x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 #endif
 }
 
@@ -292,7 +292,7 @@ ByteOrderUtil::swapBytes16(unsigned short x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &amp;x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 #endif
 }
 

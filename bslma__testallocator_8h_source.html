@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_testallocator.h                                              -*-C++-*-
@@ -126,10 +126,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Exception Test Macros
 ///---------------------
 // This component also provides a pair of macros:
-//..
-//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)
-//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-//..
+//
+//: o &#39;BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)&#39;
+//: o &#39;BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END&#39;
+//
 // These macros can be used for testing exception-safety of classes and their
 // methods when memory allocation is needed.  A reference to an object of type
 // &#39;bslma::TestAllocator&#39; must be supplied as an argument to the &#39;_BEGIN&#39;
@@ -643,6 +643,7 @@ class TestAllocator : public Allocator {
         // number of such errors that have occurred as a positive number; if
         // either &#39;0 &lt; numBlocksInUse()&#39; or &#39;0 &lt; numBytesInUse()&#39;, return an
         // arbitrary negative number; else return 0.
+
 };
 
 }  // close package namespace
@@ -944,7 +945,10 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
     return d_numMismatches.loadRelaxed();
 }
 
+
 }  // close package namespace
+
+
 }  // close enterprise namespace
 
 #endif

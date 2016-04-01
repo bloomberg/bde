@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_typetraithasstliterators.h                                  -*-C++-*-
@@ -61,7 +61,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template &lt;typename TYPE&gt;
+template &lt;class TYPE&gt;
 struct HasStlIterators : bslmf::DetectNestedTrait&lt;TYPE, HasStlIterators&gt;
 {
 };

@@ -1,11 +1,16 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlma_countingallocator.h                                          -*-C++-*-
 #ifndef INCLUDED_BDLMA_COUNTINGALLOCATOR
 #define INCLUDED_BDLMA_COUNTINGALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
 
 //@PURPOSE: Provide a memory allocator that counts allocated bytes.
 //
@@ -80,10 +85,9 @@
 // track the amount of dynamic memory used by a container.  The container used
 // for illustration is &#39;DoubleStack&#39;, a stack of out-of-place &#39;double&#39; values.
 //
-// First, we show the (elided) interface of the &#39;DoubleStack&#39; class:
+// First, we show the interface of the &#39;DoubleStack&#39; class:
 //..
 //  // doublestack.h
-//  // ...
 //
 //  class DoubleStack {
 //      // This class implements a stack of out-of-place &#39;double&#39; values.
@@ -101,7 +105,9 @@
 //      bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
 //                                         // owned)
 //
-//    // ...
+//      // NOT IMPLEMENTED
+//      DoubleStack(const DoubleStack&amp;);
+//      DoubleStack&amp; operator=(const DoubleStack&amp;);
 //
 //    private:
 //      // PRIVATE MANIPULATORS
@@ -141,12 +147,12 @@
 //  // ...
 //
 //  // TYPES
-//  enum { INITIAL_CAPACITY = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_CAPACITY = 1, k_GROWTH_FACTOR = 2 };
 //
 //  // CREATORS
 //  DoubleStack::DoubleStack(bslma::Allocator *basicAllocator)
 //  : d_stack_p(0)
-//  , d_capacity(INITIAL_CAPACITY)
+//  , d_capacity(k_INITIAL_CAPACITY)
 //  , d_length(0)
 //  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
@@ -209,7 +215,7 @@
 //  // PRIVATE MANIPULATORS
 //  void DoubleStack::increaseCapacity()
 //  {
-//      const int newCapacity = d_capacity * GROWTH_FACTOR;
+//      const int newCapacity = d_capacity * k_GROWTH_FACTOR;
 //                                                      // reallocate can throw
 //      reallocate(&amp;d_stack_p, newCapacity, d_length, d_allocator_p);
 //      d_capacity = newCapacity;                       // commit
@@ -262,7 +268,7 @@
 // which displays the following on a 32-bit platform:
 //..
 //  ----------------------------------------
-//          Counting Allocator State
+//                          Counting Allocator State
 //  ----------------------------------------
 //  Allocator name: &#39;DoubleStack&#39; Allocator
 //  Bytes in use:   16
@@ -292,9 +298,9 @@
 namespace BloombergLP {
 namespace bdlma {
 
-                           // =======================
-                           // class CountingAllocator
-                           // =======================
+                         // =======================
+                         // class CountingAllocator
+                         // =======================
 
 class CountingAllocator : public bslma::Allocator {
     // This class defines a concrete &quot;counting&quot; allocator mechanism that
@@ -332,8 +338,7 @@ class CountingAllocator : public bslma::Allocator {
     explicit
     CountingAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
-    CountingAllocator(const char       *name,
-                      bslma::Allocator *basicAllocator = 0);
+    CountingAllocator(const char *name, bslma::Allocator *basicAllocator = 0);
         // Create a counting allocator.  Optionally specify a &#39;name&#39;
         // (associated with this object) to be included in messages output by
         // the &#39;print&#39; method, thereby distinguishing this counting allocator
@@ -384,12 +389,12 @@ class CountingAllocator : public bslma::Allocator {
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                           // -----------------------
-                           // class CountingAllocator
-                           // -----------------------
+                         // -----------------------
+                         // class CountingAllocator
+                         // -----------------------
 
 // ACCESSORS
 inline
@@ -416,7 +421,7 @@ bsls::Types::Int64 CountingAllocator::numBytesTotal() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

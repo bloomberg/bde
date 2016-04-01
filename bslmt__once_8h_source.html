@@ -1,0 +1,691 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_once.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_ONCE
+#define INCLUDED_BSLMT_ONCE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a thread-safe way to execute code once per process.
+//
+//@CLASSES:
+//        bslmt::Once: Gate-keeper for code executed only once per process
+//   bslmt::OnceGuard: Guard class for safely using &#39;bslmt::Once&#39;
+//
+//@SEE_ALSO: bslmt_qlock
+//
+//@DESCRIPTION: This component provides a pair of classes, &#39;bslmt::Once&#39; and
+// &#39;bslmt::OnceGuard&#39;, which give the caller a way to run a body of code
+// exactly once within the current process, particularly in the presence of
+// multiple threads.  This component also defines the macro &#39;BSLMT_ONCE_DO&#39;,
+// which provides syntactic sugar to make one-time execution nearly fool-proof.
+// A common use of one-time execution is the initialization of singletons on
+// first use.
+//
+// The &#39;bslmt::Once&#39; class is designed to be statically allocated and
+// initialized using the &#39;BSLMT_ONCE_INITIALIZER&#39; macro.  Client code may use
+// the &#39;bslmt::Once&#39; object in one of two ways: 1) it may use the &#39;callOnce&#39;
+// method to call a function or functor or 2) it may call the &#39;enter&#39; and
+// &#39;leave&#39; methods just before and after the code that is intended to be
+// executed only once.  That code must be executed conditionally on &#39;enter&#39;
+// returning &#39;true&#39;, indicating that the caller is the first thread to pass
+// through this region of code.  The &#39;leave&#39; method must be executed at the end
+// of the code region, indicating that the one-time execution has completed and
+// unblocking any threads waiting on &#39;enter&#39;.
+//
+// A safer way to use the &#39;enter&#39; and &#39;leave&#39; methods of &#39;bslmt::Once&#39; is to
+// manage the &#39;bslmt::Once&#39; object using a &#39;bslmt::OnceGuard&#39; object
+// constructed from the &#39;bslmt::Once&#39; object.  Calling &#39;enter&#39; on the
+// &#39;bslmt::OnceGuard&#39; object will call &#39;enter&#39; on its associated &#39;bslmt::Once&#39;
+// object.  If the call to &#39;enter&#39; returns &#39;true&#39;, then the destructor for the
+// guard will automatically call &#39;leave&#39; on its associated &#39;bslmt::Once&#39;
+// object.  The &#39;bslmt::OnceGuard&#39; class is intended to be allocated on the
+// stack (i.e., as a local variable) so that it is automatically destroyed at
+// the end of its enclosing block.  Thus, the to call &#39;leave&#39; of the
+// &#39;bslmt::Once&#39; object is enforced by the compiler.
+//
+// An even easier way to use the facilities of this component is to use the
+// &#39;BSLMT_ONCE_DO&#39; macro.  This macro behaves like an &#39;if&#39; statement --
+// executing the following [compound] statement the first time the control
+// passes through it in the course of a program&#39;s execution, and blocking other
+// calling threads until the [compound] statement is executed the first time.
+// Thus, bracketing arbitrary code in a &#39;BSLMT_ONCE_DO&#39; construct is the
+// easiest way to ensure that code will be executed only once for a program.
+// The &#39;BSLMT_ONCE_DO&#39; behaves correctly even if there are &#39;return&#39; statements
+// within the one-time code block.
+//
+// The implementation of this component uses appropriate memory barriers so
+// that changes made in the one-time execution code are immediately visible to
+// all threads at the end of the one-time code block.
+//
+///Warning
+///-------
+// The &#39;BSLMT_ONCE_DO&#39; macro consists of a declaration and a &#39;for&#39; loop.
+// Consequently, the following is syntactically incorrect:
+//..
+//  if (xyz) BSLMT_ONCE_DO { stuff() }
+//..
+// Also, a &#39;break&#39; or &#39;continue&#39; statement within a &#39;BSLMT_ONCE_DO&#39; construct
+// terminates the &#39;BSLMT_ONCE_DO&#39;, not a surrounding loop or &#39;switch&#39;
+// statement.  For example:
+//..
+//  switch (xyz) {
+//    case 0: BSLMT_ONCE_DO { stuff(); break; /* does not break case */ }
+//    case 1: // Oops! case 0 falls through to here.
+//  }
+//..
+//
+///Thread Safety
+///-------------
+// Objects of the &#39;bslmt::Once&#39; class are intended to be shared among threads
+// and may be accessed and modified simultaneously in multiple threads by using
+// the methods provided.  To allow static initialization, &#39;bslmt::Once&#39; is a
+// POD type with public member variables.  It is not safe to directly access or
+// manipulate its member variables (including object initialization)
+// simultaneously from multiple threads.  (Note that static initialization
+// takes place before multiple threading begins, and is thus safe.)
+//
+// The &#39;bslmt::OnceGuard&#39; objects are designed to be used only by their creator
+// threads and are typically created on the stack.  It is not safe to use a
+// &#39;bslmt::OnceGuard&#39; by a thread other than its creator.
+//
+///Usage
+///-----
+// Typically, the facilities in this component are used to implement a
+// thread-safe singleton.  Below, we implement the a singleton four ways,
+// illustrating the two ways to directly use &#39;bslmt::Once&#39;, the use of
+// &#39;bslmt::OnceGuard&#39;, and the use of &#39;BSLMT_ONCE_DO&#39;.  In each example, the
+// singleton functions take a C-string (&#39;const char*&#39;) argument and return a
+// reference to a &#39;bsl::string&#39; object constructed from the input string.  Only
+// the first call to each singleton function affect the contents of the
+// singleton string.  (The argument is ignored on subsequent calls.)
+//
+///First Implementation
+/// - - - - - - - - - -
+// Our first implementation uses the &#39;BSLMT_ONCE_DO&#39; construct, the
+// recommended way to use this component.  The function is a variation of the
+// singleton pattern described by Scott Meyers, except that the &#39;BSLMT_ONCE_DO&#39;
+// macro is used to handle multiple entries to the function in a thread-safe
+// manner:
+//..
+//  const bsl::string&amp; singleton0(const char *s)
+//  {
+//      static bsl::string *theSingletonPtr = 0;
+//      BSLMT_ONCE_DO {
+//          static bsl::string theSingleton(s,
+//                                          bslma::Default::globalAllocator());
+//          theSingletonPtr = &amp;theSingleton;
+//      }
+//      return *theSingletonPtr;
+//  }
+//..
+// The &#39;BSLMT_ONCE_DO&#39; mechanism suffices for most situations; however, if more
+// flexibility is required, review the remaining examples in this series for
+// more design choices.  The next example will use the lowest-level facilities
+// of &#39;bslmt::Once&#39;.  The two following examples use progressively higher-level
+// facilities to produce simpler singleton implementations (though none as
+// simple as the &#39;BSLMT_ONCE_DO&#39; example above).
+//
+///Second Implementation
+///- - - - - - - - - - -
+// The next singleton function implementation directly uses the &#39;doOnce&#39; method
+// of &#39;bslmt::Once&#39;.  We begin by declaring a functor type that does most of
+// the work of the singleton, i.e., constructing the string and setting a
+// (static) pointer to the string:
+//..
+//  static bsl::string *theSingletonPtr = 0;
+//
+//  class SingletonInitializer {
+//      const char *d_initialValue;
+//
+//    public:
+//      SingletonInitializer(const char *initialValue)
+//      : d_initialValue(initialValue)
+//      {
+//      }
+//
+//      void operator()() const {
+//         static bsl::string theSingleton(d_initialValue);
+//         theSingletonPtr = &amp;theSingleton;
+//      }
+//  };
+//..
+// The function call operator of the type above is *not* thread-safe.  Firstly,
+// many threads might attempt to simultaneously construct the &#39;theSingleton&#39;
+// object.  Secondly, once &#39;theSingletonPtr&#39; is set by one thread, other
+// threads still might not see the change (and try to initialize the singleton
+// again).
+//
+// The &#39;singleton1&#39; function, below, invokes &#39;SingletonInitializer::operator()&#39;
+// via the &#39;callOnce&#39; method of &#39;bslmt::Once&#39; to ensure that &#39;operator()&#39; is
+// called by only one thread and that the result is visible to all threads.  We
+// start by creating and initializing a static object of type &#39;bslmt::Once&#39;:
+//..
+//  const bsl::string&amp; singleton1(const char *s)
+//  {
+//      static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
+//..
+// We construct a &#39;SingletonInitializer&#39; instance, effectively &quot;binding&quot; the
+// argument &#39;s&#39; so that it may be used in a function invoked by &#39;callOnce&#39;,
+// which takes only a no-argument functor (or function).  The first thread (and
+// only the first thread) entering this section of code will set &#39;theSingleton&#39;.
+//..
+//      once.callOnce(SingletonInitializer(s));
+//      return *theSingletonPtr;
+//  }
+//..
+// Once we return from &#39;callOnce&#39;, the appropriate memory barrier has been
+// executed so that the change to &#39;theSingletonPtr&#39; is visible to all threads.
+// A thread calling &#39;callOnce&#39; after the initialization has completed would
+// immediately return from the call.  A thread calling &#39;callOnce&#39; while
+// initialization is still in progress would block until initialization
+// completes and then return.
+//
+// *Implementation* *Note*: As an optimization, developers sometimes pre-check
+// the value to be set, &#39;theSingletonPtr&#39; in this case, to avoid (heavy) memory
+// barrier operations; however, that practice is not recommended here.  First,
+// the value of the string may be cached by a different CPU, even though the
+// pointer has already been updated on the common memory bus.  Second, The
+// implementation of the &#39;callOnce&#39; method is fast enough that a pre-check
+// would not provide any performance benefit.
+//
+// The one advantage of this implementation over the previous one is that an
+// exception thrown from within &#39;singletonImp&#39; will cause the &#39;bslmt::Once&#39;
+// object to be restored to its original state, so that the next entry into the
+// singleton will retry the operation.
+//
+///Third Implementation
+/// - - - - - - - - - -
+// Our next implementation, &#39;singleton2&#39;, eliminates the need for the
+// &#39;singletonImp&#39; function and thereby does away with the use of the
+// a functor type to &quot;bind&quot; the initialization parameter; however, it does
+// require use of &#39;bslmt::Once::OnceLock&#39;, created on each thread&#39;s stack and
+// passed to the methods of &#39;bslmt::Once&#39;.  First, we declare a static
+// &#39;bslmt::Once&#39; object as before, and also declare a static pointer to
+// &#39;bsl::string&#39;:
+//..
+//  const bsl::string&amp; singleton2(const char *s)
+//  {
+//      static bslmt::Once   once            = BSLMT_ONCE_INITIALIZER;
+//      static bsl::string *theSingletonPtr = 0;
+//..
+// Next, we define a local &#39;bslmt::Once::OnceLock&#39; object and pass it to the
+// &#39;enter&#39; method:
+//..
+//      bslmt::Once::OnceLock onceLock;
+//      if (once.enter(&amp;onceLock)) {
+//..
+// If the &#39;enter&#39; method returns &#39;true&#39;, we proceed with the initialization of
+// the singleton, as before.
+//..
+//          static bsl::string theSingleton(s);
+//          theSingletonPtr = &amp;theSingleton;
+//..
+// When initialization is complete, the &#39;leave&#39; method is called for the same
+// context cookie previously used in the call to &#39;enter&#39;:
+//..
+//          once.leave(&amp;onceLock);
+//      }
+//..
+// When any thread reaches this point, initialization has been complete and
+// initialized string is returned:
+//..
+//      return *theSingletonPtr;
+//  }
+//..
+//
+///Fourth Implementation
+///- - - - - - - - - - -
+// Our final implementation, &#39;singleton3&#39;, uses &#39;bslmt::OnceGuard&#39; to simplify
+// the previous implementation by using &#39;bslmt::OnceGuard&#39; to hide (automate)
+// the use of &#39;bslmt::Once::OnceLock&#39;.  We begin as before, defining a static
+// &#39;bslmt::Once&#39; object and a static &#39;bsl::string&#39; pointer:
+//..
+//  const bsl::string&amp; singleton3(const char *s)
+//  {
+//      static bslmt::Once  once            = BSLMT_ONCE_INITIALIZER;
+//      static bsl::string *theSingletonPtr = 0;
+//..
+// We then declare a local &#39;bslmt::OnceGuard&#39; object and associate it with the
+// &#39;bslmt::Once&#39; object before entering the one-time initialization region:
+//..
+//      bslmt::OnceGuard onceGuard(&amp;once);
+//      if (onceGuard.enter()) {
+//          static bsl::string theSingleton(s);
+//          theSingletonPtr = &amp;theSingleton;
+//      }
+//      return *theSingletonPtr;
+//  }
+//..
+// Note that it is unnecessary to call &#39;onceGuard.leave()&#39; because that is
+// called automatically before the function returns.  This machinery makes the
+// code more robust in the presence of, e.g., return statements in the
+// initialization code.
+//
+// If there is significant code after the end of the one-time initialization,
+// the guard and the initialization code should be enclosed in an extra block
+// so that the guard is destroyed as soon as validly possible and allow other
+// threads waiting on the initialization to continue.  Alternatively, one can
+// call &#39;onceGuard.leave()&#39; explicitly at the end of the initialization.
+//
+///Using the Semaphore Implementations
+///- - - - - - - - - - - - - - - - - -
+// The following pair of functions, &#39;thread1func&#39; and &#39;thread2func&#39; which will
+// be run by different threads:
+//..
+//  void *thread1func(void *)
+//  {
+//      const bsl::string&amp; s0 = singleton0(&quot;0 hello&quot;);
+//      const bsl::string&amp; s1 = singleton1(&quot;1 hello&quot;);
+//      const bsl::string&amp; s2 = singleton2(&quot;2 hello&quot;);
+//      const bsl::string&amp; s3 = singleton3(&quot;3 hello&quot;);
+//
+//      assert(&#39;0&#39; == s0[0]);
+//      assert(&#39;1&#39; == s1[0]);
+//      assert(&#39;2&#39; == s2[0]);
+//      assert(&#39;3&#39; == s3[0]);
+//
+//      // ... lots more code goes here
+//      return 0;
+//  }
+//
+//  void *thread2func(void *)
+//  {
+//      const bsl::string&amp; s0 = singleton0(&quot;0 goodbye&quot;);
+//      const bsl::string&amp; s1 = singleton1(&quot;1 goodbye&quot;);
+//      const bsl::string&amp; s2 = singleton2(&quot;2 goodbye&quot;);
+//      const bsl::string&amp; s3 = singleton3(&quot;3 goodbye&quot;);
+//
+//      assert(&#39;0&#39; == s0[0]);
+//      assert(&#39;1&#39; == s1[0]);
+//      assert(&#39;2&#39; == s2[0]);
+//      assert(&#39;3&#39; == s3[0]);
+//
+//      // ... lots more code goes here
+//      return 0;
+//  }
+//..
+// Both threads attempt to initialize the four singletons.  In our example,
+// each thread passes a distinct argument to the singleton, allowing us to
+// identify the thread that initializes the singleton.  (In practice, the
+// arguments passed to a specific singleton are almost always fixed and most
+// singletons don&#39;t take arguments at all.)
+//
+// Assuming that the first thread function wins all of the races to initialize
+// the singletons, the first singleton is set to &quot;0 hello&quot;, the second
+// singleton to &quot;1 hello&quot;, etc.
+//..
+//  int usageExample1()
+//  {
+//      void startThread1();
+//      void startThread2();
+//
+//      startThread1();
+//      startThread2();
+//
+//      assert(singleton0(&quot;0&quot;) == &quot;0 hello&quot;);
+//      assert(singleton1(&quot;1&quot;) == &quot;1 hello&quot;);
+//      assert(singleton2(&quot;2&quot;) == &quot;2 hello&quot;);
+//      assert(singleton3(&quot;3&quot;) == &quot;3 hello&quot;);
+//
+//      return 0;
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_QLOCK
+#include &lt;bslmt_qlock.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include &lt;bsls_atomicoperations.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#   define BSLMT_ONCE_UNIQNUM __COUNTER__
+        // MSVC: The &#39;__LINE__&#39; macro breaks when &#39;/ZI&#39; is used (see Q199057 or
+        // KB199057).  Fortunately the &#39;__COUNTER__&#39; extension provided by MSVC
+        // is even better.
+#else
+#   define BSLMT_ONCE_UNIQNUM __LINE__
+#endif
+
+#define BSLMT_ONCE_DO \
+    BSLMT_ONCE_DO_IMP(BSLMT_ONCE_CAT(bslmt_doOnceObj, BSLMT_ONCE_UNIQNUM))
+    // This macro provides a simple control construct to bracket a piece of
+    // code that should only be executed once during the course of a
+    // multithreaded program.  Usage:
+    //..
+    //  BSLMT_ONCE_DO { /* one-time code goes here */ }
+    //..
+    // Leaving a &#39;BSLMT_ONCE_DO&#39; construct via &#39;break&#39;, &#39;continue&#39;, or &#39;return&#39;
+    // will put the construct in a &quot;done&quot; state (unless &#39;BSLMT_ONCE_CANCEL&#39; has
+    // been called) and will unblock all threads waiting to enter the one-time
+    // region.  Note that a &#39;break&#39; or &#39;continue&#39; within the one-time code will
+    // terminate only the &#39;BSLMT_ONCE_DO&#39; construct, not any surrounding loop
+    // or switch statement.  Due to a bug in the Microsoft Visual C++ 2003
+    // compiler, the behavior is undefined if an exception is thrown from
+    // within this construct and is not caught within the same construct.  Only
+    // one call to &#39;BSLMT_ONCE_DO&#39; may appear on a single source-code line in
+    // any code block.
+
+#define BSLMT_ONCE_CANCEL() bslmt_doOnceGuard.cancel()
+    // This macro provides a way to cancel once processing within a
+    // &#39;BSLMT_ONCE_DO&#39; construct.  It will not compile outside of a
+    // &#39;BSLMT_ONCE_DO&#39; construct.  Executing this function-like macro will set
+    // the state of the &#39;BSLMT_ONCE_DO&#39; construct to &quot;not entered&quot;, possibly
+    // unblocking a thread waiting to enter the one-time code region.  Note
+    // that this macro does not exit the &#39;BSLMT_ONCE_DO&#39; construct (i.e., it
+    // does not have &#39;break&#39; or &#39;return&#39; semantics).
+
+#define BSLMT_ONCE_INITIALIZER { BSLMT_QLOCK_INITIALIZER, { 0 } }
+
+namespace bslmt {
+
+    // Use this macro to initialize an object of type &#39;Once&#39;.  E.g.:
+    //..
+    //  Once once = BSLMT_ONCE_INITIALIZER;
+    //..
+
+                                // ==========
+                                // class Once
+                                // ==========
+
+class Once {
+    // Gate-keeper class for code that should only execute once per process.
+    // This class is a POD-type and can be statically initialized to the value
+    // of the &#39;BSLMT_ONCE_INITIALIZE&#39; macro.  For this reason, it does not have
+    // any explicitly-declared constructors or destructor.
+
+    // PRIVATE TYPES
+    enum { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
+
+  private:
+    // NOT IMPLEMENTED
+    Once&amp; operator=(const Once&amp;);
+        // Copy-assignment is not allowed.  We cannot declare a private copy
+        // constructor because that would make this class a non-POD.
+
+  public:
+    // These variables are public so that this (POD) type can be statically
+    // initialized.  Do not access these variables directly.
+
+    // DATA
+    QLock                                    d_mutex;
+                                        // public, but do *not* access directly
+    bsls::AtomicOperations::AtomicTypes::Int d_state;
+                                        // public, but do *not* access directly
+
+  public:
+    // PUBLIC TYPES
+    typedef QLockGuard OnceLock;
+        // Special token created by a single thread to pass to the &#39;enter&#39;,
+        // &#39;leave&#39;, and &#39;cancel&#39; methods.
+
+    // MANIPULATORS
+    bool enter(OnceLock *onceLock);
+        // Lock the internal mutex using the specified &#39;onceLock&#39; (possibly
+        // blocking if another thread has already locked the mutex).  If no
+        // other thread has yet called &#39;enter&#39; or &#39;callOnce&#39; on this object,
+        // return &#39;true&#39;.  Otherwise, unlock the mutex and return &#39;false&#39;.  The
+        // mutex lock may be skipped if it can be determined that it will not
+        // be needed.  The behavior is undefined if &#39;onceLock&#39; is already in a
+        // locked state on entry to this method.  Note that if &#39;enter&#39; returns
+        // &#39;true&#39;, the caller *must* eventually call &#39;leave&#39;, or else other
+        // threads may block indefinitely.
+
+    void leave(OnceLock *onceLock);
+        // Set this object into a state such that pending and future calls to
+        // &#39;enter&#39; or &#39;callOnce&#39; will return &#39;false&#39; or do nothing,
+        // respectively, then unlock the internal mutex using the specified
+        // &#39;onceLock&#39; (possibly unblocking pending calls to &#39;enter&#39; or
+        // &#39;callOnce&#39;).  The behavior is undefined unless &#39;onceLock&#39; was locked
+        // by a matching call to &#39;enter&#39; on this object and has not been
+        // tampered-with since.
+
+    void cancel(OnceLock *onceLock);
+        // Revert this object to the state it was in before &#39;enter&#39; or
+        // &#39;callOnce&#39; was called, then unlock the internal mutex using the
+        // specified &#39;onceLock&#39; (possibly unblocking pending calls to &#39;enter&#39;
+        // or &#39;callOnce&#39;).  This method may only be used to cancel execution of
+        // one-time code that has not yet completed.  The behavior is undefined
+        // unless &#39;onceLock&#39; was locked by a matching call to &#39;enter&#39; on this
+        // object and has not been tampered-with since (especially by calling
+        // &#39;leave&#39;).
+
+    template &lt;class FUNC&gt;
+    void callOnce(FUNC&amp; function);
+    template &lt;class FUNC&gt;
+    void callOnce(const FUNC&amp; function);
+        // If no other thread has yet called &#39;enter&#39; or &#39;callOnce&#39;, then call
+        // the specified &#39;function&#39; and set this object to the state where
+        // pending and future calls to &#39;enter&#39; or &#39;callOnce&#39; will return
+        // &#39;false&#39; or do nothing, respectively.  Otherwise, wait for the
+        // one-time code to complete and return without calling &#39;function&#39;
+        // where &#39;function&#39; is a function or functor that can be called with no
+        // arguments.  Note that one-time code is considered not to have run if
+        // &#39;function&#39; terminates with an exception.
+};
+
+                             // ===============
+                             // class OnceGuard
+                             // ===============
+
+class OnceGuard {
+    // Guard class for using &#39;Once&#39; safely.  Construct an object of this class
+    // before conditionally entering one-time processing code.  Destroy the
+    // object when the one-time code is complete.  When used this way, this
+    // object will be in an &quot;in-progress&quot; state during the time that the
+    // one-time code is being executed.
+
+    // PRIVATE TYPES
+    enum State { e_NOT_ENTERED, e_IN_PROGRESS, e_DONE };
+
+    // DATA
+    Once::OnceLock  d_onceLock;
+    Once           *d_once;
+    State           d_state;
+
+    // NOT IMPLEMENTED
+    OnceGuard(const OnceGuard&amp;);
+    OnceGuard&amp; operator=(const OnceGuard&amp;);
+
+  public:
+    // CREATORS
+    explicit OnceGuard(Once *once = 0);
+        // Initialize this object to guard the (optionally) specified &#39;once&#39;
+        // object.  If &#39;once&#39; is not specified, then it must be set later using
+        // the &#39;setOnce&#39; method before other methods may be called.
+
+    ~OnceGuard();
+        // Destroy this object.  If this object is not in an &quot;in-progress&quot;
+        // state, do nothing.  If this object is in an &quot;in-progress&quot; state and
+        // is being destroyed in the course of normal processing, then call
+        // &#39;leave&#39; on the associated &#39;Once&#39; object.  Due to a bug in the MS
+        // VC++ 2003 compiler, the behavior is undefined if this destructor is
+        // called in the course of stack-unwinding during exception processing
+        // (i.e., if an exception escapes from the one-time code region.
+        // [Eventually, we hope to call &#39;cancel&#39; if this destructor is called
+        // during exception-processing.]
+
+    // MANIPULATORS
+    void setOnce(Once *once);
+        // Set this object to guard the specified &#39;once&#39; object.  The behavior
+        // is undefined if this object is currently in the &quot;in-progress&quot; state.
+
+    bool enter();
+        // Call &#39;enter&#39; on the associated &#39;Once&#39; object and return the result.
+        // If &#39;Once::enter&#39; returns &#39;true&#39;, set this object into the
+        // &quot;in-progress&quot; state.  The behavior is undefined unless this object
+        // has been associated with a &#39;Once&#39; object, either in the constructor
+        // or using &#39;setOnce&#39;, or if this object is already in the
+        // &quot;in-progress&quot; state.
+
+    void leave();
+        // If this object is in the &quot;in-progress&quot; state, call &#39;leave&#39; on the
+        // associated &#39;Once&#39; object and exit the &quot;in-progress&quot; state.
+        // Otherwise, do nothing.
+
+    void cancel();
+        // If this object is in the &quot;in-progress&quot; state, call &#39;cancel&#39; on the
+        // associated &#39;Once&#39; object and exit the &quot;in-progress&quot; state.
+        // Otherwise, do nothing.
+
+    // ACCESSORS
+    bool isInProgress() const;
+        // Return &#39;true&#39; if this object is in the &quot;in-progress&quot; state.  The
+        // object is in-progress if &#39;enter&#39; has been called and returned &#39;true&#39;
+        // and neither &#39;leave&#39; nor &#39;cancel&#39; have been called.  The one-time
+        // code controlled by this object should only be executing if this
+        // object is in the &quot;in-progress&quot; state.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                    // ----------------------------------
+                    // Token concatenation support macros
+                    // ----------------------------------
+
+// Second layer needed to ensure that arguments are expanded before
+// concatenation.
+#define BSLMT_ONCE_CAT(X, Y) BSLMT_ONCE_CAT_IMP(X, Y)
+#define BSLMT_ONCE_CAT_IMP(X, Y) X##Y
+
+                  // -------------------------------------
+                  // Implementation of BSLMT_ONCE_DO Macro
+                  // -------------------------------------
+
+// Use a for-loop to initialize the guard, test if we can enter the
+// once-region, then leave the once-region at the end.  Each invocation of this
+// macro within a source file supplies a different &#39;doOnceObj&#39; name.
+#define BSLMT_ONCE_DO_IMP(doOnceObj)                                          \
+    static BloombergLP::bslmt::Once doOnceObj = BSLMT_ONCE_INITIALIZER;       \
+    for (BloombergLP::bslmt::OnceGuard bslmt_doOnceGuard(&amp;doOnceObj);         \
+         bslmt_doOnceGuard.enter(); bslmt_doOnceGuard.leave())
+
+                             // ---------------
+                             // class OnceGuard
+                             // ---------------
+
+// CREATORS
+inline
+bslmt::OnceGuard::OnceGuard(Once *once)
+: d_once(once)
+, d_state(e_NOT_ENTERED)
+{
+}
+
+// MANIPULATORS
+inline
+void bslmt::OnceGuard::setOnce(Once *once)
+{
+    BSLS_ASSERT_SAFE(e_IN_PROGRESS != d_state);
+
+    d_once = once;
+    d_state = e_NOT_ENTERED;
+}
+
+// ACCESSORS
+inline
+bool bslmt::OnceGuard::isInProgress() const
+{
+    return e_IN_PROGRESS == d_state;
+}
+
+                                // ----------
+                                // class Once
+                                // ----------
+
+template &lt;class FUNC&gt;
+inline
+void bslmt::Once::callOnce(FUNC&amp; function)
+{
+    OnceGuard guard(this);
+    if (guard.enter()) {
+#ifdef BDE_BUILD_TARGET_EXC
+        try {
+            function();
+        }
+        catch (...) {
+            guard.cancel();
+            throw;
+        }
+#else
+        function();
+#endif
+    }
+}
+
+template &lt;class FUNC&gt;
+inline
+void bslmt::Once::callOnce(const FUNC&amp; function)
+{
+    OnceGuard guard(this);
+    if (guard.enter()) {
+#ifdef BDE_BUILD_TARGET_EXC
+        try {
+            function();
+        }
+        catch (...) {
+            guard.cancel();
+            throw;
+        }
+#else
+        function();
+#endif
+    }
+}
+
+}  // close enterprise namespace
+
+#if !defined(BSL_DOUBLE_UNDERSCORE_XLAT) || 1 == BSL_DOUBLE_UNDERSCORE_XLAT
+#define BSLMT_ONCE__CAT(X, Y) BSLMT_ONCE_CAT(X, Y)
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

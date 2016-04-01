@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_log.h                                                         -*-C++-*-
@@ -153,6 +153,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_atomicoperations.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_POINTERCASTUTIL
+#include &lt;bsls_pointercastutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
                          // ==========================
                          // BSLS_LOG Macro Definitions
                          // ==========================
@@ -293,9 +301,8 @@ inline
 void Log::setLogMessageHandler(Log::LogMessageHandler handler)
 {
     BSLS_ASSERT_SAFE(handler);
-
-    bsls::AtomicOperations::setPtrRelease(&amp;s_logMessageHandler,
-                                          reinterpret_cast&lt;void*&gt;(handler));
+    bsls::AtomicOperations::setPtrRelease(
+        &amp;s_logMessageHandler, PointerCastUtil::cast&lt;void *&gt;(handler));
 }
 
 }  // close package namespace

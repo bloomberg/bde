@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_stringrefdata.h                                             -*-C++-*-
@@ -73,8 +73,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Breaking cyclic dependency between string and StringRef classes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Breaking Cyclic Dependency Between &#39;String&#39; and &#39;StringRef&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how &#39;bslstl::StringRefData&#39; allows us to
 // break the cyclic dependency between hypothetical &#39;String&#39; and &#39;StringRef&#39;
 // classes.
@@ -176,7 +176,7 @@ namespace bslstl {
                          // class StringRefData
                          // ===================
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 class StringRefData {
     // This complex-constrained in-core (value-semantic) attribute class
     // represents a reference to character string data.  See the Attributes
@@ -228,16 +228,16 @@ class StringRefData {
         // Empty string value is represented as (0, 0).
 };
 
-// ===========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // -------------------
                          // class StringRefData
                          // -------------------
 
 // CREATORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefData&lt;CHAR_TYPE&gt;::StringRefData()
 : d_begin_p(0)
@@ -245,7 +245,7 @@ StringRefData&lt;CHAR_TYPE&gt;::StringRefData()
 {
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 StringRefData&lt;CHAR_TYPE&gt;
     ::StringRefData(const CHAR_TYPE *begin,
@@ -258,14 +258,14 @@ StringRefData&lt;CHAR_TYPE&gt;
 }
 
 // ACCESSORS
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 const CHAR_TYPE *StringRefData&lt;CHAR_TYPE&gt;::begin() const
 {
     return d_begin_p;
 }
 
-template &lt;typename CHAR_TYPE&gt;
+template &lt;class CHAR_TYPE&gt;
 inline
 const CHAR_TYPE *StringRefData&lt;CHAR_TYPE&gt;::end() const
 {

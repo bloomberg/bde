@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslx_byteinstream Component</title>
+<title>BDE 3.0: bslx_byteinstream Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -126,11 +126,11 @@ Namespaces</h2></td></tr>
       <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> d_lastName;
       <span class="keywordtype">int</span>         d_age;
 
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPerson&amp;, <span class="keyword">const</span> MyPerson&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyPerson&amp;, <span class="keyword">const</span> MyPerson&amp;);
 
     <span class="keyword">public</span>:
       <span class="comment">// CLASS METHODS</span>
-      <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="namespacebdlt.html#a939d0f2f7d5823be26b17d3c1e9371d5">maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector);
+      <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector);
           <span class="comment">// Return the maximum valid BDEX format version, as indicated by</span>
           <span class="comment">// the specified &#39;versionSelector&#39;, to be passed to the</span>
           <span class="comment">// &#39;bdexStreamOut&#39; method.  Note that it is highly recommended that</span>
@@ -162,7 +162,7 @@ Namespaces</h2></td></tr>
           <span class="comment">// and return a reference to this person.</span>
 
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-      STREAM&amp; <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
+      STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
           <span class="comment">// Assign to this object the value read from the specified input</span>
           <span class="comment">// &#39;stream&#39; using the specified &#39;version&#39; format, and return a</span>
           <span class="comment">// reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this</span>
@@ -181,7 +181,7 @@ Namespaces</h2></td></tr>
           <span class="comment">// Return the age of this person.</span>
 
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-      STREAM&amp; <a class="code" href="namespacebdlt.html#a9cf1c829a8cb75604972fa47826d2dda">bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version) <span class="keyword">const</span>;
+      STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version) <span class="keyword">const</span>;
           <span class="comment">// Write the value of this object, using the specified &#39;version&#39;</span>
           <span class="comment">// format, to the specified output &#39;stream&#39;, and return a reference</span>
           <span class="comment">// to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation</span>
@@ -202,12 +202,12 @@ Namespaces</h2></td></tr>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; person objects have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two person objects have the</span>
       <span class="comment">// same value if they have the same first name, last name, and age.</span>
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; person objects do not</span>
       <span class="comment">// have the same value, and &#39;false&#39; otherwise.  Two person objects</span>
       <span class="comment">// differ in value if they differ in first name, last name, or age.</span>
@@ -218,7 +218,7 @@ Namespaces</h2></td></tr>
 
   <span class="comment">// CLASS METHODS</span>
   <span class="keyword">inline</span>
-  <span class="keywordtype">int</span> <a class="code" href="namespacebdlt.html#a939d0f2f7d5823be26b17d3c1e9371d5">MyPerson::maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> <span class="comment">/* versionSelector */</span>) {
+  <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">MyPerson::maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> <span class="comment">/* versionSelector */</span>) {
       <span class="keywordflow">return</span> 1;
   }
 
@@ -245,7 +245,7 @@ Namespaces</h2></td></tr>
   }
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-  STREAM&amp; <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">MyPerson::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">MyPerson::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
   {
       <span class="keywordflow">if</span> (stream) {
           <span class="keywordflow">switch</span> (version) {  <span class="comment">// switch on the &#39;bslx&#39; version</span>
@@ -284,7 +284,7 @@ Namespaces</h2></td></tr>
   }
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-  STREAM&amp; <a class="code" href="namespacebdlt.html#a9cf1c829a8cb75604972fa47826d2dda">MyPerson::bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)<span class="keyword"> const</span>
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">MyPerson::bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">switch</span> (version) {
         <span class="keywordflow">case</span> 1: {
@@ -313,7 +313,7 @@ Namespaces</h2></td></tr>
 
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.d_firstName == rhs.d_firstName &amp;&amp;
              lhs.d_lastName  == rhs.d_lastName  &amp;&amp;
@@ -321,7 +321,7 @@ Namespaces</h2></td></tr>
   }
 
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> MyPerson&amp; lhs, <span class="keyword">const</span> MyPerson&amp; rhs)
   {
       <span class="keywordflow">return</span> !(lhs == rhs);
   }
@@ -373,7 +373,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:11 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

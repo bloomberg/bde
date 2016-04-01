@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_hashtablebucket.h                                           -*-C++-*-
@@ -333,9 +333,9 @@ struct HashTableBucket {
         // Return the number of nodes in this hash bucket.
 };
 
-// ===========================================================================
+// ============================================================================
 //                               FREE OPERATORS
-// ===========================================================================
+// ============================================================================
 
 bool operator==(const HashTableBucket&amp; lhs, const HashTableBucket&amp; rhs);
     // Return &#39;true&#39; if the specified hash table buckets &#39;lhs&#39; and &#39;rhs&#39; are
@@ -345,9 +345,9 @@ bool operator!=(const HashTableBucket&amp; lhs, const HashTableBucket&amp; rhs);
     // Return &#39;true&#39; if the specified hash table buckets &#39;lhs&#39; and &#39;rhs&#39; are
     // not equivalent and &#39;false&#39; otherwise.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //----------------------
                         // class HashTableBucket
@@ -405,7 +405,7 @@ BidirectionalLink *HashTableBucket::last() const
     return d_last_p;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 // FREE OPERATORS
 inline

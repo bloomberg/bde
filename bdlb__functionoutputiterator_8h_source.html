@@ -1,0 +1,401 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_functionoutputiterator.h                                      -*-C++-*-
+#ifndef INCLUDED_BDLB_FUNCTIONOUTPUTITERATOR
+#define INCLUDED_BDLB_FUNCTIONOUTPUTITERATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provides an output iterator for a client-supplied functor.
+//
+//@CLASSES:
+//  bdlb::FunctionOutputIterator: function output iterator template
+//
+//@SEE_ALSO: bdlb_nulloutputiterator
+//
+//@DESCRIPTION: This component provides an iterator template mechanism,
+// &#39;bdlb::FunctionOutputIterator&#39;, that adapts a client supplied functor (or
+// function pointer) to a C++ compliant output iterator.  This component allows
+// clients to create custom output iterators easily.
+//
+// A &#39;bdlb::FunctionOutputIterator&#39; instance&#39;s template parameter type
+// &#39;FUNCTION&#39; must be a functor (or function) that can be called as if it has
+// the following signature:
+//..
+//  void operator()(const TYPE&amp;)&#39;
+//..
+// where &#39;TYPE&#39; is the type of the object that will be assigned (by clients)
+// to the dereferenced iterator.  For example:
+//..
+//  void myFunction(const int&amp; value) {};
+//  typedef void (*MyFunctionPtr)(const int&amp;);
+//  typedef bdlb::FunctionOutputIterator&lt;MyFunctionPtr&gt; MyFunctionIterator;
+//
+//  MyFunctionIterator it(&amp;foo);
+//  *it = 5;                       // Calls &#39;myFunction(5)&#39;!
+//..
+// Notice that assigning 5 to the dereferenced output iterator invokes the
+// function with the value 5.
+//
+// The provided output iterator has the following attributes:
+//
+//: o Meets the requirements for an output iterator according to the
+//:   C++ Standard (C++11, Section 24.2.4 [output.iterators]).
+//:
+//: o Dereferencing an iterator and assigning to the result leads to a call
+//:   of the functional object owned by the iterator.  The value assigned to
+//:   the dereferenced iterator is passed to a call of the function or functor
+//:   held by the iterator as a constant reference.  In other words, the
+//:   assignment &#39;*it = value&#39; is equivalent to &#39;function(value)&#39;.
+//:
+//: o Incrementing an iterator is a no-op.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Adapting a Free-Function to an Output Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want use a provided function &#39;foo&#39;, that prints integers in some
+// predefined format, to print each unique element of an array.  Instead of
+// manually writing a loop and checking for duplicate elements, we would like
+// to use a standard algorithm such as &#39;unique_copy&#39;.  However, &#39;unique_copy&#39;
+// takes in an output iterator instead of a free function.  We can use
+// &#39;bdlb::FunctionOutputIterator&#39; to adapt &#39;foo&#39; into an output iterator that
+// is acceptable by &#39;unique_copy&#39;.
+//
+// First, we define the type &#39;Function&#39; and a function of that type &#39;foo&#39;:
+//..
+//  typedef void (*Function)(const int&amp;);
+//
+//  void foo(const int&amp; value)
+//  {
+//      bsl::cout &lt;&lt; value &lt;&lt; &quot; &quot;;
+//  }
+//..
+// Then, we define a data sequence to process:
+//..
+//  enum { NUM_VALUES_1 = 7 };
+//  const int array1[NUM_VALUES_1] = { 2, 3, 3, 5, 7, 11, 11 };
+//..
+// Next, we use &#39;bdlb::FunctionOutputIterator&#39; to wrap &#39;foo&#39; for use in the
+// algorithm &#39;bsl::unqiue_copy&#39;:
+//..
+//  unique_copy(
+//      array1,
+//      array1 + NUM_VALUES,
+//      bdlb::FunctionOutputIterator&lt;Function&gt;(&amp;foo));
+//..
+// Notice, that each time &#39;bsl::unique_copy&#39; copies an element from the
+// supplied range and assigns it to the output iterator, the function &#39;foo&#39; is
+// called for the element.
+//
+// Finally, the resulting console output:
+//..
+//  2 3 5 7 11
+//..
+//
+///Example 2: Adapting A Functor to An Output Iterator
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using a &#39;bdlb::FunctionOutputIterator&#39;
+// with a user defined functor object.  Consider the &#39;Accumulator&#39; class for
+// accumulating integer values into a total.  We want to adapt &#39;Accumulator&#39;
+// for use with the algorithm &#39;bsl::unique_copy&#39;.
+//
+// First, we define an &#39;Accumulator&#39; class that will total the values supplied
+// to the &#39;increment&#39; method:
+//..
+//  class Accumulator {
+//      // This class provides a value accumulating functionality.
+//
+//      // DATA
+//      int d_sum;
+//    public:
+//      // CREATORS
+//      Accumulator() : d_sum(0) {};
+//
+//      // MANIPULATORS
+//      void increment(int value) { d_sum += value; };
+//
+//      // ACCESSORS
+//      int total() const { return d_sum; }
+//  };
+//..
+// Next, we define a functor, &#39;AccumulatorFunctor&#39;, that adapts &#39;Accumulator&#39;
+// to a function object:
+//..
+//
+//  class AccumulatorFunctor {
+//      // This class implements a function object that invokes &#39;increment&#39; in
+//      // response of calling operator()(int).
+//
+//      // DATA
+//      Accumulator *d_accumulator_p;  // accumulator (held, not owned)
+//
+//    public:
+//      // CREATORS
+//      explicit AccumulatorFunctor(Accumulator *accumulator)
+//     : d_accumulator_p(accumulator)
+//      {}
+//
+//      // MANIPULATORS
+//      void operator()(int value) { d_accumulator_p-&gt;increment(value); };
+//  };
+//..
+// Then, we define data sequence to process:
+//..
+//  enum { NUM_VALUES_2 = 7 };
+//  const int   array2[NUM_VALUES_2] = { 2, 3, 3, 5, 7, 11, 11 };
+//..
+// Next, we create a &#39;bdlb::FunctionOutputIterator&#39; for &#39;AccumulatorFunctor&#39;
+// and supply it to the &#39;bsl::unique_copy&#39; algorithm to accumulate a sequence
+// of values:
+//..
+//  Accumulator accumulator;
+//  unique_copy(
+//      array2,
+//      array2 + NUM_VALUES_2,
+//      bdlb::FunctionOutputIterator&lt;AccumulatorFunctor&gt;(
+//          AccumulatorFunctor(&amp;accumulator)));
+//..
+// Finally, we observe that &#39;accumulator&#39; holds the accumulated total of
+// unique values in &#39;array&#39;:
+//..
+//  assert(28 == accumulator.total());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include &lt;bsl_iterator.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+#if defined(BSLS_PLATFORM_CMP_SUN) &amp;&amp; !defined(BDE_BUILD_TARGET_STLPORT)
+// Sun Studio compilers have non-standard iterator behavior requiring iterators
+// to inherit from &#39;iterator&#39; (rather than simply meeting the needs of
+// &#39;std::iterator_traits&#39;).  In addition, Sun Studio requires the &#39;value_type&#39;
+// of the iterator to be instantiable (i.e., not &#39;void&#39; as permitted by the
+// C++ standard).
+#define BDLB_SUNITERATORWORKAROUND \
+     : public bsl::iterator&lt;bsl::output_iterator_tag, void *, void, void, void&gt;
+#else
+#define BDLB_SUNITERATORWORKAROUND
+#endif
+
+                     // ============================
+                     // class FunctionOutputIterator
+                     // ============================
+
+template &lt;class FUNCTION&gt;
+class FunctionOutputIterator BDLB_SUNITERATORWORKAROUND {
+    // Provide an output iterator that calls an object of the (template
+    // parameter) type &#39;FUNCTION&#39;.  If &#39;FUNCTION&#39; is a functor, de-referencing
+    // this iterator and assigning to the result (of dereferencing) will call
+    // the &#39;operator()&#39; of the functor with the assigned value as a parameter.
+    // Similarly, if &#39;FUNCTION&#39; if a function pointer type,  assigning to the
+    // dereferenced iterator will call the function supplied at construction
+    // with the assigned value as a parameter.
+
+    // PRIVATE TYPES
+    class AssignmentProxy {
+        // Provide an object that can appear on the left side of an assignment
+        // from &#39;TYPE&#39;.  The assignment to an instance of &#39;AssignmentProxy&#39;
+        // results in a call of &#39;operator(TYPE)&#39; of the functor or function
+        // supplied at construction.  Instances of this class are created every
+        // time an object of the host class is dereferenced.
+
+        // DATA
+        FUNCTION&amp; d_function; // reference to functional object to be invoked
+                              // when value assigned to the instance of this
+                              // class
+      public:
+        // CREATORS
+        explicit AssignmentProxy(FUNCTION&amp; function);
+            // Create &#39;AssignmentProxy&#39; object having the specified &#39;function&#39;
+            // value.
+
+        // MANIPULATORS
+        template &lt;class TYPE&gt;
+        AssignmentProxy&amp; operator=(const TYPE&amp; rhs);
+            // Invoke &#39;d_function&#39; with the specified &#39;rhs&#39; as a parameter.
+            // The behavior is undefined unless &#39;FUNCTION&#39; is a function
+            // pointer type and a valid function pointer was supplied at
+            // construction.
+    };
+
+    // DATA
+    FUNCTION d_function; // functional object to be invoked when value is
+                         // assigned to dereferenced instance of this class
+
+  public:
+    // TYPES
+    typedef bsl::output_iterator_tag iterator_category;
+    typedef void                     difference_type;
+    typedef void                     value_type;
+    typedef void                     reference;
+    typedef void                     pointer;
+        // Provide type aliases required by C++ standard &#39;iterator_traits&#39;.
+
+    // CREATORS
+    FunctionOutputIterator();
+        // Create a &#39;FunctionOutputIterator&#39; object that, when an assignment is
+        // performed on the dereferenced object, will call a default
+        // constructed instance of the (template parameter) type &#39;FUNCTION&#39;
+        // passing the assigned value as the argument.  Note that if &#39;FUNCTION&#39;
+        // is a function pointer type, then the default constructed &#39;FUNCTION&#39;
+        // will be 0, and the behavior when assigning to a dereferenced
+        // iterator will be undefined.
+
+    explicit FunctionOutputIterator(const FUNCTION&amp; function);
+        // Create &#39;FunctionOutputIterator&#39; object that, when an assignment is
+        // performed on the dereferenced object, will call the specified
+        // &#39;function&#39; passing the assigned value as the argument.
+
+    //! FunctionOutputIterator(const FunctionOutputIterator &amp;rhs) = default;
+        // Create a &#39;FunctionOutputIterator&#39; object that, when an assignment is
+        // performed on the dereferenced object, will call the same function or
+        // functor used by the specified &#39;rhs&#39; object.
+
+    //! ~FunctionOutputIterator() = default;
+        // Destroy this object.
+
+
+    // MANIPULATORS
+    //! FunctionOutputIterator&amp; operator=(
+    //                            const FunctionOutputIterator &amp;rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    AssignmentProxy operator*();
+        // Return an object that can appear on the left-hand side of an
+        // assignment from &#39;TYPE&#39;.  When a value is assigned to the returned
+        // value, invoke the functor or function indicated at construction
+        // supplying the assigned value as the parameter.  This function is
+        // non-const in accordance with the input iterator requirements, even
+        // though &#39;*this&#39; is not modified.   Note that if &#39;FUNCTION&#39; is a
+        // function pointer type and a valid function pointer was not supplied
+        // at construction, then the behavior when assigning to a dereferenced
+        // iterator will be undefined.
+};
+
+// FREE OPERATORS
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;&amp; operator++(
+                                   FunctionOutputIterator&lt;FUNCTION&gt;&amp; iterator);
+    // Do nothing and return specified &#39;iterator&#39;.
+
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt; operator++(
+                              FunctionOutputIterator&lt;FUNCTION&gt;&amp; iterator, int);
+    // Do nothing and return specified &#39;iterator&#39;.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+              // ---------------------------------------------
+              // class FunctionOutputIterator::AssignmentProxy
+              // ---------------------------------------------
+
+// CREATORS
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;::AssignmentProxy::AssignmentProxy(
+                                                            FUNCTION&amp; function)
+    : d_function(function)
+{
+}
+
+// MANIPULATORS
+template &lt;class FUNCTION&gt;
+template &lt;class TYPE&gt;
+inline
+typename FunctionOutputIterator&lt;FUNCTION&gt;::AssignmentProxy&amp;
+FunctionOutputIterator&lt;FUNCTION&gt;::AssignmentProxy::operator=(const TYPE&amp; rhs)
+{
+    d_function(rhs);
+    return *this;
+}
+                        // ----------------------------
+                        // class FunctionOutputIterator
+                        // ----------------------------
+
+// CREATORS
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;::FunctionOutputIterator()
+    : d_function()
+{
+}
+
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;::FunctionOutputIterator(
+                                                      const FUNCTION&amp; function)
+    : d_function(function)
+{
+}
+
+// MANIPULATORS
+template &lt;class FUNCTION&gt;
+inline
+typename FunctionOutputIterator&lt;FUNCTION&gt;::AssignmentProxy
+FunctionOutputIterator&lt;FUNCTION&gt;::operator*()
+{
+    return AssignmentProxy(d_function);
+}
+
+// FREE OPERATORS
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;&amp;
+operator++(FunctionOutputIterator&lt;FUNCTION&gt;&amp; iterator)
+{
+    return iterator;
+}
+
+template &lt;class FUNCTION&gt;
+inline
+FunctionOutputIterator&lt;FUNCTION&gt;
+operator++(FunctionOutputIterator&lt;FUNCTION&gt;&amp; iterator, int)
+{
+    return iterator;
+}
+
+#undef BDLB_SUNITERATORWORKAROUND
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

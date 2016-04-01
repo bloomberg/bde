@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_timetz Component</title>
+<title>BDE 3.0: bdlt_timetz Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -116,7 +116,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Attributes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Name                Type         Default         Simple Constraints
+<div class="fragment"><pre class="fragment">  Name                <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>         Default         Simple Constraints
   ------------------  -----------  --------------  ------------------
   localTime           <a class="code" href="classbdlt_1_1Time.html">bdlt::Time</a>   <span class="stringliteral">&#39;24:00:00.000&#39;</span>  none
   offset              <span class="keywordtype">int</span>          0               ( -1440 .. 1440 )
@@ -166,7 +166,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, we observe that <code>phoenixTime</code> is one hour earlier than <code>newYorkTime</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> delta =
+<div class="fragment"><pre class="fragment">  bdlt::DatetimeInterval delta =
                                newYorkTime.utcTime() - phoenixTime.utcTime();
 
   assert(0 == delta.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a018ec8db295d4d2afd3b7d32de6d6bd7">days</a>());
@@ -178,7 +178,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:51 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

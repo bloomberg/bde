@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlc_packedintarray.h                                              -*-C++-*-
@@ -37,7 +37,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // This section illustrates intended use of this component.
 //
 ///Example 1: &#39;Temperature Map&#39;
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // There exist many applications in which the range of &#39;int&#39; data that a
 // container will hold is not known at design time.  This means in order to
 // build a robust component one must default to &#39;bsl::vector&lt;int&gt;&#39;, which for
@@ -191,6 +191,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsl_cstddef.h&gt;
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
 #ifndef INCLUDED_BSL_CSTRING
 #include &lt;bsl_cstring.h&gt;
 #endif
@@ -201,11 +205,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include &lt;bsl_iosfwd.h&gt;
-#endif
-
-#ifndef INCLUDED_STDINT
-#include &lt;stdint.h&gt;
-#define INCLUDED_STDINT
 #endif
 
 
@@ -259,54 +258,54 @@ struct PackedIntArrayImp_Signed {
     // This &#39;struct&#39; provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of &#39;TYPE&#39; elements; &#39;TYPE&#39; must be convertable to either a
-    // &#39;int64_t&#39;.  Specifically, it defines the types used to store the array&#39;s
-    // data, methods needed to externalize and unexternalize the array, and a
-    // method to determine the storage size to use for a given value.
+    // &#39;bsl::int64_t&#39;.  Specifically, it defines the types used to store the
+    // array&#39;s data, methods needed to externalize and unexternalize the array,
+    // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  int8_t OneByteStorageType;
-    typedef int16_t TwoByteStorageType;
-    typedef int32_t FourByteStorageType;
-    typedef int64_t EightByteStorageType;
+    typedef bsl::int8_t  OneByteStorageType;
+    typedef bsl::int16_t TwoByteStorageType;
+    typedef bsl::int32_t FourByteStorageType;
+    typedef bsl::int64_t EightByteStorageType;
 
     // CLASS METHODS
     template &lt;class STREAM&gt;
-    static void bdexGet8(STREAM&amp; stream, int8_t&amp; variable);
+    static void bdexGet8(STREAM&amp; stream, bsl::int8_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet16(STREAM&amp; stream, int16_t&amp; variable);
+    static void bdexGet16(STREAM&amp; stream, bsl::int16_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet32(STREAM&amp; stream, int32_t&amp; variable);
+    static void bdexGet32(STREAM&amp; stream, bsl::int32_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet64(STREAM&amp; stream, int64_t&amp; variable);
+    static void bdexGet64(STREAM&amp; stream, bsl::int64_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut8(STREAM&amp; stream, int8_t value);
+    static void bdexPut8(STREAM&amp; stream, bsl::int8_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut16(STREAM&amp; stream, int16_t value);
+    static void bdexPut16(STREAM&amp; stream, bsl::int16_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut32(STREAM&amp; stream, int32_t value);
+    static void bdexPut32(STREAM&amp; stream, bsl::int32_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut64(STREAM&amp; stream, int64_t value);
+    static void bdexPut64(STREAM&amp; stream, bsl::int64_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
@@ -322,54 +321,54 @@ struct PackedIntArrayImp_Unsigned {
     // This &#39;struct&#39; provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of &#39;TYPE&#39; elements; &#39;TYPE&#39; must be convertable to either a
-    // &#39;uint64_t&#39;.  Specifically, it defines the types used to store the
+    // &#39;bsl::uint64_t&#39;.  Specifically, it defines the types used to store the
     // array&#39;s data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  uint8_t OneByteStorageType;
-    typedef uint16_t TwoByteStorageType;
-    typedef uint32_t FourByteStorageType;
-    typedef uint64_t EightByteStorageType;
+    typedef bsl::uint8_t  OneByteStorageType;
+    typedef bsl::uint16_t TwoByteStorageType;
+    typedef bsl::uint32_t FourByteStorageType;
+    typedef bsl::uint64_t EightByteStorageType;
 
     // CLASS METHODS
     template &lt;class STREAM&gt;
-    static void bdexGet8(STREAM&amp; stream, uint8_t&amp; variable);
+    static void bdexGet8(STREAM&amp; stream, bsl::uint8_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet16(STREAM&amp; stream, uint16_t&amp; variable);
+    static void bdexGet16(STREAM&amp; stream, bsl::uint16_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet32(STREAM&amp; stream, uint32_t&amp; variable);
+    static void bdexGet32(STREAM&amp; stream, bsl::uint32_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexGet64(STREAM&amp; stream, uint64_t&amp; variable);
+    static void bdexGet64(STREAM&amp; stream, bsl::uint64_t&amp; variable);
         // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut8(STREAM&amp; stream, uint8_t value);
+    static void bdexPut8(STREAM&amp; stream, bsl::uint8_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut16(STREAM&amp; stream, uint16_t value);
+    static void bdexPut16(STREAM&amp; stream, bsl::uint16_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut32(STREAM&amp; stream, uint32_t value);
+    static void bdexPut32(STREAM&amp; stream, bsl::uint32_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
     template &lt;class STREAM&gt;
-    static void bdexPut64(STREAM&amp; stream, uint64_t value);
+    static void bdexPut64(STREAM&amp; stream, bsl::uint64_t value);
         // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
         // requirements of the BDEX protocol.
 
@@ -705,9 +704,9 @@ class PackedIntArrayImp {
 };
 
 
-                       // ============================
-                       // struct PackedIntArrayImpType
-                       // ============================
+                        // ============================
+                        // struct PackedIntArrayImpType
+                        // ============================
 
 template &lt;class TYPE&gt;
 struct PackedIntArrayImpType {
@@ -722,18 +721,18 @@ struct PackedIntArrayImpType {
                                || bsl::is_same&lt;TYPE, unsigned long int&gt;::value
                                || bsl::is_same&lt;TYPE,
                                                bsls::Types::Uint64&gt;::value
-                               || bsl::is_same&lt;TYPE, uint8_t&gt;::value
-                               || bsl::is_same&lt;TYPE, uint16_t&gt;::value
-                               || bsl::is_same&lt;TYPE, uint32_t&gt;::value
-                               || bsl::is_same&lt;TYPE, uint64_t&gt;::value,
+                               || bsl::is_same&lt;TYPE, bsl::uint8_t&gt;::value
+                               || bsl::is_same&lt;TYPE, bsl::uint16_t&gt;::value
+                               || bsl::is_same&lt;TYPE, bsl::uint32_t&gt;::value
+                               || bsl::is_same&lt;TYPE, bsl::uint64_t&gt;::value,
                                PackedIntArrayImp&lt;PackedIntArrayImp_Unsigned&gt;,
                                PackedIntArrayImp&lt;PackedIntArrayImp_Signed&gt; &gt;
                                                                 ::Type Type;
 };
 
-                       // =================================
-                       // class PackedIntArrayConstIterator
-                       // =================================
+                     // =================================
+                     // class PackedIntArrayConstIterator
+                     // =================================
 
 template &lt;class TYPE&gt;
 class PackedIntArrayConstIterator {
@@ -1342,7 +1341,7 @@ void swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b);
     // allocator.
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                       // -------------------------------
@@ -1350,57 +1349,60 @@ void swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b);
                       // -------------------------------
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexGet8(STREAM&amp; stream, int8_t&amp; variable)
+void PackedIntArrayImp_Signed::bdexGet8(STREAM&amp; stream, bsl::int8_t&amp; variable)
 {
     char v;
     stream.getInt8(v);
-    variable = static_cast&lt;int8_t&gt;(v);
+    variable = static_cast&lt;bsl::int8_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexGet16(STREAM&amp; stream, int16_t&amp; variable)
+void PackedIntArrayImp_Signed::bdexGet16(STREAM&amp; stream,
+                                         bsl::int16_t&amp; variable)
 {
     short v;
     stream.getInt16(v);
-    variable = static_cast&lt;int16_t&gt;(v);
+    variable = static_cast&lt;bsl::int16_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexGet32(STREAM&amp; stream, int32_t&amp; variable)
+void PackedIntArrayImp_Signed::bdexGet32(STREAM&amp; stream,
+                                         bsl::int32_t&amp; variable)
 {
     int v;
     stream.getInt32(v);
-    variable = static_cast&lt;int32_t&gt;(v);
+    variable = static_cast&lt;bsl::int32_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexGet64(STREAM&amp; stream, int64_t&amp; variable)
+void PackedIntArrayImp_Signed::bdexGet64(STREAM&amp; stream,
+                                         bsl::int64_t&amp; variable)
 {
     bsls::Types::Int64 v;
     stream.getInt64(v);
-    variable = static_cast&lt;int64_t&gt;(v);
+    variable = static_cast&lt;bsl::int64_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexPut8(STREAM&amp; stream, int8_t value)
+void PackedIntArrayImp_Signed::bdexPut8(STREAM&amp; stream, bsl::int8_t value)
 {
     stream.putInt8(static_cast&lt;int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexPut16(STREAM&amp; stream, int16_t value)
+void PackedIntArrayImp_Signed::bdexPut16(STREAM&amp; stream, bsl::int16_t value)
 {
     stream.putInt16(static_cast&lt;int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexPut32(STREAM&amp; stream, int32_t value)
+void PackedIntArrayImp_Signed::bdexPut32(STREAM&amp; stream, bsl::int32_t value)
 {
     stream.putInt32(static_cast&lt;int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Signed::bdexPut64(STREAM&amp; stream, int64_t value)
+void PackedIntArrayImp_Signed::bdexPut64(STREAM&amp; stream, bsl::int64_t value)
 {
     stream.putInt64(static_cast&lt;bsls::Types::Int64&gt;(value));
 }
@@ -1410,64 +1412,68 @@ void PackedIntArrayImp_Signed::bdexPut64(STREAM&amp; stream, int64_t value)
                      // ---------------------------------
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexGet8(STREAM&amp; stream, uint8_t&amp; variable)
+void PackedIntArrayImp_Unsigned::bdexGet8(STREAM&amp; stream,
+                                          bsl::uint8_t&amp; variable)
 {
     unsigned char v;
     stream.getUint8(v);
-    variable = static_cast&lt;uint8_t&gt;(v);
+    variable = static_cast&lt;bsl::uint8_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexGet16(STREAM&amp; stream, uint16_t&amp; variable)
+void PackedIntArrayImp_Unsigned::bdexGet16(STREAM&amp; stream,
+                                           bsl::uint16_t&amp; variable)
 {
     unsigned short v;
     stream.getUint16(v);
-    variable = static_cast&lt;uint16_t&gt;(v);
+    variable = static_cast&lt;bsl::uint16_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexGet32(STREAM&amp; stream, uint32_t&amp; variable)
+void PackedIntArrayImp_Unsigned::bdexGet32(STREAM&amp; stream,
+                                           bsl::uint32_t&amp; variable)
 {
     unsigned int v;
     stream.getUint32(v);
-    variable = static_cast&lt;uint32_t&gt;(v);
+    variable = static_cast&lt;bsl::uint32_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexGet64(STREAM&amp; stream, uint64_t&amp; variable)
+void PackedIntArrayImp_Unsigned::bdexGet64(STREAM&amp; stream,
+                                           bsl::uint64_t&amp; variable)
 {
     bsls::Types::Uint64 v;
     stream.getUint64(v);
-    variable = static_cast&lt;uint64_t&gt;(v);
+    variable = static_cast&lt;bsl::uint64_t&gt;(v);
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexPut8(STREAM&amp; stream, uint8_t value)
+void PackedIntArrayImp_Unsigned::bdexPut8(STREAM&amp; stream, bsl::uint8_t value)
 {
     stream.putUint8(static_cast&lt;unsigned int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexPut16(STREAM&amp; stream, uint16_t value)
+void PackedIntArrayImp_Unsigned::bdexPut16(STREAM&amp; stream, bsl::uint16_t value)
 {
     stream.putUint16(static_cast&lt;unsigned int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexPut32(STREAM&amp; stream, uint32_t value)
+void PackedIntArrayImp_Unsigned::bdexPut32(STREAM&amp; stream, bsl::uint32_t value)
 {
     stream.putUint32(static_cast&lt;unsigned int&gt;(value));
 }
 
 template &lt;class STREAM&gt;
-void PackedIntArrayImp_Unsigned::bdexPut64(STREAM&amp; stream, uint64_t value)
+void PackedIntArrayImp_Unsigned::bdexPut64(STREAM&amp; stream, bsl::uint64_t value)
 {
     stream.putUint64(static_cast&lt;bsls::Types::Uint64&gt;(value));
 }
 
-                         // ------------------------
-                         // struct PackedIntArrayImp
-                         // ------------------------
+                          // ------------------------
+                          // struct PackedIntArrayImp
+                          // ------------------------
 
 // PRIVATE CLASS METHODS
 template &lt;class STORAGE&gt;
@@ -1896,9 +1902,9 @@ bsl::size_t PackedIntArrayImp&lt;STORAGE&gt;::length() const {
     return d_length;
 }
 
-                    // ---------------------------------
-                    // class PackedIntArrayConstIterator
-                    // ---------------------------------
+                     // ---------------------------------
+                     // class PackedIntArrayConstIterator
+                     // ---------------------------------
 
 // PRIVATE CREATORS
 template &lt;class TYPE&gt;
@@ -2068,10 +2074,12 @@ PackedIntArrayConstIterator&lt;TYPE&gt;
     return PackedIntArrayConstIterator&lt;TYPE&gt;(d_array_p, d_index - offset);
 }
 
+}  // close package namespace
+
 // FREE FUNCTIONS
 template &lt;class TYPE&gt;
 inline
-PackedIntArrayConstIterator&lt;TYPE&gt; operator++(
+bdlc::PackedIntArrayConstIterator&lt;TYPE&gt; bdlc::operator++(
                                        PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter,
                                        int)
 {
@@ -2085,7 +2093,7 @@ PackedIntArrayConstIterator&lt;TYPE&gt; operator++(
 
 template &lt;class TYPE&gt;
 inline
-PackedIntArrayConstIterator&lt;TYPE&gt; operator--(
+bdlc::PackedIntArrayConstIterator&lt;TYPE&gt; bdlc::operator--(
                                        PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter,
                                        int)
 {
@@ -2099,41 +2107,41 @@ PackedIntArrayConstIterator&lt;TYPE&gt; operator--(
 
 template &lt;class TYPE&gt;
 inline
-bool operator==(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator==(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     return lhs.d_array_p == rhs.d_array_p &amp;&amp; lhs.d_index == rhs.d_index;
 }
 
 template &lt;class TYPE&gt;
 inline
-bool operator!=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator!=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     return lhs.d_array_p != rhs.d_array_p || lhs.d_index != rhs.d_index;
 }
 
 template &lt;class TYPE&gt;
 inline
-bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-                         const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bsl::ptrdiff_t bdlc::operator-(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
     BSLS_ASSERT_SAFE(
           lhs.d_index &gt;= rhs.d_index
         ? lhs.d_index - rhs.d_index &lt;=
-                        bsl::size_t(std::numeric_limits&lt;bsl::ptrdiff_t&gt;::max())
+                        bsl::size_t(bsl::numeric_limits&lt;bsl::ptrdiff_t&gt;::max())
         : rhs.d_index - lhs.d_index &lt;=
-                      bsl::size_t(std::numeric_limits&lt;bsl::ptrdiff_t&gt;::min()));
+                      bsl::size_t(bsl::numeric_limits&lt;bsl::ptrdiff_t&gt;::min()));
 
     return static_cast&lt;bsl::ptrdiff_t&gt;(lhs.d_index - rhs.d_index);
 }
 
 template &lt;class TYPE&gt;
 inline
-bool operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                     const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2142,8 +2150,8 @@ bool operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
 
 template &lt;class TYPE&gt;
 inline
-bool operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2152,8 +2160,8 @@ bool operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
 
 template &lt;class TYPE&gt;
 inline
-bool operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                     const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2162,13 +2170,15 @@ bool operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
 
 template &lt;class TYPE&gt;
 inline
-bool operator&gt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator&gt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index &gt;= rhs.d_index;
 }
+
+namespace bdlc {
 
                     // --------------------
                     // class PackedIntArray
@@ -2540,27 +2550,29 @@ bsl::ostream&amp; PackedIntArray&lt;TYPE&gt;::print(bsl::ostream&amp; stream,
     return d_imp.print(stream, level, spacesPerLevel);
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 template &lt;class TYPE&gt;
 inline
-bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;               stream,
-                         const PackedIntArray&lt;TYPE&gt;&amp; array)
+bsl::ostream&amp; bdlc::operator&lt;&lt;(bsl::ostream&amp;               stream,
+                               const PackedIntArray&lt;TYPE&gt;&amp; array)
 {
     return array.print(stream);
 }
 
 template &lt;class TYPE&gt;
 inline
-bool operator==(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArray&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator==(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArray&lt;TYPE&gt;&amp; rhs)
 {
     return lhs.isEqual(rhs);
 }
 
 template &lt;class TYPE&gt;
 inline
-bool operator!=(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
-                const PackedIntArray&lt;TYPE&gt;&amp; rhs)
+bool bdlc::operator!=(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                      const PackedIntArray&lt;TYPE&gt;&amp; rhs)
 {
     return !(lhs == rhs);
 }
@@ -2568,14 +2580,13 @@ bool operator!=(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
 // FREE FUNCTIONS
 template &lt;class TYPE&gt;
 inline
-void swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b)
+void bdlc::swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b)
 {
     BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
 
     a.swap(b);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // TRAITS
@@ -2593,7 +2604,6 @@ struct UsesBslmaAllocator&lt;bdlc::PackedIntArray&lt;TYPE&gt; &gt; : bsl::true_t
 }  // close enterprise namespace
 
 #endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

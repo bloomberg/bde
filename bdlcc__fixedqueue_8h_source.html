@@ -1,0 +1,885 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlcc_fixedqueue.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLCC_FIXEDQUEUE
+#define INCLUDED_BDLCC_FIXEDQUEUE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a thread-enabled fixed-size queue of values.
+//
+//@CLASSES:
+//  bdlcc::FixedQueue: thread-enabled fixed-size queue of &#39;TYPE&#39; values
+//
+//@DESCRIPTION: This component defines a type, &#39;bdlcc::FixedQueue&#39;, that
+// provides an efficient, thread-enabled fixed-size queue of values.  This
+// class is ideal for synchronization and communication between threads in a
+// producer-consumer model.
+//
+// The queue provides &#39;pushBack&#39; and &#39;popFront&#39; methods for pushing data into
+// the queue and popping it from the queue.  In case of overflow (queue full
+// when pushing), or underflow (queue empty when popping), the methods block
+// until data or free space in the queue appears.  Non-blocking methods
+// &#39;tryPushBack&#39; and &#39;tryPushFront&#39; are also provided, which fail immediately
+// returning a non-zero value in case of overflow or underflow.
+//
+// The queue may be placed into a &quot;disabled&quot; state using the &#39;disable&#39; method.
+// When disabled, &#39;pushBack&#39; and &#39;tryPushBack&#39; fail immediately (they do not
+// block and any blocked invocations will fail immediately).  The queue may be
+// restored to normal operation with the &#39;enable&#39; method.
+//
+// Unlike &#39;bdlcc::Queue&#39;, a fixed queue is not double-ended, there is no timed
+// API like &#39;timedPushBack&#39; and &#39;timedPopFront&#39;, and no &#39;forcePush&#39; methods, as
+// the queue capacity is fixed.  Also, this component is not based on
+// &#39;bdlc::Queue&#39;, so there is no API for direct access to the underlying queue.
+// These limitations are a trade-off for significant gain in performance
+// compared to &#39;bdlcc::Queue&#39;.
+//
+///Template Requirements
+///---------------------
+// &#39;bdlcc::FixedQueue&#39; is a template that is parameterized on the type of
+// element contained within the queue.  The supplied template argument, &#39;TYPE&#39;,
+// must provide both a default constructor and a copy constructors as well as
+// an assignment operator.  If the default constructor accepts a
+// &#39;bslma::Allocator*&#39;, &#39;TYPE&#39; must declare the uses &#39;bslma::Allocator&#39; trait
+// (see &#39;bslma_usesbslmaallocator&#39;) so that the allocator of the queue is
+// propagated to the elements contained in the queue.
+//
+///Exception safety
+///----------------
+// A &#39;bdlcc::FixedQueue&#39; is exception neutral, and all of the methods of
+// &#39;bdlcc::FixedQueue&#39; provide the strong exception safety guarantee except for
+// &#39;pushBack&#39; and &#39;tryPushBack&#39;, which provide the basic exception guarantee
+// (see &#39;bsldoc_glossary&#39;).
+//
+///Memory Usage
+///------------
+// &#39;bdlcc::FixedQueue&#39; is most efficient when dealing with small objects or
+// fundamental types (as a thread-safe container, its methods pass objects *by*
+// *value*).  We recommend:
+//: o Large objects be stored as shared-pointers (or possibly raw pointers).
+//: o Clients take care in specifying the queue capacity (specified in a number
+//:   of objects, *not* a number of bytes).
+//
+// Note that the implementation of &#39;bdlcc::FixedQueue&#39; currently creates a
+// fixed size array of the contained object type.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: A Simple Thread Pool
+///- - - - - - - - - - - - - - - -
+// In the following example a &#39;bdlcc::FixedQueue&#39; is used to communicate
+// between a single &quot;producer&quot; thread and multiple &quot;consumer&quot; threads.  The
+// &quot;producer&quot; will push work requests onto the queue, and each &quot;consumer&quot; will
+// iteratively take a work request from the queue and service the request.
+// This example shows a partial, simplified implementation of the
+// &#39;bdlmt::FixedThreadPool&#39; class.  See component &#39;bdlmt_fixedthreadpool&#39; for
+// more information.
+//
+// First, we define a utility classes that handles a simple &quot;work item&quot;:
+//..
+//  struct my_WorkData {
+//      // Work data...
+//  };
+//
+//  struct my_WorkRequest {
+//      enum RequestType {
+//          e_WORK = 1,
+//          e_STOP = 2
+//      };
+//
+//      RequestType d_type;
+//      my_WorkData d_data;
+//      // Work data...
+//  };
+//..
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example:
+//..
+//  void myDoWork(my_WorkData&amp; data)
+//  {
+//      // do some stuff...
+//      (void)data;
+//  }
+//..
+// Then, we define a &#39;myConsumer&#39; function that will pop elements off the queue
+// and process them.  Note that the call to &#39;queue-&gt;popFront()&#39; will block
+// until there is an element available on the queue.  This function will be
+// executed in multiple threads, so that each thread waits in
+// &#39;queue-&gt;popFront()&#39;, and &#39;bdlcc::FixedQueue&#39; guarantees that each thread
+// gets a unique element from the queue:
+//..
+//  void myConsumer(bdlcc::FixedQueue&lt;my_WorkRequest&gt; *queue)
+//  {
+//      while (1) {
+//          // &#39;popFront()&#39; will wait for a &#39;my_WorkRequest&#39; until available.
+//
+//          my_WorkRequest item = queue-&gt;popFront();
+//          if (item.d_type == my_WorkRequest::e_STOP) { break; }
+//          myDoWork(item.d_data);
+//      }
+//  }
+//..
+// Finally, we define a &#39;myProducer&#39; function that serves multiple roles: it
+// creates the &#39;bdlcc::FixedQueue&#39;, starts the consumer threads, and then
+// produces and enqueues work items.  When work requests are exhausted, this
+// function enqueues one &#39;e_STOP&#39; item for each consumer queue.  This &#39;e_STOP&#39;
+// item indicates to the consumer thread to terminate its thread-handling
+// function.
+//
+// Note that, although the producer cannot control which thread &#39;pop&#39;s a
+// particular work item, it can rely on the knowledge that each consumer thread
+// will read a single &#39;e_STOP&#39; item and then terminate.
+//..
+//  void myProducer(int numThreads)
+//  {
+//      enum {
+//          k_MAX_QUEUE_LENGTH = 100,
+//          k_NUM_WORK_ITEMS   = 1000
+//      };
+//
+//      bdlcc::FixedQueue&lt;my_WorkRequest&gt; queue(k_MAX_QUEUE_LENGTH);
+//
+//      bslmt::ThreadGroup consumerThreads;
+//      consumerThreads.addThreads(bdlf::BindUtil::bind(&amp;myConsumer, &amp;queue),
+//                                 numThreads);
+//
+//      for (int i = 0; i &lt; k_NUM_WORK_ITEMS; ++i) {
+//          my_WorkRequest item;
+//          item.d_type = my_WorkRequest::e_WORK;
+//          item.d_data = my_WorkData(); // some stuff to do
+//          queue.pushBack(item);
+//      }
+//
+//      for (int i = 0; i &lt; numThreads; ++i) {
+//          my_WorkRequest item;
+//          item.d_type = my_WorkRequest::e_STOP;
+//          queue.pushBack(item);
+//      }
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLCC_FIXEDQUEUEINDEXMANAGER
+#include &lt;bdlcc_fixedqueueindexmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_SEMAPHORE
+#include &lt;bslmt_semaphore.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include &lt;bslmt_threadutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include &lt;bslalg_scalarprimitives.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlcc {
+
+                              // ================
+                              // class FixedQueue
+                              // ================
+
+template &lt;class TYPE&gt;
+class FixedQueue {
+    // This class provides a thread-enabled, lock-free, fixed-size queue of
+    // values.
+
+  private:
+
+    // PRIVATE CONSTANTS
+    enum {
+        k_TYPE_PADDING = bslmt::Platform::e_CACHE_LINE_SIZE - sizeof(TYPE *),
+        k_SEMA_PADDING = bslmt::Platform::e_CACHE_LINE_SIZE -
+                                                       sizeof(bslmt::Semaphore)
+    };
+
+    // DATA
+    TYPE             *d_elements;          // array of elements that comprise
+                                           // the fixed queue (array elements
+                                           // are manually constructed and
+                                           // destroyed, and empty elements
+                                           // hold uninitialized memory)
+
+    const char        d_elementsPad[k_TYPE_PADDING];
+                                           // padding to prevent false sharing
+    FixedQueueIndexManager
+                      d_impl;              // index manager for managing the
+                                           // state of &#39;d_elements&#39;
+
+    bsls::AtomicInt   d_numWaitingPoppers; // number of threads waiting on
+                                           // &#39;d_popControlSema&#39; to pop an
+                                           // element
+
+    bslmt::Semaphore  d_popControlSema;    // semaphore on which threads
+                                           // waiting to pop &#39;wait&#39;
+
+    const char        d_popControlSemaPad[k_SEMA_PADDING];
+                                           // padding to prevent false sharing
+
+    bsls::AtomicInt   d_numWaitingPushers; // number of threads waiting on
+                                           // &#39;d_pushControlSema&#39; to push an
+                                           // element
+
+    bslmt::Semaphore  d_pushControlSema;   // semaphore on which threads
+                                           // waiting to push &#39;wait&#39;
+
+    const char        d_pushControlSemaPad[k_SEMA_PADDING];
+                                           // padding to prevent false sharing
+
+    bslma::Allocator *d_allocator_p;       // allocator, held not owned
+
+  private:
+    // NOT IMPLEMENTED
+    FixedQueue(const FixedQueue&amp;);
+    FixedQueue&amp; operator=(const FixedQueue&amp;);
+
+    // FRIENDS
+    template &lt;class VAL&gt; friend class FixedQueue_PushProctor;
+    template &lt;class VAL&gt; friend class FixedQueue_PopGuard;
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(FixedQueue, bslma::UsesBslmaAllocator);
+    // CREATORS
+    explicit
+    FixedQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
+        // Create a thread-enabled lock-free queue having the specified
+        // &#39;capacity&#39;.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.
+
+    ~FixedQueue();
+        // Destroy this object.
+
+    // MANIPULATORS
+    int pushBack(const TYPE&amp; value);
+        // Append the specified &#39;value&#39; to the back of this queue, blocking
+        // until either space is available - if necessary - or the queue is
+        // disabled.  Return 0 on success, and a nonzero value if the queue is
+        // disabled.
+
+    int tryPushBack(const TYPE&amp; value);
+        // Attempt to append the specified &#39;value&#39; to the back of this queue
+        // without blocking.  Return 0 on success, and a non-zero value if the
+        // queue is full or disabled.
+
+    void popFront(TYPE* value);
+        // Remove the element from the front of this queue and load that
+        // element into the specified &#39;value&#39;.  If the queue is empty, block
+        // until it is not empty.
+
+    TYPE popFront();
+        // Remove the element from the front of this queue and return it&#39;s
+        // value.  If the queue is empty, block until it is not empty.
+
+    int tryPopFront(TYPE *value);
+        // Attempt to remove the element from the front of this queue without
+        // blocking, and, if successful, load the specified &#39;value&#39; with the
+        // removed element.  Return 0 on success, and a non-zero value if queue
+        // was empty.  On failure, &#39;value&#39; is not changed.
+
+    void removeAll();
+        // Remove all items from this queue.  Note that this operation is not
+        // atomic; if other threads are concurrently pushing items into the
+        // queue the result of numElements() after this function returns is not
+        // guaranteed to be 0.
+
+    void disable();
+        // Disable this queue.  All subsequent invocations of &#39;pushBack&#39; or
+        // &#39;tryPushBack&#39; will fail immediately.  All blocked invocations of
+        // &#39;pushBack&#39; will fail immediately.  If the queue is already disabled,
+        // this method has no effect.
+
+    void enable();
+        // Enable queuing.  If the queue is not disabled, this call has no
+        // effect.
+
+    // ACCESSORS
+    int capacity() const;
+        // Return the maximum number of elements that may be stored in this
+        // queue.
+
+    bool isEmpty() const;
+        // Return &#39;true&#39; if this queue is empty (has no elements), or &#39;false&#39;
+        // otherwise.
+
+    bool isEnabled() const;
+        // Return &#39;true&#39; if this queue is enabled, and &#39;false&#39; otherwise.  Note
+        // that the queue is created in the &quot;enabled&quot; state.
+
+    bool isFull() const;
+        // Return &#39;true&#39; if this queue is full (when the number of elements
+        // currently in this queue equals its capacity), or &#39;false&#39; otherwise.
+
+    int numElements() const;
+        // Returns the number of elements currently in this queue.
+
+    int length() const;
+        // [!DEPRECATED!] Invoke &#39;numElements&#39;.
+
+    int size() const;
+        // [!DEPRECATED!] Invoke &#39;capacity&#39;.
+
+};
+
+                         // =========================
+                         // class FixedQueue_PopGuard
+                         // =========================
+
+template &lt;class VALUE&gt;
+class FixedQueue_PopGuard {
+    // This class provides a guard that, upon its destruction, will remove
+    // (pop) the indicated element from the &#39;FixedQueue&#39; object supplied at
+    // construction.  Note that this guard is used to provide exception safety
+    // when popping an element from a &#39;FixedQueue&#39; object.
+
+    // DATA
+    FixedQueue&lt;VALUE&gt; *d_parent_p;
+                                     // object from which an element will be
+                                     // popped
+
+    unsigned int                  d_generation;
+                                     // generation count of cell being popped
+
+    unsigned int                  d_index;
+                                     // index of cell being popped
+
+  private:
+    // NOT IMPLEMENTED
+    FixedQueue_PopGuard(const FixedQueue_PopGuard&amp;);
+    FixedQueue_PopGuard&amp; operator=(const FixedQueue_PopGuard&amp;);
+  public:
+
+    // CREATORS
+    FixedQueue_PopGuard(FixedQueue&lt;VALUE&gt; *queue,
+                        unsigned int       generation,
+                        unsigned int       index);
+        // Create a guard that, upon its destruction, will update the state of
+        // the specified &#39;queue&#39; to remove (pop) the element at the specified
+        // &#39;index&#39; having the specified &#39;generation&#39;, and destroy that popped
+        // object.  The behavior is undefined unless &#39;index&#39; and &#39;generation&#39;
+        // refer to a valid element in &#39;queue&#39; that the current thread has
+        // acquired a reservation to pop (using
+        // &#39;FixedQueueIndexManager::reservePopIndex&#39;).
+
+    ~FixedQueue_PopGuard();
+        // Update the state of the &#39;FixedQueue&#39; object supplied at construction
+        // to remove (pop) the indicated element, and destroy the popped
+        // object.
+};
+
+                        // ============================
+                        // class FixedQueue_PushProctor
+                        // ============================
+
+template &lt;class VALUE&gt;
+class FixedQueue_PushProctor {
+    // This class provides a proctor that, unless the &#39;release&#39; method has been
+    // previously invoked, will remove and destroy all the elements from a
+    // &#39;FixedQueue&#39; object supplied at construction (putting that ring-buffer
+    // into a valid empty state) upon the proctor&#39;s destruction.  Note that
+    // this guard is used to provide exception safety when pushing an element
+    // into a &#39;FixedQueue&#39;.
+
+    // DATA
+    FixedQueue&lt;VALUE&gt; *d_parent_p;
+                                     // object in which an element was pushed
+
+    unsigned int                  d_generation;
+                                     // generation of cell being pushed when an
+                                     // exception was thrown
+
+    unsigned int                  d_index;
+                                     // index of cell being pushed when an
+                                     // exception was thrown
+
+  private:
+    // NOT IMPLEMENTED
+    FixedQueue_PushProctor(const FixedQueue_PushProctor&amp;);
+    FixedQueue_PushProctor&amp; operator=(const FixedQueue_PushProctor&amp;);
+
+  public:
+
+    // CREATORS
+    FixedQueue_PushProctor(FixedQueue&lt;VALUE&gt; *queue,
+                           unsigned int       generation,
+                           unsigned int       index);
+        // Create a proctor that manages the specified &#39;queue&#39; and, unless
+        // &#39;release&#39; is called, will remove and destroy all the elements from
+        // &#39;queue&#39; starting at the specified &#39;index&#39; in the specified
+        // &#39;generation&#39;.  The behavior is undefined unless &#39;index&#39; and
+        // &#39;generation&#39; refers to a valid element in &#39;queue&#39;.
+
+    ~FixedQueue_PushProctor();
+        // Destroy this proctor and, if &#39;release&#39; was not called on this
+        // object, remove and destroy all the elements from the &#39;FixedQueue&#39;
+        // object supplied at construction.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the &#39;FixedQueue&#39; object supplied at
+        // construction.
+
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// See the .cpp for an implementation note.
+
+                           // ---------------------
+                           // class FixedQueue
+                           // ---------------------
+// CREATORS
+template &lt;class TYPE&gt;
+FixedQueue&lt;TYPE&gt;::FixedQueue(bsl::size_t       capacity,
+                             bslma::Allocator *basicAllocator)
+: d_elements()
+, d_elementsPad()
+, d_impl(capacity, basicAllocator)
+, d_numWaitingPoppers(0)
+, d_popControlSema(0)
+, d_popControlSemaPad()
+, d_numWaitingPushers(0)
+, d_pushControlSema(0)
+, d_pushControlSemaPad()
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_elements = static_cast&lt;TYPE *&gt;(
+                            d_allocator_p-&gt;allocate(capacity * sizeof(TYPE)));
+}
+
+template &lt;class TYPE&gt;
+FixedQueue&lt;TYPE&gt;::~FixedQueue()
+{
+    removeAll();
+    d_allocator_p-&gt;deallocate(d_elements);
+}
+
+template &lt;class TYPE&gt;
+int FixedQueue&lt;TYPE&gt;::tryPushBack(const TYPE&amp; value)
+{
+    unsigned int generation;
+    unsigned int index;
+
+    // SYNCHRONIZATION POINT 1
+    //
+    // The following call to &#39;reservePushIndex&#39; writes
+    // &#39;FixedQueueIndexManaged::d_pushIndex&#39; with full sequential consistency,
+    // which guarantees the subsequent (relaxed) read from
+    // &#39;d_numWaitingPoppers&#39; sees any waiting pointers from SYNCHRONIZATION
+    // POINT 1-Prime.
+
+    int retval = d_impl.reservePushIndex(&amp;generation, &amp;index);
+
+    if (0 != retval) {
+        return retval;                                                // RETURN
+    }
+
+    // Copy the element into the cell.  If an exception is thrown by the copy
+    // constructor, PushProctor will pop and discard items until reaching this
+    // cell, then mark this cell empty (without regard to its current state,
+    // which is WRITING (i.e., reserved).  That will leave the queue in a valid
+    // empty state.
+
+    FixedQueue_PushProctor&lt;TYPE&gt; guard(this, generation, index);
+    bslalg::ScalarPrimitives::copyConstruct(&amp;d_elements[index],
+                                            value,
+                                            d_allocator_p);
+    guard.release();
+    d_impl.commitPushIndex(generation, index);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
+        d_popControlSema.post();
+    }
+
+    return 0;
+}
+
+template &lt;class TYPE&gt;
+int FixedQueue&lt;TYPE&gt;::tryPopFront(TYPE *value)
+{
+    unsigned int generation;
+    unsigned int index;
+
+    // SYNCHRONIZATION POINT 2
+    //
+    // The following call to &#39;reservePopIndex&#39; writes
+    // &#39;FixedQueueIndexManaged::d_popIndex&#39; with full sequential consistency,
+    // which guarantees the subsequent (relaxed) read from
+    // &#39;d_numWaitingPoppers&#39; sees any waiting pointers from SYNCHRONIZATION
+    // POINT 2-Prime.
+
+    int retval = d_impl.reservePopIndex(&amp;generation, &amp;index);
+
+    if (0 != retval) {
+        return retval;                                                // RETURN
+    }
+
+    // Copy the element.  &#39;FixedQueue_PopGuard&#39; will destroy original object,
+    // update the queue, and release a waiting pusher, even if the assignment
+    // operator throws.
+
+    FixedQueue_PopGuard&lt;TYPE&gt; guard(this, generation, index);
+    *value = d_elements[index];
+    return 0;
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+int FixedQueue&lt;TYPE&gt;::pushBack(const TYPE&amp; value)
+{
+    int retval;
+    while (0 != (retval = tryPushBack(value))) {
+        if (retval &lt; 0) {
+            // The queue is disabled.
+
+            return retval;                                            // RETURN
+        }
+
+        d_numWaitingPushers.addRelaxed(1);
+
+        // SYNCHRONIZATION POINT 1-Prime
+        //
+        // The following call to &#39;isFull&#39; loads
+        // &#39;FixedQueueIndexManager::d_pushIndex&#39; with full sequential
+        // consistency, which is required to ensure the visibility of the
+        // preceding change to &#39;d_numWaitingPushers&#39; to SYNCHRONIZATION POINT
+        // 2.
+
+        if (isFull() &amp;&amp; isEnabled()) {
+            d_pushControlSema.wait();
+        }
+
+        d_numWaitingPushers.addRelaxed(-1);
+    }
+
+    return 0;
+}
+
+template &lt;class TYPE&gt;
+void FixedQueue&lt;TYPE&gt;::popFront(TYPE *value)
+{
+    while (0 != tryPopFront(value)) {
+        d_numWaitingPoppers.addRelaxed(1);
+
+        // SYNCHRONIZATION POINT 2-Prime
+        //
+        // The following call to &#39;isEmpty&#39; loads
+        // &#39;FixedQueueIndexManager::d_pushIndex&#39; with full sequential
+        // consistency, which is required to ensure the visibility of the
+        // preceding change to &#39;d_numWaitingPushers&#39; to SYNCHRONIZATION POINT
+        // 2.
+
+        if (isEmpty()) {
+            d_popControlSema.wait();
+        }
+
+        d_numWaitingPoppers.addRelaxed(-1);
+    }
+}
+
+template &lt;class TYPE&gt;
+TYPE FixedQueue&lt;TYPE&gt;::popFront()
+{
+    unsigned int generation;
+    unsigned int index;
+
+    while (0 != d_impl.reservePopIndex(&amp;generation, &amp;index)) {
+        d_numWaitingPoppers.addRelaxed(1);
+
+        if (isEmpty()) {
+            d_popControlSema.wait();
+        }
+
+        d_numWaitingPoppers.addRelaxed(-1);
+    }
+
+    // Copy the element.  &#39;FixedQueue_PopGuard&#39; will destroy original object,
+    // update the queue, and release a waiting pusher, even if the copy
+    // constructor throws.
+
+    FixedQueue_PopGuard&lt;TYPE&gt; guard(this, generation, index);
+    return TYPE(d_elements[index]);
+}
+
+template &lt;class TYPE&gt;
+void FixedQueue&lt;TYPE&gt;::removeAll()
+{
+    const int numItems = numElements();
+    int poppedItems = 0;
+    while (poppedItems++ &lt; numItems) {
+        unsigned int index;
+        unsigned int generation;
+
+        if (0 != d_impl.reservePopIndex(&amp;generation, &amp;index)) {
+            break;
+        }
+
+        bslalg::ScalarDestructionPrimitives::destroy(d_elements + index);
+        d_impl.commitPopIndex(generation, index);
+    }
+
+    int numWakeUps = bsl::min(poppedItems,
+                              static_cast&lt;int&gt;(d_numWaitingPushers));
+    while (numWakeUps--) {
+        // Wake up waiting pushers.
+
+        d_pushControlSema.post();
+    }
+}
+
+template &lt;class TYPE&gt;
+void FixedQueue&lt;TYPE&gt;::disable()
+{
+    d_impl.disable();
+
+    const int numWaitingPushers = d_numWaitingPushers;
+
+    for (int i = 0; i &lt; numWaitingPushers; ++i) {
+        d_pushControlSema.post();
+    }
+}
+
+template &lt;class TYPE&gt;
+inline
+void FixedQueue&lt;TYPE&gt;::enable()
+{
+    d_impl.enable();
+}
+
+// ACCESSORS
+template &lt;class TYPE&gt;
+inline
+int FixedQueue&lt;TYPE&gt;::capacity() const
+{
+    return static_cast&lt;int&gt;(d_impl.capacity());
+}
+
+template &lt;class TYPE&gt;
+inline
+bool FixedQueue&lt;TYPE&gt;::isEmpty() const
+{
+    return (0 &gt;= numElements());
+}
+
+template &lt;class TYPE&gt;
+inline
+bool FixedQueue&lt;TYPE&gt;::isEnabled() const
+{
+    return d_impl.isEnabled();
+}
+
+template &lt;class TYPE&gt;
+inline
+bool FixedQueue&lt;TYPE&gt;::isFull() const
+{
+    return (capacity() &lt;= numElements());
+}
+
+template &lt;class TYPE&gt;
+inline
+int FixedQueue&lt;TYPE&gt;::length() const
+{
+    return numElements();
+}
+
+template &lt;class TYPE&gt;
+inline
+int FixedQueue&lt;TYPE&gt;::numElements() const
+{
+    return static_cast&lt;int&gt;(d_impl.length());
+}
+
+template &lt;class TYPE&gt;
+inline
+int FixedQueue&lt;TYPE&gt;::size() const
+{
+    return static_cast&lt;int&gt;(capacity());
+}
+
+                         // -------------------------
+                         // class FixedQueue_PopGuard
+                         // -------------------------
+
+// CREATORS
+template &lt;class VALUE&gt;
+inline
+FixedQueue_PopGuard&lt;VALUE&gt;::FixedQueue_PopGuard(FixedQueue&lt;VALUE&gt; *queue,
+                                                unsigned int       generation,
+                                                unsigned int       index)
+: d_parent_p(queue)
+, d_generation(generation)
+, d_index(index)
+{
+}
+
+template &lt;class VALUE&gt;
+FixedQueue_PopGuard&lt;VALUE&gt;::~FixedQueue_PopGuard()
+{
+    // This popping thread currently has the cell at &#39;d_index&#39; (in
+    // &#39;d_generation&#39;) reserved for popping.  Destroy the element at that
+    // position and then release the reservation.  Wake up to 1 waiting pusher
+    // thread.
+
+    bslalg::ScalarDestructionPrimitives::destroy(
+                                             d_parent_p-&gt;d_elements + d_index);
+
+    d_parent_p-&gt;d_impl.commitPopIndex(d_generation, d_index);
+
+    // Notify pusher of available element.
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+            d_parent_p-&gt;d_numWaitingPushers)) {
+        d_parent_p-&gt;d_pushControlSema.post();
+    }
+}
+
+                        // ----------------------------
+                        // class FixedQueue_PushProctor
+                        // ----------------------------
+
+// CREATORS
+template &lt;class VALUE&gt;
+inline
+FixedQueue_PushProctor&lt;VALUE&gt;::FixedQueue_PushProctor(
+                                                 FixedQueue&lt;VALUE&gt; *queue,
+                                                 unsigned int       generation,
+                                                 unsigned int       index)
+: d_parent_p(queue)
+, d_generation(generation)
+, d_index(index)
+{
+}
+
+template &lt;class VALUE&gt;
+FixedQueue_PushProctor&lt;VALUE&gt;::~FixedQueue_PushProctor()
+{
+    if (d_parent_p) {
+        // This pushing thread currently has the cell at &#39;d_index&#39; reserved as
+        // &#39;e_WRITING&#39;.  Dispose of all the elements up to &#39;d_index&#39;.
+
+        unsigned int generation, index;
+
+        // We will always have at least 1 popped item for the cell reserved for
+        // writing by the current thread.
+
+        int poppedItems = 1;
+        while (0 == d_parent_p-&gt;d_impl.reservePopIndexForClear(&amp;generation,
+                                                               &amp;index,
+                                                               d_generation,
+                                                               d_index)) {
+            bslalg::ScalarDestructionPrimitives::destroy(
+                                              d_parent_p-&gt;d_elements + index);
+            ++poppedItems;
+
+            d_parent_p-&gt;d_impl.commitPopIndex(generation, index);
+        }
+
+        // Release the currently held pop index.
+
+        d_parent_p-&gt;d_impl.abortPushIndexReservation(d_generation, d_index);
+
+        while (poppedItems--) {
+            // Wake up waiting pushers.
+
+            d_parent_p-&gt;d_pushControlSema.post();
+        }
+    }
+}
+
+// MANIPULATORS
+template &lt;class VALUE&gt;
+inline
+void FixedQueue_PushProctor&lt;VALUE&gt;::release()
+{
+    d_parent_p = 0;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktraceresolverimpl_xcoff.h                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_XCOFF
+#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_XCOFF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism to resolve xcoff symbols in a stack trace.
+//
+//@CLASSES:
+//   balst::StackTraceResolverImpl&lt;Xcoff&gt;: symbol resolution for Xcoff objects
+//
+//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
+//           balst_stacktraceresolverimpl_windows
+//
+//@DESCRIPTION: This component provides a class,
+// balst::StackTraceResolver&lt;Xcoff&gt;, that, given a vector of
+// &#39;balst::StackTraceFrame&#39;s that have only their &#39;address&#39; fields set,
+// resolves all other fields in those frames.  Xcoff objects are used on AIX
+// platforms.
+//
+///Inline Functions
+///----------------
+// Inline functions and template functions that are, in fact, called out of
+// line are handled properly.  Functions that are inlined are not represented
+// in the stack trace, and the stack frames of the functions that called them
+// do not have their line number information populated.
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;balst&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
+#include &lt;balst_objectfileformat.h&gt;
+#endif
+
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+
+#ifndef INCLUDED_BALST_STACKTRACE
+#include &lt;balst_stacktrace.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACEFRAME
+#include &lt;balst_stacktraceframe.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
+#include &lt;balst_stacktraceresolver_filehelper.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_QLOCK
+#include &lt;bslmt_qlock.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
+#include &lt;bdlma_heapbypassallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+// These 2 symbols are needed by &#39;syms.h&#39;.
+
+#undef __XCOFF64__
+#undef __XCOFF32__
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+# define __XCOFF64__
+#else
+# define __XCOFF32__
+#endif
+
+#ifndef INCLUDED_SYMS
+#include &lt;syms.h&gt;               // SYMENT, AUXENT
+#define INCLUDED_SYMS
+#endif
+
+#define BALST_STACKTRACERESOLVERIMPL_XCOFF_LINE __LINE__
+
+namespace BloombergLP {
+
+namespace balst {
+
+template &lt;typename RESOLVER_POLICY&gt;
+class StackTraceResolverImpl;
+
+           // =====================================================
+           // class StackTraceResolverImpl&lt;ObjectFileFormat::Xcoff&gt;
+           // =====================================================
+
+template &lt;&gt;
+class StackTraceResolverImpl&lt;ObjectFileFormat::Xcoff&gt; {
+    // This class is for resolving symbols in Xcoff executables.  Given a
+    // vector of &#39;StackTraceFrame&#39;s that have only their &#39;address&#39; fields
+    // set, it resolves all other fields in those frames.  Xcoff objects are
+    // used on AIX platforms.  Note that all methods, including the
+    // constructor, are private except for that static method &#39;resolve&#39; which
+    // constructs and destroys the object.
+
+    // TYPES
+    struct AuxInfo;                       // Internal -- fleshed out in the
+                                          // implementation file
+    struct LoadAuxInfosInfo;              // Internal -- fleshed out in the
+                                          // implementation file
+    typedef bsls::Types::UintPtr UintPtr; // 32 bit unsigned on 32 bit, 64 bit
+                                          // unsigned on 64 bit, usually used
+                                          // for absolute offsets into a file
+
+    // CONSTANTS
+    enum FindIncludeFileFlags {
+        // flags returned by &#39;findIncludeFile&#39;
+
+        k_USE_INCLUDE_SOURCE_FILE_NAME = 0x1,
+        k_SUPPRESS_LINE_NUMBER         = 0x2
+    };
+
+    // DATA
+    StackTraceResolver_FileHelper
+                          *d_helper;          // helper for reading files
+
+    StackTrace            *d_stackTrace_p;    // pointer to stack trace object
+                                              // to be populated by resolution.
+                                              // Note only the &#39;address&#39; fields
+                                              // are initialized at the start,
+                                              // our goal is to initialize all
+                                              // the other fields.  Held, not
+                                              // owned.
+
+    StackTraceFrame
+                         **d_segFramePtrs_p;  // pointers to stack trace frames
+                                              // contained in &#39;d_stackTrace_p&#39;
+                                              // listing only those frames
+                                              // whose &#39;address&#39; fields point
+                                              // into the current segment
+
+    const void           **d_segAddresses_p;  // the &#39;address&#39; fields from
+                                              // &#39;d_segFramePtrs_p&#39; in 1-1
+                                              // correspondence, note this
+                                              // duplication of information is
+                                              // a performance optimization
+
+    AuxInfo               *d_segAuxInfos_p;   // array of aux infos (AuxInfo is
+                                              // a struct private to this
+                                              // class, defined in the imp) in
+                                              // 1-1 correspondence with the
+                                              // entries of &#39;d_segFramePtrs_p&#39;
+
+    int                    d_numCurrAddresses;// number of &#39;address&#39; fields in
+                                              // &#39;d_stackTrace_p&#39; that point
+                                              // into the current segment, also
+                                              // the length of
+                                              // &#39;d_segFramePtrs_p&#39;,
+                                              // &#39;d_segAddresses_p&#39;, and
+                                              // &#39;d_segAuxInfos_p&#39;, note all 3
+                                              // are allocated to have
+                                              // &#39;d_stackTrace_p-&gt;length()&#39;
+                                              // (worst case) length
+
+    char                  *d_scratchBuf_p;    // scratch buffer
+
+    char                  *d_symbolBuf_p;     // buffer for reading symbols
+
+    bsls::Types::IntPtr    d_virtualToPhysicalOffset;
+                                              // translation from an address
+                                              // given in the file to an
+                                              // address in memory for the
+                                              // current segment
+
+    UintPtr                d_archiveMemberOffset;
+                                              // archive member offset, or 0 if
+                                              // the segment is not an archive
+                                              // member
+
+    UintPtr                d_archiveMemberSize;
+                                              // archive member size, or size
+                                              // of the whole file if the
+                                              // segment is not an archive
+                                              // member
+
+    UintPtr                d_symTableOffset;  // absolute offset of symbol
+                                              // table in the current file
+
+    UintPtr                d_stringTableOffset;
+                                              // absolute offset of string
+                                              // table in the current file
+
+    bool                   d_demangle;        // flag indicating whether
+                                              // demangling is to be done
+
+    bdlma::HeapBypassAllocator
+                           d_hbpAlloc;        // heap bypass allocator, all
+                                              // memory allocated by this
+                                              // object will be freed when this
+                                              // allocator is destroyed.
+
+    static bslmt::QLock     s_demangleQLock;   // &#39;QLock&#39; to guard access to
+                                              // the non-thread-safe &#39;Demangle&#39;
+                                              // function.
+
+  private:
+    // NOT IMPLEMENTED
+    StackTraceResolverImpl(const StackTraceResolverImpl&amp;);
+    StackTraceResolverImpl&amp; operator=(
+                                          const StackTraceResolverImpl&amp;);
+
+    // PRIVATE CREATORS
+    StackTraceResolverImpl(StackTrace *stackTrace,
+                                 bool              demangle);
+        // Create an stack trace reolver that can populate other fields of the
+        // specified &#39;stackFrames&#39; object given previously populated &#39;address&#39;
+        // fields.  Specify &#39;demangle&#39;, which indicates whether demangling of
+        // symbols is to occur, and &#39;basicAllocator&#39;, which is to be used for
+        // memory allocation.  Note that the behavior is undefined if
+        // &#39;basicAllocator&#39; is 0 or unspecified, the intention is that it
+        // should be of type &#39;bdema::HeapByPassAllocator&#39;.
+
+    ~StackTraceResolverImpl();
+        // Destroy this stack trace resolver object.
+
+    // PRIVATE MANIPULATORS
+    bslma::Allocator *allocator();
+        // Return a pointer to this object&#39;s heap bypass allocator.
+
+    int findArchiveMember(const char *memberName);
+        // Locate the archive member with the specified &#39;memberName&#39; in the
+        // current archive file and save the member&#39;s offset from the beginning
+        // of the archive and the member&#39;s size.  Return zero on success, and a
+        // negative value otherwise.  Note that this is never called on an
+        // executable, only on archives.
+
+    UintPtr findCsectIndex(const char *symbolAddress,
+                           const char *csectEndAddress,
+                           UintPtr     primarySymIndex);
+        // Iterate through all the addresses in d_segAddresses_p, returning the
+        // specified &#39;primarySymIndex&#39;, which is the index of the current
+        // symbol, if any of them are in the range
+        // &#39;[symbolAddress, csectEndAddress)&#39; and &#39;UintPtr(-1)&#39; otherwise.
+
+    int findIncludeFile(SYMENT  *includeSymEnt,
+                        UintPtr  firstLineNumberOffset,
+                        UintPtr  lineNumberOffset,
+                        UintPtr  symStartIndex,
+                        UintPtr  symEndIndex);
+        // Read the portion of the symbol table of the current segment starting
+        // at the specified &#39;symStartIndex&#39; and ending at the specified
+        // &#39;symEndIndex&#39; to determine if the specified &#39;lineNumberOffset&#39; is in
+        // an include file.  Return a positive value which is a bitwise or of
+        // the appropriate &#39;FindIncludeFileFlags&#39; if found, 0 if not found, and
+        // a negative value if an error is encountered.  The positive value
+        // returned on success is a bitwise or of the flags defined by enum
+        // &#39;FindIncludeFileFlags&#39; defined in the class, indicating whether the
+        // file was found, and whether the line number we have (which is not
+        // passed to this routine) is absolute or relative.  Note that the line
+        // numbers corresponding to include files are sometimes absolute, while
+        // other line numbers are relative to the beginning of the function in
+        // which they occur.  Also note that this routine is called immediately
+        // after &#39;findLineNumber&#39;.
+
+    int findLineNumber(int        *outLineNumber_p,
+                       UintPtr    *outLineNumberOffset_p,
+                       UintPtr     lineBufStartOffset,
+                       const void *segAddress);
+        // Find a line number and line number offset of the source that refers
+        // to the specified &#39;address&#39;, and load the results into the specified
+        // &#39;*outLineNumber_p&#39; and &#39;*outLineNumberOffset_p&#39;.  Begin the search
+        // at the specified &#39;lineBufStartOffset&#39; in the file and end either at
+        // the end of that function, at the end of the archive member, or the
+        // end of the file.  Return zero on success, and a nonzero value
+        // otherwise.  Note that the line number may be either relative to the
+        // beginning of the function, or absolute (see &#39;findIncludeFile&#39;).
+        // Note that &#39;lineBufStartOffset&#39; points to the beginning of line
+        // number records describing the function containing the code
+        // &#39;segAddress&#39; refers to.
+
+    void loadAuxInfos(const LoadAuxInfosInfo *laiInfo,
+                      const char             *functionBeginAddress,
+                      const char             *functionEndAddress);
+        // Iterate through &#39;d_segAddresses_p&#39; and, for each address that refers
+        // to code in the function specified by &#39;functionBeginAddress&#39; and
+        // &#39;functionEndAddress&#39;, initialize the &#39;offsetFromSymbol&#39; field of the
+        // corresponding stack trace frame, and initialize the corresponding
+        // &#39;AuxInfo&#39; struct with information from variables local to the
+        // calling &#39;loadSymbols&#39; function accessed through pointers in the
+        // specified &#39;laiInfo&#39; struct.
+
+    int loadSymbols(UintPtr numSyms,
+                    int     textSectionNum);
+        // Read the specified &#39;numSym&#39; symbols from the symbol table associated
+        // with this segment, skipping those symbols not associated with the
+        // text section indicated by the specified &#39;textSectionNum&#39;.  Return 0
+        // on success and a non-zero value otherwise.
+
+    const char *getSourceName(const AUXENT *auxent);
+        // Allocate memory for, and return a pointer to, a string containing
+        // the name of the source file referred to by the specified &#39;auxent&#39;.
+
+    const char *getSymbolName(const SYMENT *syment);
+        // Allocate memory for, and return a pointer to, a string containing
+        // the name of the symbol defined by the specified &#39;syment&#39;.  Note the
+        // symbol is sometimes a function name, sometimes a source file name.
+
+    int resolveSegment(void       *segmentPtr,
+                       UintPtr     segmentSize,
+                       const char *libraryFileName,
+                       const char *displayFileName,
+                       const char *archiveMemberName);
+        // Populate those stack trace frames whose &#39;address&#39; fields reside
+        // within the segment specfied by &#39;segmentPtr&#39; and &#39;segmentSize&#39;.  The
+        // segment is in the specified &#39;libraryFileName&#39;, with the specified
+        // &#39;archiveMemberName&#39;.  Specify the &#39;displayFileName&#39; used to identify
+        // the library file name in the stack trace.  Note that
+        // &#39;displayFileName&#39; may be different from &#39;libraryFileName&#39; because
+        // AIX truncates the filename of the executable file to be 32 chars
+        // long, so we use another means to open the executable file.  Note
+        // that if &#39;archiveMemberName&#39; is unspecified, the whole library file
+        // has a single segment.
+
+  public:
+    // PUBLIC CLASS METHODS
+    static
+    int resolve(StackTrace *stackTrace,
+                bool              demangle);
+        // Populate information for the specified &#39;stackFrames&#39;, a vector of
+        // stack trace frames in a stack trace object.  Specify &#39;demangle&#39;, to
+        // determine whether demangling is to occur, and &#39;basicAllocator&#39;,
+        // which is to be used for memory allocation.  The behavior is
+        // undefined unless all the &#39;address&#39; field in &#39;stackFrames&#39; are valid
+        // and other fields are invalid, and &#39;basicAllocator != 0&#39;.
+
+    static inline
+    int testFunc();
+        // For testing only.  Do some random garbage and return a line number
+        // from within the routine.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ----------------------------
+                        // class StackTraceResolverImpl
+                        // ----------------------------
+
+// PRIVATE MANIPULATORS
+inline
+bslma::Allocator *StackTraceResolverImpl&lt;
+                                    ObjectFileFormat::Xcoff&gt;::allocator()
+{
+    return &amp;d_hbpAlloc;
+}
+
+// CLASS METHODS
+inline
+int StackTraceResolverImpl&lt;ObjectFileFormat::Xcoff&gt;::testFunc()
+{
+    // Do some random garbage to generate some code, then return a line number
+    // within this routine
+
+    int line = 0, lineCopy = 0;
+
+    for (int i = 0; true; ++i) {
+        BSLS_ASSERT_OPT(line == lineCopy);
+
+        const int loopGuard = 0x8edf0000;    // garbage with a lot of trailing
+                                             // 0&#39;s.
+        const int mask      = 0xa72c3dca;    // pure garbage
+
+        enum { k_LINE = __LINE__ };
+
+        for (int i = 0; !(i &amp; loopGuard); ++i) {
+            line ^= (i &amp; mask);
+        }
+
+        // The above loop will leave the value of &#39;line&#39; unchanged.  See
+        // &#39;foilOptimizer&#39; in the test driver.
+
+        BSLS_ASSERT_OPT(line == lineCopy);
+
+        if (line != 0) {
+            break;
+        }
+
+        line = k_LINE;
+        lineCopy = line;
+    }
+
+    return line;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_cpp11.h                                                       -*-C++-*-
@@ -17,8 +17,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@CLASSES:
 //
 //@MACROS:
+//  BSLS_CPP11_CONSTEXPR: C++11 &#39;constexpr&#39; keyword
 //  BSLS_CPP11_EXPLICIT: C++11 &#39;explicit&#39; for conversion operators
 //  BSLS_CPP11_FINAL: C++11 &#39;final&#39; keyword
+//  BSLS_CPP11_NOEXCEPT: C++11 &#39;noexcept&#39; keyword
+//  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 &#39;noexcept&#39; function qualifier
+//  BSLS_CPP11_NOEXCEPT_OPERATOR(expr): C++11 &#39;noexcept&#39; operation
 //  BSLS_CPP11_OVERRIDE: C++11 &#39;override&#39; keyword
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
@@ -32,20 +36,44 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-------------
 // The following are the macros provided by this component.
 //
-//  &#39;BSLS_CPP11_EXPLICIT&#39;
-//    This macro inserts the keyword &#39;explicit&#39; when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
+//: &#39;BSLS_CPP11_CONSTEXPR&#39;:
+//:     This macro inserts the keyword &#39;constexpr&#39; when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: &#39;BSLS_CPP11_EXPLICIT&#39;:
+//:     This macro inserts the keyword &#39;explicit&#39; when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: &#39;BSLS_CPP11_FINAL&#39;:
+//:     This macro inserts the keyword &#39;final&#39; when compiling with C++11 mode
+//:     and inserts nothing when compiling with C++03 mode.
+//:
+//: &#39;BSLS_CPP11_NOEXCEPT&#39;:
+//:     This macro inserts the keyword &#39;noexcept&#39; when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: &#39;BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)&#39;:
+//:     This macro inserts the exception specification
+//:     &#39;noexcept(BOOL_EXPRESSION)&#39; when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.  This macro is used to specify
+//:     which version of noexcept is intended when multiple &#39;noexcept&#39;s are
+//:     used in a single statement.
+//:
+//: &#39;BSLS_CPP11_NOEXCEPT_OPERATOR(expr)&#39;:
+//:     This macro inserts the operation &#39;noexcept(expr)&#39; when compiling with
+//:     C++11 mode and inserts the literal &#39;false&#39; when compiling with C++03
+//:     mode.
+//:
+//: &#39;BSLS_CPP11_OVERRIDE&#39;
+//:     This macro inserts the keyword &#39;override&#39; when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
 //
-//  &#39;BSLS_CPP11_FINAL&#39;
-//    This macro inserts the keyword &#39;final&#39; when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-//  &#39;BSLS_CPP11_OVERRIDE&#39;
-//    This macro inserts the keyword &#39;override&#39; when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Preparing C++03 Code for C++11 Features
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // To use these macros, simply insert them where the corresponding C++11
 // keyword would go. When compiling with C++03 mode there will be no effect but
 // when compiling with C++11 mode additional restrictions will apply. When
@@ -105,7 +133,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // class FinalClass BSLS_CPP11_FINAL
 // {
 //     int d_value;
-// public:
+//   public:
 //     explicit FinalClass(int value = 0): d_value(value) {}
 //     int value() const { return d_value; }
 // };
@@ -195,6 +223,22 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#define BSLS_CPP11_CONSTEXPR constexpr
+#else
+#define BSLS_CPP11_CONSTEXPR
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#define BSLS_CPP11_NOEXCEPT noexcept
+#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
+#define BSLS_CPP11_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
+#else
+#define BSLS_CPP11_NOEXCEPT
+#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)
+#define BSLS_CPP11_NOEXCEPT_OPERATOR(...) false
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT

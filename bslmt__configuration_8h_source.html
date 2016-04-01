@@ -1,0 +1,163 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_configuration.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_CONFIGURATION
+#define INCLUDED_BSLMT_CONFIGURATION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to allow configuration of values for BCE.
+//
+//@CLASSES:
+//  bslmt::Configuration: namespace for utilities managing default BCE values
+//
+//@SEE_ALSO: bslmt_threadattributes, bslmt_threadutil
+//
+//@DESCRIPTION: This component defines a utility &#39;struct&#39;,
+// &#39;bslmt::Configuration&#39;, that is a name space for pure functions used for
+// providing access to, and configuring, default values for BCE-relevant
+// parameters.  The &#39;bslmt::Configuration&#39; utility currently provides static
+// methods to access and modify the BCE library&#39;s default stack size, as well
+// as functions that access the platform&#39;s native default stack size and guard
+// size.  The BCE default stack size is initially configured to
+// &#39;bslmt::ThreadAttributes::BSLMT_UNSET_STACK_SIZE&#39;, in which case thread
+// creation is to use the native default thread stack size.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Demonstrate Accessing &amp; Modifying the Default Thread Stack Size
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to access both the platform&#39;s native and
+// BCE configured default stack sizes, and then to set the default stack size
+// used by BCE.  Note that the value returned by &#39;defaultThreadStackSize&#39; may
+// be adjusted from that provided by the underlying operating system to reflect
+// the actual amount of stack memory available to a created thread.  For
+// example, on Itanium platforms (HPUX) the value will be scaled down from the
+// operating system supplied value to account for the extra stack space devoted
+// to storing registers.  Note that operations creating a thread should perform
+// a similar inverse adjustment when configuring the new thread&#39;s stack size
+// (see &#39;bslmt_threadutil&#39;).
+//
+// First, we examine the platform&#39;s native thread stack size:
+//..
+//  const int nativeDefault =
+//                        bslmt::Configuration::nativeDefaultThreadStackSize();
+//
+//  assert(nativeDefault &gt; 0);
+//..
+// Then, we verify that &#39;defaultThreadStackSize&#39; is unset.
+//..
+//  assert(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
+//                             bslmt::Configuration::defaultThreadStackSize());
+//..
+// Next, we define &#39;newDefaultStackSize&#39; to some size other than the platform&#39;s
+// native default stack size:
+//..
+//  const int newDefaultStackSize = nativeDefault * 2;
+//..
+// Now, we set the default size for BCE to the new size:
+//..
+//  bslmt::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
+//..
+// Finally, we verify that BCE&#39;s default thread stack size has been set to the
+// value we specified:
+//..
+//  assert(bslmt::Configuration::defaultThreadStackSize() ==
+//                                                        newDefaultStackSize);
+//  assert(bslmt::Configuration::defaultThreadStackSize() != nativeDefault);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                           // ====================
+                           // struct Configuration
+                           // ====================
+
+struct Configuration {
+    // This &#39;struct&#39; provides a namespace for a suite of functions that are
+    // used to manage the configuration of default values used in &#39;bce&#39;.
+    // Specifically, these functions manage the default value of thread stack
+    // size and provide access to the platform&#39;s native guard size, but may be
+    // extended to govern more traits in the future.
+
+    // CLASS METHODS
+    static int defaultThreadStackSize();
+        // Return the value set by the last call to
+        // &#39;setDefaultThreadStackSize&#39;; if &#39;setDefaultThreadStackSize&#39; has
+        // never been called, return &#39;ThreadAttributes::BSLMT_UNSET_STACK_SIZE&#39;
+        // which will signal thread creation to use the thread stack size
+        // native to the platform.
+
+    static int nativeDefaultThreadStackSize();
+        // Return the &quot;native&quot; default thread stack size (in bytes) as
+        // determined by the underlying platform.  Note that this value may be
+        // influenced by the choice of platform, environment variables,
+        // compiler/linker options, or shell configuration, and typically
+        // varies wildly among different platforms.
+
+    static int nativeDefaultThreadGuardSize();
+        // Return the default thread stack guard size (in bytes) determined by
+        // the underlying platform.  Note that this value reflects semantics,
+        // and may be influenced by the choice of platform, environment
+        // variables, compiler/linker options, or shell configuration, and may
+        // vary somewhat among different platforms.
+
+    static int recommendedDefaultThreadStackSize();
+        // Return a &quot;reasonable&quot; value for the default thread stack size (in
+        // bytes), which, unlike &#39;nativeDefaultThreadStackSize&#39;, is constant
+        // across all platforms of a given word size.  This value is large
+        // enough to guarantee that an automatic array of at least 250 * 1024
+        // pointers may be declared in the top level routine of the thread.
+
+    static void setDefaultThreadStackSize(int numBytes);
+        // Set the default thread stack size to the specified &#39;numBytes&#39;.  If a
+        // minimum thread stack size is known for the underlying platform (i.e.
+        // &#39;PTHREAD_STACK_MIN&#39; is defined) and &#39;numBytes&#39; is below that
+        // minimum, the stack size will be that minimum.  The behavior is
+        // undefined unless &#39;0 &lt;= numBytes&#39;.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

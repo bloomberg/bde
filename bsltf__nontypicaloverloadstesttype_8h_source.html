@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsltf_nontypicaloverloadstesttype.h                                -*-C++-*-
@@ -97,9 +97,10 @@ class NonTypicalOverloadsTestType {
         // defined only on the Microsoft platform, because we in general do not
         // support types that overrides &#39;operator&amp;&#39; in our standard containers
         // implementation except on Windows.  See the component-level
-        // documentation of bsls_util for more information.  Note that this
-        // method is deliverable *not* declared as &#39;const&#39; in order to increase
-        // the opportunities to provoke issues at the time of compilation.
+        // documentation of &#39;bsls_util&#39; for more information.  Note that this
+        // method is deliberately *not* declared as &#39;const&#39; in order to
+        // increase the opportunities to provoke issues at the time of
+        // compilation.
 #endif
 
   public:
@@ -160,9 +161,9 @@ bool operator!=(const NonTypicalOverloadsTestType&amp; lhs,
     // objects do not have the same value if their &#39;data&#39; attributes are not
     // the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------------------
                         // class NonTypicalOverloadsTestType

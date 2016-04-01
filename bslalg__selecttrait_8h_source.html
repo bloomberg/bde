@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_selecttrait.h                                               -*-C++-*-
@@ -54,12 +54,12 @@ namespace bslalg {
                           // class SelectTrait
                           // =================
 
-template &lt;typename TYPE,
-          typename TRAIT1,
-          typename TRAIT2 = TypeTraitNil,
-          typename TRAIT3 = TypeTraitNil,
-          typename TRAIT4 = TypeTraitNil,
-          typename TRAIT5 = TypeTraitNil&gt;
+template &lt;class TYPE,
+          class TRAIT1,
+          class TRAIT2 = TypeTraitNil,
+          class TRAIT3 = TypeTraitNil,
+          class TRAIT4 = TypeTraitNil,
+          class TRAIT5 = TypeTraitNil&gt;
 struct SelectTrait {
     // Select one trait out of several that the parameterized type &#39;T&#39; may
     // possess.  If &#39;T&#39; has the parameterized trait &#39;TRAIT1&#39;, then the nested

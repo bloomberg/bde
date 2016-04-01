@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma_sharedptroutofplacerep Component</title>
+<title>BDE 3.0: bslma_sharedptroutofplacerep Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,7 +79,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Thread-Safety</a> </li>
+<a href="#3.1">Thread Safety</a> </li>
 <li>
 <a href="#3.2">Deleters</a> </li>
 <li>
@@ -107,8 +107,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a concrete implementation of <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> for managing objects of the parameterized <code>TYPE</code> that are stored outside of the representation. When all references to the out-of-place object are released using <code>releaseRef</code>, the deleter of the parameterized <code>DELETER</code> type is invoked to delete the shared object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-safety"></a> <a class="anchor" id="description.thread-safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">bslma::SharedPtrOutofplaceRep</a></code> is thread-safe provided that <code>disposeObject</code> and <code>disposeRep</code> are not called explicitly, meaning that all non-creator operations other than <code>disposeObject</code> and <code>disposeRep</code> on a given instance can be safely invoked simultaneously from multiple threads (<code>disposeObject</code> and <code>disposeRep</code> are meant to be invoked only by <code>releaseRef</code> and <code>releaseWeakRef</code>). Note that there is no thread safety guarantees for operations on the managed object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="deleters"></a> <a class="anchor" id="description.deleters"></a> <a class="anchor" id="3.2"></a> </dd></dl>
@@ -253,7 +253,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

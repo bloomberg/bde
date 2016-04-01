@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_matchanytype Component</title>
+<title>BDE 3.0: bslmf_matchanytype Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,9 +79,13 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage Example 1: <code>bslmf::MatchAnyType</code></a> </li>
+<a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.2">Usage Example 2: <code>bslmf::TypeRep</code></a> </li>
+<a href="#3.1.1">Example 1: <code>bslmf::MatchAnyType</code></a> </li>
+<li>
+<a href="#3.1.2">Example 2: <code>bslmf::TypeRep</code></a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -106,8 +110,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslmf_1_1MatchAnyType.html">bslmf::MatchAnyType</a></code> is a type to which any type can be implicitly converted. This is useful for creating an overloaded function that is a catch-all for all types not explicitly provided for in other overloaded functions with the same name. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslmf_1_1TypeRep.html">bslmf::TypeRep</a></code> allows one to create a reference to a type. In complex template programming, one is often dealing with unknown types, about the constructors of which one knows nothing. One often needs an object of the given type, but since nothing is known about the constructors, one can't just construct and object of the type. <code><a class="el" href="structbslmf_1_1TypeRep.html">bslmf::TypeRep</a></code> allows one to create a reference to the type. Note that the <code>rep</code> function in <code><a class="el" href="structbslmf_1_1TypeRep.html">bslmf::TypeRep</a></code> is not implemented, it must never be called at run time. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_1~3A_bslmf~3A~3Amatchanytype"></a> <a class="anchor" id="description.usage_example_1~3A_bslmf~3A~3Amatchanytype"></a> <a class="anchor" id="usage_example_1"></a> <a class="anchor" id="description.usage_example_1"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 1: bslmf::MatchAnyType: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_bslmf~3A~3Amatchanytype"></a> <a class="anchor" id="usage.example_1~3A_bslmf~3A~3Amatchanytype"></a> <a class="anchor" id="description.usage.example_1~3A_bslmf~3A~3Amatchanytype"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: bslmf::MatchAnyType: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>X { };
@@ -134,8 +142,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_2~3A_bslmf~3A~3Atyperep"></a> <a class="anchor" id="description.usage_example_2~3A_bslmf~3A~3Atyperep"></a> <a class="anchor" id="usage_example_2"></a> <a class="anchor" id="description.usage_example_2"></a> <a class="anchor" id="3.2"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 2: bslmf::TypeRep: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_bslmf~3A~3Atyperep"></a> <a class="anchor" id="usage.example_2~3A_bslmf~3A~3Atyperep"></a> <a class="anchor" id="description.usage.example_2~3A_bslmf~3A~3Atyperep"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: bslmf::TypeRep: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>X {};
@@ -173,7 +182,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

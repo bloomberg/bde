@@ -1,0 +1,66 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bdld.txt
+
+@PURPOSE: Provide a variant type (&#39;Datum&#39;) and supporting utilities.            
+                                                                                
+@MNEMONIC: Basic Development Library Datum (bdlb)                               
+                                                                                
+@DESCRIPTION: The &#39;bdld&#39; package defines in &#39;bdld_datum&#39; a type that can        
+ contain an assortment of different value types, including user-defined types.  
+ Other components provide utilities for assembling arrays and maps of &#39;Datum&#39;   
+ objects.                                                                       
+                                                                                
+ Note that `bdlt::Datum` has many features of value-semantic types (including   
+ an &#39;operator==&#39;), but is not a VST.  See {&#39;bdlt_datum&#39;|Notion of Value}.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bdld&#39; package currently has 8 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  3. bdld_datumarraybuilder
+     bdld_datummapbuilder
+     bdld_datummapowningkeysbuilder
+     bdld_manageddatum
+
+  2. bdld_datum
+
+  1. bdld_datumbinaryref
+     bdld_datumerror
+     bdld_datumudt
+..
+
+/Component Synopsis
+/------------------
+: &#39;bdld_datum&#39;:
+:      Provide a discriminated variant type with a small footprint.
+:
+: &#39;bdld_datumarraybuilder&#39;:
+:      Provide a utility to build a &#39;Datum&#39; object holding an array.
+:
+: &#39;bdld_datumbinaryref&#39;:
+:      Provide a type to represent binary data and its size.
+:
+: &#39;bdld_datumerror&#39;:
+:      Provide a type for an error code with an optional error message.
+:
+: &#39;bdld_datummapbuilder&#39;:
+:      Provide a utility to build a &#39;Datum&#39; object holding a map.
+:
+: &#39;bdld_datummapowningkeysbuilder&#39;:
+:      Provide a utility to build a &#39;Datum&#39; object holding a map.
+:
+: &#39;bdld_datumudt&#39;:
+:      Provide a type to represent a user-defined type.
+:
+: &#39;bdld_manageddatum&#39;:
+:      Provide a smart-pointer like manager for a &#39;Datum&#39; object.
+</pre>
+</body>
+</html>

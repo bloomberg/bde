@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdls Package</title>
+<title>BDE 3.0: bdls Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -63,14 +63,54 @@
 </div>
 <div class="contents">
 
-<p>Provide system-level utilities for BDL.  
+<p>Provide platform-independent system-level utilities.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="groups"></a>
 Components</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__testutil.html">Component bdls_testutil</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__fdstreambuf.html">Component bdls_fdstreambuf</a></td></tr>
 
-<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide test utilities for components in <code>bdl</code> and above. </p>
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a stream buffer initialized with a file descriptor. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__filedescriptorguard.html">Component bdls_filedescriptorguard</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a RAII guard class used to close files. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__filesystemutil.html">Component bdls_filesystemutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide methods for filesystem access with multi-language names. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__memoryutil.html">Component bdls_memoryutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a set of portable utilities for memory manipulation. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__osutil.html">Component bdls_osutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide utilities related to the operating system. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__pathutil.html">Component bdls_pathutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide portable file path manipulation. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__pipeutil.html">Component bdls_pipeutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide basic portable named-pipe utilities. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__processutil.html">Component bdls_processutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide basic platform-independent utilities related to processes. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls__testutil.html"><span style="color:gray;">Component bdls_testutil<strong>: DEPRECATED</strong></span></a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="color: gray;margin-top: 0; margin-bottom: 0;">Provide test utilities for components in <code>bdl</code> and above. </p>
 </td></tr>
 </p>
 </table>
@@ -79,11 +119,13 @@ Components</h2></td></tr>
 <li>
 <a href="#1">Purpose</a> </li>
 <li>
-<a href="#2">MNEMONIC: Basic Development Library System-level utilities (bdls)</a> <ul>
+<a href="#2">MNEMONIC: Basic Development Library System-level utilities (bdls)</a> </li>
 <li>
-<a href="#2.1">Hierarchical Synopsis</a> </li>
+<a href="#3">Description</a> <ul>
 <li>
-<a href="#2.2">Component Synopsis</a> </li>
+<a href="#3.1">Hierarchical Synopsis</a> </li>
+<li>
+<a href="#3.2">Component Synopsis</a> </li>
 </ul>
 </li>
 </ul>
@@ -91,30 +133,61 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide system-level utilities for BDL </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide platform-independent system-level utilities. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_development_library_system-level_utilities_(bdls)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>MNEMONIC: Basic Development Library System-level utilities (bdls): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="mnemonic.hierarchical_synopsis"></a> <a class="anchor" id="2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
+<dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdls</code> package provides a suite of components for platform-independent interactions with operating system for the management of memory, files, and pipes. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdls</code> package currently has 1 component. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdls</code> package currently has 9 components having 4 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  1. bdls_testutil
+<div class="fragment"><pre class="fragment">  4. bdls_pipeutil
+
+  3. bdls_fdstreambuf
+     bdls_filedescriptorguard
+
+  2. bdls_filesystemutil
+     bdls_osutil
+
+  1. bdls_memoryutil
+     bdls_pathutil
+     bdls_processutil
+     bdls_testutil                                       !DEPRECATED!
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_synopsis"></a> <a class="anchor" id="mnemonic.component_synopsis"></a> <a class="anchor" id="2.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_synopsis"></a> <a class="anchor" id="description.component_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Component Synopsis: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_testutil</code>: <br/>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_fdstreambuf</code>: <br/>
+ Provide a stream buffer initialized with a file descriptor.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_filedescriptorguard</code>: <br/>
+ Provide a RAII guard class used to close files.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_filesystemutil</code>: <br/>
+ Provide methods for filesystem access with multi-language names.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_memoryutil</code>: <br/>
+ Provide a set of portable utilities for memory manipulation.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_osutil</code>: <br/>
+ Provide utilities related to the operating system.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_pathutil</code>: <br/>
+ Provide portable file path manipulation.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_pipeutil</code>: <br/>
+ Provide basic portable named-pipe utilities.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_processutil</code>: <br/>
+ Provide basic platform-independent utilities related to processes.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls_testutil</code>: <b>DEPRECATED</b> <br/>
  Provide test utilities for components in <code>bdl</code> and above.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

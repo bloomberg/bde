@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_nullptr Component</title>
+<title>BDE 3.0: bsls_nullptr Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -69,6 +69,7 @@
 <tr><td colspan="2"><h2><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html">bsls</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsl.html">bsl</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -95,13 +96,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bsls::Nullptr </td><td>namespace for a type matching only null pointer literals  </td></tr>
+<td><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a> </td><td>type for function parameter to match null pointer literals  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a limited emulation of the C++11 type, <code>std::nullptr_t</code>, which can be used as a function parameter type to create an overload set where null pointer literals are handled specially. Note that this component will be deprecated, and ultimately removed, once BDE code can assume support for a C++11 compiler. On a platform that supports the language feature, a fully-conforming <code>typedef</code> is supplied rather than using the emulation layer. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides <code><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a></code> as a limited emulation of the C++11 type, <code>std::nullptr_t</code>, which can be used as a function parameter type to create an overload set where null pointer literals are handled specially. Note that this component will be deprecated, and ultimately removed, once BDE code can assume support for a C++11 compiler. On a platform that supports the language feature, a fully-conforming <code>typedef</code> is supplied rather than using the emulation layer. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="limitations"></a> <a class="anchor" id="description.limitations"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Limitations: </b></dt><dd></dd></dl>
@@ -235,7 +236,7 @@ Namespaces</h2></td></tr>
 </ul>
 </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:02 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

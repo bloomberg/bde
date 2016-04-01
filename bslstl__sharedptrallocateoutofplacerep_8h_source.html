@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_sharedptrallocateoutofplacerep.h                            -*-C++-*-
@@ -28,7 +28,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // shared object.  Memory is supplied and reclaimed by an allocator of the
 // parameterized &#39;ALLOCATOR&#39; type.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // &#39;bslstl::SharedPtrAllocateOutofplaceRep&#39; is thread-safe provided that
 // &#39;disposeObject&#39; and &#39;disposeRep&#39; are not called explicitly, meaning that all
@@ -331,7 +331,7 @@ class SharedPtrAllocateOutofplaceRep_InitProctor {
     // If the proctor is not released before it&#39;s destruction, a copy of the
     // deleter is instantiated to delete the pointer (in case &#39;operator()&#39; is
     // non-&#39;const&#39;).  Also note that if the deleter throws during
-    // copy-construction, the provided pointer will not be destroyed.
+    // copy construction, the provided pointer will not be destroyed.
 
     // DATA
     TYPE           *d_ptr_p;    // address of the managed object (held, not

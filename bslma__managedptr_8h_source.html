@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_managedptr.h                                                 -*-C++-*-
@@ -125,7 +125,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Implementing a protocol
+///Example 1: Implementing a Protocol
 /// - - - - - - - - - - - - - - - - -
 // We demonstrate using &#39;ManagedPtr&#39; to configure and return a managed object
 // implementing an abstract protocol.
@@ -981,10 +981,10 @@ class ManagedPtr {
         // constructor will not compile unless &#39;MANAGED_TYPE *&#39; is convertible
         // to &#39;TARGET_TYPE *&#39;.  The behavior is undefined unless the managed
         // object (if any) can be destroyed by the specified &#39;factory&#39;, or if
-        // the the lifetime of the managed object is already managed by another
-        // object.  Note that &#39;bslma::Allocator&#39;, and any class publicly and
-        // unambiguously derived from &#39;bslma::Allocator&#39;, meets the
-        // requirements for &#39;FACTORY_TYPE&#39;.
+        // &#39;0 == factory &amp;&amp; 0 != ptr&#39;, or if the the lifetime of the managed
+        // object is already managed by another object.  Note that
+        // &#39;bslma::Allocator&#39;, and any class publicly and unambiguously derived
+        // from &#39;bslma::Allocator&#39;, meets the requirements for &#39;FACTORY_TYPE&#39;.
 
     template &lt;class FACTORY_TYPE&gt;
     ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory);
@@ -1174,7 +1174,7 @@ class ManagedPtr {
         // but does *not* allow managed pointers to be compared (e.g., via &#39;&lt;&#39;
         // or &#39;&gt;&#39;).  Note that a superior solution is available in C++11 using
         // the &#39;explicit operator bool()&#39; syntax, that removes the need for a
-        // special boolean-like type and private equality comparison operators.
+        // special boolean-like type and private equality-comparison operators.
 
     typename bslmf::AddReference&lt;TARGET_TYPE&gt;::Type operator*() const;
         // Return a reference to the target object.  The behavior is undefined
@@ -1747,7 +1747,7 @@ struct HasPointerSemantics&lt;bslma::ManagedPtr&lt;TARGET_TYPE&gt; &gt;
 template &lt;class TARGET_TYPE&gt;
 struct IsBitwiseMoveable&lt;bslma::ManagedPtr&lt;TARGET_TYPE&gt; &gt; : bsl::true_type {};
 
-}  // close traits namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 #endif

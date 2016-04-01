@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bslmf.txt
@@ -9,7 +9,7 @@
 
 @MNEMONIC: Basic Standard Library Meta-Functions (bslmf)
 
-@DESCRIPTION: The &#39;bslmf&#39; package provides meta-function equivalents of certain
+@DESCRIPTION: The &#39;bdemf&#39; package provides meta-function equivalents of certain
  useful coding constructs.  A meta-function is a template-based, compile-time
  construct that behaves like a (runtime) function in that it &quot;evaluates&quot;
  arguments and does something different based on the input it is passed (in the
@@ -24,29 +24,28 @@
  both.  For instance, in order to evaluate whether two types are the same, one
  could write a meta-function predicate (evaluating to 0 or 1) as follows:
 ..
-    template &lt;class U, class V&gt;
-    struct IsSame {
-        // This &#39;struct&#39; provides a meta function parameterized by two types
-        // &#39;U&#39; and &#39;V&#39;, that takes &#39;VALUE == 0&#39; unless &#39;U&#39; and &#39;V&#39; are the same
-        // type, in which case it takes &#39;VALUE == 1&#39;.
+  template &lt;class U, class V&gt;
+  struct IsSame {
+      // This &#39;struct&#39; provides a meta function parameterized by two types &#39;U&#39;
+      // and &#39;V&#39;, that takes &#39;VALUE == 0&#39; unless &#39;U&#39; and &#39;V&#39; are the same type,
+      // in which case it takes &#39;VALUE == 1&#39;.
 
-        // PUBLIC TYPES
-        enum { VALUE = 0 };
-        typedef bslmf_MetaInt&lt;VALUE&gt;  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 0 };
+      typedef bslmf_MetaInt&lt;VALUE&gt;  Type;
+  };
 
-    // SPECIALIZATIONS
-    template &lt;class T&gt;
-    struct IsSame&lt;T, T&gt; {
-        // This specialization of the &#39;IsSame&#39; meta function is parameterized
-        // by a single type &#39;T&#39; and is selected if the two parameters of
-        // &#39;IsSame&#39;, &#39;U&#39; and &#39;V&#39;, are both equal to &#39;T&#39;.  It takes
-        // &#39;VALUE == 1&#39;.
+  // SPECIALIZATIONS
+  template &lt;class T&gt;
+  struct IsSame&lt;T, T&gt; {
+      // This specialization of the &#39;IsSame&#39; meta function is parameterized by
+      // a single type &#39;T&#39; and is selected if the two parameters of &#39;IsSame&#39;,
+      // &#39;U&#39; and &#39;V&#39;, are both equal to &#39;T&#39;.  It takes &#39;VALUE == 1&#39;.
 
-        // PUBLIC TYPES
-        enum { VALUE = 1 };
-        typedef bslmf_MetaInt&lt;VALUE&gt;  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 1 };
+      typedef bslmf_MetaInt&lt;VALUE&gt;  Type;
+  };
 ..
  Note the use of a &#39;bslmf_MetaInt&#39; nested type usually employed for function
  dispatching.  See the &#39;bslmf_issame&#39; component-level documentation for a more
@@ -58,7 +57,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslmf&#39; package currently has 62 components having 15 levels of physical
+ The &#39;bslmf&#39; package currently has 65 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -80,18 +79,20 @@
 
   11. bslmf_isconvertible
 
-  10. bslmf_enableif
+  10. bslmf_addcv
+      bslmf_enableif
       bslmf_ispointertomember
 
-   9. bslmf_addcv
+   9. bslmf_addvolatile
       bslmf_isfundamental
       bslmf_ismemberpointer
 
    8. bslmf_addconst
-      bslmf_addvolatile
       bslmf_isarithmetic
+      bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
+      bslmf_isvolatile
       bslmf_removepointer
 
    7. bslmf_isclass
@@ -115,6 +116,8 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_isconst
+      bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
       bslmf_removevolatile
@@ -128,15 +131,14 @@
       bslmf_switch
 
    2. bslmf_isarray
-      bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
-      bslmf_isvolatile
       bslmf_nil
       bslmf_tag
 
-   1. bslmf_assert
+   1. bslmf_allocatorargt
+      bslmf_assert
       bslmf_integralconstant
       bslmf_matchanytype
 ..
@@ -163,6 +165,9 @@
 :
 : &#39;bslmf_addvolatile&#39;:
 :      Provide a meta-function for adding a &#39;volatile&#39;-qualifier.
+:
+: &#39;bslmf_allocatorargt&#39;:
+:      Provide a tag type to precede allocator arguments.
 :
 : &#39;bslmf_arraytopointer&#39;:
 :      Provide a meta-function to convert array types to pointer types.
@@ -217,6 +222,9 @@
 :
 : &#39;bslmf_isconvertibletoany&#39;:
 :      Provide a compile-time check for types convertible to any type.
+:
+: &#39;bslmf_isempty&#39;:
+:      Provide a compile-time check for detecting an empty class type.
 :
 : &#39;bslmf_isenum&#39;:
 :      Provide compile-time check for determining enumerated types.
@@ -299,6 +307,9 @@
 : &#39;bslmf_nil&#39;:
 :      Provide a nil type.
 :
+: &#39;bslmf_nthparameter&#39;:
+:      Metafunction to return the Nth type parameter in a parameter pack
+:
 : &#39;bslmf_removeconst&#39;:
 :      Provide a meta-function for removing top-level &#39;const&#39;-qualifier.
 :
@@ -327,8 +338,7 @@
 :      Provide an integral-constant-to-type conversion.
 :
 : &#39;bslmf_typelist&#39;:
-:      Provide a typelist component
-
+:      Provide a typelist component.
 </pre>
 </body>
 </html>

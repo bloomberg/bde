@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_map Component</title>
+<title>BDE 3.0: bslstl_map Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -241,7 +241,7 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>map</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that map type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a map accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it will be used to supply memory for the map throughout its lifetime; otherwise, the map will use the default allocator installed at the time of the map's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a map supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>KEY</code> and <code>VALUE</code>, if respectively, the types define the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>map</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that map type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a map accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it is used to supply memory for the map throughout its lifetime; otherwise, the map will use the default allocator installed at the time of the map's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a map supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>KEY</code> and <code>VALUE</code>, if respectively, the types define the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
@@ -251,35 +251,35 @@ Variables</h2></td></tr>
   ------
   <span class="charliteral">&#39;K&#39;</span>             - (<span class="keyword">template</span> parameter) type <span class="stringliteral">&#39;KEY&#39;</span> of the map
   <span class="charliteral">&#39;V&#39;</span>             - (<span class="keyword">template</span> parameter) type &#39;VALUE&#39; of the map
-  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;map&lt;K, V&gt;&#39;
+  &#39;a&#39;, &#39;b&#39;        - two distinct objects of type &#39;map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt;&#39;
   &#39;n&#39;, &#39;m&#39;        - number of elements in &#39;a&#39; and &#39;b&#39; respectively
-  &#39;value_type&#39;    - map&lt;K, V&gt;::value_type
+  &#39;value_type&#39;    - map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt;::value_type
   &#39;c&#39;             - comparator providing an ordering for objects of type &#39;K&#39;
   &#39;al             - an STL-style memory allocator
   &#39;i1&#39;, &#39;i2&#39;      - two iterators defining a sequence of &#39;value_type&#39; objects
   &#39;k&#39;             - an <span class="keywordtype">object</span> of type &#39;K&#39;
-  &#39;v&#39;             - an <span class="keywordtype">object</span> of type &#39;V&#39;
+  &#39;v&#39;             - an <span class="keywordtype">object</span> of type &#39;<a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&#39;
   &#39;p1&#39;, &#39;p2&#39;      - two iterators belonging to &#39;a&#39;
   distance(i1,i2) - the number of elements in the range [i1, i2)
 
   +----------------------------------------------------+--------------------+
   | Operation                                          | Complexity         |
   +====================================================+====================+
-  | map&lt;K, V&gt; a;    (default construction)             | O[1]               |
-  | map&lt;K, V&gt; a(al);                                   |                    |
-  | map&lt;K, V&gt; a(c, al);                                |                    |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a;    (default construction)             | O[1]               |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(al);                                   |                    |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(c, al);                                |                    |
   +----------------------------------------------------+--------------------+
-  | map&lt;K, V&gt; a(b); (copy construction)                | O[n]               |
-  | map&lt;K, V&gt; a(b, al);                                |                    |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(b); (copy construction)                | O[n]               |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(b, al);                                |                    |
   +----------------------------------------------------+--------------------+
-  | map&lt;K, V&gt; a(i1, i2);                               | O[N] if [i1, i2)   |
-  | map&lt;K, V&gt; a(i1, i2, al);                           | is sorted with     |
-  | map&lt;K, V&gt; a(i1, i2, c, al);                        | &#39;a.value_comp()&#39;,  |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(i1, i2);                               | O[N] if [i1, i2)   |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(i1, i2, al);                           | is sorted with     |
+  | map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt; a(i1, i2, c, al);                        | &#39;a.value_comp()&#39;,  |
   |                                                    | O[N * log(N)]      |
   |                                                    | otherwise, where N |
   |                                                    | is distance(i1,i2) |
   +----------------------------------------------------+--------------------+
-  | a.~map&lt;K, V&gt;(); (destruction)                      | O[n]               |
+  | a.~map&lt;K, <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt;(); (destruction)                      | O[n]               |
   +----------------------------------------------------+--------------------+
   | a = b;          (assignment)                       | O[n]               |
   +----------------------------------------------------+--------------------+
@@ -385,7 +385,7 @@ Variables</h2></td></tr>
       BuyOrdersMap    d_buyOrders;   <span class="comment">// current buy orders</span>
 
     <span class="keyword">private</span>:
-      <span class="comment">// This class does not support copy-construction and copy-assignment.</span>
+      <span class="comment">// This class does not support copy construction or copy assignment.</span>
       TradeMatcher&amp; operator=(<span class="keyword">const</span> TradeMatcher&amp;);
       TradeMatcher(<span class="keyword">const</span> TradeMatcher&amp;);
 
@@ -921,7 +921,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty map. Optionally specify a <code>comparator</code> used to order key-value pairs contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty map. Optionally specify a <code>comparator</code> used to order key-value pairs contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. </td></tr>
   </table>
   </dd>
 </dl>
@@ -945,7 +945,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty map that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the key-value pairs contained in this map. If the (template parameter) type <code>ALLOCATOR</code> is of <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Construct an empty map that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the key-value pairs contained in this map. If the (template parameter) type <code>ALLOCATOR</code> is of <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -966,7 +966,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a map having the same value as the specified <code>original</code>. Use a copy of <code>original.key_comp()</code> to order the key-value pairs contained in this map. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the (template parameter) type <code>ALLOCATOR</code> is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator will be used to supply memory. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Construct a map having the same value as the specified <code>original</code>. Use a copy of <code>original.key_comp()</code> to order the key-value pairs contained in this map. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the (template parameter) type <code>ALLOCATOR</code> is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator is used to supply memory. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -996,7 +996,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a map having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the key-value pairs contained in this map. If the (template parameter) type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Construct a map having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the key-value pairs contained in this map. If the (template parameter) type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1040,7 +1040,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a map, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those pairs having a key that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order key-value pairs contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Construct a map, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those pairs having a key that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order key-value pairs contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code>, then this operation has <code>O[N]</code> complexity, where <code>N</code> is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation has <code>O[N * log(N)]</code> complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1081,7 +1081,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value and comparator of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. This method requires that the (template parameter types) <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Assign to this object the value and comparator of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. Note that this method requires that the (template parameter types) <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1102,7 +1102,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference providing modifiable access to the mapped-value associated with the specified <code>key</code>; if this <code>map</code> does not already contain a <code>value_type</code> object with <code>key</code>, first insert a new <code>value_type</code> object having <code>key</code> and a default-constructed <code>VALUE</code> object, and return a reference to the mapped value. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return a reference providing modifiable access to the mapped-value associated with the specified <code>key</code>; if this <code>map</code> does not already contain a <code>value_type</code> object with <code>key</code>, first insert a new <code>value_type</code> object having <code>key</code> and a default-constructed <code>VALUE</code> object, and return a reference to the mapped value. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1123,7 +1123,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference providing modifiable access to the mapped-value associated with the specified <code>key</code>, if such an entry exists; otherwise throw an <code>std::out_of_range</code> exception. Note that this method is not exception agnostic. </p>
+<p>Return a reference providing modifiable access to the mapped-value associated with the specified <code>key</code>, if such an entry exists; otherwise throw an <code>std::out_of_range</code> exception. Note that this method is not exception-neutral. </p>
 
 </div>
 </div>
@@ -1224,7 +1224,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this map if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this map; otherwise, if a <code>value_type</code> object having the same key as <code>value</code> already exists in this map, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this map whose key is the same as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert the specified <code>value</code> into this map if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this map; otherwise, if a <code>value_type</code> object having the same key as <code>value</code> already exists in this map, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this map whose key is the same as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> types both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1254,7 +1254,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this map (in amortized constant time if the specified <code>hint</code> is a valid immediate successor to the key of <code>value</code>), if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this map; otherwise, if a <code>value_type</code> object having the same key as <code>value</code> already exists in this map, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this map whose key is the same as that of <code>value</code>. If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation will have O[log(N)] complexity, where <code>N</code> is the size of this map. The behavior is undefined unless <code>hint</code> is a valid iterator into this map. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert the specified <code>value</code> into this map (in amortized constant time if the specified <code>hint</code> is a valid immediate successor to the key of <code>value</code>), if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this map; otherwise, if a <code>value_type</code> object having the same key as <code>value</code> already exists in this map, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this map whose key is the same as that of <code>value</code>. If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation has <code>O[log(N)]</code> complexity, where <code>N</code> is the size of this map. The behavior is undefined unless <code>hint</code> is a valid iterator into this map. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1286,7 +1286,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert into this map the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this map. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert into this map the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this map. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1379,7 +1379,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Exchange the value of this object as well as its comparator with those of the specified <code>other</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Exchange the value of this object as well as its comparator with those of the specified <code>other</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -1744,7 +1744,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference providing non-modifiable access to the mapped-value associated with the specified <code>key</code>, if such an entry exists; otherwise throw an <code>std::out_of_range</code> exception. Note that this method is not exception agnostic. </p>
+<p>Return a reference providing non-modifiable access to the mapped-value associated with the specified <code>key</code>, if such an entry exists; otherwise throw an <code>std::out_of_range</code> exception. Note that this method is not exception-neutral. </p>
 
 </div>
 </div>
@@ -1889,7 +1889,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
       </table>
 </div>
 <div class="memdoc">
-<p>Return a pair of iterators providing non-modifiable access to the sequence of <code>value_type</code> objects in this map having the specified <code>key</code>, where the the first iterator is positioned at the start of the sequence and the second iterator is positioned one past the end of the sequence. The first returned iterator will be <code>lower_bound(key)</code>, the second returned iterator will be <code>upper_bound(key)</code>, and if this map contains no <code>value_type</code> objects having <code>key</code> then the two returned iterators will have the same value. Note that since a map maintains unique keys, the range will contain at most one element. </p>
+<p>Return a pair of iterators providing non-modifiable access to the sequence of <code>value_type</code> objects in this map having the specified <code>key</code>, where the the first iterator is positioned at the start of the sequence and the second iterator is positioned one past the end of the sequence. The first returned iterator will be <code>lower_bound(key)</code>, the second returned iterator will be <code>upper_bound(key)</code>, and if this map contains no <code>value_type</code> objects having <code>key</code>, then the two returned iterators will have the same value. Note that since a map maintains unique keys, the range will contain at most one element. </p>
 
 </div>
 </div>
@@ -1919,7 +1919,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code>map</code> objects have the same value if they have the same number of key-value pairs, and each key-value pair that is contained in one of the objects is also contained in the other object. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code>map</code> objects have the same value if they have the same number of key-value pairs, and each key-value pair that is contained in one of the objects is also contained in the other object. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1949,7 +1949,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code>map</code> objects do not have the same value if they do not have the same number of key-value pairs, or some key-value pair that is contained in one of the objects is not also contained in the other object. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code>map</code> objects do not have the same value if they do not have the same number of key-value pairs, or some key-value pair that is contained in one of the objects is not also contained in the other object. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1979,7 +1979,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is less than the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is less than that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is less than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has fewer key-value pairs than <code>rhs</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is less than the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is less than that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is less than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has fewer key-value pairs than <code>rhs</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -2009,7 +2009,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is greater than the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is greater than that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is greater than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has more key-value pairs than <code>rhs</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is greater than the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is greater than that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is greater than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has more key-value pairs than <code>rhs</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -2039,7 +2039,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is less-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is less-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is less than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has less-than or equal number of key-value pairs as <code>rhs</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is less-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is less-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is less than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has less-than or equal number of key-value pairs as <code>rhs</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -2069,7 +2069,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is greater-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is greater-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is greater than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has greater-than or equal number of key-value pairs as <code>rhs</code>. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is greater-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A map, <code>lhs</code>, has a value that is greater-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key-value pairs in their respective sequences, the <code>lhs</code> key-value pair is greater than the <code>rhs</code> pair, or, if the keys of all of their corresponding key-value pairs compare equal, <code>lhs</code> has greater-than or equal number of key-value pairs as <code>rhs</code>. Note that this method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__map.html#requirements_on_key_and_value.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__map.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -2099,7 +2099,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </
       </table>
 </div>
 <div class="memdoc">
-<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -2121,7 +2121,7 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:05 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

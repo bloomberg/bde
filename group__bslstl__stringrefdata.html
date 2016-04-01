@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_stringrefdata Component</title>
+<title>BDE 3.0: bslstl_stringrefdata Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -83,7 +83,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.2">Usage</a> <ul>
 <li>
-<a href="#3.2.1">Example 1: Breaking cyclic dependency between string and StringRef classes</a> </li>
+<a href="#3.2.1">Example 1: Breaking Cyclic Dependency Between <code>String</code> and <code>StringRef</code></a> </li>
 </ul>
 </li>
 </ul>
@@ -135,7 +135,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Attributes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Name   Type               Default  Constraints
+<div class="fragment"><pre class="fragment">  Name   <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>               Default  Constraints
   -----  -----------------  -------  ------------------------------
   begin  <span class="keyword">const</span> CHAR_TYPE *  0        begin &lt;= end &amp;&amp; !begin == !end
   end    <span class="keyword">const</span> CHAR_TYPE *  0        begin &lt;= end &amp;&amp; !begin == !end
@@ -153,8 +153,8 @@ end: a pointer to one past the last character of the string.  </li>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_breaking_cyclic_dependency_between_string_and_stringref_classes"></a> <a class="anchor" id="usage.example_1~3A_breaking_cyclic_dependency_between_string_and_stringref_classes"></a> <a class="anchor" id="description.usage.example_1~3A_breaking_cyclic_dependency_between_string_and_stringref_classes"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Breaking cyclic dependency between string and StringRef classes: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_breaking_cyclic_dependency_between_string_and_stringref"></a> <a class="anchor" id="usage.example_1~3A_breaking_cyclic_dependency_between_string_and_stringref"></a> <a class="anchor" id="description.usage.example_1~3A_breaking_cyclic_dependency_between_string_and_stringref"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Breaking Cyclic Dependency Between String and StringRef: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example we demonstrate how <code><a class="el" href="classbslstl_1_1StringRefData.html">bslstl::StringRefData</a></code> allows us to break the cyclic dependency between hypothetical <code>String</code> and <code>StringRef</code> classes. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Objects of our <code>String</code> and <code>StringRef</code> classes need to be convertible to each other. However only one of these classes can depend on the definition of the other one, otherwise they will be cyclically dependent. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a hypothetical <code>String</code> class, whose implementation is intentionally simple and contains only the essential constructors and accessor methods; the important thing to notice is that <code>String</code> does not depend on <code>StringRef</code>, which has not been defined yet: <br/>
@@ -225,7 +225,7 @@ end: a pointer to one past the last character of the string.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:09 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

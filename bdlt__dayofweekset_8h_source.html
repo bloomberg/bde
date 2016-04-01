@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlt_dayofweekset.h                                                -*-C++-*-
@@ -55,9 +55,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Manipulation and Traversal of Day of Week Sets
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A &#39;bdlt::DayOfWeekSet&#39; is useful for recording recurring appointments,
-// or special days (e.g., weekend days), in a calendar.  The following
-// snippets of code illustrate how to create and use a &#39;bdlt::DayOfWeek&#39; set.
+// A &#39;bdlt::DayOfWeekSet&#39; is useful for recording recurring appointments, or
+// special days (e.g., weekend days), in a calendar.  The following snippets of
+// code illustrate how to create and use a &#39;bdlt::DayOfWeek&#39; set.
 //
 // First, we create a couple of commonly useful sets.  First we define the
 // &#39;bdlt::DayOfWeekSet&#39; &#39;weekendDays&#39;:
@@ -227,6 +227,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BDLB_BITUTIL
 #include &lt;bdlb_bitutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -460,6 +468,10 @@ class DayOfWeekSet {
         // Return an iterator indicating one position past the last possible
         // element in this set.
 
+    bool isEmpty() const;
+        // Return &#39;true&#39; if there are no elements in this set, and &#39;false&#39;
+        // otherwise.
+
     bool isMember(DayOfWeek::Enum value) const;
         // Return &#39;true&#39; if the specified &#39;value&#39; is an element of this set,
         // and &#39;false&#39; otherwise.
@@ -506,8 +518,8 @@ class DayOfWeekSet {
 
 // FREE OPERATORS
 DayOfWeekSet operator~(const DayOfWeekSet&amp; set);
-    // Return a set containing the complement of the specified &#39;set&#39;
-    // (i.e., those members *not* contained in &#39;set&#39;).
+    // Return a set containing the complement of the specified &#39;set&#39; (i.e.,
+    // those members *not* contained in &#39;set&#39;).
 
 DayOfWeekSet operator|(const DayOfWeekSet&amp; lhs, const DayOfWeekSet&amp; rhs);
     // Return a set containing the union of the specified &#39;lhs&#39; and &#39;rhs&#39; sets
@@ -621,8 +633,8 @@ bool bdlt::operator==(const DayOfWeekSet_Iter&amp; lhs,
 {
     BSLS_ASSERT_SAFE(lhs.d_data == rhs.d_data);
 
-    // If the data is not the same, either the objects were not initially
-    // the same, or one has subsequently been modified.
+    // If the data is not the same, either the objects were not initially the
+    // same, or one has subsequently been modified.
 
     return lhs.d_index == rhs.d_index;
 }
@@ -715,8 +727,8 @@ void DayOfWeekSet::add(DayOfWeek::Enum value)
 inline
 bool DayOfWeekSet::remove(DayOfWeek::Enum value)
 {
-    const int mask = 1 &lt;&lt; value;
-    const bool rv  = d_days &amp; mask;
+    const int  mask = 1 &lt;&lt; value;
+    const bool rv   = d_days &amp; mask;
     d_days &amp;= static_cast&lt;unsigned char&gt;(~mask);
     return rv;
 }
@@ -770,6 +782,12 @@ inline
 DayOfWeekSet::iterator DayOfWeekSet::end() const
 {
     return DayOfWeekSet::iterator(DayOfWeekSet_Iter(d_days, 8));
+}
+
+inline
+bool DayOfWeekSet::isEmpty() const
+{
+    return 0 == d_days;
 }
 
 inline
@@ -871,6 +889,13 @@ inline
 bsl::ostream&amp; bdlt::operator&lt;&lt;(bsl::ostream&amp; stream, const DayOfWeekSet&amp; rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// TRAITS SPECIALIZATIONS
+namespace bslmf
+{
+template &lt;&gt;
+struct IsBitwiseMoveable&lt;bdlt::DayOfWeekSet&gt; : ::bsl::true_type {};
 }
 
 }  // close enterprise namespace

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_sequentialpool Component</title>
+<title>BDE 3.0: bdlma_sequentialpool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -143,6 +143,7 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bdlma~3A~3Asequentialpool_for_efficient_allocations"></a> <a class="anchor" id="usage.example_1~3A_using_bdlma~3A~3Asequentialpool_for_efficient_allocations"></a> <a class="anchor" id="description.usage.example_1~3A_using_bdlma~3A~3Asequentialpool_for_efficient_allocations"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using bdlma::SequentialPool for Efficient Allocations: </b></dt><dd></dd></dl>
@@ -174,9 +175,12 @@ Functions</h2></td></tr>
           <span class="comment">// Increase the capacity of the internal arrays used to store</span>
           <span class="comment">// elements added to this array by at least one element.</span>
 
+      <span class="comment">// Not implemented:</span>
+      my_IntDoubleArray(<span class="keyword">const</span> my_IntDoubleArray&amp;);
+
     <span class="keyword">public</span>:
       <span class="comment">// TYPES</span>
-      <span class="keyword">enum</span> Type { MY_INT, MY_DOUBLE };
+      <span class="keyword">enum</span> <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> { k_MY_INT, k_MY_DOUBLE };
 
       <span class="comment">// CREATORS</span>
       <span class="keyword">explicit</span> my_IntDoubleArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -209,7 +213,7 @@ Functions</h2></td></tr>
   <span class="keyword">inline</span>
   <span class="keywordtype">void</span> my_IntDoubleArray::removeAll()
   {
-      d_pool.release();
+      d_pool.<a class="code" href="classbdlma_1_1Pool.html#afd51c71be6e7ab898b79e8a0b61090b0">release</a>();
       d_length = 0;
   }
 </pre></div><br/>
@@ -217,9 +221,8 @@ Functions</h2></td></tr>
  The sequential pool optimizes the allocation of memory by using dynamically-allocated buffers to supply memory. This greatly reduces the amount of dynamic allocation needed: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_intdoublearray.cpp</span>
-<span class="preprocessor">  #include &lt;my_intdoublearray.h&gt;</span>
 
-  <span class="keyword">enum</span> { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+  <span class="keyword">enum</span> { k_INITIAL_SIZE = 1 };
 
   <span class="comment">// PRIVATE MANIPULATORS</span>
   <span class="keywordtype">void</span> my_IntDoubleArray::increaseSize()
@@ -231,13 +234,13 @@ Functions</h2></td></tr>
   <span class="comment">// CREATORS</span>
   my_IntDoubleArray::my_IntDoubleArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
   : d_length(0)
-  , d_capacity(INITIAL_SIZE)
+  , d_capacity(k_INITIAL_SIZE)
   , d_pool(basicAllocator)
   {
       d_typeArray_p  = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span> *<span class="keyword">&gt;</span>(
-                       d_pool.allocate(d_capacity * <span class="keyword">sizeof</span> *d_typeArray_p));
+                       d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>(d_capacity * <span class="keyword">sizeof</span> *d_typeArray_p));
       d_valueArray_p = <span class="keyword">static_cast&lt;</span><span class="keywordtype">void</span> **<span class="keyword">&gt;</span>(
-                       d_pool.allocate(d_capacity * <span class="keyword">sizeof</span> *d_valueArray_p));
+                       d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>(d_capacity * <span class="keyword">sizeof</span> *d_valueArray_p));
   }
 </pre></div><br/>
 <br/>
@@ -257,10 +260,10 @@ Functions</h2></td></tr>
           increaseSize();
       }
 
-      <span class="keywordtype">int</span> *item = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span> *<span class="keyword">&gt;</span>(d_pool.allocate(<span class="keyword">sizeof</span> *item));
+      <span class="keywordtype">int</span> *item = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span> *<span class="keyword">&gt;</span>(d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>(<span class="keyword">sizeof</span> *item));
       *item = value;
 
-      d_typeArray_p[d_length]  = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(MY_INT);
+      d_typeArray_p[d_length]  = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(k_MY_INT);
       d_valueArray_p[d_length] = item;
 
       ++d_length;
@@ -272,10 +275,10 @@ Functions</h2></td></tr>
           increaseSize();
       }
 
-      <span class="keywordtype">double</span> *item = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span> *<span class="keyword">&gt;</span>(d_pool.allocate(<span class="keyword">sizeof</span> *item));
+      <span class="keywordtype">double</span> *item = <span class="keyword">static_cast&lt;</span><span class="keywordtype">double</span> *<span class="keyword">&gt;</span>(d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>(<span class="keyword">sizeof</span> *item));
       *item = value;
 
-      d_typeArray_p[d_length]  = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(MY_DOUBLE);
+      d_typeArray_p[d_length]  = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(k_MY_DOUBLE);
       d_valueArray_p[d_length] = item;
 
       ++d_length;
@@ -283,6 +286,7 @@ Functions</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_implementing_an_allocator_using_bdlma~3A~3Asequentialpool"></a> <a class="anchor" id="usage.example_2~3A_implementing_an_allocator_using_bdlma~3A~3Asequentialpool"></a> <a class="anchor" id="description.usage.example_2~3A_implementing_an_allocator_using_bdlma~3A~3Asequentialpool"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Implementing an Allocator Using bdlma::SequentialPool: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> is used throughout the interfaces of BDE components. Suppose we would like to create a fast allocator, <code>my_FastAllocator</code>, that allocates memory from a buffer in a similar fashion to <code><a class="el" href="classbdlma_1_1SequentialPool.html">bdlma::SequentialPool</a></code>. <code><a class="el" href="classbdlma_1_1SequentialPool.html">bdlma::SequentialPool</a></code> can be used directly to implement such an allocator. </dd></dl>
@@ -332,14 +336,14 @@ Functions</h2></td></tr>
   <span class="keyword">inline</span>
   my_SequentialAllocator::~my_SequentialAllocator()
   {
-      d_pool.release();
+      d_pool.<a class="code" href="classbdlma_1_1Pool.html#afd51c71be6e7ab898b79e8a0b61090b0">release</a>();
   }
 
   <span class="comment">// MANIPULATORS</span>
   <span class="keyword">inline</span>
   <span class="keywordtype">void</span> *my_SequentialAllocator::allocate(size_type size)
   {
-      <span class="keywordflow">return</span> d_pool.allocate(size);
+      <span class="keywordflow">return</span> d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>(size);
   }
 
   <span class="keyword">inline</span>
@@ -426,7 +430,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:46 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

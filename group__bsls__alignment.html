@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_alignment Component</title>
+<title>BDE 3.0: bsls_alignment Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -107,28 +107,17 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="alignment_strategy"></a> <a class="anchor" id="description.alignment_strategy"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Alignment Strategy: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT, 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT. <br/>
-<br/>
-<div class="fragment"><pre class="fragment">  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-  <span class="stringliteral">&#39;BSLS_MAXIMUM&#39;</span>, specifies that a memory block be aligned as per the *most*
-  restrictive alignment requirement on the host platform.
-
-  NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
-  <span class="stringliteral">&#39;BSLS_NATURAL&#39;</span>, specifies that a memory block be aligned based on the
-  size (in bytes) of that block.  An <span class="keywordtype">object</span> of a fundamental type (<span class="stringliteral">&#39;int&#39;</span>,
-  etc.) is *naturally* *aligned* when it&#39;s size evenly divides its
-  address.  An <span class="keywordtype">object</span> of an aggregate type has natural alignment if the
-  alignment of the most-restrictively aligned sub-<span class="keywordtype">object</span> evenly divides
-  the address of the aggregate.  Natural alignment is always at least as
-  restrictive as the compiler&#39;s required alignment.
-
-  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
-  &#39;BSLS_BYTEALIGNED&#39;, specifies that a memory block may be aligned
-  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
-  alignment requirement.
-</pre></div><br/>
-<br/>
- </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT, 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ol>
+<li>
+MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator <code>BSLS_MAXIMUM</code>, specifies that a memory block be aligned as per the <em>most</em> restrictive alignment requirement on the host platform.  </li>
+<li>
+NATURAL ALIGNMENT: This strategy, as indicated by the enumerator <code>BSLS_NATURAL</code>, specifies that a memory block be aligned based on the size (in bytes) of that block. An object of a fundamental type (<code>int</code>, etc.) is <em>naturally</em> <em>aligned</em> when it's size evenly divides its address. An object of an aggregate type has natural alignment if the alignment of the most-restrictively aligned sub-object evenly divides the address of the aggregate. Natural alignment is always at least as restrictive as the compiler's required alignment.  </li>
+<li>
+1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator <code>BSLS_BYTEALIGNED</code>, specifies that a memory block may be aligned arbitrarily on any 1-byte boundary. This is the <em>least</em> restrictive alignment requirement.  </li>
+</ol>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose that we want to create a static function, <code>allocateFromBuffer</code>, that takes a buffer, the size of the buffer, a cursor indicating a position within the buffer, an allocation request size, and a memory alignment strategy; <code>allocateFromBuffer</code> returns a pointer to a block of memory, wholly contained within the buffer, having the specified size and alignment. As a side-effect, the cursor is updated to refer to the next available free byte in the buffer. Such a function could be used by a memory manager to satisfy allocation requests from internally-managed buffers. Clients of this function indicate which alignment strategy to use based on their specific requirements. </dd></dl>
@@ -230,7 +219,7 @@ Namespaces</h2></td></tr>
 <br/>
  The <code>allocateFromBuffer</code> function may be used by a memory manager that needs to appropriately align memory blocks that are allocated from internally-managed buffers. For an example, see the <code>bslma_bufferimputil</code> component. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

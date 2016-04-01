@@ -1,0 +1,409 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_endpoint.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#define INCLUDED_BTLSO_ENDPOINT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a hostname-based address of a TCP or UDP endpoint.
+//
+//@CLASSES:
+//  btlso::Endpoint: attributes characterizing a TCP or UDP address
+//
+//@SEE_ALSO: btlso_ipv4address
+//
+//@DESCRIPTION: This component provides a complex-constrained (value-semantic)
+// attribute class, &#39;btlso::Endpoint&#39;, that represents a TCP or UDP endpoint as
+// a hostname and port combination.  The address represented by this class is
+// unresolved and unvalidated except for length, and can be used for delayed
+// resolution.  For instance, the SOCKS5 protocol supports passing the hostname
+// from the client to the proxy host, which may have better access for
+// resolving a domain name to IP address.
+//
+///Attributes
+///----------
+//..
+//  Name      Type         Default Constraints
+//  --------- -----------  ------- -------------------------------------------
+//  hostname  bsl::string  &quot;&quot;      empty or 1-255 characters in length
+//  port      int          0       0 if &#39;hostname&#39; is empty, else [1 .. 65535]
+//..
+//: o &#39;hostname&#39;: IP hostname
+//: o &#39;port&#39;: TCP or UDP port
+//
+// A &#39;btlso::Endpoint&#39; object can be in the default state, with &#39;port&#39; equal to
+// 0 and &#39;hostname&#39; empty, or a valid hostname and port combination (as defined
+// by &#39;isValid&#39;).  Typically such an object represents an address of a TCP or
+// UDP endpoint, with &#39;hostname&#39; being either a dotted-decimal address or a
+// name suitable for resolution.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Set Hostname and Port
+/// - - - - - - - - - - - - - - - -
+// Let us encode a TCP address as a hostname and port.
+//
+// First, we declare an empty &#39;btlso::Endpoint&#39;:
+//..
+//  btlso::Endpoint address;
+//..
+// Now, we set the hostname and port of our endpoint:
+//..
+//  address.set(&quot;www.bloomberg.com&quot;, 80);
+//..
+// Finally, we have an object that describes the HTTP server at Bloomberg LP:
+//..
+//  assert(address.hostname() == &quot;www.bloomberg.com&quot;);
+//  assert(address.port()     == 80);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace btlso {
+
+                        // ==============
+                        // class Endpoint
+                        // ==============
+
+class Endpoint {
+    // This value-semantic class characterizes a TCP, UDP, SCTP, etc. address
+    // as a hostname and port.  The semantics of hostname are defined by
+    // higher-level components; it may, for instance, contain a domain name
+    // (requiring name resolution), or a dotted-decimal address.  Objects can
+    // either have the default value, or syntactically valid hostname and port.
+    // The default state is signified by the port attribute being 0 and the
+    // hostname being an empty string; either one can be used as an indicator
+    // of the default value.  Otherwise !both! hostname and port contain
+    // syntactically valid values, as defined by &#39;isValid&#39;.
+
+    // DATA
+    bsl::string d_hostname;  // hostname
+    int         d_port;      // IP port
+
+  public:
+    // CLASS METHODS
+    static bool isValid(const bslstl::StringRef&amp; hostname, int port);
+        // Return &#39;true&#39; if the specified &#39;hostname&#39; and &#39;port&#39; represent a
+        // valid value for a &#39;Endpoint&#39; object, and &#39;false&#39; otherwise.
+        // &#39;hostname&#39; and &#39;port&#39; represent a valid &#39;Endpoint&#39; value if
+        // &#39;!hostname.size() &amp;&amp; !port&#39; (the default value), or
+        // &#39;1 &lt;= hostname.size()&#39; and &#39;hostname.size &lt;= 255&#39; and &#39;1 &lt;= port&#39;
+        // and &#39;port &lt;= 65535&#39;.
+
+    // CREATORS
+    explicit Endpoint(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Endpoint&#39; object having the (default) attribute values:
+        //..
+        //  hostname() == &quot;&quot;
+        //  port()     == 0
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    Endpoint(const bslstl::StringRef&amp;  hostname,
+             int                       port,
+             bslma::Allocator         *basicAllocator = 0);
+        // Create a Endpoint object from the specified &#39;hostname&#39; and &#39;port&#39;.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;isValid(hostname, port)&#39; is
+        // &#39;true&#39;.
+
+    Endpoint(const Endpoint&amp; original, bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Endpoint&#39; object having the same value as the specified
+        // &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    //! ~Endpoint() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    Endpoint&amp; operator=(const Endpoint&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void set(const bslstl::StringRef&amp; hostname, int port);
+        // Set the attributes of this object to the specified &#39;hostname&#39; and
+        // &#39;port&#39;.  The behavior is undefined unless &#39;isValid(hostname, port)&#39;
+        // is &#39;true&#39;.
+
+    int setIfValid(const bslstl::StringRef&amp; hostname, int port);
+        // Set the attributes of this object to the specified &#39;hostname&#39; and
+        // &#39;port&#39; if &#39;isValid(hostname, port)&#39; is &#39;true&#39; and return 0.
+        // Otherwise leave the value of this object unchanged and return a
+        // non-zero value.
+
+                                   // Aspects
+
+    void swap(Endpoint&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    const bsl::string&amp; hostname() const;
+        // Return a reference providing non-modifiable access to the hostname
+        // attribute of this object.
+
+    int port() const;
+        // Return the port number attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const Endpoint&amp; lhs, const Endpoint&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;Endpoint&#39; objects have the same
+    // value if all of the corresponding values of their &#39;hostname&#39; and &#39;port&#39;
+    // attributes are the same.
+
+bool operator!=(const Endpoint&amp; lhs, const Endpoint&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;Endpoint&#39; objects do not have
+    // the same value if any of the corresponding values of their &#39;hostname&#39;
+    // and &#39;port&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Endpoint&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.
+
+// FREE FUNCTIONS
+void swap(btlso::Endpoint&amp; a, btlso::Endpoint&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // --------------
+                            // class Endpoint
+                            // --------------
+
+// CLASS METHODS
+inline
+bool Endpoint::isValid(const bslstl::StringRef&amp; hostname, int port)
+{
+    return (1 &lt;= hostname.length() &amp;&amp; hostname.length() &lt;= 255
+                                                 &amp;&amp; 1 &lt;= port &amp;&amp; port &lt;= 65535)
+        || (hostname.isEmpty() &amp;&amp; 0 == port);
+}
+
+// CREATORS
+inline
+Endpoint::Endpoint(bslma::Allocator *basicAllocator)
+: d_hostname(basicAllocator)
+, d_port(0)
+{
+}
+
+inline
+Endpoint::Endpoint(const bslstl::StringRef&amp;  hostname,
+                   int                       port,
+                   bslma::Allocator         *basicAllocator)
+: d_hostname(basicAllocator)
+, d_port(0)
+{
+    set(hostname, port);  // assert preconditions and set attributes
+}
+
+inline
+Endpoint::Endpoint(const Endpoint&amp; original, bslma::Allocator *basicAllocator)
+: d_hostname(original.d_hostname, basicAllocator)
+, d_port(original.d_port)
+{
+}
+
+// MANIPULATORS
+inline
+Endpoint&amp; Endpoint::operator=(const Endpoint&amp; rhs)
+{
+    d_hostname = rhs.d_hostname;
+    d_port     = rhs.d_port;
+    return *this;
+}
+
+inline
+void Endpoint::set(const bslstl::StringRef&amp; hostname, int port)
+{
+    BSLS_ASSERT_SAFE(isValid(hostname, port));
+
+    d_hostname.assign(hostname.begin(), hostname.end());
+    d_port = port;
+}
+
+inline
+int Endpoint::setIfValid(const bslstl::StringRef&amp; hostname, int port)
+{
+    if (isValid(hostname, port)) {
+        d_hostname.assign(hostname.begin(), hostname.end());
+        d_port = port;
+        return 0;                                                     // RETURN
+    }
+    else {
+        return -1;                                                    // RETURN
+    }
+}
+
+                                  // Aspects
+
+inline
+void Endpoint::swap(Endpoint&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&amp;d_hostname, &amp;other.d_hostname);
+    bslalg::SwapUtil::swap(&amp;d_port,     &amp;other.d_port);
+}
+
+// ACCESSORS
+inline
+const bsl::string&amp; Endpoint::hostname() const
+{
+    return d_hostname;
+}
+
+inline
+int Endpoint::port() const
+{
+    return d_port;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *Endpoint::allocator() const
+{
+    return d_hostname.get_allocator().mechanism();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool btlso::operator==(const Endpoint&amp; lhs, const Endpoint&amp; rhs)
+{
+    return lhs.port() == rhs.port() &amp;&amp; lhs.hostname() == rhs.hostname();
+}
+
+inline
+bool btlso::operator!=(const Endpoint&amp; lhs, const Endpoint&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+// FREE FUNCTIONS
+inline
+void btlso::swap(btlso::Endpoint&amp; a, btlso::Endpoint&amp; b)
+{
+    a.swap(b);
+}
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btlso::Endpoint&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

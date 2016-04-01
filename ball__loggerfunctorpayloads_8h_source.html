@@ -1,0 +1,323 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_loggerfunctorpayloads.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_LOGGERFUNCTORPAYLOADS
+#define INCLUDED_BALL_LOGGERFUNCTORPAYLOADS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+
+//@PURPOSE: Provide a suite of useful logger manager functor payloads.
+//
+//@CLASSES
+//  ball::LoggerFunctorPayloads: namespace for logger manager functor payloads
+//
+//@SEE_ALSO: ball_loggermanager, ball_categorymanager
+//
+//@DESCRIPTION: This component provides a suite of pure procedures, each of
+// which may be used as the function body &quot;payload&quot; of one of the various
+// &#39;bdef&#39; functors used as callbacks in the &#39;ball_loggermanager&#39; component.
+// Each function provides a specific customization or convenience enhancement
+// to the basic logger functionality.
+//
+// Functions in this component have at most nine parameters and match one of
+// the four signatures:
+//..
+//    (ball::UserFields *, const ball::UserFieldsSchema &amp;)
+//    (ball::Transmission::Cause)
+//    (int *, int *, int *, int *, const char *)
+//..
+// These signatures match the five &#39;typedef&#39; definitions used in the
+// &#39;ball_loggermanager&#39; component, as shown below.  Note that
+// &#39;ball::LoggerManager::PublishAllCallback&#39; is just an alias for
+// &#39;ball::Logger::PublishAllCallback&#39;, which is itself an alias for a
+// particular &#39;bsl::function&#39; specialization.
+//..
+//  ball::Logger Functors
+//  --------------------
+//  typedef bsl::function&lt;void(ball::UserFields *, const ball::UserSchema&amp;)&gt;
+//                                                                   Populator;
+//      // &#39;Populator&#39; is the type of a user-supplied callback functor used to
+//      // populate the user-defined fields in each log record.  In particular,
+//      // the first &#39;d_userSchema_p-&gt;length()&#39; user-defined fields of each
+//      // record must be type-consistent with &#39;d_userSchema_p&#39;.
+//
+//  typedef bsl::function&lt;void(ball::Transmission::Cause)&gt; PublishAllCallback;
+//      // &#39;PublishAllCallback&#39; is the type of the functor that is invoked
+//      // to publish all record buffers of all loggers that are allocated
+//      // by the logger manager.
+//
+//  ball::LoggerManager Functors
+//  ---------------------------
+//  typedef bsl::function&lt;void(int *, int *, int *, int *, const char *)&gt;
+//                                                   DefaultThresholdsCallback;
+//      // &#39;DefaultThresholdsCallback&#39; is the type of the functor that
+//      // determines default threshold levels for categories added to the
+//      // registry by the &#39;setCategory(const char *)&#39; method.
+//
+//  typedef ball::Logger::PublishAllCallback PublishAllCallback;
+//      // &#39;PublishAllCallback&#39; is the type of the functor that is invoked
+//      // to publish all record buffers of all active loggers (i.e., loggers
+//      // allocated by the logger manager that have not yet been deallocated).
+//..
+//
+///Synopsis
+///--------
+// The following is a list of functions available in this component, each
+// followed by the callback &#39;typedef&#39; for which it is appropriate.
+//..
+//    loadParentCategoryThresholdValues     DefaultThresholdsCallback
+//..
+//
+///Support for Hierarchical Category Names
+///---------------------------------------
+// The &#39;ball&#39; logging toolkit does not explicitly support any structure in the
+// registry of category names; each unique sequence of characters defines a
+// unique category that is, from the logger&#39;s perspective, a &quot;peer&quot; to all
+// other categories.  The toolkit does, however, provides several callback
+// mechanisms that facilitate customized naming conventions.
+//
+// In particular, &#39;ball::LoggerManager&#39; can accept an argument of type
+// &#39;DefaultThresholdsCallback&#39; (see the &#39;typedef&#39; definition above), which, if
+// not null, is invoked to populate the four threshold levels whenever the user
+// creates a category having the &quot;default&quot; thresholds.  This component provides
+// the function &#39;loadParentCategoryThresholdValues&#39;, which can be used as the
+// payload to &#39;DefaultThresholdsCallback&#39;.  &#39;loadParentCategoryThresholdValues&#39;
+// populates its four category threshold level arguments from a specified
+// &quot;child&quot; category name and a &#39;char&#39; delimiter by searching the category
+// registry for a name that is &quot;the most proximate parent category&quot;, assuming a
+// hierarchical naming convention that uses the delimiter character.  If such a
+// parent category is found, the &quot;child&quot; category will receive the threshold
+// levels of the parent.  If no such parent exists, the new category will
+// receive the standard &quot;default&quot; thresholds that it would have gotten had the
+// callback been null.
+//
+///Usage
+///-----
+// The following code snippets illustrate how to use this component&#39;s
+// &#39;loadParentCategoryThresholdValues&#39; method to allow a newly-created &quot;child&quot;
+// category to inherit the logging threshold levels from its most proximate
+// parent category (if such a category already exists).  Note that the category
+// &quot;hierarchy&quot; is by naming convention only, but that the callback makes it
+// simple for the *user* to impose hierarchical meaning on names that are, from
+// the *logger&#39;s* perspective, peers.  In this example, we will choose the dot
+// character (&#39;.&#39;) as the hierarchy delimiter; to the logger itself, &#39;.&#39; is not
+// special.
+//
+// To keep this example transparent, we will create and inspect several
+// categories within &#39;main&#39; directly; some categories will be &quot;declared&quot; to be
+// &quot;parent&quot; categories, and we will set the threshold levels explicitly, while
+// other categories will act as &quot;children&quot;, which is to say that they will
+// obtain their threshold levels through the callback mechanism.  In a more
+// realistic example, there would be no explicit distinction between &quot;parent&quot;
+// and &quot;child&quot; categories, but rather as categories are dynamically
+// administered by the user, newly created categories would pick up the changes
+// made to existing parents.  As a practical matter, beginning of the function
+// &#39;main&#39; constitute the &quot;usage&quot; that the user must master to *install* the
+// callback; the rest of this example merely illustrates the *consequences* of
+// installing the callback.
+//
+// Before we can begin logging, we must first create an observer with which to
+// initialize the logger manager.  For this example, a &#39;ball::TestObserver&#39;
+// initialized to write to &#39;stdout&#39; will do just fine.
+//..
+//   // myapp.cpp
+//   int main()
+//   {
+//       ball::TestObserver testObserver(bsl::cout);
+//..
+// Now, we load the logger manager &#39;configuration&#39; with the desired &quot;payload&quot;
+// function, &#39;ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues&#39;,
+// and use the trailing &#39;char&#39; argument &#39;delimiter&#39;, set to the value &#39;.&#39;,
+// which will be bound into the functor and supplied back to the payload on
+// each invocation.
+//..
+//       using namespace bdlf::PlaceHolders;
+//
+//       ball::LoggerManagerConfiguration configuration;
+//       char delimiter = &#39;.&#39;;
+//       configuration.setDefaultThresholdLevelsCallback(
+//           bdlf::BindUtil::bind(
+//             &amp;ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues,
+//             _1,
+//             _2,
+//             _3,
+//             _4,
+//             _5,
+//             delimiter));
+//..
+// We are now ready to initialize the logger manager, using the observer and
+// the callback defined above.
+//..
+//       ball::LoggerManagerScopedGuard guard(&amp;testObserver, configuration);
+//..
+// The above code is all that the user needs to do to customize the logger to
+// &quot;inherit&quot; thresholds from parents.  The rest of this example illustrates the
+// consequences of having installed &#39;myCallback&#39;.  For convenience in what
+// follows, we define a reference, &#39;manager&#39;, to the singleton logger manager.
+//..
+//       ball::LoggerManager&amp; manager = ball::LoggerManager::singleton();
+//..
+// We now create two &quot;parent&quot; categories named &quot;EQUITY.MARKET&quot; and
+// &quot;EQUITY.GRAPHICS&quot;, and give them arbitrary but distinct threshold levels.
+// We also set the default levels to distinct values in order to be able to
+// verify exactly where &quot;child&quot; levels have come from later on.
+//..
+//       manager.setDefaultThresholdLevels(128, 96, 64, 32);
+//
+//       manager.addCategory(&quot;EQUITY.MARKET&quot;, 127, 95, 63, 31);
+//       manager.addCategory(&quot;EQUITY.GRAPHICS&quot;, 129, 97, 65, 33);
+//..
+// Note that the call to &#39;addCategory&#39;, which takes the four &#39;int&#39; threshold
+// arguments, does not invoke the callback at all, but rather -- assuming that
+// the named category does not yet exist -- sets the thresholds to the
+// specified values directly.
+//
+// We can use the logger manager interface to verify that the levels have been
+// set.  First, we use the &#39;lookupCategory&#39; method to obtain the two parent
+// categories (here assigned &#39;p1&#39; and &#39;p2&#39;).
+//..
+//       const ball::Category *p1 = manager.lookupCategory(&quot;EQUITY.MARKET&quot;);
+//       const ball::Category *p2 = manager.lookupCategory(&quot;EQUITY.GRAPHICS&quot;);
+//..
+// Next, we can use the appropriate &#39;ball::Category&#39; accessor methods to
+// &#39;assert&#39; the expected results.  Recall that the ordered sequence of levels
+// is &quot;Record&quot;, &quot;Pass&quot;, &quot;Trigger&quot;, and &quot;TriggerAll&quot;.
+//..
+//           assert(127 == p1-&gt;recordLevel());
+//           assert( 95 == p1-&gt;passLevel());
+//           assert( 63 == p1-&gt;triggerLevel());
+//           assert( 31 == p1-&gt;triggerAllLevel());
+//
+//           assert(129 == p2-&gt;recordLevel());
+//           assert( 97 == p2-&gt;passLevel());
+//           assert( 65 == p2-&gt;triggerLevel());
+//           assert( 33 == p2-&gt;triggerAllLevel());
+//..
+// Now, we will add several &quot;child&quot; categories using the &#39;setCategory&#39; method
+// taking a single argument, the &#39;char*&#39; category name.  This method uses the
+// callback in determining the &quot;default&quot; threshold levels to use.  The six
+// statements are numbered for subsequent discussion.
+//..
+//       manager.setCategory(&quot;EQUITY.MARKET.NYSE&quot;);                      // (1)
+//       manager.setCategory(&quot;EQUITY.MARKET.NASDAQ&quot;);                    // (2)
+//       manager.setCategory(&quot;EQUITY.GRAPHICS.MATH.FACTORIAL&quot;);          // (3)
+//       manager.setCategory(&quot;EQUITY.GRAPHICS.MATH.ACKERMANN&quot;);          // (4)
+//       manager.setCategory(&quot;EQUITY.GRAPHICS.MATH&quot;);                    // (5)
+//       manager.setCategory(&quot;EQUITY&quot;);                                  // (6)
+//..
+// Note that all six calls to &#39;setCategory&#39; will succeed in adding new
+// categories to the registry.  Calls (1)-(5) will &quot;find&quot; their parent&#39;s names
+// and &quot;inherit&quot; the parent&#39;s levels.  Call (6), however, will not find a
+// parent category, and so will receive the default threshold levels, just as
+// if there were no callback installed.
+//
+// Note also that, although in this &quot;static&quot; (i.e., unadministered) example
+// there is no significance to the order in which the above categories are
+// created, in general (e.g., when categories are being dynamically
+// administered) the order of creation *does* matter.  If line (5) were
+// executed before line (4) then the call on line (4) would find the
+// &quot;EQUITY.GRAPHICS.MATH&quot; category as its &quot;parent&quot; and inherit those threshold
+// levels.  If, before line (4) executed, the thresholds of
+// &quot;EQUITY.GRAPHICS.MATH&quot; were changed, then &quot;EQUITY.GRAPHICS.MATH.FACTORIAL&quot;
+// and &quot;EQUITY.GRAPHICS.MATH.ACKERMANN&quot; would have different threshold levels
+// despite their equivalent standing in the category hierarchy.
+//
+// Let us now verify some of the 24 threshold levels that have been set by the
+// above calls.  We will verify the results of lines (1), (3), and (6) above.
+//..
+//       const ball::Category *c1, *c3, *c6;
+//
+//       c1 =  manager.lookupCategory(&quot;EQUITY.MARKET.NYSE&quot;);
+//           assert(127 == c1-&gt;recordLevel());
+//           assert( 95 == c1-&gt;passLevel());
+//           assert( 63 == c1-&gt;triggerLevel());
+//           assert( 31 == c1-&gt;triggerAllLevel());
+//
+//       c3 =  manager.lookupCategory(&quot;EQUITY.GRAPHICS.MATH.FACTORIAL&quot;);
+//           assert(129 == c3-&gt;recordLevel());
+//           assert( 97 == c3-&gt;passLevel());
+//           assert( 65 == c3-&gt;triggerLevel());
+//           assert( 33 == c3-&gt;triggerAllLevel());
+//
+//       c6 =  manager.lookupCategory(&quot;EQUITY&quot;);
+//           assert(128 == c6-&gt;recordLevel());
+//           assert( 96 == c6-&gt;passLevel());
+//           assert( 64 == c6-&gt;triggerLevel());
+//           assert( 32 == c6-&gt;triggerAllLevel());
+//
+//       return 0;
+//   }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                    // ============================
+                    // struct LoggerFunctorPayloads
+                    // ============================
+
+struct LoggerFunctorPayloads {
+    // This &#39;struct&#39; provides a namespace for a suite of utility functions,
+    // each of which may be used as function body for an appropriate &#39;bdef&#39;
+    // callback functor within &#39;ball_loggermanager&#39;.
+
+    // CLASS METHODS
+    static
+    void loadParentCategoryThresholdValues(int                *recordLevel,
+                                           int                *passLevel,
+                                           int                *triggerLevel,
+                                           int                *triggerAllLevel,
+                                           const char         *categoryName,
+                                           char                delimiter);
+        // Load into the specified &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;,
+        // and &#39;triggerAllLevel&#39; the respective threshold levels of the
+        // category in the (singleton) registry of the &#39;ball&#39; logger that is
+        // the most proximate parent category among existing hierarchically
+        // named categories in the registry, if such a parent category exists,
+        // or the default thresholds otherwise; use the specified &#39;delimiter&#39;
+        // to define hierarchical category names.  The behavior is undefined
+        // unless the &#39;LoggerManager&#39; singleton has been initialized.
+};
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

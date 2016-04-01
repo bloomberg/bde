@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_string.h Reference</title>
+<title>BDE 3.0: bslstl_string.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -64,6 +64,7 @@
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#define-members">Defines</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>bslstl_string.h File Reference</h1>  </div>
@@ -85,17 +86,29 @@ Namespaces</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebslh.html">bslh</a></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#a702bff56f24f61e033b897e9bb4ef1f1">INCLUDED_ALGORITHM</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#ad317cfe6bff45ea79a77af30a016a7f9">INCLUDED_ISTREAM</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#a902c2edd33f7446c590efee644c67b29">INCLUDED_LIMITS</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#abac29af069a2b08d7f8ffaca5c30a076">INCLUDED_OSTREAM</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#a4ba992b97cc1220cbf6c4c6b1f497676">INCLUDED_STRING</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#a415b02bffc5b40fac087ef263cc787b4">INCLUDED_CSTRING</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslstl__string_8h.html#a702bff56f24f61e033b897e9bb4ef1f1">INCLUDED_ALGORITHM</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga126b87a50a82be88e9132b4c32bf4a3f">BSLSTL_CHAR_TRAITS</a>&nbsp;&nbsp;&nbsp;CHAR_TRAITS</td></tr>
 <tr><td colspan="2"><h2><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; char &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab67de1ebe0184939129507efe5c86bb1">bsl::string</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; wchar_t &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab3b4e0ebb1e917062e2cc0a71d69fa81">bsl::wstring</a></td></tr>
+<tr><td colspan="2"><h2><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaef611bddffc03eb3b52c57ffaa780662">bsl::MaxDecimalStringLengths</a> { <br/>
+&nbsp;&nbsp;<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a9ecea6b21648c172f194d3c86417d19e">bsl::e_MAX_SHORT_STRLEN10</a> =  2 + sizeof(short) * 3, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a6d6978188c8444b7e62a3e4e5d94879a">bsl::e_MAX_INT_STRLEN10</a> =  2 + sizeof(int) * 3, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662aa121a27205ae17ad8a99feb705516979">bsl::e_MAX_INT64_STRLEN10</a> =  26, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662aae8e584e57a0cf01fd1cda3dae28663a">bsl::e_MAX_FLOAT_STRLEN10</a> =  48, 
+<br/>
+&nbsp;&nbsp;<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662ae5d35cabdddc6fce086d2b6cf9cb5d62">bsl::e_MAX_DOUBLE_STRLEN10</a> =  318, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a4953cf120543c8f55d67a002d4dc6676">bsl::e_MAX_LONGDOUBLE_STRLEN10</a> =  318, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662ae92fad6094aaee12545dae9926049328">bsl::e_MAX_SCALAR_STRLEN10</a> =  e_MAX_INT64_STRLEN10
+<br/>
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOC &gt; </td></tr>
@@ -193,6 +206,32 @@ CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><
 <tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">std::basic_istream&lt; CHAR_TYPE, <br class="typebreak"/>
 CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3950d8911fd8b8b58fbee74bb76dda0f">bsl::getline</a> (std::basic_istream&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;is, basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &amp;str)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3077399ad479cdd99e019952bff52d5c">bsl::stoi</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga1c806df13cef80e557e67c9fb81e7584">bsl::stol</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga017076c1385a354b3ec07b13329a5bef">bsl::stoul</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3b7919aec24aa17d15b0c95b7a2efcea">bsl::stoll</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga15fdd28d0b31f2aef03232c5adf69c1f">bsl::stoull</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga308af944ea4ad09d95f842a0e977c2c1">bsl::stof</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga974d5193cce5be4030e024d1fabe8f9e">bsl::stod</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gad03a41be5c1e91bc85b0ce6d71fae0d3">bsl::stold</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga9d6e332df6fdad6887e8978cca90bd53">bsl::to_string</a> (int value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac1dc65359eaba7e85db44dbf3f307b83">bsl::to_string</a> (long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga80a9fc78f62b245982bce536f52edbac">bsl::to_string</a> (long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga59793d4b1890b9f056359dabb3bb0abc">bsl::to_string</a> (unsigned value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac0eae9aa22cd9c20021c7955d447b222">bsl::to_string</a> (unsigned long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3bdfdf8c732ed0cd929c64bd68a363dc">bsl::to_string</a> (unsigned long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga86213338e0ca489dfaaeb944c53d0cda">bsl::to_string</a> (float value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga93ed7741b6b168c5af47b85310e48fe8">bsl::to_string</a> (double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaef063f65c5428b7264625515ee8df91d">bsl::to_string</a> (long double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6bf247b4e139b65f1fe8a6540924e9ee">bsl::to_wstring</a> (int value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6488bcb6abbe84aec6f5a8708bc71ce8">bsl::to_wstring</a> (long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3ae643872ee3867228be2a14b3e8f052">bsl::to_wstring</a> (long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaeff31d022b3aba42f50c58f25f18fb4c">bsl::to_wstring</a> (unsigned value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6a91e80ab18cfae0b26eafcdcc85d4a0">bsl::to_wstring</a> (unsigned long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga2309169225fa7d82f8011aa29f8d603e">bsl::to_wstring</a> (unsigned long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3df1db09a5c6cada159908a20560a04a">bsl::to_wstring</a> (float value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga8dca184138f505db2b0c83679f1ec044">bsl::to_wstring</a> (double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaa26a1d8a3eef81bc0c657f55ef133d7c">bsl::to_wstring</a> (long double value)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class HASHALG , class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga121160f409beb7dd37c2f94730f95f35">bsl::hashAppend</a> (HASHALG &amp;hashAlg, const basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &amp;input)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
@@ -201,6 +240,19 @@ CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <hr/><h2>Define Documentation</h2>
+<a class="anchor" id="a702bff56f24f61e033b897e9bb4ef1f1"></a><!-- doxytag: member="bslstl_string.h::INCLUDED_ALGORITHM" ref="a702bff56f24f61e033b897e9bb4ef1f1" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INCLUDED_ALGORITHM</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="ad317cfe6bff45ea79a77af30a016a7f9"></a><!-- doxytag: member="bslstl_string.h::INCLUDED_ISTREAM" ref="ad317cfe6bff45ea79a77af30a016a7f9" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -253,34 +305,8 @@ CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><
 
 </div>
 </div>
-<a class="anchor" id="a415b02bffc5b40fac087ef263cc787b4"></a><!-- doxytag: member="bslstl_string.h::INCLUDED_CSTRING" ref="a415b02bffc5b40fac087ef263cc787b4" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define INCLUDED_CSTRING</td>
-        </tr>
-      </table>
 </div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a702bff56f24f61e033b897e9bb4ef1f1"></a><!-- doxytag: member="bslstl_string.h::INCLUDED_ALGORITHM" ref="a702bff56f24f61e033b897e9bb4ef1f1" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define INCLUDED_ALGORITHM</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-</div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:18 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:20 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

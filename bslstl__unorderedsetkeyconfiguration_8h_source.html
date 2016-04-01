@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_unorderedsetkeyconfiguration.h                              -*-C++-*-
@@ -46,7 +46,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  template &lt;class VALUE_TYPE, class KEY_EXTRACTOR&gt;
 //  void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&amp;)
 //      // This function provides an order-preserving sort of the items in the
-//      // range &#39;[ begin, end )&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the
+//      // range &#39;[begin .. end)&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the
 //      // key being sorted over.  We require that &#39;VALUE_TYPE&#39; support copy
 //      // construction and assignment.
 //  {
@@ -62,7 +62,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //              }
 //          }
 //
-//          // &#39;*end&#39; is now the highest element in the range &#39;[ begin, end ]&#39;,
+//          // &#39;*end&#39; is now the highest element in the range &#39;[begin .. end]&#39;,
 //          // so we only have to sort the elements before it in the next pass.
 //      }
 //  }
@@ -137,7 +137,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -176,7 +176,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19
@@ -249,9 +249,9 @@ struct UnorderedSetKeyConfiguration {
         // is simply the object itself.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                       //------------------------------------
                       // struct UnorderedSetKeyConfiguration
@@ -266,7 +266,7 @@ UnorderedSetKeyConfiguration&lt;VALUE_TYPE&gt;::extractKey(const VALUE_TYPE&amp;
     return object;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 }  // close enterprise namespace
 

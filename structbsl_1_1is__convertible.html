@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bsl::is_convertible</title>
+<title>BDE 3.0: Struct bsl::is_convertible</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -78,12 +78,12 @@
 <h3>template&lt;class FROM_TYPE, class TO_TYPE&gt;<br/>
  struct bsl::is_convertible&lt; FROM_TYPE, TO_TYPE &gt;</h3>
 
-<p>This <code>struct</code> template implements the <code><a class="el" href="structbsl_1_1is__convertible.html">is_convertible</a></code> meta-function defined in the C++11 standard [meta.rel] to determine if the (template parameter) <code>FROM_TYPE</code> is convertible to the (template parameter) <code>TO_TYPE</code>. This <code>struct</code> derives from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> if the <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>, and from <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code> otherwise. Note that both <code>FROM_TYPE</code> and <code>TO_TYPE</code> should be complete types, arrays of unknown bound, or (possibly cv-qualified) <code>void</code> types. </p>
+<p>This <code>struct</code> template implements the <code><a class="el" href="structbsl_1_1is__convertible__dispatch.html">is_convertible_dispatch</a></code> meta-function defined in the C++11 standard [meta.rel] to determine if the (template parameter) <code>FROM_TYPE</code> is convertible to the (template parameter) <code>TO_TYPE</code>. This <code>struct</code> derives from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> if the <code>FROM_TYPE</code> is convertible to <code>TO_TYPE</code>, and from <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code> otherwise. Note that both <code>FROM_TYPE</code> and <code>TO_TYPE</code> should be complete types, arrays of unknown bound, or (possibly cv-qualified) <code>void</code> types. </p>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="bslmf__isconvertible_8h_source.html">bslmf_isconvertible.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:30 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:40 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

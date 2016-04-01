@@ -1,0 +1,575 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_metric.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_METRIC
+#define INCLUDED_BALM_METRIC
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $&quot;)
+
+//@PURPOSE: Provide helper classes for recording metric values.
+//
+//@CLASSES:
+//   balm::Metric: container for recording metric values
+//
+//@SEE_ALSO: balm_metricsmanager, balm_defaultmetricsmanager,
+//           balm_integermetric, balm_metrics
+//
+//@DESCRIPTION: This component provides a class, &#39;balm::Metric&#39;, to simplify
+// the process of collecting metrics.  A metric records the number of times an
+// event occurs, as well as an associated measurement value.  This component
+// does *not* define what constitutes an event or what the associated value
+// represents.  A metric maintains a count of event occurrences and the
+// aggregated minimum, maximum, and total of the measured metric-event values.
+//
+// The &#39;balm::Metric&#39; class, defined in this component, has in-core value
+// semantics.  Each &#39;balm::Metric&#39; object holds a pointer to a
+// &#39;balm::Collector&#39; that collects values for a particular metric.  The
+// &#39;balm::Collector&#39; is either supplied at construction, or else obtained from
+// a &#39;balm::MetricsManager&#39; object&#39;s &#39;balm::CollectorRepository&#39;.  If the
+// supplied &#39;balm::MetricsManager&#39; is 0, the metric will use the default
+// metrics manager instance (&#39;balm::DefaultMetricsManager::instance()&#39;), if
+// initialized; otherwise, the metric is placed in the inactive state (i.e.,
+// &#39;isActive()&#39; is &#39;false&#39;) and operations that would otherwise update the
+// metric will have no effect.
+//
+///Choosing between &#39;balm::Metric&#39; and Macros
+///------------------------------------------
+// The &#39;balm::Metric&#39; class and the macros defined in &#39;balm_metrics&#39; provide
+// the same basic functionality.  Clients may find &#39;balm::Metric&#39; objects
+// better suited to collecting metrics associated with a particular instance
+// of a stateful object, while macros are better suited to collecting metrics
+// associated with a particular code path (rather than an object instance).
+// In most instances, however, choosing between the two is simply a matter of
+// taste.
+//
+///Thread Safety
+///-------------
+// &#39;balm::Metric&#39; is fully *thread-safe*, meaning that all non-creator
+// operations on a given instance can be safely invoked simultaneously from
+// multiple threads.
+//
+///Usage
+///-----
+// The following examples demonstrate how to configure, collect, and publish
+// metrics.
+//
+///Example 1: Metric Collection With &#39;balm::Metric&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// We can use &#39;balm::Metric&#39; objects to record metric values.  In this
+// example we implement a hypothetical event manager object.  We use
+// &#39;balm::Metric&#39; objects to record metrics for the size of the request, the
+// elapsed processing time, and the number of failures.
+//..
+//  class EventManager {
+//
+//      // DATA
+//      balm::Metric d_messageSize;
+//      balm::Metric d_elapsedTime;
+//      balm::Metric d_failedRequests;
+//
+//    public:
+//
+//      // CREATORS
+//      EventManager()
+//      : d_messageSize(&quot;MyCategory&quot;, &quot;EventManager/size&quot;)
+//      , d_elapsedTime(&quot;MyCategory&quot;, &quot;EventManager/elapsedTime&quot;)
+//      , d_failedRequests(&quot;MyCategory&quot;, &quot;EventManager/failedRequests&quot;)
+//      {}
+//
+//      // MANIPULATORS
+//      int handleEvent(int eventId, const bsl::string&amp; eventMessage)
+//          // Process the event described by the specified &#39;eventId&#39; and
+//          // &#39;eventMessage&#39; .  Return 0 on success, and a non-zero value
+//          // if there was an error handling the event.
+//      {
+//         int returnCode = 0;
+//
+//         d_messageSize.update(eventMessage.size());
+//
+//         bsls::TimeInterval start = bdlt::CurrentTime::now();
+//
+//         // Process &#39;data&#39; (&#39;returnCode&#39; may change).
+//
+//         if (0 != returnCode) {
+//             d_failedRequests.increment();
+//         }
+//
+//         bsls::TimeInterval end = bdlt::CurrentTime::now();
+//         d_elapsedTime.update((end - start).totalMicroseconds());
+//         return returnCode;
+//      }
+//
+//  // ...
+//  };
+//..
+//
+///Example 2: Create and Access the Default &#39;balm::MetricsManager&#39; Instance
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates how to create the default &#39;balm::MetricManager&#39;
+// instance and perform a trivial configuration.
+//
+// First we create a &#39;balm::DefaultMetricsManagerScopedGuard&#39;, which manages
+// the lifetime of the default metrics manager instance.  At construction, we
+// provide the scoped guard an output stream (&#39;stdout&#39;) that it will publish
+// metrics to.  Note that the default metrics manager is intended to be created
+// and destroyed by the *owner* of &#39;main&#39;.  An instance of the manager should
+// be created during the initialization of an application (while the task has a
+// single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//
+//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
+//..
+// Once the default instance has been created, it can be accessed using the
+// &#39;instance&#39; operation.
+//..
+//      balm::MetricsManager *manager =
+//                                     balm::DefaultMetricsManager::instance();
+//      assert(0 != manager);
+//..
+// Note that the default metrics manager will be released when &#39;managerGuard&#39;
+// exits this scoped and is destroyed.  Clients that choose to explicitly call
+// &#39;balm::DefaultMetricsManager::create&#39; must also explicitly call
+// &#39;balm::DefaultMetricsManager::release()&#39;.
+//
+// Now that we have created a &#39;balm::MetricsManager&#39; instance, we can use the
+// instance to publish metrics collected using the event manager described in
+// {Example 1}:
+//..
+//      EventManager eventManager;
+//
+//      eventManager.handleEvent(0, &quot;ab&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abdef&quot;);
+//
+//      manager-&gt;publishAll();
+//
+//      eventManager.handleEvent(0, &quot;ab&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abdef&quot;);
+//
+//      eventManager.handleEvent(0, &quot;a&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abc&quot;);
+//      eventManager.handleEvent(0, &quot;abdefg&quot;);
+//
+//      manager-&gt;publishAll();
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_COLLECTOR
+#include &lt;balm_collector.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
+#include &lt;balm_collectorrepository.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
+#include &lt;balm_defaultmetricsmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICID
+#include &lt;balm_metricid.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICSMANAGER
+#include &lt;balm_metricsmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_PUBLICATIONTYPE
+#include &lt;balm_publicationtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balm {
+                                // ============
+                                // class Metric
+                                // ============
+
+class Metric {
+    // This class provides an in-core value semantic type for recording and
+    // aggregating the values of a metric.  The value of a &#39;Metric&#39; object is
+    // characterized by the &#39;Collector&#39; object it uses to collect metric-event
+    // values.  Each instance of this class establishes (at construction) an
+    // association to a &#39;Collector&#39; object to which the metric delegates.  A
+    // &#39;Metric&#39; value is constant after construction (i.e., it does not support
+    // assignment or provide manipulators that modify its collector value) so
+    // that synchronization primitives are not required to protect its data
+    // members.  Note that if a collector or metrics manager is not supplied at
+    // construction, and if the default metrics manager has not been
+    // instantiated, then the metric will be inactive (i.e.,
+    // &#39;isActive() == false&#39;) and the manipulator methods of the metric object
+    // will have no effect.
+
+    // DATA
+    Collector  *d_collector_p;  // collected metric data (held, not owned); may
+                                // be 0, but cannot be invalid
+
+    const bsls::AtomicInt
+               *d_isEnabled_p;  // memo for isActive()
+
+    // NOT IMPLEMENTED
+    Metric&amp; operator=(Metric&amp; );
+
+  public:
+    // CLASS METHODS
+    static Collector *lookupCollector(const char     *category,
+                                      const char     *name,
+                                      MetricsManager *manager = 0);
+        // Return a collector corresponding to the specified metric &#39;category&#39;
+        // and &#39;name&#39;.  Optionally specify a metrics &#39;manager&#39; used to provide
+        // the collector.  If &#39;manager&#39; is 0, use the default metrics manager
+        // if initialized; if &#39;manager&#39; is 0 and the default metrics manager
+        // has not been initialized, return 0.  The behavior is undefined
+        // unless &#39;category&#39; and &#39;name&#39; are null-terminated.
+
+    static Collector *lookupCollector(const MetricId&amp;  metricId,
+                                      MetricsManager  *manager = 0);
+        // Return a collector for the specified &#39;metricId&#39;.  Optionally specify
+        // a metrics &#39;manager&#39; used to provide the collector.  If &#39;manager&#39; is
+        // 0, use the default metrics manager, if initialized; if &#39;manager&#39; is
+        // 0 and the default metrics manager has not been initialized, return
+        // 0.  The behavior is undefined unless &#39;metricId&#39; is a valid metric
+        // id supplied by the &#39;MetricsRegistry&#39; of the indicated metrics
+        // manager.
+
+    // CREATORS
+    Metric(const char     *category,
+           const char     *name,
+           MetricsManager *manager = 0);
+        // Create a metric object to collect values for the metric identified
+        // by the specified null-terminated strings &#39;category&#39; and &#39;name&#39;.
+        // Optionally specify a metrics &#39;manager&#39; used to provide a collector
+        // for the indicated metric.  If &#39;manager&#39; is 0, use the default
+        // metrics manager, if initialized; if &#39;manager&#39; is 0 and the default
+        // metrics manager has not been initialized, place this metric object
+        // in the inactive state (i.e., &#39;isActive()&#39; is &#39;false&#39;) in which case
+        // instance methods that would otherwise update the metric will have no
+        // effect.
+
+    explicit Metric(const MetricId&amp;  metricId,
+                    MetricsManager  *manager = 0);
+        // Create a metric object to collect values for the specified
+        // &#39;metricId&#39;.  Optionally specify a metrics &#39;manager&#39; used to provide
+        // a collector for &#39;metricId&#39;.  If &#39;manager&#39; is 0, use the default
+        // metrics manager, if initialized; if &#39;manager&#39; is 0 and the default
+        // metrics manager has not been initialized, place this metric object
+        // in the inactive state (i.e., &#39;isActive()&#39; is &#39;false&#39;) in which case
+        // instance methods that would otherwise update the metric will have
+        // no effect.  The behavior is undefined unless &#39;metricId&#39; is a valid
+        // id returned by the &#39;MetricRepository&#39; object owned by the indicated
+        // metrics manager.
+
+    explicit Metric(Collector *collector);
+        // Create a metric object to collect values for the metric implied by
+        // the specified &#39;collector&#39; (i.e., &#39;collector-&gt;metricId()&#39;).  The
+        // behavior is undefined unless &#39;collector&#39; is a valid address of a
+        // &#39;Collector&#39; object and &#39;collector&#39; has a valid id (i.e.,
+        // &#39;collector-&gt;metricId().isValid()&#39;).
+
+    Metric(const Metric&amp; original);
+        // Create a metric object that will record values for the same metric
+        // (i.e., using the same &#39;Collector&#39; object) as the specified
+        // &#39;original&#39; metric.  If the &#39;original&#39; metric is inactive (i.e.,
+        // &#39;isActive()&#39; is &#39;false&#39;), then this metric will be similarly
+        // inactive.
+
+    // ~Metric();
+        // Destroy this metric.  Note that this trivial destructor is generated
+        // by the compiler.
+
+    // MANIPULATORS
+    void increment();
+        // Increase the count and total of this metric by 1; if 1.0 is less
+        // than the current minimum recorded value of the metric, set the new
+        // minimum value to be 1.0; if 1.0 is greater than the current maximum
+        // recorded value, set the new maximum value to be 1.0.  If, however,
+        // this metric is not active (i.e., &#39;isActive()&#39; is &#39;false&#39;) then this
+        // method has no effect.  Note that this method is functionally
+        // equivalent to &#39;update(1)&#39;.
+
+    void update(double value);
+        // Increase the event count by 1 and add the specified &#39;value&#39; to the
+        // total recorded value; if &#39;value&#39; is less than the current minimum
+        // recorded value of the metric, set the new minimum value to be
+        // &#39;value&#39;; if &#39;value&#39; is greater than the current maximum recorded
+        // value, set the new maximum value to be &#39;value&#39;.  If, however, this
+        // metric is inactive (i.e., &#39;isActive()&#39; is &#39;false&#39;), then this method
+        // has no effect.
+
+    void accumulateCountTotalMinMax(int    count,
+                                    double total,
+                                    double min,
+                                    double max);
+        // Increase the event count by the specified &#39;count&#39; and add the
+        // specified &#39;total&#39; to the accumulated total; if the specified &#39;min&#39;
+        // is less than the current minimum recorded value of the metric, set
+        // the new minimum value to be &#39;min&#39;; if the specified &#39;max&#39; is
+        // greater than the current maximum recorded value, set the new
+        // maximum value to be &#39;max&#39;.  If, however, this metric is inactive
+        // (i.e., &#39;isActive()&#39; is &#39;false&#39;), then this method has no effect.
+
+    Collector *collector();
+        // Return the address of the modifiable collector for this metric.
+
+    // ACCESSORS
+    const Collector *collector() const;
+        // Return the address of the non-modifiable collector for this metric.
+
+    MetricId metricId() const;
+        // Return a &#39;MetricId&#39; object identifying this metric.  If this metric
+        // was not supplied a valid collector at construction then the returned
+        // id will be invalid (i.e., &#39;metricId().isValid() == false&#39;).
+
+    bool isActive() const;
+        // Return &#39;true&#39; if this metric will actively record metrics, and
+        // &#39;false&#39; otherwise.  If the returned value is &#39;false&#39;, the
+        // manipulator operations will have no effect.  A metric will be
+        // inactive if either (1) it was not initialized with a valid metric
+        // identifier or (2) the associated metric category has been disabled
+        // (see the &#39;MetricsManager&#39; method &#39;setCategoryEnabled&#39;).  Note that
+        // invoking this method is logically equivalent to the expression
+        // &#39;0 != collector() &amp;&amp; metricId().category()-&gt;enabled()&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bool operator==(const Metric&amp; lhs, const Metric&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metrics have the same
+    // value and &#39;false&#39; otherwise.  Two metrics have the same value if they
+    // record measurements using the same collector object or if they both
+    // have a null collector (i.e., &#39;collector()&#39; is 0).
+
+inline
+bool operator!=(const Metric&amp; lhs, const Metric&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metrics do not have the
+    // same value and &#39;false&#39; otherwise.  Two metrics do not have the same
+    // value if they record measurements using different collector objects or
+    // if one, but not both, have a null collector (i.e., &#39;collector()&#39; is 0).
+
+                           // =====================
+                           // class Metric_MacroImp
+                           // =====================
+
+struct Metric_MacroImp {
+    // This structure provides a namespace for functions used to implement the
+    // macros defined by this component.
+    //
+    // This is an implementation type of this component and *must* *not* be
+    // used by clients of the &#39;balm&#39; package.
+
+    // CLASS METHODS
+    static void getCollector(Collector      **collector,
+                             CategoryHolder  *holder,
+                             const char      *category,
+                             const char      *metric);
+        // Load the specified &#39;collector&#39; with the address of the default
+        // collector (from the default metrics manager) for the specified
+        // &#39;metric&#39; identified by the specified &#39;category&#39; and &#39;name&#39;, and
+        // register the specified &#39;holder&#39; for &#39;category&#39;.   Note that
+        // &#39;*collector&#39; must be assigned *before* registering &#39;holder&#39; to
+        // ensure that the macros always have a valid &#39;collector&#39; when
+        // &#39;holder-&gt;enabled()&#39; is &#39;true&#39;.
+
+    static void getCollector(Collector             **collector,
+                             CategoryHolder         *holder,
+                             const char             *category,
+                             const char             *metric,
+                             PublicationType::Value  preferredPublicationType);
+        // Load the specified &#39;collector&#39; with the address of the default
+        // collector (from the default metrics manager) for the specified
+        // &#39;metric&#39; identified by the specified &#39;category&#39; and &#39;name&#39;, register
+        // the specified &#39;holder&#39; for &#39;category&#39;, and set the identified
+        // metric&#39;s preferred publication type to the specified
+        // &#39;preferredPublicationType&#39;.  Note that &#39;*collector&#39; must be
+        // assigned before &#39;holder&#39; to ensure that the macros always have a
+        // valid &#39;collector&#39; when &#39;holder-&gt;enabled()&#39; is &#39;true&#39;.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                                // ------------
+                                // class Metric
+                                // ------------
+
+// CLASS METHODS
+inline
+Collector *Metric::lookupCollector(const char     *category,
+                                   const char     *name,
+                                   MetricsManager *manager)
+{
+    manager = DefaultMetricsManager::manager(manager);
+    return manager
+         ? manager-&gt;collectorRepository().getDefaultCollector(category, name)
+         : 0;
+}
+
+inline
+Collector *Metric::lookupCollector(const MetricId&amp;  metricId,
+                                   MetricsManager  *manager)
+{
+    manager = DefaultMetricsManager::manager(manager);
+    return manager
+         ? manager-&gt;collectorRepository().getDefaultCollector(metricId)
+         : 0;
+}
+
+// CREATORS
+inline
+Metric::Metric(const char     *category,
+               const char     *name,
+               MetricsManager *manager)
+: d_collector_p(lookupCollector(category, name, manager))
+{
+    d_isEnabled_p = (d_collector_p
+                  ? &amp;d_collector_p-&gt;metricId().category()-&gt;isEnabledRaw() : 0);
+}
+
+inline
+Metric::Metric(const MetricId&amp;  metricId,
+               MetricsManager  *manager)
+: d_collector_p(lookupCollector(metricId, manager))
+{
+    d_isEnabled_p = (d_collector_p
+                  ? &amp;d_collector_p-&gt;metricId().category()-&gt;isEnabledRaw() : 0);
+}
+
+inline
+Metric::Metric(Collector *collector)
+: d_collector_p(collector)
+{
+    d_isEnabled_p = &amp;d_collector_p-&gt;metricId().category()-&gt;isEnabledRaw();
+}
+
+inline
+Metric::Metric(const Metric&amp; original)
+: d_collector_p(original.d_collector_p)
+, d_isEnabled_p(original.d_isEnabled_p)
+{
+}
+
+// MANIPULATORS
+inline
+void Metric::increment()
+{
+    if (isActive()) {
+        d_collector_p-&gt;update(1.0);
+    }
+}
+
+inline
+void Metric::update(double value)
+{
+    if (isActive()) {
+        d_collector_p-&gt;update(value);
+    }
+}
+
+inline
+void Metric::accumulateCountTotalMinMax(int    count,
+                                        double total,
+                                        double min,
+                                        double max)
+{
+    if (isActive()) {
+        d_collector_p-&gt;accumulateCountTotalMinMax(count, total, min, max);
+    }
+}
+
+inline
+Collector *Metric::collector()
+{
+    return d_collector_p;
+}
+
+// ACCESSORS
+inline
+const Collector *Metric::collector() const
+{
+    return d_collector_p;
+}
+
+inline
+MetricId Metric::metricId() const
+{
+    return d_collector_p ? d_collector_p-&gt;metricId() : MetricId();
+}
+
+inline
+bool Metric::isActive() const
+{
+    return d_isEnabled_p &amp;&amp; d_isEnabled_p-&gt;loadRelaxed();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const Metric&amp; lhs, const Metric&amp; rhs)
+{
+    return lhs.collector() == rhs.collector();
+}
+
+inline
+bool balm::operator!=(const Metric&amp; lhs, const Metric&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

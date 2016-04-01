@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_unorderedset Component</title>
+<title>BDE 3.0: bslstl_unorderedset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -183,7 +183,7 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.4">Operations</a> </li>
 <li>
-<a href="#3.5">Iterator, pointer and reference invalidation</a> </li>
+<a href="#3.5">Iterator, Pointer, and Reference Invalidation</a> </li>
 <li>
 <a href="#3.6">Unordered Set Configuration</a> </li>
 <li>
@@ -270,7 +270,7 @@ Friends</h2></td></tr>
   <span class="charliteral">&#39;a&#39;</span>, <span class="charliteral">&#39;b&#39;</span>        - two distinct objects of type <span class="stringliteral">&#39;unordered_set&lt;K&gt;&#39;</span>
   <span class="charliteral">&#39;n&#39;</span>, <span class="charliteral">&#39;m&#39;</span>        - number of elements in <span class="charliteral">&#39;a&#39;</span> and <span class="charliteral">&#39;b&#39;</span> respectively
   <span class="charliteral">&#39;w&#39;</span>             - number of buckets of <span class="charliteral">&#39;a&#39;</span>
-  <span class="stringliteral">&#39;value_type&#39;</span>    - unoredered_set&lt;K&gt;::value_type
+  <span class="stringliteral">&#39;value_type&#39;</span>    - unordered_set&lt;K&gt;::value_type
   <span class="charliteral">&#39;c&#39;</span>             - comparator providing an ordering <span class="keywordflow">for</span> objects of type <span class="charliteral">&#39;K&#39;</span>
   <span class="stringliteral">&#39;al             - an STL-style memory allocator</span>
 <span class="stringliteral">  &#39;</span>i1<span class="stringliteral">&#39;, &#39;</span>i2<span class="stringliteral">&#39;      - two iterators defining a sequence of &#39;</span>value_type<span class="stringliteral">&#39; objects</span>
@@ -385,8 +385,8 @@ Friends</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="description.iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="3.5"></a> </dd></dl>
-<dl class="user"><dt><b>Iterator, pointer and reference invalidation: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="iterator,_pointer,_and_reference_invalidation"></a> <a class="anchor" id="description.iterator,_pointer,_and_reference_invalidation"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Iterator, Pointer, and Reference Invalidation: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>No method of <code><a class="el" href="classbsl_1_1unordered__set.html">unordered_set</a></code> invalidates a pointer or reference to an element in the set, unless it also erases that element, such as any <code>erase</code> overload, <code>clear</code>, or the destructor (that erases all elements). Pointers and references are stable through a rehash. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Iterators to elements in the container are invalidated by any rehash, so iterators may be invalidated by an <code>insert</code> or <code>emplace</code> call if it triggers a rehash (but not otherwise). Iterators to specific elements are also invalidated when that element is erased. Note that the <code>end</code> iterator is not an iterator referring to any element in the container, so may be invalidated by any non-'const' method. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -490,7 +490,7 @@ Friends</h2></td></tr>
 </pre></div><br/>
 <br/>
  Suppose, as the first step in analysis, we wish to determine the number of unique combinations of customer attributes that exist in our data set. We can do that by inserting each data item into an (unordered) set: the first insert of a combination will succeed, the others will fail, but at the end of the process, the set will contain one entry for every unique combination in our data. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, as there are no standard methods for hashing or comparing our user defined types, we define <code>CustomerProfileHash</code> and <code>CustomerProfileEqual</code> classes, each a stateless functor. Note that there is no meaningful ordering of the attribute values, they are merely arbitrary code numbers; nothing is lost by using an unordered set instead of an ordered set: <br/>
+<dl class="user"><dt><b></b></dt><dd>First, as there are no standard methods for hashing or comparing our user- defined types, we define <code>CustomerProfileHash</code> and <code>CustomerProfileEqual</code> classes, each a stateless functor. Note that there is no meaningful ordering of the attribute values, they are merely arbitrary code numbers; nothing is lost by using an unordered set instead of an ordered set: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>CustomerProfileHash
   {
@@ -500,7 +500,7 @@ Friends</h2></td></tr>
 
           <span class="comment">// Create a &#39;CustomerProfileHash&#39; object.  Note that as</span>
           <span class="comment">// &#39;CustomerProfileHash&#39; is an empty (stateless) type, this</span>
-          <span class="comment">// operation will have no observable effect.</span>
+          <span class="comment">// operation has no observable effect.</span>
 
           <span class="comment">// Destroy this object.</span>
 
@@ -528,7 +528,7 @@ Friends</h2></td></tr>
 
           <span class="comment">// Create a &#39;CustomerProfileEqual&#39; object.  Note that as</span>
           <span class="comment">// &#39;CustomerProfileEqual&#39; is an empty (stateless) type, this</span>
-          <span class="comment">// operation will have no observable effect.</span>
+          <span class="comment">// operation has no observable effect.</span>
 
           <span class="comment">// Destroy this object.</span>
 
@@ -903,7 +903,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty unordered set. Optionally specify an <code>initialNumBuckets</code> indicating the initial size of the array of buckets of this container. If <code>initialNumBuckets</code> is not supplied, an implementation defined value is used. Optionally specify a <code>hashFunction</code> used to generate the hash values associated to the keys extracted from the values contained in this object. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </p>
+<p>Construct an empty unordered set. Optionally specify an <code>initialNumBuckets</code> indicating the initial size of the array of buckets of this container. If <code>initialNumBuckets</code> is not supplied, an implementation defined value is used. Optionally specify a <code>hashFunction</code> used to generate the hash values associated to the keys extracted from the values contained in this object. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. </p>
 
 </div>
 </div>
@@ -1030,7 +1030,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty unordered set and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those pairs having a key that appears earlier in the sequence. Optionally specify an <code>initialNumBuckets</code> indicating the initial size of the array of buckets of this container. If <code>initialNumBuckets</code> is not supplied, an implementation defined value is used. Optionally specify a <code>hashFunction</code> used to generate hash values for the keys extracted from the values contained in this object. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct an empty unordered set and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those pairs having a key that appears earlier in the sequence. Optionally specify an <code>initialNumBuckets</code> indicating the initial size of the array of buckets of this container. If <code>initialNumBuckets</code> is not supplied, an implementation defined value is used. Optionally specify a <code>hashFunction</code> used to generate hash values for the keys extracted from the values contained in this object. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1071,7 +1071,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value, hasher, and key-equality functor of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Assign to this object the value, hasher, and key-equality functor of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1308,7 +1308,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this set if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object having the same key (according to <code>key_equal</code>) as <code>value</code> already exists in this set, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose key is the same as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert the specified <code>value</code> into this set if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object having the same key (according to <code>key_equal</code>) as <code>value</code> already exists in this set, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose key is the same as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1338,7 +1338,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this set (in constant time if the specified <code>hint</code> is a valid element in the bucket to which <code>value</code> belongs), if the key (<code>value</code> itself) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object having the same key (according to <code>key_equal</code>) as <code>value</code> already exists in this set, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose key is the same as that of <code>value</code>. If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation will have worst case O[N] and average case constant time complexity, where <code>N</code> is the size of this set. The behavior is undefined unless <code>hint</code> is a valid iterator into this unordered set. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert the specified <code>value</code> into this set (in constant time if the specified <code>hint</code> is a valid element in the bucket to which <code>value</code> belongs), if the key (<code>value</code> itself) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object having the same key (according to <code>key_equal</code>) as <code>value</code> already exists in this set, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose key is the same as that of <code>value</code>. If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation has worst case <code>O[N]</code> and average case constant-time complexity, where <code>N</code> is the size of this set. The behavior is undefined unless <code>hint</code> is a valid iterator into this unordered set. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1370,7 +1370,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert into this set the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this set. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert into this set the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this set. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1433,7 +1433,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Increase the number of buckets of this set to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>. Note that this guarantees that, after the reserve, elements can be inserted to grow the container to <code>size() == numElements</code> without rehashing. Also note that memory allocations may still occur when growing the container to 'size() == numElements'. Also note that this operation has no effect if <code>numElements &lt;= size()</code>. </p>
+<p>Increase the number of buckets of this set to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>. Note that this guarantees that, after the reserve, elements can be inserted to grow the container to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> == numElements</code> without rehashing. Also note that memory allocations may still occur when growing the container to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> == numElements</code>. Also note that this operation has no effect if <code>numElements &lt;= <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -1454,7 +1454,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Exchange the value of this object as well as its hasher and key-equality functor with those of the specified <code>other</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Exchange the value of this object as well as its hasher and key-equality functor with those of the specified <code>other</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -1738,7 +1738,7 @@ template&lt;class KEY, class HASH = bsl::hash&lt;KEY&gt;, class EQUAL = bsl::equ
       </table>
 </div>
 <div class="memdoc">
-<p>Return a pair of iterators providing non-modifiable access to the sequence of <code>value_type</code> objects in this container having the specified <code>key</code>, where the the first iterator is positioned at the start of the sequence and the second iterator is positioned one past the end of the sequence. If this set contains no <code>value_type</code> objects having <code>key</code> then the two returned iterators will have the same value. Note that since a set maintains unique keys, the range will contain at most one element. </p>
+<p>Return a pair of iterators providing non-modifiable access to the sequence of <code>value_type</code> objects in this container having the specified <code>key</code>, where the the first iterator is positioned at the start of the sequence and the second iterator is positioned one past the end of the sequence. If this set contains no <code>value_type</code> objects having <code>key</code>, then the two returned iterators will have the same value. Note that since a set maintains unique keys, the range will contain at most one element. </p>
 
 </div>
 </div>
@@ -1949,7 +1949,7 @@ template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code><a class="el" href="classbsl_1_1unordered__set.html">unordered_set</a></code> objects have the same value if they have the same number of value-elements, and for each value-element that is contained in <code>lhs</code> there is a value-element contained in <code>rhs</code> having the same value, and vice-versa. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code><a class="el" href="classbsl_1_1unordered__set.html">unordered_set</a></code> objects have the same value if they have the same number of value-elements, and for each value-element that is contained in <code>lhs</code> there is a value-element contained in <code>rhs</code> having the same value, and vice-versa. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__unorderedset.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1979,7 +1979,7 @@ template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code><a class="el" href="classbsl_1_1unordered__set.html">unordered_set</a></code> objects do not have the same value if they do not have the same number of value-elements, or that for some value-element contained in <code>lhs</code> there is not a value-element in <code>rhs</code> having the same value, and vice-versa. This method requires that the (template parameter) type <code>KEY</code> and be <a href="group__bslstl__unorderedset.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code><a class="el" href="classbsl_1_1unordered__set.html">unordered_set</a></code> objects do not have the same value if they do not have the same number of value-elements, or that for some value-element contained in <code>lhs</code> there is not a value-element in <code>rhs</code> having the same value, and vice-versa. Note that this method requires that the (template parameter) type <code>KEY</code> and be <a href="group__bslstl__unorderedset.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__unorderedset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -2009,7 +2009,7 @@ template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -2046,7 +2046,7 @@ template&lt;class KEY2 , class HASH2 , class EQUAL2 , class ALLOCATOR2 &gt; </di
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

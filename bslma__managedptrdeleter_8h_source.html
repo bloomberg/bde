@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_managedptrdeleter.h                                          -*-C++-*-
@@ -12,10 +12,10 @@
 #endif
 BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 
-//@PURPOSE: Provide an in-core value semantic class to call a delete function.
+//@PURPOSE: Provide an in-core value-semantic class to call a delete function.
 //
 //@CLASSES:
-//  bslma::ManagedPtrDeleter: in-core value semantic class storing a deleter
+//  bslma::ManagedPtrDeleter: in-core value-semantic class storing a deleter
 //
 //@SEE_ALSO: bslma_managedptr
 //
@@ -264,7 +264,7 @@ template &lt;&gt;
 struct IsBitwiseMoveable&lt;bslma::ManagedPtrDeleter&gt;
     : bsl::integral_constant&lt;bool, true&gt; {};
 
-}  // close package namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 #endif
 

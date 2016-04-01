@@ -1,0 +1,385 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balm.txt
+
+@PURPOSE: Provide thread-safe collection and publishing of metrics.
+
+@MNEMONIC: Basic Application Environment Metrics (balm)
+
+@DESCRIPTION: The &#39;balm&#39; package provides facilities for recording and
+ publishing metric data.
+
+ A &quot;metric&quot;, in the context of this package, is a measured event.  This package
+ does *not* define what constitutes an event or what the associated measurement
+ represents.  For example, a metric could record the elapsed time of a function
+ call (in which case the event is the function call, and the measured value is
+ the elapsed time), or a metric could record the number of requests received by
+ a service (in which case the event is the reception of a request, and the
+ measured value is 1).
+
+ This package provides components for collecting and aggregating measurement
+ values (see &#39;balm_metric&#39; and &#39;balm_metrics&#39;).  Those aggregated metric
+ measurements are described by a metric record (see &#39;balm_metricrecord&#39;), which
+ contains the identifier for the recorded metric, the number of times the event
+ occurred, as well as the minimum, maximum, and total of the measured values.
+ This package provides a protocol for publishing metric records (see
+ &#39;balm_publisher&#39;) and an implementation of that protocol for publishing
+ records to a stream (see &#39;balm_streampublisher).  Finally this package
+ provides a &#39;balm_metricsmanager&#39; component to coordinate the collection and
+ publication of metrics.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balm&#39; package currently has 21 components having 13 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  13. balm_configurationutil
+
+  12. balm_metrics
+
+  11. balm_stopwatchscopedguard
+
+  10. balm_integermetric
+      balm_metric
+
+   9. balm_defaultmetricsmanager
+      balm_publicationscheduler
+
+   8. balm_metricsmanager
+      balm_streampublisher
+
+   7. balm_collectorrepository
+      balm_publisher
+
+   6. balm_collector
+      balm_integercollector
+      balm_metricsample
+
+   5. balm_metricrecord
+      balm_metricregistry
+
+   4. balm_metricid
+
+   3. balm_metricdescription
+
+   2. balm_metricformat
+
+   1. balm_category
+      balm_publicationtype
+..
+
+/Component Synopsis
+/------------------
+: &#39;balm_category&#39;:
+:      Provide a representation of a metric category.
+:
+: &#39;balm_collector&#39;:
+:      Provide a container for collecting and aggregating metric values.
+:
+: &#39;balm_collectorrepository&#39;:
+:      Provide a repository for collectors.
+:
+: &#39;balm_configurationutil&#39;:
+:      Provide a namespace for metrics configuration utilities.
+:
+: &#39;balm_defaultmetricsmanager&#39;:
+:      Provide for a default instance of the metrics manager.
+:
+: &#39;balm_integercollector&#39;:
+:      Provide a container for collecting integral metric values.
+:
+: &#39;balm_integermetric&#39;:
+:      Provide helper classes for recording int metric values.
+:
+: &#39;balm_metric&#39;:
+:      Provide helper classes for recording metric values.
+:
+: &#39;balm_metricdescription&#39;:
+:      Provide a description for a metric.
+:
+: &#39;balm_metricformat&#39;:
+:      Provide a formatting specification for a metric.
+:
+: &#39;balm_metricid&#39;:
+:      Provide an identifier for a metric.
+:
+: &#39;balm_metricrecord&#39;:
+:      Provide an aggregated record of the value of a metric.
+:
+: &#39;balm_metricregistry&#39;:
+:      Provide a registry for metrics.
+:
+: &#39;balm_metrics&#39;:
+:      Provide a suite of operations for recording metric values.
+:
+: &#39;balm_metricsample&#39;:
+:      Provide a container for a sample of collected metric records.
+:
+: &#39;balm_metricsmanager&#39;:
+:      Provide a manager for recording and publishing metric data.
+:
+: &#39;balm_publicationscheduler&#39;:
+:      Provide a scheduler for publishing metrics.
+:
+: &#39;balm_publicationtype&#39;:
+:      Provide an enumeration of aggregate types used to publish metrics.
+:
+: &#39;balm_publisher&#39;:
+:      Provide a protocol to publish recorded metric values.
+:
+: &#39;balm_stopwatchscopedguard&#39;:
+:      Provide a scoped guard for recording elapsed time.
+:
+: &#39;balm_streampublisher&#39;:
+:      Provide a &#39;balm::Publisher&#39; implementation that writes to a stream.
+
+/Getting Started
+/---------------
+ The following section presents a simple example of collecting metrics.  We
+ create a trivial application that reads lines of text from standard input and
+ counts the number of letters, words, and unique words in each line.  The
+ function &#39;processLine()&#39; processes each line of text and records metrics for
+ the number of times &#39;processLine()&#39; has been called, the elapsed time for the
+ calls to &#39;processLine()&#39;, the total character count, and the total word count.
+
+ Before we can collect metrics we must first create a &#39;balm_MetricsManager&#39;
+ object to manage their collection (and publication).  We use the
+ &#39;balm_DefaultMetricsManager&#39;, which is a singleton instance of the
+ &#39;balm_MetricsManager&#39; class.  The default metrics manager is used by the
+ collection macros that we will use to collect metrics (see &#39;balm_metrics&#39;).
+ Note that the default metrics manager is intended to be created and destroyed
+ by the *owner* of &#39;main&#39;.  A default metrics manager instance should be
+ created during the initialization of an application (while the task has a
+ single thread) and destroyed just prior to termination (when there is,
+ similarly, a single thread).
+..
+  int main(int argc, const char *argv[])
+  {
+..
+ We create a &#39;balm_DefaultMetricsManagerScopedGuard&#39;, which manages the
+ lifetime of the default metrics manager (singleton) instance.  At
+ construction, we provide the scoped guard an output stream (&#39;stdout&#39;) to which
+ the &#39;balm_publisher&#39; (created by the default metrics manager) will publish
+ metrics.
+..
+      balm_DefaultMetricsManagerScopedGuard managerGuard(bdl::cout);
+..
+ We create a &#39;balm_PublicationScheduler&#39; to periodically publish the metrics we
+ have collected.  A &#39;balm_PublicationScheduler&#39; invokes &#39;publish()&#39; on the
+ supplied &#39;balm_MetricsManager&#39; object according to the provided schedule.
+..
+      bcep_TimerEventScheduler eventScheduler;
+      balm_PublicationScheduler publicationScheduler(
+                                     balm_DefaultMetricsManager::instance(),
+                                     &amp;eventScheduler);
+..
+ To begin periodically publishing metrics we &#39;start&#39; the event scheduler
+ supplied to the &#39;balm_PublicationScheduler&#39;, and then set a simple schedule to
+ publish all collected metrics every 30 seconds.
+..
+      eventScheduler.start();
+      publicationScheduler.setDefaultSchedule(bdet_TimeInterval(30, 0));
+..
+ Finally we have our main &quot;application&quot; loop, which reads lines of text from
+ the standard input (until &quot;exit&quot; is provided as input) and calls
+ &#39;processLine()&#39; for each line of input.
+..
+      while (true) {
+          enum { BUFFER_SIZE = 1024 };
+          char buffer[BUFFER_SIZE];
+          if (!bdl::cin.getline(buffer, BUFFER_SIZE)) {
+              break;
+          }
+          if (0 == bdl::strcmp(buffer, &quot;exit&quot;)) {
+              break;
+          }
+          processLine(buffer);
+      }
+..
+ At the end of this lexical scope &#39;managerGuard&#39; is destroyed, releasing the
+ default &#39;balm_MetricsManager&#39; instance.
+..
+  }
+..
+ Next we define the &#39;processLine()&#39; function.  The &#39;processLine()&#39; function
+ &quot;processes&quot; a line of text, and collects several metrics related to the
+ function invocation.
+..
+  void processLine(const bdl::string&amp; line)
+      // Process the specified &#39;line&#39; of text and write to standard output the
+      // number of characters, words, and unique words in &#39;line&#39;.
+  {
+..
+ Increment the count of the number of calls to &#39;processLine()&#39; and use the
+ &#39;BAEM_METRICS_TIME_BLOCK&#39; macro (see &#39;balm_metrics&#39;) to collect the elapsed
+ time of this function call.  Note that all the metrics recorded by this
+ function belong to the (arbitrarily chosen) category &quot;Example&quot;.
+..
+      BAEM_METRICS_INCREMENT(&quot;Example&quot;, &quot;processLineCount&quot;);
+      BAEM_METRICS_TIME_BLOCK(&quot;Example&quot;,
+                              &quot;processLineElapsedTime&quot;,
+                              balm_StopwatchScopedGuard::BAEM_SECONDS);
+
+      int                   wordCount  = 0;
+      bdl::set&lt;bdl::string&gt; words;
+
+      bdl::string        word;
+      bdl::istringstream istream(line);
+      while (istream &gt;&gt; word) {
+          words.insert(word);
+          ++wordCount;
+      }
+
+      bdl::cout &lt;&lt; &quot;Characters: count: &quot; &lt;&lt; line.size()
+                &lt;&lt; &quot;\tWord count: &quot; &lt;&lt; wordCount
+                &lt;&lt; &quot;\tUnique word count: &quot; &lt;&lt; words.size() &lt;&lt; bdl::endl;
+
+..
+ Once we&#39;ve &quot;processed&quot; the &#39;line&#39;, update the character count and word count
+ metrics.
+..
+      BAEM_METRICS_UPDATE(&quot;Example&quot;, &quot;characterCount&quot;, line.size());
+      BAEM_METRICS_UPDATE(&quot;Example&quot;, &quot;wordCount&quot;, wordCount);
+  }
+..
+ We&#39;ve now created our example application.  A typical session with this
+ application might look like (note that &#39;&gt;&#39; indicates user input):
+..
+ &gt;this contains 4 words
+   Characters: count: 21   Word count: 4   Unique word count: 4
+ &gt;this sentence contains 5 words
+   Characters: count: 30   Word count: 5   Unique word count: 5
+..
+ Every 30 seconds metrics will be reported to standard output.  A typical
+ publication of metrics would look like:
+..
+  17FEB2009_15:29:20.792+0000 4 Records
+    Elapsed Time: 30.0092s
+       Example.processLineCount [ count = 2, total = 2, min = 1, max = 1 ]
+       Example.processLineElapsedTime [ count = 2, total = 0.0007656,
+                                        min = 0.00022736, max = 0.00053824 ]
+       Example.characterCount [ count = 2, total = 51, min = 21, max = 30 ]
+       Example.wordCount [ count = 2, total = 9, min = 4, max = 5 ]
+..
+
+/Features Overview
+/-----------------
+ This section provides a brief summary of the features of the &#39;balm&#39;
+ package - details can be found in the indicated components and later in this
+ document.
+
+: o A protocol to provide pluggable publishing behavior.  Users can define and
+:   register publishers with the metrics manager, which in turn defines the
+:   behavior of the &quot;publish&quot; operation (see {&#39;balm_publisher&#39;})
+:
+: o A default (singleton) metrics manager instance (see
+:   {&#39;balm_defaultmetricsmanager&#39;})
+:
+: o Simple macros for recording metrics to the default (singleton) metrics
+:   manager instance (see {&#39;balm_metrics&#39;})
+:
+: o Simple types for recording metrics (see {&#39;balm_metric&#39;} and
+:   {&#39;balm_integermetric&#39;})
+:
+: o A guard helper class for recording the elapsed time of a block of code to a
+:   metric (see {&#39;balm_stopwatchscopedguard&#39;})
+:
+: o The ability to enable and disable the collection and publication of
+:   categories of metrics (see {&#39;balm_metricsmanager&#39;} and {&#39;balm_category&#39;})
+:
+: o A scheduling mechanism for configuring the periodic publication of metrics
+:   (see {&#39;balm_publicationscheduler&#39;})
+
+/Multi-Threading
+/---------------
+ The components provided by the &#39;balm&#39; package were designed for use in
+ multi-threaded applications.  Metrics can be safely collected and published
+ simultaneously from multiple threads.  Nevertheless, not every individual
+ component in the &#39;balm&#39; package is thread-safe.  See the individual component
+ documentation for more information.
+
+/Collecting Metrics
+/------------------
+ The &#39;balm&#39; package defines several ways to collect metrics, as well as
+ allowing users to define their own collection mechanisms.
+
+/Choosing Between &#39;balm_metric&#39; and &#39;balm_integermetric&#39;
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ The &#39;balm_metric&#39; and &#39;balm_integermetric&#39; components both define macros and
+ helper classes for recording metrics.  The mechanisms in &#39;balm_integermetric&#39;
+ are slightly more efficient for collecting integral metric values, but are
+ otherwise identical.
+
+/Choosing Between Metric Collection Macros and Metric Collection Classes
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ The macros and classes defined by the &#39;balm_metric&#39;, &#39;balm_integermetric&#39; and
+ &#39;balm_metrics&#39; components provide the same basic functionality.  Clients may
+ find the &#39;balm_Metric&#39; or &#39;balm_IntegerMetric&#39; classes better suited to
+ collecting metrics associated with a particular instance of a stateful object,
+ while the &#39;BAEM_METRICS_*&#39; macros are better suited to collecting metrics
+ associated with a particular code path (rather than an object instance).  In
+ most instances, however, choosing between the two is a matter of taste.
+
+/Creating a User Defined Collection Mechanism
+/ - - - - - - - - - - - - - - - - - - - - - -
+ The &#39;balm&#39; package allows users to define their own metric collection
+ mechanisms by registering a callback with a &#39;balm_MetricsManager&#39; object.
+ User defined callbacks must match the
+ &#39;balm_MetricsManager::MetricsCollectionCallback&#39; function signature and
+ collect metrics for a *single* category.  Every time &#39;publish&#39; is invoked for
+ a category, the metrics manager will invoke the registered collection
+ callbacks for that category, and publish the collected metrics.  See
+ &#39;balm_metricsmanager&#39; for more information.
+
+/Publishing Metrics
+/------------------
+ The &#39;balm_publisher&#39; component defines a protocol for publishing metric
+ records.  Users can register publisher objects with a metrics manager.
+ Invoking &#39;publish()&#39; on a metrics manager will collect metrics for the set of
+ categories supplied with the function call, and then publish the metrics for
+ each supplied category to publishers registered for that category.
+
+ The &#39;balm_StreamPublisher&#39; class implements the &#39;balm_Publisher&#39; protocol to
+ provide a default publisher for publishing metrics to a stream.
+
+/Periodically Publishing Metrics
+/-------------------------------
+ Users can schedule the periodic publication of metrics using the
+ &#39;balm_publicationscheduler&#39; component.  In the example presented above, under
+ &quot;Getting Started&quot;, a &#39;balm_PublicationScheduler&#39; object was configured to
+ publish all categories of metrics metrics every 30 seconds.
+
+ At construction, a &#39;balm_PublicationScheduler&#39; object is provided the
+ addresses of a &#39;balm_MetricsManager&#39; and a &#39;bcep_TimerEventScheduler&#39;.  Users
+ can call &#39;scheduleCategory()&#39; to schedule an individual metric category to be
+ published repeatedly at a given interval, or call &#39;setDefaultSchedule()&#39; to
+ schedule the publication of any category not given an individual schedule.  At
+ the end of a scheduled time interval, the publication scheduler invokes the
+ metrics manager&#39;s &#39;publish()&#39; operation with the set of categories to publish.
+ Note that, the publication scheduler will combine categories that occur at the
+ same frequency into a single invocation of the metrics manager&#39;s &#39;publish&#39;
+ operation.
+
+/Disabling Metric Categories
+/---------------------------
+ Users can disable (and re-enable) a category of metrics by calling
+ &#39;balm_MetricsManager::setCategoryEnabled&#39; method.  A disabled category will
+ not be published by the metrics manager.  In addition, the &#39;balm_metric&#39;,
+ &#39;balm_integermetric&#39;, &#39;balm_metrics&#39;, and &#39;balm_stopwatchscopedguard&#39;
+ components will not collect metrics for disabled categories (minimizing the
+ performance cost of collecting metric for disabled categories).  Note that
+ when &#39;balm_MetricsManager::publish()&#39; is called on a disabled category, the
+ metrics manager *will* invoke any user defined collection callbacks registered
+ for the disable category, but *will* *not* publish the collected metrics.
+ Users defining their own metrics collection mechanism (using a
+ &#39;balm_MetricsManager::MetricsCollectionCallback&#39;) must (manually) test whether
+ a category is disabled if they wish to avoid collecting metrics for a disabled
+ category.
+</pre>
+</body>
+</html>

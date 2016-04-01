@@ -1,0 +1,484 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlt_calendarcache.h                                               -*-C++-*-
+#ifndef INCLUDED_BDLT_CALENDARCACHE
+#define INCLUDED_BDLT_CALENDARCACHE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an efficient cache for read-only &#39;bdlt::Calendar&#39; objects.
+//
+//@CLASSES:
+// bdlt::CalendarCache: cache for read-only calendars that are loaded on demand
+//
+//@SEE_ALSO: bdlt_calendar, bdlt_calendarloader
+//
+//@DESCRIPTION: This component defines the &#39;bdlt::CalendarCache&#39; class, a cache
+// for read-only &#39;bdlt::Calendar&#39; objects.  The &#39;bdlt::CalendarCache&#39; class
+// defines two methods for fetching calendars from the cache: a manipulator
+// called &#39;getCalendar&#39; and an accessor called &#39;lookupCalendar&#39;.  Calendars are
+// identified by name using C-style strings, and both retrieval methods return
+// a &#39;bsl::shared_ptr&lt;const bdlt::Calendar&gt;&#39;.
+//
+// The first time a calendar is requested from the cache using the
+// &#39;getCalendar&#39; manipulator, the identified calendar is loaded into the cache
+// using the loader that was supplied upon construction of the cache (see
+// &#39;bdlt_calendarloader&#39;); a reference to that newly-loaded calendar is then
+// returned.  Subsequent requests for the same calendar, using either the
+// &#39;getCalendar&#39; or &#39;lookupCalendar&#39; method, are efficiently satisfied by
+// returning references to the cached instance.  The &#39;lookupCalendar&#39; accessor
+// differs from the &#39;getCalendar&#39; manipulator in that when a request is made
+// through the accessor for a calendar that is *not* present in the cache, the
+// calendar is not loaded as a side-effect.  In this case, an empty
+// &#39;bsl::shared_ptr&lt;const bdlt::Calendar&gt;&#39; is returned instead, which is
+// effectively a null pointer.  Note that the calendar-naming convention in
+// effect for a given cache is determined by the concrete loader supplied at
+// construction of the cache.
+//
+// Calendars stored in a cache can be explicitly invalidated; the &#39;invalidate&#39;
+// method is used to invalidate a single calendar and &#39;invalidateAll&#39;
+// invalidates all calendars in the cache.  Invalidated calendars are removed
+// from the cache.  However, a calendar that has been invalidated in the cache
+// remains valid to all outstanding references to it, obtained via earlier
+// calls to the &#39;getCalendar&#39; and &#39;lookupCalendar&#39; methods, until all of those
+// references have been destroyed.  Note that a subsequent request, using the
+// &#39;getCalendar&#39; manipulator, for a calendar that has been invalidated incurs
+// the overhead of once again loading that calendar into the cache.
+//
+// Calendars can also be invalidated on the basis of a timeout.  To use this
+// feature of &#39;bdlt::CalendarCache&#39;, a &#39;bsls::TimeInterval&#39; timeout must be
+// supplied at construction.  When a timeout is in effect for a cache, requests
+// for a calendar from the cache using the &#39;getCalendar&#39; manipulator may incur
+// the reloading of the calendar if the one in the cache has expired (i.e., the
+// time interval defined by the timeout value has elapsed since the calendar
+// was last loaded).  In the case of the &#39;lookupCalendar&#39; accessor, an empty
+// &#39;bsl::shared_ptr&lt;const bdlt::Calendar&gt;&#39; is returned if the requested
+// calendar is found to have expired.
+//
+///Thread Safety
+///-------------
+// The &#39;bdlt::CalendarCache&#39; class is fully thread-safe (see &#39;bsldoc_glossary&#39;)
+// provided that the allocator supplied at construction and the default
+// allocator in effect during the lifetime of cache objects are both fully
+// thread-safe.
+//
+///Usage
+///-----
+// The following example illustrates how to use a &#39;bdlt::CalendarCache&#39;.
+//
+///Example 1: Using a &#39;bdlt::CalendarCache&#39;
+/// - - - - - - - - - - - - - - - - - - - -
+// This example shows basic use of a &#39;bdlt::CalendarCache&#39; object.
+//
+// In this example, we assume a hypothetical calendar loader,
+// &#39;MyCalendarLoader&#39;, the details of which are not important other than that
+// it supports calendars identified by &quot;DE&quot;, &quot;FR&quot;, and &quot;US&quot;, which nominally
+// identify the major holidays in Germany, France, and the United States,
+// respectively.  Furthermore, we cite two specific dates of interest:
+// 2011/07/04, which was a holiday in the US (Independence Day), but not in
+// France, and 2011/07/14, which was a holiday in France (Bastille Day), but
+// not in the US.  Note that neither of these dates were holidays in Germany.
+//
+// First, we create a calendar loader, an instance of &#39;MyCalendarLoader&#39;, and
+// use it, in turn, to create a cache.  For the purposes of this example, it is
+// sufficient to let the cache use the default allocator:
+//..
+//  MyCalendarLoader    loader;
+//  bdlt::CalendarCache cache(&amp;loader);
+//..
+// Next, we retrieve the calendar &#39;usA&#39;, identified by &quot;US&quot;, verify that the
+// loading of that calendar into the cache was successful (&#39;usA.get()&#39; is
+// non-null), and verify that 2011/07/04 is recognized as a holiday in the &quot;US&quot;
+// calendar, whereas 2011/07/14 is not:
+//..
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; usA = cache.getCalendar(&quot;US&quot;);
+//
+//                            assert( usA.get());
+//                            assert( usA-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert(!usA-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//..
+// Then, we fetch the calendar identified by &quot;FR&quot;, this time verifying that
+// 2011/07/14 is recognized as a holiday in the &quot;FR&quot; calendar, but 2011/07/04
+// is not:
+//..
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frA = cache.getCalendar(&quot;FR&quot;);
+//
+//                            assert( frA.get());
+//                            assert(!frA-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert( frA-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//..
+// Next, we retrieve the &quot;FR&quot; calendar again, this time via the
+// &#39;lookupCalendar&#39; accessor, and note that the request is satisfied by the
+// calendar that is already in the cache:
+//..
+//  const bdlt::CalendarCache&amp; readonlyCache = cache;
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frB =
+//                                          readonlyCache.lookupCalendar(&quot;FR&quot;);
+//
+//                            assert( frA.get() == frB.get());
+//..
+// Then, we invalidate the &quot;US&quot; calendar in the cache and immediately fetch it
+// again.  The call to &#39;invalidate&#39; removed the &quot;US&quot; calendar from the cache,
+// so it had to be reloaded into the cache to satisfy the request:
+//..
+//  int numInvalidated = cache.invalidate(&quot;US&quot;);
+//                            assert(1 == numInvalidated);
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; usB = cache.getCalendar(&quot;US&quot;);
+//
+//                            assert( usB.get() != usA.get());
+//                            assert( usB.get());
+//                            assert( usB-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert(!usB-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//..
+// Next, all calendars in the cache are invalidated, then reloaded:
+//..
+//  numInvalidated = cache.invalidateAll();
+//                            assert(2 == numInvalidated);
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; usC = cache.getCalendar(&quot;US&quot;);
+//
+//                            assert( usC.get() != usA.get());
+//                            assert( usC.get() != usB.get());
+//                            assert( usC.get());
+//                            assert( usC-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert(!usC-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frC = cache.getCalendar(&quot;FR&quot;);
+//
+//                            assert( frC.get() != frA.get());
+//                            assert( frC.get() != frB.get());
+//                            assert( frC.get());
+//                            assert(!frC-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert( frC-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//..
+// Now, verify that references to calendars that were invalidated in the cache
+// are still valid for clients that obtained references to them before they
+// were made invalid:
+//..
+//                            assert( usA-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert(!usA-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//
+//                            assert( usB-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert(!usB-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//
+//                            assert(!frA-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert( frA-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//
+//                            assert(!frB-&gt;isHoliday(bdlt::Date(2011, 7,  4)));
+//                            assert( frB-&gt;isHoliday(bdlt::Date(2011, 7, 14)));
+//..
+// When &#39;usA&#39;, &#39;usB&#39;, &#39;frA&#39;, and &#39;frB&#39; go out of scope, the resources used by
+// the calendars to which they refer are automatically reclaimed.
+//
+// Finally, using the &#39;lookupCalendar&#39; accessor, we attempt to retrieve a
+// calendar that has not yet been loaded into the cache, but that we *know* to
+// be supported by the calendar loader.  Since the &#39;lookupCalendar&#39; accessor
+// does not load calendars into the cache as a side-effect, the request fails:
+//..
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; de =
+//                                          readonlyCache.lookupCalendar(&quot;DE&quot;);
+//
+//                            assert(!de.get());
+//..
+//
+///Example 2: A Calendar Cache with a Timeout
+/// - - - - - - - - - - - - - - - - - - - - -
+// This second example shows the affects on a &#39;bdlt::CalendarCache&#39; object that
+// is constructed to have a timeout value.  Note that the following snippets of
+// code assume a platform-independent &#39;sleepSeconds&#39; method that sleeps for the
+// specified number of seconds.
+//
+// First, we create a calendar loader and a calendar cache.  The cache is
+// constructed to have a timeout of 3 seconds.  Of course, such a short timeout
+// is inappropriate for production use, but it is necessary for illustrating
+// the affects of a timeout in this example.  As in example 1 (above), we again
+// let the cache use the default allocator:
+//..
+//  MyCalendarLoader           loader;
+//  bdlt::CalendarCache        cache(&amp;loader, bsls::TimeInterval(3));
+//  const bdlt::CalendarCache&amp; readonlyCache = cache;
+//..
+// Next, we retrieve the calendar identified by &quot;DE&quot; from the cache:
+//..
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; deA = cache.getCalendar(&quot;DE&quot;);
+//
+//                            assert( deA.get());
+//..
+// Next, we sleep for 2 seconds before retrieving the &quot;FR&quot; calendar:
+//..
+//  sleepSeconds(2);
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frA = cache.getCalendar(&quot;FR&quot;);
+//
+//                            assert( frA.get());
+//..
+// Next, we sleep for 2 more seconds before attempting to retrieve the &quot;DE&quot;
+// calendar again, this time using the &#39;lookupCalendar&#39; accessor.  Since the
+// cumulative sleep time exceeds the timeout value established for the cache
+// when it was constructed, the &quot;DE&quot; calendar has expired; hence, it has been
+// removed from the cache:
+//..
+//  sleepSeconds(2);
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; deB =
+//                                          readonlyCache.lookupCalendar(&quot;DE&quot;);
+//
+//                            assert(!deB.get());
+//..
+// Next, we verify that the &quot;FR&quot; calendar is still available in the cache:
+//..
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frB =
+//                                          readonlyCache.lookupCalendar(&quot;FR&quot;);
+//
+//                            assert( frA.get() == frB.get());
+//..
+// Finally, we sleep for an additional 2 seconds and verify that the &quot;FR&quot;
+// calendar has also expired:
+//..
+//  sleepSeconds(2);
+//
+//  bsl::shared_ptr&lt;const bdlt::Calendar&gt; frC =
+//                                          readonlyCache.lookupCalendar(&quot;FR&quot;);
+//
+//                            assert(!frC.get());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_CALENDAR
+#include &lt;bdlt_calendar.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include &lt;bdlt_datetimeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_BSLLOCK
+#include &lt;bsls_bsllock.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;  // &#39;bsl::shared_ptr&#39;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+class CalendarLoader;
+class CalendarCache_Entry;
+
+                           // ===================
+                           // class CalendarCache
+                           // ===================
+
+class CalendarCache {
+    // This class implements an efficient cache of *read-only* &#39;bdlt::Calendar&#39;
+    // objects that are loaded into the cache, using a calendar loader supplied
+    // at construction, as a side-effect of the &#39;getCalendar&#39; manipulator.
+    // Calendars in the cache can be invalidated, and removed from the cache
+    // via the &#39;invalidate&#39; and &#39;invalidateAll&#39; methods.  In addition,
+    // calendars in the cache can be made to expire based on a timeout that may
+    // be optionally supplied at construction.  The
+    // &#39;bsl::shared_ptr&lt;const bdlt::Calendar&gt;&#39; objects returned from the
+    // &#39;getCalendar&#39; and &#39;lookupCalendar&#39; methods allow for the safe removal of
+    // calendars from the cache that may still have outstanding references to
+    // them.
+    //
+    // This container is *exception* *neutral* with no guarantee of rollback:
+    // if an exception is thrown during the invocation of a method on a
+    // pre-existing instance, the container is left in a valid state, but its
+    // value is undefined.  In no event is memory leaked.
+    //
+    // This class is fully thread-safe (see &#39;bsldoc_glossary&#39;).
+
+    // DATA
+    mutable bsl::map&lt;bsl::string, CalendarCache_Entry&gt;
+                            d_cache;           // cache of (name, handle) pairs
+
+    CalendarLoader         *d_loader_p;        // calendar loader (held, not
+                                               // owned)
+
+    DatetimeInterval        d_timeOut;         // timeout value; ignored unless
+                                               // &#39;d_hasTimeOutFlag&#39; is &#39;true&#39;
+
+    bool                    d_hasTimeOutFlag;  // &#39;true&#39; if this cache has a
+                                               // timeout value and &#39;false&#39;
+                                               // otherwise
+
+    mutable bsls::BslLock   d_lock;            // guard access to cache
+
+    bslma::Allocator       *d_allocator_p;     // memory allocator (held, not
+                                               // owned)
+
+  private:
+    // PRIVATE TYPES
+    typedef bsl::map&lt;bsl::string, CalendarCache_Entry&gt;::iterator CacheIterator;
+
+    typedef bsl::map&lt;bsl::string, CalendarCache_Entry&gt;::const_iterator
+                                                            ConstCacheIterator;
+
+  private:
+    // NOT IMPLEMENTED
+    CalendarCache(const CalendarCache&amp;);
+    CalendarCache&amp; operator=(const CalendarCache&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    CalendarCache(CalendarLoader   *loader,
+                  bslma::Allocator *basicAllocator = 0);
+        // Create an empty calendar cache that uses the specified &#39;loader&#39; to
+        // load calendars on demand and has no timeout.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  Calendars loaded
+        // into this cache remain valid for retrieval until they have been
+        // explicitly invalidated (via either the &#39;invalidate&#39; or
+        // &#39;invalidateAll&#39; methods), or until this object is destroyed.  The
+        // behavior is undefined unless &#39;loader&#39; and the indicated allocator
+        // remain valid throughout the lifetime of this cache.
+
+    CalendarCache(CalendarLoader            *loader,
+                  const bsls::TimeInterval&amp;  timeout,
+                  bslma::Allocator          *basicAllocator = 0);
+        // Create an empty calendar cache that uses the specified &#39;loader&#39; to
+        // load calendars on demand and has the specified &#39;timeout&#39; interval
+        // indicating the length of time that calendars remain valid for
+        // subsequent retrieval from the cache after they have been loaded.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;loader&#39; and the indicated
+        // allocator remain valid throughout the lifetime of this cache, and
+        // &#39;bsls::TimeInterval(0) &lt;= timeout &lt;= bsls::TimeInterval(INT_MAX)&#39;.
+        // Note that a &#39;timeout&#39; value of 0 indicates that a calendar will be
+        // loaded into the cache by *each* (successful) call to the
+        // &#39;getCalendar&#39; manipulator.
+
+    ~CalendarCache();
+        // Destroy this object.
+
+    // MANIPULATORS
+    bsl::shared_ptr&lt;const Calendar&gt; getCalendar(const char *calendarName);
+        // Return a shared pointer providing non-modifiable access to the
+        // calendar having the specified &#39;calendarName&#39; in this calendar cache,
+        // loading the calendar into the cache using the loader that was
+        // supplied at construction if the calendar is not already present in
+        // the cache or if the calendar has expired (i.e., per a timeout
+        // optionally supplied at construction).  If the loader fails, whether
+        // in loading a calendar for the first time or in reloading a calendar
+        // that has expired, return an empty shared pointer.
+
+    int invalidate(const char *calendarName);
+        // Invalidate the calendar having the specified &#39;calendarName&#39; in this
+        // calendar cache, and remove it from the cache.  If a calendar having
+        // &#39;calendarName&#39; is not present in this cache, this method has no
+        // effect.  Return the number of calendars that were invalidated.  Note
+        // that a calendar that has been invalidated in the cache remains valid
+        // to all outstanding references to it, obtained via earlier calls to
+        // the &#39;getCalendar&#39; and &#39;lookupCalendar&#39; methods, until all of those
+        // references have been destroyed.
+
+    int invalidateAll();
+        // Invalidate all calendars in this calendar cache, and remove them
+        // from the cache.  Return the number of calendars that were
+        // invalidated.  Note that a calendar that has been invalidated in the
+        // cache remains valid to all outstanding references to it, obtained
+        // via earlier calls to the &#39;getCalendar&#39; and &#39;lookupCalendar&#39; methods,
+        // until all of those references have been destroyed.
+
+    // ACCESSORS
+    bsl::shared_ptr&lt;const Calendar&gt;
+    lookupCalendar(const char *calendarName) const;
+        // Return a shared pointer providing non-modifiable access to the
+        // calendar having the specified &#39;calendarName&#39; in this calendar cache.
+        // If the calendar having &#39;calendarName&#39; is not found in the cache, or
+        // if the calendar has expired (i.e., per a timeout optionally supplied
+        // at construction), return an empty shared pointer.
+
+    Datetime lookupLoadTime(const char *calendarName) const;
+        // Return the datetime, in Coordinated Universal Time (UTC), at which
+        // the calendar having the specified &#39;calendarName&#39; was loaded into
+        // this calendar cache.  If the calendar having &#39;calendarName&#39; is not
+        // found in the cache, or if the calendar has expired (i.e., per a
+        // timeout optionally supplied at construction), return &#39;Datetime()&#39;.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;bdlt::CalendarCache&gt; : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2016 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

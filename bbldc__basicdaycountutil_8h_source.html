@@ -1,0 +1,133 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bbldc_basicdaycountutil.h                                          -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICDAYCOUNTUTIL
+#define INCLUDED_BBLDC_BASICDAYCOUNTUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Support for day-count calculations of &#39;enum&#39;-specified conventions.
+//
+//@CLASSES:
+//  bbldc::BasicDayCountUtil: &#39;enum&#39;-specified day-count calculation procedures
+//
+//@SEE_ALSO: bbldc_daycountconvention
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bbldc::BasicDayCountUtil&#39;,
+// that defines a suite of date-related functions used to compute the day count
+// and the year fraction between two dates as prescribed by an enumerated
+// day-count convention.  Specifically, the &#39;daysDiff&#39; and &#39;yearsDiff&#39; methods
+// defined in &#39;bbldc::BasicDayCountUtil&#39; take a trailing
+// &#39;DayCountConvention::Enum&#39; argument indicating which particular day-count
+// convention to apply.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Computing Day Count and Year Fraction
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to use
+// &#39;bbldc::BasicDayCountUtil&#39; methods.  First, create two &#39;bdlt::Date&#39;
+// variables, &#39;d1&#39; and &#39;d2&#39;:
+//..
+//  const bdlt::Date d1(2003, 10, 19);
+//  const bdlt::Date d2(2003, 12, 31);
+//..
+// Now, compute the day count between &#39;d1&#39; and &#39;d2&#39; according to the ISDA
+// Actual/Actual convention:
+//..
+//  const int daysDiff = bbldc::BasicDayCountUtil::daysDiff(
+//                            d1,
+//                            d2,
+//                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+//  assert(73 == daysDiff);
+//..
+// Finally, compute the year fraction between the two dates according to the
+// ISDA Actual/Actual convention:
+//..
+//  const double yearsDiff = bbldc::BasicDayCountUtil::yearsDiff(
+//                            d1,
+//                            d2,
+//                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+//  // Need fuzzy comparison since &#39;yearsDiff&#39; is a &#39;double&#39;.
+//  assert(0.1999 &lt; yearsDiff &amp;&amp; 0.2001 &gt; yearsDiff);
+//..
+
+#ifndef INCLUDED_BBLSCM_VERSION
+#include &lt;bblscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BBLDC_DAYCOUNTCONVENTION
+#include &lt;bbldc_daycountconvention.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt { class Date; }
+namespace bbldc {
+
+                         // ========================
+                         // struct BasicDayCountUtil
+                         // ========================
+
+struct BasicDayCountUtil {
+    // This &#39;struct&#39; provides a namespace for a suite of pure functions that
+    // compute values based on dates according to enumerated day-count
+    // conventions.
+
+    // CLASS METHODS
+    static int daysDiff(const bdlt::Date&amp;        beginDate,
+                        const bdlt::Date&amp;        endDate,
+                        DayCountConvention::Enum convention);
+        // Return the (signed) number of days between the specified &#39;beginDate&#39;
+        // and &#39;endDate&#39; according to the specified day-count &#39;convention&#39;.
+        // The behavior is undefined unless &#39;isSupported(convention)&#39;.  If
+        // &#39;beginDate &lt;= endDate&#39; then the result is non-negative.  Note that
+        // reversing the order of &#39;beginDate&#39; and &#39;endDate&#39; negates the result.
+
+    static bool isSupported(DayCountConvention::Enum convention);
+        // Return &#39;true&#39; if the specified &#39;convention&#39; is valid for use in
+        // &#39;daysDiff&#39; and &#39;yearsDiff&#39;, and &#39;false&#39; otherwise.
+
+    static double yearsDiff(const bdlt::Date&amp;        beginDate,
+                            const bdlt::Date&amp;        endDate,
+                            DayCountConvention::Enum convention);
+        // Return the (signed fractional) number of years between the specified
+        // &#39;beginDate&#39; and &#39;endDate&#39; according to the specified day-count
+        // &#39;convention&#39;.  If &#39;beginDate &lt;= endDate&#39; then the result is
+        // non-negative.  The behavior is undefined unless
+        // &#39;isSupported(convention)&#39;.  Note that reversing the order of
+        // &#39;beginDate&#39; and &#39;endDate&#39; negates the result; specifically,
+        // &#39;|yearsDiff(b, e, c) + yearsDiff(e, b, c)| &lt;= 1.0e-15&#39; for all dates
+        // &#39;b&#39; and &#39;e&#39;, and day-count conventions &#39;c&#39;.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

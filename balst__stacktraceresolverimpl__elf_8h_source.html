@@ -1,0 +1,231 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktraceresolverimpl_elf.h                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
+#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a utility to resolve ELF symbols in a stack trace.
+//
+//@CLASSES:
+//   balst::StackTraceResolverImpl&lt;Elf&gt;: symbol resolution for ELF objects
+//
+//@SEE_ALSO: balst_stacktraceresolverimpl_windows,
+//           balst_stacktraceresolverimpl_xcoff
+//
+//@DESCRIPTION: This component provides a class,
+// &#39;balst::StackTraceResolver&lt;Elf&gt;&#39;, that, given a vector of
+// &#39;balst::StackTraceFrame&#39;s that have only their &#39;address&#39; fields set,
+// resolves all other fields in those frames.  The Elf object file format is
+// used on Linux, Solaris, and HP-UX platforms.  The Elf format is described by
+// documents at:
+//: o &#39;http://en.wikipedia.org/wiki/Executable_and_Linkable_Format&#39;
+//: o &#39;http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf&#39;
+//: o &#39;http://www.sco.com/developers/gabi/latest/contents.html&#39;
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;balst&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
+#include &lt;balst_objectfileformat.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACE
+#include &lt;balst_stacktrace.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACEFRAME
+#include &lt;balst_stacktraceframe.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
+#include &lt;balst_stacktraceresolver_filehelper.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
+#include &lt;bdlma_heapbypassallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
+
+namespace balst {template &lt;class RESOLVER_POLICY&gt;
+class StackTraceResolverImpl;
+
+            // ===================================================
+            // class StackTraceResolverImpl&lt;ObjectFileFormat::Elf&gt;
+            // ===================================================
+
+template &lt;&gt;
+class StackTraceResolverImpl&lt;ObjectFileFormat::Elf&gt; {
+    // This class provides a public static &#39;resolve&#39; method that, given a
+    // vector of &#39;StackTraceFrame&#39;s that have only their &#39;address&#39; fields
+    // set, resolves all other fields in those frames.  The Elf object file
+    // format is used on Linux, Solaris, and HP-UX platforms.  All other
+    // methods in this class are private.
+
+    // TYPES
+    typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
+                                            // bit unsigned on 64 bit, usually
+                                            // used for absolute offsets into a
+                                            // file
+
+    struct CurrentSegment;                  // &#39;struct&#39; that contains
+                                            // information pertaining only to
+                                            // the current segment being
+                                            // resolved (during resolution, the
+                                            // resolver iterates over multiple
+                                            // segments)
+
+    // DATA
+    StackTrace        *d_stackTrace_p;      // pointer to stack trace object.
+                                            // The frames contained in this
+                                            // have their &#39;address&#39; fields and
+                                            // nothing else initialized upon
+                                            // entry to &#39;resolve&#39;, which infers
+                                            // as many other fields of them as
+                                            // possible.
+
+    CurrentSegment    *d_seg_p;             // pointer to the &#39;CurrentSegment&#39;
+                                            // struct
+
+    char              *d_scratchBuf_p;      // scratch buffer
+
+    char              *d_symbolBuf_p;       // scratch space for symbols
+
+    bool               d_demangle;          // whether we demangle names
+
+    bdlma::HeapBypassAllocator
+                       d_hbpAlloc;          // heap bypass allocator -- owned
+
+  private:
+    // NOT IMPLEMENTED
+    StackTraceResolverImpl(const StackTraceResolverImpl&amp;);
+    StackTraceResolverImpl&amp; operator=(const StackTraceResolverImpl&amp;);
+
+  private:
+    // PRIVATE CREATORS
+    StackTraceResolverImpl(StackTrace *stackTrace,
+                           bool        demanglingPreferredFlag);
+        // Create an stack trace reolver that can populate other fields of the
+        // specified &#39;*stackTrace&#39; object given previously populated &#39;address&#39;
+        // fields.  Specify &#39;demangle&#39;, which indicates whether demangling of
+        // symbols is to occur.
+
+    ~StackTraceResolverImpl();
+        // Destroy this object.
+
+    // PRIVATE MANIPULATORS
+    int loadSymbols();
+        // Read the symbols from the symbol table of the current segment and
+        // update the &#39;mangledSymbolName&#39;, &#39;symbolName&#39;, &#39;offsetFromSymbol&#39;,
+        // and sometimes the &#39;SourceFileName&#39; fields of stack frames constain
+        // addresses within the code section of the current segment.  Return 0
+        // on success and a non-zero value otherwise.
+
+    int resolveSegment(void       *segmentBaseAddress,
+                       void       *segmentPtr,
+                       UintPtr     segmentSize,
+                       const char *libraryFileName);
+        // Identify which stack trace frames in &#39;*d_stackTrace_p&#39; are in the
+        // segment pointed at by the specified &#39;segmentPtr&#39; of the specified
+        // &#39;segmentSize&#39;, and initialize as many fields of those stack trace
+        // frames as possible.  The segment is defined in the executable file
+        // or shared library &#39;libraryFileName&#39;.  Return 0 on success and a
+        // non-zero value otherwise.
+
+    // PRIVATE ACCESSORS
+    void setFrameSymbolName(StackTraceFrame *frame) const;
+        // Set the &#39;symbolName&#39; field of the specified &#39;frame&#39;, which must
+        // already have the &#39;mangledSymbolName&#39; field set, to the demangled
+        // version of the &#39;mangledSymbolName&#39; field.  If &#39;d_demangle&#39; is
+        // &#39;false&#39; or we are otherwise unable to demangle, just set it to the
+        // same as &#39;mangledSymbolName&#39;.
+
+  public:
+    // CLASS METHOD
+    static int resolve(StackTrace *stackTrace,
+                       bool        demanglingPreferredFlag);
+        // Populate information for the specified &#39;*stackTrace&#39;, which contains
+        // a sequence of randomly-accessible stack trace frames.  Specify
+        // &#39;demanglingPreferredFlag&#39;, to determine whether demangling is to
+        // occur.  The behavior is undefined unless all the &#39;address&#39; field in
+        // &#39;*stackTrace&#39; are valid and other fields are invalid.
+
+    // MANIPULATOR
+    int processLoadedImage(const char *fileName,
+                           const void *programHeaders,
+                           int         numProgramHeaders,
+                           void       *textSegPtr,
+                           void       *baseAddress);
+        // Process a loaded image found via the link map, either the main
+        // program or some shared library.  The specified &#39;fileName&#39; is the
+        // name of the file containing the image.  If &#39;fileName == 0&#39;, the file
+        // is the main program.  The specified &#39;programHeaders&#39; is a pointer to
+        // an array of elf program headers and the specified
+        // &#39;numProgramHeaders&#39; is its length, it is a &#39;void *&#39; because the type
+        // &#39;ElfProgramHeader&#39; is local to the implementation file.  Specify one
+        // of &#39;textSegPtr&#39; and &#39;baseAddress&#39;, and the other as 0, this method
+        // will infer the one specified as 0 from the other.  Return 0 on
+        // success and a non-zero value otherwise.  Note that this method is
+        // not to be called by external users of this component, it is only
+        // public so a static routine in the implementation file can call it.
+};
+
+}  // close package namespace
+
+#endif
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

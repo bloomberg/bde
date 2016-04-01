@@ -1,0 +1,278 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlmt_channelstatus.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLMT_CHANNELSTATUS
+#define INCLUDED_BTLMT_CHANNELSTATUS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of channel status codes.
+//
+//@CLASSES:
+//   btlmt::ChannelStatus:  namespace for channel status codes
+//
+//@SEE_ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
+//
+//@DESCRIPTION: This component provides namespace, &#39;btlmt::ChannelStatus&#39;, for
+// the &#39;enum&#39; type listing the possible return codes for methods that operate
+// on a channel.
+//
+///Enumerators
+///-----------
+//..
+//  Name                      Descriptions
+//  ---------------------     -------------------------------------------------
+//  e_SUCCESS                 If the request had been a write request, then the
+//                            request was successfully enqueued or has been
+//                            successfully written synchronously.  If the
+//                            request had been a read request, then the request
+//                            was successfully enqueued.
+//
+//  e_QUEUE_HIGHWATER         The write request failed because the current
+//                            write queue size (not including the size of the
+//                            message being written) is greater than the
+//                            configured write-queue size limit.
+//
+//  e_READ_CHANNEL_DOWN       The read request failed because the read part of
+//                            the channel had already been closed.
+//
+//  e_WRITE_CHANNEL_DOWN      The write request failed because the write part
+//                            of the channel had already been closed.
+//
+//  e_ENQUEUE_HIGHWATER       The write request failed because the existing
+//                            write queue size (not including the size of the
+//                            message being written) is greater than the
+//                            enqueued queue high-water mark provided as a
+//                            function argument.
+//
+//  e_UNKNOWN_ID              The write request failed because the channel
+//                            identified by an specified id does not exist.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// Suppose that we have a class &#39;MyChannel&#39; that defines the following elided
+// interface:
+//..
+//  class MyChannel {
+//      // This class represents a channel over which data may be sent and
+//      // received.
+//
+//    public:
+//      //...
+//      int write(const bdlmca::Blob&amp; blob);
+//          // Enqueue the specified &#39;blob&#39; message to be written to this
+//          // channel.  Return 0 on success, and a non-zero value otherwise.
+//          // On error, the return value *may* equal to one of the enumerators
+//          // in &#39;btlmt::ChannelErrorWrite::Enum&#39;.
+//
+//      //...
+//  };
+//..
+// Further suppose that we have a &#39;btlb::Blob&#39; object, &#39;blob&#39;, and a
+// &#39;MyChannel&#39; object, &#39;channel&#39;.
+//
+// First, we use the &#39;write&#39; method to write &#39;blob&#39; into &#39;channel&#39;:
+//..
+//  int rc = channel.write(blob);
+//..
+// Now, we compare the return code to the enumerators in
+// &#39;btlmt::ChannelStatus::Enum&#39; to handle the different return conditions:
+//..
+//  switch(rc) {
+//    case btlmt::ChannelStatus::e_SUCCESS: { // Success
+//
+//        // ...
+//
+//    } break;
+//
+//    // We handle the different types of failures in the cases below.
+//
+//    case btlmt::ChannelStatus::e_QUEUE_HIGHWATER: {
+//
+//        // ...
+//
+//    } break;
+//    case btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN: {
+//
+//        // ...
+//
+//    } break;
+//    default: { // Handle other failures.
+//
+//        // ...
+//
+//    }
+//  };
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlmt {
+
+                        // ====================
+                        // struct ChannelStatus
+                        // ====================
+
+struct ChannelStatus {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of named
+    // status codes that may be returned by functions that operate on a
+    // channel, e.g., &#39;AsyncChannel::write&#39; and &#39;AsyncChannel::write&#39;.  See
+    // &#39;Enum&#39; in the TYPES sub-section for details.
+    //
+    // This class:
+    //: o supports a complete set of *enumeration* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum Enum {
+        e_SUCCESS            =  0,  // The write request was successfully
+                                    // enqueued or has been successfully
+                                    // written synchronously.
+
+        e_QUEUE_HIGHWATER    = -2,  // The write request failed because the
+                                    // current write queue size (not including
+                                    // the size of the message being written)
+                                    // is greater than the configured
+                                    // write-queue size limit.
+
+        e_READ_CHANNEL_DOWN  = -6,  // The read request failed because the
+                                    // read part of the channel had already
+                                    // been closed.
+
+        e_WRITE_CHANNEL_DOWN = -3,  // The write request failed because the
+                                    // write part of the channel had
+                                    // already been closed.
+
+        e_ENQUEUE_HIGHWATER  = -4,  // The write request failed because the
+                                    // current write queue size (not
+                                    // including the size of the message
+                                    // being written) is greater than the
+                                    // write-queue size limit provided as a
+                                    // function argument.
+
+        e_UNKNOWN_ID         = -5   // The write request failed because the
+                                    // channel identified by a specified
+                                    // id does not exist.
+
+    };
+
+  public:
+    // CLASS METHODS
+    static bsl::ostream&amp; print(bsl::ostream&amp;       stream,
+                               ChannelStatus::Enum value,
+                               int                 level          = 0,
+                               int                 spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration &#39;value&#39;
+        // to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  See &#39;toAscii&#39; for
+        // what constitutes the string representation of a
+        // &#39;ChannelStatus::Enum&#39; value.
+
+    static const char *toAscii(ChannelStatus::Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches its
+        // corresponding enumerator name with the &quot;BALTZO_&quot; prefix elided.  For
+        // example:
+        //..
+        //  bsl::cut &lt;&lt; ChannelStatus::toAscii(ChannelStatus::e_SUCCESS);
+        //..
+        // will print the following on standard output:
+        //..
+        //  SUCCESS
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;       stream,
+                         ChannelStatus::Enum value);
+    // Write the string representation of the specified enumeration &#39;value&#39; to
+    // the specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  See &#39;toAscii&#39; for what constitutes the string
+    // representation of a &#39;btlmt::ChannelStatus::Enum&#39; value.  Note that this
+    // method has the same behavior as
+    //..
+    //  btlmt::ChannelStatus::print(stream, value, 0, -1);
+    //..
+
+}  // close package namespace
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // --------------------
+                        // struct ChannelStatus
+                        // --------------------
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; btlmt::operator&lt;&lt;(bsl::ostream&amp;       stream,
+                                ChannelStatus::Enum value)
+{
+    return ChannelStatus::print(stream, value, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

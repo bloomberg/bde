@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_sharedptrrep.h                                               -*-C++-*-
@@ -44,7 +44,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // &#39;acquireWeakRef&#39; should be called when a new weak reference is created and
 // &#39;releaseWeakRef&#39; should be called when a weak reference is removed.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // &#39;bslma::SharedPtrRep&#39; is thread-safe provided that &#39;disposeObject&#39; and
 // &#39;disposeRep&#39; are not called explicitly, meaning that all non-creator
@@ -341,6 +341,12 @@ class SharedPtrRep {
         // as the managed ptr deleter when converting a &#39;bsl::shared_ptr&#39; to a
         // &#39;bslma::ManagedPtr&#39;.
 
+    static void managedPtrEmptyDeleter(void *, void *rep);
+        // This function has no effect.  The behavior is undefined unless &#39;rep&#39;
+        // is null.  Note that this function serves as the managed ptr deleter
+        // when converting an empty or null &#39;bsl::shared_ptr&#39; to a
+        // &#39;bslma::ManagedPtr&#39;.
+
     // CREATORS
     SharedPtrRep();
         // Create a &#39;SharedPtrRep&#39; object having one shared reference and no
@@ -462,6 +468,13 @@ void SharedPtrRep::managedPtrDeleter(void *, void *rep)
     static_cast&lt;SharedPtrRep *&gt;(rep)-&gt;releaseRef();
 }
 
+inline
+void SharedPtrRep::managedPtrEmptyDeleter(void *, void *rep)
+{
+    BSLS_ASSERT_SAFE(!rep);
+    (void)rep;    // Silence unused argument warning in non-SAFE builds.
+}
+
 // CREATORS
 inline
 SharedPtrRep::SharedPtrRep()
@@ -519,8 +532,8 @@ int SharedPtrRep::numWeakReferences() const
     return weakCount / 2;
 }
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

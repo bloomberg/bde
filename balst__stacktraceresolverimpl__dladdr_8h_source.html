@@ -1,0 +1,190 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktraceresolverimpl_dladdr.h                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
+#define INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide functions for resolving a stack trace using &#39;dladdr&#39;.
+//
+//@CLASSES:
+//   balst::StackTraceResolverImpl&lt;Dladdr&gt;: symbol resolution using &#39;dladdr&#39;
+//
+//@SEE_ALSO: balst_stacktraceresolverimpl_elf,
+//           balst_stacktraceresolverimpl_windows,
+//           balst_stacktraceresolverimpl_xcoff
+//
+//@DESCRIPTION: This component provides a class,
+// &#39;balst::StackTraceResolver&lt;Dladdr&gt;&#39;, that, given a vector of
+// &#39;balst::StackTraceFrame&#39; objects that have only their &#39;address&#39; fields set,
+// resolves some of the other fields in those frames.  This resolver will work
+// for any platform that supports the &#39;dladdr&#39; function (e.g., Darwin and
+// Linux).  Note that &#39;dladdr&#39; is not a standard system function, but
+// documentation is frequently available via &#39;man dladdr&#39; on supported
+// platforms such as Linux and Apple Mac OSX.
+//
+// Note that this resolving implementation is currently used for the operating
+// systems based on the Mach kernel, in particular Apple Mac OSX.
+//
+// In addition to &#39;dladdr&#39;, this code uses the &#39;abi::__cxa_demangle&#39; function
+// supplied by the gnu and clang compilers for demangling symbol names.
+// Documentation can be found:
+//: o /usr/include/cxxabi.h
+//: o &#39;http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html&#39;
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;balst&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
+#include &lt;balst_objectfileformat.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACE
+#include &lt;balst_stacktrace.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACEFRAME
+#include &lt;balst_stacktraceframe.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
+#include &lt;bdlma_heapbypassallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
+
+
+namespace balst {template &lt;typename RESOLVER_POLICY&gt;
+class StackTraceResolverImpl;
+
+           // ======================================================
+           // class StackTraceResolverImpl&lt;ObjectFileFormat::Dladdr&gt;
+           // ======================================================
+
+template &lt;&gt;
+class StackTraceResolverImpl&lt;ObjectFileFormat::Dladdr&gt; {
+    // This class provides a public static &#39;resolve&#39; method that, given a
+    // vector of &#39;StackTraceFrame&#39; objects that have only their &#39;address&#39;
+    // fields set, resolves all other fields in those frames.
+
+    // DATA
+    StackTrace  *d_stackTrace_p;      // pointer to stack trace object.
+                                            // The frames contained in this
+                                            // have their &#39;address&#39; fields and
+                                            // nothing else initialized upon
+                                            // entry to &#39;resolve&#39;, which infers
+                                            // as many other fields of them as
+                                            // possible.
+
+    char              *d_demangleBuf_p;     // scratch space for demangling,
+                                            // length is &#39;DEMANGLING_BUF_LEN&#39;
+                                            // in the imp file.
+
+    bool               d_demangleFlag;      // whether we demangle names
+
+    bdlma::HeapBypassAllocator
+                       d_hbpAlloc;          // heap bypass allocator -- owned
+
+  private:
+    // NOT IMPLEMENTED
+    StackTraceResolverImpl(const StackTraceResolverImpl&amp;);
+    StackTraceResolverImpl&amp; operator=(
+                                          const StackTraceResolverImpl&amp;);
+
+  private:
+    // PRIVATE CREATORS
+    StackTraceResolverImpl(StackTrace *stackTrace,
+                                 bool              demanglingPreferredFlag);
+        // Create an stack trace reolver that can populate other fields of the
+        // specified &#39;stackTrace&#39; object given previously populated &#39;address&#39;
+        // fields, and if the specified &#39;demanglingPreferredFlag&#39; is &#39;true&#39;,
+        // attempt to demangle symbol names.
+
+    ~StackTraceResolverImpl();
+        // Destroy this object.
+
+    // PRIVATE MANIPULATORS
+    int resolveFrame(StackTraceFrame *frame);
+        // Given the specified &#39;frame&#39; with all fields uninitializd other than
+        // the initialized &#39;address()&#39; field, populate as many other fields as
+        // possible, currently the &#39;liberaryFileName()&#39;, &#39;mangledSymbolName()&#39;,
+        // &#39;offsetFromSymbol()&#39;, and &#39;symbolName()&#39; fields.  If
+        // &#39;d_demangleFlag&#39; is true, &#39;symbolName()&#39; will be a demangled form of
+        // &#39;mangledSymbolName(), otherwise the two fields will be identical.
+        // Return 0 on success and a non-zero value if any problems were
+        // encountered.  Note that this function is defined as a member
+        // function to make use of the &#39;d_demanglingBuf_p&#39; buffer, and avoid
+        // the use of a stack or heap allocated buffer for demangling symbols
+        // -- using additional stack or heap memory may cause problems when
+        // generating a stack trace to capture the state of a thread that has
+        // failed due to stack or heap corruption.
+
+  public:
+    // CLASS METHODS
+    static int resolve(StackTrace *stackTrace,
+                       bool              demanglingPreferredFlag);
+        // Populate information for the specified &#39;*stackTrace&#39;, which contains
+        // a sequence of randomly-accessible stack trace frames.  Specify
+        // &#39;demanglingPreferredFlag&#39;, to determine whether demangling is to
+        // occur.  The behavior is undefined unless all the &#39;address&#39; field in
+        // &#39;*stackTrace&#39; are valid and other fields are invalid.
+};
+
+}  // close package namespace
+
+#endif
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

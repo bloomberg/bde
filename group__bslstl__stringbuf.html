@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_stringbuf Component</title>
+<title>BDE 3.0: bslstl_stringbuf Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -169,15 +169,15 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The following example demonstrates the use of <code>bsl::stringbuf</code> to read and write character data from and to a <code>bsl::string</code> object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to implement a simplified converter from <code>unsigned int</code> to <code>bsl::string</code> and back. First, we define the prototypes of two conversion functions: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>  toString(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> from);
-  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> fromString(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; from);
+<div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>  <a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> from);
+  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__EnumFunctions.html#a87641f201c2ecf12ee9cc3a28ba7d61a">fromString</a>(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; from);
 </pre></div><br/>
 <br/>
  Then, we use <code>bsl::stringbuf</code> to implement the <code>toString</code> function. We write all digits into <code>bsl::stringbuf</code> individually using <code>sputc</code> methods and then return the resulting <code>bsl::string</code> object: <br/>
 <br/>
 <div class="fragment"><pre class="fragment"><span class="preprocessor">  #include &lt;algorithm&gt;</span>
 
-  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> toString(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> from)
+  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> <a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> from)
   {
       <a class="code" href="classbsl_1_1basic__stringbuf.html">bsl::stringbuf</a> out;
 
@@ -193,7 +193,7 @@ Functions</h2></td></tr>
 <br/>
  Now, we implement the <code>fromString</code> function that converts from <code>bsl::string</code> to <code>unsigned int</code> by using <code>bsl::stringbuf</code> to read individual digits from the string object: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> fromString(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; from)
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__EnumFunctions.html#a87641f201c2ecf12ee9cc3a28ba7d61a">fromString</a>(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; from)
   {
       <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> result = 0;
 
@@ -208,7 +208,7 @@ Functions</h2></td></tr>
  Finally, we verify that the result of the round-trip conversion is identical to the original value: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> orig   = 92872498;
-  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> result = fromString(toString(orig));
+  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> result = <a class="code" href="namespacebdlat__EnumFunctions.html#a87641f201c2ecf12ee9cc3a28ba7d61a">fromString</a>(<a class="code" href="namespacebdlat__EnumFunctions.html#ac5cbb9dfcc2f4ac0e34dc29101a41fe7">toString</a>(orig));
 
   assert(orig == result);
 </pre></div><br/>
@@ -497,7 +497,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 <div class="memdoc">
 <p>Append the specified <code>numCharacters</code> from the specified <code>inputString</code> to the output sequence starting at the current output position (<code>pptr</code>). Update the current output position of this string buffer to refer to the last appended character. Return the number of characters that were appended. The behavior is undefined unless <code>inputString</code> refers to a contiguous sequence of at least <code>numCharacters</code> characters. </p>
 
-<p>References <a class="el" href="group__bslstl__string.html#ga04c57c5865f3f86b1add2be7077c5eb1">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append()</a>, <a class="el" href="group__bslstl__string.html#ga18243cc2ae7fe91eee167259e0a98d0a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, and <a class="el" href="group__bslstl__string.html#ga8b5592bfab066f30c8e3948106b8c9ad">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size()</a>.</p>
+<p>References <a class="el" href="group__bslstl__string.html#ga04c57c5865f3f86b1add2be7077c5eb1">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append()</a>, <a class="el" href="group__bslstl__string.html#gae34ea0881e46716098b4a684ed41e136">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, and <a class="el" href="group__bslstl__string.html#ga8b5592bfab066f30c8e3948106b8c9ad">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size()</a>.</p>
 
 </div>
 </div>
@@ -656,7 +656,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 <div class="memdoc">
 <p>Destroy this object. </p>
 
-<p>References <a class="el" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>, <a class="el" href="group__bslstl__string.html#ga18243cc2ae7fe91eee167259e0a98d0a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, and <a class="el" href="group__bslstl__string.html#ga8b5592bfab066f30c8e3948106b8c9ad">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size()</a>.</p>
+<p>References <a class="el" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>, <a class="el" href="group__bslstl__string.html#gae34ea0881e46716098b4a684ed41e136">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data()</a>, and <a class="el" href="group__bslstl__string.html#ga8b5592bfab066f30c8e3948106b8c9ad">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size()</a>.</p>
 
 </div>
 </div>
@@ -863,7 +863,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:09 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

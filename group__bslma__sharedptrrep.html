@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma_sharedptrrep Component</title>
+<title>BDE 3.0: bslma_sharedptrrep Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -81,7 +81,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1">Shared and Weak References</a> </li>
 <li>
-<a href="#3.2">Thread-Safety</a> </li>
+<a href="#3.2">Thread Safety</a> </li>
 <li>
 <a href="#3.3"><code>disposeObject</code> and <code>disposeRep</code></a> </li>
 <li>
@@ -115,8 +115,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>1) A shared reference allows users to share the ownership of an object and control its lifetime. A shared object is destroyed only when the last shared reference to it is released. The function <code>acquireRef</code> should be called when a new shared reference is created and <code>releaseRef</code> should be called when a share reference is removed. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>2) A weak reference provides users conditional access to an object without sharing its ownership (or affecting its lifetime). A shared object can be destroyed even if there are weak references to it. The function <code>acquireWeakRef</code> should be called when a new weak reference is created and <code>releaseWeakRef</code> should be called when a weak reference is removed. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-safety"></a> <a class="anchor" id="description.thread-safety"></a> <a class="anchor" id="3.2"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> is thread-safe provided that <code>disposeObject</code> and <code>disposeRep</code> are not called explicitly, meaning that all non-creator operations other than <code>disposeObject</code> and <code>disposeRep</code> on a given instance can be safely invoked simultaneously from multiple threads (<code>disposeObject</code> and <code>disposeRep</code> are meant to be implemented by types inheriting <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>, and invoked only by <code>releaseRef</code> and <code>releaseWeakRef</code>). Note that there is no thread safety guarantees for operations on the managed object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="disposeobject_and_disposerep"></a> <a class="anchor" id="description.disposeobject_and_disposerep"></a> <a class="anchor" id="3.3"></a> </dd></dl>
@@ -305,8 +305,8 @@ Namespaces</h2></td></tr>
                                                               month,
                                                               day);
       MySharedDatetimePtr temp(rep-&gt;ptr(), rep);
-      <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">bsl::swap</a>(d_ptr_p, temp.d_ptr_p);
-      <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">bsl::swap</a>(d_rep_p, temp.d_rep_p);
+      <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">bsl::swap</a>(d_ptr_p, temp.d_ptr_p);
+      <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">bsl::swap</a>(d_rep_p, temp.d_rep_p);
   }
 
   bdet_Datetime&amp; <a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">MySharedDatetimePtr::operator*</a>()<span class="keyword"> const</span>
@@ -327,7 +327,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

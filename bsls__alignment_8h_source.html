@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_alignment.h                                                   -*-C++-*-
@@ -27,25 +27,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///------------------
 // This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT,
 // 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT.
-//..
-//  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-//  &#39;BSLS_MAXIMUM&#39;, specifies that a memory block be aligned as per the *most*
-//  restrictive alignment requirement on the host platform.
 //
-//  NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
-//  &#39;BSLS_NATURAL&#39;, specifies that a memory block be aligned based on the
-//  size (in bytes) of that block.  An object of a fundamental type (&#39;int&#39;,
-//  etc.) is *naturally* *aligned* when it&#39;s size evenly divides its
-//  address.  An object of an aggregate type has natural alignment if the
-//  alignment of the most-restrictively aligned sub-object evenly divides
-//  the address of the aggregate.  Natural alignment is always at least as
-//  restrictive as the compiler&#39;s required alignment.
+//: 1 MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
+//:   &#39;BSLS_MAXIMUM&#39;, specifies that a memory block be aligned as per the
+//:   *most* restrictive alignment requirement on the host platform.
+//:
+//: 2 NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
+//:   &#39;BSLS_NATURAL&#39;, specifies that a memory block be aligned based on the
+//:   size (in bytes) of that block.  An object of a fundamental type (&#39;int&#39;,
+//:   etc.) is *naturally* *aligned* when it&#39;s size evenly divides its address.
+//:   An object of an aggregate type has natural alignment if the alignment of
+//:   the most-restrictively aligned sub-object evenly divides the address of
+//:   the aggregate.  Natural alignment is always at least as restrictive as
+//:   the compiler&#39;s required alignment.
+//:
+//: 3 1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+//:   &#39;BSLS_BYTEALIGNED&#39;, specifies that a memory block may be aligned
+//:   arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+//:   alignment requirement.
 //
-//  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
-//  &#39;BSLS_BYTEALIGNED&#39;, specifies that a memory block may be aligned
-//  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
-//  alignment requirement.
-//..
 ///Usage
 ///-----
 // Suppose that we want to create a static function, &#39;allocateFromBuffer&#39;, that

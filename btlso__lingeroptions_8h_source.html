@@ -1,0 +1,360 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_lingeroptions.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_LINGEROPTIONS
+#define INCLUDED_BTLSO_LINGEROPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class to describe socket linger options.
+//
+//@CLASSES:
+//  btlso::LingerOptions: attributes describing socket linger options
+//
+//@SEE_ALSO: btlso_socketoptions
+//
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, &#39;btlso::LingerOptions&#39;, that is used to
+// describe the linger options of a stream-based socket.  Linger options
+// describe how a stream-based socket behaves when it is being closed.  Note
+// that linger options is designed to be used in conjunction with the
+// &#39;btlso_socketoptions&#39; component to configure a stream-based socket.
+//
+///Attributes
+///----------
+//..
+//  Name        Type         Default  Simple Constraints
+//  ----------  -----------  -------  ------------------
+//  lingerFlag  bool         false    none
+//  timeout     int          0        &gt;= 0
+//..
+//: o lingerFlag: &#39;true&#39; if the process should block when trying to &#39;close&#39; a
+//:   socket if there is untransmitted data.
+//:
+//: o timeout: maximum time (in seconds) that a process should block when
+//:   trying to &#39;close&#39; a socket if there is untransmitted data.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Creating functions to set linger option
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// This component is designed to be used at a higher level to set the linger
+// options for a stream-based socket.  This example shows how to create a
+// function that takes &#39;btlso::LingerOptions&#39; as an argument and sets the
+// linger options of a socket.  We will assume Berkeley socket API is available
+// to configure the socket.
+//
+// First, we define a cross-platform compatible typedef for a socket handle:
+//..
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//      typedef SOCKET Handle;
+//  #else
+//      typedef int Handle;
+//  #endif
+//..
+// Then, we declare the function, &#39;setLingerOptions&#39;, that takes a &#39;Handle&#39; and
+// a &#39;btlso::LingerOptions&#39; object, and sets the linger options for &#39;Handle&#39;:
+//..
+//  int setLingerOptions(Handle                      handle,
+//                       const btlso::LingerOptions&amp; lingerOptions)
+//  {
+//..
+// Next, we define a &#39;typedef&#39; for the &#39;struct&#39; needed to set the linger
+// options:
+//..
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS)
+//      typedef LINGER LingerData;
+//  #else
+//      typedef linger LingerData;
+//  #endif
+//..
+// Then, we initialize a &#39;LingerData&#39; object with data from &#39;lingerOptions&#39;,
+// which will be supplied to the &#39;setsockopt&#39; system call:
+//..
+//      LingerData linger;
+//      linger.l_onoff  = lingerOptions.lingerFlag();
+//      linger.l_linger = lingerOptions.timeout();
+//..
+// Next, we configure the linger options for the socket:
+//..
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS)
+//      return ::setsockopt(handle,
+//                          SOL_SOCKET,
+//                          SO_LINGER,
+//                          reinterpret_cast&lt;char *&gt;(&amp;linger),
+//                          sizeof linger);
+//  #else
+//      return ::setsockopt(handle,
+//                          SOL_SOCKET,
+//                          SO_LINGER,
+//                          reinterpret_cast&lt;void *&gt;(&amp;linger),
+//                          sizeof linger);
+//  #endif
+//  }
+//..
+// Then, we create a new socket using the &#39;socket&#39; function from Berkeley API:
+//..
+//  Handle socketHandle = ::socket(AF_INET, SOCK_STREAM, 0);
+//..
+// Now, we create a &#39;btlso::LingerOptions&#39; object, &#39;option&#39;, indicating an
+// associated socket should block for 2 seconds when closing a stream with
+// untransmitted data (i.e., lingering):
+//..
+//  btlso::LingerOptions option(true, 2);
+//..
+// Finally, we call &#39;setLingerOptions&#39; (defined above), to configure the
+// options for the socket:
+//..
+//  setLingerOptions(socketHandle, option);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                       // ===================
+                       // class LingerOptions
+                       // ===================
+
+class LingerOptions {
+    // This simply constrained (value-semantic) attribute class describes
+    // linger options on a stream-based socket.  See the Attributes section
+    // under @DESCRIPTION in the component-level documentation.  Note that the
+    // class invariants are identically the constraints on the individual
+    // attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //: o is *exception-safe*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    int  d_timeout;     // maximum time-out value (in seconds) that a process
+                        // should block when trying to &#39;close&#39; a socket if
+                        // there is untransmitted data
+
+    bool d_lingerFlag;  // flag specifying if the process should block when
+                        // trying to &#39;close&#39; a socket if there is
+                        // untransmitted data
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(LingerOptions, bslmf::IsBitwiseMoveable)
+
+    // CREATORS
+    LingerOptions();
+        // Create a &#39;LingerOptions&#39; object having the (default) attribute
+        // values:
+        //..
+        //  timeout    == 0
+        //  lingerFlag == false
+        //..
+
+    LingerOptions(int timeout, bool lingerFlag);
+        // Create a &#39;LingerOptions&#39; object having the specified &#39;timeout&#39;, and
+        // &#39;lingerFlag&#39; attribute values.  The behavior is undefined unless
+        // &#39;0 &lt;= timeout&#39;.
+
+    //! LingerOptions(const LingerOptions&amp; original) = default;
+        // Create a &#39;LingerOptions&#39; object having the same value as the
+        // specified &#39;original&#39; object.
+
+    ~LingerOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! LingerOptions&amp; operator=(const LingerOptions&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setTimeout(int value);
+        // Set the &#39;timeout&#39; attribute of this object to the specified &#39;value&#39;.
+        // The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setLingerFlag(bool value);
+        // Set the &#39;lingerFlag&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    // ACCESSORS
+    bool lingerFlag() const;
+        // Return the value of the &#39;lingerFlag&#39; attribute of this object.
+
+    int timeout() const;
+        // Return the value of the &#39;timeout&#39; attribute of this object.  Note
+        // that &#39;0 &lt;= timeout()&#39;.
+
+                                  // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in
+        // a human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute
+        // value indicates the number of spaces per indentation level for this
+        // and all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  Note that the
+        // format is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const LingerOptions&amp; lhs, const LingerOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;LingerOptions&#39; objects have the same
+    // value if all of the corresponding values of their &#39;timeout&#39;, and
+    // &#39;lingerFlag&#39; attributes are the same.
+
+inline
+bool operator!=(const LingerOptions&amp; lhs, const LingerOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;LingerOptions&#39; objects do not
+    // have the same value if any of the corresponding values of their
+    // &#39;timeout&#39;, and &#39;lingerFlag&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const LingerOptions&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39;, but with
+    // the attribute names elided.
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                       // -------------------
+                       // class LingerOptions
+                       // -------------------
+
+// CREATORS
+inline
+LingerOptions::LingerOptions()
+: d_timeout(0)
+, d_lingerFlag(false)
+{
+}
+
+inline
+LingerOptions::LingerOptions(int timeout, bool lingerFlag)
+: d_timeout(timeout)
+, d_lingerFlag(lingerFlag)
+{
+}
+
+inline
+LingerOptions::~LingerOptions()
+{
+    BSLS_ASSERT_SAFE(0 &lt;= d_timeout);
+}
+
+inline
+void LingerOptions::setTimeout(int value)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= value);
+
+    d_timeout = value;
+}
+
+inline
+void LingerOptions::setLingerFlag(bool value)
+{
+    d_lingerFlag = value;
+}
+
+// ACCESSORS
+inline
+int LingerOptions::timeout() const
+{
+    return d_timeout;
+}
+
+inline
+bool LingerOptions::lingerFlag() const
+{
+    return d_lingerFlag;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool btlso::operator==(const LingerOptions&amp; lhs, const LingerOptions&amp; rhs)
+{
+    return  lhs.lingerFlag() == rhs.lingerFlag()
+         &amp;&amp; lhs.timeout()    == rhs.timeout();
+}
+
+inline
+bool btlso::operator!=(const LingerOptions&amp; lhs, const LingerOptions&amp; rhs)
+{
+    return  lhs.lingerFlag() != rhs.lingerFlag()
+         || lhs.timeout()    != rhs.timeout();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

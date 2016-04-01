@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdldfp_decimal Component</title>
+<title>BDE 3.0: bdldfp_decimal Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -112,7 +112,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.3.1">No Namespace Level Named Functions</a> </li>
 <li>
-<a href="#4.3.2">All Converting Constructors From Integer Types Are Explicit</a> </li>
+<a href="#4.3.2">All Converting Constructors from Integer Types are Explicit</a> </li>
 <li>
 <a href="#4.3.3">No Heterogeneous Comparisons Without Casting</a> </li>
 <li>
@@ -130,7 +130,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.7">Decimal Number Formatting</a> </li>
 <li>
-<a href="#4.8">Preliminary Release - Known Bugs</a> </li>
+<a href="#4.8">Preliminary Release: Known Bugs</a> </li>
 <li>
 <a href="#4.9">Usage</a> <ul>
 <li>
@@ -294,7 +294,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b>Decimal Floating-Point: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Binary floating-point formats give best accuracy, they are the fastest (on binary computers), and were carefully designed by IEEE to minimize rounding errors (errors due to the inherent imprecision of floating-point types) during a lengthy calculation. This makes them the best solution for and serious scientific computation. However, they have a fatal flow when it comes to numbers and calculations that involve humans. Humans think in base 10 - decimal. And as the example has shown earlier, binary floating-point formats are unable to precisely represent very common decimal real numbers; with binary floating-point <code>0.1 + 0.2 != 0.3</code>. (Why? Because none of the three numbers in that expression have an exact binary floating-point representation.) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Financial calculations are governed by laws and expectations that are based on decimal (10 based) thinking. Due to the inherent limitations of the binary floating-point format, doing such decimal based calculations and algorithms using binary floating-point numbers is so involved and hard that that it is considered not feasible. The IEEE-754 committee have recognized the issue and added specifications for 3 decimal floating-point types into their 2008 standard: the 32, 64 and 128 bits decimal floating-point formats. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Floating-point types are carefully designed trade-offs between saving space (in memory), CPU cycles (for calculations) and still provide useful accuracy for computations. Decimal floating-point types represent further compromises (compared to binary floating-points) in being able to represent less numbers (than their binary counterpats) and being slower, but providing exact representations for the numbers humans care about. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Floating-point types are carefully designed trade-offs between saving space (in memory), CPU cycles (for calculations) and still provide useful accuracy for computations. Decimal floating-point types represent further compromises (compared to binary floating-points) in being able to represent less numbers (than their binary counterparts) and being slower, but providing exact representations for the numbers humans care about. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In decimal floating-point world <code>0.1 + 0.2 == 0.3</code>, as humans expect; because each of those 3 numbers can be represented <em>exactly</em> in a decimal floating-point format. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="decimal_floating-point.warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="description.decimal_floating-point.warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="warning"></a> <a class="anchor" id="decimal_floating-point.warning"></a> <a class="anchor" id="description.decimal_floating-point.warning"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
@@ -319,7 +319,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b></b></dt><dd>BDE design guidelines do not allow namespace level functions other than operators and aspects. According to BDE design principles all such functions are placed into a utility component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="standards_conformance.all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="description.standards_conformance.all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
-<dl class="user"><dt><b>All Converting Constructors From Integer Types Are Explicit: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>All Converting Constructors from Integer Types are Explicit: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This change is necessary to disable the use of comparison operators without explicit casting. See No Heterogeneous Comparisons Without Casting. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="standards_conformance.no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="description.standards_conformance.no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="4.3.3"></a> </dd></dl>
@@ -343,20 +343,20 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal64_type"></a> <a class="anchor" id="description.decimal64_type"></a> <a class="anchor" id="4.5"></a> </dd></dl>
 <dl class="user"><dt><b>Decimal64 Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An basic format type that supports input, output, relational operators construction from the TR mandates data types and arithmetic or operations. The type has the size of exactly 64 bits. It supports 16 significant decimal digits and an exponent range of -383 to 384. The smallest non-zero value that can be represented is 1e-398. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A basic format type that supports input, output, relational operators construction from the TR mandates data types and arithmetic or operations. The type has the size of exactly 64 bits. It supports 16 significant decimal digits and an exponent range of -383 to 384. The smallest non-zero value that can be represented is 1e-398. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Portable <code>Decimal64</code> literals are created using the <code>BDLDFP_DECIMAL_DD</code> macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal128_type"></a> <a class="anchor" id="description.decimal128_type"></a> <a class="anchor" id="4.6"></a> </dd></dl>
 <dl class="user"><dt><b>Decimal128 Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An basic format type that supports input, output, relational operators construction from the TR mandates data types and arithmetic or operations. The type has the size of exactly 128 bits. It supports 34 significant decimal digits and an exponent range of -6143 to 6144. The smallest non-zero value that can be represented is 1e-6176. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A basic format type that supports input, output, relational operators construction from the TR mandates data types and arithmetic or operations. The type has the size of exactly 128 bits. It supports 34 significant decimal digits and an exponent range of -6143 to 6144. The smallest non-zero value that can be represented is 1e-6176. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Portable <code>Decimal128</code> literals are created using the <code>BDLDFP_DECIMAL_DL</code> macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal_number_formatting"></a> <a class="anchor" id="description.decimal_number_formatting"></a> <a class="anchor" id="4.7"></a> </dd></dl>
 <dl class="user"><dt><b>Decimal Number Formatting: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Streaming decimal floating point nubmers to an output stream currently supports formatting flags for width, capitalization, and justification. Because of potential for future improvements in format handling, the operations should not be used for serialization. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Streaming decimal floating point numbers to an output stream currently supports formatting flags for width, capitalization, and justification. Because of potential for future improvements in format handling, the operations should not be used for serialization. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release_-_known_bugs"></a> <a class="anchor" id="description.preliminary_release_-_known_bugs"></a> <a class="anchor" id="4.8"></a> </dd></dl>
-<dl class="user"><dt><b>Preliminary Release - Known Bugs: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release~3A_known_bugs"></a> <a class="anchor" id="description.preliminary_release~3A_known_bugs"></a> <a class="anchor" id="preliminary_release"></a> <a class="anchor" id="description.preliminary_release"></a> <a class="anchor" id="4.8"></a> </dd></dl>
+<dl class="user"><dt><b>Preliminary Release: Known Bugs: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Stream output operators do not obey formatting flags or the precision algorithm as required by the TR; they instead print all significant digits all the time. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.9"></a> </dd></dl>
@@ -392,7 +392,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

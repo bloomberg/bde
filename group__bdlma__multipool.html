@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_multipool Component</title>
+<title>BDE 3.0: bdlma_multipool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -179,9 +179,8 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>my_MessageFactory;
 
   <span class="keyword">class </span>my_Message {
-      <span class="comment">// This class represents a general message interface that provides</span>
-      <span class="comment">// a &#39;getMessage&#39; method for clients to retrieve the underlying</span>
-      <span class="comment">// message.</span>
+      <span class="comment">// This class represents a general message interface that provides a</span>
+      <span class="comment">// &#39;getMessage&#39; method for clients to retrieve the underlying message.</span>
 
     <span class="keyword">public</span>:
       <span class="comment">// ACCESSORS</span>
@@ -318,6 +317,10 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
       <span class="comment">// DATA</span>
       <a class="code" href="classbdlma_1_1Multipool.html">bdlma::Multipool</a> d_multipool;  <span class="comment">// multipool used to supply memory</span>
 
+    <span class="keyword">private</span>:
+      <span class="comment">// Not implemented:</span>
+      my_MessageFactory(<span class="keyword">const</span> my_MessageFactory&amp;);
+
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
       my_MessageFactory(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -366,7 +369,7 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
  A multipool optimizes the allocation of memory by using dynamically-allocated buffers (also known as chunks) to supply memory. As each chunk can satisfy multiple memory block requests before requiring additional dynamic memory allocation, the number of dynamic allocation requests needed is greatly reduced. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For the number of pools managed by the multipool, we chose to use the implementation-defined default value instead of calculating and specifying a value. If users instead want to specify the number of pools, the value can be calculated as the smallest value, <code>N</code>, such that the following relationship holds: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  N &gt; log2(<span class="keyword">sizeof</span>(Object Type)) - 2
+<div class="fragment"><pre class="fragment">  N &gt; log2(<span class="keyword">sizeof</span>(Object <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>)) - 2
 </pre></div><br/>
 <br/>
  Next, we define the creators of <code>my_MessageFactory</code>: <br/>
@@ -390,23 +393,23 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 <div class="fragment"><pre class="fragment">  <span class="comment">// MANIPULATORS</span>
   my_Message *my_MessageFactory::createMessage(<span class="keyword">const</span> <span class="keywordtype">char</span> *data)
   {
-      <span class="keyword">enum</span> { SMALL = 8, MEDIUM = 16, LARGE = 32 };
+      <span class="keyword">enum</span> { k_SMALL = 8, k_MEDIUM = 16, k_LARGE = 32 };
 
-      <span class="keyword">const</span> <span class="keywordtype">int</span> length = bsl::strlen(data);
+      <span class="keyword">const</span> <span class="keywordtype">int</span> length = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(bsl::strlen(data));
 
-      <span class="keywordflow">if</span> (length &lt; SMALL) {
+      <span class="keywordflow">if</span> (length &lt; k_SMALL) {
           <span class="keywordflow">return</span> <span class="keyword">new</span>(d_multipool.allocate(<span class="keyword">sizeof</span>(my_SmallMessage)))
-                                               my_SmallMessage(data, length);
+                                    my_SmallMessage(data, length);  <span class="comment">// RETURN</span>
       }
 
-      <span class="keywordflow">if</span> (length &lt; MEDIUM) {
+      <span class="keywordflow">if</span> (length &lt; k_MEDIUM) {
           <span class="keywordflow">return</span> <span class="keyword">new</span>(d_multipool.allocate(<span class="keyword">sizeof</span>(my_MediumMessage)))
-                                              my_MediumMessage(data, length);
+                                   my_MediumMessage(data, length);  <span class="comment">// RETURN</span>
       }
 
-      <span class="keywordflow">if</span> (length &lt; LARGE) {
+      <span class="keywordflow">if</span> (length &lt; k_LARGE) {
           <span class="keywordflow">return</span> <span class="keyword">new</span>(d_multipool.allocate(<span class="keyword">sizeof</span>(my_LargeMessage)))
-                                               my_LargeMessage(data, length);
+                                    my_LargeMessage(data, length);  <span class="comment">// RETURN</span>
       }
 
       <span class="keywordtype">char</span> *buffer = (<span class="keywordtype">char</span> *)d_multipool.allocate(length + 1);
@@ -481,10 +484,10 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
   <span class="keywordtype">void</span> *my_MultipoolAllocator::allocate(size_type size)
   {
       <span class="keywordflow">if</span> (0 == size) {
-          <span class="keywordflow">return</span> 0;
+          <span class="keywordflow">return</span> 0;                                                 <span class="comment">// RETURN</span>
       }
       <span class="keywordflow">else</span> {
-          <span class="keywordflow">return</span> d_multiPool.allocate(size);
+          <span class="keywordflow">return</span> d_multiPool.allocate(static_cast&lt;int&gt;(size));      <span class="comment">// RETURN</span>
       }
   }
 
@@ -497,7 +500,7 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 <br/>
  </dd></dl>
 </div></div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:46 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

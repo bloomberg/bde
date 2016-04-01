@@ -1,0 +1,369 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btls5_proxydescription.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLS5_PROXYDESCRIPTION
+#define INCLUDED_BTLS5_PROXYDESCRIPTION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class for characterizing a SOCKS5 proxy.
+//
+//@CLASSES:
+//  btls5::ProxyDescription: SOCKS5 proxy address and credentials
+//
+//@SEE_ALSO: btls5_networkdescription
+//
+//@DESCRIPTION: This component provides an unconstrained attribute class,
+// &#39;btls5::ProxyDescription&#39;, describing a SOCKS5 proxy in terms of its address
+// and, optionally, credentials used to authenticate with this proxy.
+//
+///Attributes
+///----------
+//..
+//  Name        Type               Default                Simple Constraints
+//  ----------- -----------        -------                ------------------
+//  address     btlso::Endpoint    default-constructed    none
+//  credentials btls5::Credentials default-constructed    none
+//..
+//: o &#39;address&#39;: address of the proxy host
+//: o &#39;credentials&#39;: default (no credentials supplied) or username and password
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Describe a Proxy with Credentials
+/// - - - - - - - - - - - - - - - - - - - - - -
+// We would like to describe a proxy host that requires a username and password
+// for authentication.
+//
+// First, we define a description with just the address (hostname and port):
+//..
+//  btls5::ProxyDescription proxy(btlso::Endpoint(&quot;proxy.corp.com&quot;, 1080));
+//  assert(proxy.address().hostname() == &quot;proxy.corp.com&quot;);
+//  assert(proxy.address().port()     == 1080);
+//..
+// Now, we associate a set of credentials to authenticate connections with this
+// proxy:
+//..
+//  proxy.setCredentials(btls5::Credentials(&quot;joe.user&quot;, &quot;password123&quot;));
+//  assert(proxy.credentials().username() == &quot;joe.user&quot;);
+//  assert(proxy.credentials().password() == &quot;password123&quot;);
+//..
+// Finally, we have a fully defined proxy description.
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_CREDENTIALS
+#include &lt;btls5_credentials.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include &lt;btlso_endpoint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace btls5 {
+
+                           // ======================
+                           // class ProxyDescription
+                           // ======================
+
+class ProxyDescription {
+    // This unconstrained (value-semantic) type describes a SOCKS5 proxy in
+    // terms of its address and optional authentication credentials.
+    //
+    // This class is *exception-neutral* and &#39;const&#39; thread-safe.
+
+    // DATA
+    btlso::Endpoint d_address;      // TCP address of the proxy
+    Credentials     d_credentials;  // SOCKS5 credentials
+
+  public:
+    // CREATORS
+    explicit
+    ProxyDescription(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;ProxyDescription&#39; object having default values for
+        // &#39;address&#39; and default credentials.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    explicit
+    ProxyDescription(const btlso::Endpoint&amp;  address,
+                     bslma::Allocator       *basicAllocator = 0);
+        // Create a &#39;ProxyDescription&#39; object having the specified &#39;address&#39;
+        // and default credentials.  Optionally specify a &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ProxyDescription(const btlso::Endpoint&amp;  address,
+                     const Credentials&amp;      credentials,
+                     bslma::Allocator       *basicAllocator = 0);
+        // Create a &#39;ProxyDescription&#39; object having the specified &#39;address&#39;
+        // and &#39;credentials&#39;.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ProxyDescription(const ProxyDescription&amp;  original,
+                     bslma::Allocator        *basicAllocator = 0);
+        // Create a &#39;ProxyDescription&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    //! ~ProxyDescription() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! ProxyDescription&amp; operator=(const ProxyDescription&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setAddress(const btlso::Endpoint&amp; value);
+        // Set the &#39;address&#39; attribute of this object to the specified &#39;value&#39;.
+
+    void setCredentials(const Credentials&amp; value);
+        // Set the &#39;credentials&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+                                  // Aspects
+
+    void swap(ProxyDescription&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    const btlso::Endpoint&amp; address() const;
+        // Return a reference providing non-modifiable access to the &#39;address&#39;
+        // attribute of this object.
+
+    const Credentials&amp; credentials() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;credentials&#39; attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const ProxyDescription&amp; lhs, const ProxyDescription&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;ProxyDescription&#39; objects have the
+    // same value if all of the corresponding values of their &#39;address&#39; and
+    // &#39;credentials&#39; attributes are the same.
+
+bool operator!=(const ProxyDescription&amp; lhs, const ProxyDescription&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;ProxyDescription&#39; objects do
+    // not have the same value if any of the corresponding values of their
+    // &#39;address&#39; or &#39;credentials&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;           stream,
+                         const ProxyDescription&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.
+
+// FREE FUNCTIONS
+void swap(btls5::ProxyDescription&amp; a, btls5::ProxyDescription&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                           // ----------------------
+                           // class ProxyDescription
+                           // ----------------------
+
+// CREATORS
+inline
+ProxyDescription::ProxyDescription(bslma::Allocator *basicAllocator)
+: d_address(basicAllocator)
+, d_credentials(basicAllocator)
+{
+}
+
+inline
+ProxyDescription::ProxyDescription(const btlso::Endpoint&amp;  address,
+                                   bslma::Allocator       *basicAllocator)
+: d_address(address, basicAllocator)
+, d_credentials(basicAllocator)
+{
+}
+
+inline
+ProxyDescription::ProxyDescription(const btlso::Endpoint&amp;  address,
+                                   const Credentials&amp;      credentials,
+                                   bslma::Allocator       *basicAllocator)
+: d_address(address, basicAllocator)
+, d_credentials(credentials, basicAllocator)
+{
+}
+
+inline
+ProxyDescription::ProxyDescription(const ProxyDescription&amp;  original,
+                                   bslma::Allocator        *basicAllocator)
+: d_address(original.d_address, basicAllocator)
+, d_credentials(original.d_credentials, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+void ProxyDescription::setAddress(const btlso::Endpoint&amp; value)
+{
+    d_address = value;
+}
+
+inline
+void ProxyDescription::setCredentials(const Credentials&amp; value)
+{
+    d_credentials = value;
+}
+
+                                  // Aspects
+
+inline
+void ProxyDescription::swap(ProxyDescription&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&amp;d_address,     &amp;other.d_address);
+    bslalg::SwapUtil::swap(&amp;d_credentials, &amp;other.d_credentials);
+}
+
+// ACCESSORS
+inline
+const btlso::Endpoint&amp; ProxyDescription::address() const
+{
+    return d_address;
+}
+
+inline
+const Credentials&amp; ProxyDescription::credentials() const
+{
+    return d_credentials;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *ProxyDescription::allocator() const
+{
+    return d_address.allocator();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool btls5::operator==(const ProxyDescription&amp; lhs,
+                       const ProxyDescription&amp; rhs)
+{
+    return lhs.address()     == rhs.address()
+        &amp;&amp; lhs.credentials() == rhs.credentials();
+}
+
+inline
+bool btls5::operator!=(const ProxyDescription&amp; lhs,
+                       const ProxyDescription&amp; rhs)
+{
+    return lhs.address()     != rhs.address()
+        || lhs.credentials() != rhs.credentials();
+}
+
+// FREE FUNCTIONS
+inline
+void btls5::swap(btls5::ProxyDescription&amp; a, btls5::ProxyDescription&amp; b)
+{
+    a.swap(b);
+}
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btls5::ProxyDescription&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

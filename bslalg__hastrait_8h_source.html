@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_hastrait.h                                                  -*-C++-*-
@@ -65,7 +65,7 @@ namespace bslalg {
                        // struct HasTrait
                        // ===============
 
-template &lt;typename TYPE, typename TRAIT&gt;
+template &lt;class TYPE, class TRAIT&gt;
 struct HasTrait {
     // This meta-function evaluates to &#39;bslmf::MetaInt&lt;1&gt;&#39; if the parameterized
     // type &#39;TYPE&#39; has the parameterized &#39;TRAIT&#39;, and to &#39;bslmf::MetaInt&lt;0&gt;&#39;

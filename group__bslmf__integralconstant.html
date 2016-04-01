@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_integralconstant Component</title>
+<title>BDE 3.0: bslmf_integralconstant Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -84,7 +84,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1.1">Example 1: Compile-Time Function Dispatching</a> </li>
 <li>
-<a href="#3.1.2">Example 2: Base class for metafunctions</a> </li>
+<a href="#3.1.2">Example 2: Base Class For Metafunctions</a> </li>
 </ul>
 </li>
 </ul>
@@ -100,7 +100,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bsl::integral_constant&lt;TYPE,VAL&gt; </td><td>A compile-time type representing <code>VAL</code>  </td></tr>
+<td><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a> </td><td>A type representing a specific integer value  </td></tr>
 <tr>
 <td><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a> </td><td><code>typedef</code> for <code>integral_constant&lt;bool, false&gt;</code>  </td></tr>
 <tr>
@@ -112,7 +112,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component describes a simple class template, <code>integral_constant</code>, that is used to map an integer constant to a C++ type. <code>integral_constant&lt;TYPE, VAL&gt;</code> generates a unique type for each distinct compile-time integral <code>TYPE</code> and constant integer <code>VAL</code> parameter. That is, instantiations with different integer types and values form distinct types, so that <code>integral_constant&lt;int, 0&gt;</code> is a different type from <code>integral_constant&lt;int, 1&gt;</code>, which is also distinct from <code>integral_constant&lt;unsigned, 1&gt;</code>, and so on. This mapping of integer values to types allows for "overloading by value", i.e., multiple functions with the same name can be overloaded on the "value" of an <code>integral_constant</code> argument, provided that the value is known at compile-time. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component describes a simple class template, <code><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a></code>, that is used to map an integer constant to a C++ type. <code>integral_constant&lt;TYPE, VAL&gt;</code> generates a unique type for each distinct compile-time integral <code>TYPE</code> and constant integer <code>VAL</code> parameter. That is, instantiations with different integer types and values form distinct types, so that <code>integral_constant&lt;int, 0&gt;</code> is a different type from <code>integral_constant&lt;int, 1&gt;</code>, which is also distinct from <code>integral_constant&lt;unsigned, 1&gt;</code>, and so on. This mapping of integer values to types allows for "overloading by value", i.e., multiple functions with the same name can be overloaded on the "value" of an <code>integral_constant</code> argument, provided that the value is known at compile-time. The typedefs <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> and <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code> map the predicate values <code>true</code> and <code>false</code> to C++ types that are frequently useful for compile-time algorithms. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -170,8 +170,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="usage.example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="description.usage.example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Base class for metafunctions: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: Base Class For Metafunctions: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Hard-coding the value of an <code>integral_constant</code> is not especially useful. Rather, <code>integral_constant</code> is typically used as the base class for "metafunction" classes, classes that yield the value of compile-time properties, including properties that are associated with types, rather than with values. For example, the following metafunction can be used at compile time to determine whether a type is a floating point type: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt; <span class="keyword">struct </span>IsFloatingPoint    : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a> { };
@@ -208,7 +209,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

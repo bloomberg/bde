@@ -1,0 +1,386 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_ruleset.h                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_RULESET
+#define INCLUDED_BALL_RULESET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a set of unique rules.
+//
+//@CLASSES:
+//    ball::RuleSet: container for unique rules
+//
+//@SEE_ALSO: ball_rule
+//
+//@DESCRIPTION: This component provides a value-semantic container,
+// &#39;ball::RuleSet&#39;, for storage and efficient retrieval of &#39;ball::Rule&#39;
+// objects.
+//
+///Thread Safety
+///-------------
+// &#39;ball::RuleSet&#39; is *not* thread-safe in that multiple threads attempting to
+// concurrently modify the same &#39;ball::RuleSet&#39; object will leave the object in
+// an undefined state.  To ensure thread-safety, concurrent accesses to a
+// &#39;ball::RuleSet&#39; must be serialized by a mutex.
+//
+///Usage
+///-----
+// The following code fragments illustrate how to use a rule set.
+//
+// We first create a rule whose pattern is &#39;WEEKEND*&#39; and whose threshold
+// levels are all &#39;ball::Severity::e_OFF&#39; except the &#39;pass-through&#39; level.  A
+// &#39;pass-through&#39; level of &#39;ball::Severity::e_INFO&#39; indicates that whenever the
+// rule is active and the severity equals or exceeds &#39;ball::Severity::e_INFO&#39;,
+// log records will be passed to the observer:
+//..
+//  ball::Rule rule1(&quot;WEEKEND*&quot;,               // pattern
+//                  ball::Severity::e_OFF,     // record level
+//                  ball::Severity::e_INFO,    // pass-through level
+//                  ball::Severity::e_OFF,     // trigger level
+//                  ball::Severity::e_OFF);    // triggerAll level
+//..
+// Next, we create another rule having a different pattern, but the same
+// threshold levels:
+//..
+//  ball::Rule rule2(&quot;WEEKDAY*&quot;,               // pattern
+//                  ball::Severity::e_OFF,     // record level
+//                  ball::Severity::e_INFO,    // pass-through level
+//                  ball::Severity::e_OFF,     // trigger level
+//                  ball::Severity::e_OFF);    // triggerAll level
+//..
+// We then create a &#39;ball::RuleSet&#39; object, add the two rules, and verify that
+// rules were added correctly:
+//..
+//  ball::RuleSet ruleSet;
+//  assert(0 &lt;= ruleSet.addRule(rule1));
+//  assert(0 &lt;= ruleSet.addRule(rule2));
+//  assert(2 == ruleSet.numRules());
+//..
+// Duplicate rules cannot be added:
+//..
+//  assert(-1 == ruleSet.addRule(rule1));
+//  assert(-1 == ruleSet.addRule(rule2));
+//  assert( 2 == ruleSet.numRules());
+//..
+// Rules in a rule set can be looked up by the &#39;ruleId&#39; method:
+//..
+//  int i1 = ruleSet.ruleId(rule1);
+//  int i2 = ruleSet.ruleId(rule2);
+//  assert(0 &lt;= i1); assert(i1 &lt; ruleSet.maxNumRules());
+//  assert(0 &lt;= i2); assert(i2 &lt; ruleSet.maxNumRules());
+//  assert(i1 != i2);
+//..
+// The &#39;removeRule&#39; method can be used to remove rules from a rule set.
+//..
+//  assert(ruleSet.removeRule(rule1));
+//  assert(1 == ruleSet.numRules());
+//  assert(ruleSet.ruleId(rule1) &lt; 0);
+//  assert(ruleSet.ruleId(rule2) == i2);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RULE
+#include &lt;ball_rule.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_UNORDERED_SET
+#include &lt;bsl_unordered_set.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                          // =============
+                          // class RuleSet
+                          // =============
+
+class RuleSet {
+    // This class manages a set of unique rule values.  Rules may be added to
+    // or removed from the set; however, rules having duplicate values will
+    // not be added.  For the definition of two rules having the same value,
+    // please refer to the function-level documentation associated with the
+    // &#39;Rule::operator==&#39; function.
+
+  public:
+    // PUBLIC TYPES
+    typedef unsigned int MaskType;
+        // &#39;MaskType&#39; is an alias for the fundamental integral type used to
+        // indicate rule subsets compactly.
+
+    enum {
+        e_MAX_NUM_RULES = 8 * sizeof(MaskType)
+           // The maximum number of rules managed by this object.
+
+    };
+
+  private:
+    // PRIVATE TYPES
+    struct RuleHash
+        // hash functor for &#39;Rule&#39;
+    {
+      private:
+        static int s_hashtableSize;              // the default hashtable size
+      public:
+        int operator()(const Rule&amp; rule) const
+            // Return the hash value of the specified &#39;rule&#39;.
+        {
+            return Rule::hash(rule, s_hashtableSize);
+        }
+    };
+
+    typedef bsl::unordered_set&lt;Rule, RuleHash&gt; HashtableType;
+
+    // DATA
+    HashtableType              d_ruleHashtable;  // the hash table that
+                                                 // manages all the rules
+                                                 // maintained by this rule
+                                                 // set
+
+    bsl::vector&lt;const Rule *&gt;  d_ruleAddresses;  // secondary map between ids
+                                                 // and the addresses of rules
+
+    bsl::vector&lt;int&gt;           d_freeRuleIds;    // rule Ids that are not being
+                                                 // used
+
+    int                        d_numPredicates;  // total number of predicates
+
+    // FRIENDS
+    friend bool operator==(const RuleSet&amp;,    const RuleSet&amp;);
+    friend bool operator!=(const RuleSet&amp;,    const RuleSet&amp;);
+    friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;, const RuleSet&amp;);
+
+  public:
+    // CLASS METHODS
+    static int maxNumRules();
+        // Return the maximum number of rules that can be simultaneously
+        // maintained by this object.
+
+    static void printMask(bsl::ostream&amp; stream,
+                          MaskType      mask,
+                          int           level = 0,
+                          int           spacesPerLevel = 0);
+        // Format the specified &#39;mask&#39; to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(RuleSet, bslma::UsesBslmaAllocator);
+
+
+    // CREATORS
+    explicit RuleSet(bslma::Allocator *basicAllocator = 0);
+        // Create an empty rule set.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.
+
+    RuleSet(const RuleSet&amp;    original,
+            bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;RuleSet&#39; object having the same value as that of the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.
+
+    ~RuleSet();
+        // Destroy this rule set.
+
+    // MANIPULATOR
+    int addRule(const Rule&amp; value);
+        // Create a new &#39;Rule&#39; object having the specified &#39;value&#39;.  Return the
+        // non-negative id of this non-modifiable object on success, and a
+        // negative value otherwise.  A return value of -1 indicates that
+        // another rule having this value already exists.  A return value of -2
+        // indicates that the maximum number of rules for this rule set has
+        // been reached.
+
+    int addRules(const RuleSet&amp; rules);
+        // Add each rule in the specified &#39;rules&#39; to this rule set.  Return
+        // the number of rules added.  Note that a rule in &#39;rules&#39; will be
+        // ignored if there is an existing rule having the same value or if
+        // the number of rules in the set has reached the upper limit.  Also
+        // note that if not all valid rules will fit, the (possibly empty)
+        // subset of unique values that will be added is implementation
+        // dependent.
+
+    int removeRuleById(int id);
+        // Remove from this rule set the rule having the specified &#39;id&#39;.
+        // Return the number of rules removed (i.e., 1 on success and 0 if
+        // there is no rule whose id is &#39;id&#39;).  The behavior is undefined
+        // unless &#39;0 &lt;= id &lt; e_MAX_NUM_RULES&#39;.
+
+    int removeRule(const Rule&amp; value);
+        // Remove the rule having the specified &#39;value&#39; from this rule set.
+        // Return the number of rules removed (i.e., 1 on success and 0 if
+        // there is no such a rule).
+
+    int removeRules(const RuleSet&amp; rules);
+        // Remove each rule in the specified &#39;rules&#39; from this rule set.
+        // Return the number of rules removed.
+
+    void removeAllRules();
+        // Remove every rule in the rule set maintained by this object.
+
+    RuleSet&amp; operator=(const RuleSet&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    // ACCESSORS
+    int ruleId(const Rule&amp; value) const;
+        // Return the id of the rule having the specified &#39;value&#39; if such a
+        // rule exists, and a negative value otherwise.  Note that if there are
+        // multiple rules having &#39;value&#39;, the id of the first one found will be
+        // returned and the order in which rules are searched is implementation
+        // dependent.
+
+    const Rule *getRuleById(int id) const;
+        // Return the address of the rule having the specified &#39;id&#39; if such a
+        // rule exists, and 0 otherwise.  The behavior is undefined unless
+        // &#39;0 &lt;= id &lt; maxNumRules()&#39;.  Note that rules may be assigned
+        // non-sequential identifiers, and that there may be a valid rule whose
+        // identifier is greater than &#39;numRules()&#39; (i.e., valid rules may
+        // appear anywhere in the range &#39;0 &lt;= id &lt; maxNumRules()&#39;).
+
+    int numRules() const;
+        // Return the number of unique rules maintained in this &#39;RuleSet&#39;
+        // object.  Note that this value is *not* the maximum identifier for
+        // the rules currently in this container.
+
+    int numPredicates() const;
+        // Return the total number of predicates in all rules maintained by
+        // this object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // (absolute value of) the optionally specified indentation &#39;level&#39;
+        // and return a reference to &#39;stream&#39;.  If &#39;level&#39; is specified,
+        // optionally specify &#39;spacesPerLevel&#39;, the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const RuleSet&amp; lhs, const RuleSet&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; rule sets have the same
+    // value, and &#39;false&#39; otherwise.  Two rule sets have the same value if
+    // every rule that exists in one rule set also exists in the other.
+
+bool operator!=(const RuleSet&amp; lhs, const RuleSet&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; rule sets do not have the
+    // same value, and &#39;false&#39; otherwise.  Two rule sets do not have the same
+    // value if there is at least one rule that exists in one rule but does not
+    // exist in the other.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; output, const RuleSet&amp; rules);
+    // Write the value of the specified &#39;rules&#39; to the specified &#39;output&#39;
+    // stream.  Return the specified &#39;output&#39; stream
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                          // -------------
+                          // class RuleSet
+                          // -------------
+
+// CLASS METHODS
+inline
+int RuleSet::maxNumRules()
+{
+    return e_MAX_NUM_RULES;
+}
+
+// ACCESSORS
+inline
+const Rule *RuleSet::getRuleById(int id) const
+{
+    return d_ruleAddresses[id];
+}
+
+inline
+int RuleSet::numRules() const
+{
+    return static_cast&lt;int&gt;(d_ruleHashtable.size());
+}
+
+inline
+int RuleSet::numPredicates() const
+{
+    return d_numPredicates;
+}
+
+}  // close package namespace
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp; output, const RuleSet&amp; rules)
+{
+    return rules.print(output, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

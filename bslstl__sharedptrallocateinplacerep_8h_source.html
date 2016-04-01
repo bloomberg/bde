@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_sharedptrallocateinplacerep.h                               -*-C++-*-
@@ -29,7 +29,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // object are released (using &#39;releaseRef&#39;), the destructor of &#39;TYPE&#39; is
 // invoked.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // &#39;bslstl::SharedPtrAllocateInplaceRep&#39; is thread-safe provided that
 // &#39;disposeObject&#39; and &#39;disposeRep&#39; are not called explicitly, meaning that all
@@ -261,7 +261,7 @@ struct UsesBslmaAllocator&lt; bslstl::SharedPtrAllocateInplaceRep&lt;TYPE,
     : bsl::false_type
 {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

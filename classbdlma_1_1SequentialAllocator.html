@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdlma::SequentialAllocator</title>
+<title>BDE 3.0: Class bdlma::SequentialAllocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -110,6 +110,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#aebd95db81f54c96a8ca9a1f4f2cd1492">allocateAndExpand</a> (<a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a> *size)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#a107050851e46527f4664869ec8a76f44">deallocate</a> (void *address)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#a88b2b20d0384373ea5a99e5b632fc210">release</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#a079565de979a755566ba470c9ab9d3e9">rewind</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#adfebba8f75439699174f6af02191afce">reserveCapacity</a> (int numBytes)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html#a7406226eadc9b9313502b699d462afae">truncate</a> (void *address, int originalSize, int newSize)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
@@ -624,9 +625,27 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Release all memory allocated through this allocator. The allocator is reset to its default constructed state, retaining the alignment and growth strategy supplied at construction (if any) after this call. </p>
+<p>Release all memory allocated through this allocator. The allocator is reset to its default constructed state, retaining the alignment and growth strategy supplied at construction (if any) after this call. The effect of using a pointer value after this call that was obtained from this object before this call is undefined. </p>
 
 <p>Implements <a class="el" href="classbdlma_1_1ManagedAllocator.html#ad86110a47aaf5e53356c86b5fd240bfb">bdlma::ManagedAllocator</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a079565de979a755566ba470c9ab9d3e9"></a><!-- doxytag: member="bdlma::SequentialAllocator::rewind" ref="a079565de979a755566ba470c9ab9d3e9" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void bdlma::SequentialAllocator::rewind </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Release all memory allocated through this allocator. Return to the construction-time supplied allocator all but the last block obtained from it, if any, and satisfy subsequent allocations from the beginning of the remaining block, where possible. The effect of using a pointer after this call that was obtained from this object before this call is undefined. </p>
 
 </div>
 </div>
@@ -729,7 +748,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlma__sequentialallocator_8h_source.html">bdlma_sequentialallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:32 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,506 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_metricregistry.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_METRICREGISTRY
+#define INCLUDED_BALM_METRICREGISTRY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a registry for metrics.
+//
+//@CLASSES:
+//   balm::MetricRegistry: a registry for metrics
+//
+//@SEE_ALSO: balm_metricsmanager, balm_metricrecord
+//
+//@DESCRIPTION: This component defines a class, &#39;balm::MetricRegistry&#39;, that
+// provides operations to register both metric categories and individual
+// metrics.  A metric is uniquely identified by its name and category, and the
+// metric registry provides a mapping from those identifying properties to a
+// &#39;balm::MetricId&#39;.  A &#39;balm::MetricRegistry&#39; object also provides a mapping
+// from a category name to the address of a non-modifiable &#39;balm::Category&#39;
+// object.
+//
+///Thread Safety
+///-------------
+// &#39;balm::MetricRegistry&#39; is fully *thread-safe*, meaning that all non-creator
+// operations on a given object can be safely invoked simultaneously from
+// multiple threads.
+//
+///Usage
+///-----
+// The following example illustrates how to create and use a
+// &#39;balm::MetricRegistry&#39;.  We start by creating a &#39;balm::MetricRegistry&#39;
+// object, &#39;registry&#39;, and then using this registry to create a
+// &#39;balm::MetricId&#39; for a metric named &quot;MetricA&quot; belonging to the category
+// &quot;MyCategory&quot; (i.e., &quot;MyCategory.MetricA&quot;).
+//..
+//  bslma::Allocator    *allocator = bslma::Default::allocator(0);
+//  balm::MetricRegistry  registry(allocator);
+//
+//  balm::MetricId idA = registry.addId(&quot;MyCategory&quot;, &quot;MetricA&quot;);
+//..
+// Now that we have added a metric id, &quot;MyCategory.MetricA&quot;, attempting to add
+// the metric id again will return an invalid id.  We retrieve the same
+// identifier we have created using either &#39;getId&#39; or &#39;findId&#39;:
+//..
+//  balm::MetricId invalidId = registry.addId(&quot;MyCategory&quot;, &quot;MetricA&quot;);
+//        assert(!invalidId.isValid());
+//
+//  balm::MetricId idA_copy1 = registry.getId(&quot;MyCategory&quot;, &quot;MetricA&quot;);
+//        assert(idA_copy1.isValid());
+//        assert(idA_copy1 == idA);
+//
+//  balm::MetricId idA_copy2 = registry.findId(&quot;MyCategory&quot;, &quot;MetricA&quot;);
+//        assert(idA_copy2.isValid());
+//        assert(idA_copy2 == idA);
+//..
+// We use the &#39;getId&#39; method to add a new metric to the registry, then verify
+// we can lookup the metric:
+//..
+//  balm::MetricId idB = registry.getId(&quot;MyCategory&quot;, &quot;MetricB&quot;);
+//        assert(idB.isValid());
+//        assert(idB == registry.getId(&quot;MyCategory&quot;, &quot;MetricB&quot;));
+//        assert(idB == registry.findId(&quot;MyCategory&quot;, &quot;MetricB&quot;));
+//        assert(!registry.addId(&quot;MyCategory&quot;, &quot;MetricB&quot;).isValid());
+//..
+// Next we use &#39;getCategory&#39; to find the address of the &#39;balm::Category&#39; object
+// corresponding to &quot;MyCategory&quot;:
+//..
+//  const balm::Category *myCategory = registry.getCategory(&quot;MyCategory&quot;);
+//        assert(myCategory == idA.category());
+//        assert(myCategory == idB.category());
+//        assert(myCategory-&gt;isEnabled());
+//..
+// Finally we use the &#39;setCategoryEnabled&#39; method to disable the category
+// &quot;MyCategory&quot;:
+//..
+//  registry.setCategoryEnabled(myCategory, false);
+//        assert(!myCategory-&gt;isEnabled());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_CATEGORY
+#include &lt;balm_category.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICDESCRIPTION
+#include &lt;balm_metricdescription.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICID
+#include &lt;balm_metricid.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_PUBLICATIONTYPE
+#include &lt;balm_publicationtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include &lt;bslmt_rwmutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_CSTRINGLESS
+#include &lt;bdlb_cstringless.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_SET
+#include &lt;bsl_set.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_UTILITY
+#include &lt;bsl_utility.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace balm {
+
+class MetricFormat;
+
+                            // ====================
+                            // class MetricRegistry
+                            // ====================
+
+class MetricRegistry {
+    // The class defines a thread-aware mechanism for registering metrics and
+    // metric categories.  A metric is uniquely identified by its name and
+    // category, and the metric registry provides a mapping from those
+    // identifying properties to a &#39;balm::MetricId&#39;.  A &#39;balm::MetricRegistry&#39;
+    // object also provides a mapping from a category name to the address of a
+    // non-modifiable &#39;balm::Category&#39; object.
+
+    // PRIVATE TYPES
+    typedef bsl::pair&lt;const char *, const char *&gt; CategoryAndName;
+        // &#39;CategoryAndName&#39; is an alias for a pair of null-terminated
+        // constant strings that represent the category and name of a metric.
+        // The first element is the category and the second is the name.
+
+    struct CategoryAndNameLess {
+        // This &#39;struct&#39; defines an ordering on &#39;CategoryAndName&#39; values
+        // allowing them to be included in sorted containers such as
+        // &#39;bsl::map&#39;.  Note that the category and name strings are compared
+        // by value.
+
+        typedef bsl::pair&lt;const char *, const char *&gt; CategoryAndName;
+
+        bool operator()(const CategoryAndName&amp; lhs,
+                        const CategoryAndName&amp; rhs) const
+            // Return &#39;true&#39; if the value of the specified &#39;lhs&#39; is less than
+            // (ordered before) the value of the specified &#39;rhs&#39;, and &#39;false&#39;
+            // otherwise.  The &#39;lhs&#39; value is considered less than the &#39;rhs&#39;
+            // value if the first value in the &#39;lhs&#39; pair (the category) is
+            // less than the first value in the &#39;rhs&#39; pair or, if the first
+            // values are equal, if the second value in the &#39;lhs&#39; pair (the
+            // name) is less than the second value in the &#39;rhs&#39; pair.
+        {
+            int cmp = bsl::strcmp(lhs.first, rhs.first);
+            if (0 == cmp) {
+                cmp = bsl::strcmp(lhs.second, rhs.second);
+            }
+            return cmp &lt; 0;
+        }
+    };
+
+    typedef bsl::map&lt;CategoryAndName,
+                     bsl::shared_ptr&lt;MetricDescription&gt;,
+                     CategoryAndNameLess&gt;                MetricMap;
+        // A &#39;MetricMap&#39; is a type that maps a category and name to a
+        // &#39;balm::MetricDescription&#39; object address.
+
+    typedef bsl::map&lt;const char *,
+                     bsl::shared_ptr&lt;Category&gt;,
+                     bdlb::CStringLess&gt;                    CategoryRegistry;
+        // A &#39;CategoryRegistry&#39; is a type that maps a name to a
+        // &#39;balm::Category&#39; object address.
+
+    typedef bsl::map&lt;const char *,
+                     bsl::vector&lt;const void *&gt;,
+                     bdlb::CStringLess&gt;  UserDataRegistry;
+        // &#39;UserDataRegistry&#39; is an alias for a type that maps a category (or
+        // category prefix) to the user data set for that category (or group of
+        // categories).
+
+    // DATA
+    bsl::set&lt;bsl::string&gt;  d_uniqueStrings;  // unique string memory
+
+    CategoryRegistry       d_categories;     // category -&gt; &#39;balm::Category&#39;
+
+    MetricMap              d_metrics;        // map (category,name) -&gt; MetricId
+
+    bool                   d_defaultEnabled; // default enabled status
+
+    UserDataRegistry       d_categoryUserData;
+                                             // map category -&gt; user data
+
+    UserDataRegistry       d_categoryPrefixUserData;
+                                             // map category-prefix -&gt; user
+                                             // data
+
+    int                    d_nextKey;        // next valid user data key
+
+    mutable bslmt::RWMutex d_lock;           // read-write property lock
+
+    bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    MetricRegistry(const MetricRegistry&amp;);
+    MetricRegistry&amp; operator=(const MetricRegistry&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    bsl::pair&lt;MetricId, bool&gt; insertId(const char *category,
+                                       const char *name);
+        // Insert a metric id having the specified &#39;category&#39; and &#39;name&#39; into
+        // this metric registry.  Return a pair whose first member is the id
+        // of the metric, and whose second member is &#39;true&#39; if the returned
+        // metric id is newly-created and &#39;false&#39; otherwise.  The behavior is
+        // undefined unless the calling thread has a *write* lock on &#39;d_lock&#39;.
+
+    void setCurrentUserData(const char                     *category,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value);
+        // Associate the specified &#39;value&#39; with the specified &#39;key&#39; for every
+        // metric belonging to the specified &#39;category&#39;.  Note that this
+        // operation modifies existing metrics, but does not affect metrics
+        // created after this method is called.  The behavior is undefined
+        // unless the calling thread has a *write* lock on &#39;d_lock&#39;.
+
+    // PRIVATE ACCESSORS
+    void defaultUserData(bsl::vector&lt;const void *&gt; *result,
+                         const char                *categoryName) const;
+        // Load into the specified &#39;result&#39; the user data associated (via
+        // &#39;setUserData&#39;) with a category having the specified &#39;categoryName&#39;.
+        // Each index position in &#39;result&#39; will contain 0, or an (opaque)
+        // application-specific data value provided by the client, either for
+        // &#39;categoryName&#39; or a prefix of &#39;categoryName&#39;.  If there is more
+        // than one non-null user-supplied data value applicable to an index
+        // position in &#39;result&#39;, it is unspecified which value will be
+        // returned.  The behavior is undefined unless the calling thread has a
+        // lock on &#39;d_lock&#39;.
+
+  public:
+    // PUBLIC TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricRegistry, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    MetricRegistry(bslma::Allocator *basicAllocator = 0);
+        // Create an empty metric registry.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    ~MetricRegistry();
+        // Destroy this metric registry.
+
+    // MANIPULATORS
+    MetricId addId(const char *category, const char *name);
+        // Add the specified &#39;category&#39; and &#39;name&#39; to this registry, unless it
+        // has already been registered, and return a &#39;balm::MetricId&#39; object
+        // identifying the newly-registered metric.  If the indicated metric
+        // has already been registered, the returned &#39;balm::MetricId&#39; object
+        // will *not* be valid (i.e., &#39;isValid&#39; will return &#39;false&#39;).  The
+        // behavior is undefined unless &#39;category&#39; and &#39;name&#39; are
+        // null-terminated.
+
+    MetricId getId(const char *category, const char *name);
+        // Return a &#39;balm::MetricId&#39; object for the metric identified by the
+        // specified &#39;category&#39; and &#39;name&#39;.  If no corresponding metric has
+        // already been registered, register a new metric and return a
+        // &#39;balm::MetricId&#39; object identifying that newly-registered metric.
+        // The behavior is undefined unless &#39;category&#39; and &#39;name&#39; are
+        // null-terminated.  Note that this operation is guaranteed to return
+        // a valid &#39;balm::MetricId&#39; object.
+
+    const Category *addCategory(const char *category);
+        // Add the specified &#39;category&#39; to this registry, unless it has already
+        // been registered.  Return the address of the newly-created
+        // non-modifiable &#39;balm::Category&#39; object on success, and 0 otherwise.
+        // The behavior is undefined unless &#39;category&#39; is null-terminated.
+
+    const Category *getCategory(const char *category);
+        // Return the address of the non-modifiable &#39;balm::Category&#39; object for
+        // the specified &#39;category&#39;.  If no corresponding category exists,
+        // register a new category and return the address of the newly-created
+        // &#39;balm::Category&#39; object.  The behavior is undefined unless
+        // &#39;category&#39; is null-terminated.  Note that this operation is
+        // guaranteed to return a valid address.
+
+    void setCategoryEnabled(const Category* category,
+                            bool            value);
+        // Set whether the specified &#39;category&#39; is enabled to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;category&#39; is a valid
+        // address of a category previously returned by this metric registry.
+        // Note that this operation is thread-safe, but *not* atomic: Other
+        // threads may simultaneously access the current enabled value for
+        // &#39;category&#39; while this operation completes.  Also note that this
+        // operation has *linear* runtime performance with respect to the
+        // number of registered category holders for &#39;category&#39;.
+
+    void setAllCategoriesEnabled(bool value);
+        // Set whether each currently registered category is enabled to the
+        // specified &#39;value&#39;, and ensure that categories registered after this
+        // call are initialized as either enabled or disabled, accordingly.
+        // This operation is logically equivalent to iterating over the list
+        // of currently registered categories and calling &#39;setCategoryEnabled&#39;
+        // on each category individually, and also setting a default &#39;enabled&#39;
+        // value (for newly-created categories).  Hence, subsequent calls
+        // &#39;setCategoryEnabled&#39; will override this value for a particular
+        // category.  Note that this operation is thread-safe, but *not*
+        // atomic: Other threads may simultaneously access the current enabled
+        // status for registered categories while this operation completes.
+        //  Also note that this operation has *linear* runtime performance with
+        // respect to the total number of category holders registered with this
+        // repository.
+
+    void registerCategoryHolder(const Category *category,
+                                CategoryHolder *holder);
+        // Load into the specified  &#39;holder&#39; the address of the specified
+        // &#39;category&#39;, its &#39;enabled&#39; status, and the address of the next holder
+        // in the linked list of category holders maintained by &#39;category&#39;
+        // (prepending &#39;holder&#39; to the linked list of category holders for
+        // &#39;category&#39;).  The supplied &#39;category&#39; will update the value returned
+        // by &#39;holder-&gt;enabled()&#39; when its enabled state changes, and will
+        // reset &#39;holder&#39; (i.e., &#39;holder-&gt;reset()&#39;) when &#39;category&#39; is
+        // destroyed.  The behavior is undefined unless &#39;holder&#39; remains valid
+        // and *unmodified* (by the client) for the lifetime of this object.
+        //
+        // This method should *not* be used directly by client code.  It is an
+        // implementation detail of the &#39;balm&#39; metric collection system.
+
+    void setPreferredPublicationType(const MetricId&amp;        metric,
+                                     PublicationType::Value type);
+        // Set the preferred publication type of the specified &#39;metric&#39; to the
+        // specified &#39;type&#39;.  The preferred publication type of a metric
+        // indicates the preferred aggregate to publish for that metric, or
+        // &#39;balm::PublicationType::UNSPECIFIED&#39; if there is no preference.  The
+        // behavior is undefined unless &#39;metric&#39; was previously returned by
+        // this metric registry.  Note that there is no uniform definition for
+        // how publishers will interpret this value; an &#39;UNSPECIFIED&#39; value
+        // generally indicates that the all the collected aggregates (total,
+        // count, minimum, and maximum value) should be published.  Also note
+        // that the preferred publication type is accessed through the
+        // &#39;balm::MetricDescription&#39; (i.e.,
+        // &#39;metric.description()-&gt;preferredPublicationType()&#39;).
+
+    void setFormat(const MetricId&amp;     metricId,
+                   const MetricFormat&amp; format);
+        // Set the format for the specified &#39;metricId&#39; to the specified
+        // &#39;format&#39;.  Note that there is no uniform specification for how
+        // publisher implementations will interpret the supplied &#39;format&#39;.
+        // Also note that the format for a metric is accessed through the
+        // &#39;balm::MetricDescription&#39;.  For example:
+        //..
+        //  metric.description()-&gt;format();
+        //..
+
+    MetricDescription::UserDataKey createUserDataKey();
+        // Return a new unique key that can be used to associate (via
+        // &#39;setUserData&#39;) and retrieve (via &#39;userData&#39;) a value with a metric
+        // (or group of metrics).  Note that the returned key can be used by
+        // clients of &#39;balm&#39; to associate additional information with a metric.
+
+    void setUserData(const MetricId&amp;                 metricId,
+                     MetricDescription::UserDataKey  key,
+                     const void                     *value);
+        // Associate the specified &#39;value&#39; with the specified &#39;key&#39; in the
+        // description of the specified &#39;metricId&#39;.  The behavior is undefined
+        // unless &#39;key&#39; was previously returned from &#39;createUserDataKey&#39;.  Note
+        // that this method allows clients of &#39;balm&#39; to associate (opaque)
+        // application-specific information with a metric.
+
+    void setUserData(const char                     *categoryName,
+                     MetricDescription::UserDataKey  key,
+                     const void                     *value,
+                     bool                            prefixFlag = false);
+        // Associate the specified &#39;value&#39; with the specified &#39;key&#39; in any
+        // metric belonging to a category having the specified &#39;categoryName&#39;,
+        // or a category whose name begins with &#39;categoryName&#39;, as determined
+        // by the optionally specified &#39;prefixFlag&#39;.  If &#39;prefixFlag&#39; is
+        // &#39;false&#39; or is not specified, only those metrics belonging to a
+        // category having &#39;categoryName&#39; will be mapped; otherwise, &#39;value&#39;
+        // will be associated with &#39;key&#39; for all metrics belonging to any
+        // category whose name begins with &#39;categoryName&#39;.  This association
+        // applies to existing metrics as well as any subsequently created
+        // ones.  When a metric is created that matches more than one
+        // registered category prefix, it is not specified which supplied value
+        // will be associated with &#39;key&#39;, unless only one of those values is
+        // non-null, in which case the unique non-null value is used.  The
+        // behavior is undefined unless &#39;key&#39; was previously returned from
+        // &#39;createUserDataKey&#39;.
+
+    // ACCESSORS
+    bsl::size_t numMetrics() const;
+        // Return the number of metrics in this registry.
+
+    bsl::size_t numCategories() const;
+        // Return the number of categories in this registry.
+
+    const Category *findCategory(const char *category) const;
+        // Find the specified &#39;category&#39;, a null-terminated string, in this
+        // registry.  Return the address of the non-modifiable &#39;balm::Category&#39;
+        // object corresponding to the &#39;category&#39;, or 0 if no such category has
+        // been registered.
+
+    MetricId findId(const char *category, const char *name) const;
+        // Find the specified null-terminated strings &#39;category&#39; and &#39;name&#39; in
+        // this registry.  Return the &#39;balm::MetricId&#39; object corresponding to
+        // the metric having the &#39;category&#39; and &#39;name&#39;, if found, or an invalid
+        // metric id if no such metric has been registered (i.e., &#39;isValid&#39;
+        // will return &#39;false&#39;).
+
+    void getAllCategories(bsl::vector&lt;const Category *&gt; *categories) const;
+        // Append to the specified &#39;categories&#39; the addresses of all the
+        // categories registered by this &#39;balm::MetricRegistry&#39; object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

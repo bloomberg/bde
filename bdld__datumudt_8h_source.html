@@ -1,0 +1,323 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdld_datumudt.h                                                    -*-C++-*-
+#ifndef INCLUDED_BDLD_DATUMUDT
+#define INCLUDED_BDLD_DATUMUDT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a type to represent a user-defined type.
+//
+//@CLASSES:
+//  bdld::DatumUdt: a *value-semantic* type representing user-defined type
+//
+//@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_binaryref
+//
+//@DESCRIPTION:  This component provides a single, simply-constrained (in-core
+// value-semantic) attribute class, &#39;bdld::DatumUdt&#39;, that is used to extend
+// the set of possible types that can be held by &#39;Datum&#39; objects.
+//
+///Attributes
+///----------
+//..
+//  Name                Type         Simple Constraints
+//  ------------------  -----------  ------------------
+//  data_p              void *       none
+//  type                int          [0 .. 65355]
+//..
+//: o &#39;data_p&#39;: pointer to an external object/memory.
+//:
+//: o &#39;type&#39;: user type associated with the pointer.
+//
+// This component provides a way to extend the set of data types that are
+// natively supported by the &#39;Datum&#39; mechanism by allowing the client associate
+// an opaque pointer to user data with the data type information. Note that the
+// &#39;bdld::DatumUdt&#39; does not access the pointer nor it interpret the type
+// information supplied at construction time. The client code is responsible
+// for interpretation of the type information and casting the pointer back to
+// the pointer to the actual type.
+//
+// Accessors inside &#39;Datum&#39; class that need to return a user-defined object,
+// return an instance of &#39;DatumUdt&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic &#39;DatumUdt&#39; usage
+///- - - - - - - - - - - - - - - - -
+// Imagine we are using &#39;Datum&#39; within an expression evaluation subsystem.
+// Within that subsystem, along with the set of types defined by
+// &#39;Datum::DataType&#39; we also need to hold &#39;Sequence&#39; and &#39;Choice&#39; types within
+// &#39;Datum&#39; values (which are not natively represented by &#39;Datum&#39;).  First, we
+// define the set of types used by our subsystem that are an extension to the
+// types in &#39;DatumType&#39;:
+//..
+//  struct Sequence {
+//      struct Sequence *d_next_p;
+//      int              d_value;
+//  };
+//
+//  enum ExtraExpressionTypes {
+//      e_SEQUENCE = 5,
+//      e_CHOICE = 6
+//  };
+//..
+// Notice that the numeric values will be provided as the &#39;type&#39; attribute to
+// &#39;DatumUdt&#39;.
+//
+// Then we create a &#39;Sequence&#39; object, and create a &#39;DatumUdt&#39; to hold it (note
+// that we&#39;ve created the object on the stack for clarity):
+//..
+//  Sequence sequence;
+//  {
+//      const bdld::DatumUdt udt(&amp;sequence, e_SEQUENCE);
+//      assert(e_SEQUENCE == udt.type());
+//      assert(&amp;sequence  == udt.data());
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdld {
+                                 // ==============
+                                 // class DatumUdt
+                                 // ==============
+class DatumUdt {
+    // This class provides a type to represent a pointer to an object of some
+    // user-defined type and an integer value denoting what actual type is
+    // represented.
+
+  private:
+    // DATA
+    void *d_data_p;  // pointer to user-defined object (not owned)
+    int   d_type;    // type of user-defined object
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumUdt, bsl::is_trivially_copyable);
+
+    // CREATORS
+    DatumUdt(void *data, int type);
+        // Create a &#39;DatumUdt&#39; object having the specified &#39;data&#39; and &#39;type&#39;.
+        // Note that the pointer to the &#39;data&#39; is just copied bitwise.  Also
+        // note that the memory pointed by &#39;data&#39; is never accessed by a
+        // &#39;DatumUdt&#39; object.
+
+    //! DatumUdt(const DatumUdt&amp; origin) = default;
+    //! ~DatumUdt() = default;
+
+    // MANIPULATORS
+    //! DatumUdt&amp; operator=(const DatumUdt&amp; rhs) = default;
+
+    // ACCESSORS
+    void *data() const;
+        // Return the pointer to the user-defined object.
+
+    int type() const;
+        // Return the type of the user-defined object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value, and
+    // &#39;false&#39; otherwise.  Two &#39;DatumUdt&#39; objects have the same value if they
+    // have the same data and type values.
+
+bool operator!=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values,
+    // and &#39;false&#39; otherwise.  Two &#39;DatumUdt&#39; objects have different values if
+    // they have different data or type values.
+
+bool operator&lt;(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is less than value of the
+    // specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is less than
+    // value of &#39;rhs&#39;, if data value of &#39;lhs&#39; is less than data value of &#39;rhs&#39;,
+    // or they have the same data value and type value of &#39;lhs&#39; is less than
+    // type value of &#39;rhs&#39;.
+
+bool operator&lt;=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is less than or equal to
+    // value of the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is
+    // less than or equal to value of &#39;rhs&#39;, if data value of &#39;lhs&#39; is less
+    // than or equal to data value of &#39;rhs&#39;, or they have the same data value
+    // and type value of &#39;lhs&#39; is less than or equal to type value of &#39;rhs&#39;.
+
+bool operator&gt;(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is greater than value of
+    // the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is greater
+    // than value of &#39;rhs&#39;, if data value of &#39;lhs&#39; is greater than data value
+    // of &#39;rhs&#39;, or they have the same data value and type value of &#39;lhs&#39; is
+    // greater than type value of &#39;rhs&#39;.
+
+bool operator&gt;=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is greater than or equal
+    // to value of the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39;
+    // is greater than or equal to value of &#39;rhs&#39;, if data value of &#39;lhs&#39; is
+    // greater than or equal to data value of &#39;rhs&#39;, or they have the same data
+    // value and type value of &#39;lhs&#39; is greater than or equal to type value of
+    // &#39;rhs&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumUdt&amp; rhs);
+    // Write the value of the specified &#39;rhs&#39; object to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to the
+    // modifyable &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this operation
+    // has no effect.  Note that this human-readable format is not fully
+    // specified, can change without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+    // Single line output format for the &#39;DatumUdt&#39; object is shown below:
+    //..
+    //  user-defined(&lt;address&gt;,type)
+    //..
+    //(where &#39;address&#39; is hex value of the pointer to the user-define object
+    //and &#39;type&#39; is the type of the user-defined object)
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                                // --------------
+                                // class DatumUdt
+                                // --------------
+
+// CREATORS
+inline
+DatumUdt::DatumUdt(void *data, int type)
+: d_data_p(data)
+, d_type(type)
+{
+}
+
+// ACCESSORS
+inline
+void *DatumUdt::data() const
+{
+    return d_data_p;
+}
+
+inline
+int DatumUdt::type() const
+{
+    return d_type;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdld::operator==(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return (lhs.data() == rhs.data() &amp;&amp;
+            lhs.type() == rhs.type());
+}
+
+inline
+bool bdld::operator!=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return (lhs.data() != rhs.data() ||
+            lhs.type() != rhs.type());
+}
+
+inline
+bool bdld::operator&lt;(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return (lhs.data() &lt; rhs.data() ||
+           (lhs.data() == rhs.data() &amp;&amp; lhs.type() &lt; rhs.type()));
+}
+
+inline
+bool bdld::operator&lt;=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return (lhs == rhs || lhs &lt; rhs);
+}
+
+inline
+bool bdld::operator&gt;(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return !(lhs &lt;= rhs);
+}
+
+inline
+bool bdld::operator&gt;=(const DatumUdt&amp; lhs, const DatumUdt&amp; rhs)
+{
+    return !(lhs &lt; rhs);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumUdt&amp; rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+
+</pre>
+</body>
+</html>

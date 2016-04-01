@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bslim::Printer_Helper</title>
+<title>BDE 3.0: Struct bslim::Printer_Helper</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -147,7 +147,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Format the specified <code>data</code> to the specified output `stream' at the (absolute value of) the specified indentation `level', using the specified <code>spacesPerLevel</code>, the number of spaces per indentation level for this and all of its nested objects. Note that this function dispatches to <code>printRaw</code> based on the type traits of the deduced (template parameter) <code>TYPE</code>. </p>
+<p>Format the specified <code>data</code> to the specified output <code>stream</code> at the (absolute value of) the specified indentation <code>level</code>, using the specified <code>spacesPerLevel</code>, the number of spaces per indentation level for this and all of its nested objects. Note that this function dispatches to <code>printRaw</code> based on the type traits of the deduced (template parameter) <code>TYPE</code>. </p>
 
 </div>
 </div>
@@ -195,7 +195,7 @@ template&lt;class ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Format the container containing the specified range of objects from <code>[ begin, end )</code>, where <code>ITERATOR</code> supports the operators <code>++</code> and <code>*</code> to access the objects. Individual objects are printed with <code>printValue</code>. </p>
+<p>Format the range of objects specified by <code>[ begin, end )</code> to the specified output <code>stream</code> at the (absolute value of) the specified indentation <code>level</code>, using the specified <code>spacesPerLevel</code>, the number of spaces per indentation level for the objects and their nested objects, where <code>ITERATOR</code> supports the operators <code>++</code> and <code>*</code> to access the objects. Individual objects are printed with <code>printValue</code>. </p>
 
 </div>
 </div>
@@ -842,7 +842,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p><code>PrintRaw</code>: the <code>print</code> method of this class dispatches the actual printing to the appropriate specialized <code>printRaw</code> method for the individual TYPE for printing. </p>
+<p>The <code>print</code> method of this class dispatches based on <code>TYPE</code> and traits to a <code>printRaw</code> method to do the actual printing of the specified <code>data</code> to the specified <code>stream</code> with indentation based on the specified <code>level</code> and <code>spacesPerLevel</code>. </p>
 
 </div>
 </div>
@@ -850,7 +850,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bslim__printer_8h_source.html">bslim_printer.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:34 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:51 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

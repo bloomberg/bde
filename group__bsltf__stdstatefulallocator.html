@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsltf_stdstatefulallocator Component</title>
+<title>BDE 3.0: bsltf_stdstatefulallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -106,27 +106,16 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides an allocator, <code>StdStatefulAllocator</code>, that defines the minimal interface to comply with section 17.6.3.5 ([allocator.requirements]) of the C++11 standard, while still providing an externally visible and potentially distinct state for each allocator object. This type can be used to verify that constructs designed to support a standard-compliant allocator access the allocator only through the standard-defined interface. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>StdStatefulAllocator</code> delegates its operations to <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> (delegate allocator) that is also the sole attribute of this class. We choose to store a test allocator as the attribute constituting state as this allows a common test strategy to support testing allocation with BDE allocators, and testing the general notion of stateful STL allocators. The key differences between this test allocator and a regular BDE allocator are: <br/>
-<br/>
-<div class="fragment"><pre class="fragment"> &lt;ul&gt;
- &lt;li&gt;
- This allocator does not support the &lt;code&gt;scoped&lt;/code&gt; allocation model, so that
-  elements in a container will often have a different allocator to the
-  container <span class="keywordtype">object</span> itself.
- &lt;/li&gt;
- &lt;li&gt;
- This allocator may propagate through copy operations, move operations
-  and &lt;code&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>&lt;/code&gt; operations, depending on how the <span class="keyword">template</span> is configured as
-  it is instantiated.
- &lt;/li&gt;
- &lt;li&gt;
- This allocator is not DefaultConstructible, and has no notion of the
-  <span class="keywordflow">default</span> allocator.
- &lt;/li&gt;
- &lt;/ul&gt;
-</pre></div><br/>
-<br/>
- </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>StdStatefulAllocator</code> delegates its operations to <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> (delegate allocator) that is also the sole attribute of this class. We choose to store a test allocator as the attribute constituting state as this allows a common test strategy to support testing allocation with BDE allocators, and testing the general notion of stateful STL allocators. The key differences between this test allocator and a regular BDE allocator are: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+This allocator does not support the <code>scoped</code> allocation model, so that elements in a container will often have a different allocator to the container object itself.  </li>
+<li>
+This allocator may propagate through copy operations, move operations and <code>swap</code> operations, depending on how the template is configured as it is instantiated.  </li>
+<li>
+This allocator is not DefaultConstructible, and has no notion of the default allocator.  </li>
+</ul>
+</dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -224,7 +213,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:11 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg_swaputil Component</title>
+<title>BDE 3.0: bslalg_swaputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -81,7 +81,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: using <code>bslalg::SwapUtil::swap</code></a> </li>
+<a href="#3.1.1">Example 1: Using <code>bslalg::SwapUtil::swap</code></a> </li>
 </ul>
 </li>
 </ul>
@@ -112,7 +112,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="usage.example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="description.usage.example_1~3A_using_bslalg~3A~3Aswaputil~3A~3Aswap"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: using bslalg::SwapUtil::swap: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 1: Using bslalg::SwapUtil::swap: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example we define a type <code>Container</code> and use <code><a class="el" href="classbslalg_1_1SwapUtil.html">bslalg::SwapUtil</a></code> to both implement a user-defined <code>swap</code> for <code>Container</code>, and swap two container objects. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We start by defining a class <code>Container</code> in the <code>xyz</code> namespace. Further we assume that <code>Container</code> has some expensive-to-copy data, so we provide a custom <code>swap</code> algorithm to efficiently swap the data between a two objects this class by defining a <code>swap</code> method and a <code>swap</code> free function. <br/>
 <br/>
@@ -123,13 +123,13 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">int</span> d_expensiveData;
 
     <span class="keyword">public</span>:
-      <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(Container&amp; other);
+      <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(Container&amp; other);
           <span class="comment">// Swap the value of &#39;this&#39; object with the value of the specified</span>
           <span class="comment">// &#39;other&#39; object.  This method provides the no-throw</span>
           <span class="comment">// exception-safety guarantee.</span>
   };
 
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(Container&amp; a, Container&amp; b);
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(Container&amp; a, Container&amp; b);
       <span class="comment">// Swap the values of the specified &#39;a&#39; and &#39;b&#39; objects.  This function</span>
       <span class="comment">// provides the no-throw exception-safety guarantee.</span>
 </pre></div><br/>
@@ -138,9 +138,9 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Next, we implemented the <code>swap</code> method using the <code><a class="el" href="classbslalg_1_1SwapUtil.html#a070bf979457194bcfeabefbab2ed4e8f">bslalg::SwapUtil::swap</a></code> to swap the individual data elements: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">inline</span>
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">Container::swap</a>(Container&amp; other)
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">Container::swap</a>(Container&amp; other)
   {
-      <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">bslalg::SwapUtil::swap</a>(&amp;d_expensiveData, &amp;other.d_expensiveData);
+      <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">bslalg::SwapUtil::swap</a>(&amp;d_expensiveData, &amp;other.d_expensiveData);
 
       <span class="comment">// Equivalent to:</span>
       <span class="comment">// using bsl::swap;</span>
@@ -152,7 +152,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Then, we implement the <code>swap</code> free function: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">inline</span>
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(Container&amp; a, Container&amp; b)
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(Container&amp; a, Container&amp; b)
   {
       a.swap(b);
   }
@@ -169,7 +169,7 @@ Namespaces</h2></td></tr>
 <br/>
  The above code correctly calls the <code>xyz::swap</code> overload for the <code>Container</code> class. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

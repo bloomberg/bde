@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_testallocatorexception.h                                     -*-C++-*-
@@ -29,7 +29,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // number of allocation requests exceeds the allocator&#39;s allocation limit.
 // This example demonstrates how to use a user-defined allocator (e.g.,
 // &#39;my_Allocator&#39;) and &#39;bslma::TestAllocatorException&#39; to verify that an object
-// (e.g., &#39;my_ShortArray&#39;) under test is exception neutral:
+// (e.g., &#39;my_ShortArray&#39;) under test is exception-neutral:
 //..
 //  // my_allocator.h
 //  #include &lt;bslma_allocator.h&gt;
@@ -250,9 +250,9 @@ class TestAllocatorException {
         // an allocation request size.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------
                         // class TestAllocatorException

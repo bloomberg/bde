@@ -1,0 +1,351 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdld_datumbinaryref.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLD_DATUMBINARYREF
+#define INCLUDED_BDLD_DATUMBINARYREF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a type to represent binary data and its size.
+//
+//@CLASSES:
+//  bdld::DatumBinaryRef: a type representing binary data and its size
+//
+//@SEE_ALSO: bdld_datum, bdld_datumerror, bdld_datumudt
+//
+//@DESCRIPTION:  This component implements a class, &#39;bdld::DatumBinaryRef&#39;,
+// that represents a pointer to a non-modifiable binary data (as a &#39;void *&#39;)
+// and an integral size value.  Note, that &#39;bdld::DatumBinaryRef&#39; is nether a
+// value-semantic type, nor is it an in-core value-semantic type (see
+// &#39;bsldoc_glossary&#39;).  The &#39;bdld::DatumBinaryRef&#39; notion of value is expressed
+// by its equality-operator - two &#39;bdld:DatumBinaryRef&#39; compare equal if the
+// binary data they refer to is identical (both by size and by content).
+// Accessors inside &#39;Datum&#39; class that need to return a binary data, return an
+// instance of &#39;bdld::DatumBinaryRef&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic &#39;DatumBinaryRef&#39; usage
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose we have three functions. Data are obtained in the first one (with
+// memory allocation), processed in the second one and released (with memory
+// deallocation) in the third one.  The following code illustrates how to use
+// &#39;bdld::DatumBinaryRef&#39; to pass information about memory storage between
+// them.
+//
+// First, we write all three functions:
+//..
+//  bdld::DatumBinaryRef obtainData(size_t size)
+//      // Allocate array of the specified &#39;size&#39; and initialize it with some
+//      // values.
+//  {
+//      if (0 == size) {
+//          return bdld::DatumBinaryRef();                            // RETURN
+//      }
+//      int *buffer = new int[size];
+//      for (size_t i = 0; i &lt; size; ++i) {
+//          buffer[i] = static_cast&lt;int&gt;(i);
+//      }
+//      return bdld::DatumBinaryRef(static_cast&lt;void *&gt;(buffer), size);
+//  }
+//
+//  int processData(const bdld::DatumBinaryRef&amp; binaryData)
+//      // Process data, held by the specified &#39;binaryData&#39; object.
+//  {
+//      ostringstream out;
+//      binaryData.print(out);
+//
+//      if (binaryData == bdld::DatumBinaryRef()) {
+//          return 0;                                                 // RETURN
+//      }
+//
+//      int        result = 0;
+//      const int *array = static_cast&lt;const int *&gt;(binaryData.data());
+//      for (size_t i = 0; i &lt; binaryData.size(); ++i) {
+//          result += array[i];
+//      }
+//      return result;
+//  }
+//
+//  void releaseData(const bdld::DatumBinaryRef&amp; binaryData)
+//      // Release memory, held by the specified &#39;binaryData&#39; object.
+//  {
+//      const int *array = static_cast&lt;const int *&gt;(binaryData.data());
+//      delete [] array;
+//  }
+//..
+// Next, we call first one to obtain data:
+//..
+//  bdld::DatumBinaryRef binaryData = obtainData(5);
+//..
+// Then we verify the results of second one&#39;s call:
+//..
+//  assert(10 == processData(binaryData));
+//..
+// Finally, we release allocated memory:
+//..
+//  releaseData(binaryData);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdld {
+                                 // ====================
+                                 // class DatumBinaryRef
+                                 // ====================
+class DatumBinaryRef {
+    // This class provides a type to represent a pointer to non-modifiable
+    // binary data and an integral size value.
+
+  public:
+    // TYPES
+    typedef bsls::Types::size_type SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the length of the binary array.
+
+  private:
+    // DATA
+    const void *d_data_p;  // pointer to the binary data (not owned)
+    SizeType    d_size;    // size of the binary data
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumBinaryRef, bsl::is_trivially_copyable);
+
+    // CREATORS
+    DatumBinaryRef();
+        // Create a &#39;DatumBinaryRef&#39; object having zero data pointer and size.
+
+    DatumBinaryRef(const void *data, SizeType size);
+        // Create a &#39;DatumBinaryRef&#39; object having the specified &#39;data&#39; and
+        // &#39;size&#39;.  The behavior is undefined unless &#39;0 != data || 0 == size&#39;.
+        // Note that the memory pointed by &#39;data&#39; is never accessed by a
+        // &#39;DatumBinaryRef&#39; object.
+
+    //! DatumBinaryRef(const DatumBinaryRef&amp; origin) = default;
+    //! ~DatumBinaryRef() = default;
+
+    // MANIPULATORS
+    //! DatumBinaryRef&amp; operator=(const DatumBinaryRef&amp; rhs) = default;
+
+    // ACCESSORS
+    const void *data() const;
+        // Return the pointer to the non-modifiable binary data.
+
+    SizeType size() const;
+        // Return the size of the binary data.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value, and
+    // &#39;false&#39; otherwise.  Two &#39;DatumBinaryRef&#39; objects have the same value if
+    // they refer to arrays of bytes of the same size and having the same
+    // content.
+
+bool operator!=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values,
+    // and &#39;true&#39; otherwise.  Two &#39;DatumBinaryRef&#39; objects have different
+    // values if they refer to arrays of bytes of different sizes or having a
+    // different content.
+
+bool operator&lt;(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; compares smaller than the specified
+    // &#39;rhs&#39;, and &#39;false&#39; otherwise.  A byte comparision is performed using
+    // memcpy.
+
+bool operator&gt;(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; compares larger than the specified
+    // &#39;rhs&#39;, and &#39;false&#39; otherwise.  A byte comparision is performed using
+    // memcpy.
+
+bool operator&lt;=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; compares smaller than or equal to
+    // the specified &#39;rhs&#39;, and &#39;false&#39; otherwise.  A byte comparision is
+    // performed using memcpy.
+
+bool operator&gt;=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; compares larger than or equal to
+    // the specified &#39;rhs&#39;, and &#39;false&#39; otherwise.  A byte comparision is
+    // performed using memcpy.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumBinaryRef&amp; rhs);
+    // Write the value of the specified &#39;rhs&#39; object to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to the
+    // modifyable &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this operation
+    // has no effect.  Note that this human-readable format is not fully
+    // specified, can change without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                                // --------------------
+                                // class DatumBinaryRef
+                                // --------------------
+
+// CREATORS
+inline
+DatumBinaryRef::DatumBinaryRef()
+: d_data_p(0)
+, d_size(0)
+{
+}
+
+inline
+DatumBinaryRef::DatumBinaryRef(const void *data, SizeType  size)
+: d_data_p(data)
+, d_size(size)
+{
+    BSLS_ASSERT_SAFE(0 != data || 0 == size);
+}
+
+// ACCESSORS
+inline
+const void *DatumBinaryRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+DatumBinaryRef::SizeType DatumBinaryRef::size() const
+{
+    return d_size;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdld::operator==(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    return (lhs.size() == rhs.size())
+            &amp;&amp; !bsl::memcmp(lhs.data(), rhs.data(), rhs.size());
+}
+
+
+inline
+bool bdld::operator!=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator&lt;(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    int cmp = bsl::memcmp(lhs.data(),
+                          rhs.data(),
+                          bsl::min(lhs.size(), rhs.size()));
+    return cmp == 0 ? lhs.size() &lt; rhs.size() : cmp &lt; 0;
+}
+
+inline
+bool bdld::operator&gt;(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    int cmp = bsl::memcmp(lhs.data(),
+                          rhs.data(),
+                          bsl::min(lhs.size(), rhs.size()));
+    return cmp == 0 ? lhs.size() &gt; rhs.size() : cmp &gt; 0;
+}
+
+inline
+bool bdld::operator&lt;=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    return !(lhs &gt; rhs);
+}
+
+inline
+bool bdld::operator&gt;=(const DatumBinaryRef&amp; lhs, const DatumBinaryRef&amp; rhs)
+{
+    return !(lhs &lt; rhs);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumBinaryRef&amp; rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+
+</pre>
+</body>
+</html>

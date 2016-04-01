@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_vector Component</title>
+<title>BDE 3.0: bslstl_vector Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -433,7 +433,7 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>vector</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that vector type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a vector accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it will be used to supply memory for the vector throughout its lifetime; otherwise, the vector will use the default allocator installed at the time of the vector's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a vector supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>VALUE_TYPE</code>, if it defines the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>vector</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that vector type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a vector accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it is used to supply memory for the vector throughout its lifetime; otherwise, the vector will use the default allocator installed at the time of the vector's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a vector supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>VALUE_TYPE</code>, if it defines the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
@@ -537,7 +537,7 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_a_matrix_type"></a> <a class="anchor" id="usage.example_1~3A_creating_a_matrix_type"></a> <a class="anchor" id="description.usage.example_1~3A_creating_a_matrix_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Creating a Matrix Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose we want to define a value semantic type representing a dynamically resizable two-dimensional matrix. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we want to define a value-semantic type representing a dynamically resizable two-dimensional matrix. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the public interface for the <code>MyMatrix</code> class template: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
@@ -1035,7 +1035,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
 
 <p>Reimplemented from <a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>.</p>
 
-<p>Reimplemented in <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; VALUE_TYPE, ALLOCATOR &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga072e1d3b72efeb60bde40edfb4934d11">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>, <a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>, and <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; char &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; VALUE_TYPE, ALLOCATOR &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga072e1d3b72efeb60bde40edfb4934d11">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>, <a class="el" href="group__bslstl__vector.html#gae4813c4ee19eb083b1a358ea9238fe54">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; CustomInt &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Sequence3 &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Choice1 &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlt::Date &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; bdlt::DatetimeTz &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ZoneinfoTransition &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; double &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Choice3 &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; btlsc::Channel * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ball::UserFieldValue &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Event &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; CustomInt &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; bool &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Node * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; const void * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; TcpTimerEventManager * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlt::DatetimeTz &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsl::vector&lt; char &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; int &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; const Rule * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Element &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; unsigned int &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsl::pair&lt; bsl::string, int &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ball::UserFieldType::Enum &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; bsl::vector&lt; char &gt; &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; double &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; Enumerated::Value &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Bucket &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Category * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; unsigned char &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Attribute &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; unsigned int &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; unsigned char &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; btlsc::CbChannel * &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsl::function&lt; void()&gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableAllocatedValue&lt; Sequence3 &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; BlobBuffer &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; StackTraceFrame &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; SampleGroup &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; char &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; CustomString &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bool &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; Enumerated::Value &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; Choice1 &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; WeekendDaysTransition &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsl::string &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ProxyLevel &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bslstl::StringRef &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bdlb::NullableValue&lt; int &gt; &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; EventItem &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsls::TimeInterval &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ElemContext &gt;</a>, <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; bsl::uint64_t &gt;</a>, and <a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">bsl::vector&lt; ThreadUtil::Handle &gt;</a>.</p>
 
 </div>
 </div>
@@ -1737,7 +1737,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable element at the specified <code>position</code> in this vector. The behavior is undefined unless <code>0 &lt;= position &lt; size()</code>. </p>
+<p>Return a reference to the modifiable element at the specified <code>position</code> in this vector. The behavior is undefined unless <code>0 &lt;= position &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -1758,7 +1758,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable element at the specified <code>position</code> in this vector. Throws <code>std::out_of_range</code> if <code>position &gt;= size()</code>. </p>
+<p>Return a reference to the modifiable element at the specified <code>position</code> in this vector. Throws <code>std::out_of_range</code> if <code>position &gt;= <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -1798,7 +1798,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable element at the last position in this vector. The behavior is undefined if this vector is empty. Note that the last position is <code>size() - 1</code>. </p>
+<p>Return a reference to the modifiable element at the last position in this vector. The behavior is undefined if this vector is empty. Note that the last position is <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. </p>
 
 </div>
 </div>
@@ -2059,7 +2059,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable element at the specified <code>position</code> in this vector. The behavior is undefined unless <code>0 &lt;= position &lt; size()</code>. </p>
+<p>Return a reference to the non-modifiable element at the specified <code>position</code> in this vector. The behavior is undefined unless <code>0 &lt;= position &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -2080,7 +2080,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable element at the specified <code>position</code>. Throws <code>std::out_of_range</code> if <code>position &gt;= size()</code>. </p>
+<p>Return a reference to the non-modifiable element at the specified <code>position</code>. Throws <code>std::out_of_range</code> if <code>position &gt;= <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -2120,7 +2120,7 @@ template&lt;class VALUE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable element at the last position in this vector. The behavior is undefined if this vector is empty. Note that the last position is <code>size() - 1</code>. </p>
+<p>Return a reference to the non-modifiable element at the last position in this vector. The behavior is undefined if this vector is empty. Note that the last position is <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. </p>
 
 </div>
 </div>
@@ -2250,7 +2250,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::Vector_Imp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>initialSize</em>, </td>
         </tr>
         <tr>
@@ -2267,7 +2267,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector of the specified <code>initialSize</code> whose every element is default-constructed. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if <code>initialSize &gt; max_size()</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector of the specified <code>initialSize</code> whose every element is default-constructed. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if <code>initialSize &gt; max_size()</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2280,7 +2280,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::Vector_Imp </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>initialSize</em>, </td>
         </tr>
         <tr>
@@ -2303,7 +2303,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector of the specified <code>initialSize</code> whose every element equals the specified <code>value</code>. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if <code>initialSize &gt; max_size()</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector of the specified <code>initialSize</code> whose every element equals the specified <code>value</code>. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if <code>initialSize &gt; max_size()</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2341,7 +2341,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if the number of elements in <code>[ first, last )</code> exceeds the value returned by the method <code>max_size</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>std::length_error</code> if the number of elements in <code>[first .. last)</code> exceeds the value returned by the method <code>max_size</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2391,7 +2391,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector that has the same value as the specified <code>original</code> vector. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, then if <code>ALLOCATOR</code> is convertible from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>, the currently installed default allocator is used, otherwise the <code>original</code> allocator is used (as mandated per the ISO standard). This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector that has the same value as the specified <code>original</code> vector. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, then if <code>ALLOCATOR</code> is convertible from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>, the currently installed default allocator is used, otherwise the <code>original</code> allocator is used (as mandated per the ISO standard). Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2432,7 +2432,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the value of the specified <code>other</code> vector and return a reference to this modifiable vector. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the value of the specified <code>other</code> vector and return a reference to this modifiable vector. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2464,7 +2464,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Note that this vector will be left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This vector is left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 <p>Reimplemented in <a class="el" href="group__bslstl__vector.html#ga5de26b249081554ec1cb21b3f7b43df5">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>, and <a class="el" href="group__bslstl__vector.html#ga80beed773775ff491a560d9827470983">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>.</p>
 
@@ -2479,7 +2479,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::assign </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -2496,7 +2496,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the value of the vector of the specified <code>numElements</code> size whose every elements equal the specified <code>value</code>. Note that this vector will be left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the value of the vector of the specified <code>numElements</code> size whose every elements equal the specified <code>value</code>. This vector is left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2509,7 +2509,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::resize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>newSize</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -2529,7 +2529,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::resize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>newSize</em>, </td>
         </tr>
         <tr>
@@ -2546,7 +2546,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Change the size of this vector to the specified <code>newSize</code>, erasing elements at the end if <code>newSize &lt; size()</code> or appending the appropriate number of copies of the optionally specified <code>value</code> at the end if <code>size() &lt; newSize</code>. If <code>value</code> is not specified, a default-constructed value is used. Throw <code>std::length_error</code> if <code>newSize &gt; max_size()</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be "copy-constructible" if <code>value</code> is specified and "default-constructible" otherwise (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Change the size of this vector to the specified <code>newSize</code>, erasing elements at the end if <code>newSize &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code> or appending the appropriate number of copies of the optionally specified <code>value</code> at the end if <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> &lt; newSize</code>. If <code>value</code> is not specified, a default-constructed value is used. Throw <code>std::length_error</code> if <code>newSize &gt; max_size()</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be "copy-constructible" if <code>value</code> is specified and "default-constructible" otherwise (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2559,7 +2559,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::reserve </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>newCapacity</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -2610,7 +2610,7 @@ template&lt;class... Args&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Append a new element to the end of this vector, constructed directly in place from the specified <code>args</code>. The <code>args</code> are passed to the constructor using "perfect forwarding", meaning move semantics will be utilized for rvalued elements that implement them. The combination of constructing in place and "perfect forwarding" means that when move semantics are availible, elements in <code>args</code> will not be copied at all. When move semantics are not availible, elements in <code>args</code> will be copied only once. This method provides the strong exception safety guarentee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). </p>
+<p>Append a new element to the end of this vector, constructed directly in place from the specified <code>args</code>. The <code>args</code> are passed to the constructor using "perfect forwarding", meaning move semantics will be utilized for rvalued elements that implement them. The combination of constructing in place and "perfect forwarding" means that when move semantics are available, elements in <code>args</code> will not be copied at all. When move semantics are not available, elements in <code>args</code> will be copied only once. This method provides the strong exception safety guarantee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). </p>
 
 </div>
 </div>
@@ -2631,7 +2631,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Append a copy of the specified <code>value</code> at the end of this vector. This method provides the strong exception safety guarantee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Append a copy of the specified <code>value</code> at the end of this vector. This method provides the strong exception safety guarantee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2666,7 +2666,7 @@ template&lt;class... Args&gt; </div>
         <tr>
           <td class="memname">VALUE_TYPE* <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::emplace </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
@@ -2695,7 +2695,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
@@ -2712,7 +2712,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this vector a copy of the specified <code>value</code>, and return an iterator pointing to the newly inserted element. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code> (both endpoints included). Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Insert at the specified <code>position</code> in this vector a copy of the specified <code>value</code>, and return an iterator pointing to the newly inserted element. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code> (both endpoints included). Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2725,13 +2725,13 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga2954bfae57cec2922d80838c055258cc">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -2748,7 +2748,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this vector a number equal to the specified <code>numElements</code> of copies of the specified <code>value</code>. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code> (both endpoints included). Note that this method offers full guarantee of rollback in case an exception is throw is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Insert at the specified <code>position</code> in this vector a number equal to the specified <code>numElements</code> of copies of the specified <code>value</code>. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code> (both endpoints included). Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2763,7 +2763,7 @@ template&lt;class INPUT_ITER &gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
@@ -2786,7 +2786,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code> (both endpoints included). Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Insert at the specified <code>position</code> in this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code> (both endpoints included), and <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2799,7 +2799,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::erase </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -2807,7 +2807,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this vector the element at the specified <code>position</code>, and return an iterator pointing to the element immediately following the removed element, or to the position returned by the <code>end</code> method if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() )</code>. </p>
+<p>Remove from this vector the element at the specified <code>position</code>, and return an iterator pointing to the element immediately following the removed element, or to the position returned by the <code>end</code> method if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end())</code>. </p>
 
 </div>
 </div>
@@ -2820,13 +2820,13 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1Vector__Imp.html">bsl::Vector_Imp</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::erase </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>first</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga0cd0846f3e77c27d31e494f6983c6d2a">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga18f44f5ce10b93d15ea3def898eab913">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>last</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2837,7 +2837,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this vector the elements starting at the specified <code>first</code> position that are before the specified <code>last</code> position, and return an iterator pointing to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[ begin(), end() ]</code> and <code>last</code> is an iterator in the range <code>[ first, end() ]</code> (both endpoints included). </p>
+<p>Remove from this vector the elements starting at the specified <code>first</code> position that are before the specified <code>last</code> position, and return an iterator pointing to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[begin() .. end()]</code> and <code>last</code> is an iterator in the range <code>[first .. end()]</code> (both endpoints included). </p>
 
 </div>
 </div>
@@ -2878,7 +2878,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Remove all the elements from this vector. Note that this vector is empty after this call, but conserves the same capacity. </p>
+<p>Remove all the elements from this vector. Note that this vector is empty after this call, but preserves the same capacity. </p>
 
 </div>
 </div>
@@ -2950,7 +2950,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector has the same value as the specified <code>rhs</code> vector. Two vectors have the same value if they have the same number of elements and the same element value at each index position in the range 0 to <code>size() - 1</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector has the same value as the specified <code>rhs</code> vector. Two vectors have the same value if they have the same number of elements and the same element value at each index position in the range 0 to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -2980,7 +2980,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector does not have the same value as the specified <code>rhs</code> vector. Two vectors do not have the same value if they have different numbers of elements or different element values in at least one index position in the range 0 to <code>size() - 1</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector does not have the same value as the specified <code>rhs</code> vector. Two vectors do not have the same value if they have different numbers of elements or different element values in at least one index position in the range 0 to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3010,7 +3010,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically smaller than the specified <code>rhs</code> vector, and <code>false</code> otherwise. A vector <code>lhs</code> is lexicographically smaller than another vector <code>rhs</code> if there exists an index <code>i</code> between 0 and the minimum of <code>lhs.size()</code> and <code>rhs.size()</code> such that <code>lhs[i] == rhs[j]</code> for every <code>0 &lt;= j &lt; i</code>, <code>i &lt; rhs.size()</code>, and either <code>i == lhs.size()</code> or <code>lhs[i] &lt; rhs[i]</code>. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically smaller than the specified <code>rhs</code> vector, and <code>false</code> otherwise. A vector <code>lhs</code> is lexicographically smaller than another vector <code>rhs</code> if there exists an index <code>i</code> between 0 and the minimum of <code>lhs.size()</code> and <code>rhs.size()</code> such that <code>lhs[i] == rhs[j]</code> for every <code>0 &lt;= j &lt; i</code>, <code>i &lt; rhs.size()</code>, and either <code>i == lhs.size()</code> or <code>lhs[i] &lt; rhs[i]</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3040,7 +3040,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically larger than the specified <code>rhs</code> vector, and <code>false</code> otherwise. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically larger than the specified <code>rhs</code> vector, and <code>false</code> otherwise. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3070,7 +3070,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically smaller than or equal to the specified <code>rhs</code> vector, and <code>false</code> otherwise. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically smaller than or equal to the specified <code>rhs</code> vector, and <code>false</code> otherwise. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3100,7 +3100,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically larger than the specified <code>rhs</code> vector, and <code>false</code> otherwise. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> vector is lexicographically larger than the specified <code>rhs</code> vector, and <code>false</code> otherwise. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3164,7 +3164,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::vector </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>n</em>, </td>
         </tr>
         <tr>
@@ -3181,7 +3181,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector of the specified size <code>n</code> whose every element is default-constructed. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not specified, a default-constructed allocator is used. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector of the specified size <code>n</code> whose every element is default-constructed. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not specified, a default-constructed allocator is used. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.default-constructible" class="glossary">default-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3194,7 +3194,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::vector </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#ga950b9c5bf2fd674f5f84a930a9e75135">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__vector.html#gae247ca9f6b273a302bd925b3f0449c0d">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>n</em>, </td>
         </tr>
         <tr>
@@ -3217,7 +3217,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector of the specified size <code>n</code> whose every element equals the specified <code>value</code>. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, a default-constructed allocator is used. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector of the specified size <code>n</code> whose every element equals the specified <code>value</code>. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, a default-constructed allocator is used. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3255,7 +3255,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, a default-constructed allocator is used. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, a default-constructed allocator is used. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3305,7 +3305,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Create a vector that has the same value as the specified <code>original</code> vector. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, then if <code>ALLOCATOR</code> is convertible from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>, the currently installed default allocator is used, otherwise the <code>original</code> allocator is used (as mandated per the ISO standard). This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Create a vector that has the same value as the specified <code>original</code> vector. Optionally specify an allocator <code>alloc</code> used to supply memory. If <code>alloc</code> is not specified, then if <code>ALLOCATOR</code> is convertible from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>, the currently installed default allocator is used, otherwise the <code>original</code> allocator is used (as mandated per the ISO standard). Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3346,7 +3346,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = bsl::allocator&lt;VALUE_TYPE&gt;
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the value of the specified <code>other</code> vector and return a reference to this modifiable vector. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the value of the specified <code>other</code> vector and return a reference to this modifiable vector. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -3761,9 +3761,11 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Note that this vector will be left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This vector is left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 <p>Reimplemented from <a class="el" href="group__bslstl__vector.html#ga81fed82a60da7d7c72724f95bfa7ac7f">bsl::Vector_Imp&lt; void *, ALLOCATOR::template rebind&lt; void * &gt;::other &gt;</a>.</p>
+
+<p>References <a class="el" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">bdlat_ValueTypeFunctions::assign()</a>.</p>
 
 </div>
 </div>
@@ -3793,6 +3795,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+
+<p>References <a class="el" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">bdlat_ValueTypeFunctions::assign()</a>.</p>
 
 </div>
 </div>
@@ -3987,6 +3991,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
 </div>
 <div class="memdoc">
 
+<p>References <a class="el" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">bdlat_ArrayFunctions::resize()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="ga23e40cd74587357f81715af062e2eaa9"></a><!-- doxytag: member="bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;::resize" ref="ga23e40cd74587357f81715af062e2eaa9" args="(size_type newLength, VALUE_TYPE *value)" -->
@@ -4015,6 +4021,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+
+<p>References <a class="el" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">bdlat_ArrayFunctions::resize()</a>.</p>
 
 </div>
 </div>
@@ -4899,9 +4907,11 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Note that this vector will be left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Assign to this vector the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This vector is left in an empty state in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 <p>Reimplemented from <a class="el" href="group__bslstl__vector.html#ga81fed82a60da7d7c72724f95bfa7ac7f">bsl::Vector_Imp&lt; const void *, ALLOCATOR::template rebind&lt; const void * &gt;::other &gt;</a>.</p>
+
+<p>References <a class="el" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">bdlat_ValueTypeFunctions::assign()</a>.</p>
 
 </div>
 </div>
@@ -4931,6 +4941,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+
+<p>References <a class="el" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">bdlat_ValueTypeFunctions::assign()</a>.</p>
 
 </div>
 </div>
@@ -5125,6 +5137,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
 </div>
 <div class="memdoc">
 
+<p>References <a class="el" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">bdlat_ArrayFunctions::resize()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="ga2507559e3c1ed336d4bc988aa880afe4"></a><!-- doxytag: member="bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;::resize" ref="ga2507559e3c1ed336d4bc988aa880afe4" args="(size_type newLength, const VALUE_TYPE *value)" -->
@@ -5153,6 +5167,8 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+
+<p>References <a class="el" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">bdlat_ArrayFunctions::resize()</a>.</p>
 
 </div>
 </div>
@@ -5828,7 +5844,7 @@ template&lt;class BSLSTL_ITERATOR &gt; </div>
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>last</em>&nbsp;</td><td>Return <code>true</code> if <code>first &lt;= last</code>, and <code>false</code> otherwise. Behavior is undefined unless both <code>first</code> and <code>last</code> are valid iterators that refer to the same range. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>last</em>&nbsp;</td><td>Return <code>true</code> if <code>last &lt; first</code>, and <code>false</code> otherwise. The behavior is undefined unless both <code>first</code> and <code>last</code> are valid iterators that refer to the same range. </td></tr>
   </table>
   </dd>
 </dl>
@@ -5869,7 +5885,7 @@ template&lt;class VALUE_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

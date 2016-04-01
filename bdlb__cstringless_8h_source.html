@@ -1,0 +1,198 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_cstringless.h                                                 -*-C++-*-
+#ifndef INCLUDED_BDLB_CSTRINGLESS
+#define INCLUDED_BDLB_CSTRINGLESS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a standard compatible less-than predicate for C-strings.
+//
+//@CLASSES:
+//  bdlb::CStringLess: a standard compatible less-than predicate for C-strings.
+//
+//@SEE_ALSO: bsl_map, bsl_set
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bdlb::CStringLess&#39;, that
+// defines a functor that compares two null-terminated strings using a
+// case-sensitive string comparison, rather than simply comparing the two
+// addresses (as the &#39;std::less&#39; functor would do).  This lexicographical
+// ordering makes &#39;CStringLess&#39; suitable for supporting C-strings as keys in
+// associative containers.  Note that the container behavior would be undefined
+// if the strings referenced by such pointers were to change value.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdlb::CStringLess&#39;
+///- - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a container to store set of unique C-strings. The following
+// code illustrates how to use &#39;bdlb::CStringLess&#39; as a comparator for the
+// standard container &#39;set&#39;, to create a set of unique C-string values.
+//
+// Note that the default comparator for &#39;const char *&#39; (i.e.,
+// &#39;bsl::less&lt;const char *&gt;&#39;) compares the supplied addresses, rather than the
+// contents of the C-strings to which those address typically refer.  As a
+// result, when using the default comparator, identical C-string values located
+// at different addresses, will be successfully added to a &#39;set&#39; container.
+// &#39;bdlb::CStringLess&#39; compares the values of the C-strings ensuring that a
+// &#39;set&#39;, using &#39;CstringLess&#39; as a comparator, is a set of unique string
+// values.
+//
+// First, we create several C-strings:
+//..
+//  const char newYork[]        = &quot;NY&quot;;
+//  const char losAngeles[]     = &quot;LA&quot;;
+//  const char newJersey[]      = &quot;NJ&quot;;
+//  const char sanFrancisco[]   = &quot;SF&quot;;
+//  const char anotherNewYork[] = &quot;NY&quot;;
+//..
+// Next, we create two containers, one with default comparator and another
+// using &#39;bdlb::CstringLess&#39; as a comparator:
+//..
+//  bsl::set&lt;const char *&gt;                    defaultComparatorContainer;
+//  bsl::set&lt;const char *, bdlb::CStringLess&gt; userComparatorContainer;
+//..
+// Now, we fill containers with the same contents:
+//..
+//  defaultComparatorContainer.insert(newYork);
+//  defaultComparatorContainer.insert(losAngeles);
+//  defaultComparatorContainer.insert(newJersey);
+//  defaultComparatorContainer.insert(sanFrancisco);
+//  defaultComparatorContainer.insert(anotherNewYork);
+//
+//  userComparatorContainer.insert(newYork);
+//  userComparatorContainer.insert(losAngeles);
+//  userComparatorContainer.insert(newJersey);
+//  userComparatorContainer.insert(sanFrancisco);
+//  userComparatorContainer.insert(anotherNewYork);
+//..
+// Finally, we observe that the container created with &#39;CStringLess&#39;
+// (&#39;userComparatorContainer&#39;) contains the correct number of unique C-string
+// values (4), while the container using the default comparator does not:
+//..
+//  assert(5 == defaultComparatorContainer.size());
+//  assert(4 == userComparatorContainer.size());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+                        // ==================
+                        // struct CStringLess
+                        // ==================
+
+struct CStringLess {
+    // This &#39;struct&#39; defines an ordering on null-terminated character strings,
+    // enabling them for use as keys in the standard associative containers
+    // such as &#39;bsl::map&#39; and &#39;bsl::set&#39;.  Note that this class is an empty
+    // POD type.
+
+    // STANDARD TYPEDEFS
+    typedef const char *first_argument_type;
+    typedef const char *second_argument_type;
+    typedef bool result_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringLess, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringLess,
+                                   bsl::is_trivially_default_constructible);
+
+    // CREATORS
+    //! CStringLess() = default;
+        // Create a &#39;CStringLess&#39; object.
+
+    //! CStringLess(const CStringLess&amp; original) = default;
+        // Create a &#39;CStringLess&#39; object.  Note that as &#39;CStringLess&#39; is an
+        // empty (stateless) type, this operation has no observable effect.
+
+    //! ~CStringLess() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! CStringLess&amp; operator=(const CStringLess&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+        // Note that as &#39;CStringLess&#39; is an empty (stateless) type, this
+        // operation has no observable effect.
+
+    // ACCESSORS
+    bool operator()(const char *lhs, const char *rhs) const;
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; string is lexicographically
+        // ordered before the specified &#39;rhs&#39; string, and &#39;false&#39; otherwise.
+        // The behavior is undefined unless both &#39;lhs&#39; and &#39;rhs&#39; point to
+        // null-terminated strings.
+};
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                          // ------------------
+                          // struct CStringLess
+                          // ------------------
+
+// ACCESSORS
+inline
+bool CStringLess::operator()(const char *lhs, const char *rhs) const
+{
+    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_SAFE(rhs);
+
+    return bsl::strcmp(lhs, rhs) &lt; 0;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

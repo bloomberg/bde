@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdldfp::Decimal_Type64</title>
+<title>BDE 3.0: Class bdldfp::Decimal_Type64</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -67,7 +67,8 @@
 </div>
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a>  </div>
   <div class="headertitle">
 <h1>bdldfp::Decimal_Type64 Class Reference</h1>  </div>
 </div>
@@ -134,11 +135,20 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal_Type64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a33b490fe129a4f54c78f1447d58190ec">operator/=</a> (long long rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal_Type64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a682a560b69dbb7e4fc7037f1d08cfaf0">operator/=</a> (unsigned long long rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">DecimalImpUtil::ValueType64</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a0da76a87ac9c84f9463c8b63f5a3f3d7">data</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a65f87dc52e13b1d1b82fce3d37092755">bdexStreamIn</a> (STREAM &amp;stream, int version)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">DecimalImpUtil::ValueType64</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a23b2f4d74ffba1c7161c1b6adad05f35">data</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">DecimalImpUtil::ValueType64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#ae2b19f190606680ef9d692e873d787c4">value</a> () const </td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#aa3bec29c6e310c0ea8f461b671fd91a6">bdexStreamOut</a> (STREAM &amp;stream, int version) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a1999c71bbe70e467540cbdb01b57f0df">print</a> (bsl::ostream &amp;stream, int level=0, int spacesPerLevel=4) const </td></tr>
+<tr><td colspan="2"><h2><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a2cc07921dc3044183b184dc85ee88ad3">maxSupportedBdexVersion</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a7e7076b006f5089688d0a2e017ac581a">maxSupportedBdexVersion</a> (int versionSelector)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This value semantic class implements the IEEE-754 64 bit decimal floating-point format arithmetic type. This class is a standard layout type that is const thread-safe and exception agnostic. </p>
+<p>This value-semantic class implements the IEEE-754 64 bit decimal floating-point format arithmetic type. This class is a standard layout type that is <code>const</code> thread-safe and exception-neutral. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ad1e50638f1d5976a4f505a28f20394a4"></a><!-- doxytag: member="bdldfp::Decimal_Type64::Decimal_Type64" ref="ad1e50638f1d5976a4f505a28f20394a4" args="()" -->
 <div class="memitem">
@@ -433,6 +443,42 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a2cc07921dc3044183b184dc85ee88ad3"></a><!-- doxytag: member="bdldfp::Decimal_Type64::maxSupportedBdexVersion" ref="a2cc07921dc3044183b184dc85ee88ad3" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdldfp::Decimal_Type64::maxSupportedBdexVersion </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a7e7076b006f5089688d0a2e017ac581a"></a><!-- doxytag: member="bdldfp::Decimal_Type64::maxSupportedBdexVersion" ref="a7e7076b006f5089688d0a2e017ac581a" args="(int versionSelector)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdldfp::Decimal_Type64::maxSupportedBdexVersion </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>versionSelector</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the maximum valid BDEX format version, as indicated by the specified <code>versionSelector</code>, to be passed to the <code>bdexStreamOut</code> method. Note that it is highly recommended that <code>versionSelector</code> be formatted as "YYYYMMDD", a date representation. Also note that <code>versionSelector</code> should be a <em>compile</em>-time-chosen value that selects a format version supported by both externalizer and unexternalizer. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
+
+</div>
+</div>
 <a class="anchor" id="a889a6bf6c369f6fa3fc1c8f40f75762e"></a><!-- doxytag: member="bdldfp::Decimal_Type64::BSLALG_DECLARE_NESTED_TRAITS" ref="a889a6bf6c369f6fa3fc1c8f40f75762e" args="(Decimal_Type64, bslalg::TypeTraitBitwiseCopyable)" -->
 <div class="memitem">
 <div class="memproto">
@@ -1342,6 +1388,36 @@ Otherwise set this object to the result of dividing the number represented by th
 
 </div>
 </div>
+<a class="anchor" id="a65f87dc52e13b1d1b82fce3d37092755"></a><!-- doxytag: member="bdldfp::Decimal_Type64::bdexStreamIn" ref="a65f87dc52e13b1d1b82fce3d37092755" args="(STREAM &amp;stream, int version)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class STREAM &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">STREAM&amp; bdldfp::Decimal_Type64::bdexStreamIn </td>
+          <td>(</td>
+          <td class="paramtype">STREAM &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>version</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assign to this object the value read from the specified input <code>stream</code> using the specified <code>version</code> format, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported, this object is unaltered and <code>stream</code> is invalidated, but otherwise unmodified. If <code>version</code> is supported but <code>stream</code> becomes invalid during this operation, this object has an undefined, but valid, state. Note that no version is read from <code>stream</code>. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
+
+</div>
+</div>
 <a class="anchor" id="a23b2f4d74ffba1c7161c1b6adad05f35"></a><!-- doxytag: member="bdldfp::Decimal_Type64::data" ref="a23b2f4d74ffba1c7161c1b6adad05f35" args="() const " -->
 <div class="memitem">
 <div class="memproto">
@@ -1378,11 +1454,75 @@ Otherwise set this object to the result of dividing the number represented by th
 
 </div>
 </div>
+<a class="anchor" id="aa3bec29c6e310c0ea8f461b671fd91a6"></a><!-- doxytag: member="bdldfp::Decimal_Type64::bdexStreamOut" ref="aa3bec29c6e310c0ea8f461b671fd91a6" args="(STREAM &amp;stream, int version) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class STREAM &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">STREAM&amp; bdldfp::Decimal_Type64::bdexStreamOut </td>
+          <td>(</td>
+          <td class="paramtype">STREAM &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>version</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Write the value of this object, using the specified <code>version</code> format, to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported, <code>stream</code> is invalidated, but otherwise unmodified. Note that <code>version</code> is not written to <code>stream</code>. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1999c71bbe70e467540cbdb01b57f0df"></a><!-- doxytag: member="bdldfp::Decimal_Type64::print" ref="a1999c71bbe70e467540cbdb01b57f0df" args="(bsl::ostream &amp;stream, int level=0, int spacesPerLevel=4) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bsl::ostream&amp; bdldfp::Decimal_Type64::print </td>
+          <td>(</td>
+          <td class="paramtype">bsl::ostream &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>level</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>spacesPerLevel</em> = <code>4</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Write the value of this object to the specified output <code>stream</code> in a human-readable format, and return a reference to <code>stream</code>. Optionally specify an initial indentation <code>level</code>, whose absolute value is incremented recursively for nested objects. If <code>level</code> is specified, optionally specify <code>spacesPerLevel</code>, whose absolute value indicates the number of spaces per indentation level for this and all of its nested objects. If <code>level</code> is negative, suppress indentation of the first line. If <code>spacesPerLevel</code> is negative, format the entire output on one line, suppressing all but the initial indentation (as governed by <code>level</code>). If <code>stream</code> is not valid on entry, this operation has no effect. Note that this human-readable format is not fully specified, and can change without notice. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bdldfp__decimal_8h_source.html">bdldfp_decimal.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:25 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:23 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

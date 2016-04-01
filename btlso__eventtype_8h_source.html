@@ -1,0 +1,204 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_eventtype.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_EVENTTYPE
+#define INCLUDED_BTLSO_EVENTTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of socket event types.
+//
+//@CLASSES:
+//  btlso::EventType: namespace for enumerating socket event types
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type,
+// &#39;btlso::EventType::Type&#39;, which enumerates the set of event types that can
+// be associated with a socket.
+//
+///Enumerators
+///-----------
+//..
+//  Name       Description
+//  ---------  ---------------------------------------------------
+//  e_ACCEPT   Event denoting that socket is ready to accept a connection.
+//
+//  e_CONNECT  Event denoting that socket is ready to connect to a peer.
+//
+//  e_READ     Event denoting that socket has data available to be read.
+//
+//  e_WRITE    Event denoting that socket is ready to write data.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// &#39;btlso::EventType&#39;.
+//
+// First, we create a variable &#39;value&#39; of type &#39;btlso::EventType::Type&#39; and
+// initialize it with the enumerator value &#39;btlso::EventType::e_CONNECT&#39;:
+//..
+//  btlso::EventType::Type value = btlso::EventType::e_CONNECT;
+//..
+// Now, we store the address of its ASCII representation in a pointer variable,
+// &#39;asciiValue&#39;, of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = btlso::EventType::toAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, &quot;CONNECT&quot;));
+//..
+// Finally, we print &#39;value&#39; to &#39;bsl::cout&#39;.
+//..
+//  bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  CONNECT
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace btlso {
+
+                    // ===============
+                    // class EventType
+                    // ===============
+
+struct EventType {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of socket
+    // event types.  See &#39;Type&#39; in the TYPES sub-section for details.
+    //
+    // This class:
+    //: o supports a complete set of *enumeration* operations
+    //:   o except for &#39;bdex&#39; serialization
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum Type {
+        e_ACCEPT  = 0,
+        e_CONNECT = 1,
+        e_READ    = 2,
+        e_WRITE   = 3
+
+
+    };
+
+    enum {
+        k_LENGTH = e_WRITE + 1  // Define &#39;k_LENGTH&#39; to be the number of
+                                // consecutively-valued enumerators in &#39;Type&#39;,
+                                // in the range &#39;[0 .. k_LENGTH - 1]&#39;.
+
+    };
+
+    // CLASS METHODS
+    static bsl::ostream&amp; print(bsl::ostream&amp;   stream,
+                               EventType::Type value,
+                               int             level          = 0,
+                               int             spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration &#39;value&#39;
+        // to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  See &#39;toAscii&#39; for
+        // what constitutes the string representation of a &#39;EventType::Type&#39;
+        // value.
+
+    static const char *toAscii(EventType::Type value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches its
+        // corresponding enumerator name with the &quot;e_&quot; prefix elided.  For
+        // example:
+        //..
+        //  bsl::cout &lt;&lt; EventType::toAscii(EventType::e_CONNECT);
+        //..
+        // will print the following on standard output:
+        //..
+        //  CONNECT
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, EventType::Type value);
+    // Write the string representation of the specified enumeration &#39;value&#39; to
+    // the specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  See &#39;toAscii&#39; for what constitutes the string
+    // representation of a &#39;btlso::EventType::Type&#39; value.  Note that this
+    // method has the same behavior as
+    //..
+    //  btlso::EventType::print(stream, value, 0, -1);
+    //..
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // ----------------
+                            // struct EventType
+                            // ----------------
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp;          stream,
+                                btlso::EventType::Type value)
+{
+    return EventType::print(stream, value, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_listparser.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_LISTPARSER
+#define INCLUDED_BALXML_LISTPARSER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide push parser for lists.
+//
+//@CLASSES:
+//   balxml::ListParser: push parser for lists
+//
+//@SEE_ALSO: bdlat_arrayfunctions
+//
+//@DESCRIPTION: The &#39;balxml::ListParser&#39; class template provided by this
+// component can be used to parse lists into an object that supports
+// &#39;bdlat_ArrayFunctions&#39;.
+//
+// This class template is a model of the &#39;PushParser&#39; concept, which contains
+// the following methods:
+//..
+//  int beginParse(TYPE *object);
+//      // Prepare the parser to start parsing a new value and associate the
+//      // specified &#39;object&#39; with the parser.  Return 0 if successful and
+//      // non-zero otherwise.
+//
+//  int endParse();
+//      // Ends the parse operation and store the value parsed from the pushed
+//      // characters into the associated object.  Return 0 if successful and
+//      // non-zero otherwise.  The behavior is undefined unless an object is
+//      // associated with this parser.  Upon successful completion, the parser
+//      // will be disassociated with the object.
+//
+//  template &lt;typename INPUT_ITERATOR&gt;
+//  int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+//      // Push the characters ranging from the specified &#39;begin&#39; up to (but
+//      // not including) the specified &#39;end&#39; into this parser.  Return 0 if
+//      // successful and non-zero otherwise.  The parameterized
+//      // &#39;INPUT_ITERATOR&#39; must be dereferenceable to a &#39;char&#39; value.  The
+//      // behavior is undefined unless an object is associated with this
+//      // parser.
+//..
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you had an input stream that contained a list of doubles.  The
+// following &#39;loadDoublesFromListStream&#39; function loads this data into an
+// &#39;bsl::vector&lt;double&gt;&#39;:
+//..
+//  #include &lt;balxml_listparser.h&gt;
+//
+//  #include &lt;bdlt_date.h&gt;
+//
+//  #include &lt;istream&gt;
+//  #include &lt;iterator&gt;
+//  #include &lt;vector&gt;
+//  #include &lt;sstream&gt;
+//  #include &lt;string&gt;
+//
+//  using namespace BloombergLP;
+//
+//  int parseDouble(double *result, const char *data, int dataLength);
+//
+//  int loadDoublesFromListStream(bsl::vector&lt;double&gt; *result,
+//                                bsl::istream&amp;        stream)
+//  {
+//      enum { k_FAILURE = -1 };
+//
+//      balxml::ListParser&lt;bsl::vector&lt;double&gt; &gt; parser(&amp;parseDouble);
+//
+//      if (0 != parser.beginParse(result)) {
+//          return k_FAILURE;
+//      }
+//
+//      if (0 != parser.pushCharacters(bsl::istreambuf_iterator&lt;char&gt;(stream),
+//                                     bsl::istreambuf_iterator&lt;char&gt;())) {
+//          return k_FAILURE;
+//      }
+//
+//      return parser.endParse();
+//  }
+//..
+// The &#39;parseDouble&#39; function is implemented as follows:
+//..
+//  int parseDouble(double *result, const char *data, int dataLength)
+//  {
+//      bsl::stringstream ss(bsl::string(data, dataLength));
+//      ss &gt;&gt; (*result);
+//      return 0;
+//  }
+//..
+// The following function demonstrates the &#39;loadDoublesFromListStream&#39;
+// function:
+//..
+//  void usageExample()
+//  {
+//      const char INPUT[] = &quot;1.5 2.0 3.8 1.0&quot;;
+//
+//      bsl::vector&lt;double&gt; vec;
+//      bsl::istringstream  iss(INPUT);
+//
+//      int result = loadDoublesFromListStream(&amp;vec, iss);
+//
+//      assert(0   == result);
+//      assert(4   == vec.size());
+//      assert(1.5 == vec[0]);
+//      assert(2.0 == vec[1]);
+//      assert(3.8 == vec[2]);
+//      assert(1.0 == vec[3]);
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
+#include &lt;bdlat_arrayfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLF_BIND
+#include &lt;bdlf_bind.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLF_PLACEHOLDER
+#include &lt;bdlf_placeholder.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_CHARTYPE
+#include &lt;bdlb_chartype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balxml {
+                           // ======================
+                           // class ListParser&lt;TYPE&gt;
+                           // ======================
+
+template &lt;class TYPE&gt;
+class ListParser {
+    // This is a push parser for lists.
+
+    // PRIVATE TYPES
+    typedef typename
+    bdlat_ArrayFunctions::ElementType&lt;TYPE&gt;::Type ElementType;
+
+  public:
+    // TYPES
+    typedef int (*ParseElementFunction)(ElementType*, const char*, int);
+    typedef bsl::function&lt;int(ElementType*, const char*, int)&gt;
+                                                          ParseElementCallback;
+
+  private:
+    // PRIVATE DATA MEMBERS
+    bsl::string           d_characters;            // accumulated characters
+    TYPE                 *d_object_p;              // associated object
+    ParseElementCallback  d_parseElementCallback;  // callback for parsing
+                                                   // elements
+
+    // NOT IMPLEMENTED
+    ListParser(const ListParser&amp;);
+    ListParser&amp; operator=(const ListParser&amp;);
+
+    // PRIVATE MANIPULATORS
+    int appendElement(const char *data, int dataLength);
+        // Append an element to the associated object having the specified
+        // &#39;data&#39; of the specified &#39;dataLength&#39;.
+
+  public:
+    // CREATORS
+    explicit ListParser(ParseElementCallback  parseElementCallback,
+                        bslma::Allocator     *basicAllocator = 0);
+        // Create a parser for lists using the specified &#39;parseElementCallback&#39;
+        // functor to parse each element and the optionally specified
+        // &#39;basicAllocator&#39; for supplying memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator will be used.
+
+#ifdef DOXYGEN // Generated by compiler:
+
+    ~ListParser();
+        // Destroy this object.
+
+#endif
+
+    int beginParse(TYPE *object);
+        // Prepare the parser to start parsing a new value and associate the
+        // specified &#39;object&#39; with the parser.  Return 0 if successful and
+        // non-zero otherwise.
+
+    int endParse();
+        // Ends the parse operation and store the value parsed from the pushed
+        // characters into the associated object.  Return 0 if successful and
+        // non-zero otherwise.  The behavior is undefined unless an object is
+        // associated with this parser.  Upon successful completion, the parser
+        // will be disassociated with the object.
+
+    template &lt;class INPUT_ITERATOR&gt;
+    int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+        // Push the characters ranging from the specified &#39;begin&#39; up to (but
+        // not including) the specified &#39;end&#39; into this parser.  Return 0 if
+        // successful and non-zero otherwise.  The parameterized
+        // &#39;INPUT_ITERATOR&#39; must be dereferenceable to a &#39;char&#39; value.  The
+        // behavior is undefined unless an object is associated with this
+        // parser.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ----------------------
+                           // class ListParser&lt;TYPE&gt;
+                           // ----------------------
+
+// PRIVATE MANIPULATORS
+
+template &lt;class TYPE&gt;
+int ListParser&lt;TYPE&gt;::appendElement(const char *data, int dataLength)
+{
+    BSLS_ASSERT_SAFE(data);
+    BSLS_ASSERT_SAFE(0 &lt; dataLength);
+
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    const int i = static_cast&lt;int&gt;(bdlat_ArrayFunctions::size(*d_object_p));
+
+    bdlat_ArrayFunctions::resize(d_object_p, i + 1);
+
+    typedef bsl::function&lt;int(ElementType*)&gt; Functor;
+
+    using bdlf::PlaceHolders::_1;
+
+    Functor parseElementFunctor = bdlf::BindUtil::bind(d_parseElementCallback,
+                                                       _1,
+                                                       data,
+                                                       dataLength);
+
+    if (0 != bdlat_ArrayFunctions::manipulateElement(d_object_p,
+                                                     parseElementFunctor,
+                                                     i)) {
+        // remove the new object from the array
+        bdlat_ArrayFunctions::resize(d_object_p, i);
+
+        return k_FAILURE;                                             // RETURN
+    }
+
+     return k_SUCCESS;
+}
+
+// CREATORS
+
+template &lt;class TYPE&gt;
+ListParser&lt;TYPE&gt;::ListParser(ParseElementCallback  parseElementCallback,
+                             bslma::Allocator     *basicAllocator)
+: d_characters(basicAllocator)
+, d_object_p(0)
+, d_parseElementCallback(bsl::allocator_arg_t(),
+                         bsl::allocator&lt;ParseElementCallback&gt;(basicAllocator),
+                         parseElementCallback)
+{
+}
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+int ListParser&lt;TYPE&gt;::beginParse(TYPE *object)
+{
+    BSLS_ASSERT_SAFE(object);
+
+    enum { k_SUCCESS = 0 };
+
+    d_characters.clear();
+    d_object_p = object;
+
+    bdlat_ArrayFunctions::resize(d_object_p, 0);
+
+    return k_SUCCESS;
+}
+
+template &lt;class TYPE&gt;
+int ListParser&lt;TYPE&gt;::endParse()
+{
+    BSLS_ASSERT_SAFE(d_object_p);
+
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (!d_characters.empty()) {
+        if (0 != appendElement(d_characters.data(),
+                               static_cast&lt;int&gt;(d_characters.length()))) {
+            return k_FAILURE;                                         // RETURN
+        }
+    }
+
+    d_object_p = 0;
+
+    return k_SUCCESS;
+}
+
+template &lt;class TYPE&gt;
+template &lt;class INPUT_ITERATOR&gt;
+int ListParser&lt;TYPE&gt;::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
+{
+    BSLS_ASSERT_SAFE(d_object_p);
+
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    while (begin != end) {
+        const char character = *begin;
+
+        ++begin;
+
+        if (bdlb::CharType::isSpace(character)) {
+            if (!d_characters.empty()) {
+                if (0 != appendElement(
+                                    d_characters.data(),
+                                    static_cast&lt;int&gt;(d_characters.length()))) {
+                    return k_FAILURE;                                 // RETURN
+                }
+
+                d_characters.clear();
+            }
+        }
+        else {
+            d_characters.push_back(character);
+        }
+    }
+
+    return k_SUCCESS;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif // ! defined(INCLUDED_BAEXML_LISTPARSER)
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

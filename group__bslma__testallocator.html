@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma_testallocator Component</title>
+<title>BDE 3.0: bslma_testallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -173,19 +173,15 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception_test_macros"></a> <a class="anchor" id="description.exception_test_macros"></a> <a class="anchor" id="4.3"></a> </dd></dl>
 <dl class="user"><dt><b>Exception Test Macros: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component also provides a pair of macros: <br/>
-<br/>
-<div class="fragment"><pre class="fragment"> &lt;ul&gt;
- &lt;li&gt;
- <a class="code" href="group__bslma__testallocator.html#ga54aebaa251b957630708f5f491fcadd3">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</a>(BSLMA_TESTALLOCATOR)
- &lt;/li&gt;
- &lt;li&gt;
- <a class="code" href="group__bslma__testallocator.html#ga59220055a07373b5ed62d98ec6206523">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</a>
- &lt;/li&gt;
- &lt;/ul&gt;
-</pre></div><br/>
-<br/>
- These macros can be used for testing exception-safety of classes and their methods when memory allocation is needed. A reference to an object of type <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> must be supplied as an argument to the <code>_BEGIN</code> macro. Note that if exception-handling is disabled (i.e., if <code>BDE_BUILD_TARGET_EXC</code> is not defined when building the code under test), then the macros simply print the following: <br/>
+<dl class="user"><dt><b></b></dt><dd>This component also provides a pair of macros: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+<code><a class="el" href="group__bslma__testallocator.html#ga54aebaa251b957630708f5f491fcadd3">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)</a></code>  </li>
+<li>
+<code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</code>  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>These macros can be used for testing exception-safety of classes and their methods when memory allocation is needed. A reference to an object of type <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> must be supplied as an argument to the <code>_BEGIN</code> macro. Note that if exception-handling is disabled (i.e., if <code>BDE_BUILD_TARGET_EXC</code> is not defined when building the code under test), then the macros simply print the following: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  BSLMA EXCEPTION TEST -- (NOT ENABLED) --
 </pre></div><br/>
@@ -276,11 +272,11 @@ Defines</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">      <a class="code" href="group__bslma__testallocator.html#ga54aebaa251b957630708f5f491fcadd3">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</a>(sa) {
         my_ShortArray mA(&amp;sa);
-        <span class="keyword">const</span> my_ShortArray&amp; A = mA;
+        <span class="keyword">const</span> my_ShortArray&amp; <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> = mA;
         <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ei = 0; ei &lt; NUM_ELEM; ++ei) {
             mA.append(VALUES[ei]);
         }
-        <span class="keywordflow">if</span> (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
+        <span class="keywordflow">if</span> (veryVerbose) { T_ T_  P_(NUM_ELEM) <a class="code" href="bdlf__bind__test_8h.html#a6dce1d51457f0415ec5302d3c05cded5">P</a>(A) }
         LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
       } <a class="code" href="group__bslma__testallocator.html#ga59220055a07373b5ed62d98ec6206523">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</a>
   }
@@ -354,7 +350,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_alignmentutil Component</title>
+<title>BDE 3.0: bsls_alignmentutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -212,7 +212,7 @@ The required alignment for a <code>struct</code>, <code>class</code>, or <code>u
 <br/>
 <div class="fragment"><pre class="fragment">  charPtr shortPtr5                                               objPtr
   |       |                                                       |
-  V       V                                                       V
+  <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>       <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>                                                       <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>
   .---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.---.-
   |ccc|   |sssssss:sssssss:sssssss:sssssss:sssssss|   :   :   :   |oooooo...
   ^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^-
@@ -221,7 +221,7 @@ The required alignment for a <code>struct</code>, <code>class</code>, or <code>u
 <br/>
  Note that on an atypical 32-bit platform where a <code>double</code> is 4-byte aligned, the actual alignment of <code>MyType</code> would be 4, but its natural alignment would still be 8 because its size would be 16; it is highly unlikely that <code>MyType</code> would have an actual (and therefore natural) alignment of 4 on a 64-bit platform when using default compiler settings. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

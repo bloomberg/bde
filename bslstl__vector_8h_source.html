@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_vector.h                                                    -*-C++-*-
@@ -94,7 +94,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // standard behavior of a &#39;bslma&#39;-allocator-enabled type.  Such a vector
 // accepts an optional &#39;bslma::Allocator&#39; argument at construction.  If the
 // address of a &#39;bslma::Allocator&#39; object is explicitly supplied at
-// construction, it will be used to supply memory for the vector throughout its
+// construction, it is used to supply memory for the vector throughout its
 // lifetime; otherwise, the vector will use the default allocator installed at
 // the time of the vector&#39;s construction (see &#39;bslma_default&#39;).  In addition to
 // directly allocating memory from the indicated &#39;bslma::Allocator&#39;, a vector
@@ -203,7 +203,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Creating a Matrix Type
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a value semantic type representing a dynamically
+// Suppose we want to define a value-semantic type representing a dynamically
 // resizable two-dimensional matrix.
 //
 // First, we define the public interface for the &#39;MyMatrix&#39; class template:
@@ -589,6 +589,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bsls_types.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include &lt;cstddef&gt;
 #define INCLUDED_CSTDDEF
@@ -812,7 +816,7 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
     //
     // More generally, this class supports an almost complete set of *in-core*
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison (but excluding &#39;ostream&#39; printing since this is
+    // equality comparison (but excluding &#39;ostream&#39; printing since this
     // component is below STL).  A precise operational definition of when two
     // objects have the same value can be found in the description of
     // &#39;operator==&#39; for the class.  This class is *exception* *neutral* with no
@@ -935,9 +939,9 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // is default-constructed.  Optionally specify the &#39;basicAllocator&#39;
         // used to supply memory.  If &#39;basicAllocator&#39; is not specified, a
         // default-constructed allocator is used.  Throw &#39;std::length_error&#39; if
-        // &#39;initialSize &gt; max_size()&#39;.  This method requires that the (template
-        // parameter) type &#39;VALUE_TYPE&#39; be &quot;default-constructible&quot; (see
-        // {Requirements on &#39;VALUE_TYPE&#39;}).
+        // &#39;initialSize &gt; max_size()&#39;.  Note that this method requires that the
+        // (template parameter) type &#39;VALUE_TYPE&#39; be &quot;default-constructible&quot;
+        // (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     explicit
     Vector_Imp(size_type         initialSize,
@@ -947,8 +951,8 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // equals the specified &#39;value&#39;.  Optionally specify the
         // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is not
         // specified, a default-constructed allocator is used.  Throw
-        // &#39;std::length_error&#39; if &#39;initialSize &gt; max_size()&#39;.  This method
-        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // &#39;std::length_error&#39; if &#39;initialSize &gt; max_size()&#39;.  Note that this
+        // method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     template &lt;class INPUT_ITER&gt;
@@ -961,10 +965,12 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // &#39;INPUT_ITER&#39; type.  Optionally specify the &#39;basicAllocator&#39; used to
         // supply memory.  If &#39;basicAllocator&#39; is not specified, a
         // default-constructed allocator is used.  Throw &#39;std::length_error&#39; if
-        // the number of elements in &#39;[ first, last )&#39; exceeds the value
-        // returned by the method &#39;max_size&#39;.  This method requires that the
-        // (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
-        // {Requirements on &#39;VALUE_TYPE&#39;}).
+        // the number of elements in &#39;[first .. last)&#39; exceeds the value
+        // returned by the method &#39;max_size&#39;.  The behavior is undefined unless
+        // &#39;first&#39; and &#39;last&#39; refer to a sequence of valid values where &#39;first&#39;
+        // is at a position at or before &#39;last&#39;.  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     Vector_Imp(const Vector_Imp&amp; original);
     Vector_Imp(const Vector_Imp&amp; original, const ALLOCATOR&amp; basicAllocator);
@@ -973,9 +979,9 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // memory.  If &#39;basicAllocator&#39; is not specified, then if &#39;ALLOCATOR&#39;
         // is convertible from &#39;bslma::Allocator *&#39;, the currently installed
         // default allocator is used, otherwise the &#39;original&#39; allocator is
-        // used (as mandated per the ISO standard).  This method requires that
-        // the (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot;
-        // (see {Requirements on &#39;VALUE_TYPE&#39;}).
+        // used (as mandated per the ISO standard).  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     ~Vector_Imp();
         // Destroy this vector.
@@ -986,27 +992,29 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
 
     Vector_Imp&amp; operator=(const Vector_Imp&amp; other);
         // Assign to this vector the value of the specified &#39;other&#39; vector and
-        // return a reference to this modifiable vector.  This method requires
-        // that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // return a reference to this modifiable vector.  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     template &lt;class INPUT_ITER&gt;
     void assign(INPUT_ITER first, INPUT_ITER last);
         // Assign to this vector the values in the range starting at the
         // specified &#39;first&#39; and ending immediately before the specified &#39;last&#39;
-        // iterators of the parameterized &#39;INPUT_ITER&#39; type.  Note that this
-        // vector will be left in an empty state in case an exception is thrown
-        // other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
+        // iterators of the parameterized &#39;INPUT_ITER&#39; type.  This vector is
+        // left in an empty state in case an exception is thrown other than by
+        // the &#39;VALUE_TYPE&#39; copy constructor or assignment operator.  The
+        // behavior is undefined unless &#39;first&#39; and &#39;last&#39; refer to a sequence
+        // of valid values where &#39;first&#39; is at a position at or before &#39;last&#39;.
+        // Note that this method requires that the (template parameter) type
         // &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see {Requirements on
         // &#39;VALUE_TYPE&#39;}).
 
     void assign(size_type numElements, const VALUE_TYPE&amp; value);
         // Assign to this vector the value of the vector of the specified
         // &#39;numElements&#39; size whose every elements equal the specified &#39;value&#39;.
-        // Note that this vector will be left in an empty state in case an
-        // exception is thrown other than by the &#39;VALUE_TYPE&#39; copy constructor
-        // or assignment operator.  This method requires that the (template
+        // This vector is left in an empty state in case an exception is thrown
+        // other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
+        // operator.  Note that this method requires that the (template
         // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
         // {Requirements on &#39;VALUE_TYPE&#39;}).
 
@@ -1019,10 +1027,10 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // appropriate number of copies of the optionally specified &#39;value&#39; at
         // the end if &#39;size() &lt; newSize&#39;.  If &#39;value&#39; is not specified, a
         // default-constructed value is used.  Throw &#39;std::length_error&#39; if
-        // &#39;newSize &gt; max_size()&#39;.  This method requires that the (template
-        // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; if &#39;value&#39; is
-        // specified and &quot;default-constructible&quot; otherwise (see {Requirements
-        // on &#39;VALUE_TYPE&#39;}).
+        // &#39;newSize &gt; max_size()&#39;.  Note that this method requires that the
+        // (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; if
+        // &#39;value&#39; is specified and &quot;default-constructible&quot; otherwise (see
+        // {Requirements on &#39;VALUE_TYPE&#39;}).
 
     void reserve(size_type newCapacity);
         // Change the capacity of this vector to the specified &#39;newCapacity&#39;.
@@ -1039,62 +1047,150 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template &lt;class... Args&gt; void emplace_back(Args&amp;&amp;... args);
         // Append a new element to the end of this vector, constructed directly
-        // in place from the specified &#39;args&#39;. The &#39;args&#39; are passed to the
+        // in place from the specified &#39;args&#39;.  The &#39;args&#39; are passed to the
         // constructor using &quot;perfect forwarding&quot;, meaning move semantics will
-        // be utilized for rvalued elements that implement them. The
+        // be utilized for rvalued elements that implement them.  The
         // combination of constructing in place and &quot;perfect forwarding&quot; means
-        // that when move semantics are availible, elements in &#39;args&#39; will not
-        // be copied at all. When move semantics are not availible, elements in
-        // &#39;args&#39; will be copied only once. This method provides the strong
-        // exception safety guarentee, so the state of this object will not be
+        // that when move semantics are available, elements in &#39;args&#39; will not
+        // be copied at all.  When move semantics are not available, elements
+        // in &#39;args&#39; will be copied only once.  This method provides the strong
+        // exception safety guarantee, so the state of this object will not be
         // changed if an exception is thrown (such as when allocating memory,
         // or from operations of &#39;VALUE_TYPE&#39;).
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl bslstl_vector.h
     void emplace_back(
                               );
 
-    template &lt;class Args_1&gt; void emplace_back(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+    template &lt;class Args_01&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
 
-    template &lt;class Args_1,
-              class Args_2&gt; void emplace_back(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+    template &lt;class Args_01,
+              class Args_02&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3&gt; void emplace_back(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4&gt; void emplace_back(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4,
-              class Args_5&gt; void emplace_back(
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10&gt; void emplace_back(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template &lt;class... Args&gt; void emplace_back(
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
 // }}} END GENERATED CODE
 #endif
 
@@ -1103,9 +1199,9 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
-        // &#39;VALUE_TYPE&#39;). This method requires that the (template parameter)
-        // type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see {Requirements on
-        // &#39;VALUE_TYPE&#39;}).
+        // &#39;VALUE_TYPE&#39;).  Note that this method requires that the (template
+        // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
+        // {Requirements on &#39;VALUE_TYPE&#39;}).
 
     void pop_back();
         // Erase the last element from this vector.  The behavior is undefined
@@ -1117,50 +1213,142 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl bslstl_vector.h
     VALUE_TYPE* emplace(const_iterator position);
 
-    template &lt;class Args_1&gt;
+    template &lt;class Args_01&gt;
     VALUE_TYPE* emplace(const_iterator position,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1);
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
 
-    template &lt;class Args_1,
-              class Args_2&gt;
+    template &lt;class Args_01,
+              class Args_02&gt;
     VALUE_TYPE* emplace(const_iterator position,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2);
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3&gt;
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03&gt;
     VALUE_TYPE* emplace(const_iterator position,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3);
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4&gt;
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04&gt;
     VALUE_TYPE* emplace(const_iterator position,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4);
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
 
-    template &lt;class Args_1,
-              class Args_2,
-              class Args_3,
-              class Args_4,
-              class Args_5&gt;
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05&gt;
     VALUE_TYPE* emplace(const_iterator position,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5);
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06&gt;
+    VALUE_TYPE* emplace(const_iterator position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07&gt;
+    VALUE_TYPE* emplace(const_iterator position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08&gt;
+    VALUE_TYPE* emplace(const_iterator position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09&gt;
+    VALUE_TYPE* emplace(const_iterator position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template &lt;class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10&gt;
+    VALUE_TYPE* emplace(const_iterator position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template &lt;class... Args&gt;
     VALUE_TYPE* emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
@@ -1171,25 +1359,25 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // Insert at the specified &#39;position&#39; in this vector a copy of the
         // specified &#39;value&#39;, and return an iterator pointing to the newly
         // inserted element.  If &#39;value&#39; has move semantics, then its value is
-        // valid but unspecified upon returning from this function.  The
-        // behavior is undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39; (both endpoints included).  Note that this
+        // valid but unspecified upon returning from this function.  This
         // method offers full guarantee of rollback in case an exception is
         // thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
-        // &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see {Requirements on
-        // &#39;VALUE_TYPE&#39;}).
+        // operator.  The behavior is undefined unless &#39;position&#39; is an
+        // iterator in the range &#39;[begin() .. end()]&#39; (both endpoints
+        // included).  Note that this method requires that the (template
+        // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
+        // {Requirements on &#39;VALUE_TYPE&#39;}).
 
     void insert(const_iterator    position,
                 size_type         numElements,
                 const VALUE_TYPE&amp; value);
         // Insert at the specified &#39;position&#39; in this vector a number equal to
-        // the specified &#39;numElements&#39; of copies of the specified &#39;value&#39;.  The
-        // behavior is undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39; (both endpoints included).  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // throw is thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or
-        // assignment operator.  This method requires that the (template
+        // the specified &#39;numElements&#39; of copies of the specified &#39;value&#39;.
+        // This method offers full guarantee of rollback in case an exception
+        // is thrown other than by the &#39;VALUE_TYPE&#39; copy constructor or
+        // assignment operator.  The behavior is undefined unless &#39;position&#39; is
+        // an iterator in the range &#39;[begin() .. end()]&#39; (both endpoints
+        // included).  Note that this method requires that the (template
         // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
         // {Requirements on &#39;VALUE_TYPE&#39;}).
 
@@ -1198,14 +1386,15 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // Insert at the specified &#39;position&#39; in this vector the values in the
         // range starting at the specified &#39;first&#39; and ending immediately
         // before the specified &#39;last&#39; iterators of the parameterized
-        // &#39;INPUT_ITER&#39; type.  The behavior is undefined unless &#39;position&#39; is
-        // an iterator in the range &#39;[ begin(), end() ]&#39; (both endpoints
-        // included).  Note that this method offers full guarantee of rollback
-        // in case an exception is thrown other than by the &#39;VALUE_TYPE&#39; copy
-        // constructor or assignment operator.  This method requires that the
-        // (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
+        // &#39;INPUT_ITER&#39; type.  This method offers full guarantee of rollback in
+        // case an exception is thrown other than by the &#39;VALUE_TYPE&#39; copy
+        // constructor or assignment operator.  The behavior is undefined
+        // unless &#39;position&#39; is an iterator in the range &#39;[begin() .. end()]&#39;
+        // (both endpoints included), and &#39;first&#39; and &#39;last&#39; refer to a
+        // sequence of valid values where &#39;first&#39; is at a position at or before
+        // &#39;last&#39;.  Note that this method requires that the (template
+        // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
         // {Requirements on &#39;VALUE_TYPE&#39;}).
-
 
     iterator erase(const_iterator position);
         // Remove from this vector the element at the specified &#39;position&#39;, and
@@ -1213,7 +1402,7 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // removed element, or to the position returned by the &#39;end&#39; method if
         // the removed element was the last in the sequence.  The behavior is
         // undefined unless &#39;position&#39; is an iterator in the range
-        // &#39;[ begin(), end() )&#39;.
+        // &#39;[begin() .. end())&#39;.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this vector the elements starting at the specified
@@ -1222,8 +1411,8 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
         // last removed element, or the position returned by the method &#39;end&#39;
         // if the removed elements were last in the sequence.  The behavior is
         // undefined unless &#39;first&#39; is an iterator in the range
-        // &#39;[ begin(), end() ]&#39; and &#39;last&#39; is an iterator in the range
-        // &#39;[ first, end() ]&#39; (both endpoints included).
+        // &#39;[begin() .. end()]&#39; and &#39;last&#39; is an iterator in the range
+        // &#39;[first .. end()]&#39; (both endpoints included).
 
     void swap(Vector_Imp&amp; other);
         // Exchange the value of this vector with that of the specified &#39;other&#39;
@@ -1234,7 +1423,7 @@ class Vector_Imp : public Vector_ImpBase&lt;VALUE_TYPE&gt;
 
     void clear();
         // Remove all the elements from this vector.  Note that this vector is
-        // empty after this call, but conserves the same capacity.
+        // empty after this call, but preserves the same capacity.
 
     // ACCESSORS
 
@@ -1258,9 +1447,9 @@ bool operator==(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
     // Return &#39;true&#39; if the specified &#39;lhs&#39; vector has the same value as the
     // specified &#39;rhs&#39; vector.  Two vectors have the same value if they have
     // the same number of elements and the same element value at each index
-    // position in the range 0 to &#39;size() - 1&#39;.  This method requires that the
-    // (template parameter) type &#39;VALUE_TYPE&#39; be &quot;equality-comparable&quot; (see
-    // {Requirements on &#39;VALUE_TYPE&#39;}).
+    // position in the range 0 to &#39;size() - 1&#39;.  Note that this method requires
+    // that the (template parameter) type &#39;VALUE_TYPE&#39; be &quot;equality-comparable&quot;
+    // (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 bool operator!=(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
@@ -1268,9 +1457,10 @@ bool operator!=(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
     // Return &#39;true&#39; if the specified &#39;lhs&#39; vector does not have the same value
     // as the specified &#39;rhs&#39; vector.  Two vectors do not have the same value
     // if they have different numbers of elements or different element values
-    // in at least one index position in the range 0 to &#39;size() - 1&#39;.  This
-    // method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
-    // &quot;equality-comparable&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
+    // in at least one index position in the range 0 to &#39;size() - 1&#39;.  Note
+    // that this method requires that the (template parameter) type
+    // &#39;VALUE_TYPE&#39; be &quot;equality-comparable&quot; (see {Requirements on
+    // &#39;VALUE_TYPE&#39;}).
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 bool operator&lt; (const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
@@ -1280,16 +1470,16 @@ bool operator&lt; (const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
     // is lexicographically smaller than another vector &#39;rhs&#39; if there exists
     // an index &#39;i&#39; between 0 and the minimum of &#39;lhs.size()&#39; and &#39;rhs.size()&#39;
     // such that &#39;lhs[i] == rhs[j]&#39; for every &#39;0 &lt;= j &lt; i&#39;, &#39;i &lt; rhs.size()&#39;,
-    // and either &#39;i == lhs.size()&#39; or &#39;lhs[i] &lt; rhs[i]&#39;.  This method requires
-    // that the (template parameter) type &#39;VALUE_TYPE&#39; be
+    // and either &#39;i == lhs.size()&#39; or &#39;lhs[i] &lt; rhs[i]&#39;.  Note that this
+    // method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
     // &quot;less-than-comparable&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 bool operator&gt; (const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
                 const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; vector is lexicographically larger
-    // than the specified &#39;rhs&#39; vector, and &#39;false&#39; otherwise.  This method
-    // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+    // than the specified &#39;rhs&#39; vector, and &#39;false&#39; otherwise.  Note that this
+    // method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
     // &quot;less-than-comparable&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
@@ -1297,15 +1487,16 @@ bool operator&lt;=(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
                 const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; vector is lexicographically smaller
     // than or equal to the specified &#39;rhs&#39; vector, and &#39;false&#39; otherwise.
-    // This method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
-    // &quot;less-than-comparable&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
+    // Note that this method requires that the (template parameter) type
+    // &#39;VALUE_TYPE&#39; be &quot;less-than-comparable&quot; (see {Requirements on
+    // &#39;VALUE_TYPE&#39;}).
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 bool operator&gt;=(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; lhs,
                 const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; vector is lexicographically larger
-    // than the specified &#39;rhs&#39; vector, and &#39;false&#39; otherwise.  This method
-    // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+    // than the specified &#39;rhs&#39; vector, and &#39;false&#39; otherwise.  Note that this
+    // method requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
     // &quot;less-than-comparable&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
                       // *** specialized algorithms: ***
@@ -1348,8 +1539,8 @@ class vector : public Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;
         // Create a vector of the specified size &#39;n&#39; whose every element is
         // default-constructed.  Optionally specify an &#39;allocator&#39; used to
         // supply memory.  If &#39;allocator&#39; is not specified, a
-        // default-constructed allocator is used.  This method requires that
-        // the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // default-constructed allocator is used.  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
         // &quot;default-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     vector(size_type         n,
@@ -1358,9 +1549,9 @@ class vector : public Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;
         // Create a vector of the specified size &#39;n&#39; whose every element equals
         // the specified &#39;value&#39;.  Optionally specify an allocator &#39;alloc&#39; used
         // to supply memory.  If &#39;alloc&#39; is not specified, a
-        // default-constructed allocator is used.  This method requires that
-        // the (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot;
-        // (see {Requirements on &#39;VALUE_TYPE&#39;}).
+        // default-constructed allocator is used.  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     template &lt;class INPUT_ITER&gt;
     vector(INPUT_ITER       first,
@@ -1371,9 +1562,11 @@ class vector : public Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;
         // before the specified &#39;last&#39; iterators of the parameterized
         // &#39;INPUT_ITER&#39; type.  Optionally specify an allocator &#39;alloc&#39; used to
         // supply memory.  If &#39;alloc&#39; is not specified, a default-constructed
-        // allocator is used.  This method requires that the (template
-        // parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot; (see
-        // {Requirements on &#39;VALUE_TYPE&#39;}).
+        // allocator is used.  The behavior is undefined unless &#39;first&#39; and
+        // &#39;last&#39; refer to a sequence of valid values where &#39;first&#39; is at a
+        // position at or before &#39;last&#39;.  Note that this method requires that
+        // the (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot;
+        // (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     vector(const vector&amp; original);
     vector(const vector&amp; original, const ALLOCATOR&amp; alloc);
@@ -1382,17 +1575,17 @@ class vector : public Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;
         // memory.  If &#39;alloc&#39; is not specified, then if &#39;ALLOCATOR&#39; is
         // convertible from &#39;bslma::Allocator *&#39;, the currently installed
         // default allocator is used, otherwise the &#39;original&#39; allocator is
-        // used (as mandated per the ISO standard).  This method requires that
-        // the (template parameter) type &#39;VALUE_TYPE&#39; be &quot;copy-constructible&quot;
-        // (see {Requirements on &#39;VALUE_TYPE&#39;}).
+        // used (as mandated per the ISO standard).  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 
     ~vector();
         // Destroy this vector.
 
     vector&amp; operator=(const vector&amp; other);
         // Assign to this vector the value of the specified &#39;other&#39; vector and
-        // return a reference to this modifiable vector.  This method requires
-        // that the (template parameter) type &#39;VALUE_TYPE&#39; be
+        // return a reference to this modifiable vector.  Note that this method
+        // requires that the (template parameter) type &#39;VALUE_TYPE&#39; be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;VALUE_TYPE&#39;}).
 };
 
@@ -1930,8 +2123,8 @@ struct Vector_RangeCheck {
     typename bsl::enable_if&lt;
            !Vector_IsRandomAccessIterator&lt;BSLSTL_ITERATOR&gt;::VALUE, bool&gt;::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
-        // Return &#39;false&#39; as we know of no way to identify an input iterator
-        // range that is guaranteed to be invalid.
+        // Return &#39;false&#39;.  Note that we know of no way to identify an input
+        // iterator range that is guaranteed to be invalid.
     {
         return false;
     }
@@ -1941,9 +2134,9 @@ struct Vector_RangeCheck {
     typename bsl::enable_if&lt;
            Vector_IsRandomAccessIterator&lt;BSLSTL_ITERATOR&gt;::VALUE, bool&gt;::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
-        // Return &#39;true&#39; if &#39;first &lt;= last&#39;, and &#39;false&#39; otherwise.  Behavior
-        // is undefined unless both &#39;first&#39; and &#39;last&#39; are valid iterators that
-        // refer to the same range.
+        // Return &#39;true&#39; if &#39;last &lt; first&#39;, and &#39;false&#39; otherwise.  The
+        // behavior is undefined unless both &#39;first&#39; and &#39;last&#39; are valid
+        // iterators that refer to the same range.
     {
         return last &lt; first;
     }
@@ -2297,9 +2490,9 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::privateInsert(
     }
 
     // Make sure we don&#39;t shrink the capacity if this vector is empty, because
-    // it will be swapped.  Note that &#39;[ first, last )&#39; is not empty so there
-    // is no harm reserving one element otherwise, in fact, it will speed up
-    // the first &#39;push_back&#39;.
+    // it will be swapped.  Note that &#39;[first .. last)&#39; is not empty, so there
+    // is no harm reserving one element; in fact, it will speed up the first
+    // &#39;push_back&#39;.
 
     const bool isEmpty = this-&gt;empty();
     Vector_Imp temp(this-&gt;get_allocator());
@@ -2733,20 +2926,20 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(Args&amp;&amp;...args
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                                   std::forward&lt;Args&gt;(args)...,
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args,args)...,
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd, std::forward&lt;Args&gt;(args)...);
+        emplace(this-&gt;d_dataEnd, BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
     }
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl bslstl_vector.h
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
@@ -2754,8 +2947,8 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                           this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
@@ -2765,156 +2958,388 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1&gt;
+template &lt;class Args_01&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd,BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1));
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
     }
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2&gt;
+template &lt;class Args_01,
+          class Args_02&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd,BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2));
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
     }
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd,BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3));
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
     }
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4),
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd,BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4));
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
     }
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4,
-          class Args_5&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05&gt;
 inline
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
-                                          args_5),
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd,BSLS_COMPILERFEATURES_FORWARD(Args_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(Args_5, args_5));
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06&gt;
+inline
+void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               this-&gt;bslmaAllocator());
+        ++this-&gt;d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07&gt;
+inline
+void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               this-&gt;bslmaAllocator());
+        ++this-&gt;d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08&gt;
+inline
+void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               this-&gt;bslmaAllocator());
+        ++this-&gt;d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09&gt;
+inline
+void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               this-&gt;bslmaAllocator());
+        ++this-&gt;d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+    }
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10&gt;
+inline
+void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10),
+                               this-&gt;bslmaAllocator());
+        ++this-&gt;d_dataEnd;
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        emplace(this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
     }
 }
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
 inline
@@ -2923,15 +3348,14 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace_back(
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this-&gt;d_capacity &gt; this-&gt;size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this-&gt;d_dataEnd,
-                                           BSLS_COMPILERFEATURES_FORWARD(Args,
-                                           args)...,
-                                                   this-&gt;bslmaAllocator());
+                               this-&gt;d_dataEnd,
+                               BSLS_COMPILERFEATURES_FORWARD(Args,args)...,
+                               this-&gt;bslmaAllocator());
         ++this-&gt;d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this-&gt;d_dataEnd, BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+        emplace(this-&gt;d_dataEnd, BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
     }
 }
 // }}} END GENERATED CODE
@@ -2993,7 +3417,7 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
         Vector_Imp temp(this-&gt;get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        // Move &#39;[pos, this-&gt;d_dataEnd)&#39; to &#39;temp&#39; array.
+        // Move &#39;[pos .. this-&gt;d_dataEnd)&#39; to &#39;temp&#39; array.
 
         BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
                                                   temp.d_dataBegin + index + 1,
@@ -3012,12 +3436,12 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
         // Construct the new element.
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                                   std::forward&lt;Args&gt;(args)...,
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                   BSLS_COMPILERFEATURES_FORWARD(Args,args)...,
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
-        // Move &#39;[0, pos)&#39; to &#39;temp&#39; array.
+        // Move &#39;[0 .. pos)&#39; to &#39;temp&#39; array.
 
         BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
                                                        temp.d_dataBegin,
@@ -3032,11 +3456,11 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                                  std::forward&lt;Args&gt;(args)...);
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3045,7 +3469,7 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
+// Generator command line: sim_cpp11_features.pl bslstl_vector.h
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position)
 {
@@ -3088,8 +3512,8 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                           this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3106,10 +3530,10 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator());
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator());
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3117,9 +3541,9 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1&gt;
+template &lt;class Args_01&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
     BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
@@ -3160,10 +3584,9 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3180,12 +3603,11 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1));
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3193,11 +3615,11 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2&gt;
+template &lt;class Args_01,
+          class Args_02&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
     BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
@@ -3238,12 +3660,10 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3260,14 +3680,12 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2));
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3275,13 +3693,13 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
     BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
@@ -3322,14 +3740,11 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3346,16 +3761,13 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3));
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3363,15 +3775,15 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
     BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
@@ -3412,16 +3824,12 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4),
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3438,18 +3846,14 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4));
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3457,17 +3861,17 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-template &lt;class Args_1,
-          class Args_2,
-          class Args_3,
-          class Args_4,
-          class Args_5&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(Args_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
     BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
@@ -3508,18 +3912,13 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
-                                          args_5),
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3536,20 +3935,525 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+        this-&gt;d_dataEnd += 1;
+    }
+
+    return this-&gt;begin() + index;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06&gt;
+VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
+    BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
+
+    const size_type index = position - this-&gt;begin();
+
+    const iterator&amp; pos = const_cast&lt;const iterator&amp;&gt;(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 &gt; maxSize - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            &quot;vector&lt;...&gt;::emplace(pos,args): vector too long&quot;);
+    }
+
+    const size_type newSize = this-&gt;size() + 1;
+    if (newSize &gt; this-&gt;d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this-&gt;d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this-&gt;get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
                                                   pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_1,
-                                          args_1),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_2,
-                                          args_2),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_3,
-                                          args_3),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_4,
-                                          args_4),
-                                          BSLS_COMPILERFEATURES_FORWARD(Args_5,
-                                          args_5));
+                                                  this-&gt;d_dataEnd,
+                                                  this-&gt;bslmaAllocator());
+
+
+        BloombergLP::bslalg::AutoArrayDestructor&lt;VALUE_TYPE&gt; guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this-&gt;d_dataEnd = pos;
+
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                                   this-&gt;bslmaAllocator());
+        guard.moveBegin(-1);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this-&gt;d_dataBegin,
+                                                       pos,
+                                                       this-&gt;bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this-&gt;d_dataEnd = this-&gt;d_dataBegin;
+        Vector_Util::swap(&amp;this-&gt;d_dataBegin, &amp;temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+        this-&gt;d_dataEnd += 1;
+    }
+
+    return this-&gt;begin() + index;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07&gt;
+VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
+    BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
+
+    const size_type index = position - this-&gt;begin();
+
+    const iterator&amp; pos = const_cast&lt;const iterator&amp;&gt;(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 &gt; maxSize - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            &quot;vector&lt;...&gt;::emplace(pos,args): vector too long&quot;);
+    }
+
+    const size_type newSize = this-&gt;size() + 1;
+    if (newSize &gt; this-&gt;d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this-&gt;d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this-&gt;get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
+                                                  pos,
+                                                  this-&gt;d_dataEnd,
+                                                  this-&gt;bslmaAllocator());
+
+
+        BloombergLP::bslalg::AutoArrayDestructor&lt;VALUE_TYPE&gt; guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this-&gt;d_dataEnd = pos;
+
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                                   this-&gt;bslmaAllocator());
+        guard.moveBegin(-1);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this-&gt;d_dataBegin,
+                                                       pos,
+                                                       this-&gt;bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this-&gt;d_dataEnd = this-&gt;d_dataBegin;
+        Vector_Util::swap(&amp;this-&gt;d_dataBegin, &amp;temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+        this-&gt;d_dataEnd += 1;
+    }
+
+    return this-&gt;begin() + index;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08&gt;
+VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
+    BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
+
+    const size_type index = position - this-&gt;begin();
+
+    const iterator&amp; pos = const_cast&lt;const iterator&amp;&gt;(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 &gt; maxSize - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            &quot;vector&lt;...&gt;::emplace(pos,args): vector too long&quot;);
+    }
+
+    const size_type newSize = this-&gt;size() + 1;
+    if (newSize &gt; this-&gt;d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this-&gt;d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this-&gt;get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
+                                                  pos,
+                                                  this-&gt;d_dataEnd,
+                                                  this-&gt;bslmaAllocator());
+
+
+        BloombergLP::bslalg::AutoArrayDestructor&lt;VALUE_TYPE&gt; guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this-&gt;d_dataEnd = pos;
+
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                                   this-&gt;bslmaAllocator());
+        guard.moveBegin(-1);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this-&gt;d_dataBegin,
+                                                       pos,
+                                                       this-&gt;bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this-&gt;d_dataEnd = this-&gt;d_dataBegin;
+        Vector_Util::swap(&amp;this-&gt;d_dataBegin, &amp;temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+        this-&gt;d_dataEnd += 1;
+    }
+
+    return this-&gt;begin() + index;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09&gt;
+VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
+    BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
+
+    const size_type index = position - this-&gt;begin();
+
+    const iterator&amp; pos = const_cast&lt;const iterator&amp;&gt;(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 &gt; maxSize - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            &quot;vector&lt;...&gt;::emplace(pos,args): vector too long&quot;);
+    }
+
+    const size_type newSize = this-&gt;size() + 1;
+    if (newSize &gt; this-&gt;d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this-&gt;d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this-&gt;get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
+                                                  pos,
+                                                  this-&gt;d_dataEnd,
+                                                  this-&gt;bslmaAllocator());
+
+
+        BloombergLP::bslalg::AutoArrayDestructor&lt;VALUE_TYPE&gt; guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this-&gt;d_dataEnd = pos;
+
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                                   this-&gt;bslmaAllocator());
+        guard.moveBegin(-1);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this-&gt;d_dataBegin,
+                                                       pos,
+                                                       this-&gt;bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this-&gt;d_dataEnd = this-&gt;d_dataBegin;
+        Vector_Util::swap(&amp;this-&gt;d_dataBegin, &amp;temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+        this-&gt;d_dataEnd += 1;
+    }
+
+    return this-&gt;begin() + index;
+}
+
+template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+template &lt;class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10&gt;
+VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
+    BSLS_ASSERT_SAFE(position      &lt;= this-&gt;end());
+
+    const size_type index = position - this-&gt;begin();
+
+    const iterator&amp; pos = const_cast&lt;const iterator&amp;&gt;(position);
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 &gt; maxSize - this-&gt;size())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                            &quot;vector&lt;...&gt;::emplace(pos,args): vector too long&quot;);
+    }
+
+    const size_type newSize = this-&gt;size() + 1;
+    if (newSize &gt; this-&gt;d_capacity) {
+        size_type newCapacity = Vector_Util::computeNewCapacity(
+                                                              newSize,
+                                                              this-&gt;d_capacity,
+                                                              maxSize);
+        Vector_Imp temp(this-&gt;get_allocator());
+        temp.privateReserveEmpty(newCapacity);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                  temp.d_dataBegin + index + 1,
+                                                  pos,
+                                                  this-&gt;d_dataEnd,
+                                                  this-&gt;bslmaAllocator());
+
+
+        BloombergLP::bslalg::AutoArrayDestructor&lt;VALUE_TYPE&gt; guard(
+                                                  temp.d_dataBegin + index + 1,
+                                                  temp.d_dataBegin + newSize);
+
+        this-&gt;d_dataEnd = pos;
+
+
+        BloombergLP::bslalg::ScalarPrimitives::construct(
+                                   temp.d_dataBegin + index,
+                                BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                                BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10),
+                                   this-&gt;bslmaAllocator());
+        guard.moveBegin(-1);
+
+
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
+                                                       temp.d_dataBegin,
+                                                       this-&gt;d_dataBegin,
+                                                       pos,
+                                                       this-&gt;bslmaAllocator());
+        guard.release();
+
+        temp.d_dataEnd += newSize;
+        this-&gt;d_dataEnd = this-&gt;d_dataBegin;
+        Vector_Util::swap(&amp;this-&gt;d_dataBegin, &amp;temp.d_dataBegin);
+    }
+    else {
+        BloombergLP::bslalg::ArrayPrimitives::emplace(
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
         this-&gt;d_dataEnd += 1;
     }
 
@@ -3557,6 +4461,8 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 }
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
@@ -3601,10 +4507,9 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                           BSLS_COMPILERFEATURES_FORWARD(Args,
-                                           args)...,
-                                                   this-&gt;bslmaAllocator());
+                                   temp.d_dataBegin + index,
+                                   BSLS_COMPILERFEATURES_FORWARD(Args,args)...,
+                                   this-&gt;bslmaAllocator());
         guard.moveBegin(-1);
 
 
@@ -3621,12 +4526,11 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this-&gt;end(),
-                                                  1,
-                                                  this-&gt;bslmaAllocator(),
-                                           BSLS_COMPILERFEATURES_FORWARD(Args,
-                                           args)...);
+                                  pos,
+                                  this-&gt;end(),
+                                  1,
+                                  this-&gt;bslmaAllocator(),
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
         this-&gt;d_dataEnd += 1;
     }
 
@@ -4092,7 +4996,7 @@ void swap(vector&lt;VALUE_TYPE *, ALLOCATOR&gt;&amp; a,
 }
 
              // -------------------------------------------
-             // class vector&lt;const VALUE_TYPE *, ALLCOATOR&gt;
+             // class vector&lt;const VALUE_TYPE *, ALLOCATOR&gt;
              // -------------------------------------------
 
 // FREE OPERATORS
@@ -4259,7 +5163,7 @@ template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 struct HasStlIterators&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt; : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
@@ -4268,7 +5172,7 @@ struct IsBitwiseMoveable&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
     : IsBitwiseMoveable&lt;ALLOCATOR&gt;
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -4277,7 +5181,7 @@ struct UsesBslmaAllocator&lt;bsl::vector&lt;VALUE_TYPE, ALLOCATOR&gt; &gt;
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;::type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

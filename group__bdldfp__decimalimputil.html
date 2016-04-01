@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdldfp_decimalimputil Component</title>
+<title>BDE 3.0: bdldfp_decimalimputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -149,8 +149,8 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">bdldfp::DecimalImpUtil::ValueType64</a>
   totalSecurities(<a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">bdldfp::DecimalImpUtil::ValueType64</a> *prices,
                   <span class="keywordtype">int</span>                                  numPrices)
-      <span class="comment">// Return a Decimal Floating Point number representing the arithmetic</span>
-      <span class="comment">// total of the values specified by &#39;prices&#39; and &#39;numPrices&#39;.</span>
+ Return a Decimal Floating Point number representing the arithmetic
+ total of the values specified by <span class="stringliteral">&#39;prices&#39;</span> and <span class="stringliteral">&#39;numPrices&#39;</span>.
   {
 </pre></div><br/>
 <br/>
@@ -189,7 +189,7 @@ Namespaces</h2></td></tr>
 
   expected = <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#ad227f0fabcbdfe659934390a6cbcf2f0">bdldfp::DecimalImpUtil::int32ToDecimal64</a>(16);
 
-  <span class="comment">// Totals of values from 1 to &#39;x&#39; are &#39;(x * x + x) / 2&#39;:</span>
+ Totals of values from 1 to <span class="charliteral">&#39;x&#39;</span> are <span class="stringliteral">&#39;(x * x + x) / 2&#39;</span>:
 
   expected = <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#ac883e1e579a52eb4b5b59e58076a63d5">bdldfp::DecimalImpUtil::add</a>(
                <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a095ee9f5c49db13460e953207ef12bf4">bdldfp::DecimalImpUtil::multiply</a>(expected, expected),
@@ -203,7 +203,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that arithmetic is unwieldy and hard to visualize. This is by design, as the DecimalImpUtil and subordinate components are not intended for public consumption, or direct use in decimal arithmetic. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

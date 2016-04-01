@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_objectbuffer Component</title>
+<title>BDE 3.0: bsls_objectbuffer Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -81,9 +81,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1">Usage</a> <ul>
 <li>
-<a href="#3.1.1">Usage Example 1</a> </li>
+<a href="#3.1.1">Example 1: Creating a Dynamic Array of Objects</a> </li>
 <li>
-<a href="#3.1.2">Usage Example 2</a> </li>
+<a href="#3.1.2">Example 2: Containing Different Object Types</a> </li>
 </ul>
 </li>
 </ul>
@@ -114,8 +114,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The examples below use a value-semantic string class, <code>my_String</code> which can be constructed from a null-terminated string and contains a member, <code>c_str</code> which returns a null-terminated string. <code>my_String</code> does not have a default constructor and thus cannot be used in C-style arrays or unions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_1"></a> <a class="anchor" id="usage.usage_example_1"></a> <a class="anchor" id="description.usage.usage_example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 1: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_a_dynamic_array_of_objects"></a> <a class="anchor" id="usage.example_1~3A_creating_a_dynamic_array_of_objects"></a> <a class="anchor" id="description.usage.example_1~3A_creating_a_dynamic_array_of_objects"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Creating a Dynamic Array of Objects: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Here we use <code><a class="el" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer</a></code> to create a variable-length array of <code>my_String</code> objects. For efficiency, the array is created on the stack as a fixed-sized array of <code><a class="el" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer</a>&lt;my_String&gt;</code> objects and the length is kept in a separate variable. Only <code>len</code> calls are made to the <code>my_String</code> constructor, with the unused array elements left as raw memory. An array directly containing <code>my_String</code> objects would not have been possible because <code>my_String</code> does not have a default constructor. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>WARNING: the <code>manipulateStrings</code> function below is not exception-safe. If an exception is thrown anywhere within the function (e.g., from a constructor call), the destructor will not be called on the constructed string objects. This logic would typically be augmented with guard objects that call destructors in case of exception. <br/>
 <br/>
@@ -160,8 +160,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_2"></a> <a class="anchor" id="usage.usage_example_2"></a> <a class="anchor" id="description.usage.usage_example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 2: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_containing_different_object_types"></a> <a class="anchor" id="usage.example_2~3A_containing_different_object_types"></a> <a class="anchor" id="description.usage.example_2~3A_containing_different_object_types"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Containing Different Object Types: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Here we use <code><a class="el" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer</a></code> to compose a variable-type object capable of holding a string or an integer: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>my_Union
@@ -170,9 +171,9 @@ Namespaces</h2></td></tr>
       <span class="keyword">enum</span> TypeTag { INT, STRING };
 
     <span class="keyword">private</span>:
-      TypeTag                          d_type;
+      TypeTag                           d_type;
       <span class="keyword">union </span>{
-          <span class="keywordtype">int</span>                          d_int;
+          <span class="keywordtype">int</span>                           d_int;
           <a class="code" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer&lt;my_String&gt;</a> d_string;
       };
 
@@ -276,7 +277,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:02 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

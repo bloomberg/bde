@@ -1,0 +1,144 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_factory.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMA_FACTORY
+#define INCLUDED_BDLMA_FACTORY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for creator/deleter of parameterized objects.
+//
+//@CLASSES:
+//   bdlma::Factory: protocol class for creator/deleter of &#39;TYPE&#39; objects
+//
+//@SEE_ALSO: bdlma_deleter
+//
+//@DESCRIPTION: This component defines the base-level protocol for a
+// thread-safe and type-safe creator and deleter of objects of parameterized
+// type.  In particular, &#39;bdlma::Factory&#39; extends the &#39;bdlma::Deleter&#39; protocol
+// with the addition of a &#39;createObject&#39; method:
+//..
+//                         ( bdlma::Factory )
+//                                 |       createObject
+//                                 v
+//                         ( bdlma::Deleter )
+//                                         dtor
+//                                         deleteObject
+//..
+// This class is extremely useful for transferring the ownership of objects
+// between different entities.  The following usage example demonstrates this
+// point.
+//
+///Usage
+///-----
+// Suppose that we would like to transfer an object between threads using
+// &#39;bsl::shared_ptr&#39;.  For the sake of discussion, the type of this object is
+// &#39;my_Obj&#39; and we will suppose that it is created using a concrete
+// implementation of &#39;bdlma::Factory&#39;, say, &#39;my_Factory&#39;, the implementation of
+// which is assumed:
+//..
+//  my_Factory  factory;
+//  my_Obj     *object = factory.createObject();
+//..
+// Next we create a shared pointer passing to it &#39;object&#39; and the &#39;factory&#39;
+// that was used to create &#39;object&#39;:
+//..
+//  bsl::shared_ptr&lt;my_Obj&gt; handle(object, &amp;factory);
+//..
+// Now the &#39;handle&#39; can be passed to another thread or enqueued efficiently.
+// Once the reference count of &#39;handle&#39; goes to 0, &#39;object&#39; is automatically
+// deleted via the &#39;deleteObject&#39; method of &#39;factory&#39;, which in turn will
+// invoke the destructor of &#39;object&#39;.  Note that since the type of the factory
+// used to both create the object under management and to instantiate &#39;handle&#39;
+// is &#39;bdlma::Factory&lt;my_Obj&gt;&#39;, any kind of creator/deleter that implements
+// this protocol can be passed.  Also note, on the downside, that the lifetime
+// of &#39;factory&#39; must be longer than the lifetime of all associated object
+// instances.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_DELETER
+#include &lt;bdlma_deleter.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                              // =============
+                              // class Factory
+                              // =============
+
+template &lt;class TYPE&gt;
+class Factory : public Deleter&lt;TYPE&gt; {
+    // This &#39;class&#39; provides a protocol (or pure interface) for a thread-safe
+    // object creator and deleter.  It extends the &#39;Deleter&#39; protocol with the
+    // addition of a &#39;createObject&#39; method.
+
+  public:
+    // CREATORS
+    virtual ~Factory();
+        // Destroy this object factory.
+
+    virtual TYPE *createObject() = 0;
+        // Create an instance of the specified &#39;TYPE&#39; using default arguments.
+        // Return the address of the newly-created object on success, and 0
+        // otherwise.  The instance must be destroyed using the &#39;deleteObject&#39;
+        // method of this object factory.
+
+    // MANIPULATORS
+    virtual void deleteObject(TYPE *instance) = 0;
+        // Destroy the specified &#39;instance&#39; based on its static type and return
+        // its memory footprint to the appropriate memory manager.  The
+        // behavior is undefined unless &#39;instance&#39; was obtained from a call to
+        // &#39;createObject&#39; on this object factory and has not yet been deleted.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+// CREATORS
+template &lt;class TYPE&gt;
+Factory&lt;TYPE&gt;::~Factory()
+{
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

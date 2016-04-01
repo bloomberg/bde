@@ -1,0 +1,383 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btls5_detailedstatus.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLS5_DETAILEDSTATUS
+#define INCLUDED_BTLS5_DETAILEDSTATUS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class to describe SOCKS5 connection status.
+//
+//@CLASSES:
+//  btls5::DetailedStatus: attributes describing a SOCKS5 connection status
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, &#39;btls5::DetailedStatus&#39;, that is used to
+// describe the status of a SOCKS5 connection attempt.
+//
+///Attributes
+///----------
+//..
+//  Name           Type              Default             Simple Constraints
+//  -------------  -----------       -------             ------------------
+//  description    bsl::string       &quot;&quot;                  none
+//  address        btlso::Endpoint   btlso::Endpoint()   none
+//..
+//: o &#39;description&#39;: non-canonical, human-readable status information, suitable
+//:   for logging and diagnostics
+//:
+//: o &#39;address&#39;: address of the node (proxy) associated with the status
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Assign Error Information
+///- - - - - - - - - - - - - - - - - -
+// Suppose we encounter an authentication failure during a SOCKS5 negotiation.
+// We would like to encode the information about this error before informing
+// the client code of the error.
+//
+// First, we construct an empty &#39;btls5::DetailedStatus&#39; object with the failure
+// description:
+//..
+//  btls5::DetailedStatus error(&quot;authentication failure&quot;);
+//..
+// Now, we set the address of the proxy host that reported the error:
+//..
+//  btlso::Endpoint proxy(&quot;proxy1.corp.com&quot;, 1080);
+//  error.setAddress(proxy);
+//..
+// Finally, we have an encoded &#39;error&#39; which provides detailed information
+// about the failure.
+//..
+//  assert(&quot;authentication failure&quot; == error.description());
+//  assert(proxy                    == error.address());
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include &lt;btlso_endpoint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace btls5 {
+
+                            // ====================
+                            // class DetailedStatus
+                            // ====================
+
+class DetailedStatus {
+    // This value-semantic class provides information about the status of a
+    // connection attempt using SOCKS5.
+
+    // DATA
+    bsl::string     d_description; // text message
+    btlso::Endpoint d_address;     // address associated with this status
+
+  public:
+    // CREATORS
+    explicit DetailedStatus(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;DetailedStatus&#39; object having the (default) attribute
+        // values:
+        //..
+        //  description() == &quot;&quot;
+        //  address()     == btlso::Endpoint()
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    explicit DetailedStatus(const bslstl::StringRef&amp;  description,
+                            bslma::Allocator         *basicAllocator = 0);
+        // Create a &#39;DetailedStatus&#39; object having the specified &#39;description&#39;,
+        // and having a default-constructed address value.  Optionally specify
+        // a &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    DetailedStatus(const bslstl::StringRef&amp;  description,
+                   const btlso::Endpoint&amp;    address,
+                   bslma::Allocator         *basicAllocator = 0);
+        // Create a &#39;DetailedStatus&#39; object having the specified &#39;description&#39;
+        // and &#39;address&#39;.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.
+
+    DetailedStatus(const DetailedStatus&amp;  original,
+                   bslma::Allocator      *basicAllocator = 0);
+        // Create a &#39;DetailedStatus&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    // ~DetailedStatus() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! DetailedStatus&amp; operator=(const DetailedStatus&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setDescription(const bslstl::StringRef&amp; value);
+        // Set the &#39;description&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setAddress(const btlso::Endpoint&amp; value);
+        // Set the &#39;address&#39; attribute of this object to the specified &#39;value&#39;.
+
+                                  // Aspects
+
+    void swap(DetailedStatus&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    const bsl::string&amp; description() const;
+        // Return a reference providing non-modifiable access to the
+        // description attribute of this object.
+
+    const btlso::Endpoint&amp; address() const;
+        // Return a reference providing non-modifiable access to the address
+        // attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DetailedStatus&amp; lhs, const DetailedStatus&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;DetailedStatus&#39; objects have the
+    // same value if both of the corresponding values of their &#39;description&#39;
+    // and &#39;address&#39; attributes are the same.
+
+bool operator!=(const DetailedStatus&amp; lhs, const DetailedStatus&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;DetailedStatus&#39; objects do not
+    // have the same value if either of the corresponding values of their
+    // &#39;description&#39; and &#39;address&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;         stream,
+                         const DetailedStatus&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.
+
+// FREE FUNCTIONS
+void swap(btls5::DetailedStatus&amp; a, btls5::DetailedStatus&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class DetailedStatus
+                            // --------------------
+
+// CREATORS
+inline
+DetailedStatus::DetailedStatus(bslma::Allocator *basicAllocator)
+: d_description(basicAllocator)
+, d_address(basicAllocator)
+{
+}
+
+inline
+DetailedStatus::DetailedStatus(const bslstl::StringRef&amp;  description,
+                               bslma::Allocator         *basicAllocator)
+: d_description(description, basicAllocator)
+, d_address(basicAllocator)
+{
+    BSLS_ASSERT_SAFE(0 != description.data());
+}
+
+inline
+DetailedStatus::DetailedStatus(const bslstl::StringRef&amp;  description,
+                               const btlso::Endpoint&amp;    address,
+                               bslma::Allocator         *basicAllocator)
+: d_description(description, basicAllocator)
+, d_address(address, basicAllocator)
+{
+    BSLS_ASSERT_SAFE(0 != description.data());
+}
+
+inline
+DetailedStatus::DetailedStatus(const DetailedStatus&amp;  original,
+                               bslma::Allocator      *basicAllocator)
+: d_description(original.d_description, basicAllocator)
+, d_address(original.d_address, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+void DetailedStatus::setDescription(const bslstl::StringRef&amp; value)
+{
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_description.assign(value.begin(), value.end());
+}
+
+inline
+void DetailedStatus::setAddress(const btlso::Endpoint&amp; value)
+{
+    d_address = value;
+}
+
+                                  // Aspects
+
+inline
+void DetailedStatus::swap(DetailedStatus&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&amp;d_description, &amp;other.d_description);
+    bslalg::SwapUtil::swap(&amp;d_address, &amp;other.d_address);
+}
+
+// ACCESSORS
+inline
+const bsl::string&amp; DetailedStatus::description() const
+{
+    return d_description;
+}
+
+inline
+const btlso::Endpoint&amp; DetailedStatus::address() const
+{
+    return d_address;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *DetailedStatus::allocator() const
+{
+    return d_description.get_allocator().mechanism();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool btls5::operator==(const DetailedStatus&amp; lhs, const DetailedStatus&amp; rhs)
+{
+    return lhs.description() == rhs.description()
+            &amp;&amp; lhs.address() == rhs.address();
+}
+
+inline
+bool btls5::operator!=(const DetailedStatus&amp; lhs, const DetailedStatus&amp; rhs)
+{
+    return lhs.description() != rhs.description()
+            || lhs.address() != rhs.address();
+}
+
+// FREE FUNCTIONS
+inline
+void btls5::swap(btls5::DetailedStatus&amp; a, btls5::DetailedStatus&amp; b)
+{
+    a.swap(b);
+}
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btls5::DetailedStatus&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

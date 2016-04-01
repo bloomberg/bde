@@ -1,0 +1,215 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlde_byteorder.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLDE_BYTEORDER
+#define INCLUDED_BDLDE_BYTEORDER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an enumeration of the set of possible byte orders.
+//
+//@CLASSES:
+//  bdlde::ByteOrder: namespace for a byte order &#39;enum&#39;
+//
+//@SEE_ALSO: bdlde_charconvertutf16
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type
+// &#39;bdlde::ByteOrder::Enum&#39;, which enumerates the set of possible byte orders.
+//
+///Enumerators
+///-----------
+//..
+//  Name              Description
+//  ---------------   ---------------------------------------------------
+//  e_LITTLE_ENDIAN   little-endian
+//  e_BIG_ENDIAN      big-endian
+//  e_NETWORK         network byte order (aliased to &#39;e_BIG_ENDIAN&#39;)
+//  e_HOST            aliased to &#39;e_LITTLE_ENDIAN&#39; or &#39;e_BIG_ENDIAN&#39; (depending
+//                    on platform)
+//..
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// &#39;bdlde::ByteOrder&#39; usage.
+//
+// First, we create a variable &#39;value&#39; of type &#39;bdlde::ByteOrder::Enum&#39; and
+// initialize it with the enumerator value
+// &#39;bdlde::ByteOrder::e_LITTLE_ENDIAN&#39;:
+//..
+//  bdlde::ByteOrder::Enum value = bdlde::ByteOrder::e_LITTLE_ENDIAN;
+//..
+// Next, we store a pointer to its ASCII representation in a variable
+// &#39;asciiValue&#39; of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = bdlde::ByteOrder::toAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, &quot;LITTLE_ENDIAN&quot;));
+//..
+// Then, we try one of the aliased identifiers, and we get a string
+// corresponding to the value it is aliased to:
+//..
+//  value      = bdlde::ByteOrder::e_NETWORK;
+//  asciiValue = bdlde::ByteOrder::toAscii(value);
+//
+//  assert(0 == bsl::strcmp(asciiValue, &quot;BIG_ENDIAN&quot;));
+//..
+// Finally, we print &#39;value&#39; to &#39;bsl::cout&#39;:
+//..
+//  bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  BIG_ENDIAN
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdlde {
+                              // ================
+                              // struct ByteOrder
+                              // ================
+
+struct ByteOrder {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of byte
+    // orders.  See &#39;Enum&#39; in the TYPES sub-section for details.
+    //
+    // This class:
+    //: o supports a complete set of *enumeration* operations
+    //:   o except for &#39;bdex&#39; serialization
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum Enum {
+        e_LITTLE_ENDIAN,                // base enumeration
+        e_BIG_ENDIAN,                   // base enumeration
+
+        e_NETWORK = e_BIG_ENDIAN,       // Network byte order is always
+                                        // aliased to big-endian.
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        e_HOST    = e_LITTLE_ENDIAN     // Host byte order is always aliased to
+#else                                   // a base enumeration, varying
+        e_HOST    = e_BIG_ENDIAN        // depending on the platform.
+#endif
+    };
+
+  public:
+    // CLASS METHODS
+    static bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                               Enum          value,
+                               int           level          = 0,
+                               int           spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration &#39;value&#39;
+        // to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  See &#39;toAscii&#39; for
+        // what constitutes the string representation of a
+        // &#39;ByteOrder::Enum&#39; value.
+
+    static const char *toAscii(Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches the
+        // name of its corresponding base enumeration with the &quot;e_&quot; prefix
+        // elided.  For example:
+        //..
+        //  bsl::cout &lt;&lt; ByteOrder::toAscii(ByteOrder::e_NETWORK);
+        //..
+        // will print the following on standard output:
+        //..
+        //  BIG_ENDIAN
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, ByteOrder::Enum value);
+    // Write the string representation of the specified enumeration &#39;value&#39; to
+    // the specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  See &#39;toAscii&#39; for what constitutes the string
+    // representation of a &#39;bdlde::ByteOrder::Enum&#39; value.  Note that this
+    // method has the same behavior as
+    //..
+    //  bdlde::ByteOrder::print(stream, value, 0, -1);
+    //..
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // -----------------------
+                          // struct bdlde::ByteOrder
+                          // -----------------------
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; bdlde::operator&lt;&lt;(bsl::ostream&amp;          stream,
+                                bdlde::ByteOrder::Enum value)
+{
+    return ByteOrder::print(stream, value, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

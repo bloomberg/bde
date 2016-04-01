@@ -1,0 +1,355 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_thresholdaggregate.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
+#define INCLUDED_BALL_THRESHOLDAGGREGATE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an aggregate of the four logging threshold levels.
+//
+//@CLASSES:
+//  ball::ThresholdAggregate: aggregate of four logging threshold levels
+//
+//@SEE_ALSO: ball_severity
+//
+//@DESCRIPTION: This component implements a class, &#39;ball::ThresholdAggregate&#39;,
+// that aggregates four threshold levels: record level, pass-through level,
+// trigger level, and trigger-all level.  Each of these levels must in the
+// range &#39;[0 .. 255]&#39;, and represents a threshold which, if exceeded, will
+// invoke a certain action.
+//
+///Usage
+///-----
+// The following code fragment illustrates some of the basic operations on
+// threshold levels provided by &#39;ball::ThresholdAggregate&#39;.
+//..
+//    ball::ThresholdAggregate levels(192, 160, 128, 96);
+//    assert(192 == levels.recordLevel());
+//    assert(160 == levels.passLevel());
+//    assert(128 == levels.triggerLevel());
+//    assert( 96 == levels.triggerAllLevel());
+//
+//    levels.setLevels(160, 128, 96, 64);
+//    assert(160 == levels.recordLevel());
+//    assert(128 == levels.passLevel());
+//    assert( 96 == levels.triggerLevel());
+//    assert( 64 == levels.triggerAllLevel());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                        // ========================
+                        // class ThresholdAggregate
+                        // ========================
+
+class ThresholdAggregate {
+    // This class implements an aggregate of the four logging threshold levels.
+
+    // DATA
+    unsigned char d_recordLevel;      // record
+    unsigned char d_passLevel;        // pass
+    unsigned char d_triggerLevel;     // trigger
+    unsigned char d_triggerAllLevel;  // trigger-all
+
+    // FRIENDS
+    friend bool operator==(const ThresholdAggregate&amp;,
+                           const ThresholdAggregate&amp;);
+  public:
+    // CLASS METHODS
+    static int hash(const ThresholdAggregate&amp; aggregate, int size);
+        // Return a hash value calculated from the specified threshold
+        // &#39;aggregate&#39; using the specified &#39;size&#39; as the number of slots.  The
+        // hash value is guaranteed to be in the range &#39;[0, size)&#39;.
+
+    static bool areValidThresholdLevels(int recordLevel,
+                                        int passLevel,
+                                        int triggerLevel,
+                                        int triggerAllLevel);
+        // Return &#39;true&#39; if each of the specified &#39;recordLevel&#39;, &#39;passLevel&#39;,
+        // &#39;triggerLevel&#39; and &#39;triggerAllLevel&#39; threshold values is in the
+        // range &#39;[0 .. 255]&#39;, and &#39;false&#39; otherwise.
+
+    static int maxLevel(int recordLevel,
+                        int passLevel,
+                        int triggerLevel,
+                        int triggerAllLevel);
+        // Return the numerically greatest of the specified &#39;recordLevel&#39;,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; values.
+
+    static int maxLevel(const ThresholdAggregate&amp; aggregate);
+        // Return the numerically greatest of the four logging threshold levels
+        // held by the specified threshold &#39;aggregate&#39;.
+
+    // CREATORS
+    ThresholdAggregate(int recordLevel,
+                       int passLevel,
+                       int triggerLevel,
+                       int triggerAllLevel);
+        // Create a threshold aggregate whose threshold levels are the
+        // specified &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and
+        // &#39;triggerAllLevel&#39;, respectively.  The behavior is undefined if any
+        // threshold level is not in the range &#39;[0 .. 255]&#39;.
+
+    ThresholdAggregate(const ThresholdAggregate&amp; original);
+        // Create a threshold aggregate having the same value as that of the
+        // specified &#39;original&#39; threshold aggregate.
+
+    // ~ThresholdAggregate();
+        // Destroy this threshold aggregate.  Note that this trivial destructor
+        // is generated by the compiler.
+
+    // MANIPULATORS
+    ThresholdAggregate&amp; operator=(const ThresholdAggregate&amp; rhs);
+        // Assign the value of the specified &#39;rhs&#39; threshold aggregate to this
+        // aggregate, and return a reference to this modifiable aggregate.
+
+    int setLevels(int recordLevel,
+                  int passLevel,
+                  int triggerLevel,
+                  int triggerAllLevel);
+        // Set the threshold levels of this threshold aggregate to the
+        // specified &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and
+        // &#39;triggerAllLevel&#39; values, respectively, if each of the specified
+        // values is in the range &#39;[0 .. 255]&#39;.  Return 0 on success, and a
+        // non-zero value otherwise (with no effect on the threshold levels of
+        // this aggregate).
+
+    void setRecordLevel(int recordLevel);
+        // Set the record level of this threshold aggregate to the specified
+        // &#39;recordLevel&#39;.
+
+    void setPassLevel(int passLevel);
+        // Set the pass level of this threshold aggregate to the specified
+        // &#39;passLevel&#39;.
+
+    void setTriggerLevel(int triggerLevel);
+        // Set the trigger level of this threshold aggregate to the specified
+        // &#39;triggerLevel&#39;.
+
+    void setTriggerAllLevel(int triggerAllLevel);
+        // Set the trigger-all level of this threshold aggregate to the
+        // specified &#39;triggerAllLevel&#39;.
+
+    // ACCESSORS
+    int recordLevel() const;
+        // Return the record level of this threshold aggregate.
+
+    int passLevel() const;
+        // Return the pass level of this threshold aggregate.
+
+    int triggerLevel() const;
+        // Return the trigger level of this threshold aggregate.
+
+    int triggerAllLevel() const;
+        // Return the trigger-all level of this threshold aggregate.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // (absolute value of) the optionally specified indentation &#39;level&#39;
+        // and return a reference to &#39;stream&#39;.  If &#39;level&#39; is specified,
+        // optionally specify &#39;spacesPerLevel&#39;, the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const ThresholdAggregate&amp; lhs, const ThresholdAggregate&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; threshold aggregates have
+    // the same value, and &#39;false&#39; otherwise.  Two threshold aggregates have
+    // the same value if all four of their respective threshold levels are the
+    // same.
+
+bool operator!=(const ThresholdAggregate&amp; lhs, const ThresholdAggregate&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; threshold aggregates do
+    // not have the same value, and &#39;false&#39; otherwise.  Two threshold
+    // aggregates do not have the same value if any of their four respective
+    // threshold levels differ.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;             stream,
+                         const ThresholdAggregate&amp; aggregate);
+    // Write the value of the specified threshold &#39;aggregate&#39; to the specified
+    // output &#39;stream&#39; and return a reference to the modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // ------------------------
+                        // class ThresholdAggregate
+                        // ------------------------
+
+// ACCESSORS USED INLINE BY OTHER METHODS
+
+inline
+int ThresholdAggregate::recordLevel() const
+{
+    return d_recordLevel;
+}
+
+inline
+int ThresholdAggregate::passLevel() const
+{
+    return d_passLevel;
+}
+
+inline
+int ThresholdAggregate::triggerLevel() const
+{
+    return d_triggerLevel;
+}
+
+inline
+int ThresholdAggregate::triggerAllLevel() const
+{
+    return d_triggerAllLevel;
+}
+
+// CLASS METHODS
+inline
+bool ThresholdAggregate::areValidThresholdLevels(int recordLevel,
+                                                 int passLevel,
+                                                 int triggerLevel,
+                                                 int triggerAllLevel)
+{
+    enum { k_BITS_PER_CHAR = 8 };
+
+    return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
+             &gt;&gt; k_BITS_PER_CHAR);
+}
+
+inline
+int ThresholdAggregate::maxLevel(const ThresholdAggregate&amp; aggregate)
+{
+    return maxLevel(aggregate.recordLevel(),  aggregate.passLevel(),
+                    aggregate.triggerLevel(), aggregate.triggerAllLevel());
+}
+
+// CREATORS
+inline
+ThresholdAggregate::ThresholdAggregate(int recordLevel,
+                                       int passLevel,
+                                       int triggerLevel,
+                                       int triggerAllLevel)
+    : d_recordLevel(static_cast&lt;unsigned char&gt;(recordLevel))
+, d_passLevel(static_cast&lt;unsigned char&gt;(passLevel))
+, d_triggerLevel(static_cast&lt;unsigned char&gt;(triggerLevel))
+, d_triggerAllLevel(static_cast&lt;unsigned char&gt;(triggerAllLevel))
+{
+}
+
+inline
+ThresholdAggregate::ThresholdAggregate(
+                                       const ThresholdAggregate&amp; original)
+: d_recordLevel(original.d_recordLevel)
+, d_passLevel(original.d_passLevel)
+, d_triggerLevel(original.d_triggerLevel)
+, d_triggerAllLevel(original.d_triggerAllLevel)
+{
+}
+
+// MANIPULATORS
+inline
+void ThresholdAggregate::setRecordLevel(int recordLevel)
+{
+    d_recordLevel = static_cast&lt;unsigned char&gt;(recordLevel);
+}
+
+inline
+void ThresholdAggregate::setPassLevel(int passLevel)
+{
+    d_passLevel = static_cast&lt;unsigned char&gt;(passLevel);
+}
+
+inline
+void ThresholdAggregate::setTriggerLevel(int triggerLevel)
+{
+    d_triggerLevel = static_cast&lt;unsigned char&gt;(triggerLevel);
+}
+
+inline
+void ThresholdAggregate::setTriggerAllLevel(int triggerAllLevel)
+{
+    d_triggerAllLevel = static_cast&lt;unsigned char&gt;(triggerAllLevel);
+}
+
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const ThresholdAggregate&amp; lhs,
+                      const ThresholdAggregate&amp; rhs)
+{
+    return lhs.d_recordLevel     == rhs.d_recordLevel
+        &amp;&amp; lhs.d_passLevel       == rhs.d_passLevel
+        &amp;&amp; lhs.d_triggerLevel    == rhs.d_triggerLevel
+        &amp;&amp; lhs.d_triggerAllLevel == rhs.d_triggerAllLevel;
+}
+
+inline
+bool ball::operator!=(const ThresholdAggregate&amp; lhs,
+                      const ThresholdAggregate&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;             stream,
+                               const ThresholdAggregate&amp; aggregate)
+{
+    return aggregate.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

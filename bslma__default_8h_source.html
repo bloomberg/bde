@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_default.h                                                    -*-C++-*-
@@ -211,7 +211,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      ::operator delete(address);
 //  }
 //..
-///Usage 1 -- Basic Default Allocator Use
+//
+///Example 1: Basic Default Allocator Use
 /// - - - - - - - - - - - - - - - - - - -
 // This usage example illustrates the basics of class design that relate to
 // proper use of the default allocator, and introduces the standard pattern to
@@ -352,7 +353,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(0 == defaultCountingAllocator.numBlocksInUse());
 //  assert(1 == defaultCountingAllocator.numBlocksTotal());
 //..
-///Usage 2 -- Detecting Allocator Propagation Bugs
+//
+///Example 2: Detecting Allocator Propagation Bugs
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how the default allocator is used to detect a very
 // common programming error pertaining to allocator usage.  First we define the
@@ -502,7 +504,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;defaultCountingAllocator.numBlocksTotal()&#39; *can* differ across function
 // invocations (i.e., even in correct code).
 //
-///Usage 3 -- Basic Global Allocator Use
+///Example 3: Basic Global Allocator Use
 ///- - - - - - - - - - - - - - - - - - -
 // Next we define a simple singleton class, &#39;my_Singleton&#39;, that defaults to
 // using the global allocator if one is not explicitly specified when the
@@ -755,9 +757,9 @@ struct Default {
         // allocator, and should *not* be used for any other purpose.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------
                         // struct Default

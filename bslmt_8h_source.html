@@ -1,0 +1,366 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bslmt.txt
+
+@PURPOSE: Support for multi-threading and thread-safe processes.
+
+@MNEMONIC: Basic Standard Library Multi-Threading (bslmt)
+
+@DESCRIPTION: The &#39;bslmt&#39; package supports primitives that allow creation and
+ management of operating system threads.  Using the components in &#39;bslmt&#39;,
+ clients can write efficient, thread-safe code.
+
+ Thread creation and management of mutually exclusive locks (mutexes) are
+ supported in a way that should be familiar to developers with experience
+ programming in threads on any common computing platform.  In addition,
+ individual components such as &#39;bslmt_lockguard&#39; and &#39;bslmt_barrier&#39; manage
+ synchronization concerns through simple, idiomatic object interfaces that make
+ client code easy to read and understand.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bslmt&#39; package currently has 41 components having 16 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  16. bslmt_once
+      bslmt_rwmutex
+
+  15. bslmt_latch
+      bslmt_meteredmutex
+      bslmt_qlock
+      bslmt_readerwriterlock
+      bslmt_turnstile
+
+  14. bslmt_barrier
+
+  13. bslmt_condition
+
+  12. bslmt_conditionimpl_win32                                       !PRIVATE!
+
+  11. bslmt_sluice
+
+  10. bslmt_threadgroup
+
+   9. bslmt_semaphore
+
+   8. bslmt_semaphoreimpl_counted                                     !PRIVATE!
+      bslmt_timedsemaphore
+
+   7. bslmt_conditionimpl_pthread                                     !PRIVATE!
+      bslmt_mutexassert
+      bslmt_semaphoreimpl_darwin                                      !PRIVATE!
+      bslmt_semaphoreimpl_pthread                                     !PRIVATE!
+      bslmt_semaphoreimpl_win32                                       !PRIVATE!
+      bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
+
+   6. bslmt_mutex
+      bslmt_recursivemutex
+      bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
+      bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
+
+   5. bslmt_threadutil
+
+   4. bslmt_threadutilimpl_pthread                                    !PRIVATE!
+      bslmt_threadutilimpl_win32                                      !PRIVATE!
+
+   3. bslmt_configuration
+      bslmt_recursivemuteximpl_win32                                  !PRIVATE!
+
+   2. bslmt_muteximpl_pthread                                         !PRIVATE!
+      bslmt_muteximpl_win32                                           !PRIVATE!
+      bslmt_recursivemuteximpl_pthread                                !PRIVATE!
+      bslmt_saturatedtimeconversionimputil
+      bslmt_threadattributes
+
+   1. bslmt_entrypointfunctoradapter
+      bslmt_lockguard
+      bslmt_platform
+      bslmt_readlockguard
+      bslmt_threadlocalvariable
+      bslmt_writelockguard
+..
+
+/Component Synopsis
+/------------------
+: &#39;bslmt_barrier&#39;:
+:      Provide a thread barrier component.
+:
+: &#39;bslmt_condition&#39;:
+:      Provide a portable, efficient condition variable.
+:
+: &#39;bslmt_conditionimpl_pthread&#39;:                                      !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::Condition&#39;.
+:
+: &#39;bslmt_conditionimpl_win32&#39;:                                        !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::Condition&#39;.
+:
+: &#39;bslmt_configuration&#39;:
+:      Provide utilities to allow configuration of values for BCE.
+:
+: &#39;bslmt_entrypointfunctoradapter&#39;:
+:      Provide types and utilities to simplify thread creation.
+:
+: &#39;bslmt_latch&#39;:
+:      Provide a single-use mechanism for synchronizing on an event count.
+:
+: &#39;bslmt_lockguard&#39;:
+:      Provide a generic proctor for synchronization objects.
+:
+: &#39;bslmt_meteredmutex&#39;:
+:      Provide a mutex capable of keeping track of wait and hold time.
+:
+: &#39;bslmt_mutex&#39;:
+:      Provide a platform-independent mutex.
+:
+: &#39;bslmt_mutexassert&#39;:
+:      Provide an assert macro for verifying that a mutex is locked.
+:
+: &#39;bslmt_muteximpl_pthread&#39;:                                          !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::Mutex&#39;.
+:
+: &#39;bslmt_muteximpl_win32&#39;:                                            !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::Mutex&#39;.
+:
+: &#39;bslmt_once&#39;:
+:      Provide a thread-safe way to execute code once per process.
+:
+: &#39;bslmt_platform&#39;:
+:      Provide platform-dependent thread-related trait definitions.
+:
+: &#39;bslmt_qlock&#39;:
+:      Provide small, statically-initializable mutex lock.
+:
+: &#39;bslmt_readerwriterlock&#39;:
+:      Provide a multi-reader/single-writer lock.
+:
+: &#39;bslmt_readlockguard&#39;:
+:      Provide a generic proctor for read synchronization objects.
+:
+: &#39;bslmt_recursivemutex&#39;:
+:      Provide a platform-independent recursive mutex.
+:
+: &#39;bslmt_recursivemuteximpl_pthread&#39;:                                 !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::RecursiveMutex&#39;.
+:
+: &#39;bslmt_recursivemuteximpl_win32&#39;:                                   !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::RecursiveMutex&#39;.
+:
+: &#39;bslmt_rwmutex&#39;:
+:      Provide a platform-independent RW mutex class.
+:
+: &#39;bslmt_saturatedtimeconversionimputil&#39;:
+:      Provide special narrowing conversions for time types.
+:
+: &#39;bslmt_semaphore&#39;:
+:      Provide a semaphore class.
+:
+: &#39;bslmt_semaphoreimpl_counted&#39;:                                      !PRIVATE!
+:      Provide an implementation of &#39;bslmt::Semaphore&#39; with count.
+:
+: &#39;bslmt_semaphoreimpl_darwin&#39;:                                       !PRIVATE!
+:      Provide a Darwin implementation of &#39;bslmt::Semaphore&#39;.
+:
+: &#39;bslmt_semaphoreimpl_pthread&#39;:                                      !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::Semaphore&#39;.
+:
+: &#39;bslmt_semaphoreimpl_win32&#39;:                                        !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::Semaphore&#39;.
+:
+: &#39;bslmt_sluice&#39;:
+:      Provide a &quot;sluice&quot; class.
+:
+: &#39;bslmt_threadattributes&#39;:
+:      Provide a description of the attributes of a thread.
+:
+: &#39;bslmt_threadgroup&#39;:
+:      Provide a container for managing a group of threads.
+:
+: &#39;bslmt_threadlocalvariable&#39;:
+:      Provide a macro to declare a thread-local variable.
+:
+: &#39;bslmt_threadutil&#39;:
+:      Provide platform-independent utilities related to threading.
+:
+: &#39;bslmt_threadutilimpl_pthread&#39;:                                     !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::ThreadUtil&#39;.
+:
+: &#39;bslmt_threadutilimpl_win32&#39;:                                       !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::ThreadUtil&#39;.
+:
+: &#39;bslmt_timedsemaphore&#39;:
+:      Provide a timed semaphore class.
+:
+: &#39;bslmt_timedsemaphoreimpl_posixadv&#39;:                                !PRIVATE!
+:      Provide &quot;advanced&quot; POSIX implementation of &#39;bslmt::TimedSemaphore&#39;.
+:
+: &#39;bslmt_timedsemaphoreimpl_pthread&#39;:                                 !PRIVATE!
+:      Provide a POSIX implementation of &#39;bslmt::TimedSemaphore&#39;.
+:
+: &#39;bslmt_timedsemaphoreimpl_win32&#39;:                                   !PRIVATE!
+:      Provide a win32 implementation of &#39;bslmt::TimedSemaphore&#39;.
+:
+: &#39;bslmt_turnstile&#39;:
+:      Provide a mechanism to meter time.
+:
+: &#39;bslmt_writelockguard&#39;:
+:      Provide a generic proctor for write synchronization objects.
+
+/Thread Management
+/-----------------
+ Thread management is done via the utility class &#39;bslmt::ThreadUtil&#39; in the
+ &#39;bslmt_threadutil&#39; component.  This component presents a platform-independent
+ protocol whose operations nonetheless correspond closely to native operations
+ on platform-specific threads.  &#39;bslmt::ThreadUtil&#39; presents a procedural
+ interface -- that is, clients do not instantiate &#39;bslmt::ThreadUtil&#39; objects,
+ and all methods of &#39;bslmt::ThreadUtil&#39; are declared &#39;static&#39;.
+
+ Clients create threads with the functions
+ &#39;bslmt::ThreadUtil::create(Handle*, ...)&#39;.  On success, these functions yield
+ a &#39;bslmt::ThreadUtil::Handle&#39; object that provides a lightweight handle for an
+ operating systems thread.  Similarly, clients destroy threads for which they
+ have a current &#39;Handle&#39; with &#39;bslmt::ThreadUtil::terminate(Handle*)&#39;.
+
+ &#39;bslmt::ThreadUtil&#39; supports two &#39;create()&#39; functions.  The first function
+ simply takes a pointer to a &#39;bslmt::ThreadUtil::Handle&#39;; the second function
+ takes a &#39;bslmt::ThreadAttributes&#39; object that defines component-specific and
+ platform-specific attributes of the created thread.  Platform-specific
+ attributes include scheduling policy and priority, and thread stack size.  See
+ the &#39;bslmt_threadattributes&#39; component documentation for details.
+
+/Thread Synchronization
+/----------------------
+ The &#39;bslmt&#39; package contains several components and classes that support
+ thread synchronization in a number of ways.
+
+/Basic Mutexes: &#39;bslmt::Mutex&#39; and &#39;bslmt::RecursiveMutex&#39;
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ At the lowest level, synchronization between threads is done with
+ &#39;bslmt::Mutex&#39;, a type defined in component &#39;bslmt_mutex&#39;.  Locks are
+ acquired with &#39;bslmt::Mutex::lock()&#39; or &#39;bslmt::Mutex::tryLock()&#39;, and
+ released with &#39;bslmt::Mutex::unlock()&#39;.  The &#39;bslmt&#39; package provides several
+ other mechanisms for synchronization and communication, which suit specific
+ synchronization problems and allow more idiomatic C++ coding.
+
+ &#39;bslmt::RecursiveMutex&#39; is similar to &#39;bslmt::Mutex&#39;, except that it can be
+ &#39;lock&#39;ed multiple times *in* *a* *single* *thread*.  A corresponding number of
+ calls to &#39;unlock()&#39; are required to unlock the mutex.  &#39;bslmt::RecursiveMutex&#39;
+ is defined in component &#39;bslmt_recursivemutex&#39;.
+
+/Inter-thread Condition Variables: &#39;bslmt::Condition&#39;
+/- - - - - - - - - - - - - - - - - - - - - - - - - -
+ The &#39;bslmt::Condition&#39; class, defined in component &#39;bslmt_condition&#39;,
+ implements a &quot;condition variable&quot; that can be used by multiple threads to
+ communicate changes in the condition.  Multiple threads wait on the condition
+ by calling &#39;myCondition-&gt;wait(bslmt::Mutex*)&#39;, suspending their execution and
+ waiting.  An individual thread then signals when the condition is met by
+ calling either &#39;myCondition-&gt;signal()&#39; (waking up a single waiting thread) or
+ &#39;myCondition-&gt;broadcast()&#39; (waking up all waiting threads).  Waits with
+ timeouts are supported through &#39;bslmt::Condition::timedWait()&#39;.
+
+/Locking/Unlocking Critical Code
+/- - - - - - - - - - - - - - - -
+ Code in multiple threads can create a &#39;bslmt::Mutex&#39; and call &#39;mutex-&gt;lock()&#39;
+ and &#39;mutex-&gt;unlock()&#39; to guarantee exclusive access to critical sections of
+ code.  A more idiomatic usage is provided by &#39;bslmt::LockGuard&#39; and
+ &#39;bslmt::UnLockGuard&#39;; objects of these types themselves lock and unlock a
+ &#39;bslmt::Mutex&#39; when they are created or destroyed, allowing clients to manage
+ mutex locks in a way more transparent, safer way, and also making sure the
+ lock is released when an exception is thrown within the critical section.
+..
+  static void myThreadsafeFunction(myObject *obj, bslmt::Mutex *mutex)
+  {
+      // creating the &#39;LockGuard&#39;, &#39;guard&#39;, calls &#39;mutex-&gt;lock()&#39;
+      bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(mutex);
+      if (someCondition) {
+          obj-&gt;someMethod();
+          return;
+          // &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;
+      } else if (someOtherCondition) {
+          obj-&gt;someOtherMethod();
+          return;
+          // &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;
+      }
+      obj-&gt;defaultMethod();
+      return;
+      // &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;
+  }
+..
+
+/Thread-Specific Storage
+/- - - - - - - - - - - -
+ Thread-specific storage (also known as thread-local storage, or TLS) is a
+ mechanism for referring to a single variable (identified by its &#39;Key&#39; in
+ &#39;bslmt::ThreadUtil&#39;, provided by the &#39;bslmt_threadutil&#39; component) whose
+ content varies according to the thread it is observed in.  This is useful for
+ status variables such as &#39;errno&#39;, which is implemented by the system as a TLS,
+ since otherwise it would be impossible to use &#39;errno&#39; values in a thread, not
+ knowing if another thread had modified it after the last system call in this
+ thread.
+
+/Synchronization of Multiple, Parallel Threads: &#39;bslmt::Barrier&#39;
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ The &#39;bslmt_barrier&#39; component provides a single class, &#39;bslmt::Barrier&#39;, that
+ can be used to synchronize processing among multiple threads.  The
+ &#39;bslmt::Barrier&#39; is created with a single argument specifying the number of
+ threads to synchronize.  Each individual thread then calls &#39;myBarrier-&gt;wait()&#39;
+ when it reaches its synchronization point.  All waiting threads are blocked
+ until the required number of threads have called &#39;myBarrier-&gt;wait()&#39;; once the
+ required number is reached, the threads are released and can continue
+ processing.
+
+/One Writer/Multiple Readers: &#39;bslmt::ReaderWriterLock&#39;
+/- - - - - - - - - - - - - - - - - - - - - - - - - - -
+ Component &#39;bslmt_readerwriterlock&#39; provides a single class,
+ &#39;bslmt::ReaderWriterLock&#39;, that supports multi-reader, single-writer locks.
+ Applications can use &#39;bslmt::ReaderWriterLock&#39; to allow concurrent read access
+ from multiple threads to data that changes infrequently.  By calling
+ &#39;bslmt::ReaderWriterLock::lockRead()&#39;, reading threads are not blocked until a
+ writing thread requests a write lock (for instance, by calling
+ &#39;bslmt::ReaderWriterLock::lockWrite()&#39;).  While the write lock is in effect,
+ access is serialized and all threads that have called &#39;lockRead()&#39; will wait
+ until the write lock is released with
+ &#39;bslmt::ReaderWriterLock::unlockWrite()&#39;.
+
+ Note that reader/writer locks also have their own guards, provided by
+ &#39;bslmt_readlockguard&#39; and &#39;bslmt_writelockguard&#39; components.
+
+/Recursive Write Locks: &#39;bslmt::RecursiveRWLock&#39;
+/ - - - - - - - - - - - - - - - - - - - - - - -
+ This component is *DEPRECATED*.  It can be emulated by a wrapper on a
+ &#39;bslmt::ReaderWriterLock&#39; along with a thread-specific counter used to store
+ the number of recursive locks acquired by the current thread.
+
+/Static Initialization
+/- - - - - - - - - - -
+ Initialization of a thread-specific static variable (such as a thread-local
+ singleton) can be achieved by using the &#39;bslmt_once&#39; component.  The
+ &#39;bslmt_qlock&#39; component ensures thread-safe static initialization of shared
+ resources by providing a light-weight, statically initializable lock.  Note
+ that the classic &#39;bslmt::Mutex&#39; provided by the &#39;bslmt_mutex&#39; component
+ cannot safely be used in static initializations because some platforms (e.g.,
+ Windows XP) do not have a native statically-initializable mutex type.
+
+/Implementation Classes and Components
+/-------------------------------------
+ The &#39;bslmt&#39; package is supported on all Bloomberg platforms.  In order to
+ accomplish this, &#39;bslmt&#39; provides platform-specific implementations of thread
+ primitives.  The following components provide platform-specific
+ implementations:
+..
+             Component           |                 Purpose
+  +==============================+===========================================+
+  | bslmt_threadutilimpl_pthread | Template specialization for POSIX threads |
+  | bslmt_threadutilimpl_win32   | Template specialization for MS-Windows    |
+  +------------------------------+-------------------------------------------+
+..
+ These components are visible and documented.  However, their intended use is
+ to support component &#39;bslmt_threadutil&#39;.  Clients should not expect to use
+ them directly.
+</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_switch.h                                                     -*-C++-*-
@@ -131,7 +131,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // We would like to store our short strings in the data server, but the data
 // server only handles &#39;char&#39;, &#39;short&#39; and &#39;int&#39; types.  Since our strings fit
 // into these simple types, we can transform &#39;ShortString&#39; into these integral
-// types when calling &#39;store&#39; and &#39;retrieve&#39;, using &#39;bslmf::Switch5&#39; to choose
+// types when calling &#39;store&#39; and &#39;retrieve&#39;, using &#39;bslmf::Switch&#39; to choose
 // which integral type to use for each &#39;ShortString&#39; type:
 //..
 //  template &lt;int LEN&gt;
@@ -142,7 +142,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      // &#39;LEN&#39; is 0 or 3.
 //
 //      typedef typename
-//        bslmf::Switch5&lt;LEN, void, char, short, void, int&gt;::Type transferType;
+//         bslmf::Switch&lt;LEN, void, char, short, void, int&gt;::Type transferType;
 //
 //      transferType x = 0;
 //      server-&gt;retrieve(&amp;x);
@@ -156,7 +156,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      // and &#39;int&#39; if &#39;LEN&#39; 4.  Will choose &#39;void&#39; and thus not compile if
 //      // &#39;LEN&#39; is 0 or 3.
 //      typedef typename
-//        bslmf::Switch5&lt;LEN, void, char, short, void, int&gt;::Type transferType;
+//         bslmf::Switch&lt;LEN, void, char, short, void, int&gt;::Type transferType;
 //
 //      transferType x = 0;
 //      std::memcpy(&amp;x, d_buffer, LEN);
@@ -221,9 +221,120 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_nil.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ &amp;&amp; defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#define BSLMF_SWITCH_USING_VARIADIC_TEMPLATES
+    // This macro indicates that we have all the needed features for an
+    // implementation of the type-switch facility that is source-compatible
+    // with the pre-existing C++03 facility.  The main change is that the
+    // numbered classes Switch0-Switch9 are no longer distinct classes, but
+    // aliases of specific instantiations of the primary Switch template.
+    // Eventually these partial template specializations will be eliminated,
+    // when the individually named members are no longer used throughout the
+    // whole of the Bloomberg codebase.
+#endif
+
 namespace BloombergLP {
 
 namespace bslmf {
+
+#if defined(BSLMF_SWITCH_USING_VARIADIC_TEMPLATES)
+template &lt;unsigned SELECTOR,
+          class ...TYPES&gt;
+struct Switch {
+    // This meta-function, parameterized by an integral &#39;SELECTOR&#39; and types
+    // &#39;T0&#39; up to &#39;T9&#39;, provides a single type alias, &#39;Type&#39;, which resolves,
+    // through specialization for a particular value &#39;N&#39; of &#39;SELECTOR&#39;, to the
+    // type &#39;TN&#39;, or to &#39;Nil&#39; if &#39;SELECTOR&#39; is negative or larger than the
+    // number of template arguments provided for the types.
+
+    typedef Nil Type;
+        // This &#39;Type&#39; is an alias to the parameterized &#39;TN&#39;, where &#39;N&#39; is the
+        // integral value of the parameterized &#39;SELECTOR&#39;.  Note that the first
+        // type in the list corresponds to &#39;T0&#39;, not &#39;T1&#39;.
+};
+
+// SPECIALIZATIONS
+template &lt;class T0, class ...TYPES&gt;
+struct Switch&lt;0u, T0, TYPES...&gt; {
+
+    typedef T0 Type;
+};
+
+template &lt;class T0, class T1, class ...TYPES&gt;
+struct Switch&lt;1u, T0, T1, TYPES...&gt; {
+
+    typedef T1 Type;
+};
+
+template &lt;class T0, class T1, class T2, class ...TYPES&gt;
+struct Switch&lt;2u, T0, T1, T2, TYPES...&gt; {
+
+    typedef T2 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class ...TYPES&gt;
+struct Switch&lt;3u, T0, T1, T2, T3, TYPES...&gt; {
+
+    typedef T3 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class ...TYPES&gt;
+struct Switch&lt;4u, T0, T1, T2, T3, T4, TYPES...&gt; {
+
+    typedef T4 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class T5,
+          class ...TYPES&gt;
+struct Switch&lt;5u, T0, T1, T2, T3, T4, T5, TYPES...&gt; {
+
+    typedef T5 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class ...TYPES&gt;
+struct Switch&lt;6u, T0, T1, T2, T3, T4, T5, T6, TYPES...&gt; {
+
+    typedef T6 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class ...TYPES&gt;
+struct Switch&lt;7u, T0, T1, T2, T3, T4, T5, T6, T7, TYPES...&gt; {
+
+    typedef T7 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class ...TYPES&gt;
+struct Switch&lt;8u, T0, T1, T2, T3, T4, T5, T6, T7, T8, TYPES...&gt; {
+
+    typedef T8 Type;
+};
+
+template &lt;class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class T9, class ...TYPES&gt;
+struct Switch&lt;9u, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, TYPES...&gt; {
+
+    typedef T9 Type;
+};
+
+template &lt;unsigned SELECTOR, class T0, class T1, class T2, class T3, class T4,
+          class T5, class T6, class T7, class T8, class T9, class T10,
+          class ...TYPES&gt;
+struct Switch&lt;SELECTOR, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, TYPES...&gt;
+                                                                              {
+    typedef typename Switch&lt;SELECTOR-10, T10, TYPES...&gt;::Type Type;
+};
+
+
+#else
 
                         // =============
                         // struct Switch
@@ -867,8 +978,10 @@ struct Switch9&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
 
     typedef T8 Type;
 };
+#endif
 
 }  // close package namespace
+
 
 
 }  // close enterprise namespace

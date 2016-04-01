@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_bslonce Component</title>
+<title>BDE 3.0: bsls_bslonce Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -105,14 +105,11 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>Henry Verschell (hversche) </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a pair of classes, <code><a class="el" href="structbsls_1_1BslOnce.html">bsls::BslOnce</a></code> and <code><a class="el" href="classbsls_1_1BslOnceGuard.html">bsls::BslOnceGuard</a></code>, which give the caller a way to run a block of code exactly once within the current process, particularly in the presence of multiple threads. The typical purpose of this one-time execution is the initialization of a singleton on first use. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>[!WARNING!] Clients outside of <code>bsl</code> should <em>not</em> use this component. Because of its location in the hierarchy, this component guards critical sections using a spin-lock. Equivalent components that are more robust and efficient will be provided at a higher level (see <code>bcemt_once</code>). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A <code>bsls::Bslnce</code> object can be statically initialized using the <code>BSLS_BSLONCE_INTIALIZER</code> macro. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="structbsls_1_1BslOnce.html">bsls::BslOnce</a></code> object can be statically initialized using the <code>BSLS_BSLONCE_INITIALIZER</code> macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -153,7 +150,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that <code>BslOnce</code> must be initialized to <code>BSLS_BSLONCE_INITIALIZER</code>, and that <code>singleton</code> is a function scoped static variable to avoid allocating it on the <code>heap</code> (which might be reported as leaked memory). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:02 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

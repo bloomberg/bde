@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_dequeprimitives.h                                           -*-C++-*-
@@ -79,6 +79,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                                moveable trait&quot;, or
 //                                                &quot;TYPE is bit-wise moveable&quot;
 //..
+//
 ///Aliasing
 ///--------
 // There are some aliasing concerns in this component, due to the presence of
@@ -175,7 +176,7 @@ namespace {
         NON_NIL_TRAITS          = 3
     };
 
-}
+}  // close unnamed namespace
 
 namespace bslalg {
 
@@ -741,9 +742,9 @@ class DequePrimitives_DequeMoveGuard {
         // Set the size of the range guarded by this object to be zero.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------
                         // class DequePrimitives

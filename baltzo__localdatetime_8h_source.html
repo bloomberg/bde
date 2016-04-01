@@ -1,0 +1,526 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_localdatetime.h                                             -*-C++-*-
+#ifndef INCLUDED_BALTZO_LOCALDATETIME
+#define INCLUDED_BALTZO_LOCALDATETIME
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $ $CSID: $&quot;)
+
+//@PURPOSE: Provide an attribute class for time-zone-aware datetime values.
+//
+//@CLASSES:
+//  baltzo::LocalDatetime: time-zone-aware datetime type
+//
+//@SEE_ALSO: bdet_datetimetz
+//
+//@DESCRIPTION: This component provides a single, unconstrained
+// (value-semantic) attribute class, &#39;baltzo::LocalDatetime&#39;, that is used to
+// encapsulate a date, time, offset from UTC (Coordinated Universal Time), and
+// a time zone (string) identifier.  The date, time, and offset from UTC are
+// contained within a &#39;bdlt::DatetimeTz&#39; object, which together represents a
+// wall-clock time in a given time zone.  This component differs from
+// &#39;bdet_datetimetz&#39; in that it provides, as part of the value, a string
+// identifier for the corresponding time zone.
+//
+///Attributes
+///----------
+//..
+//  Name          Type               Default
+//  ----------    ---------------    ----------------------------------
+//  datetimeTz    bdlt::DatetimeTz   January 1, 0001, 24:00:00.000+0000
+//  timeZoneId    bsl::string        &quot;&quot;
+//..
+//: o &#39;datetimeTz&#39;: date, time, and offset from UTC of the local time.
+//:
+//: o &#39;timeZoneId&#39;: unique identifier representing the local time zone.
+//
+// For example, in New York on January 1, 2011, at 10 a.m. the local offset
+// from UTC is -5 hours, and a standard time zone identifier for New York is
+// &quot;America/New_York&quot;.  We can represent this information using a
+// &#39;baltzo::LocalDatetime&#39; object whose &#39;datetimeTz&#39; attribute is
+// &quot;01JAN2011_10:00:00.000-0005&quot; and whose &#39;timeZoneId&#39; attribute is
+// &quot;America/New_York&quot;.
+//
+// Note that it is up to the user to ensure that the &#39;datetimeTz&#39; and
+// &#39;timeZoneId&#39; attributes are consistent as the &#39;baltzo::LocalDatetime&#39; object
+// itself does not maintain any invariants with respect to their values.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creation and Use of a &#39;baltzo::LocalDatetime&#39; Object
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we default-construct a &#39;baltzo::LocalDatetime&#39; object:
+//..
+//  baltzo::LocalDatetime localDatetime;
+//..
+// Next, we update the time referred to by &#39;localDatetime&#39; to the New York
+// time &quot;December 25, 2009, 11:00&quot; with the time-zone identifier set to
+// &quot;America/New_York&quot;:
+//..
+//  bdlt::Datetime   datetime(2009, 12, 25, 11, 00, 00);
+//  bdlt::DatetimeTz datetimeTz(datetime, -5 * 60);  // offset is specified
+//                                                   // in minutes from UTC
+//  bsl::string      timeZoneId(&quot;America/New_York&quot;);
+//  localDatetime.setDatetimeTz(datetimeTz);
+//  localDatetime.setTimeZoneId(timeZoneId);
+//
+//  assert(datetimeTz == localDatetime.datetimeTz());
+//  assert(timeZoneId == localDatetime.timeZoneId());
+//..
+// Now, we change the time-zone identifier to another string, for example
+// &quot;Europe/Berlin&quot;:
+//..
+//  bsl::string anotherTimeZoneId(&quot;Europe/Berlin&quot;);
+//  localDatetime.setTimeZoneId(anotherTimeZoneId);
+//
+//  assert(datetimeTz        == localDatetime.datetimeTz());
+//  assert(anotherTimeZoneId == localDatetime.timeZoneId());
+//..
+// Finally, we stream &#39;localDatetime&#39; to &#39;bsl::cout&#39;:
+//..
+//  bsl::cout &lt;&lt; localDatetime &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  [ 25DEC2009_11:00:00.000-0500 &quot;Europe/Berlin&quot; ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include &lt;bslx_instreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include &lt;bslx_outstreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                            // ===================
+                            // class LocalDatetime
+                            // ===================
+
+class LocalDatetime {
+    // This unconstrained (value-semantic) attribute class characterizes a date
+    // time, offset from UTC, and a time zone identifier represented by a
+    // string.  See the Attributes section under @DESCRIPTION in the
+    // component-level documentation.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    bdlt::DatetimeTz d_datetimeTz;  // local date-time and offset from UTC
+    bsl::string      d_timeZoneId;  // local time-zone identifier
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS2(LocalDatetime,
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CLASS METHODS
+
+                        // Aspects
+
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;
+        // method.  Note that it is highly recommended that &#39;versionSelector&#39;
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that
+        // &#39;versionSelector&#39; should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    // CREATORS
+    explicit LocalDatetime(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;LocalDatetime&#39; object having the (default) attribute
+        // values:
+        //..
+        //  datetimeTz() == bdlt::DatetimeTz()
+        //  timeZoneId() == &quot;&quot;
+        //..
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    LocalDatetime(const bdlt::DatetimeTz&amp;   datetimeTz,
+                  const bslstl::StringRef&amp;  timeZoneId,
+                  bslma::Allocator         *basicAllocator = 0);
+    LocalDatetime(const bdlt::DatetimeTz&amp;   datetimeTz,
+                  const char               *timeZoneId,
+                  bslma::Allocator         *basicAllocator = 0);
+        // a &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  If &#39;timeZoneId&#39;
+        // is passed as a null pointer, it is treated as an empty string.
+
+    LocalDatetime(const LocalDatetime&amp;  original,
+                  bslma::Allocator     *basicAllocator = 0);
+        // Create a &#39;LocalDatetime&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    //! ~LocalDatetime() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    LocalDatetime&amp; operator=(const LocalDatetime&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setDatetimeTz(const bdlt::DatetimeTz&amp; value);
+        // Set the &#39;datetimeTz&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setTimeZoneId(const bslstl::StringRef&amp;  value);
+    void setTimeZoneId(const char               *value);
+        // Set the &#39;timeZoneId&#39; attribute of this object to the specified
+        // &#39;value&#39;.  If &#39;value&#39; is null, it is treated as an empty string.
+
+                        // Aspects
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated, but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    void swap(LocalDatetime&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as was &#39;other&#39;.
+
+    // ACCESSORS
+    const bdlt::DatetimeTz&amp; datetimeTz() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;datetimeTz&#39; attribute of this object.
+
+    const bsl::string&amp; timeZoneId() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;timeZoneId&#39; attribute of this object.
+
+                        // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write the value of this object, using the specified &#39;version&#39;
+        // format, to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no
+        // effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but
+        // otherwise unmodified.  Note that &#39;version&#39; is not written to
+        // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference providing modifiable
+        // access to &#39;stream&#39;.  Optionally specify an initial indentation
+        // &#39;level&#39;, whose absolute value is incremented recursively for nested
+        // objects.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, whose absolute value indicates the number of
+        // spaces per indentation level for this and all of its nested objects.
+        // If &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.  Note that the format is not fully specified, and can change
+        // without notice.
+
+
+};
+
+// FREE OPERATORS
+bool operator==(const LocalDatetime&amp; lhs, const LocalDatetime&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;LocalDatetime&#39; objects have the
+    // same value if all of the corresponding values of their &#39;datetimeTz&#39; and
+    // &#39;timeZoneId&#39; attributes are the same.
+
+bool operator!=(const LocalDatetime&amp; lhs, const LocalDatetime&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;LocalDatetime&#39; objects do not
+    // have the same value if any of the corresponding values of their
+    // &#39;datetimeTz&#39; or &#39;timeZoneId&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;        stream,
+                         const LocalDatetime&amp; localDatetime);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39; with the
+    // attribute names elided.
+
+// FREE FUNCTIONS
+void swap(LocalDatetime&amp; a, LocalDatetime&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------
+                            // class LocalDatetime
+                            // -------------------
+
+// CLASS METHODS
+
+                        // Aspects
+
+inline
+int baltzo::LocalDatetime::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
+// CREATORS
+inline
+baltzo::LocalDatetime::LocalDatetime(bslma::Allocator *basicAllocator)
+: d_datetimeTz()
+, d_timeZoneId(basicAllocator)
+{
+}
+
+inline
+baltzo::LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&amp;   datetimeTz,
+                                     const bslstl::StringRef&amp;  timeZoneId,
+                                     bslma::Allocator         *basicAllocator)
+: d_datetimeTz(datetimeTz)
+, d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
+{
+}
+
+inline
+baltzo::LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&amp;   datetimeTz,
+                                     const char               *timeZoneId,
+                                     bslma::Allocator         *basicAllocator)
+: d_datetimeTz(datetimeTz)
+, d_timeZoneId(basicAllocator)
+{
+    if (timeZoneId) {
+        bsl::string(timeZoneId, basicAllocator).swap(d_timeZoneId);
+    }
+}
+
+inline
+baltzo::LocalDatetime::LocalDatetime(const LocalDatetime&amp;  original,
+                                     bslma::Allocator     *basicAllocator)
+: d_datetimeTz(original.d_datetimeTz)
+, d_timeZoneId(original.d_timeZoneId, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+baltzo::LocalDatetime&amp;
+baltzo::LocalDatetime::operator=(const LocalDatetime&amp; rhs)
+{
+    d_timeZoneId = rhs.d_timeZoneId;  // first to allow strong guarantee
+    d_datetimeTz = rhs.d_datetimeTz;
+    return *this;
+}
+
+inline
+void baltzo::LocalDatetime::setDatetimeTz(const bdlt::DatetimeTz&amp; value)
+{
+    d_datetimeTz = value;
+}
+
+inline
+void baltzo::LocalDatetime::setTimeZoneId(const bslstl::StringRef&amp; value)
+{
+    d_timeZoneId.assign(value.begin(), value.end());
+}
+
+inline
+void baltzo::LocalDatetime::setTimeZoneId(const char *value)
+{
+    if (value) {
+        bsl::string(value, d_timeZoneId.allocator()).swap(d_timeZoneId);
+    }
+    else {
+        d_timeZoneId.clear();
+    }
+}
+
+                        // Aspects
+
+template &lt;class STREAM&gt;
+STREAM&amp; baltzo::LocalDatetime::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_timeZoneId, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_datetimeTz, 1);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+inline
+void baltzo::LocalDatetime::swap(LocalDatetime&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    using bsl::swap;
+
+    swap(d_datetimeTz, other.d_datetimeTz);
+    swap(d_timeZoneId, other.d_timeZoneId);
+}
+
+// ACCESSORS
+inline
+const bdlt::DatetimeTz&amp; baltzo::LocalDatetime::datetimeTz() const
+{
+    return d_datetimeTz;
+}
+
+inline
+const bsl::string&amp; baltzo::LocalDatetime::timeZoneId() const
+{
+    return d_timeZoneId;
+}
+
+                        // Aspects
+
+inline
+bslma::Allocator *baltzo::LocalDatetime::allocator() const
+{
+    return d_timeZoneId.get_allocator().mechanism();
+}
+
+template &lt;class STREAM&gt;
+STREAM&amp; baltzo::LocalDatetime::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bslx::OutStreamFunctions::bdexStreamOut(stream, d_timeZoneId, 1);
+            bslx::OutStreamFunctions::bdexStreamOut(stream, d_datetimeTz, 1);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+
+// FREE OPERATORS
+inline
+bool baltzo::operator==(const LocalDatetime&amp; lhs, const LocalDatetime&amp; rhs)
+{
+    return lhs.datetimeTz() == rhs.datetimeTz()
+        &amp;&amp; lhs.timeZoneId() == rhs.timeZoneId();
+}
+
+inline
+bool baltzo::operator!=(const LocalDatetime&amp; lhs, const LocalDatetime&amp; rhs)
+{
+    return lhs.datetimeTz() != rhs.datetimeTz()
+        || lhs.timeZoneId() != rhs.timeZoneId();
+}
+
+// FREE FUNCTIONS
+inline
+void baltzo::swap(LocalDatetime&amp; a, LocalDatetime&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_compilerfeatures.h Reference</title>
+<title>BDE 3.0: bsls_compilerfeatures.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -60,7 +60,9 @@
 </div>
 <div class="header">
   <div class="summary">
-<a href="#define-members">Defines</a>  </div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#define-members">Defines</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <h1>bsls_compilerfeatures.h File Reference</h1>  </div>
 </div>
@@ -71,13 +73,26 @@
 
 <p><a href="bsls__compilerfeatures_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html">bsls</a></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a59697a8a1f42e1f341dcf0af446dc145">BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES</a>&nbsp;&nbsp;&nbsp;1</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#acb1dd2b203a61cf81654001eeda71f12">BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES</a>&nbsp;&nbsp;&nbsp;1</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#aa494c0633148628aed37c619042b50a4">BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND</a>&nbsp;&nbsp;&nbsp;1</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a29f7427f9b0ee92d6357d3aa0176ab2d">BSLS_COMPILERFEATURES_FORWARD_REF</a>(T)&nbsp;&nbsp;&nbsp;const T&amp;</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a338538f0a2783c3df253b26063060a30">BSLS_COMPILERFEATURES_FORWARD</a>(T, V)&nbsp;&nbsp;&nbsp;(V)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a7ba65f075f7b852468925bcfc85195e0">BSLS_COMPILERFEATURES_NILT</a>&nbsp;&nbsp;&nbsp;BloombergLP::bsls::CompilerFeaturesNilT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a9b05dd50cc0d5c123aa92cd35a4671fa">BSLS_COMPILERFEATURES_NILV</a>&nbsp;&nbsp;&nbsp;BloombergLP::bsls::CompilerFeaturesNilV</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a21722a696822761b2d33c2d39830a860">BSLS_COMPILERFEATURES_NILTR</a>(n)&nbsp;&nbsp;&nbsp;BSLS_COMPILERFEATURES_NILT,</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a6bf881ec38a941c9267c16ade03ebe50">BSLS_COMPILERFEATURES_FILLT</a>(n)&nbsp;&nbsp;&nbsp;BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILTR) BSLS_COMPILERFEATURES_NILT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a1fdc2147980074a3a2e24828041f67b8">BSLS_COMPILERFEATURES_NILVR</a>(n)&nbsp;&nbsp;&nbsp;BSLS_COMPILERFEATURES_NILV,</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__compilerfeatures_8h.html#a3479151b09606c399a32fc1c09aee7af">BSLS_COMPILERFEATURES_FILLV</a>(n)&nbsp;&nbsp;&nbsp;BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__compilerfeatures.html#gaa494c0633148628aed37c619042b50a4">BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND</a>&nbsp;&nbsp;&nbsp;1</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__compilerfeatures.html#ga29f7427f9b0ee92d6357d3aa0176ab2d">BSLS_COMPILERFEATURES_FORWARD_REF</a>(T)&nbsp;&nbsp;&nbsp;const T&amp;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__compilerfeatures.html#ga338538f0a2783c3df253b26063060a30">BSLS_COMPILERFEATURES_FORWARD</a>(T, V)&nbsp;&nbsp;&nbsp;(V)</td></tr>
+<tr><td colspan="2"><h2><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a6ba8d13bd64a928d85a18c7e64aae156">bsls::CompilerFeaturesNilT</a> { <a class="el" href="namespacebsls.html#a6ba8d13bd64a928d85a18c7e64aae156a4a5646135dfd47b808bc0bba262a8ba1">bsls::COMPILERFEATURESNILV</a> =  0x7fff6f76
+ }</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <hr/><h2>Define Documentation</h2>
@@ -91,7 +106,8 @@ Defines</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>&lt; gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x </p>
+<p>&lt; gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x</p>
+<p>&lt; *** Simulate various C++11 features *** </p>
 
 </div>
 </div>
@@ -108,12 +124,12 @@ Defines</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa494c0633148628aed37c619042b50a4"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND" ref="aa494c0633148628aed37c619042b50a4" args="" -->
+<a class="anchor" id="a7ba65f075f7b852468925bcfc85195e0"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_NILT" ref="a7ba65f075f7b852468925bcfc85195e0" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND&nbsp;&nbsp;&nbsp;1</td>
+          <td class="memname">#define BSLS_COMPILERFEATURES_NILT&nbsp;&nbsp;&nbsp;BloombergLP::bsls::CompilerFeaturesNilT</td>
         </tr>
       </table>
 </div>
@@ -121,17 +137,30 @@ Defines</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a29f7427f9b0ee92d6357d3aa0176ab2d"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_FORWARD_REF" ref="a29f7427f9b0ee92d6357d3aa0176ab2d" args="(T)" -->
+<a class="anchor" id="a9b05dd50cc0d5c123aa92cd35a4671fa"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_NILV" ref="a9b05dd50cc0d5c123aa92cd35a4671fa" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BSLS_COMPILERFEATURES_FORWARD_REF</td>
+          <td class="memname">#define BSLS_COMPILERFEATURES_NILV&nbsp;&nbsp;&nbsp;BloombergLP::bsls::CompilerFeaturesNilV</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a21722a696822761b2d33c2d39830a860"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_NILTR" ref="a21722a696822761b2d33c2d39830a860" args="(n)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_COMPILERFEATURES_NILTR</td>
           <td>(</td>
           <td class="paramtype">&nbsp;</td>
-          <td class="paramname">T</td>
+          <td class="paramname">n</td>
           <td>&nbsp;)&nbsp;</td>
-          <td>&nbsp;&nbsp;&nbsp;const T&amp;</td>
+          <td>&nbsp;&nbsp;&nbsp;BSLS_COMPILERFEATURES_NILT,</td>
         </tr>
       </table>
 </div>
@@ -139,26 +168,53 @@ Defines</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a338538f0a2783c3df253b26063060a30"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_FORWARD" ref="a338538f0a2783c3df253b26063060a30" args="(T, V)" -->
+<a class="anchor" id="a6bf881ec38a941c9267c16ade03ebe50"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_FILLT" ref="a6bf881ec38a941c9267c16ade03ebe50" args="(n)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BSLS_COMPILERFEATURES_FORWARD</td>
+          <td class="memname">#define BSLS_COMPILERFEATURES_FILLT</td>
           <td>(</td>
           <td class="paramtype">&nbsp;</td>
-          <td class="paramname">T, </td>
+          <td class="paramname">n</td>
+          <td>&nbsp;)&nbsp;</td>
+          <td>&nbsp;&nbsp;&nbsp;BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILTR) BSLS_COMPILERFEATURES_NILT</td>
         </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a1fdc2147980074a3a2e24828041f67b8"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_NILVR" ref="a1fdc2147980074a3a2e24828041f67b8" args="(n)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
         <tr>
-          <td class="paramkey"></td>
-          <td></td>
+          <td class="memname">#define BSLS_COMPILERFEATURES_NILVR</td>
+          <td>(</td>
           <td class="paramtype">&nbsp;</td>
-          <td class="paramname">V</td><td>&nbsp;</td>
+          <td class="paramname">n</td>
+          <td>&nbsp;)&nbsp;</td>
+          <td>&nbsp;&nbsp;&nbsp;BSLS_COMPILERFEATURES_NILV,</td>
         </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a3479151b09606c399a32fc1c09aee7af"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_FILLV" ref="a3479151b09606c399a32fc1c09aee7af" args="(n)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
         <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td>&nbsp;&nbsp;&nbsp;(V)</td>
+          <td class="memname">#define BSLS_COMPILERFEATURES_FILLV</td>
+          <td>(</td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">n</td>
+          <td>&nbsp;)&nbsp;</td>
+          <td>&nbsp;&nbsp;&nbsp;BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV</td>
         </tr>
       </table>
 </div>
@@ -167,7 +223,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:17 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:18 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

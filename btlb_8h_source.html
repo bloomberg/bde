@@ -1,0 +1,50 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ btlb.h
+
+@PURPOSE: Provide flexible, efficient management of message buffers.
+
+@MNEMONIC: Basic Transport Library Blobs (btlb)
+
+@SEE_ALSO: bces, bcemt, bdema, bslma
+
+@DESCRIPTION: This package defines, &#39;btlb::Blob&#39;, a vocabulary type for other
+ &#39;btl&#39; packages.  A &#39;btlb::Blob&#39; object consists of a sequence of
+ &#39;bltb::BlobBuffer&#39; objects, each of which have a shared pointer to underlying
+ memory.  A protocol is defined for factories to manage &#39;bltb::BlobBuffer&#39;
+ objects, and a concrete implementation is provided.  Other components define
+ non-primitive operations on &#39;btlb::Blob&#39;s.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;btlb&#39; package currently has 4 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. btlb_blobstreambuf
+     btlb_blobutil
+     btlb_pooledblobbufferfactory
+
+  1. btlb_blob
+..
+
+/Component Synopsis
+/------------------
+: &#39;btlb_blob&#39;:
+:      Provide an indexed set of buffers from multiple sources.
+:
+: &#39;btlb_blobstreambuf&#39;:
+:      Provide blob implementing the &#39;streambuf&#39; interface.
+:
+: &#39;btlb_blobutil&#39;:
+:      Provide a suite of utilities for I/O operations on &#39;btlb::Blob&#39;.
+:
+: &#39;btlb_pooledblobbufferfactory&#39;:
+:      Provide a concrete implementation of &#39;btlb::BlobBufferFactory&#39;.
+</pre>
+</body>
+</html>

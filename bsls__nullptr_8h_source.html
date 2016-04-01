@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_nullptr.h                                                     -*-C++-*-
@@ -15,24 +15,24 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide a distinct type for null pointer literals.
 //
 //@CLASSES:
-//   bsls::Nullptr: namespace for a type matching only null pointer literals
+//   bsl::nullptr_t: type for function parameter to match null pointer literals
 //
-//@DESCRIPTION: This component provides a limited emulation of the C++11 type,
-// &#39;std::nullptr_t&#39;, which can be used as a function parameter type to create
-// an overload set where null pointer literals are handled specially.  Note
-// that this component will be deprecated, and ultimately removed, once BDE
-// code can assume support for a C++11 compiler.  On a platform that supports
-// the language feature, a fully-conforming &#39;typedef&#39; is supplied rather than
-// using the emulation layer.
+//@DESCRIPTION: This component provides &#39;bsl::nullptr_t&#39; as a limited emulation
+// of the C++11 type, &#39;std::nullptr_t&#39;, which can be used as a function
+// parameter type to create an overload set where null pointer literals are
+// handled specially.  Note that this component will be deprecated, and
+// ultimately removed, once BDE code can assume support for a C++11 compiler.
+// On a platform that supports the language feature, a fully-conforming
+// &#39;typedef&#39; is supplied rather than using the emulation layer.
 //
 ///Limitations
 ///-----------
 // This component provides a simple emulation of the C++11 facility, which
 // cannot be expressed with a pure library solution.  As such it comes with a
-// number of limitations.  The most obvious is that C++11 provides a new
-// null pointer literal, &#39;nullptr&#39;, which is not emulated by this component.
-// The new null pointer literal is an object of a new type, expressed by the
-// alias &#39;nullptr_t&#39;, which this component emulates.  However, as this is a
+// number of limitations.  The most obvious is that C++11 provides a new null
+// pointer literal, &#39;nullptr&#39;, which is not emulated by this component.  The
+// new null pointer literal is an object of a new type, expressed by the alias
+// &#39;nullptr_t&#39;, which this component emulates.  However, as this is a
 // library-only emulation, it does not have any preference in the overloading
 // rules, so will be an equal-rank ambiguous match.  For example, given the
 // following overload set, a call to &#39;myFunction&#39; with a null pointer literal
@@ -64,9 +64,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  std::nullptr_t nullLiteral = std::nullptr_t();
 //  int *pI = nullLiteral;
 //..
-// The type of a &#39;bsl::nullptr_t&#39; object cannot be used in such assignments
-// or initializations, unless compiled on a platform that natively supports
-// this C++11 language feature.
+// The type of a &#39;bsl::nullptr_t&#39; object cannot be used in such assignments or
+// initializations, unless compiled on a platform that natively supports this
+// C++11 language feature.
 //
 ///Usage
 ///-----
@@ -188,6 +188,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+#  if defined nullptr
+#  error Some earlier header has defined the keyword &#39;nullptr&#39; as a macro.
+    // Occasionally we encounter code-bases predating C++11 that define a macro
+    // named &#39;nullptr&#39;, possible trying to mimic the expected interface when
+    // ported to a C++11 world.  However, it is undefined behavior to redefine
+    // a keyword of the language, and typically breaks the implementation of
+    // the type alias &#39;nullptr_t&#39; in unusual ways, that (wrongly) report this
+    // header file as the source of the problem, rather than the point at which
+    // it is first observed.
+#  endif
+
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports &#39;nullptr&#39; and does not
     // also support &#39;decltype&#39;.  We conservatively error should such a
@@ -234,15 +245,15 @@ struct Nullptr_Impl {
                                              // pointer type.
 };
 
-}  // close namespace bsls
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl
 {
-    typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
-        // Alias for a type that can match a null pointer literal, but is not a
-        // pointer type itself.
-}
+typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
+    // Alias for a type that can match a null pointer literal, but is not a
+    // pointer type itself.
+}  // close namespace bsl
 #endif
 
 #endif

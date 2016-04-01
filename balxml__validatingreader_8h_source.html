@@ -1,0 +1,355 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_validatingreader.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_VALIDATINGREADER
+#define INCLUDED_BALXML_VALIDATINGREADER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a common reader protocol for parsing and validating XML.
+//
+//@CLASSES:
+//  balxml::ValidatingReader: reader protocol for parsing and validating XML
+//
+//@SEE_ALSO: balxml_reader
+//
+//@DESCRIPTION: This component represents an abstract class
+// &#39;balxml::ValidatingReader&#39; - an XML reader that provides data validation
+// against DTD or/and XML Schemas(XSD).  The &#39;balxml::ValidatingReader&#39;
+// inherits from the &#39;balxml::Reader&#39; interface and therefore fully compliant
+// with it.  In addition, &#39;balxml::ValidatingReader&#39; provides additional
+// methods to control the validation.  The &#39;enableValidation&#39; method specifies
+// what type of validation the reader should perform.  Setting &#39;validationFlag&#39;
+// to &#39;false&#39; produces a non-validating reader.  Setting it to &#39;true&#39; forces
+// the reader perform the validation of input XML data against XSD schemas.
+//
+///Schema Location and obtaining Schemas
+///-------------------------------------
+// In validating mode the reader should be able obtain external XSD schemas.
+// &#39;balxml::ValidatingReader&#39; requires that all schema sources must be
+// represented in the form of &#39;bsl::streambuf&#39; objects.  According to W3C
+// standard an information about external XSD schemas can be defined in three
+// places:
+//
+//: o In an instance document, the attribute &#39;xsi:schemaLocation&#39; provides
+//:   hints from the author to a processor regarding the location of schema
+//:   documents.  The &#39;schemaLocation&#39; attribute value consists of one or more
+//:   pairs of URI references, separated by white space.  The first member of
+//:   each pair is a namespace name, and the second member of the pair is a
+//:   hint describing where to find an appropriate schema document for that
+//:   namespace.  The presence of these hints does not require the processor to
+//:   obtain or use the cited schema documents, and the processor is free to
+//:   use other schemas obtained by any suitable means.  For example, XercesC
+//:   has a property XercesSchemaExternalSchemaLocation, that informs parser
+//:   about available schemas exactly in the same format as the attribute
+//:   &#39;schemaLocation&#39; in the document instance.
+//
+// Example:
+//..
+//      &lt;purchaseReport
+//          xmlns=&quot;http://www.example.com/Report&quot;
+//          xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+//          xsi:schemaLocation=&quot;http://www.example.com/Report
+//                              http://www.example.com/Report.xsd&quot;
+//           period=&quot;P3M&quot; periodEnding=&quot;1999-12-31&quot;&gt;
+//..
+//
+//: o In a schema, the &#39;include&#39; element has a required &#39;schemaLocation&#39;
+//:   attribute, and it contains a URI reference which must identify a schema
+//:   document.
+//:
+//: o Also in a schema, the import element has optional namespace and
+//:   &#39;schemaLocation&#39; attributes.  If present, the &#39;schemaLocation&#39; attribute
+//:   is understood in a way which parallels the interpretation of
+//:   &#39;xsi:schemaLocation&#39; in (1).  Specifically, it provides a hint from the
+//:   author to a processor regarding the location of a schema document that
+//:   the author warrants supplies the required components for the namespace
+//:   identified by the namespace attribute.
+//
+// For all mentioned cases, having the URI reference which identifies a schema
+// and an optional namespace, the processor(parser) should obtain
+// &#39;bsl::streambuf&#39; object for the schema.  For this purpose
+// &#39;balxml::ValidatingReader&#39; interface defines the two level schemas
+// resolution process:
+//
+//: 1 The reader(parser) must lookup schema in internal cache.  If the schema
+//:   is found, it must be used.
+//:
+//: 2 Otherwise reader must use the associated resolver to obtain schema (see
+//:   &#39;balxml::Reader::XmlResolverFunctor&#39;).
+//
+// Both the schema cache and resolver should be setup before the method &#39;open&#39;
+// is called.
+//
+///Schema Cache
+///------------
+// &#39;balxml::ValidatingReader&#39; provides two abstract methods to maintain the
+// schema cache:
+//
+//: o &#39;addSchema&#39;, add a schema to the cache
+//: o &#39;removeSchemas&#39;, clear the cache and remove all schemas
+//
+///Thread Safety
+///-------------
+// This component does not provide any functions that present a thread safety
+// issue, since the &#39;balxml::Reader&#39; class is abstract and cannot be
+// instantiated.  There is no guarantee that any specific derived class will
+// provide a thread-safe implementation.
+//
+///Usage
+///-----
+// In this example, we will create a validating parser that parses and
+// validates document again the schema.
+//..
+//  #include &lt;a_xercesc_reader.h&gt;
+//
+//  #include &lt;balxml_validatingreader.h&gt;
+//  #include &lt;balxml_errorinfo.h&gt;
+//  #include &lt;iostream&gt;
+//  #include &lt;strstream&gt;
+//..
+// The following string describes an XSD schema for the documents we are going
+// to parse:
+//..
+// const char TEST_XSD_STRING[] =
+//    &quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;&quot;
+//    &quot;&lt;xsd:schema xmlns:xsd=&#39;http://www.w3.org/2001/XMLSchema&#39;&quot;
+//    &quot;            xmlns=&#39;http://bloomberg.com/schemas/directory&#39;&quot;
+//    &quot;            targetNamespace=&#39;http://bloomberg.com/schemas/directory&#39;&quot;
+//    &quot;            elementFormDefault=&#39;qualified&#39;&quot;
+//    &quot;            attributeFormDefault=&#39;qualified&#39; &gt;&quot;
+//    &quot; &quot;
+//    &quot;&lt;xsd:complexType name=&#39;entryType&#39;&gt;&quot;
+//    &quot;    &lt;xsd:sequence&gt;&quot;
+//    &quot;    &lt;xsd:element name=&#39;name&#39; type=&#39;xsd:string&#39;/&gt;&quot;
+//    &quot;    &lt;xsd:element name=&#39;phone&#39;&gt;&quot;
+//    &quot;        &lt;xsd:complexType&gt;&quot;
+//    &quot;        &lt;xsd:simpleContent&gt;&quot;
+//    &quot;            &lt;xsd:extension base=&#39;xsd:string&#39;&gt;&quot;
+//    &quot;                &lt;xsd:attribute name=&#39;phonetype&#39; type=&#39;xsd:string&#39;/&gt;&quot;
+//    &quot;            &lt;/xsd:extension&gt;&quot;
+//    &quot;        &lt;/xsd:simpleContent&gt;&quot;
+//    &quot;        &lt;/xsd:complexType&gt;&quot;
+//    &quot;    &lt;/xsd:element&gt;&quot;
+//    &quot;    &lt;xsd:element name=&#39;address&#39; type=&#39;xsd:string&#39;/&gt;&quot;
+//    &quot;    &lt;/xsd:sequence&gt;&quot;
+//    &quot;&lt;/xsd:complexType&gt;&quot;
+//    &quot; &quot;
+//    &quot;&lt;xsd:element name=&#39;directory-entry&#39; type=&#39;entryType&#39;/&gt;&quot;
+//    &quot;&lt;/xsd:schema&gt;&quot;;
+//..
+// The following string describes correct XML for a conforming schema.  The
+// top-level element contains one XML namespace attribute, with one embedded
+// entry describing a user:
+//..
+//  const char TEST_GOOD_XML_STRING[] =
+//    &quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;\n&quot;
+//    &quot;&lt;directory-entry xmlns:dir=&#39;http://bloomberg.com/schemas/directory&#39;\n&quot;
+//    &quot;     xmlns:xsi=&#39;http://www.w3.org/2001/XMLSchema-instance&#39;\n&quot;
+//    &quot;     xsi:schemaLocation=&#39;http://bloomberg.com/schemas/directory  \n&quot;
+//    &quot;                         aaa.xsd&#39; &gt;\n&quot;
+//    &quot;    &lt;name&gt;John Smith&lt;/name&gt;\n&quot;
+//    &quot;    &lt;phone dir:phonetype=&#39;cell&#39;&gt;212-318-2000&lt;/phone&gt;\n&quot;
+//    &quot;    &lt;address/&gt;\n&quot;
+//    &quot;&lt;/directory-entry&gt;\n&quot;;
+//..
+// The following string describes invalid XML.  More specifically, the XML
+// document is well-formed, but does not conform to our schema:
+//..
+//  const char TEST_BAD_XML_STRING[] =
+//    &quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;\n&quot;
+//    &quot;&lt;directory-entry xmlns:dir=&#39;http://bloomberg.com/schemas/directory&#39;\n&quot;
+//    &quot;     xmlns:xsi=&#39;http://www.w3.org/2001/XMLSchema-instance&#39;\n&quot;
+//    &quot;     xsi:schemaLocation=&#39;http://bloomberg.com/schemas/directory  \n&quot;
+//    &quot;                         aaa.xsd&#39; &gt;\n&quot;
+//    &quot;    &lt;name&gt;John Smith&lt;/name&gt;\n&quot;
+//    &quot;    &lt;phone dir:phonetype=&#39;cell&#39;&gt;212-318-2000&lt;/phone&gt;\n&quot;
+//    &quot;&lt;/directory-entry&gt;\n&quot;;
+//..
+// Now we define a &#39;parse&#39; method for parsing an XML document and validating
+// against an XSD schema:
+//..
+//int parse(balxml::ValidatingReader *reader,
+//          const char              *xmlData,
+//          const char              *xsdSchema)
+//{
+//..
+// In order to read the XML, we first need to construct a
+// &#39;balxml::NamespaceRegistry&#39; object, a &#39;balxml::PrefixStack&#39; object, and a
+// &#39;TestReader&#39; object, where &#39;TestReader&#39; is a derived implementation of
+// &#39;balxml_validatingreader&#39;.
+//..
+//    balxml::NamespaceRegistry namespaces;
+//    balxml::PrefixStack prefixStack(&amp;namespaces);
+//
+//    ASSERT(!reader-&gt;isOpen());
+//..
+// The reader uses a &#39;balxml::PrefixStack&#39; to manage namespace prefixes so we
+// need to set it before we call open.
+//..
+//    reader-&gt;setPrefixStack(&amp;prefixStack);
+//    ASSERT(reader-&gt;prefixStack() == &amp;prefixStack);
+//..
+// Setup validation
+//..
+//    reader-&gt;removeSchemas();
+//
+//    reader-&gt;enableValidation(true);
+//    ASSERT(reader-&gt;validationFlag());
+//
+//    bsl::istrstream schemaStream(xsdSchema);
+//    reader-&gt;addSchema(&quot;aaa.xsd&quot;, schemaStream.rdbuf());
+//..
+// Now we call the &#39;open&#39; method to setup the reader for parsing using the data
+// contained in the in the XML string.
+//..
+//    int rc = reader-&gt;open(xmlData, bsl::strlen(xmlData), 0, &quot;UTF-8&quot;);
+//    ASSERT(rc == 0);
+//..
+// Confirm that the &#39;bdem::Reader&#39; has opened properly
+//..
+//    ASSERT(reader-&gt;isOpen());
+//..
+// Do actual document reading
+//..
+//    while(1) {
+//        rc = reader-&gt;advanceToNextNode ();
+//        if (rc != 0) {
+//            break;
+//       }
+//..
+//      process current node here
+//..
+//    }
+//..
+// Cleanup and close the reader.
+//..
+//    reader-&gt;close();
+//    ASSERT(!reader-&gt;isOpen());
+//
+//    reader-&gt;setPrefixStack(0);
+//    ASSERT(reader-&gt;prefixStack() == 0);
+//
+//    return rc;
+//}
+//..
+// The main program parses an XML string using the TestReader
+//..
+//int usageExample()
+//{
+//    a_xercesc::Reader  reader;
+//
+//    int rc = parse(&amp;reader, TEST_GOOD_XML_STRING, TEST_XSD_STRING);
+//..
+//  Normal end of data
+//..
+//    ASSERT(rc==1);
+//
+//    int rc = parse(&amp;reader, TEST_BAD_XML_STRING, TEST_XSD_STRING);
+//..
+//  Parser error - document validation failed
+//..
+//    ASSERT(rc==-1);
+//
+//    return 0;
+//}
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALXML_READER
+#include &lt;balxml_reader.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balxml {
+                           // ======================
+                           // class ValidatingReader
+                           // ======================
+
+class ValidatingReader : public Reader {
+    // TBD Class description
+
+  public:
+    // CREATORS
+    virtual ~ValidatingReader();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual void enableValidation(bool validationFlag) = 0;
+        // Enable or disable XML validation, if the specified &#39;validationFlag&#39;
+        // is true and disable it otherwise.  A validating reader is often
+        // faster if validation is disabled.  This operation does not take
+        // effect until the next call to the &#39;open&#39; method.
+
+    virtual int addSchema(const char *location, bsl::streambuf *schema) = 0;
+        // Associate the specified &#39;location&#39; with the XSD document in the
+        // specified &#39;schema&#39; stream.  Return 0 on success and non-zero on
+        // error.  This method may be called more than once to add multiple
+        // location-schema associations to a pre-resolved schema cache.  During
+        // XML validation, a reference to a schema with a specific location
+        // will be looked up in the schema cache.  Only if this resolution
+        // fails, is the schema resolver used to find the external schema.
+        // (See &#39;setResolver&#39; in the &#39;Reader&#39; base class.)  The effects of
+        // calling this method when the reader is already open is not specified
+        // and a derived class implementation may treat it as an error.  The
+        // behavior is undefined unless &#39;schema&#39; is a repositionable stream
+        // (i.e., it must be possible to read from the stream, then seek to the
+        // beginning of the stream and read the same bytes again.)
+
+    virtual void removeSchemas() = 0;
+        // Remove all location-to-schema associations that were added using
+        // &#39;addSchema&#39;.  This method should be called each time after parsing
+        // is finished and the reader would be re-used for parsing other
+        // documents with different schemas.  Note that calling &#39;close&#39; on the
+        // reader *does* *not* remove the schemas.
+
+    // ACCESSORS
+    virtual bool validationFlag() const = 0;
+        // Return true if the reader has validation turned on false otherwise.
+};
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

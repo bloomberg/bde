@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlt_currenttime.h                                                 -*-C++-*-
@@ -147,6 +147,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bdlt_datetime.h&gt;
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
 #ifndef INCLUDED_BDLT_EPOCHUTIL
 #include &lt;bdlt_epochutil.h&gt;
 #endif
@@ -169,6 +173,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -213,6 +221,9 @@ struct CurrentTime {
         // Return the &#39;Datetime&#39; value representing the current date/time in
         // Coordinated Universal Time (UTC) as provided by the installed
         // callback function.
+
+    static DatetimeTz asDatetimeTz();
+        // Return the &#39;DatetimeTz&#39; value representing the current time.
 
                         // ** callback functions **
 
@@ -279,7 +290,8 @@ inline
 CurrentTime::CurrentTimeCallback CurrentTime::currentTimeCallback()
 {
     return reinterpret_cast&lt;CurrentTimeCallback&gt;(
-              bsls::AtomicOperations::getPtrAcquire(&amp;s_currenttimeCallback_p));
+        reinterpret_cast&lt;bsls::Types::IntPtr&gt;(
+            bsls::AtomicOperations::getPtrAcquire(&amp;s_currenttimeCallback_p)));
 }
 
 inline
@@ -289,8 +301,12 @@ CurrentTime::setCurrentTimeCallback(CurrentTimeCallback callback)
     BSLS_ASSERT_OPT(callback);
 
     CurrentTimeCallback previousCallback = currentTimeCallback();
-    bsls::AtomicOperations::setPtrRelease(&amp;s_currenttimeCallback_p,
-                                          reinterpret_cast&lt;void *&gt;(callback));
+
+    bsls::AtomicOperations::setPtrRelease(
+        &amp;s_currenttimeCallback_p,
+        reinterpret_cast&lt;void *&gt;(
+            reinterpret_cast&lt;bsls::Types::IntPtr&gt;(callback)));
+
     return previousCallback;
 }
 

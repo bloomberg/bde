@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsltf_nonequalcomparabletesttype.h                                 -*-C++-*-
@@ -21,7 +21,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, &#39;NonEqualComparableTestType&#39;, that does
-// not provide equality comparison operators.  This is particularly valuable
+// not provide equality-comparison operators.  This is particularly valuable
 // when test containers that should work with non-equal-comparable types.
 //
 ///Attributes
@@ -37,8 +37,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Demonstrating The Type Can&#39;t Be Equal Compared
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrating the Type Cannot be Equality Compared
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to show &#39;NonEqualComparableTestType&#39; can&#39;t be equal
 // compared.
 //
@@ -65,7 +65,7 @@ namespace bsltf {
 
 class NonEqualComparableTestType {
     // This unconstrained (value-semantic) attribute class does not
-    // provide a equality comparison operators.
+    // provide equality-comparison operators.
 
     // DATA
     int d_data;  // integer class value
@@ -106,9 +106,9 @@ class NonEqualComparableTestType {
         // Return the value of the &#39;data&#39; attribute of this object.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------------------
                         // class NonEqualComparableTestType

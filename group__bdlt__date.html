@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_date Component</title>
+<title>BDE 3.0: bdlt_date Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -103,7 +103,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a> </td><td>value-semantic date type using the proleptic Gregorian calendar  </td></tr>
+<td><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a> </td><td>value-semantic date type consistent with the Unix calendar  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -111,20 +111,30 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a value-semantic class, <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code>, capable of representing any valid date that is consistent with the proleptic Gregorian calendar restricted to the years 1 through 9999 (inclusive): <br/>
+<dl class="user"><dt><b></b></dt><dd>This component defines a value-semantic class, <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code>, capable of representing any valid date that is consistent with the Unix (POSIX) calendar restricted to the years 1 through 9999 (inclusive): <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  http:<span class="comment">//en.wikipedia.org/wiki/Proleptic_Gregorian_calendar</span>
+<div class="fragment"><pre class="fragment">  http:<span class="comment">//pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html</span>
 </pre></div><br/>
 <br/>
  "Actual" (i.e., natural) day and date calculations are supported directly by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> and its associated free operators. Calculations involving business days (or holidays), and day-count conventions (e.g., "ISMA30360"), can be found elsewhere. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="valid_date_values_and_their_representations"></a> <a class="anchor" id="description.valid_date_values_and_their_representations"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Valid Date Values and Their Representations: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object <em>always</em> represents a valid date value as defined by the proleptic Gregorian calendar. The value of a <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object can be expressed in the interface as either <code>(year, month, day)</code>, the canonical representation of dates, or <code>(year, dayOfYear)</code>. For example, <code>(1959, 3, 8)</code> represents the same valid <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> value as <code>(1959, 67)</code> because the 8th day of the 3rd month of the year 1959 is also the 67th day of the year 1959. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object <em>always</em> represents a valid date value as defined by the standard Unix calendar. The value of a <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object can be expressed in the interface as either <code>(year, month, day)</code>, the canonical representation of dates, or <code>(year, dayOfYear)</code>. For example, <code>(1959, 3, 8)</code> represents the same valid <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> value as <code>(1959, 67)</code> because the 8th day of the 3rd month of the year 1959 is also the 67th day of the year 1959. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Of course, not all combinations of <code>(year, month, day)</code> and <code>(year, dayOfYear)</code> constitute valid values for <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> objects. A <code>(year, dayOfYear)</code> pair does <em>not</em> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> value unless <code>1 &lt;= year &lt;= 9999</code> and <code>1 &lt;= dayOfYear &lt;= 366</code>. Additionally, if <code>year</code> is not a leap year, then the representation is not valid unless <code>1 &lt;= dayOfYear &lt;= 365</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that, in a leap year, February has 29 days instead of the usual 28. (Thus, leap years have 366 days instead of the usual 365.) The proleptic Gregorian calendar retroactively applies the leap year rules instituted by the Gregorian Reformation to <em>all</em> years. In particular, a year in the range <code>[1 .. 9999]</code> is a leap year if it is divisible by 4, but <em>not</em> divisible by 100, <em>unless</em> it is <em>also</em> divisible by 400. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A <code>(year, month, day)</code> triple does <em>not</em> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> value unless <code>1 &lt;= year &lt;= 9999</code>, <code>1 &lt;= month &lt;= 12</code>, and <code>1 &lt;= day &lt;= 31</code>. Also, when <code>month</code> is 4, 6, 9, or 11 (April, June, September, or November), the representation is not valid unless <code>1 &lt;= day &lt;= 30</code>, and, when <code>month</code> is 2 (February), unless <code>1 &lt;= day &lt;= 29</code>. Finally, when <code>month</code> is 2 and <code>year</code> is not a leap year, then the representation is not valid unless <code>1 &lt;= day &lt;= 28</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that two <code>static</code> (class) methods: <br/>
+<dl class="user"><dt><b></b></dt><dd>In a leap year, February has 29 days instead of the usual 28. (Thus, leap years have 366 days instead of the usual 365.) Prior to 1752, the Unix calendar follows the convention of the Julian calendar: every year divisible by 4 is a leap year. After 1752, the Unix calendar follows the (more accurate) Gregorian calendar: a year is leap year if it is divisible by 4, but <em>not</em> divisible by 100, <em>unless</em> it is <em>also</em> divisible by 400. Note that 1752 is the year that Britain and its empire (including the colonies that later became the United States) switched from the Julian to the Gregorian calendar. See: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  http:<span class="comment">//en.wikipedia.org/wiki/Proleptic_Gregorian_calendar</span>
+  https:<span class="comment">//en.wikipedia.org/wiki/Calendar_(New_Style)_Act_1750</span>
+</pre></div><br/>
+<br/>
+ Moreover, the Unix calendar lacks the dates <code>[3 .. 13]</code> in September 1752, days that were dropped to align British dates with those used on the European continent. Thus: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(++<a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a>(1752, 9, 2) ==   <a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a>(1752, 9, 14));
+  assert(  <a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a>(1752, 9, 2) == --<a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a>(1715, 9, 14));
+</pre></div><br/>
+<br/>
+ Note that two <code>static</code> (class) methods: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> isValidYearDay(<span class="keywordtype">int</span> year, <span class="keywordtype">int</span> dayOfYear);
   <span class="keywordtype">bool</span> isValidYearMonthDay(<span class="keywordtype">int</span> year, <span class="keywordtype">int</span> month, <span class="keywordtype">int</span> day);
@@ -151,7 +161,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bdex_compatibility_with_legacy_posix-based_date"></a> <a class="anchor" id="description.bdex_compatibility_with_legacy_posix-based_date"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>BDEX Compatibility with Legacy POSIX-Based Date: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The version 1 format supported by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> for BDEX streaming is expressly intended for maintaining some degree of "compatibility" with a legacy date class that uses a (non-proleptic) Gregorian calendar matching the POSIX <code>cal</code> command. Over the range of dates supported by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> (<code>[0001JAN01 .. 9999DEC31</code>]), the proleptic Gregorian calendar (used by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code>) has two fewer days than <code>cal</code>, and some dates that exist in one calendar do not exist in the other; therefore, true compatibility is not possible. The compatibility guaranteed by BDEX streaming version 1 is such that all dates in the range <code>[1752SEP14 .. 9999DEC31]</code>, as well as the default value (<code>0001JAN01</code>), can be successfully exchanged, via BDEX, between <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> and the legacy date class. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The version 1 format supported by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> for BDEX streaming is expressly intended for maintaining some degree of "compatibility" with versions of this date class that are built to use the proleptic Gregorian calendar. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Over the range of dates supported by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> (<code>[0001JAN01 .. 9999DEC31]</code>), the proleptic Gregorian calendar (used by <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code>) has two fewer days than <code>cal</code>, and some dates that exist in one calendar do not exist in the other; therefore, true compatibility is not possible. The compatibility guaranteed by BDEX streaming version 1 is such that all dates in the range <code>[1752SEP14 .. 9999DEC31]</code>, as well as the default value (<code>0001JAN01</code>), can be successfully exchanged, via BDEX, between <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> classes built to use the POSIX calendar and those built to use the proleptic Gregorian calendar. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -210,7 +221,7 @@ Namespaces</h2></td></tr>
                            assert(  10 == d2.day());
 </pre></div><br/>
 <br/>
- Now, we subtract <code>d1</code> from <code>d2</code>, storing the (signed) difference in days (a.k.a. <em>Actual</em> difference) in <code>daysDiff</code>: <br/>
+ Now, we subtract <code>d1</code> from <code>d2</code>, storing the (signed) difference in days (a.k.a. <em>actual</em> difference) in <code>daysDiff</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> daysDiff = d2 - d1;  assert(   6 == daysDiff);
 </pre></div><br/>
@@ -227,7 +238,7 @@ Namespaces</h2></td></tr>
 <br/>
  on <code>stdout</code>. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

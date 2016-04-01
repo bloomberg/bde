@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslh_siphashalgorithm.h                                            -*-C++-*-
@@ -57,7 +57,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // to protect a hash table from malicious Denial of Service (DoS) attacks.
 //
 ///Denial of Service (DoS) Protection
-/// - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Given a cryptographically secure seed, this algorithm will produce hashes
 // with a distribution that is indistinguishable from random.  This
 // distribution means that there is no way for an attacker to predict which
@@ -87,12 +87,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  The algorithm will run on big- and
-// little-endian machines and the above guarantees apply on both architectures,
-// however, the hashes produced will be different.  Therefor it is not
-// recommended to send hashes from &#39;bslh::SipHashAlgorithm&#39; over a network.  It
-// is also not recommended to write hashes from &#39;bslh::SipHashAlgorithm&#39; to any
-// memory accessible by multiple machines.
+// This hash algorithm is endian-independent.  The hashes produced for a given
+// 16-byte key sequence and given data will be the same on big-endian and
+// little-endian platforms.  (In the literature the key is sometimes presented
+// as a large integer or sequence of integers, such as
+// &#39;0xDEADBEEF, 0xCAFEBABE, 0x8BADF00D, 0x1BADB002&#39;, in which case care must be
+// taken to supply the individual key bytes in the same order on both platforms
+// if the same hash results are desired.)  However, if the &quot;given data&quot; is not
+// just a character string but has internal structure, such as being integral
+// or floating-point, it is likely ordered in different ways depending on the
+// platform, and thus will not hash to the same value.
 //
 ///Usage
 ///-----
@@ -343,8 +347,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: 10 Changed variables to use &#39;size_t&#39; rather than &#39;unsigned int&#39;
 //
-///Third Party Doc
-///---------------
+///Third-Party Documentation
+///-------------------------
 //------------------------------- siphash.h -----------------------------------
 //
 // This software is in the public domain.  The only restriction on its use is
@@ -489,7 +493,7 @@ namespace bslmf {
 template &lt;&gt;
 struct IsBitwiseMoveable&lt;bslh::SipHashAlgorithm&gt;
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 

@@ -1,0 +1,332 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btls5_negotiator.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLS5_NEGOTIATOR
+#define INCLUDED_BTLS5_NEGOTIATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism for SOCKS5 client-side handshake.
+//
+//@CLASSES:
+//  btls5::Negotiator: negotiator for SOCKS5 client-side handshake
+//
+//@SEE_ALSO: btls5_networkconnector
+//
+//@DESCRIPTION: This component defines a mechanism, &#39;btls5::Negotiator&#39;, that
+// asynchronously negotiates a connection to a destination host via a SOCKS5
+// proxy.  Multiple negotiations can be conducted during the lifetime of a
+// &#39;btls5::Negotiator&#39;, each one identified by a &#39;NegotiationHandle&#39; object.
+// The steps to negotiate a connection to a destination host is typically:
+//: 1 Create a &#39;NegotiationHandle&#39; by calling &#39;makeNegotiationHandle&#39;.
+//: 2 Start negotiation on the handle by calling &#39;startNegotiaion&#39;.
+//: 3 Optionally cancel the negotiation by calling &#39;cancelNegotiation&#39;.
+// The results of the negotiation are passed to a &#39;NegotiationStateCallback&#39;
+// specified by the client.  If successful, the TCP connection will be suitable
+// for communication with the destination host.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Negotiation With Predefined Credentials
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following code snippets demonstrate how to use a &#39;btls5::Negotiator&#39; to
+// negotiate a SOCKS5 client-side handshake.
+//
+// First, we define the callback function that will receive the results of the
+// negotiation.  It will signal the main thread by setting &#39;state&#39;, which in
+// turn is protected by a mutex and a condition variable:
+//..
+//  void socks5Callback(btls5::Negotiator::NegotiationStatus  result,
+//                      const btls5::DetailedStatus&amp;          error,
+//                      int                                  *state,
+//                      bslmt::Mutex                         *stateLock,
+//                      bslmt::Condition                     *stateChanged)
+//  {
+//      bslmt::LockGuard&lt;bslmt::Mutex&gt; lock(stateLock);
+//      if (btls5::Negotiator::e_SUCCESS == result) {
+//          *state = 0;
+//      } else {
+//          // report negotiation failure ...
+//          *state = -1;
+//      }
+//      stateChanged-&gt;signal();
+//  }
+//..
+// Next, we define the function that will invoke the negotiator on the
+// previously connected socket, using predefined username and password for
+// authentication:
+//..
+//  int negotiate(btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+//                const btlso::Endpoint&amp;                   destination)
+//  {
+//      btls5::Credentials credentials(&quot;john.smith&quot;, &quot;PassWord123&quot;);
+//..
+// Then, we declare the variable for communicating the response, with a mutex
+// and a condition variable to protect access to it from different threads:
+//..
+//      bslmt::Mutex     stateLock;
+//      bslmt::Condition stateChanged;
+//      int              state = 1;  // &#39;state == 1&#39; means negotiation is
+//                                   // still in progress.
+//..
+// Next, we create an event manager and a &#39;btls5::Negotiator&#39; and start
+// negotiation:
+//..
+//      btlmt::TcpTimerEventManager eventManager;
+//      int rc = eventManager.enable();
+//      assert(0 == rc);
+//      btls5::Negotiator negotiator(&amp;eventManager);
+//
+//      using namespace bdlf::PlaceHolders;
+//      btls5::Negotiator::NegotiationHandle
+//          handle = negotiator.makeNegotiationHandle(
+//                                         socket,
+//                                         destination,
+//                                         bdlf::BindUtil::bind(socks5Callback,
+//                                                              _1,
+//                                                              _2,
+//                                                              &amp;state,
+//                                                              &amp;stateLock,
+//                                                              &amp;stateChanged),
+//                                         bsls::TimeInterval(),
+//                                         credentials);
+//      negotiator.startNegotiation(handle);
+//..
+// Now, we wait until the negotiation ends and &#39;socks5Callback&#39; updates the
+// &#39;state&#39; variable:
+//..
+//      bslmt::LockGuard&lt;bslmt::Mutex&gt; lock(&amp;stateLock);
+//      while (1 == state) {
+//          stateChanged.wait(&amp;stateLock);
+//      }
+//..
+// Finally, we return the status of SOCKS5 negotiation.  If &#39;0 == state&#39;,
+// &#39;socket&#39; can be used to communicate with &#39;destination&#39; through the proxy:
+//..
+//      return state;
+//  }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_CREDENTIALS
+#include &lt;btls5_credentials.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_DETAILEDSTATUS
+#include &lt;btls5_detailedstatus.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
+#include &lt;btlmt_tcptimereventmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include &lt;btlso_endpoint.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKET
+#include &lt;btlso_streamsocket.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace btls5 {
+
+class Negotiator_Negotiation;
+
+                              // ================
+                              // class Negotiator
+                              // ================
+
+class Negotiator {
+    // This mechanism class negotiates connections to TCP destinations using
+    // SOCKS5.  This class is &#39;const&#39; thread-safe; an object can be negotiating
+    // more than one connection at a time.
+    //
+    // If the SOCKS5 server requires username/password authentication and the
+    // credentials were supplied ahead of time, then the &#39;Negotiator&#39; object
+    // will use them to attempt authentication.  If the SOCKS5 server requires
+    // a different authentication method, or it requires username/password and
+    // none were supplied, the negotiation will fail with the
+    // &#39;e_AUTHENTICATION&#39; status.
+    //
+    // A &#39;Negotiator&#39; object allows multiple concurrent negotiations.  A
+    // negotiation is initiated by calling &#39;makeNegotiationHandle&#39; to obtain a
+    // &#39;NegotiationHandle&#39; that is subsequently passed to &#39;startNegotiation&#39;.
+    // The &#39;NegotiationHandle&#39; object can be used to cancel the negotiation.
+
+  public:
+
+    // PUBLIC TYPES
+    enum NegotiationStatus {
+        e_SUCCESS        =  0,
+        e_AUTHENTICATION = -1,  // no acceptable authentication methods
+        e_ERROR          = -2   // any other error
+    };
+
+    typedef bsl::function&lt;void(Negotiator::NegotiationStatus,
+                               const DetailedStatus&amp;)&gt;
+                                                      NegotiationStateCallback;
+        // A callback of this type is invoked when a SOCKS5 negotiation is
+        // complete.  If the specified &#39;status&#39; is 0 the connection has been
+        // established and the value of the specified &#39;detailedStatus&#39; is
+        // undefined; otherwise &#39;status&#39; indicates the failure type and
+        // &#39;detailedStatus&#39; contains a detailed failure description.
+
+    typedef bsl::shared_ptr&lt;Negotiator_Negotiation&gt; NegotiationHandle;
+        // A &#39;NegotiationHandle&#39; object is used to start a negotiation.  It can
+        // also be used to cancel a negotiation in progress.
+
+  private:
+    // DATA
+    btlmt::TcpTimerEventManager *d_eventManager_p;  // socket event manager,
+                                                    // not owned
+
+    bslma::Allocator            *d_allocator_p;     // memory allocator, not
+                                                    // owned
+
+    // NOT IMPLEMENTED
+    Negotiator();
+    Negotiator(const Negotiator&amp;);
+    Negotiator&amp; operator=(const Negotiator&amp;);
+
+  public:
+    // CREATORS
+    explicit Negotiator(btlmt::TcpTimerEventManager *eventManager,
+                        bslma::Allocator            *basicAllocator = 0);
+        // Create a &#39;Negotiator&#39; that can negotiate client-side SOCKS5
+        // handshakes using the specified &#39;eventManager&#39;.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    //! ~Negotiator() = default;
+        // Destroy this object.  Negotiations in progress are not canceled, and
+        // callbacks supplied to &#39;makeNegotiationHandle&#39; may be invoked after
+        // this object is destroyed.
+
+    // MANIPULATORS
+    NegotiationHandle makeNegotiationHandle(
+                          btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+                          const btlso::Endpoint&amp;                   destination,
+                          NegotiationStateCallback                 callback);
+    NegotiationHandle makeNegotiationHandle(
+                          btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+                          const btlso::Endpoint&amp;                   destination,
+                          NegotiationStateCallback                 callback,
+                          const bsls::TimeInterval&amp;                timeout);
+    NegotiationHandle makeNegotiationHandle(
+                         btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+                         const btlso::Endpoint&amp;                   destination,
+                         NegotiationStateCallback                 callback,
+                         const Credentials&amp;                       credentials);
+    NegotiationHandle makeNegotiationHandle(
+                         btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+                         const btlso::Endpoint&amp;                   destination,
+                         NegotiationStateCallback                 callback,
+                         const bsls::TimeInterval&amp;                timeout,
+                         const Credentials&amp;                       credentials);
+        // Return a &#39;NegotiationHandle&#39; object that can be used to
+        // asynchronously negotiate on the specified &#39;socket&#39; connecting to the
+        // specified &#39;destination&#39;.  Invoke the specified &#39;callback&#39; when
+        // negotiation is finished.  Optionally specify a &#39;timeout&#39; defining
+        // the maximum time within which to conclude the negotiation.  If
+        // &#39;timeout&#39; is not specified the negotiation will not time out.
+        // Optionally specify &#39;credentials&#39; to authenticate the SOCKS5
+        // connection.  If &#39;credentials&#39; are not specified, the negotiation
+        // with a proxy requiring authentication will fail.  The handle can be
+        // used to start the negotiation by calling &#39;startNegotiation&#39; and
+        // cancelled by calling &#39;cancelNegotiation&#39;.
+
+    int startNegotiation(const NegotiationHandle&amp; handle);
+        // Start negotiation for the specified &#39;handle&#39;.  Return 0 if
+        // negotiation is started, and a non-zero value on immediate error.
+        // The behavior is undefined unless the event manager supplied at
+        // construction is enabled, &#39;handle&#39; was returned by a call to
+        // &#39;makeNegotiationhandle&#39;, and this method has not already been called
+        // with &#39;handle&#39;.  Note that a return code of 0 does not indicate the
+        // negotiation has concluded successfully.
+
+    void cancelNegotiation(const NegotiationHandle&amp; handle);
+        // Cancel negotiation for the specified &#39;handle&#39;.  Further invocation
+        // of the associated callback is disabled, but this function does *not*
+        // synchronize with callback invocation (i.e., an invocation initiated
+        // before the call to this function may continue to execute after the
+        // return from this function).  The behavior is undefined unless
+        // &#39;handle&#39; was returned by a call to &#39;makeNegotiationHandle&#39; on this
+        // object, and this method has not already been called with &#39;handle&#39;.
+};
+
+}  // close package namespace
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btls5::Negotiator&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_datetimetz Component</title>
+<title>BDE 3.0: bdlt_datetimetz Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -186,6 +186,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_delivery_estimation_system"></a> <a class="anchor" id="usage.example_2~3A_delivery_estimation_system"></a> <a class="anchor" id="description.usage.example_2~3A_delivery_estimation_system"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Delivery Estimation System: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Let us suppose that we are implementing a delivery estimation system for a shipping company. The system provides estimated delivery dates and times of client shipments. This information is provided in the local time zone and is represented as a <code><a class="el" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a></code> object. Below is the definition for a struct that returns the estimated delivery date. <br/>
@@ -249,7 +250,7 @@ Namespaces</h2></td></tr>
   <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> DeliverySystem::getCurrentUTCDatetime()
   {
       <span class="comment">// Return a fixed datetime so that output is known a priori.</span>
-      <span class="keywordflow">return</span> <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>(2014, 10, 17, 14, 48, 56);
+      <span class="keywordflow">return</span> <a class="code" href="namespacebdet.html#a7cc67ae2240c06a6a70bf001c5a858b5">bdlt::Datetime</a>(2014, 10, 17, 14, 48, 56);
   }
 
   <span class="comment">// CLASS METHODS</span>
@@ -258,7 +259,7 @@ Namespaces</h2></td></tr>
       <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> localDatetime(getCurrentUTCDatetime());
       localDatetime.addMinutes(DATA[city].d_offset
                              + DATA[city].d_deliveryTime);
-      <span class="keywordflow">return</span> <a class="code" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a>(localDatetime, DATA[city].d_offset);
+      <span class="keywordflow">return</span> <a class="code" href="namespacebdet.html#a256ffa59734fb90452d48f9a3ae1919a">bdlt::DatetimeTz</a>(localDatetime, DATA[city].d_offset);
   }
 </pre></div><br/>
 <br/>
@@ -288,16 +289,16 @@ Namespaces</h2></td></tr>
 <br/>
  We get the following results: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Estimated Delivery Time in Chicago:     17OCT2014_18:48:56.000-0600
-  Estimated Delivery Time in Dubai:       20OCT2014_17:48:56.000+0300
-  Estimated Delivery Time in New York:    17OCT2014_10:48:56.000-0500
-  Estimated Delivery Time in London:      19OCT2014_03:48:56.000+0100
-  Estimated Delivery Time in Los Angeles: 18OCT2014_06:48:56.000-0800
+<div class="fragment"><pre class="fragment">  Estimated Delivery <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> in Chicago:     17OCT2014_18:48:56.000-0600
+  Estimated Delivery <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> in Dubai:       20OCT2014_17:48:56.000+0300
+  Estimated Delivery <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> in New York:    17OCT2014_10:48:56.000-0500
+  Estimated Delivery <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> in London:      19OCT2014_03:48:56.000+0100
+  Estimated Delivery <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> in Los Angeles: 18OCT2014_06:48:56.000-0800
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

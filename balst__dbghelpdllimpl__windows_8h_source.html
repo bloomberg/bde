@@ -1,0 +1,317 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_dbghelpdllimpl_windows.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_DBGHELPDLLIMPL_WINDOWS
+#define INCLUDED_BALST_DBGHELPDLLIMPL_WINDOWS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide access to the &#39;dbghelp.dll&#39; shared library on Windows.
+//
+//@CLASSES:
+//   balst::DbghelpDllImpl_Windows: interface to &#39;dbghelp.dll&#39; shared library
+//
+//@DESCRIPTION: This component provides a single class,
+// &#39;balst::DbghelpDllImpl_Windows&#39;, that provides Windows platform-specific
+// facilities in support of the &#39;balst&#39; stack trace facility.  This component
+// is *not* intended for public use.
+//
+// The &#39;balst::DbghelpDllImpl_Windows&#39; class:
+//
+//: 1 Provides a suite of static methods that wrap calls to several functions
+//:   of &#39;dbghelp.dll&#39;, a Windows shared library.
+//:
+//: 2 Loads (once) the &#39;.dll&#39; on the first call of any of its methods that call
+//:   functions in that &#39;.dll&#39;.
+//:
+//: 3 On process termination, cleans up data structures, and unloads the
+//:   &#39;.dll&#39;.
+//
+// The mapping of class&#39; static methods to &#39;.dll&#39; functions is:
+//..
+//  balst::DbghelpDllImpl_Windows  dbghelp.dll
+//  ----------------------------  -----------
+//  symSetOptions                 SymSetOptions
+//  symFromAddr                   SymFromAddr
+//  symGetSymFromAddr64           SymGetSymFromAddr64
+//  symGetLineFromAddr64          SymGetLineFromAddr64
+//  stackWalk64                   StackWalk64
+//..
+// The signatures of these static methods typically have fewer parameters than
+// those of the &#39;.dll&#39; functions.  Those arguments (e.g., a Windows handle to
+// the current process) are provided in the implementation.  Otherwise, the
+// parameters of the static methods match in order and type those of the &#39;.dll&#39;
+// functions.
+//
+///Thread Safety
+///-------------
+// Since the functions in &#39;dbghelp.dll&#39; are *not* thread-safe, this class
+// provides a static mutex (of type &#39;bslmt::QLock&#39;) which must be acquired
+// before any of the &#39;.dll&#39;-invoking methods of this function are called.  In
+// multithreaded code, the mutex lock must be locked before any of the methods
+// other than &#39;isLoaded&#39; or &#39;qLock&#39; are called.  The library is loaded on a
+// per-process basis.  The client must ensure that the mutex is locked during
+// any call to any function in this class, but it is not necessary for it to be
+// locked any longer than that.
+//
+///Usage
+///-----
+// In this section we show the intended usage of this component.
+//
+///Example: Determining line number and source file name
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We will demonstrate using &#39;dbghelp.dll&#39; to find the line number and source
+// file name where &#39;main&#39; is.  This code will only work on Windows, and only
+// when compiled in debug mode:
+//..
+//  #if defined(BSLS_PLATFORM_OS_WINDOWS) &amp;&amp; defined(BDE_BUILD_TARGET_DBG)
+//..
+// First, we lock the mutex:
+//..
+//  bslmt::QLockGuard guard(&amp;balst::DbghelpDllImpl_Windows::qLock());
+//..
+// Next, we set the options for the &#39;dbghelp.dll&#39; library.  Note that any call
+// to any of the functions in &#39;balst::DbghelpDllImpl_Windows&#39; other than
+// &#39;qlock&#39; will load the &#39;dbghelp.dll&#39; library if necessary.
+//..
+//  balst::DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+//                                              | SYMOPT_LOAD_LINES
+//                                              | SYMOPT_DEFERRED_LOADS);
+//..
+// Then, we declare and initialize some variables to hold our results:
+//..
+//  IMAGEHLP_LINE64 line;
+//  ZeroMemory(&amp;line, sizeof(IMAGEHLP_LINE64));
+//  line.SizeOfStruct = sizeof(line);
+//  DWORD offsetFromLine;
+//..
+// Next, we do the call that finds the line number and source file name:
+//..
+//  int rc = balst::DbghelpDllImpl_Windows::symGetLineFromAddr64(
+//                                                             (DWORD64) &amp;main,
+//                                                             &amp;offsetFromLine,
+//                                                             &amp;line);
+//  assert(rc);
+//..
+// Finally, we print out our results:
+//..
+//  bsl::cout &lt;&lt; &quot;Source file name: &quot; &lt;&lt; line.FileName &lt;&lt; bsl::endl;
+//  bsl::cout &lt;&lt; &quot;Line #: &quot; &lt;&lt; line.LineNumber &lt;&lt; bsl::endl;
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+#ifndef INCLUDED_BSLMT_QLOCK
+#include &lt;bslmt_qlock.h&gt;
+#endif
+
+#ifndef INCLUDED_WINDOWS
+#include &lt;windows.h&gt;
+#define INCLUDED_WINDOWS
+#endif
+
+#ifndef INCLUDED_INTRIN
+#include &lt;intrin.h&gt;
+#define INCLUDED_INTRIN
+#endif
+
+#ifndef INCLUDED_DBGHELP
+#include &lt;dbghelp.h&gt;
+#define INCLUDED_DBGHELP
+#endif
+
+namespace BloombergLP {
+
+namespace balst {
+                        // ============================
+                        // class DbghelpDllImpl_Windows
+                        // ============================
+
+class DbghelpDllImpl_Windows {
+    // This class provides a namespace for static methods (defined only on
+    // Windows platforms) which call functions from the &#39;dbghelp.dll&#39; shared
+    // library.  The dynamic library is lazily loaded and initialized when
+    // needed, the implementation arranges for automatic unloading of that
+    // library at process termination (it is done by the destructor of a static
+    // struct).  Typically, the methods of this class that call &#39;.dll&#39;
+    // functions implicitly provide some of the needed arguments (e.g., a
+    // handle to the current process); otherwise, the specified parameters of
+    // these methods match in order and type those of the &#39;.dll&#39; functions.
+    // See &#39;@DESCRIPTION&#39; for further details.
+    //
+    // The methods of this class are *not* thread-safe.  In a multi-threaded
+    // environment acquire the (static) mutex (see the &#39;qLock&#39; method) before
+    // invoking any other methods of this class.
+
+    // DATA
+    static bslmt::QLock s_qLock;  // mutex to synchronize access to &#39;.dll&#39;
+                                 // functions, which are not *thread* *safe*
+
+  public:
+    // CLASS METHODS
+    static bool isLoaded();
+        // Return &#39;true&#39; if &#39;dbghelp.dll&#39; has already been successfully loaded
+        // in this process, and &#39;false&#39; otherwise.  For testing only.
+
+    static bslmt::QLock&amp; qLock();
+        // Return a reference providing modifiable access to static mutex
+        // provided for synchronizing access to the &#39;dbghelp.dll&#39; shared
+        // library.
+
+    // *** Methods corresponding to Windows &#39;dbghelp.dll&#39; functions ***
+
+    static DWORD symSetOptions(DWORD symOptions);
+        // Invoke the &#39;SymSetOptions&#39; function of &#39;dbghelp.dll&#39; with the
+        // specified &#39;symOptions&#39;, and return the result.  The behavior is
+        // undefined if the mutex provided by the &#39;qLock&#39; method is not held.
+        //
+        // Note that &#39;symOptions&#39; (a bitwise-OR of &#39;SYMOPT_*&#39; values) specifies
+        // flags affecting subsequent calls to the &#39;.dll&#39;.  Also note that the
+        // current options are returned.  Finally, note that further details
+        // are available at &#39;http://msdn.com&#39;.
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // &#39;symFromAddr&#39; doesn&#39;t work on 64-bit, so we conditionally compile and
+    // use &#39;SymFromAddr&#39; on 32-bit and &#39;SymGetSymFromAddr64&#39; on 64-bit.
+
+    static BOOL symFromAddr(DWORD64      address,
+                            PDWORD64     displacement,
+                            PSYMBOL_INFO symbol);
+        // Invoke the &#39;SymFromAddr&#39; function of &#39;dbghelp.dll&#39; with the
+        // specified &#39;address&#39;, &#39;displacement&#39;, and &#39;symbol&#39;, and with an
+        // (internally generated) handle for the current Windows process, and
+        // return the result.  The behavior is undefined unless the mutex
+        // provided by the &#39;qLock&#39; method is held and &#39;symbol-&gt;MaxNameLen&#39; is
+        // set to the maximum length (a value of &#39;2000&#39; is recommended).
+        //
+        // Note that &#39;symbol&#39; is loaded with a pointer to the symbol
+        // information for the symbol at &#39;address&#39;, and &#39;displacement&#39; is
+        // loaded with the difference between &#39;address&#39; and the address of the
+        // symbol described at &#39;symbol&#39;.  Also note that &#39;true&#39; is returned if
+        // a symbol is found for &#39;address&#39;, and &#39;false&#39; is returned otherwise.
+        // Finally, note that further details of &#39;SymFromAddr&#39; are available at
+        // &#39;http://msdn.com&#39;.
+
+#else
+    static BOOL symGetSymFromAddr64(DWORD64            address,
+                                    PDWORD64           displacement,
+                                    PIMAGEHLP_SYMBOL64 symbol);
+        // Invoke the &#39;SymFromAddr64&#39; function of &#39;dbghelp.dll&#39; with the
+        // specified &#39;address&#39;, &#39;displacement&#39;, and &#39;symbol&#39;, and with an
+        // (internally generated) handle for the current Windows process, and
+        // return the result.  The behavior is undefined unless the mutex
+        // provided by the &#39;qLock&#39; method is held and &#39;symbol-&gt;MaxNameLen&#39; is
+        // set to the maximum length (a value of &#39;2000&#39; is recommended).
+        //
+        // Note that &#39;symbol&#39; is loaded with a pointer to the symbol
+        // information for the symbol at &#39;address&#39;, and &#39;displacement&#39; is
+        // loaded with the difference between &#39;address&#39; and the address of the
+        // symbol described at &#39;symbol&#39;.  Also note that &#39;true&#39; is returned if
+        // a symbol is found for &#39;address&#39;, and &#39;false&#39; is returned otherwise.
+        // Finally, note that further details of &#39;SymFromAddr64&#39; are available
+        // at &#39;http://msdn.com&#39;.
+
+#endif
+
+    static BOOL symGetLineFromAddr64(DWORD64          dwAddr,
+                                     PDWORD           pdwDisplacement,
+                                     PIMAGEHLP_LINE64 line);
+        // Invoke the &#39;SymGetLineFromAddr64&#39; function of &#39;dbghelp.dll&#39; with the
+        // specified &#39;dwAddr&#39;, &#39;pdwDisplacement&#39;, and &#39;line&#39;, and with an
+        // (internally generated) handle for the current Windows process, and
+        // return the result.  The behavior is undefined if the mutex provided
+        // by the &#39;qLock&#39; method is not held.
+        //
+        // Note that &#39;line&#39; is loaded with a pointer to line information (e.g.,
+        // source file name and line number) for the code at &#39;dwAddr&#39; and
+        // &#39;pdwDisplacement&#39; is loaded with the displacement of that code from
+        // the beginning of the line.  Also note that &#39;true&#39; is returned if
+        // information is found for &#39;dwAddr&#39;, and &#39;false&#39; is returned
+        // otherwise.  Finally, note that further details of
+        // &#39;SymGetLineFromAddr64&#39; are available at &#39;http://msdn.com&#39;.
+
+    static BOOL stackWalk64(DWORD          machineType,
+                            HANDLE         hThread,
+                            LPSTACKFRAME64 stackFrame,
+                            PVOID          contextRecord);
+        // Invoke the &#39;StackWalk64&#39; function of &#39;dbghelp.dll&#39; with the
+        // specified &#39;machineType&#39;, &#39;hThread&#39;, &#39;stackFrame&#39;, and
+        // &#39;contextRecord&#39;, and with internally set handlers for remaining
+        // arguments, and return the result.  The behavior is undefined if the
+        // mutex provided by the &#39;qLock&#39; method is not held.
+        //
+        // Note that &#39;machineType&#39; distinguishes between 32 and 64 bit
+        // executables, &#39;hThread&#39; is a Windows handle for the thread of
+        // interest, &#39;stackFrame&#39; has the address of a properly initialized
+        // structure (including a field to receive the program counter), and
+        // &#39;contextRecord&#39; has the address of an initialized Windows &#39;CONTEXT&#39;
+        // structure.  The call to this method provides information on a single
+        // stack frame, each repeated call sets &#39;*stackFrame&#39; to the next stack
+        // frame.  As long as there remain stack frames to be found, &#39;TRUE&#39; is
+        // returned; &#39;FALSE&#39; is returned when there were no more stack frames
+        // to be found.  Finally, note that further details of &#39;StackWalk64&#39;
+        // are available at &#39;http://msdn.com&#39;.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ----------------------------
+                        // class DbghelpDllImpl_Windows
+                        // ----------------------------
+
+// CLASS METHODS
+inline
+bslmt::QLock&amp; DbghelpDllImpl_Windows::qLock()
+{
+    return s_qLock;
+}
+}  // close package namespace
+
+}  // close namespace BloombergLP
+
+#endif  // BSLS_PLATFORM_OS_WINDOWS
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

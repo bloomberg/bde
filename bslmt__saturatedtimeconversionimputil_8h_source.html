@@ -1,0 +1,240 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_saturatedtimeconversionimputil.h                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
+#define INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide special narrowing conversions for time types.
+//
+//@CLASSES:
+//   bslmt::SaturatedTimeConversionImpUtil: saturating time conversions.
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component defines a namespace containing static functions
+// that perform narrowing conversions on time-related types,
+// &#39;bslmt::SaturatedTimeConversionImpUtil&#39;.  The provided conversions
+// &quot;saturate&quot;, meaning that for input values outside the representable range of
+// the destination variable, the destination variable will be set to its
+// maximum or minimum value (whichever is closer to the input value).  Such
+// saturating conversions are typically used to implement functions with a
+// time-out (e.g., &#39;bslmt::Condition::timedWait&#39;) where a user-supplied
+// time-out must be converted to a different time type before calling a
+// system-library function.  In such situations it is often simpler, safer, and
+// within contract to perform a saturating conversion, rather than either
+// return an error status or define complex undefined behavior for the
+// function.
+//
+///Usage
+///-----
+// Suppose we need to assign a value held in a &#39;bsls::TimeInterval&#39; to an
+// &#39;unsigned int&#39;, where the &#39;unsigned int&#39; is to contain an equivalent time
+// interval expressed in milliseconds.  A &#39;bsls::TimeInterval&#39; is able to
+// represent intervals that are outside the range of intervals that can be
+// represented by an &#39;unsigned int&#39; number of milliseconds (e.g., any negative
+// time interval).  &#39;bslmt::SaturatedTimeConversionImpUtil&#39; handles values
+// outside the representable range of the destination type by &quot;saturating&quot;,
+// that is values outside the representable range of the destination type will
+// be assigned the maximum or minimum representable value of the destination
+// type (whichever is closer to the source value).
+//
+// First, we define variables of our source (&#39;bsls::TimeInterval&#39;) and
+// destination (&#39;unsigned int&#39;) types:
+//..
+//  unsigned int destinationInterval;
+//  bsls::TimeInterval sourceInterval;
+//..
+// Then, we try a value that does not require saturation and observe that
+// &#39;toMillisec&#39; converts it without modification (beyond loss of precision):
+//..
+//  sourceInterval.setInterval(4, 321000000);
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+//                                       &amp;destinationInterval, sourceInterval);
+//  assert(4321 == destinationInterval);
+//..
+// Next, we calculate the maximum value that can be represented in an
+// &#39;unsigned int&#39; number of milliseconds, and verify that converting an
+// equivalent &#39;bsls::TimeInterval&#39; does not modify the value:
+//..
+//  const unsigned int maxDestinationInterval =
+//                                    bsl::numeric_limits&lt;unsigned int&gt;::max();
+//  bsls::TimeInterval maximumTimeInterval(
+//                              maxDestinationInterval / 1000,
+//                              (maxDestinationInterval % 1000) * 1000 * 1000);
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+//                                 &amp;destinationInterval, maximumTimeInterval);
+//  assert(maxDestinationInterval == destinationInterval);
+//..
+// Now, we attempt to convert a value greater than the maximum representable in
+// an &#39;unsigned int&#39; milliseconds and verify that the resulting value is the
+// maximum representable &#39;unsigned int&#39; value:
+//..
+//  bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
+//                                          bsls::TimeInterval(0, 1000 * 1000);
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+//                                     &amp;destinationInterval, aboveMaxInterval);
+//  assert(maxDestinationInterval == destinationInterval);
+//..
+// Finally, we try a value less than 0 and observe the result of the saturated
+// conversion is 0 (the minimum representable value):
+//..
+//  bsls::TimeInterval belowMinimumInterval(-1, 0);
+//  bslmt::SaturatedTimeConversionImpUtil::toMillisec(
+//                                 &amp;destinationInterval, belowMinimumInterval);
+//  assert(0 == destinationInterval);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include &lt;bsl_limits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CTIME
+#include &lt;bsl_ctime.h&gt;
+#endif
+
+#ifndef INCLUDED_TIME_H
+#define INCLUDED_TIME_H
+#include &lt;time.h&gt;   // POSIX timespec
+#endif
+
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
+#ifndef INCLUDED_MACH_CLOCK_TYPES
+#define INCLUDED_MACH_CLOCK_TYPES
+#include &lt;mach/clock_types.h&gt;    // for &#39;mach_timespec_t&#39;
+#endif
+
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                   // ====================================
+                   // class SaturatedTimeConversionImpUtil
+                   // ====================================
+
+struct SaturatedTimeConversionImpUtil {
+    // This &#39;struct&#39; provides a namespace for utility functions that convert
+    // time values between different time representations, and &quot;saturate&quot; when
+    // values are outside the range of values that may be represented in the
+    // destination type (meaning that values above the maximum representable
+    // value of the result type are set to the maximum value of the result
+    // type, and values below the minimum representable value of the result
+    // type are set to the minimum value for the result type).
+
+    // TYPES
+
+    // Here we define type &#39;TimeSpec&#39; -- an alias to &#39;timespec&#39; on Unix, but
+    // defined as a struct on Windows, to guarantee that &#39;TimeSpec&#39; exists on
+    // all platforms.
+
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
+    typedef timespec TimeSpec;
+#else
+    struct TimeSpec {
+        // Provide type for Windows platform
+
+        bsls::Types::Int64 tv_sec;
+        int                tv_nsec;
+    };
+#endif
+
+    // CLASS METHODS
+#if BSLS_PLATFORM_OS_DARWIN
+    static void toTimeSpec(mach_timespec_t           *dst,
+                           const bsls::TimeInterval&amp;  src);
+#endif
+    static void toTimeSpec(TimeSpec *dst, const bsls::TimeInterval&amp; src);
+        // Assign to the specified &#39;dst&#39; the value of the specified &#39;src&#39;, and
+        // if &#39;src&#39; is less than the lowest representable value of &#39;*dst&#39;, set
+        // &#39;*dst&#39; to the minimum value it can represent, and if &#39;src&#39; is
+        // greater than the highest representable value of &#39;*dst&#39;, set &#39;*dst&#39;
+        // to the maximum value that it can represent.
+
+    static void toTimeT(bsl::time_t *dst, const bsls::Types::Int64 src);
+        // Assign to the specified &#39;dst&#39; the value of the specified &#39;src&#39;, and
+        // if &#39;src&#39; is less than the lowest representable &#39;time_t&#39; value, set
+        // &#39;dst&#39; to the minimum &#39;time_t&#39; value, and if &#39;src&#39; is greater than
+        // the highest representable &#39;time_t&#39; value, set &#39;dst&#39; to the maximum
+        // &#39;time_t&#39; value.
+
+    static void toMillisec(unsigned int              *dst,
+                           const bsls::TimeInterval&amp;  src);
+    static void toMillisec(unsigned long             *dst,
+                           const bsls::TimeInterval&amp;  src);
+    static void toMillisec(bsls::Types::Uint64       *dst,
+                           const bsls::TimeInterval&amp;  src);
+        // Assign to the specified &#39;dst&#39; the value of the specified &#39;src&#39;
+        // converted to milliseconds, and if that value is a negative time
+        // interval, set &#39;dst&#39; to 0, and if that value is greater than the
+        // maximum representable value of &#39;dst&#39; set &#39;dst&#39; to its maximum
+        // representable value.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

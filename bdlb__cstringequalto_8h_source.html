@@ -1,0 +1,177 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_cstringequalto.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLB_CSTRINGEQUALTO
+#define INCLUDED_BDLB_CSTRINGEQUALTO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a standard compatible equality predicate for C-strings.
+//
+//@CLASSES:
+//  bdlb::CStringEqualTo: a standard compatible C-string equality predicate
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bdlb::CStringEqualTo&#39;,
+// that defines a functor that checks two null-terminated strings for equality
+// using a case-sensitive string comparison, rather than simply comparing the
+// two addresses (as the &#39;std::equal_to&#39; functor would do).  This comparison
+// functor is suitable for supporting C-strings as keys in unordered
+// associative containers.  Note that the container behavior would be undefined
+// if the strings referenced by such pointers were to change value.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdlb::CStringEqualTo&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to create and use a
+// &#39;bdlb::CStringEqualTo&#39; object as a binary predicate for the standard library
+// function &#39;bsl::equal&#39; to test that two ranges of null-terminated character
+// strings are equal.
+//
+// First, we create few sequences with null-terminated character strings,
+// making sure that their elements have different memory addresses:
+//..
+//  const char hello1[] = { &#39;h&#39;, &#39;e&#39;, &#39;l&#39;, &#39;l&#39;, &#39;o&#39;, 0};
+//  const char hello2[] = { &#39;h&#39;, &#39;e&#39;, &#39;l&#39;, &#39;l&#39;, &#39;o&#39;, 0};
+//
+//  const char* arrayA[3] = { &quot;A&quot;, &quot;B&quot;, hello1 };
+//  const char* arrayB[3] = { &quot;A&quot;, &quot;B&quot;, hello2 };
+//..
+// Now, use bdlb::CStringEqualTo() as a binary predicate to compare sequences:
+//..
+//  bool bdlbEqualTo = bsl::equal(arrayA, arrayA+3, arrayB,
+//                                bdlb::CStringEqualTo());
+//  bool bslEqualTo  = bsl::equal(arrayA, arrayA+3, arrayB,
+//                                bsl::equal_to&lt;const char *&gt;());
+//..
+// Finally, we observe that &#39;bdlb::CStringEqualTo&#39; compares character string by
+// their values, while the default comparator compares addresses:
+//..
+//  assert( true  == bdlbEqualTo );
+//  assert( false == bslEqualTo );
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+                       // =====================
+                       // struct CStringEqualTo
+                       // =====================
+
+struct CStringEqualTo {
+    // This &#39;struct&#39; defines a comparison functor on null-terminated character
+    // strings, enabling them for use as keys in the standard unordered
+    // associative containers such as &#39;bsl::unordered_map&#39; and
+    // &#39;bsl::unordered_set&#39;.  Note that this class is an empty POD type.
+
+    // STANDARD TYPEDEFS
+    typedef const char *first_argument_type;
+    typedef const char *second_argument_type;
+    typedef bool        result_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringEqualTo, bsl::is_trivially_copyable)
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringEqualTo,
+                                       bsl::is_trivially_default_constructible)
+
+    // CREATORS
+    //! CStringEqualTo() = default;
+        // Create a &#39;CStringEqualTo&#39; object.
+
+    //! CStringEqualTo(const CStringEqualTo&amp; original) = default;
+        // Create a &#39;CStringEqualTo&#39; object.  Note that as &#39;CStringEqualTo&#39; is
+        // an empty (stateless) type, this operation has no observable effect.
+
+    //! ~CStringEqualTo() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! CStringEqualTo&amp; operator=(const CStringEqualTo&amp;) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;CStringEqualTo&#39; is an empty (stateless) type, this
+        // operation has no observable effect.
+
+    // ACCESSORS
+    bool operator()(const char *lhs, const char *rhs) const;
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; string has the same (case
+        // sensitive) value as the specified &#39;rhs&#39; string, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless both &#39;lhs&#39; and &#39;rhs&#39;
+        // point to null-terminated strings.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                       // ---------------------
+                       // struct CStringEqualTo
+                       // ---------------------
+
+// ACCESSORS
+inline
+bool CStringEqualTo::operator()(const char *lhs, const char *rhs) const
+{
+    BSLS_ASSERT_SAFE(lhs);
+    BSLS_ASSERT_SAFE(rhs);
+
+    return 0 == bsl::strcmp(lhs, rhs);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

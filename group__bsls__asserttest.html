@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_asserttest Component</title>
+<title>BDE 3.0: bsls_asserttest Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -91,7 +91,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.2.3">Raw Test Macros</a> </li>
 <li>
-<a href="#4.2.4">Table Driven Negative-Testing</a> </li>
+<a href="#4.2.4">Table-Driven Negative Testing</a> </li>
 <li>
 <a href="#4.2.5">Enabling Negative Testing</a> </li>
 </ul>
@@ -205,8 +205,8 @@ Each of these macros takes a single expression as an argument, tests whether an 
 </ul>
 These testing macros perform the same test as the corresponding basic testing macros, except that there is no check to confirm that the assertion originated in the component under test. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="table_driven_negative-testing"></a> <a class="anchor" id="the_test_facility.table_driven_negative-testing"></a> <a class="anchor" id="description.the_test_facility.table_driven_negative-testing"></a> <a class="anchor" id="4.2.4"></a> </dd></dl>
-<dl class="user"><dt><b>Table Driven Negative-Testing: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="table-driven_negative_testing"></a> <a class="anchor" id="the_test_facility.table-driven_negative_testing"></a> <a class="anchor" id="description.the_test_facility.table-driven_negative_testing"></a> <a class="anchor" id="4.2.4"></a> </dd></dl>
+<dl class="user"><dt><b>Table-Driven Negative Testing: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The supplied test macros are useful for testing a small set of boundary conditions, but for more detailed contracts a table-driven approach works best. The <code><a class="el" href="structbsls_1_1AssertTest.html">bsls::AssertTest</a></code> class provides a pair of "test probe" functions that can be hooked up as a pair in a <code>try</code>/<code>catch</code> block to validate each row of a supplied test table. See the second usage example below for more details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="enabling_negative_testing"></a> <a class="anchor" id="the_test_facility.enabling_negative_testing"></a> <a class="anchor" id="description.the_test_facility.enabling_negative_testing"></a> <a class="anchor" id="4.2.5"></a> </dd></dl>
@@ -301,7 +301,7 @@ Register <code><a class="el" href="structbsls_1_1AssertTest.html#a67f37106930c17
 <span class="preprocessor">  #ifdef BDE_BUILD_TARGET_EXC</span>
 <span class="preprocessor"></span>      <a class="code" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a> g(<a class="code" href="structbsls_1_1AssertTest.html#a67f37106930c1760e599519c2d173020">bsls::AssertTest::failTestDriver</a>);
 
-      AssertTestVector&lt;void *&gt; mA; <span class="keyword">const</span> AssertTestVector&lt;void *&gt; &amp;A = mA;
+      AssertTestVector&lt;void *&gt; mA; <span class="keyword">const</span> AssertTestVector&lt;void *&gt; &amp;<a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> = mA;
 
       ASSERT_SAFE_FAIL(mA[-1]);
       ASSERT_SAFE_FAIL(mA[ 0]);
@@ -486,7 +486,7 @@ Register <code><a class="el" href="structbsls_1_1AssertTest.html#a67f37106930c17
 <br/>
 <div class="fragment"><pre class="fragment">              <span class="keywordflow">try</span> {
                   <span class="keywordflow">if</span> (globalVeryVerbose) {
-                      T_ P_(TYPE) P_(RESULT) P_(A) P_(B) P_(C) P(D)
+                      T_ P_(TYPE) P_(RESULT) P_(A) P_(B) P_(C) <a class="code" href="bdlf__bind__test_8h.html#a6dce1d51457f0415ec5302d3c05cded5">P</a>(D)
                   }
 
                   MyUtil::f(A, B, C, D);
@@ -517,7 +517,7 @@ Register <code><a class="el" href="structbsls_1_1AssertTest.html#a67f37106930c17
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

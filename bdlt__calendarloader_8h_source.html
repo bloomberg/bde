@@ -1,0 +1,324 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlt_calendarloader.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLT_CALENDARLOADER
+#define INCLUDED_BDLT_CALENDARLOADER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol (or pure interface) for loading calendars.
+//
+//@CLASSES:
+//  bdlt::CalendarLoader: pure interface for loading calendars
+//
+//@SEE_ALSO: bdlt_calendarcache, bdlt_packedcalendar
+//
+//@DESCRIPTION: This component provides a protocol, &#39;bdlt::CalendarLoader&#39;, for
+// loading calendars from a specific source.  Each repository of calendar
+// information can be supported by a distinct implementation of the
+// &#39;CalendarLoader&#39; protocol.  The protocol&#39;s primary method, &#39;load&#39;, loads a
+// calendar into a &#39;bdlt::PackedCalendar&#39; object.  The calendar to load is
+// identified by name, which is specified by a null-terminated C-style string
+// (i.e., &#39;const char *&#39;).
+//
+///Thread Safety
+///-------------
+// Unless otherwise documented, a single calendar loader object is not safe for
+// concurrent access by multiple threads.  Classes derived from
+// &#39;bdlt::CalendarLoader&#39; that are specifically designed for concurrent access
+// must be documented as such.  Unless specifically documented otherwise,
+// separate objects of classes derived from &#39;bdlt::CalendarLoader&#39; may safely
+// be used in separate threads.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing the &#39;bdlt::CalendarLoader&#39; Protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates an elided concrete implementation of the
+// &#39;bdlt::CalendarLoader&#39; protocol that interprets calendar information
+// contained in ASCII strings that are formatted using JSON.  Note that, in
+// general, an implementation of &#39;bdlt::CalendarLoader&#39; must obtain calendar
+// information from *some* data source.  Our elided implementation leaves it
+// unspecified as to where the JSON strings are obtained (i.e., whether from a
+// file system, a database, a local or remote service, etc.).
+//
+// First, we show the JSON format that our calendar loader accepts.  For
+// simplicity, we omit support for holiday codes and weekend-days transitions:
+//..
+//  {
+//      &quot;firstDate&quot;:   &quot;YYYY-MM-DD&quot;,
+//      &quot;lastDate&quot;:    &quot;YYYY-MM-DD&quot;,
+//      &quot;weekendDays&quot;: [ wd, ... ],
+//      &quot;holidays&quot;:    [ &quot;YYYY-MM-DD&quot;, ... ]
+//  }
+//..
+// Note that &quot;YYYY-MM-DD&quot; is an ISO 8601 representation for the value of a
+// &#39;bdlt::Date&#39; object and &#39;wd&#39; is an integer in the range &#39;[1 .. 7]&#39;.  The
+// range used for specifying weekend days corresponds directly to the
+// &#39;bdlt::DayOfWeek::Enum&#39; enumeration, &#39;[e_SUN = 1 .. e_SAT]&#39; (see
+// &#39;bdlt_dayofweek&#39;).  We assume that the four JSON attributes, &quot;firstDate&quot;,
+// &quot;lastDate&quot;, &quot;weekendDays&quot;, and &quot;holidays&quot;, must occur in the JSON string in
+// the order in which they appear in the above display, but only &quot;firstDate&quot;
+// and &quot;lastDate&quot; are *required* attributes.
+//
+// Then, we define the interface of our implementation:
+//..
+//  class MyCalendarLoader : public bdlt::CalendarLoader {
+//      // This class provides a concrete implementation of the
+//      // &#39;bdlt::CalendarLoader&#39; protocol (an abstract interface) for loading
+//      // a calendar.  This elided implementation obtains calendar information
+//      // from ASCII strings formatted using JSON.  The source of the strings
+//      // is unspecified.
+//
+//    public:
+//      // CREATORS
+//      MyCalendarLoader();
+//          // Create a &#39;MyCalendarLoader&#39; object.
+//
+//      virtual ~MyCalendarLoader();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      virtual int load(bdlt::PackedCalendar *result,
+//                       const char           *calendarName);
+//          // Load, into the specified &#39;result&#39;, the calendar identified by
+//          // the specified &#39;calendarName&#39;.  Return 0 on success, and a
+//          // non-zero value otherwise.  If the calendar corresponding to
+//          // &#39;calendarName&#39; is not found, 1 is returned with no effect on
+//          // &#39;*result&#39;.  If a non-zero value other than 1 is returned
+//          // (indicating a different error), &#39;*result&#39; is valid, but its
+//          // value is undefined.
+//  };
+//..
+// Next, we implement the creators, trivially, as &#39;MyCalendarLoader&#39; does not
+// contain any instance data members:
+//..
+//  // CREATORS
+//  inline
+//  MyCalendarLoader::MyCalendarLoader()
+//  {
+//  }
+//
+//  inline
+//  MyCalendarLoader::~MyCalendarLoader()
+//  {
+//  }
+//..
+// Then, we implement the &#39;load&#39; function:
+//..
+//  // MANIPULATORS
+//  int MyCalendarLoader::load(bdlt::PackedCalendar *result,
+//                             const char           *calendarName)
+//  {
+//..
+// Next, we look up the calendar identified by &#39;calendarName&#39; and load the
+// corresponding text into a &#39;bsl::string&#39; object, &#39;json&#39; (as stated earlier,
+// we do not specify in this example from where the calendar information is
+// obtained):
+//..
+//      // Obtain the information for the calendar identified by &#39;calendarName&#39;
+//      // from the unspecified data source and load it into the &#39;json&#39; string.
+//
+//      bsl::string json;
+//
+//      // Since a JSON parser is not available to &#39;bdlt&#39;, this example assumes
+//      // that &#39;json&#39; is populated with the following specific data:
+//      //..
+//      //  {
+//      //      &quot;firstDate&quot;:   &quot;1990-01-01&quot;,
+//      //      &quot;lastDate&quot;:    &quot;1990-12-31&quot;,
+//      //      &quot;weekendDays&quot;: [ 1, 7 ],
+//      //      &quot;holidays&quot;:    [ &quot;1990-05-28&quot;, &quot;1990-07-04&quot;, &quot;1990-09-03&quot; ]
+//      //  }
+//      //..
+//      // Similarly, we hard-wire the value of a status flag, &#39;rc&#39;, to
+//      // indicate that this string was successfully retrieved from the data
+//      // source.
+//
+//      int rc = 0;  // success obtaining calendar information
+//
+//      if (rc != 0) {
+//          return 1;                                                 // RETURN
+//      }
+//..
+// Note that the non-zero value 1 is returned only in the case where the
+// calendar information corresponding to &#39;calendarName&#39; cannot be found (per
+// the contract for the &#39;load&#39; method).
+//
+// Then, we parse the &quot;firstDate&quot; and &quot;lastDate&quot; attributes from the &#39;json&#39;
+// string, loading the results into like-named variables:
+//..
+//      // Parse the &quot;firstDate&quot; and &quot;lastDate&quot; JSON attributes and load the
+//      // results into &#39;firstDate&#39; and &#39;lastDate&#39;, respectively.  It is an
+//      // error if either of the &quot;firstDate&quot; or &quot;lastDate&quot; attributes are
+//      // missing, or if they are out of order.
+//
+//      bdlt::Date firstDate;
+//      bdlt::Date lastDate;
+//
+//      // For the purposes of this Usage, we hard-wire the first and last
+//      // dates that are hypothetically parsed from the &#39;json&#39; string, and
+//      // set the &#39;rc&#39; status flag indicating that parsing succeeded.
+//
+//      firstDate.setYearMonthDay(1990,  1,  1);
+//      lastDate.setYearMonthDay( 1990, 12, 31);
+//      rc = 0;  // success parsing &quot;firstDate&quot; and &quot;lastDate&quot; attributes
+//
+//      if (rc != 0 || firstDate &gt; lastDate) {
+//          return 2;                                                 // RETURN
+//      }
+//
+//      result-&gt;removeAll();
+//
+//      result-&gt;setValidRange(firstDate, lastDate);
+//..
+// Next, we parse the &quot;weekendDays&quot; attribute from &#39;json&#39; and load the result
+// into a &#39;bdlt::DayOfWeekSet&#39; object, &#39;dayOfWeekSet&#39;:
+//..
+//      // For the purposes of this Usage, we hard-wire a boolean flag
+//      // indicating that the &quot;weekendDays&quot; attribute was hypothetically
+//      // detected in the &#39;json&#39; string.
+//
+//      bool isWeekendDaysAttributePresent = true;
+//
+//      if (isWeekendDaysAttributePresent) {
+//
+//          // Parse the &quot;weekendDays&quot; JSON attribute and load &#39;dayOfWeekSet&#39;
+//          // with the result.
+//
+//          bdlt::DayOfWeekSet dayOfWeekSet;
+//
+//          // For the purposes of this Usage, we hard-wire the weekend days
+//          // that are hypothetically parsed from the &#39;json&#39; string, and set
+//          // the &#39;rc&#39; status flag indicating that parsing succeeded.
+//
+//          dayOfWeekSet.add(bdlt::DayOfWeek::e_SUN);
+//          dayOfWeekSet.add(bdlt::DayOfWeek::e_SAT);
+//          rc = 0;  // success parsing &quot;weekendDays&quot; attribute
+//
+//          if (rc != 0) {
+//              return 3;                                             // RETURN
+//          }
+//
+//          result-&gt;addWeekendDays(dayOfWeekSet);
+//      }
+//..
+// Now, we parse the &quot;holidays&quot; attribute from &#39;json&#39; and load the result into
+// a &#39;bsl::vector&lt;bdlt::Date&gt;&#39; object, &#39;holidays&#39;:
+//..
+//      // For the purposes of this Usage, we hard-wire a boolean flag
+//      // indicating that the &quot;holidays&quot; attribute was hypothetically detected
+//      // in the &#39;json&#39; string.
+//
+//      bool isHolidaysAttributePresent = true;
+//
+//      if (isHolidaysAttributePresent) {
+//
+//          // Parse the &quot;holidays&quot; JSON attribute and load &#39;holidays&#39; with the
+//          // result.
+//
+//          bsl::vector&lt;bdlt::Date&gt; holidays;
+//
+//          // For the purposes of this Usage, we hard-wire the holidays that
+//          // are hypothetically parsed from the &#39;json&#39; string, and set the
+//          // &#39;rc&#39; status flag indicating that parsing succeeded.
+//
+//          holidays.push_back(bdlt::Date(1990,  5, 28));  // Memorial Day
+//          holidays.push_back(bdlt::Date(1990,  7,  4));  // Independence Day
+//          holidays.push_back(bdlt::Date(1990,  9,  3));  // Labor Day
+//          rc = 0;  // success parsing &quot;holidays&quot; attribute
+//
+//          if (rc != 0) {
+//              return 4;                                             // RETURN
+//          }
+//
+//          bsl::vector&lt;bdlt::Date&gt;::const_iterator it = holidays.begin();
+//
+//          while (it != holidays.end()) {
+//              const bdlt::Date&amp; holiday = *it;
+//
+//              if (holiday &lt; firstDate || holiday &gt; lastDate) {
+//                  return 5;                                         // RETURN
+//              }
+//
+//              result-&gt;addHoliday(holiday);
+//
+//              ++it;
+//          }
+//      }
+//..
+// Note that the &#39;addHoliday&#39; method can extend the range of the calendar.  Our
+// calendar loader instead imposes the requirement that the dates specified in
+// the &quot;holidays&quot; JSON attribute must be within the range
+// &#39;[firstDate .. lastDate]&#39;.
+//
+// Finally, we return 0 indicating success:
+//..
+//      return 0;
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+class PackedCalendar;
+
+                         // ====================
+                         // class CalendarLoader
+                         // ====================
+
+class CalendarLoader {
+    // This class defines a protocol used to load calendars from a specific
+    // source.  Each repository of calendar information can be supported by a
+    // distinct implementation of this protocol.
+
+  public:
+    // CREATORS
+    virtual ~CalendarLoader();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int load(PackedCalendar *result, const char *calendarName) = 0;
+        // Load, into the specified &#39;result&#39;, the calendar identified by the
+        // specified &#39;calendarName&#39;.  Return 0 on success, and a non-zero value
+        // otherwise.  If the calendar corresponding to &#39;calendarName&#39; is not
+        // found, 1 is returned with no effect on &#39;*result&#39;.  If a non-zero
+        // value other than 1 is returned (indicating a different error),
+        // &#39;*result&#39; is valid, but its value is undefined.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

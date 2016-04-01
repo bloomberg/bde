@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlma_blocklist.h                                                  -*-C++-*-
@@ -32,7 +32,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a &#39;bdlma::BlockList&#39; in a Memory Pool
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A &#39;bdlma::BlockList&#39; object is commonly used to supply memory to more
 // elaborate memory managers that distribute parts of each (larger) allocated
 // memory block supplied by the &#39;bdlma::BlockList&#39; object.  The &#39;my_StrPool&#39;
@@ -71,8 +71,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //    public:
 //      // CREATORS
 //      my_StrPool(bslma::Allocator *basicAllocator = 0);
-//          // Create a memory manager using the specified &#39;basicAllocator&#39; to
-//          // supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // Create a memory manager.  Optionally specify a &#39;basicAllocator&#39;
+//          // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
 //          // installed default allocator is used.
 //
 //      ~my_StrPool();
@@ -99,15 +99,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Finally, we provide the implementation of our &#39;my_StrPool&#39; class:
 //..
 //  // my_strpool.cpp
-//  #include &lt;my_strpool.h&gt;
 //
 //  enum {
-//      INITIAL_SIZE  = 128,  // initial block size
+//      k_INITIAL_SIZE  = 128,  // initial block size
 //
-//      GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
+//      k_GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
 //
-//      THRESHOLD     = 128   // size beyond which an individual block may be
-//                            // allocated if it doesn&#39;t fit in current block
+//      k_THRESHOLD     = 128   // size beyond which an individual block may be
+//                              // allocated if it doesn&#39;t fit in current block
 //  };
 //
 //  // PRIVATE MANIPULATORS
@@ -115,22 +114,26 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  {
 //      assert(0 &lt; numBytes);
 //
-//      if (THRESHOLD &lt; numBytes) { // Alloc separate block if above threshold.
-//          return (char *)d_blockList.allocate(numBytes);
+//      if (k_THRESHOLD &lt; numBytes) {
+//          // Alloc separate block if above threshold.
+//
+//          return (char *)d_blockList.allocate(numBytes);            // RETURN
 //      }
 //      else {
-//          if (d_block_p) { // Don&#39;t increase block size if no current block.
-//              d_blockSize *= GROWTH_FACTOR;
+//          if (d_block_p) {
+//              // Do not increase block size if no current block.
+//
+//              d_blockSize *= k_GROWTH_FACTOR;
 //          }
 //          d_block_p = (char *)d_blockList.allocate(d_blockSize);
 //          d_cursor = numBytes;
-//          return d_block_p;
+//          return d_block_p;                                         // RETURN
 //      }
 //  }
 //
 //  // CREATORS
 //  my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
-//  : d_blockSize(INITIAL_SIZE)
+//  : d_blockSize(k_INITIAL_SIZE)
 //  , d_block_p(0)
 //  , d_blockList(basicAllocator)  // the blocklist knows about &#39;bslma_default&#39;
 //  {
@@ -138,7 +141,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  my_StrPool::~my_StrPool()
 //  {
-//      assert(INITIAL_SIZE &lt;= d_blockSize);
+//      assert(k_INITIAL_SIZE &lt;= d_blockSize);
 //      assert(d_block_p || (0 &lt;= d_cursor &amp;&amp; d_cursor &lt;= d_blockSize));
 //  }
 //
@@ -148,28 +151,28 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      assert(0 &lt;= numBytes);
 //
 //      if (0 == numBytes) {
-//          return 0;
+//          return 0;                                                 // RETURN
 //      }
 //
 //      if (d_block_p &amp;&amp; numBytes + d_cursor &lt;= d_blockSize) {
 //          char *p = d_block_p + d_cursor;
 //          d_cursor += numBytes;
-//          return p;
+//          return p;                                                 // RETURN
 //      }
 //      else {
-//          return allocateBlock(numBytes);
+//          return allocateBlock(numBytes);                           // RETURN
 //      }
 //  }
 //..
 // In the code shown above, the &#39;my_StrPool&#39; memory manager allocates from its
 // &#39;bdlma::BlockList&#39; member object an initial memory block of size
-// &#39;INITIAL_SIZE&#39;.  This size is multiplied by &#39;GROWTH_FACTOR&#39; each time a
+// &#39;k_INITIAL_SIZE&#39;.  This size is multiplied by &#39;k_GROWTH_FACTOR&#39; each time a
 // depleted memory block is replaced by a newly-allocated block.  The
 // &#39;allocate&#39; method distributes memory from the current memory block
 // piecemeal, except when the requested size either (1) is not available in the
-// current block, or (2) exceeds the &#39;THRESHOLD_SIZE&#39;, in which case a separate
-// memory block is allocated and returned.  When the &#39;my_StrPool&#39; memory
-// manager is destroyed, its &#39;bdlma::BlockList&#39; member object is also
+// current block, or (2) exceeds the &#39;k_THRESHOLD_SIZE&#39;, in which case a
+// separate memory block is allocated and returned.  When the &#39;my_StrPool&#39;
+// memory manager is destroyed, its &#39;bdlma::BlockList&#39; member object is also
 // destroyed, which, in turn, automatically deallocates all of its managed
 // memory blocks.
 
@@ -192,18 +195,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ===============
-                        // class BlockList
-                        // ===============
+                             // ===============
+                             // class BlockList
+                             // ===============
 
 class BlockList {
     // This class implements a low-level memory manager that allocates and
     // manages a sequence of memory blocks -- each potentially of a different
     // size as specified during the invocation of the &#39;allocate&#39; method.
     // Allocated blocks may be efficiently deallocated individually, i.e.,
-    // potentially in constant time depending on the supplied allocator.
-    // The &#39;release&#39; method deallocates the entire sequence of memory blocks,
-    // as does the destructor.
+    // potentially in constant time depending on the supplied allocator.  The
+    // &#39;release&#39; method deallocates the entire sequence of memory blocks, as
+    // does the destructor.
 
     // TYPES
     struct Block {
@@ -263,12 +266,12 @@ class BlockList {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------
-                        // class BlockList
-                        // ---------------
+                             // ---------------
+                             // class BlockList
+                             // ---------------
 
 // CREATORS
 inline
@@ -284,7 +287,7 @@ BlockList::BlockList(bslma::Allocator *basicAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

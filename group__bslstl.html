@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl Package</title>
+<title>BDE 3.0: bslstl Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -116,6 +116,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__forwarditerator.html">Component bslstl_forwarditerator</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a template to create STL-compliant forward iterators. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__function.html">Component bslstl_function</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a polymorphic function object with a specific prototype. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__hash.html">Component bslstl_hash</a></td></tr>
@@ -367,49 +372,51 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 53 components having 8 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 54 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  8. bslstl_ownerless
+<div class="fragment"><pre class="fragment">  9. bslstl_ownerless
 
-  7. bslstl_queue
-     bslstl_sharedptr
+  8. bslstl_sharedptr
+
+  7. bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_queue
+     bslstl_set
      bslstl_stack
 
   6. bslstl_deque
-     bslstl_map
-     bslstl_multimap
-     bslstl_multiset
-     bslstl_set
+     bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  5. bslstl_hashtable
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
+  5. bslstl_bitset
+     bslstl_hashtable
      bslstl_priorityqueue
      bslstl_randomaccessiterator
-     bslstl_setcomparator
-     bslstl_stringstream
-     bslstl_treenodepool
-
-  4. bslstl_bidirectionaliterator
-     bslstl_bitset
-     bslstl_hashtablebucketiterator
-     bslstl_hashtableiterator
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+
+  4. bslstl_bidirectionaliterator
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_string
      bslstl_vector
 
   3. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
      bslstl_forwarditerator
+     bslstl_function
      bslstl_iteratorutil
      bslstl_list
-     bslstl_string
      bslstl_treeiterator
 
   2. bslstl_iterator
@@ -456,6 +463,8 @@ Components</h2></td></tr>
  Provide a binary functor conforming to the C++11 <code><a class="el" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">equal_to</a></code> spec.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_forwarditerator</code>: <br/>
  Provide a template to create STL-compliant forward iterators.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_function</code>: <br/>
+ Provide a polymorphic function object with a specific prototype.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_hash</code>: <br/>
  Provide a namespace for hash functions.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_hashtable</code>: <br/>
@@ -543,9 +552,8 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslstl_vector</code>: <br/>
  Provide an STL-compliant vector class.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:03 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

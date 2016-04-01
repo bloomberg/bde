@@ -1,0 +1,100 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlf_placeholder.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLF_PLACEHOLDER
+#define INCLUDED_BDLF_PLACEHOLDER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a parameterized placeholder and specialized placeholders.
+//
+//@CLASSES:
+//   bdlf::PlaceHolder: namespace for parameterized placeholders
+//
+//@SEE_ALSO: bdlf_bind
+//
+//@DESCRIPTION: This component provides a parameterized placeholder,
+// &#39;bdlf::PlaceHolder&#39;, and fourteen placeholder objects (&#39;_1&#39;, &#39;_2&#39;, etc.),
+// each of a distinct type.  &#39;_1&#39; is of type &#39;const bdlf::PlaceHolder&lt;1&gt;&#39;, &#39;_2&#39;
+// is of type &#39;const bdlf::PlaceHolder&lt;2&gt;&#39;, and so on.
+//
+///Usage
+///-----
+// TBD
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdlf {
+template &lt;int I&gt;
+struct PlaceHolder {
+    BSLMF_NESTED_TRAIT_DECLARATION(PlaceHolder, bslmf::IsBitwiseMoveable);
+    enum { VALUE = I };
+};
+
+namespace PlaceHolders {
+
+extern const PlaceHolder&lt; 1&gt;  _1;
+extern const PlaceHolder&lt; 2&gt;  _2;
+extern const PlaceHolder&lt; 3&gt;  _3;
+extern const PlaceHolder&lt; 4&gt;  _4;
+extern const PlaceHolder&lt; 5&gt;  _5;
+extern const PlaceHolder&lt; 6&gt;  _6;
+extern const PlaceHolder&lt; 7&gt;  _7;
+extern const PlaceHolder&lt; 8&gt;  _8;
+extern const PlaceHolder&lt; 9&gt;  _9;
+extern const PlaceHolder&lt;10&gt; _10;
+extern const PlaceHolder&lt;11&gt; _11;
+extern const PlaceHolder&lt;12&gt; _12;
+extern const PlaceHolder&lt;13&gt; _13;
+extern const PlaceHolder&lt;14&gt; _14;
+
+}  // close namespace PlaceHolders
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

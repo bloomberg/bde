@@ -1,0 +1,191 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_userfieldtype.h                                               -*-C++-*-
+#ifndef INCLUDED_BALL_USERFIELDTYPE
+#define INCLUDED_BALL_USERFIELDTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of data types for a user supplied attribute.
+//
+//@CLASSES:
+//  ball::UserFieldType: namespace for an enum of user supplied attribute types
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type,
+// &#39;ball::UserFieldType&#39;, that enumerates the set of types a user defined log
+// attribute may have.
+//
+///Enumerators
+///-----------
+//..
+//  Name                           Description
+//  -------------------            ----------------------------------
+//  e_VOID                         Enumerator representing an unset value
+//  e_INT64                        Enumerator representing an integral value
+//  e_DOUBLE                       Enumerator representing an double value
+//  e_STRING                       Enumerator representing a string value
+//  e_DATETIMETZ                   Enumerator representing a DatetimeTz value
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// &#39;ball::UserFieldType&#39; usage.
+//
+// First, we create a variable &#39;value&#39; of type &#39;ball::UserFieldType::Enum&#39; and
+// initialize it to the value &#39;ball::UserFieldType::e_STRING&#39;:
+//..
+//  ball::UserFieldType::Enum value = ball::UserFieldType::e_STRING;
+//..
+// Next, we store a pointer to its ASCII representation in a variable
+// &#39;asciiValue&#39; of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = ball::UserFieldType::toAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, &quot;STRING&quot;));
+//..
+// Finally, we print the value to &#39;bsl::cout&#39;:
+//..
+//  bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  STRING
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace ball {
+
+                        // ====================
+                        // struct UserFieldType
+                        // ====================
+
+struct UserFieldType {
+    // This &#39;struct&#39; provides a namespace for enumerating month-of-year
+    // values.  See &#39;Enum&#39; in the TYPES sub-section for details.
+    //
+    // This &#39;struct&#39;:
+    //: o supports a complete set of *enumeration* operations
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum Enum {
+        // Define the list of month-of-year values.
+
+        e_VOID,
+        e_INT64,
+        e_DOUBLE,
+        e_STRING,
+        e_DATETIMETZ
+
+    };
+
+    // CLASS METHODS
+    static bsl::ostream&amp; print(bsl::ostream&amp;       stream,
+                               UserFieldType::Enum value,
+                               int                 level          = 0,
+                               int                 spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration &#39;value&#39;
+        // to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  See &#39;toAscii&#39; for
+        // what constitutes the string representation of a
+        // &#39;UserFieldType::Enum&#39; value.
+
+    static const char *toAscii(UserFieldType::Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches the
+        // first 3 characters of its corresponding enumerator name with the
+        // &quot;e_&quot; prefix elided.  For example:
+        //..
+        //  bsl::cout &lt;&lt; ball::UserFieldType::toAscii(
+        //                                    ball::UserFieldType::e_STRING);
+        //..
+        // will print the following on standard output:
+        //..
+        //  STRING
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, UserFieldType::Enum value);
+    // Write the string representation of the specified enumeration &#39;value&#39; to
+    // the specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  See &#39;toAscii&#39; for what constitutes the string
+    // representation of a &#39;ball::UserFieldType::Enum&#39; value.  Note that this
+    // method has the same behavior as
+    //..
+    //  ball::UserFieldType::print(stream, value, 0, -1);
+    //..
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                             // ----------------------
+                             // struct UserFieldType
+                             // ----------------------
+
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;             stream,
+                               ball::UserFieldType::Enum value)
+{
+    return ball::UserFieldType::print(stream, value, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

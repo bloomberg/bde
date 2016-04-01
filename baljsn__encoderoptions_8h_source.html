@@ -1,0 +1,395 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baljsn_encoderoptions.h                                            -*-C++-*-
+#ifndef INCLUDED_BALJSN_ENCODEROPTIONS
+#define INCLUDED_BALJSN_ENCODEROPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class for specifying JSON encoding options.
+//
+//@CLASSES:
+//  baljsn::EncoderOptions: options for encoding objects in the JSON format
+//
+//@SEE_ALSO: baljsn_encoder, baljsn_decoderoptions
+//
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, &#39;baljsn::EncoderOptions&#39;, that is used to
+// specify options for encoding objects in the JSON format.
+//
+///Attributes
+///----------
+//..
+//  Name                Type           Default         Simple Constraints
+//  ------------------  -----------    -------         ------------------
+//  encodingStyle       EncodingStyle  BAEJSN_COMPACT  none
+//  initialIndentLevel  int            0               &gt;= 0
+//  spacesPerLevel      int            0               &gt;= 0
+//  encodeEmptyArrays   bool           false           none
+//  encodeNullElements  bool           false           none
+//..
+//: o &#39;encodingStyle&#39;: encoding style used to encode the JSON data.
+//:
+//: o &#39;initialIndentLevel&#39;: Initial indent level for the topmost element.
+//:
+//: o &#39;spacesPerLevel&#39;: spaces per additional indent level.
+//:
+//: o &#39;encodeEmptyArrays&#39;: option specifying if empty arrays should be encoded.
+//:
+//: o &#39;encodeNullElements&#39;: option specifying if null elements should be
+//:                         encoded.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating and Populating an Options Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This component is designed to be used at a higher level to set the options
+// for encoding objects in the JSON format.  This example shows how to create
+// and populate an options object.
+//
+// First, we default-construct a &#39;baljsn::EncoderOptions&#39; object:
+//..
+//  const int  INITIAL_INDENT_LEVEL = 1;
+//  const int  SPACES_PER_LEVEL     = 4;
+//  const bool ENCODE_EMPTY_ARRAYS  = true;
+//  const bool ENCODE_NULL_ELEMENTS = true;
+//
+//  baljsn::EncoderOptions options;
+//  assert(0 == options.initialIndentLevel());
+//  assert(0 == options.spacesPerLevel());
+//  assert(baljsn::EncoderOptions::e_COMPACT == options.encodingStyle());
+//  assert(false == options.encodeEmptyArrays());
+//  assert(false == options.encodeNullElements());
+//..
+// Next, we populate that object to encode in a pretty format using a
+// pre-defined initial indent level and spaces per level:
+//..
+//  options.setEncodingStyle(baljsn::EncoderOptions::e_PRETTY);
+//  assert(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
+//
+//  options.setInitialIndentLevel(INITIAL_INDENT_LEVEL);
+//  assert(INITIAL_INDENT_LEVEL == options.initialIndentLevel());
+//
+//  options.setSpacesPerLevel(SPACES_PER_LEVEL);
+//  assert(SPACES_PER_LEVEL == options.spacesPerLevel());
+//
+//  options.setEncodeEmptyArrays(ENCODE_EMPTY_ARRAYS);
+//  assert(ENCODE_EMPTY_ARRAYS == options.encodeEmptyArrays());
+//
+//  options.setEncodeNullElements(ENCODE_NULL_ELEMENTS);
+//  assert(ENCODE_NULL_ELEMENTS == options.encodeNullElements());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#define INCLUDED_BSL_IOSFWD
+#endif
+
+namespace BloombergLP {
+namespace baljsn {
+
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
+
+class EncoderOptions {
+    // This simply constrained (value-semantic) attribute class describes
+    // options for encoding an object in the JSON format.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation.  Note
+    // that the class invariants are identically the constraints on the
+    // individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-safe*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+  public:
+    // TYPES
+    enum EncodingStyle {
+        // This &#39;enum&#39; provides enumerators to specify the encoding styles.
+
+        e_COMPACT = 0,  // compact encoding without any whitespace
+        e_PRETTY        // pretty encoding with appropriate indentation
+    };
+
+  private:
+    // DATA
+    int           d_initialIndentLevel;  // initial indentation level
+
+    int           d_spacesPerLevel;      // spaces per level per indent level
+
+    EncodingStyle d_encodingStyle;       // encoding style
+
+    bool          d_encodeEmptyArrays;   // flag specifying if empty arrays
+                                         // should be encoded
+
+    bool          d_encodeNullElements;  // flag specifying if null elements
+                                         // should be encoded
+
+  public:
+    // CREATORS
+    EncoderOptions();
+        // Create a &#39;EncoderOptions&#39; object having the (default) attribute
+        // values:
+        //..
+        //  encodingStyle      == BAEJSN_COMPACT
+        //  initialIndentLevel == 0
+        //  spacesPerLevel     == 0
+        //  encodeEmptyArrays  == false
+        //  encodeNullElements == false
+        //..
+
+    //! EncoderOptions(const EncoderOptions&amp; original) = default;
+        // Create a &#39;EncoderOptions&#39; object having the same value as the
+        // specified &#39;original&#39; object.
+
+    ~EncoderOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! EncoderOptions&amp; operator=(const EncoderOptions&amp; rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setInitialIndentLevel(int value);
+        // Set the &#39;initialIndentLevel&#39; attribute of this object to the
+        // specified &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setSpacesPerLevel(int value);
+        // Set the &#39;spacesPerLevel&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setEncodingStyle(EncodingStyle value);
+        // Set the &#39;encodingStyle&#39; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setEncodeEmptyArrays(bool value);
+        // Set the &#39;encodeEmptyArrays&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setEncodeNullElements(bool value);
+        // Set the &#39;encodeNullElements&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    // ACCESSORS
+    int initialIndentLevel() const;
+        // Return the value of the &#39;initialIndentLevel&#39; attribute of this
+        // object.
+
+    int spacesPerLevel() const;
+        // Return the value of the &#39;spacesPerLevel&#39; attribute of this object.
+
+    EncodingStyle encodingStyle() const;
+        // Return the value of the &#39;encodingStyle&#39; attribute of this object.
+
+    bool encodeEmptyArrays() const;
+        // Return the value of the &#39;encodeEmptyArrays&#39; attribute of this
+        // object.
+
+    bool encodeNullElements() const;
+        // Return the value of the &#39;encodeNullElements&#39; attribute of this
+        // object.
+
+                                  // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;EncoderOptions&#39; objects have the
+    // same value if all of the corresponding values of their
+    // &#39;initialIndentLevel&#39;, &#39;spacesPerLevel&#39;, &#39;encodingStyle&#39;,
+    // &#39;encodeEmptyArrays&#39;, and &#39;encodeNullElements&#39; attributes are the same.
+
+bool operator!=(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;EncoderOptions&#39; objects do not
+    // have the same value if any of the corresponding values of their
+    // &#39;initialIndentLevel&#39;, &#39;spacesPerLevel&#39;, &#39;encodingStyle&#39;,
+    // &#39;encodeEmptyArrays&#39;, and &#39;encodeNullElements&#39; attributes are not the
+    // same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;         stream,
+                         const EncoderOptions&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39;, but with
+    // the attribute names elided.
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
+
+// CREATORS
+inline
+EncoderOptions::EncoderOptions()
+: d_initialIndentLevel(0)
+, d_spacesPerLevel(0)
+, d_encodingStyle(e_COMPACT)
+, d_encodeEmptyArrays(false)
+, d_encodeNullElements(false)
+{
+}
+
+inline
+EncoderOptions::~EncoderOptions()
+{
+    BSLS_ASSERT_SAFE(0 &lt;= d_initialIndentLevel);
+    BSLS_ASSERT_SAFE(0 &lt;= d_spacesPerLevel);
+}
+
+// MANIPULATORS
+inline
+void EncoderOptions::setInitialIndentLevel(int value)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= value);
+
+    d_initialIndentLevel = value;
+}
+
+inline
+void EncoderOptions::setSpacesPerLevel(int value)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= value);
+
+    d_spacesPerLevel = value;
+}
+
+inline
+void EncoderOptions::setEncodingStyle(EncodingStyle value)
+{
+    d_encodingStyle = value;
+}
+
+inline
+void EncoderOptions::setEncodeEmptyArrays(bool value)
+{
+    d_encodeEmptyArrays = value;
+}
+
+inline
+void EncoderOptions::setEncodeNullElements(bool value)
+{
+    d_encodeNullElements = value;
+}
+
+// ACCESSORS
+inline
+int EncoderOptions::initialIndentLevel() const
+{
+    return d_initialIndentLevel;
+}
+
+inline
+int EncoderOptions::spacesPerLevel() const
+{
+    return d_spacesPerLevel;
+}
+
+inline
+EncoderOptions::EncodingStyle
+EncoderOptions::encodingStyle() const
+{
+    return d_encodingStyle;
+}
+
+inline
+bool EncoderOptions::encodeEmptyArrays() const
+{
+    return d_encodeEmptyArrays;
+}
+
+inline
+bool EncoderOptions::encodeNullElements() const
+{
+    return d_encodeNullElements;
+}
+}  // close package namespace
+
+// FREE FUNCTIONS
+inline
+bool baljsn::operator==(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs)
+{
+    return  lhs.initialIndentLevel() == rhs.initialIndentLevel()
+         &amp;&amp; lhs.spacesPerLevel()     == rhs.spacesPerLevel()
+         &amp;&amp; lhs.encodingStyle()      == rhs.encodingStyle()
+         &amp;&amp; lhs.encodeEmptyArrays()  == rhs.encodeEmptyArrays()
+         &amp;&amp; lhs.encodeNullElements() == rhs.encodeNullElements();
+}
+
+inline
+bool baljsn::operator!=(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs)
+{
+    return  lhs.initialIndentLevel() != rhs.initialIndentLevel()
+         || lhs.spacesPerLevel()     != rhs.spacesPerLevel()
+         || lhs.encodingStyle()      != rhs.encodingStyle()
+         || lhs.encodeEmptyArrays()  != rhs.encodeEmptyArrays()
+         || lhs.encodeNullElements() != rhs.encodeNullElements();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

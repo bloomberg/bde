@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf Package</title>
+<title>BDE 3.0: bslmf Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -101,6 +101,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__addvolatile.html">Component bslmf_addvolatile</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a meta-function for adding a <code>volatile</code>-qualifier. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__allocatorargt.html">Component bslmf_allocatorargt</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a tag type to precede allocator arguments. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__arraytopointer.html">Component bslmf_arraytopointer</a></td></tr>
@@ -191,6 +196,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isconvertibletoany.html">Component bslmf_isconvertibletoany</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a compile-time check for types convertible to any type. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html">Component bslmf_isempty</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a compile-time check for detecting an empty class type. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isenum.html">Component bslmf_isenum</a></td></tr>
@@ -328,6 +338,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a nil type. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__nthparameter.html">Component bslmf_nthparameter</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Metafunction to return the Nth type parameter in a parameter pack. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__removeconst.html">Component bslmf_removeconst</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a meta-function for removing top-level <code>const</code>-qualifier. </p>
@@ -407,32 +422,31 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package provides meta-function equivalents of certain useful coding constructs. A meta-function is a template-based, compile-time construct that behaves like a (runtime) function in that it "evaluates" arguments and does something different based on the input it is passed (in the case of templates, the input it is instantiated with). <code>bslmf</code> provides metafunctions to evaluate (at compile time) constructs such as the following: an <code>if</code>-statement equivalent, whether a (template) argument is a fundamental type, whether an argument is an <code>enum</code> type, whether two arguments have the same type, and more. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdemf</code> package provides meta-function equivalents of certain useful coding constructs. A meta-function is a template-based, compile-time construct that behaves like a (runtime) function in that it "evaluates" arguments and does something different based on the input it is passed (in the case of templates, the input it is instantiated with). <code>bslmf</code> provides metafunctions to evaluate (at compile time) constructs such as the following: an <code>if</code>-statement equivalent, whether a (template) argument is a fundamental type, whether an argument is an <code>enum</code> type, whether two arguments have the same type, and more. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The "return value" of that function is generally a compile-time constant under the form of a nested <code>enum</code> <code>VALUE</code>, or in some cases a nested <code>Type</code>, or both. For instance, in order to evaluate whether two types are the same, one could write a meta-function predicate (evaluating to 0 or 1) as follows: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> U, <span class="keyword">class</span> V&gt;
-    <span class="keyword">struct </span>IsSame {
-        <span class="comment">// This &#39;struct&#39; provides a meta function parameterized by two types</span>
-        <span class="comment">// &#39;U&#39; and &#39;V&#39;, that takes &#39;VALUE == 0&#39; unless &#39;U&#39; and &#39;V&#39; are the same</span>
-        <span class="comment">// type, in which case it takes &#39;VALUE == 1&#39;.</span>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> U, <span class="keyword">class</span> V&gt;
+  <span class="keyword">struct </span>IsSame {
+      <span class="comment">// This &#39;struct&#39; provides a meta function parameterized by two types &#39;U&#39;</span>
+      <span class="comment">// and &#39;V&#39;, that takes &#39;VALUE == 0&#39; unless &#39;U&#39; and &#39;V&#39; are the same type,</span>
+      <span class="comment">// in which case it takes &#39;VALUE == 1&#39;.</span>
 
-        <span class="comment">// PUBLIC TYPES</span>
-        <span class="keyword">enum</span> { VALUE = 0 };
-        <span class="keyword">typedef</span> bslmf_MetaInt&lt;VALUE&gt;  Type;
-    };
+      <span class="comment">// PUBLIC TYPES</span>
+      <span class="keyword">enum</span> { VALUE = 0 };
+      <span class="keyword">typedef</span> bslmf_MetaInt&lt;VALUE&gt;  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;
+  };
 
-    <span class="comment">// SPECIALIZATIONS</span>
-    <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;
-    <span class="keyword">struct </span>IsSame&lt;T, T&gt; {
-        <span class="comment">// This specialization of the &#39;IsSame&#39; meta function is parameterized</span>
-        <span class="comment">// by a single type &#39;T&#39; and is selected if the two parameters of</span>
-        <span class="comment">// &#39;IsSame&#39;, &#39;U&#39; and &#39;V&#39;, are both equal to &#39;T&#39;.  It takes</span>
-        <span class="comment">// &#39;VALUE == 1&#39;.</span>
+  <span class="comment">// SPECIALIZATIONS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;
+  <span class="keyword">struct </span>IsSame&lt;T, T&gt; {
+      <span class="comment">// This specialization of the &#39;IsSame&#39; meta function is parameterized by</span>
+      <span class="comment">// a single type &#39;T&#39; and is selected if the two parameters of &#39;IsSame&#39;,</span>
+      <span class="comment">// &#39;U&#39; and &#39;V&#39;, are both equal to &#39;T&#39;.  It takes &#39;VALUE == 1&#39;.</span>
 
-        <span class="comment">// PUBLIC TYPES</span>
-        <span class="keyword">enum</span> { VALUE = 1 };
-        <span class="keyword">typedef</span> bslmf_MetaInt&lt;VALUE&gt;  Type;
-    };
+      <span class="comment">// PUBLIC TYPES</span>
+      <span class="keyword">enum</span> { VALUE = 1 };
+      <span class="keyword">typedef</span> bslmf_MetaInt&lt;VALUE&gt;  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;
+  };
 </pre></div><br/>
 <br/>
  Note the use of a <code>bslmf_MetaInt</code> nested type usually employed for function dispatching. See the <code>bslmf_issame</code> component-level documentation for a more thorough usage example. </dd></dl>
@@ -440,7 +454,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package currently has 62 components having 15 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package currently has 65 components having 15 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  15. bslmf_isbitwisemoveable
 
@@ -459,18 +473,20 @@ Components</h2></td></tr>
 
   11. bslmf_isconvertible
 
-  10. bslmf_enableif
+  10. bslmf_addcv
+      bslmf_enableif
       bslmf_ispointertomember
 
-   9. bslmf_addcv
+   9. bslmf_addvolatile
       bslmf_isfundamental
       bslmf_ismemberpointer
 
    8. bslmf_addconst
-      bslmf_addvolatile
       bslmf_isarithmetic
+      bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
+      bslmf_isvolatile
       bslmf_removepointer
 
    7. bslmf_isclass
@@ -494,6 +510,8 @@ Components</h2></td></tr>
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_isconst
+      bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
       bslmf_removevolatile
@@ -507,15 +525,14 @@ Components</h2></td></tr>
       bslmf_switch
 
    2. bslmf_isarray
-      bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
-      bslmf_isvolatile
       bslmf_nil
       bslmf_tag
 
-   1. bslmf_assert
+   1. bslmf_allocatorargt
+      bslmf_assert
       bslmf_integralconstant
       bslmf_matchanytype
 </pre></div><br/>
@@ -539,6 +556,8 @@ Components</h2></td></tr>
  Provide a compile-time type transformation to rvalue reference.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_addvolatile</code>: <br/>
  Provide a meta-function for adding a <code>volatile</code>-qualifier.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_allocatorargt</code>: <br/>
+ Provide a tag type to precede allocator arguments.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_arraytopointer</code>: <br/>
  Provide a meta-function to convert array types to pointer types.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_assert</code>: <br/>
@@ -575,6 +594,8 @@ Components</h2></td></tr>
  Provide a compile-time check for type conversion.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_isconvertibletoany</code>: <br/>
  Provide a compile-time check for types convertible to any type.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_isempty</code>: <br/>
+ Provide a compile-time check for detecting an empty class type.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_isenum</code>: <br/>
  Provide compile-time check for determining enumerated types.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_isfloatingpoint</code>: <br/>
@@ -629,6 +650,8 @@ Components</h2></td></tr>
  Provide a nested declaration to associate a class with a trait.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_nil</code>: <br/>
  Provide a nil type.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_nthparameter</code>: <br/>
+ Metafunction to return the Nth type parameter in a parameter pack</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_removeconst</code>: <br/>
  Provide a meta-function for removing top-level <code>const</code>-qualifier.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_removecv</code>: <br/>
@@ -648,11 +671,10 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_tag</code>: <br/>
  Provide an integral-constant-to-type conversion.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_typelist</code>: <br/>
- Provide a typelist component</div></dd></dl>
+ Provide a typelist component.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

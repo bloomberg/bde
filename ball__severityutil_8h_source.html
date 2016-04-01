@@ -1,0 +1,159 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_severityutil.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_SEVERITYUTIL
+#define INCLUDED_BALL_SEVERITYUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a suite of utility functions on &#39;ball::Severity&#39; levels.
+//
+//@CLASSES:
+//  ball::SeverityUtil: namespace for functions on &#39;ball::Severity::Level&#39;
+//
+//@SEE_ALSO: ball_severity
+//
+//@DESCRIPTION: This component provides a suite of pure procedures that apply
+// to the &#39;ball::Severity::Level&#39; enumeration.  In particular, the
+// &#39;ball::SeverityUtil&#39; &#39;struct&#39; provides a &#39;fromAsciiCaseless&#39; function that
+// returns the &#39;ball::Severity::Level&#39; enumerator value corresponding to a
+// given ASCII string (without regard to the case of the characters in the
+// string) and an &#39;isValidNameCaseless&#39; function that confirms that a given
+// string corresponds to one of the enumerators in the &#39;ball::Severity::Level&#39;
+// enumeration (similarly, without regard to the case of the characters in the
+// string).
+//
+///Synopsis
+///--------
+// The following is a list of functions available in this component:
+//..
+//    static int  ball::SeverityUtil::fromAsciiCaseless(
+//                                              ball::Severity::Level *level,
+//                                              const char            *name);
+//
+//    static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
+//..
+//
+///Usage
+///-----
+// In this example, we show how to validate that a set of C-style strings
+// correspond to &#39;ball::Severity::Level&#39; enumerators, and then use those
+// strings to generate enumerator values that, in turn, may be used to
+// administer a logger manager.  Here, for convenience, we define our strings
+// in an array, much as how we might receive them from a command line:
+//..
+//    const char *argv[] = {
+//        &quot;INFO&quot;,   // record
+//        &quot;WARN&quot;,   // pass
+//        &quot;ERROR&quot;,  // trigger
+//        &quot;FATAL&quot;   // trigger-all
+//    };
+//
+//    assert(ball::SeverityUtil::isValidNameCaseless(argv[0]));
+//    assert(ball::SeverityUtil::isValidNameCaseless(argv[1]));
+//    assert(ball::SeverityUtil::isValidNameCaseless(argv[2]));
+//    assert(ball::SeverityUtil::isValidNameCaseless(argv[3]));
+//
+//    ball::Severity::Level record;
+//    ball::Severity::Level pass;
+//    ball::Severity::Level trigger;
+//    ball::Severity::Level triggerAll;
+//
+//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&amp;record,     argv[0]));
+//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&amp;pass,       argv[1]));
+//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&amp;trigger,    argv[2]));
+//    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&amp;triggerAll, argv[3]));
+//
+//    assert(ball::Severity::BAEL_INFO  == record);
+//    assert(ball::Severity::BAEL_WARN  == pass);
+//    assert(ball::Severity::BAEL_ERROR == trigger);
+//    assert(ball::Severity::BAEL_FATAL == triggerAll);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_SEVERITY
+#include &lt;ball_severity.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                        // ===================
+                        // struct SeverityUtil
+                        // ===================
+
+struct SeverityUtil {
+    // This &#39;struct&#39; provides a namespace for non-primitive procedures on the
+    // &#39;Severity::Level&#39; enumeration.
+
+    // CLASS METHODS
+    static int fromAsciiCaseless(Severity::Level *level,
+                                 const char      *name);
+        // Load into the specified &#39;level&#39; the value of the &#39;Severity::Level&#39;
+        // enumerator corresponding to the specified &#39;name&#39; (without regard to
+        // the case of the characters in &#39;name&#39;).  Return 0 on success, and a
+        // non-zero value with no effect on &#39;level&#39; otherwise.  The behavior is
+        // undefined unless &#39;level&#39; is non-null and &#39;name&#39; is a null-terminated
+        // (C-style) string.  Note that this procedure will fail unless
+        // &#39;isValidName(name)&#39; is &#39;true.
+
+    static bool isValidNameCaseless(const char *name);
+        // Return &#39;true&#39; if the specified &#39;name&#39; corresponds to an enumerator
+        // in the &#39;Severity::Level&#39; enumeration (without regard to the
+        // characters in &#39;name&#39;), and &#39;false&#39; otherwise.  The behavior is
+        // undefined unless &#39;name&#39; is a null-terminated (C-style) string.  Note
+        // that the names corresponding to &#39;Severity::Level&#39; enumerators are
+        // case *insensitive*.
+
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // -------------------
+                        // struct SeverityUtil
+                        // -------------------
+
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

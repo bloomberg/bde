@@ -1,0 +1,554 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdld_manageddatum.h                                                -*-C++-*-
+#ifndef INCLUDED_BDLD_MANAGEDDATUM
+#define INCLUDED_BDLD_MANAGEDDATUM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a smart-pointer like manager for a &#39;Datum&#39; object.
+//
+//@CLASSES:
+//  bdld::ManagedDatum: a smart-pointer like manager for a &#39;Datum&#39; object
+//
+//@SEE_ALSO: bdld_datum
+//
+//@DESCRIPTION: This component implements a type, &#39;bdld::ManagedDatum&#39;, that
+// provides two important services for &#39;Datum&#39; objects:
+//
+//: 1 &#39;ManagedDatum&#39; provides value-semantic-like operations for &#39;Datum&#39;.
+//:
+//: 2 &#39;ManagedDatum&#39; is a resource manager, similar to a smart-pointer, for
+//:   &#39;Datum&#39;.
+//
+// These services allow clients to use a &#39;ManagedDatum&#39; object in most contexts
+// where an object of a value-semantic type can be used (passed by value,
+// stored in containers, and so on), even though &#39;ManagedDatum&#39; is not strictly
+// value-semantic.  These services are explored in subsequent sections.
+//
+// The &#39;Datum&#39; type maintained by a &#39;ManagedDatum&#39; provides a space-efficient
+// discriminated union (i.e., a variant) holding the value of a scalar type
+// (e.g., &#39;int&#39;, &#39;double&#39;, &#39;string&#39;) or an aggregate of other &#39;Datum&#39; objects.
+// See {&#39;bdld_datum&#39;} for more details.
+//
+///Value-Semantics
+///---------------
+// &#39;ManagedDatum&#39;, while not strictly a value-semantic type, provides the full
+// set of value-semantic-like operations for &#39;Datum&#39; (see
+// {&#39;bsldoc_glossary&#39;|Value-Semantic Operations}):
+//
+//   o Equality and Non-Equality Comparisons
+//   o Copy Construction
+//   o Copy Assignment
+//   o Default Construction
+//   o &#39;ostream&#39; Printing
+//
+// In other words the syntax of &#39;ManagedDatum&#39; *regular*, but not all of its
+// copy behavior is value-semantic.  Specifically, for certain values (i.e.,
+// those where &#39;isExternalReference&#39; is &#39;true&#39;) &#39;ManagedDatum&#39; performs a
+// shallow copy (copying the reference rather than the value), which is
+// inconsistent with value-semantics.
+//
+// Note that a default constructed &#39;ManagedDatum&#39;, or a &#39;ManagedDatum&#39; on which
+// &#39;release&#39; has been called will have the null &#39;Datum&#39; value.
+//
+///Resource-Management
+///-------------------
+// A &#39;Datum&#39; object&#39;s relationship to memory can be seen as analogous to a raw
+// pointer, requiring calls to static functions &#39;Datum::create*&#39; and
+// &#39;Datum::destroy&#39; to initialize and release resources (see the {&#39;bdld_datum&#39;}
+// component documentation).  A &#39;ManagedDatum&#39;, by extension, provides a
+// resource manager for a &#39;Datum&#39; that is an analogous to a smart-pointer.
+//
+// The &#39;adopt&#39; method of a &#39;ManagedDatum&#39; is used to take ownership of a
+// supplied &#39;Datum&#39; object, after which point the &#39;ManagedDatum&#39; object&#39;s
+// destructor will free the resources of the managed &#39;Datum&#39; (unless &#39;release&#39;
+// is subsequently called).  Similar to a smart-pointer, a &#39;ManagedDatum&#39;
+// provides dereference operators to access the &#39;Datum&#39; object under
+// management.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdld::MangedDatum&#39;
+///- - - - - - - - - - - - - - - - - - - - - -
+// The example demonstrates the basic construction and manipulation of a
+// &#39;ManagedDatum&#39; object.
+//
+// First, we create a &#39;ManagedDatum&#39; object that holds a double value and
+// verify that it has the same double value inside it:
+//..
+//  bslma::TestAllocator ta(&quot;test&quot;, veryVeryVerbose);
+//
+//  const ManagedDatum realObj(Datum::createDouble(-3.4375), &amp;ta);
+//
+//  assert(realObj-&gt;isDouble());
+//  assert(-3.4375 == realObj-&gt;theDouble());
+//..
+// Next, we create a &#39;ManagedDatum&#39; object that holds a string value and verify
+// that it has the same string value inside it:
+//..
+//  const char         *str = &quot;This is a string&quot;;
+//  const ManagedDatum  strObj(Datum::copyString(str, &amp;ta), &amp;ta);
+//
+//  assert(strObj-&gt;isString());
+//  assert(str == strObj-&gt;theString());
+//..
+// Then, assign this &#39;ManagedDatum&#39; object to another object and verify both
+// objects have the same value:
+//..
+//  ManagedDatum strObj1(&amp;ta);
+//  strObj1 = strObj;
+//  assert(strObj == strObj1);
+//..
+// Next, copy-construct this &#39;ManagedDatum&#39; object and verify that the copy has
+// the same value as the original:
+//..
+//  const ManagedDatum strObj2(strObj, &amp;ta);
+//  assert(strObj == strObj2);
+//..
+// Then, we create a &#39;ManagedDatum&#39; object that holds an opaque pointer to a
+// &#39;bdlt::Date&#39; object and verify that it has the same user-defined value
+// inside it:
+//..
+//  bdlt::Date   udt;
+//  ManagedDatum udtObj(Datum::createUdt(&amp;udt, UDT_TYPE), &amp;ta);
+//
+//  assert(udtObj-&gt;isUdt());
+//  assert(&amp;udt == udtObj-&gt;theUdt().data());
+//  assert(UDT_TYPE == udtObj-&gt;theUdt().type());
+//..
+// Next, we assign a boolean value to this &#39;ManagedDatum&#39; object and verify
+// that it has the new value:
+//..
+//  udtObj.adopt(Datum::createBoolean(true));
+//  assert(udtObj-&gt;isBoolean());
+//  assert(true == udtObj-&gt;theBoolean());
+//..
+// Then, we create a &#39;ManagedDatum&#39; object having an array and verify that it
+// has the same array value.  Note that in practice we would use
+// {&#39;bdld_datumarraybuilder&#39;}, but do not do so here to for dependency reasons.
+//..
+//  const Datum datumArray[2] = {
+//      Datum::createInteger(12),
+//      Datum::copyString(&quot;A long string&quot;, &amp;ta)
+//  };
+//
+//  DatumMutableArrayRef arr;
+//  Datum::createUninitializedArray(&amp;arr, 2 , &amp;ta);
+//  for (int i = 0; i &lt; 2; ++i) {
+//      arr.data()[i] = datumArray[i];
+//  }
+//  *(arr.length()) = 2;
+//  const ManagedDatum arrayObj(Datum::adoptArray(arr), &amp;ta);
+//
+//  assert(arrayObj-&gt;isArray());
+//  assert(DatumArrayRef(datumArray, 2) == arrayObj-&gt;theArray());
+//..
+// Next, we create a &#39;ManagedDatum&#39; object having a map and verify that it has
+// the same map value.  Note that in practice we would use
+// {&#39;bdld_datummapbuilder&#39;}, but do not do so here to for dependency reasons.
+//..
+//  const DatumMapEntry datumMap[2] = {
+//      DatumMapEntry(StringRef(&quot;first&quot;, static_cast&lt;int&gt;(strlen(&quot;first&quot;))),
+//                    Datum::createInteger(12)),
+//      DatumMapEntry(StringRef(&quot;second&quot;, static_cast&lt;int&gt;(strlen(&quot;second&quot;))),
+//                    Datum::copyString(&quot;A very long string&quot;, &amp;ta))
+//  };
+//
+//  DatumMutableMapRef mp;
+//  Datum::createUninitializedMap(&amp;mp, 2 , &amp;ta);
+//  for (int i = 0; i &lt; 2; ++i) {
+//      mp.data()[i] = datumMap[i];
+//  }
+//  *(mp.size()) = 2;
+//  const ManagedDatum mapObj(Datum::adoptMap(mp), &amp;ta);
+//
+//  assert(mapObj-&gt;isMap());
+//  assert(DatumMapRef(datumMap, 2, false, false) == mapObj-&gt;theMap());
+//..
+// Then, we create a &#39;Datum&#39; object and assign its ownership to a
+// &#39;ManagedDatum&#39; object and verify that the ownership was transferred:
+//..
+//  const Datum  rcObj = Datum::copyString(&quot;This is a string&quot;, &amp;ta);
+//  ManagedDatum obj(Datum::createInteger(1), &amp;ta);
+//  obj.adopt(rcObj);
+//  assert(obj.datum() == rcObj);
+//..
+// Next, we release the &#39;Datum&#39; object inside the &#39;ManagedDatum&#39; object and
+// verify that it was released:
+//..
+//  const Datum internalObj = obj.release();
+//  assert(obj-&gt;isNull());
+//  assert(internalObj == rcObj);
+//..
+// Finally, we destroy the released &#39;Datum&#39; object:
+//..
+//  Datum::destroy(internalObj, obj.allocator());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLD_DATUM
+#include &lt;bdld_datum.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdld {
+
+                            // ==================
+                            // class ManagedDatum
+                            // ==================
+
+class ManagedDatum {
+    // This class implements a smart-pointer-like resource manager for a
+    // &#39;Datum&#39; object.
+
+  private:
+    // DATA
+    Datum             d_data;         // storage for data
+    bslma::Allocator *d_allocator_p;  // allocator to allocate any dynamic
+                                      // memory
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(ManagedDatum, bslmf::IsBitwiseMoveable);
+        // &#39;ManagedDatum&#39; objects use &#39;bslma::Allocator&#39; and they are bitwise
+        // movable and trivially copyable.
+
+    // CREATORS
+    explicit ManagedDatum(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;ManagedDatum&#39; object having the default (null) value.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  De-refering the managed &#39;Datum&#39; object and calling &#39;isNull&#39;
+        // will return &#39;true&#39;.
+
+    explicit ManagedDatum(const Datum&amp;      value,
+                          bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;ManagedDatum&#39; assuming ownership of the specified &#39;value&#39;.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;value&#39; was allocated using
+        // the indicated allocator, and &#39;value&#39; is not subsequently destroyed
+        // externally using the &#39;Datum::destroy&#39; function.
+
+    ManagedDatum(const ManagedDatum&amp;  original,
+                 bslma::Allocator    *basicAllocator = 0);
+        // Create an object of type &#39;ManagedDatum&#39; having the same value as the
+        // specified &#39;original&#39;.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~ManagedDatum();
+        // Destroy this object.  Use the stored allocator to release any memory
+        // that was previously allocated.
+
+    // MANIPULATORS
+    ManagedDatum&amp; operator=(const ManagedDatum&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object and
+        // return a reference to this object.
+
+    void adopt(const Datum&amp; obj);
+        // Take the ownership of the specified &#39;obj&#39;.  Destroy the previous
+        // value stored within this object.  The behavior is undefined unless
+        // &#39;obj&#39; was allocated using the same allocator as this object and it
+        // is not subsequently destroyed externally using the &#39;Datum::destroy&#39;
+        // function.
+
+    void clone(const Datum&amp; value);
+        // Assign to this object the specified &#39;value&#39; by making a &quot;deep-copy&quot;
+        // of &#39;value&#39;, so that any dynamically allocated memory managed by
+        // &#39;value&#39; is cloned and not shared with &#39;value&#39;.
+
+    void makeNull();
+        // Make the value of this object to the null value.  Any dynamically
+        // allocated value within this object is properly released.
+
+    Datum release();
+        // Return the &#39;Datum&#39; value held inside this object and set the value
+        // of this object to the null value.  Note that the previous value is
+        // not destroyed.
+
+    void swap(ManagedDatum&amp; other);
+        // Swap contents of this &#39;ManagedDatum&#39; object with the contents of the
+        // specified &#39;other&#39; &#39;ManagedDatum&#39; object.  The behavior is undefined
+        // unless both the &#39;ManagedDatum&#39; objects are allocated using the same
+        // allocator.
+
+    // ACCESSORS
+    const Datum *operator-&gt;() const;
+        // Return a pointer providing non-modifiable access to the &#39;Datum&#39;
+        // object held inside this object.
+
+    const Datum&amp; operator*() const;
+        // Return a reference providing non-modifiable access to the &#39;Datum&#39;
+        // object held inside this object.
+
+    bslma::Allocator *allocator() const;
+        // Return a pointer providing modifiable access to the allocator
+        // associated with this &#39;ManagedDatum&#39;.
+
+    const Datum&amp; datum() const;
+        // Return a reference providing non-modifiable access to the &#39;Datum&#39;
+        // object held inside this object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified,
+        // optionally specify &#39;spacesPerLevel&#39;, the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.
+};
+
+// FREE OPERATORS
+bool operator==(const ManagedDatum&amp; lhs, const ManagedDatum&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; &#39;ManagedDatum&#39; objects
+    // have the same value, and &#39;false&#39; otherwise.  Two &#39;ManagedDatum&#39; objects
+    // have the same value if their corresponding contained &#39;Datum&#39; objects
+    // have the same value.  For a detailed explanation about equality of
+    // &#39;Datum&#39; objects, refer to the documentation of operator &#39;==&#39; defined
+    // for &#39;Datum&#39;.
+
+bool operator!=(const ManagedDatum&amp; lhs, const ManagedDatum&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; &#39;ManagedDatum&#39; objects do
+    // not have the same value, and &#39;false&#39; otherwise.  Two &#39;ManagedDatum&#39;
+    // objects do not have the same value if their corresponding contained
+    // &#39;Datum&#39; objects have the same value.  For a detailed explanation about
+    // inequality of &#39;Datum&#39; objects, refer to the documentation of operator
+    // &#39;==&#39; defined for &#39;Datum&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const ManagedDatum&amp; rhs);
+    // Write the specified &#39;rhs&#39; value to the specified output &#39;stream&#39; and
+    // return a reference to the modifiable &#39;stream&#39;.  Note that this method
+    // invokes the operator &#39;&lt;&lt;&#39; defined for &#39;Datum&#39;.  For a detailed
+    // explanation of the format of the output, refer to the documentation of
+    // operator &#39;&lt;&lt;&#39; defined for &#39;Datum&#39;.  The function will have no effect if
+    // &#39;stream&#39; is not valid.
+
+// FREE FUNCTIONS
+void swap(ManagedDatum&amp; a, ManagedDatum&amp; b);
+    // Swap contents of the specified &#39;a&#39; &#39;ManagedDatum&#39; object with the
+    // contents of the specified &#39;b&#39; &#39;ManagedDatum&#39; object.
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                            // ------------------
+                            // class ManagedDatum
+                            // ------------------
+
+// CREATORS
+inline
+ManagedDatum::ManagedDatum(bslma::Allocator *basicAllocator)
+: d_data(Datum::createNull())
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+ManagedDatum::ManagedDatum(const Datum&amp;      value,
+                           bslma::Allocator *basicAllocator)
+: d_data(value)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+ManagedDatum::ManagedDatum(const ManagedDatum&amp;  original,
+                           bslma::Allocator    *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data = original.d_data.clone(d_allocator_p);
+}
+
+inline
+ManagedDatum::~ManagedDatum()
+{
+    Datum::destroy(d_data, d_allocator_p);
+}
+
+// MANIPULATORS
+inline
+ManagedDatum&amp; ManagedDatum::operator=(const ManagedDatum&amp; rhs)
+{
+    ManagedDatum copy(rhs, d_allocator_p);
+    swap(copy);
+    return *this;
+}
+
+inline
+void ManagedDatum::adopt(const Datum&amp; obj)
+{
+    BSLS_ASSERT(&amp;obj != &amp;d_data);
+    ManagedDatum(obj, d_allocator_p).swap(*this);
+}
+
+inline
+void ManagedDatum::clone(const Datum&amp; value)
+{
+    Datum data = value.clone(d_allocator_p);
+    ManagedDatum(data, d_allocator_p).swap(*this);
+}
+
+inline
+void ManagedDatum::makeNull()
+{
+    ManagedDatum(d_allocator_p).swap(*this);
+}
+
+inline
+Datum ManagedDatum::release()
+{
+    Datum temp = d_data;
+    d_data = Datum::createNull();
+    return temp;
+}
+
+inline
+void ManagedDatum::swap(ManagedDatum&amp; other)
+{
+    BSLS_ASSERT_SAFE(d_allocator_p == other.d_allocator_p);
+    using bsl::swap;
+    swap(d_data, other.d_data);
+}
+
+// ACCESSORS
+inline
+const Datum *ManagedDatum::operator-&gt;() const
+{
+    return &amp;d_data;
+}
+
+inline
+const Datum&amp; ManagedDatum::operator*() const
+{
+    return d_data;
+}
+
+inline
+bslma::Allocator *ManagedDatum::allocator() const
+{
+    return d_allocator_p;
+}
+
+inline
+const Datum&amp; ManagedDatum::datum() const
+{
+    return d_data;
+}
+
+inline
+bsl::ostream&amp; ManagedDatum::print(bsl::ostream&amp; stream,
+                                  int           level,
+                                  int           spacesPerLevel) const
+{
+    return d_data.print(stream, level, spacesPerLevel);
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdld::operator==(const ManagedDatum&amp; lhs, const ManagedDatum&amp; rhs)
+{
+    return (lhs.datum() == rhs.datum());
+}
+
+inline
+bool bdld::operator!=(const ManagedDatum&amp; lhs, const ManagedDatum&amp; rhs)
+{
+    return (lhs.datum() != rhs.datum());
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const ManagedDatum&amp; rhs)
+{
+    return (stream &lt;&lt; rhs.datum());
+}
+
+// FREE FUNCTIONS
+inline
+void bdld::swap(ManagedDatum&amp; a, ManagedDatum&amp; b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        ManagedDatum tempA(a, b.allocator());
+        ManagedDatum tempB(b, a.allocator());
+
+        a.swap(tempB);
+        b.swap(tempA);
+    }
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

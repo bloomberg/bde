@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsltf_allocbitwisemoveabletesttype.h                               -*-C++-*-
@@ -166,9 +166,7 @@ class AllocBitwiseMoveableTestType {
                                   // Aspects
 
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
+        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
@@ -185,9 +183,9 @@ bool operator!=(const AllocBitwiseMoveableTestType&amp; lhs,
     // objects do not have the same value if their &#39;data&#39; attributes are not
     // the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------------
                         // class AllocBitwiseMoveableTestType

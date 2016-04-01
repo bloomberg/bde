@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslstl::HashTable</title>
+<title>BDE 3.0: Class bslstl::HashTable</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -279,7 +279,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> object with a <code>maxLoadFactor</code> of 1.0. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. Use a default constructed object of the (template parameter) type <code>HASHER</code> and a default constructed object of the (template parameter) type <code>COMPARATOR</code> to organize elements in the table. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. No memory will be allocated unless the <code>HASHER</code> or <code>COMPARATOR</code> types allocate memory in their default constructor. </p>
+<p>Create an empty <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> object with a <code>maxLoadFactor</code> of 1.0. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. Use a default constructed object of the (template parameter) type <code>HASHER</code> and a default constructed object of the (template parameter) type <code>COMPARATOR</code> to organize elements in the table. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator is used to supply memory. No memory is allocated unless the <code>HASHER</code> or <code>COMPARATOR</code> types allocate memory in their default constructor. </p>
 
 </div>
 </div>
@@ -327,7 +327,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty hash-table using the specified <code>hash</code> and <code>compare</code> functors to organize elements in the table, which will initially have at least the specified <code>initialNumBuckets</code> and a <code>maxLoadFactor</code> of the specified <code>initialMaxLoadFactor</code>. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If this constructor tries to allocate a number of buckets larger than can be represented by this hash-table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. The behavior is undefined unless <code>0 &lt; initialMaxLoadFactor</code>. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
+<p>Create an empty hash-table using the specified <code>hash</code> and <code>compare</code> functors to organize elements in the table, which will initially have at least the specified <code>initialNumBuckets</code> and a <code>maxLoadFactor</code> of the specified <code>initialMaxLoadFactor</code>. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. If this constructor tries to allocate a number of buckets larger than can be represented by this hash-table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. The behavior is undefined unless <code>0 &lt; initialMaxLoadFactor</code>. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
 
 </div>
 </div>
@@ -348,7 +348,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> having the same value as the specified <code>original</code>, and the same <code>maxLoadFactor</code>. Use a copy of <code>original.hasher()</code> and a copy of <code>original.comparator()</code> to organize elements in this hash-table. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator will be used to supply memory. Note that this hash-table may have fewer buckets than <code>original</code>, and a correspondingly higher <code>loadFactor</code>, so long as <code>maxLoadFactor</code> is not exceeded. Note that the created hash table may have a different <code>numBuckets</code> than <code>original</code>, and a correspondingly different <code>loadFactor</code>, as long as <code>maxLoadFactor</code> is not exceeded. </p>
+<p>Create a <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> having the same value as the specified <code>original</code>, and the same <code>maxLoadFactor</code>. Use a copy of <code>original.hasher()</code> and a copy of <code>original.comparator()</code> to organize elements in this hash-table. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the type <code>ALLOCATOR</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator is used to supply memory. Note that this hash-table may have fewer buckets than <code>original</code>, and a correspondingly higher <code>loadFactor</code>, so long as <code>maxLoadFactor</code> is not exceeded. Note that the created hash table may have a different <code>numBuckets</code> than <code>original</code>, and a correspondingly different <code>loadFactor</code>, as long as <code>maxLoadFactor</code> is not exceeded. </p>
 
 </div>
 </div>
@@ -420,7 +420,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value, hasher, comparator and <code>maxLoadFactor</code> of the specified <code>rhs</code> object, replace the allocator of this object with the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has the trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. This method requires that the parameterized <code>HASHER</code> and <code>COMPARATOR</code> types be "copy-constructible", "copy-assignable" and "swappable" (see <a href="group__bslstl__hashtable.html#requirements_on_key_config" class="el">Requirements on <code>KEY_CONFIG</code></a>). Note that these requirements are modeled after the unordered container requirements table in the C++11 standard, which is imprecise on this operation. These requirements might simplify in the future, if the standard is updated. </p>
+<p>Assign to this object the value, hasher, comparator and <code>maxLoadFactor</code> of the specified <code>rhs</code> object, replace the allocator of this object with the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has the trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. Note that this method requires that the parameterized <code>HASHER</code> and <code>COMPARATOR</code> types be "copy-constructible", "copy-assignable" and "swappable" (see <a href="group__bslstl__hashtable.html#requirements_on_key_config" class="el">Requirements on <code>KEY_CONFIG</code></a>). Also note that these requirements are modeled after the unordered container requirements table in the C++11 standard, which is imprecise on this operation; these requirements might simplify in the future, if the standard is updated. </p>
 
 </div>
 </div>
@@ -443,7 +443,7 @@ template&lt;class SOURCE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this hash-table, and return the address of the new node. If this hash-table already contains an element having the same key as <code>value</code> (according to this hash- table's <code>comparator</code>) then insert <code>value</code> immediately before the first element having the same key. Additional buckets will be allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. </p>
+<p>Insert the specified <code>value</code> into this hash-table, and return the address of the new node. If this hash-table already contains an element having the same key as <code>value</code> (according to this hash- table's <code>comparator</code>), then insert <code>value</code> immediately before the first element having the same key. Additional buckets are allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. </p>
 
 </div>
 </div>
@@ -475,7 +475,7 @@ template&lt;class SOURCE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this hash table, and return the address of the new node. If the element stored in the node pointer to by the specified <code>hint</code> has a key that compares equal to that of <code>value</code> then <code>value</code> will be inserted immediately preceding <code>hint</code> in the list of this hash table. Additional buckets will be allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. The behavior is undefined unless <code>hint</code> points to a node in this hash table. </p>
+<p>Insert the specified <code>value</code> into this hash table, and return the address of the new node. If the element stored in the node pointer to by the specified <code>hint</code> has a key that compares equal to that of <code>value</code>, then <code>value</code> is inserted immediately preceding <code>hint</code> in the list of this hash table. Additional buckets will be allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. The behavior is undefined unless <code>hint</code> points to a node in this hash table. </p>
 
 </div>
 </div>
@@ -536,7 +536,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Return the address of an element in this hash table having a key that compares equal to the key of the specified <code>value</code> using the <code>comparator</code> functor of this hash-table. If no such element exists, insert a <code>value</code> into this hash-table and return the address of that newly inserted node. Load <code>true</code> into the specified <code>isInsertedFlag</code> if insertion is performed, and <code>false</code> if an existing element having a matching key was found. If this hash-table contains more than one element with a matching key, return the first such element (from the contiguous sequence of elements having a matching key). Additional buckets will be allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. </p>
+<p>Return the address of an element in this hash table having a key that compares equal to the key of the specified <code>value</code> using the <code>comparator</code> functor of this hash-table. If no such element exists, insert a <code>value</code> into this hash-table and return the address of that newly inserted node. Load <code>true</code> into the specified <code>isInsertedFlag</code> if insertion is performed, and <code>false</code> if an existing element having a matching key was found. If this hash-table contains more than one element with a matching key, return the first such element (from the contiguous sequence of elements having a matching key). Additional buckets are allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. </p>
 
 </div>
 </div>
@@ -557,7 +557,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Return the address of a link holding an element whose key has the same value as the specified <code>key</code> (according to this hash-table's <code>comparator</code>), and, if no such link exists, insert a new link having a default value with a key that is the same as <code>key</code>. If this hash-table contains more than one element with the supplied <code>key</code>, return the first such element (from the contiguous sequence of elements having a matching key). Additional buckets will be allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. </p>
+<p>Return the address of a link holding an element whose key has the same value as the specified <code>key</code> (according to this hash-table's <code>comparator</code>), and, if no such link exists, insert a new link having a default value with a key that is the same as <code>key</code>. If this hash-table contains more than one element with the supplied <code>key</code>, return the first such element (from the contiguous sequence of elements having a matching key). Additional buckets are allocated, as needed, to preserve the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. </p>
 
 </div>
 </div>
@@ -578,7 +578,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Re-organize this hash-table to have at least the specified <code>newNumBuckets</code>, preserving the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. This operation provides the strong exception guarantee (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) unless the <code>hasher</code> throws, in which case this operation provides the basic exception guarantee, leaving the hash-table in a valid, but otherwise unspecified (and potentially empty), state. Note that more buckets than requested may be allocated in order to preserve the bucket allocation strategy of the hash table (but never fewer). </p>
+<p>Re-organize this hash-table to have at least the specified <code>newNumBuckets</code>, preserving the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. This operation provides the strong exception guarantee (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) unless the <code>hasher</code> throws, in which case this operation provides the basic exception guarantee, leaving the hash-table in a valid, but otherwise unspecified (and potentially empty), state. Note that more buckets than requested may be allocated in order to preserve the bucket allocation strategy of the hash table (but never fewer). </p>
 
 </div>
 </div>
@@ -640,7 +640,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Re-organize this hash-table to have a sufficient number of buckets to accommodate at least the specified <code>numElements</code> without exceeding the <code>maxLoadFactor</code>, and ensure that that there are sufficient nodes pre-allocated in this object's node pool. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. This operation provides the strong exception guarantee (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) unless the <code>hasher</code> throws, in which case this operation provides the basic exception guarantee, leaving the hash-table in a valid, but otherwise unspecified (and potentially empty), state. </p>
+<p>Re-organize this hash-table to have a sufficient number of buckets to accommodate at least the specified <code>numElements</code> without exceeding the <code>maxLoadFactor</code>, and ensure that that there are sufficient nodes pre-allocated in this object's node pool. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. This operation provides the strong exception guarantee (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) unless the <code>hasher</code> throws, in which case this operation provides the basic exception guarantee, leaving the hash-table in a valid, but otherwise unspecified (and potentially empty), state. </p>
 
 </div>
 </div>
@@ -661,7 +661,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Set the maximum load factor permitted by this hash table to the specified <code>newMaxLoadFactor</code>, where load factor is the statistical mean number of elements per bucket. If 'newMaxLoadFactor &lt; loadFactor', allocate at least enough buckets to re-establish the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception will be thrown. The behavior is undefined unless <code>0 &lt; maxLoadFactor</code>. </p>
+<p>Set the maximum load factor permitted by this hash table to the specified <code>newMaxLoadFactor</code>, where load factor is the statistical mean number of elements per bucket. If 'newMaxLoadFactor &lt; loadFactor', allocate at least enough buckets to re-establish the invariant <code>loadFactor &lt;= maxLoadFactor</code>. If this function tries to allocate a number of buckets larger than can be represented by this hash table's <code>SizeType</code>, a <code>std::length_error</code> exception is thrown. The behavior is undefined unless <code>0 &lt; maxLoadFactor</code>. </p>
 
 </div>
 </div>
@@ -682,7 +682,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Exchange the value of this object, its <code>comparator</code> functor, its <code>hasher</code> functor, and its <code>maxLoadFactor</code> with those of the specified <code>other</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee unless any of the <code>comparator</code> or <code>hasher</code> functors throw when swapped, leaving both objects in an safely destructible, but otherwise unusable, state. The operation guarantees O[1] complexity. The behavior is undefined unless either this object has an allocator that compares equal to the allocator of <code>other</code>, or the trait <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Exchange the value of this object, its <code>comparator</code> functor, its <code>hasher</code> functor, and its <code>maxLoadFactor</code> with those of the specified <code>other</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee unless any of the <code>comparator</code> or <code>hasher</code> functors throw when swapped, leaving both objects in an safely destructible, but otherwise unusable, state. The operation guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object has an allocator that compares equal to the allocator of <code>other</code>, or the trait <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -904,7 +904,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>other</code> has the same value as this object, and <code>false</code> otherwise. Two <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> objects have the same value if they have the same number of elements, and for every subset of elements in this object having keys that compare equal (according to that hash table's <code>comparator</code>), a corresponding subset of elements exists in the <code>other</code> object, having the same number of elements, where, for some permutation of the subset in this object, every element in that subset compares equal (using <code>operator==</code>) to the corresponding element in the <code>other</code> subset. This method requires that the <code>ValueType</code> of the parameterized <code>KEY_CONFIG</code> be <a href="group__bslstl__hashtable.html#requirements_on_key_config.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__hashtable.html#requirements_on_key_config" class="el">Requirements on <code>KEY_CONFIG</code></a>). The behavior is undefined unless both the <code>hasher</code> and <code>comparator</code> of this object and the <code>other</code> return the same value for every valid input. </p>
+<p>Return <code>true</code> if the specified <code>other</code> has the same value as this object, and <code>false</code> otherwise. Two <code><a class="el" href="classbslstl_1_1HashTable.html">HashTable</a></code> objects have the same value if they have the same number of elements, and for every subset of elements in this object having keys that compare equal (according to that hash table's <code>comparator</code>), a corresponding subset of elements exists in the <code>other</code> object, having the same number of elements, where, for some permutation of the subset in this object, every element in that subset compares equal (using <code>operator==</code>) to the corresponding element in the <code>other</code> subset. The behavior is undefined unless both the <code>hasher</code> and <code>comparator</code> of this object and the <code>other</code> return the same value for every valid input. Note that this method requires that the <code>ValueType</code> of the parameterized <code>KEY_CONFIG</code> be <a href="group__bslstl__hashtable.html#requirements_on_key_config.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__hashtable.html#requirements_on_key_config" class="el">Requirements on <code>KEY_CONFIG</code></a>). </p>
 
 </div>
 </div>
@@ -1072,7 +1072,7 @@ template&lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt
 <li><a class="el" href="bslstl__hashtable_8h_source.html">bslstl_hashtable.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:44 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:09 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

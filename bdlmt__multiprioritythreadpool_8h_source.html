@@ -1,0 +1,734 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlmt_multiprioritythreadpool.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
+#define INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism to parallelize a prioritized sequence of jobs.
+//
+//@CLASSES:
+//    bdlmt::MultipriorityThreadPool: mechanism to parallelize prioritized jobs
+//
+//@SEE_ALSO: bslmt_threadutil
+//
+//@DESCRIPTION: This component defines an implementation of a thread pool in
+// which work items (&quot;jobs&quot;) are associated with a limited number of integer
+// priorities that determine the sequence in which enqueued jobs are executed.
+// (See the package-level documentation for general information on thread
+// pools.)
+//
+// This flavor of our generalized thread pool model associates an integral
+// priority with each work item.   For efficiency of implementation, these
+// priorities are limited, as indicated at construction, to a relatively small
+// number &#39;N&#39; of contiguous integers &#39;[ 0 .. N - 1 ]&#39;, 0 being the most urgent.
+// For this implementation, the maximum number of priorities &#39;N&#39; is 32.  A
+// fixed number of worker threads is also specified at construction.  Finally,
+// this thread pool takes an optional allocator supplied at construction.
+// Once configured, these instance parameters remain unchanged for the lifetime
+// of each multi-priority thread pool object.
+//
+// The associated priority of a job is relevant only while that job is pending;
+// once a job has begun executing, it will not be interrupted or suspended to
+// make way for a another job regardless of their relative priorities.  While
+// processing jobs, worker threads will always choose a more urgent job (lower
+// integer value for priority) over a less urgent one.  Given two jobs having
+// the same priority value, the one that has been in the thread pool&#39;s queue
+// the longest is selected (FIFO order).  Note that the number of active worker
+// threads does not increase or decrease depending on load.  If no jobs remain
+// to be executed, surplus threads will block until work arrives.  If there are
+// more jobs than threads, excess jobs wait in the queue until previous jobs
+// finish.
+//
+// &#39;bdlmt::MultipriorityThreadPool&#39; provides two interfaces for specifying
+// jobs: the traditional &#39;void function&#39;/&#39;void pointer&#39; interface and the more
+// versatile functor-based interface.  The &#39;void function&#39;/&#39;void pointer&#39;
+// interface allows callers to use a C-style function to be executed as a job.
+// The application need specify only the address of the function, and a single
+// &#39;void *&#39; argument to be passed to the function.  The specified function will
+// be invoked with the specified argument by the processing (worker) thread.
+// The functor-based interface allows for flexible job execution by copying the
+// passed functor and executing its (invokable) &#39;operator()&#39; method.  Note that
+// the functor gets copied twice before it is executed, once when pushed into
+// the queue, and once when popped out of it, something to keep in mind if the
+// object is going to be expensive to copy.  (See the &#39;bdef&#39; package-level
+// documentation for more information on functors and their use.)
+//
+// Note that except in the case where &#39;numThreads() == 1&#39;, we cannot guarantee
+// the exact order of the execution of the jobs in the queue.
+//
+// Finally an application can specify the attributes of the worker threads in a
+// thread pool (e.g., guard size or stack size), by optionally supplying an
+// appropriately configured &#39;bslmt::ThreadAttributes&#39; object.  (See the
+// &#39;bslmt_threadutil&#39; component-level documentation for a description of the
+// &#39;bslmt::ThreadAttributes&#39; class.)  Note that the field pertaining to whether
+// the worker threads should be detached or joinable is ignored.
+//
+///Thread Safety
+///-------------
+// The &#39;bdlmt::MultipriorityThreadPool&#39; class is both *fully thread-safe*
+// (i.e., all non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See &#39;bsldoc_glossary&#39; for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
+// Be aware that the behavior is undefined if any of the following methods are
+// called on a threadpool from any of the threads belonging to that thread
+// pool.
+//: o &#39;stopThreads&#39;
+//: o &#39;suspendProcessing&#39;
+//: o &#39;drainJobs&#39;
+// Note that, in these cases, such undefined behavior may include deadlock.
+//
+///Usage
+///-----
+// The following two examples illustrate use of the multi-priority thread pool
+// provided in this component.
+//
+///Example 1: The &#39;void function&#39;/&#39;void pointer&#39; Interface
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// It is possible to enqueue a job to a multi-priority thread pool as a pointer
+// to a function that takes a single &#39;void *&#39; argument.  This first usage
+// example will demonstrate that high-priority traffic through a thread pool is
+// unimpeded by a much greater quantity of low-priority traffic.
+//
+// The idea here is we have a large number of jobs submitted in too little time
+// for all of them to be completed.  All jobs take the same amount of time to
+// complete, but there are two different priorities of jobs.  There are 100
+// times more jobs of less urgent priority than of the more urgent priority,
+// and there is more than enough time for the jobs of more urgent priority to
+// be completed.  We want to verify that all the jobs of more urgent priority
+// get completed while most of the jobs of less urgent priority do not.  This
+// will demonstrate that we can construct an arrangement where traffic of low
+// priority, while massively more numerous, does not impede the progress of
+// higher-priority jobs:
+//..
+//   bsls::AtomicInt     urgentJobsDone;
+//   bsls::AtomicInt lessUrgentJobsDone;
+//
+//   extern &quot;C&quot; void *urgentJob(void *)
+//   {
+//       bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
+//
+//       ++urgentJobsDone;
+//
+//       return 0;
+//   }
+//
+//   extern &quot;C&quot; void *lessUrgentJob(void *)
+//   {
+//       bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
+//
+//       ++lessUrgentJobsDone;
+//
+//       return 0;
+//   }
+//..
+// The main program (below) enqueues 100 times as many low-priority jobs as
+// high priority ones.  10,100 jobs are submitted, each taking at least 0.01
+// seconds, for a total cpu time of 101 seconds.  We use 20 threads, so that
+// is about 5 seconds.  But we shut down the run after only 0.5 seconds, so
+// that means at least 90% of the jobs will not complete.  When run, typical
+// output of this program is:
+//..
+//  Jobs done: urgent: 100, less urgent: 507
+//..
+// meaning *all* of the urgent jobs completed, while approximately 95% of the
+// less urgent jobs did not:
+//..
+//       bdlmt::MultipriorityThreadPool pool(20,  // # of threads
+//                                         2);  // # of priorities
+//
+//       bsls::TimeInterval finishTime = bdlt::CurrentTime::now() + 0.5;
+//       pool.startThreads();
+//..
+// We use 1 as our less urgent priority, leaving 0 as our urgent priority:
+//..
+//       for (int i = 0; i &lt; 100; ++i) {
+//           for (int j = 0; j &lt; 100; ++j) {
+//               pool.enqueueJob(&amp;lessUrgentJob, (void *) 0, 1); // less urgent
+//           }
+//           pool.enqueueJob(&amp;urgentJob, (void *) 0, 0);         // urgent
+//       }
+//
+//       bslmt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+//       pool.shutdown();
+//
+//       bsl::cout &lt;&lt; &quot;Jobs done: urgent: &quot; &lt;&lt; urgentJobsDone &lt;&lt;
+//                    &quot;, less urgent: &quot;     &lt;&lt; lessUrgentJobsDone &lt;&lt; bsl::endl;
+//..
+//
+///Example 2: The Functor-Based Interface
+/// - - - - - - - - - - - - - - - - - - -
+// In this second example we present a multi-threaded algorithm for calculating
+// prime numbers.  This is just to serve as an illustration; although it works,
+// it is not really any faster than doing it with a single thread.
+//
+// For every prime number &#39;P&#39;, we have to mark all multiples of it in two
+// ranges, &#39;[ P .. P ** 2 ]&#39; and &#39;[ P ** 2 .. TOP_NUMBER ]&#39;, as non-prime,
+// where we use 2000 for &#39;TOP_NUMBER&#39; in this example.  For any &#39;P ** 2&#39;, if we
+// can determine that all primes below &#39;P&#39; have marked all their multiples up
+// to &#39;P ** 2&#39;, then we can scan that range and any unmarked values in it will
+// be a new prime.  The we can start out with our first prime, 2, and mark all
+// primes between it and &#39;2 ** 2 == 4&#39;, thus discovering 3 is prime.  Once we
+// have marked all multiples of 2 and 3 below &#39;3 * 3 == 9&#39;, we can then scan
+// that range and discover 5 and 7 are primes, and repeat the process to
+// discover bigger and bigger primes until we have covered an entire range (in
+// this example all ints below TOP_NUMBER == 2000):
+//..
+//   enum {
+//       TOP_NUMBER     = 2000,
+//       NUM_PRIORITIES = 32
+//   };
+//
+//   bool isStillPrime[TOP_NUMBER];
+//   bsls::AtomicInt scannedTo[TOP_NUMBER];  // if &#39;P&#39; is a prime, what is the
+//                                           // highest multiple of &#39;P&#39; that
+//                                           // we have marked
+//                                           // &#39;isStillPrime[P] = false&#39;
+//
+//   bsls::AtomicInt maxPrimeFound;          // maximum prime identified so far
+//   int primeNumbers[TOP_NUMBER];           // elements in the range
+//                                           // &#39;0 .. numPrimeNumbers - 1&#39; are
+//                                           // the prime numbers we have found
+//                                           // so far
+//   bsls::AtomicInt numPrimeNumbers;
+//
+//   bdlmt::MultipriorityThreadPool *threadPool;
+//
+//   bool          doneFlag;                 // set this flag to signal
+//                                           // other jobs that we&#39;re done
+//   bslmt::Barrier doneBarrier(2);           // we wait on this barrier
+//                                           // to signal the main thread
+//                                           // that we&#39;re done
+//
+//   struct Functor {
+//       static bslmt::Mutex s_mutex;
+//       int                d_numToScan;
+//       int                d_priority;
+//       int                d_limit;
+//
+//       Functor(int numToScan)
+//       : d_numToScan(numToScan)
+//       , d_priority(0)
+//       {
+//           d_limit = bsl::min((double) numToScan * numToScan,
+//                              (double) TOP_NUMBER);
+//       }
+//
+//       void setNewPrime(int newPrime) {
+//           maxPrimeFound = newPrime;
+//           primeNumbers[numPrimeNumbers] = newPrime;
+//           ++numPrimeNumbers;
+//
+//           if (2 * newPrime &lt; TOP_NUMBER) {
+//               Functor f(newPrime);
+//
+//               threadPool-&gt;enqueueJob(f, 0);
+//           }
+//       }
+//
+//       void evaluateCandidatesForPrime() {
+//           if (maxPrimeFound &gt; d_limit) {
+//               return;
+//           }
+//
+//           int numToScanI;
+//           for (numToScanI = numPrimeNumbers - 1; numToScanI &gt; 0;
+//                                                           --numToScanI) {
+//               if (primeNumbers[numToScanI] == d_numToScan) {
+//                   break;
+//               }
+//           }
+//           for (int i = numToScanI - 1; i &lt; 0; --i) {
+//               if (TOP_NUMBER &lt; scannedTo[primeNumbers[i]]) {
+//                   for (int j = i + 1; j &lt; numPrimeNumbers; ++j) {
+//                       if (TOP_NUMBER == scannedTo[primeNumbers[j]]) {
+//                           scannedTo[primeNumbers[j]] = TOP_NUMBER + 1;
+//                       }
+//                       else {
+//                           break;
+//                       }
+//                   }
+//                   break;
+//               }
+//
+//               if (scannedTo[primeNumbers[i]] &lt; d_limit) {
+//                   // Not all multiples of all prime numbers below
+//                   // us have been adequately marked as non-prime.  We
+//                   // cannot yet draw any new conclusions about what
+//                   // is and what is not prime in this range.
+//
+//                   // Resubmit ourselves to the back of the priority queue
+//                   // so that we&#39;ll get re-evaluated when previous prime
+//                   // numbers are done scanning.  Note that we could get
+//                   // reenqueued several times.
+//
+//                   // Note that jobs marking the &#39;isStillPrime&#39; array are
+//                   // at priority 0, while later incarnations that can
+//                   // only set new primes are at priority 1 and keep
+//                   // getting resubmitted at less and less urgent
+//                   // priorities until all their prerequisites (which
+//                   // are at priority 0) are done.
+//
+//                   d_priority = bsl::min(NUM_PRIORITIES - 2,
+//                                         d_priority + 1);
+//                   threadPool-&gt;enqueueJob(*this, d_priority);
+//
+//                   return;
+//               }
+//           }
+//
+//           // Everything up to &#39;d_limit&#39; that has not been marked
+//           // non-prime is prime.
+//
+//           bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;s_mutex);
+//
+//           for (int i = maxPrimeFound + 1; d_limit &gt; i; ++i) {
+//               if (isStillPrime[i]) {
+//                   setNewPrime(i);
+//               }
+//           }
+//
+//           if (TOP_NUMBER == d_limit &amp;&amp; !doneFlag) {
+//               // We have successfully listed all primes below &#39;TOP_NUMBER&#39;.
+//               // Touch the done barrier and our caller will then know that
+//               // we are done and shut down the queue.
+//
+//               doneFlag = true;
+//               doneBarrier.wait();
+//           }
+//       }
+//
+//       void operator()() {
+//           if (0 == d_priority) {
+//               bsls::AtomicInt&amp; rScannedTo = scannedTo[d_numToScan];
+//
+//               for (int i = d_numToScan; i &lt; d_limit; i += d_numToScan) {
+//                   isStillPrime[i] = false;
+//                   rScannedTo = i;
+//               }
+//
+//               d_priority = 1;
+//               threadPool-&gt;enqueueJob(*this, d_priority);
+//
+//               for (int i = d_limit; i &lt; TOP_NUMBER; i += d_numToScan) {
+//                   isStillPrime[i] = false;
+//                   rScannedTo = i;
+//               }
+//               rScannedTo = TOP_NUMBER;
+//           }
+//           else {
+//               evaluateCandidatesForPrime();
+//           }
+//       }
+//   };
+//   bslmt::Mutex Functor::s_mutex;
+//..
+// and in the main program:
+//..
+//         for (int i = 0; TOP_NUMBER &gt; i; ++i) {
+//             isStillPrime[i] = true;
+//             scannedTo[i] = 0;
+//         }
+//
+//         scannedTo[0] = TOP_NUMBER + 1;
+//         scannedTo[1] = TOP_NUMBER + 1;
+//
+//         maxPrimeFound = 2;
+//         primeNumbers[0] = 2;
+//         numPrimeNumbers = 1;
+//         doneFlag = false;
+//
+//         bdlmt::MultipriorityThreadPool threadPool(20, NUM_PRIORITIES);
+//         threadPool.startThreads();
+//
+//         Functor f(2);
+//         threadPool.enqueueJob(f, 0);
+//
+//         doneBarrier.wait();
+//
+//         threadPool.shutdown();
+//
+//         if (verbose) {
+//             printf(&quot;%d prime numbers below %d:&quot;, (int) numPrimeNumbers,
+//                                                  TOP_NUMBER);
+//
+//             for (int i = 0; numPrimeNumbers &gt; i; ++i) {
+//                 printf(&quot;%s%4d&quot;, 0 == i % 10 ? &quot;\n    &quot; : &quot;, &quot;,
+//                                                          primeNumbers[i]);
+//             }
+//             printf(&quot;\n&quot;);
+//         }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLCC_MULTIPRIORITYQUEUE
+#include &lt;bdlcc_multipriorityqueue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include &lt;bslmt_threadattributes.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include &lt;bslmt_threadutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADGROUP
+#include &lt;bslmt_threadgroup.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    #ifndef INCLUDED_BSL_C_SIGNAL
+    #include &lt;bsl_c_signal.h&gt;
+    #endif
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdlmt {
+                       // =============================
+                       // class MultipriorityThreadPool
+                       // =============================
+
+class MultipriorityThreadPool {
+    // This class implements a thread-enabled, integrally-prioritized
+    // thread-pool mechanism used for concurrently executing multiple
+    // user-defined &quot;jobs&quot; supplied as either conventional C-style functions
+    // taking an optional &#39;void *&#39; data argument, or as more flexible functor
+    // objects.
+
+  public:
+    // TYPES
+    typedef bsl::function&lt;void()&gt; ThreadFunctor;
+        // &#39;ThreadFunctor&#39; is an alias for a function object that is invokable
+        // (with no arguments) and returns &#39;void&#39;; its use is similar to that
+        // of a C-style function pointer and optional &#39;void *&#39; data pointer
+        // passed as arguments when creating a thread.
+
+    enum {
+        k_MAX_NUM_PRIORITIES = sizeof(int) * CHAR_BIT  // bits per &#39;int&#39;
+    };
+
+  private:
+    // DATA
+    bslmt::Mutex            d_mutex;      // mutex for worker threads as they
+                                          // analyze state, and for methods
+                                          // that manipulate that state
+
+    bslmt::Mutex            d_metaMutex;  // mutex for &#39;[start|stop]Threads&#39;,
+                                          // &#39;[suspend|resume]Processing&#39;,
+                                          // &#39;drainJobs&#39;; this mutex gets
+                                          // locked much less frequently than
+                                          // &#39;d_mutex&#39;, but for longer periods
+                                          // of time
+
+    bdlcc::MultipriorityQueue&lt;ThreadFunctor&gt;
+                            d_queue;      // pending job queue
+
+    bslmt::ThreadAttributes d_threadAttributes;
+                                          // user-supplied attributes of all
+                                          // the threads this pool spawns
+
+    bslmt::ThreadGroup      d_threadGroup;
+                                          // thread group managing our threads
+
+    const int               d_numThreads;
+                                          // user-supplied number of threads
+                                          // to be used to process jobs
+
+    bsls::AtomicInt         d_threadStartState;
+                                          // enum of type &#39;StartState&#39; (local
+                                          // to .cpp) regarding whether threads
+                                          // are started
+
+    bsls::AtomicInt         d_threadSuspendState;
+                                          // enum of type &#39;ResumeState&#39; (local
+                                          // to .cpp) regarding whether threads
+                                          // are suspended
+
+    bsls::AtomicInt         d_numStartedThreads;
+                                          // number of threads currently
+                                          // started
+
+    bsls::AtomicInt         d_numSuspendedThreads;
+                                          // number of threads currently
+                                          // suspended
+
+    bsls::AtomicInt         d_numActiveThreads;
+                                          // number of threads currently
+                                          // processing jobs
+
+    bslmt::Condition        d_allThreadsStartedCondition;
+                                          // broadcast when number of started
+                                          // threads reaches &#39;d_numThreads&#39;,
+                                          // watched during starting
+
+    bslmt::Condition        d_allThreadsSuspendedCondition;
+                                          // broadcast when number of started
+                                          // threads reaches &#39;d_numThreads&#39;,
+                                          // watched during starting
+
+    bslmt::Condition        d_resumeCondition;
+                                          // broadcast when suspended threads
+                                          // are to resume
+
+    // NOT IMPLEMENTED
+    MultipriorityThreadPool(const MultipriorityThreadPool&amp;);
+    MultipriorityThreadPool&amp; operator=(const MultipriorityThreadPool&amp;);
+
+    // PRIVATE MANIPULATORS
+    void worker();
+        // This method runs in each thread of this multi-priority thread pool,
+        // processing jobs until commanded to stop, in which case the thread
+        // exits to be joined.
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(MultipriorityThreadPool,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    MultipriorityThreadPool(int               numThreads,
+                            int               numPriorities,
+                            bslma::Allocator *basicAllocator = 0);
+    MultipriorityThreadPool(
+                           int                             numThreads,
+                           int                             numPriorities,
+                           const bslmt::ThreadAttributes&amp;  threadAttributes,
+                           bslma::Allocator               *basicAllocator = 0);
+        // Create a multi-priority thread pool capable of concurrently
+        // executing the specified &#39;numThreads&#39; &quot;jobs&quot; with associated integer
+        // priorities in the specified range &#39;[0 .. numPriorities - 1]&#39;, 0
+        // being the most urgent.  Optionally specify &#39;threadAttributes&#39; used
+        // to customize each worker thread created by this thread pool, in
+        // which case the attribute pertaining to whether the worker threads
+        // are created in the detached state is ignored.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  The newly
+        // created thread pool will initially be enabled for enqueuing jobs,
+        // but with no worker threads created.  The behavior is undefined
+        // unless &#39;1 &lt;= numThreads&#39; and
+        // &#39;1 &lt;= numPriorities &lt;= k_MAX_NUM_PRIORITIES&#39;.
+
+    ~MultipriorityThreadPool();
+        // Remove (cancel) all pending jobs and destroy this multi-priority
+        // thread pool.  The behavior is undefined unless this thread pool is
+        // stopped.
+
+    // MANIPULATORS
+    int enqueueJob(const ThreadFunctor&amp; job, int priority);
+        // Add the specified &#39;job&#39; to the queue of this multi-priority thread
+        // pool, assigning it the specified &#39;priority&#39;.  Return 0 if the job
+        // was enqueued successfully, and a non-zero value otherwise (implying
+        // that the queue was in the disabled state).  The behavior is
+        // undefined unless &#39;0 &lt;= priority &lt; numPriorities()&#39;.
+
+    int enqueueJob(bslmt_ThreadFunction  jobFunction,
+                   void                 *jobData,
+                   int                   priority);
+        // Add a job to the queue of this multi-priority thread pool indicated
+        // by the specified &#39;jobFunction&#39; and associated &#39;jobData&#39;, assigning
+        // it the specified &#39;priority&#39;.  Return 0 if the job was enqueued
+        // successfully, and a non-zero value otherwise (implying that the
+        // queue was in the disabled state).  When invoked, &#39;jobFunction&#39; is
+        // passed the &#39;void *&#39; address &#39;jobData&#39; as its only argument.  The
+        // behavior is undefined unless &#39;jobFunction&#39; is non-null and
+        // &#39;0 &lt;= priority &lt; numPriorities()&#39;.  Note that &#39;jobData&#39; may be 0 as
+        // long as &#39;jobFunction&#39; supports that value.
+
+    void enableQueue();
+        // Enable the enqueuing of jobs to this multi-priority thread pool.
+        // When this thread pool is enabled, the status returned when calling
+        // either overloaded &#39;enqueueJob&#39; method will be 0, indicating that the
+        // job was successfully enqueued.  Note that calling this method when
+        // the queue is already in the enabled state has no effect.
+
+    void disableQueue();
+        // Disable the enqueuing of jobs to this multi-priority thread pool.
+        // When this thread pool is disabled, the status returned when calling
+        // either overloaded &#39;enqueueJob&#39; method will be non-zero, indicating
+        // that the job was *not* enqueued.  Note that calling this method when
+        // the queue is already in the disabled state has no effect.
+
+    int startThreads();
+        // Create and start &#39;numThreads()&#39; worker threads in this
+        // multi-priority thread pool.  Return 0 on success, and a non-zero
+        // value with no worker threads and no jobs processed otherwise.  This
+        // method has no impact on the enabled/disabled or suspended/resumed
+        // states of this thread pool.  Note that calling this method when this
+        // thread pool is already in the started state has no effect.  Also
+        // note that until this method is called, the thread pool will not
+        // process any jobs.
+
+    void stopThreads();
+        // Destroy all worker threads of this multi-priority thread pool after
+        // waiting for any active (i.e., already-running) jobs to complete; no
+        // new jobs will be allowed to become active.  This method has no
+        // impact on the enabled/disabled or suspended/resumed states of this
+        // thread pool.  Note that calling this function when this thread pool
+        // is not in the started state has no effect.  Also not that calling
+        // this method from one of the threads belonging to this thread pool
+        // will cause a deadlock.
+
+    void suspendProcessing();
+        // Put this multi-priority thread pool into the suspended state.  This
+        // method does not suspend any jobs that have begun to execute; such
+        // jobs are allowed to complete.  No pending jobs, however, will be
+        // allowed to begin execution until &#39;resumeProcessing()&#39; is called.
+        // This is orthogonal to start/stop, and enable/disable; no threads are
+        // stopped.  If this thread pool is started, this call blocks until all
+        // threads have finished any jobs they were processing and have gone
+        // into suspension.  This method has no effect if this thread pool was
+        // already in the suspended state.  Note that calling this method from
+        // one of the threads belonging to this thread pool will cause a
+        // deadlock.
+
+    void resumeProcessing();
+        // If this multi-priority thread pool is suspended, resume processing
+        // of jobs.  This is orthogonal to start/stop, and enable/disable; no
+        // threads are started.  Note that this method has no effect if this
+        // thread pool is not in the suspended state.
+
+    void drainJobs();
+        // Block until all executing jobs and pending jobs enqueued to this
+        // multi-priority thread pool complete.  This method does not affect
+        // the enabled/disabled state of this thread pool.  If this thread pool
+        // is enabled and jobs are enqueued during draining, this method may
+        // return before all enqueued jobs are executed.  The behavior is
+        // undefined if:
+        //
+        //: o this method is called while this thread pool is stopped or
+        //:   suspended, or
+        //:
+        //: o this method is called concurrently with a call to the
+        //:   &#39;removeJobs&#39; method, or
+        //:
+        //: o this method is called by one of the threads belonging to this
+        //:   thread pool.
+        //
+        // Note that, in these cases, such undefined behavior may include
+        // deadlock.
+
+    void removeJobs();
+        // Remove all pending (i.e., not yet active) jobs from the queue of
+        // this multi-priority thread pool.  This method does not affect the
+        // enabled status of the queue, nor does it affect the started status
+        // or any active jobs in this thread pool.  The behavior is undefined
+        // if this method is called concurrently with the &#39;drainJobs&#39; method.
+        // Note that, in this case, such undefined behavior may include
+        // deadlock.
+
+    void shutdown();
+        // Disable the enqueuing of new jobs to this multi-priority thread
+        // pool, cancel all pending jobs, and stop all worker threads.
+
+    // ACCESSORS
+    bool isEnabled() const;
+        // Return &#39;true&#39; if the enqueuing of new jobs is enabled for this
+        // multi-priority thread pool, and &#39;false&#39; otherwise.
+
+    bool isStarted() const;
+        // Return &#39;true&#39; if all &#39;numThreads()&#39; worker threads (specified at
+        // construction) have been created for this multi-priority thread pool,
+        // and &#39;false&#39; otherwise.
+
+    bool isSuspended() const;
+        // Return &#39;true&#39; if the threads of this multi-priority thread pool are
+        // currently suspended from processing jobs, and &#39;false&#39; otherwise.
+
+    int numActiveThreads() const;
+        // Return a snapshot of the number of threads that are actively
+        // processing jobs for this multi-priority thread pool.  Note that
+        // &#39;0 &lt;= numActiveThreads() &lt;= numThreads()&#39; is an invariant of this
+        // class.
+
+    int numPendingJobs() const;
+        // Return a snapshot of the number of jobs currently enqueued to be
+        // processed by this multi-priority thread pool, but are not yet
+        // running.
+
+    int numPriorities() const;
+        // Return the fixed number of priorities, specified at construction,
+        // that this multi-priority thread pool supports.
+
+    int numStartedThreads() const;
+        // Return the number of threads that have been started for this
+        // multi-priority thread pool.  Note that they may be currently
+        // suspended.
+
+    int numThreads() const;
+        // Returns the fixed number of threads, specified at construction, that
+        // are started by this multi-priority thread pool.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

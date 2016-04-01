@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslh_seedgenerator Component</title>
+<title>BDE 3.0: bslh_seedgenerator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -83,7 +83,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.2">Usage</a> <ul>
 <li>
-<a href="#3.2.1">Example: Seeding hashing algorithms requiring different seed sizes</a> </li>
+<a href="#3.2.1">Example: Seeding Hashing Algorithms Requiring Different Seed Sizes</a> </li>
 </ul>
 </li>
 </ul>
@@ -119,7 +119,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended usage of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example~3A_seeding_hashing_algorithms_requiring_different_seed_sizes"></a> <a class="anchor" id="usage.example~3A_seeding_hashing_algorithms_requiring_different_seed_sizes"></a> <a class="anchor" id="description.usage.example~3A_seeding_hashing_algorithms_requiring_different_seed_sizes"></a> <a class="anchor" id="example"></a> <a class="anchor" id="usage.example"></a> <a class="anchor" id="description.usage.example"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example: Seeding hashing algorithms requiring different seed sizes: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example: Seeding Hashing Algorithms Requiring Different Seed Sizes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we have a number of hashing algorithms that all require different length seeds. Some require 32 bits, some require 64 bits, some even require 1024 bits. We want to generate all these seeds in the same way, but we do not want to keep manually generating seeds of different sizes for these algorithms. Moreover, we want to be able to use all these algorithms through a general purpose functor. To accomplish this, we give all our algorithm the same interface and supply a seed generator, which can create any size seed that the algorithms require. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we write our first hashing algorithm, which accepts a 32-bit seed and returns a 32-bit unsigned int. <br/>
 <br/>
@@ -273,7 +273,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

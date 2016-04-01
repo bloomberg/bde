@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_atomicoperations.h                                            -*-C++-*-
@@ -75,7 +75,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // so may result in incorrect results and/or non-portable code.
 //
 // Atomic operations should not be used in situations where behavior is
-// inherently thread safe and no synchronization is required; although they are
+// inherently thread-safe and no synchronization is required; although they are
 // typically much faster than using high-level synchronization mechanisms to
 // accomplish the same results, atomic operations are typically more expensive
 // (in both speed and code size) than their non-atomic equivalents.
@@ -181,7 +181,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Atomic Integer Operations
 ///-------------------------
-// The atomic integer operations provide thread-safe access for 32 or 64-bit
+// The atomic integer operations provide thread-safe access for 32- or 64-bit
 // signed integer numbers without the use of higher level synchronization
 // mechanisms.  Atomic integers are most commonly used to manipulate shared
 // counters and indices.  Five types of operations are provided; get/set,
@@ -200,7 +200,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-------------------------
 // The atomic pointer operations provide thread-safe access to pointer values
 // without the use of higher level synchronization mechanisms.  They are
-// commonly used to create fast thread safe singly-linked lists.
+// commonly used to create fast thread-safe singly-linked lists.
 //
 ///Usage
 ///-----
@@ -271,7 +271,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Note that functions &#39;createWorkerThread&#39; and &#39;waitAllThreads&#39; can be
 // implemented using any thread-support package.
 //
-///Example 2: Thread-safe Counted Handle
+///Example 2: Thread-Safe Counted Handle
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.
@@ -293,7 +293,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the representation object, in turn, deletes the managed object (&#39;INSTANCE&#39;).
 //
 ///Class &#39;my_CountedHandleRep&#39;
-///-  -  -  -  -  -  -  -  -
+///- - - - - - - - - - - - - -
 // First, we define class &#39;my_CountedHandleRep&#39;.  This class manages a single
 // &#39;INSTANCE&#39; object on behalf of multiple &quot;handle&quot; objects; since different
 // &quot;handle&quot; objects may be active in different threads, class
@@ -341,6 +341,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      int decrement();
 //  };
 //..
+//
 ///Class &#39;my_CountedHandle&#39;
 ///-  -  -  -  -  -  -  - -
 // Then, we create class &#39;my_CountedHandle&#39; that provides an individual handle
@@ -377,6 +378,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      int numReferences() const;
 //  };
 //..
+//
 ///Function Definitions for &#39;my_CountedHandleRep&#39;
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we provide a definition for the &#39;static&#39; &#39;deleteObject&#39; method, which
@@ -441,6 +443,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return bsls::AtomicOperations::decrementIntNv(&amp;d_count);
 //  }
 //..
+//
 ///Function Definitions for &#39;my_CountedHandle&#39;
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we define the first constructor for &#39;my_CountedHandle&#39;, which is used
@@ -1109,9 +1112,9 @@ struct AtomicOperations {
         // guarantee.  The whole operation is performed atomically.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // -----------------------
                            // struct AtomicOperations

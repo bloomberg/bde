@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bsl::weak_ptr</title>
+<title>BDE 3.0: Class bsl::weak_ptr</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -71,10 +71,7 @@
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<h1>bsl::weak_ptr&lt; ELEMENT_TYPE &gt; Class Template Reference<br/>
-<small>
-[<a class="el" href="group__bslstl__sharedptr.html">Component bslstl_sharedptr</a>]</small>
-</h1>  </div>
+<h1>bsl::weak_ptr&lt; ELEMENT_TYPE &gt; Class Template Reference</h1>  </div>
 </div>
 <div class="contents">
 <!-- doxytag: class="bsl::weak_ptr" -->
@@ -84,45 +81,432 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga419d042c15b44670e9e8009d669ff153">element_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a419d042c15b44670e9e8009d669ff153">element_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad857b724f69dc6b25d1797702102549f">weak_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae2adefc8f8926f276c3ecf36daa874f0">weak_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;original)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a468090290f854a0c79c2d20edfd1fbfa">weak_ptr</a> () BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#aa058628ed078b43879ad2927671df44f">weak_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;original) BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga35a234785bed69f0cb3b9c69b466e707">weak_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#af4656d621d9986a84a4eec73889c1300">weak_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other) BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab7aa5423fab31f0cd5d86514d85b13c9">weak_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2aef66bfe030b2aaecc59dcf3717f762">~weak_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga688404a7ec31a3c2da8a8ad097bcb3d4">operator=</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#ab7ebf642a7bde5b2f70653e3609b203e">weak_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other) BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a2aef66bfe030b2aaecc59dcf3717f762">~weak_ptr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#acbd2e8a18dfbd47737096d24a586e019">operator=</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;rhs) BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaec46064b65bcee0e7dbc947c38ceb75f">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#aa10957dea36407b1c5b64bce19ececd9">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs) BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1e3495245099b3146e82bd006e586c70">operator=</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9d4ffeef0e33e4bbb6664605f39467af">reset</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga74555d04ec23d02199d7c79951a5fc65">swap</a> (<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaee9df79d0a4d9bc4aa352692d98490e3">expired</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga839f5aa12ddb60bd5fcc260849b406ac">lock</a> () const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#ad1b8779db73e1feac302ab9df9593aee">operator=</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs) BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a43946151fa2f1548981ca80a17deb2cc">reset</a> () BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#adc5e407688e1d772a457f3013ac94b33">swap</a> (<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> &amp;other) BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a4e34a19971b2203ab308ac1f9ed86c19">expired</a> () const BSLS_CPP11_NOEXCEPT</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a7d55dcea8038439d6fb1ab16e201ddc6">lock</a> () const BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9ec9e1557a53ecc665ac8ff8d38a45b7">owner_before</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a9ec9e1557a53ecc665ac8ff8d38a45b7">owner_before</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga8b95837ff793e790ed40b52877ce67fc">owner_before</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga363c49165444b7f320feab8c3e24c940">rep</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad550e30b99fea724afcc02ad3433e141">use_count</a> () const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a8b95837ff793e790ed40b52877ce67fc">owner_before</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a363c49165444b7f320feab8c3e24c940">rep</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a3f0b8148fc6f0a7ef64add8ff9f626e8">use_count</a> () const BSLS_CPP11_NOEXCEPT</td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga73fb185cab8b7bb5f231491bb497071c">weak_ptr</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#a73fb185cab8b7bb5f231491bb497071c">weak_ptr</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html#aba1611b319f8c340c9b8d3e0e79bd855">BloombergLP::bslstl::SharedPtr_ImpUtil</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class ELEMENT_TYPE&gt;<br/>
  class bsl::weak_ptr&lt; ELEMENT_TYPE &gt;</h3>
 
 <p>This <code>class</code> provides a mechanism to create weak references to reference-counted shared (<code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>) objects. A weak reference provides conditional access to a shared object managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>, but, unlike a shared (or "strong") reference, does not affect the shared object's lifetime. </p>
+<hr/><h2>Member Typedef Documentation</h2>
+<a class="anchor" id="a419d042c15b44670e9e8009d669ff153"></a><!-- doxytag: member="bsl::weak_ptr::element_type" ref="a419d042c15b44670e9e8009d669ff153" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ELEMENT_TYPE <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1weak__ptr.html#a419d042c15b44670e9e8009d669ff153">element_type</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a468090290f854a0c79c2d20edfd1fbfa"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="a468090290f854a0c79c2d20edfd1fbfa" args="() BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a weak pointer in the empty state and referring to no object, i.e., a weak pointer having no representation. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa058628ed078b43879ad2927671df44f"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="aa058628ed078b43879ad2927671df44f" args="(const weak_ptr &amp;original) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>original</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a weak pointer that refers to the same object (if any) as the specified <code>original</code> weak pointer, and increment the number of weak references to the object managed by <code>original</code> (if any). Note that if <code>original</code> is in the empty state, this weak pointer will be initialized to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="af4656d621d9986a84a4eec73889c1300"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="af4656d621d9986a84a4eec73889c1300" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab7ebf642a7bde5b2f70653e3609b203e"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="ab7ebf642a7bde5b2f70653e3609b203e" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a2aef66bfe030b2aaecc59dcf3717f762"></a><!-- doxytag: member="bsl::weak_ptr::~weak_ptr" ref="a2aef66bfe030b2aaecc59dcf3717f762" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::~<a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a> </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy this weak pointer object. If this weak pointer manages a (possibly shared) object, release the weak reference to that object. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="acbd2e8a18dfbd47737096d24a586e019"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="acbd2e8a18dfbd47737096d24a586e019" args="(const weak_ptr &amp;rhs) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> weak pointer. Decrement the number of weak references to the object this weak pointer manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa10957dea36407b1c5b64bce19ececd9"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="aa10957dea36407b1c5b64bce19ececd9" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad1b8779db73e1feac302ab9df9593aee"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="ad1b8779db73e1feac302ab9df9593aee" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> (shared or weak) pointer to the (template parameter) <code>COMPATIBLE_TYPE</code>. Decrement the number of weak references to the object to which this weak pointer currently manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>TYPE *</code>, then a compiler diagnostic will be emitted. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="a43946151fa2f1548981ca80a17deb2cc"></a><!-- doxytag: member="bsl::weak_ptr::reset" ref="a43946151fa2f1548981ca80a17deb2cc" args="() BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reset this weak pointer to the empty state. If this weak pointer manages a (possibly shared) object, then decrement the number of weak references to that object. </p>
+
+</div>
+</div>
+<a class="anchor" id="adc5e407688e1d772a457f3013ac94b33"></a><!-- doxytag: member="bsl::weak_ptr::swap" ref="adc5e407688e1d772a457f3013ac94b33" args="(weak_ptr &amp;other) BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::swap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the states of this weak pointer and the specified <code>other</code> weak pointer such that each will refer to the object (if any) and representation (if any) formerly referred to and managed by the other. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4e34a19971b2203ab308ac1f9ed86c19"></a><!-- doxytag: member="bsl::weak_ptr::expired" ref="a4e34a19971b2203ab308ac1f9ed86c19" args="() const BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::expired </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if this weak pointer is in the empty state or the object that it originally referenced has been destroyed, and <code>false</code> otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="a7d55dcea8038439d6fb1ab16e201ddc6"></a><!-- doxytag: member="bsl::weak_ptr::lock" ref="a7d55dcea8038439d6fb1ab16e201ddc6" args="() const BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::lock </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a shared pointer to the object referred to by this weak pointer if <code>false == <a class="el" href="classbsl_1_1weak__ptr.html#a4e34a19971b2203ab308ac1f9ed86c19">expired()</a></code>, and a shared pointer in the empty state otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="a9ec9e1557a53ecc665ac8ff8d38a45b7"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="a9ec9e1557a53ecc665ac8ff8d38a45b7" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a8b95837ff793e790ed40b52877ce67fc"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="a8b95837ff793e790ed40b52877ce67fc" args="(const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by this weak pointer is ordered before the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by the specified <code>other</code> shared pointer under the total ordering defined by <code>std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;</code>, and <code>false</code> otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="a363c49165444b7f320feab8c3e24c940"></a><!-- doxytag: member="bsl::weak_ptr::rep" ref="a363c49165444b7f320feab8c3e24c940" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">BloombergLP::bslma::SharedPtrRep* <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::rep </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address providing modifiable access to the <code>BloombergLP::bslma::SharedPtrRep</code> object held by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3f0b8148fc6f0a7ef64add8ff9f626e8"></a><!-- doxytag: member="bsl::weak_ptr::use_count" ref="a3f0b8148fc6f0a7ef64add8ff9f626e8" args="() const BSLS_CPP11_NOEXCEPT" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">long <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::use_count </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a "snapshot" of the current number of shared pointers that share ownership of the object referred to by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
+
+</div>
+</div>
+<hr/><h2>Friends And Related Function Documentation</h2>
+<a class="anchor" id="a73fb185cab8b7bb5f231491bb497071c"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="a73fb185cab8b7bb5f231491bb497071c" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a><code> [friend]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aba1611b319f8c340c9b8d3e0e79bd855"></a><!-- doxytag: member="bsl::weak_ptr::BloombergLP::bslstl::SharedPtr_ImpUtil" ref="aba1611b319f8c340c9b8d3e0e79bd855" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct BloombergLP::bslstl::SharedPtr_ImpUtil<code> [friend]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:32 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,179 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_util.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_UTIL
+#define INCLUDED_BALXML_UTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a suite of common XML utilities.
+//
+//@CLASSES:
+//  balxml::Util: namespace for common XML utilities
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a namespace, &#39;balxml::Util&#39;, for
+// various XML utilities.  Included is a method for extracting the
+// &#39;targetNamespace&#39; from an XSD schema.  Any top-level XSD schema must have a
+// &#39;targetNamespace&#39; attribute in the &#39;&lt;schema&gt;&#39; element that identifies the
+// namespace that the XSD schema defines.
+//
+// Note that a valid XSD file must have this attribute for the root element
+// &#39;&lt;schema&gt;&#39; and the only place that the token &quot;targetNamespace&quot; can appear
+// prior to its occurrence as the required attribute is in the comment
+// string(s) before &#39;&lt;schema&gt;&#39;.  And any comments cannot be embedded in other
+// comments or inside a tag.  The extraction algorithm relies on these XML
+// facts to jump over any comments prior to the first occurrence of
+// &quot;targetNamespace&quot; and extract the attribute value.  It leaves all other
+// validation of &#39;xsdSource&#39; to a parser.
+//
+///Usage
+///-----
+//..
+//  // &#39;etalon&#39; targetNamespace:
+//  static const char *targetNs = &quot;http://localhost:2000/calc.wsdl&quot;;
+//
+//  // well-formed and correct XSD:
+//  static const char goodSchema[] =
+//      &quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;&quot;
+//      &quot; &lt;schema targetNamespace=&#39;http://localhost:2000/calc.wsdl&#39;&quot;
+//      &quot;        elementFormDefault=&#39;qualified&#39;&quot;
+//      &quot;        xmlns=&#39;http://www.w3.org/2001/XMLSchema&#39;&quot;
+//      &quot;        xmlns:xs=&#39;http://www.w3.org/2001/XMLSchema&#39;&quot;
+//      &quot;        xmlns:bdem=&#39;http://bloomberg.com/schemas/bdem&#39;&quot;
+//      &quot;        xmlns:m_bascalc=&#39;http://localhost:2000/calc.wsdl&#39;&quot;
+//      &quot;        xmlns:tns=&#39;http://localhost:2000/calc.wsdl&#39;&quot;
+//      &quot;   &lt;xs:complexType name=&#39;Options&#39;&gt;&quot;
+//      &quot;   &lt;xs:sequence&gt;&quot;
+//      &quot;      &lt;xs:element name=&#39;MaxDepth&#39; type=&#39;xs:int&#39;&quot;
+//      &quot;                  minOccurs=&#39;0&#39; maxOccurs=&#39;1&#39;&quot;
+//      &quot;                  default=&#39;32&#39;&quot;
+//      &quot;                  bdem:allowsDirectManipulation=&#39;0&#39;&gt;&quot;
+//      &quot;      &lt;/xs:element&gt;&quot;
+//      &quot;    &lt;/xs:sequence&gt;&quot;
+//      &quot;  &lt;/xs:complexType&gt;&quot;
+//      &quot;  &lt;complexType name=&#39;Configuration&#39;&gt;&quot;
+//      &quot;    &lt;sequence&gt;&quot;
+//      &quot;      &lt;element name=&#39;Options&#39; type=&#39;m_bascalc:Options&#39;/&gt;&quot;
+//      &quot;    &lt;/sequence&gt;&quot;
+//      &quot;  &lt;/complexType&gt;&quot;
+//      &quot;  &lt;element name=&#39;Configuration&#39; type=&#39;m_bascalc:Options&#39;/&gt;&quot;
+//      &quot;&lt;/schema&gt;&quot;;
+//
+//  // well-formed XSD with no target namespace:
+//  static const char badSchema1[] =
+//      &quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;&quot;
+//      &quot;        elementFormDefault=&#39;qualified&#39;&quot;
+//      &quot;        xmlns=&#39;http://www.w3.org/2001/XMLSchema&#39;&quot;
+//      &quot;        xmlns:xs=&#39;http://www.w3.org/2001/XMLSchema&#39;&quot;
+//      &quot;        xmlns:bdem=&#39;http://bloomberg.com/schemas/bdem&#39;&quot;
+//      &quot;        xmlns:m_bascalc=&#39;http://localhost:2000/calc.wsdl&#39;&quot;
+//      &quot;        xmlns:tns=&#39;http://localhost:2000/calc.wsdl&#39;&quot;
+//      &quot;   &lt;xs:complexType name=&#39;Options&#39;&gt;&quot;
+//      &quot;   &lt;xs:sequence&gt;&quot;
+//      &quot;      &lt;xs:element name=&#39;MaxDepth&#39; type=&#39;xs:int&#39;&quot;
+//      &quot;                  minOccurs=&#39;0&#39; maxOccurs=&#39;1&#39;&quot;
+//      &quot;                  default=&#39;32&#39;&quot;
+//      &quot;                  bdem:allowsDirectManipulation=&#39;0&#39;&gt;&quot;
+//      &quot;      &lt;/xs:element&gt;&quot;
+//      &quot;    &lt;/xs:sequence&gt;&quot;
+//      &quot;  &lt;/xs:complexType&gt;&quot;
+//      &quot;  &lt;complexType name=&#39;Configuration&#39;&gt;&quot;
+//      &quot;    &lt;sequence&gt;&quot;
+//      &quot;      &lt;element name=&#39;Options&#39; type=&#39;m_bascalc:Options&#39;/&gt;&quot;
+//      &quot;    &lt;/sequence&gt;&quot;
+//      &quot;  &lt;/complexType&gt;&quot;
+//      &quot;  &lt;element name=&#39;Configuration&#39; type=&#39;m_bascalc:Options&#39;/&gt;&quot;
+//      &quot;&lt;/schema&gt;&quot;;
+//
+//  bsl::string strGood(goodSchema);
+//  bsl::string strBad1(badSchema1);
+//
+//  bsl::string resultNs;
+//  bool rc;
+//
+//  rc = balxml::Util::extractNamespaceFromXsd(strGood, &amp;resultNs);
+//  assert(rc);
+//  assert(resultNs == targetNs);
+//
+//  resultNs.clear();
+//  rc = balxml::Util::extractNamespaceFromXsd(strBad1, &amp;resultNs);
+//  assert(!rc);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include &lt;bsl_streambuf.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP  {
+
+namespace balxml {
+                                // ===========
+                                // struct Util
+                                // ===========
+
+struct Util {
+
+    // CLASS METHODS
+    static bool extractNamespaceFromXsd(const bsl::string&amp;  xsdSource,
+                                        bsl::string        *targetNamespace);
+
+    static bool extractNamespaceFromXsd(bsl::streambuf *xsdSource,
+                                        bsl::string    *targetNamespace);
+        // Extract the target namespace from the XSD schema in the specified
+        // &#39;xsdSource&#39; and load it into the specified &#39;targetNamespace&#39;.
+        // Return &#39;true&#39; on success, and &#39;false&#39; otherwise.  Note that a valid
+        // XSD schema must have a &#39;targetNamespace&#39; attribute in the &#39;&lt;schema&gt;&#39;
+        // element that identifies the namespace that the XSD schema defines.
+        // If no such attribute is found, or the &#39;xsdSource&#39; is ill-formed,
+        // this method returns &#39;false&#39;.  Otherwise, it returns &#39;true&#39; and
+        // populates the output parameter &#39;targetNamespace&#39; with the value in
+        // the first &#39;attribute=&quot;value&quot;&#39; pair found for the target namespace.
+};
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

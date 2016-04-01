@@ -1,0 +1,341 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_arrayutil.h                                                   -*-C++-*-
+#ifndef INCLUDED_BDLB_ARRAYUTIL
+#define INCLUDED_BDLB_ARRAYUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#  include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to determine properties of fixed-sized arrays.
+//
+//@CLASSES:
+// bdlb::ArrayUtil: namespace for array access function templates.
+//
+//@MACROS:
+// BDLB_ARRAYUTIL_SIZE: get a constant expression with an array&#39;s length.
+// BDLB_ARRAYUTIL_LENGTH: get a constant expression with an array&#39;s length.
+//
+//@DESCRIPTION: This component provides a utility &#39;struct&#39;, &#39;bdlb::ArrayUtil&#39;,
+// that serves as a namespace for a collection of function templates providing
+// access to the length and iterators of statically sized built-in arrays.
+//
+// The basic idea is that the compiler knows the length of statically sized
+// arrays and the corresponding information can be exposed using simple
+// function templates.  The use of these function templates is easier and safer
+// than the alternatives like use of &#39;sizeof&#39; (turning the array into a pointer
+// doesn&#39;t cause the use of &#39;sizeof&#39; to fail at compile-time but it yields a
+// wrong result) or manually specifying the length of an array.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// When creating a sequence of values it is often easy to write the sequence as
+// an initialized array and use this array to initialize a container.  Since
+// the array&#39;s length may be changed as the program is maintained, the code
+// using the array should automatically determine the array&#39;s length or
+// automatically determine iterators to the beginning and the end of the array.
+//
+// For example, to initialize a &#39;bsl::vector&lt;int&gt;&#39; with the first few prime
+// numbers stored in an array the following code uses the &#39;begin&#39; and &#39;end&#39;
+// methods of &#39;bdlb::ArrayUtil&#39;:
+//..
+//  void usePrimes(bool verbose)
+//  {
+//      if (verbose) cout &lt;&lt; &quot;\n&quot; &lt;&lt; &quot;&#39;usePrimes&#39;&quot; &lt;&lt; &quot;\n&quot;
+//                                &lt;&lt; &quot;===========&quot; &lt;&lt; &quot;\n&quot;;
+//
+//      const int        primes[] = { 2, 3, 5, 7, 11, 13, 17 };
+//      bsl::vector&lt;int&gt; values(bdlb::ArrayUtil::begin(primes),
+//                              bdlb::ArrayUtil::end(primes));
+//
+//      assert(values.size() == bdlb::ArrayUtil::size(primes));
+//..
+// Notice that, after constructing &#39;values&#39; with the content of the array
+// &#39;primes&#39; the assertion verifies that the correct number of values is stored
+// in &#39;values&#39;.
+//
+// When the length is needed as a constant expression, e.g., to use it for the
+// length of another array, the macro &#39;BDLB_ARRAYUTIL_LENGTH(array)&#39; can be
+// used:
+//..
+//      int reversePrimes[BDLB_ARRAYUTIL_SIZE(primes)];
+//
+//      bsl::copy(values.rbegin(),
+//                values.rend(),
+//                bdlb::ArrayUtil::begin(reversePrimes));
+//
+//      assert(bsl::mismatch(bdlb::ArrayUtil::rbegin(primes),
+//                           bdlb::ArrayUtil::rend(primes),
+//                           bdlb::ArrayUtil::begin(reversePrimes)).second
+//             == bdlb::ArrayUtil::end(reversePrimes));
+//  }
+//..
+// After defining the array &#39;reversePrimes&#39; with the same length as &#39;primes&#39;
+// the elements of &#39;values&#39; are copied in reverse order into this array.  The
+// assertion verifies that &#39;reversePrimes&#39; contains the values from &#39;primes&#39;
+// but in reverse order: &#39;bsl::mismatch&#39; is used with a reverse sequence of
+// &#39;primes&#39; by using the &#39;rbegin&#39; and &#39;rend&#39; methods for &#39;primes&#39; and normal
+// sequence using the &#39;begin&#39; and &#39;end&#39; methods for &#39;reversePrimes&#39;.
+//
+///Example 2: Use with Database Interfaces
+///- - - - - - - - - - - - - - - - - - - -
+// The functions &#39;begin&#39;, &#39;end&#39;, and &#39;size&#39; provided by this component are
+// similar to functions provided by containers.  The main difference is that
+// they reside in a utility component rather than being member functions.
+//
+// A typical use case for the &#39;size&#39; function is a function expecting a pointer
+// to a sequence of keys (e.g., columns in a database) and the number of the
+// keys in the sequence:
+//..
+//  void query(bsl::string       *result,
+//             const bsl::string *columns,
+//             int                numberOfColumns)
+//  {
+//
+//      // Query the database....
+//
+//  }
+//
+//  void loadData(bsl::vector&lt;bsl::string&gt; *data)
+//  {
+//      const bsl::string columns[] = { &quot;column1&quot;, &quot;column2&quot;, &quot;column3&quot; };
+//      bsl::string       result[BDLB_ARRAYUTIL_SIZE(columns)];
+//
+//      query(result, columns, bdlb::ArrayUtil::size(columns));
+//      data-&gt;assign(bdlb::ArrayUtil::begin(result),
+//                   bdlb::ArrayUtil::end(result));
+//  }
+//..
+// The &#39;loadData&#39; function shows how to use the different function templates.
+// The array &#39;columns&#39; doesn&#39;t have a length specified.  It is determined from
+// the number of elements it is initialized with.  In this case it is easy to
+// see that there are three elements but in real situations the number of
+// elements can be non-trivial to get right.  Also, changing the number of
+// elements would make it necessary to apply the corresponding change in
+// multiple places.  Thus, the length is determined using &#39;bdlb::ArrayUtil&#39;:
+//
+//: o The length of &#39;result&#39; should match the length of &#39;columns&#39;.  When
+//:   specifying the length of an array a constant expression is necessary.  In
+//:   C++ 2011 the function &#39;bdlb::ArrayUtil::size&#39; could return a constant
+//:   expression but compilers not, yet, implementing the standard a trick must
+//:   be used (using &#39;sizeof&#39; with a reference to suitably sized array of
+//:   &#39;char&#39;).  This trick is packaged into the macro &#39;BDLB_ARRAYUTIL_SIZE()&#39;.
+//:
+//: o When the length is needed in a context where a &#39;const&#39; expression is not
+//:   required, e.g., when calling &#39;query&#39;, the `bdlb::ArrayUtil::size&#39;
+//:   function can be used with the array.
+//:
+//: o The &#39;bdlb::ArrayUtil::begin&#39; and &#39;bdlb::ArrayUtil::end&#39; functions are
+//:   used to obtain &#39;begin&#39; and &#39;end&#39; iterators used with the vector&#39;s
+//:   &#39;assign&#39; function to put the &#39;result&#39; obtained from the call to &#39;query&#39;
+//:   into the &#39;vector&#39; pointed to by &#39;data&#39;.
+//
+// Similar needs for an array of a sequence of values frequently arise when
+// using one of the database interfaces.
+//
+// Another common use case are test cases where the content of a computed
+// sequence must be compared with an expected result:
+//..
+//  void checkData(const bsl::vector&lt;bsl::string&gt;&amp; data)
+//  {
+//      const bsl::string expect[] = {
+//                                       // ...
+//                                   };
+//      assert(data.size() == bdlb::ArrayUtil::size(expect));
+//      assert(bdlb::ArrayUtil::end(expect)
+//          == bsl::mismatch(bdlb::ArrayUtil::begin(expect),
+//                           bdlb::ArrayUtil::end(expect),
+//                           data.begin()).first);
+//  }
+//..
+// In the code below the actual result in &#39;data&#39; is compared to the values in
+// the array &#39;expect&#39;:
+//
+//: 1 We make sure that the lengths of &#39;data&#39; and &#39;expect&#39; are identical using
+//:   &#39;bdlb::ArrayUtil::size&#39;.
+//:
+//: 2 The sequences are compared using the &#39;mismatch&#39; algorithm: To get the
+//:   begin and of the &#39;expect&#39; array &#39;bdlb::ArrayUtil::begin&#39; and
+//:   &#39;bdlb::ArrayUtil::end&#39;, respectively, are used.
+//..
+//  void getAndCheckData(bool verbose)
+//  {
+//      if (verbose) cout &lt;&lt; &quot;\n&quot; &lt;&lt; &quot;&#39;getAndCheckData&#39;&quot; &lt;&lt; &quot;\n&quot;
+//                                &lt;&lt; &quot;=================&quot; &lt;&lt; &quot;\n&quot;;
+//      bsl::vector&lt;bsl::string&gt; data;
+//      loadData(&amp;data);
+//      checkData(data);
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include &lt;bsl_iterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#define BDLB_ARRAYUTIL_SIZE(a) sizeof(BloombergLP::bdlb::ArrayUtil::sizer(a))
+    // Return the number of elements in the passed array &#39;a&#39; as a constant
+    // expression.
+
+#define BDLB_ARRAYUTIL_LENGTH(a) sizeof(BloombergLP::bdlb::ArrayUtil::sizer(a))
+    // Return the number of elements in the passed array &#39;a&#39; as a constant
+    // expression.
+
+namespace BloombergLP {
+namespace bdlb {
+                            // ====================
+                            // struct bdeuArrayUtil
+                            // ====================
+
+struct ArrayUtil {
+    // This &#39;struct&#39; provides a namespace for a collection of function
+    // templates providing access to the length and iterators of statically
+    // sized built-in arrays
+
+    // CLASS METHODS
+
+                      // ** iterators **
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static TYPE *begin(TYPE (&amp;array)[LENGTH]);
+        // Return an iterator pointing to the first element of the specified
+        // &#39;array&#39; of template parameter &#39;LENGTH&#39; elements of template
+        // parameter &#39;TYPE&#39;.
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static TYPE *end(TYPE (&amp;array)[LENGTH]);
+        // Return the past-the-end iterator for the specified &#39;array&#39; of
+        // template parameter &#39;LENGTH&#39; elements of template parameter &#39;TYPE&#39;.
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static bsl::reverse_iterator&lt;TYPE *&gt; rbegin(TYPE (&amp;array)[LENGTH]);
+        // Return a reverse iterator pointing to the last element of the
+        // specified &#39;array&#39; of template parameter &#39;LENGTH&#39; elements of
+        // template parameter &#39;TYPE&#39;.
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static bsl::reverse_iterator&lt;TYPE *&gt; rend(TYPE (&amp;array)[LENGTH]);
+        // Return the past-the-end reverse iterator for the specified &#39;array&#39;
+        // of template parameter &#39;LENGTH&#39; elements of template parameter
+        // &#39;TYPE&#39;.
+
+                      // ** size and length **
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static bsl::size_t length(TYPE (&amp;array)[LENGTH]);
+        // Return the number of elements in the specified &#39;array&#39; of template
+        // parameter &#39;LENGTH&#39; elements of template parameter &#39;TYPE&#39;.  This
+        // method is synonymous with the &#39;size&#39; method.
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static bsl::size_t size(TYPE (&amp;array)[LENGTH]);
+        // Return the number of elements in the specified &#39;array&#39; of template
+        // parameter &#39;LENGTH&#39; elements of template parameter &#39;TYPE&#39;.  This
+        // method is synonymous with the &#39;length&#39; method.
+
+    template &lt;class TYPE, bsl::size_t LENGTH&gt;
+    static char (&amp;sizer(TYPE (&amp;array)[LENGTH]))[LENGTH];
+        // Return a reference to an array of &#39;char&#39;s with the same number of
+        // elements as the specified &#39;array&#39; of template parameter &#39;LENGTH&#39;
+        // elements of template parameter &#39;TYPE&#39;.  This function is *not*
+        // implemented and can only be used in a non-evaluated context.  The
+        // function is used together with &#39;sizeof&#39; to obtain a constant
+        // expression with the &#39;LENGTH&#39; of the &#39;array&#39;.  See
+        // &#39;BDLB_ARRAYUTIL_SIZE&#39; and &#39;BDLB_ARRAYUTIL_LENGTH&#39;.
+};
+
+// ============================================================================
+//                 INLINE AND TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // struct bdeuArrayUtil
+                            // --------------------
+
+// CLASS METHODS
+
+                      // ** iterators **
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+TYPE *ArrayUtil::begin(TYPE (&amp;array)[LENGTH])
+{
+    return array;
+}
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+TYPE *ArrayUtil::end(TYPE (&amp;array)[LENGTH])
+{
+    return array + LENGTH;
+}
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+bsl::reverse_iterator&lt;TYPE *&gt; ArrayUtil::rbegin(TYPE (&amp;array)[LENGTH])
+{
+    return bsl::reverse_iterator&lt;TYPE *&gt;(end(array));
+}
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+bsl::reverse_iterator&lt;TYPE *&gt; ArrayUtil::rend(TYPE (&amp;array)[LENGTH])
+{
+    return bsl::reverse_iterator&lt;TYPE *&gt;(begin(array));
+}
+
+                      // ** size and length **
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+bsl::size_t ArrayUtil::length(TYPE (&amp;)[LENGTH])
+{
+    return LENGTH;
+}
+
+template &lt;class TYPE, bsl::size_t LENGTH&gt;
+inline
+bsl::size_t ArrayUtil::size(TYPE (&amp;)[LENGTH])
+{
+    return LENGTH;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

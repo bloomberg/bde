@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_simplepool Component</title>
+<title>BDE 3.0: bslstl_simplepool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -188,7 +188,7 @@ Namespaces</h2></td></tr>
           <span class="comment">// Return the value of the element on the top of this stack.  The</span>
           <span class="comment">// behavior is undefined unless &#39;1 &lt;= size()&#39;.</span>
 
-      std::size_t size();
+      std::size_t <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>();
           <span class="comment">// Return the number of elements in this stack.</span>
   };
 </pre></div><br/>
@@ -208,7 +208,7 @@ Namespaces</h2></td></tr>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keywordtype">void</span> my_Stack&lt;ALLOCATOR&gt;::push(<span class="keywordtype">int</span> value)
   {
-      Node *newNode = d_pool.allocate();
+      Node *newNode = d_pool.<a class="code" href="classbdlma_1_1Pool.html#af8ec09fd2baf0d59ebf139e8c670577f">allocate</a>();
 
       newNode-&gt;d_value = value;
       newNode-&gt;d_next_p = d_head_p;
@@ -220,11 +220,11 @@ Namespaces</h2></td></tr>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keywordtype">void</span> my_Stack&lt;ALLOCATOR&gt;::pop()
   {
-      <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(0 != size());
+      <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(0 != <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>());
 
       Node *n = d_head_p;
       d_head_p = d_head_p-&gt;d_next_p;
-      d_pool.deallocate(n);
+      d_pool.<a class="code" href="classbdlma_1_1Pool.html#a57e819ddd50e9d26267a36ed2ae2b31a">deallocate</a>(n);
       --d_size;
   }
 
@@ -232,13 +232,13 @@ Namespaces</h2></td></tr>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keywordtype">int</span> my_Stack&lt;ALLOCATOR&gt;::top()
   {
-      <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(0 != size());
+      <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(0 != <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>());
 
       <span class="keywordflow">return</span> d_head_p-&gt;d_value;
   }
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
-  std::size_t my_Stack&lt;ALLOCATOR&gt;::size()
+  std::size_t <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">my_Stack&lt;ALLOCATOR&gt;::size</a>()
   {
       <span class="keywordflow">return</span> d_size;
   }
@@ -269,7 +269,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_managedptr_factorydeleter.h                                  -*-C++-*-
@@ -42,7 +42,7 @@ namespace bslma {
 template &lt;class ELEMENT_TYPE, class FACTORY&gt;
 struct ManagedPtr_FactoryDeleter {
     // This utility provides a general deleter for objects that provide a
-    // &#39;deleteObject&#39; operation (e.g., &#39;bslma::Allocator&#39;, &#39;bdema_Pool&#39;).
+    // &#39;deleteObject&#39; operation (e.g., &#39;bslma::Allocator&#39;, &#39;bdlma_Pool&#39;).
 
     // CLASS METHODS
     static void deleter(void *object, void *factory);

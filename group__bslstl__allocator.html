@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_allocator Component</title>
+<title>BDE 3.0: bslstl_allocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -328,7 +328,7 @@ Functions</h2></td></tr>
 
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> T, <span class="keyword">class</span> ALLOC&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> my_FixedSizeArray&lt;T,ALLOC&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> my_FixedSizeArray&lt;T,ALLOC&gt;&amp; lhs,
                   <span class="keyword">const</span> my_FixedSizeArray&lt;T,ALLOC&gt;&amp; rhs)
   {
       <span class="keywordflow">if</span> (lhs.length() != rhs.length()) {
@@ -366,7 +366,7 @@ Functions</h2></td></tr>
       <span class="comment">// &#39;delete&#39; to supply and free memory.</span>
 
       <span class="comment">// MANIPULATORS</span>
-      <span class="keyword">virtual</span> <span class="keywordtype">void</span> *allocate(size_type size);
+      <span class="keyword">virtual</span> <span class="keywordtype">void</span> *allocate(size_type <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>);
           <span class="comment">// Return a pointer to an uninitialized memory of the specified</span>
           <span class="comment">// &#39;size (in bytes).</span>
 
@@ -395,7 +395,7 @@ Functions</h2></td></tr>
   }
 
   <span class="comment">// MANIPULATORS</span>
-  <span class="keywordtype">void</span> *my_CountingAllocator::allocate(size_type size)
+  <span class="keywordtype">void</span> *my_CountingAllocator::allocate(size_type <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>)
   {
       ++d_blocksOutstanding;
       <span class="keywordflow">return</span> <a class="code" href="group__bdlma__bufferedsequentialpool.html#gae18335d3caf814f9f9cd5250ec6696ad">operator new</a>(size);
@@ -414,7 +414,7 @@ Functions</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Now we can create array objects with different allocator mechanisms. First we create an array, <code>a1</code>, using the default allocator and fill it with the values <code>[ 1 .. 5 ]</code>: <br/>
+ Now we can create array objects with different allocator mechanisms. First we create an array, <code>a1</code>, using the default allocator and fill it with the values <code>[1 .. 5]</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> main() {
 
@@ -1000,7 +1000,7 @@ template&lt;class TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the maximum number of elements of (template parmeter) <code>TYPE</code> that can be allocated using this allocator. Note that there is no guarantee that attempts at allocating fewer elements than the value returned by <code>max_size</code> will not throw. </p>
+<p>Return the maximum number of elements of (template parameter) <code>TYPE</code> that can be allocated using this allocator. Note that there is no guarantee that attempts at allocating fewer elements than the value returned by <code>max_size</code> will not throw. </p>
 
 </div>
 </div>
@@ -1324,7 +1324,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> is a proxy for the specifed <code>rhs</code>, and <code>false</code> otherwise. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> is a proxy for the specified <code>rhs</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
@@ -1354,7 +1354,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> unless the specified <code>lhs</code> is a proxy for the specifed <code>rhs</code>, in which case return <code>false</code>. </p>
+<p>Return <code>true</code> unless the specified <code>lhs</code> is a proxy for the specified <code>rhs</code>, in which case return <code>false</code>. </p>
 
 </div>
 </div>
@@ -1384,7 +1384,7 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>rhs</code> is a proxy for the specifed <code>lhs</code>, and <code>false</code> otherwise. </p>
+<p>Return <code>true</code> if the specified <code>rhs</code> is a proxy for the specified <code>lhs</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
@@ -1414,12 +1414,12 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> unless the specified <code>rhs</code> is a proxy for the specifed <code>lhs</code>, in which case return <code>false</code>. </p>
+<p>Return <code>true</code> unless the specified <code>rhs</code> is a proxy for the specified <code>lhs</code>, in which case return <code>false</code>. </p>
 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:03 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

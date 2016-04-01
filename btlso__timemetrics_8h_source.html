@@ -1,0 +1,232 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_timemetrics.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_TIMEMETRICS
+#define INCLUDED_BTLSO_TIMEMETRICS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide thread-safe time-based categorized metrics.
+//
+//@CLASSES:
+//  btlso::TimeMetrics: accumulator for time-based categorized metrics
+//
+//@DESCRIPTION: This component provides a clock that measures time and
+// accumulates it into one of two categories: &#39;e_IO_BOUND&#39; or &#39;e_CPU_BOUND&#39;.
+//
+///Thread Safety
+///-------------
+// Thread-enabled -- different threads can access an instance of
+// &#39;btlso::TimeMetrics&#39; safely.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The usage shows the basic usage with a &#39;btlso::TimeMetrics&#39;.
+//
+// First, we specify an enumeration listing the categories that we want to
+//measure.  For this example, we will specify two categories:
+//..
+//  enum {
+//      e_CPU_CATEGORY   = 0,
+//      e_IO_CATEGORY    = 1,
+//      e_NUM_CATEGORIES = IO_CATEGORY + 1
+//  };
+//..
+// Then, create a metrics object, keeping two categories, and initially
+// measuring time in the &#39;CPU&#39; category:
+//..
+//  btlso::TimeMetrics metrics(e_NUM_CATEGORIES, e_CPU_CATEGORY);
+//..
+// In order to measure time spent in I/O, e.g., doing &#39;select&#39; calls, we do:
+//..
+//  // perform initializations for &#39;select&#39;
+//
+//  metrics.switchTo(e_IO_CATEGORY);
+//
+//  // do some IO, e.g., &#39;select&#39;
+//..
+// To switch to measuring CPU time, e.g., doing event dispatch, we do:
+//..
+//  metrics.switchTo(e_CPU_CATEGORY);
+//
+//  // dispatch events
+//..
+// At the end of the computation, or periodically, one may report the time
+// spent in each category as follows:
+//..
+//  bsl::cout &lt;&lt; &quot;The total time spent in IO was &quot;
+//            &lt;&lt; metrics.percentage(e_IO_CATEGORY)
+//            &lt;&lt; bsl::endl;
+//
+//  bsl::cout &lt;&lt; &quot;The total time spent in CPU was &quot;
+//            &lt;&lt; metrics.percentage(e_CPU_CATEGORY)
+//            &lt;&lt; bsl::endl;
+//..
+// This metrics may be reset to its initial state by:
+//..
+//  metrics.resetAll();
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include &lt;bsls_atomicoperations.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                           // =================
+                           // class TimeMetrics
+                           // =================
+
+class TimeMetrics {
+    // This class provides a set of metrics data and a mechanism to accumulate
+    // time into one of two categories: &#39;e_IO_BOUND&#39; or &#39;e_CPU_BOUND&#39;.  Use the
+    // method &#39;switchTo&#39; to switch back and forth between these categories.
+
+    // DATA
+    bsl::vector&lt;bsls::TimeInterval&gt; d_categoryStartTimes;
+    bsl::vector&lt;int&gt;                d_categoryTimes;
+
+    int                             d_currentCategory;
+    int                             d_currentTotal;
+
+    mutable bslmt::Mutex            d_dataLock;
+
+  private:
+    // NOT IMPLEMENTED
+    TimeMetrics(const TimeMetrics&amp;);
+    TimeMetrics&amp; operator=(const TimeMetrics&amp;);
+
+  public:
+    // PUBLIC TYPES
+    enum {
+        e_IO_BOUND           = 0, // the processing unit (i.e., thread or
+                                  // process) is blocked in an IO operation
+
+        e_CPU_BOUND          = 1, // the processing unit (i.e., thread or
+                                  // process) is executing CPU-bound block of
+                                  // code
+
+        e_MIN_NUM_CATEGORIES = e_CPU_BOUND + 1
+
+
+    };
+
+    // CREATORS
+    TimeMetrics(int               numCategories,
+                int               initialCategory,
+                bslma::Allocator *basicAllocator = 0);
+        // Create a metrics that distinguishes between the specified
+        // &#39;numCategories&#39; different categories having the specified
+        // &#39;initialCategory&#39;.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // &#39;e_MIN_NUM_CATEGORIES &lt;= numCategories&#39; and
+        // &#39;0 &lt;= initialCategory &lt; numCategories&#39;.
+
+    ~TimeMetrics();
+        // Destroy this object.
+
+    // MANIPULATORS
+    int percentage(int category);
+        // Return the percent value in the range [0..100] (inclusive) that
+        // reflects the percentage of time spent for the specified &#39;category&#39;
+        // since the last time this metrics was reset (or creation, if reset
+        // never happened).
+
+    void switchTo(int category);
+        // Switch from the current category to the specified &#39;category&#39;.  The
+        // behavior is undefined unless &#39;0 &lt;= category &lt; numCategories()&#39;.
+
+    void resetAll();
+        // Reset the time values for each category to 0.
+
+    void resetStartTimes();
+        // Reset the start times for each category to
+        // &#39;bdlt::CurrentTime::now()&#39;.
+
+    // ACCESSORS
+    int currentCategory() const;
+        // Return the current time category.
+
+    int numCategories() const;
+        // Return the total number of categories.
+};
+
+//-----------------------------------------------------------------------------
+//                      INLINE FUNCTION DEFINITIONS
+//-----------------------------------------------------------------------------
+
+                           // -----------------
+                           // class TimeMetrics
+                           // -----------------
+
+inline
+int TimeMetrics::numCategories() const
+{
+    return static_cast&lt;int&gt;(d_categoryTimes.size());
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

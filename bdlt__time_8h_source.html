@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlt_time.h                                                        -*-C++-*-
@@ -111,6 +111,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bdlt_timeunitratio.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include &lt;bslh_hash.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
 #endif
@@ -135,7 +139,7 @@ namespace bdlt {
                         // ==========
 
 class Time {
-    // This class implements a value semantic type that represents the time of
+    // This class implements a value-semantic type that represents the time of
     // day to a resolution of one millisecond.  Each object of this (almost)
     // simply constrained attribute class *always* represents a valid time
     // value to a resolution of one millisecond.  The valid range for times is
@@ -161,6 +165,8 @@ class Time {
     friend bool operator&lt;=(const Time&amp;, const Time&amp;);
     friend bool operator&gt;=(const Time&amp;, const Time&amp;);
     friend bool operator&gt; (const Time&amp;, const Time&amp;);
+    template &lt;class HASHALG&gt;
+    friend void hashAppend(HASHALG&amp; hashAlg, const Time&amp;);
 
   public:
     // CLASS METHODS
@@ -380,6 +386,13 @@ class Time {
 };
 
 // FREE OPERATORS
+template &lt;class HASHALG&gt;
+void hashAppend(HASHALG&amp; hashAlg, const Time&amp; time);
+    // Pass the specified &#39;time&#39; to the specified &#39;hashAlg&#39;.  Note that this
+    // function is intended to integrate with the &#39;bslh&#39; modular hashing
+    // system, and effectively provides a &#39;bsl::hash&#39; specialization for
+    // &#39;time&#39;.
+
 Time operator+(const Time&amp; lhs, const DatetimeInterval&amp; rhs);
     // Return a &#39;Time&#39; value that is the sum of the specified &#39;lhs&#39; time and
     // the specified &#39;rhs&#39; datetime interval.
@@ -623,6 +636,13 @@ STREAM&amp; Time::bdexStreamOut(STREAM&amp; stream, int version) const
 }  // close package namespace
 
 // FREE OPERATORS
+template &lt;typename HASHALG&gt;
+void bdlt::hashAppend(HASHALG&amp; hashAlg, const Time&amp; time)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, time.d_milliseconds);
+}
+
 inline
 bdlt::Time bdlt::operator+(const Time&amp; lhs, const DatetimeInterval&amp; rhs)
 {

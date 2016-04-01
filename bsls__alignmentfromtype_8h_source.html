@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_alignmentfromtype.h                                           -*-C++-*-
@@ -54,8 +54,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Usage
 ///-----
-///Usage Example 1
-///- - - - - - - -
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Static &quot;Database&quot; of Types
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following shows how &#39;bsls::AlignmentFromType&lt;T&gt;::VALUE&#39; can be used to
 // create a static &quot;database&quot; of types storing their size and required
 // alignment.
@@ -78,8 +80,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //     { MY_POINTER,  sizeof(void *), bsls::AlignmentFromType&lt;void *&gt;::VALUE }
 //  };
 //..
-///Usage Example 2
-///- - - - - - - -
+//
+///Example 2: Creating an Aligned Buffer
+///- - - - - - - - - - - - - - - - - - -
 // Consider a parameterized type, &#39;my_AlignedBuffer&#39;, that provides aligned
 // memory to store a user-defined type.  A &#39;my_AlignedBuffer&#39; object is useful
 // in situations where efficient (e.g., stack-based) storage is required.

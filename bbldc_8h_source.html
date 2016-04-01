@@ -1,0 +1,106 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bbldc.txt
+
+@PURPOSE: Provide day-count convention implementations.
+
+@MNEMONIC: Basic Business Library Day-Count (bbldc)
+
+@DESCRIPTION: The &#39;bbldc&#39; package provides day-count convention
+ implementations, an enumeration-based set of dispatch components, and two
+ abstract interfaces with parameterized adapters for the day-count convention
+ implementations.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bbldc&#39; package currently has 19 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bbldc_basicbasicdaycountadapter
+     bbldc_basicdaterangedaycountadapter
+     bbldc_basicdaycountutil
+     bbldc_calendardaterangedaycountadapter
+     bbldc_calendardaycountutil
+     bbldc_perioddaterangedaycountadapter
+     bbldc_perioddaycountutil
+
+  1. bbldc_basicactual360
+     bbldc_basicactual365fixed
+     bbldc_basicdaycount
+     bbldc_basicisdaactualactual
+     bbldc_basicisma30360
+     bbldc_basicpsa30360eom
+     bbldc_basicsia30360eom
+     bbldc_basicsia30360neom
+     bbldc_calendarbus252
+     bbldc_daterangedaycount
+     bbldc_daycountconvention
+     bbldc_periodicmaactualactual
+..
+
+/Component Synopsis
+/------------------
+: &#39;bbldc_basicactual360&#39;:
+:      Provide stateless functions for the Actual/360 convention.
+:
+: &#39;bbldc_basicactual365fixed&#39;:
+:      Provide stateless functions for the Actual/365 (fixed) convention.
+:
+: &#39;bbldc_basicbasicdaycountadapter&#39;:
+:      Provide a parameterized day-count convention implementation.
+:
+: &#39;bbldc_basicdaterangedaycountadapter&#39;:
+:      Provide a parameterized day-count convention implementation.
+:
+: &#39;bbldc_basicdaycount&#39;:
+:      Provide a protocol for basic day-count calculations.
+:
+: &#39;bbldc_basicdaycountutil&#39;:
+:      Support for day-count calculations of &#39;enum&#39;-specified conventions.
+:
+: &#39;bbldc_basicisdaactualactual&#39;:
+:      Provide stateless functions for the ISDA Actual/Actual convention.
+:
+: &#39;bbldc_basicisma30360&#39;:
+:      Provide stateless functions for the ISMA 30/360 convention.
+:
+: &#39;bbldc_basicpsa30360eom&#39;:
+:      Provide stateless functions for PSA 30/360 end-of-month convention.
+:
+: &#39;bbldc_basicsia30360eom&#39;:
+:      Provide stateless functions for SIA 30/360 end-of-month convention.
+:
+: &#39;bbldc_basicsia30360neom&#39;:
+:      Provide stateless functions for the SIA-30/360-neom convention.
+:
+: &#39;bbldc_calendarbus252&#39;:
+:      Provide stateless functions for calendar-based BUS-252.
+:
+: &#39;bbldc_calendardaterangedaycountadapter&#39;:
+:      Provide a parameterized day-count convention implementation.
+:
+: &#39;bbldc_calendardaycountutil&#39;:
+:      Support for day-count calculations of &#39;enum&#39;-specified conventions.
+:
+: &#39;bbldc_daterangedaycount&#39;:
+:      Provide a protocol for date-range limited day-count calculations.
+:
+: &#39;bbldc_daycountconvention&#39;:
+:      Provide an enumeration of &#39;bbldc&#39; day-count conventions.
+:
+: &#39;bbldc_perioddaterangedaycountadapter&#39;:
+:      Provide a parameterized day-count convention implementation.
+:
+: &#39;bbldc_perioddaycountutil&#39;:
+:      Support for day-count calculations of &#39;enum&#39;-specified conventions.
+:
+: &#39;bbldc_periodicmaactualactual&#39;:
+:      Provide stateless functions for period-based ICMA Actual/Actual.
+</pre>
+</body>
+</html>

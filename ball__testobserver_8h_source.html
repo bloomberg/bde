@@ -1,0 +1,371 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_testobserver.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_TESTOBSERVER
+#define INCLUDED_BALL_TESTOBSERVER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an instrumented observer for testing.
+//
+//@CLASSES:
+//  ball::TestObserver: instrumented observer for testing
+//
+//@SEE_ALSO: ball_record, ball_context, ball_observer
+//
+//@DESCRIPTION: This component provides a concrete implementation of the
+// &#39;ball::Observer&#39; protocol, &#39;ball::TestObserver&#39;, that is instrumented for
+// testing systems that use &#39;ball::Observer&#39; objects.
+//..
+//                   ( ball::TestObserver )
+//                            |             static numInstances
+//                            |             ctor
+//                            |             setVerbose
+//                            |             id
+//                            |             numPublishedRecords
+//                            |             lastPublishedRecord
+//                            |             lastPublishedContext
+//                            V
+//                    ( ball::Observer )
+//                                          dtor
+//                                          publish
+//..
+// &#39;ball::TestObserver&#39; ascribes to each instance (within a process) a unique
+// integer identifier (accessible via the &#39;id&#39; method), and each instance keeps
+// a count of the total number of records that it has published (accessible via
+// the &#39;numPublishedRecords&#39; method).  In addition, the test observer maintains
+// a copy of the record and context data from the most recent call to
+// &#39;publish&#39;; that information is available via the accessors
+// &#39;lastPublishedRecord&#39; and &#39;lastPublishedContext&#39;.
+//
+///Thread Safety
+///-------------
+// The &#39;ball::TestObserver&#39; provides a &#39;publish&#39; method that is *thread-safe*,
+// meaning that the test observer may be used to log records from multiple
+// threads.  However, the &#39;ball::TestObserver&#39; accessors &#39;lastPublished&#39; method
+// and &#39;lastPublishedContext&#39; provide references to internal data structures
+// (for backwards compatibilty) and are therefore *not* *thread-safe*.
+//
+///Verbose Mode
+///------------
+// The &#39;publish&#39; method, in addition to making a local copy of the published
+// data for future inspection, is capable of printing an appropriate diagnostic
+// message to the &#39;ostream&#39; held by the test observer instance.  By default,
+// this printing is suppressed, but the behavior can be altered by calling the
+// &#39;setVerbose&#39; method.  A call to &#39;setVerbose&#39; with a non-zero argument (e.g.,
+// &#39;setVerbose(1)&#39;) places the object in verbose mode, which enables diagnostic
+// printing.  A subsequent call of &#39;setVerbose(0)&#39; restores the default &quot;quiet&quot;
+// behavior.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// The following snippets of code illustrate the basic usage of testing
+// observer objects.  The example focuses on the individual features that are
+// useful for testing larger systems (not shown) that use observers derived
+// from &#39;ball::Observer&#39;.
+//
+// First create a &#39;ball::Record&#39; object &#39;record&#39; and a &#39;ball::Context&#39; object
+// &#39;context&#39;.  Note that the default values for these objects (or their
+// contained objects) are perfectly suitable for testing purposes, since the
+// testing observer&#39;s purpose is simply to report what has been presented to
+// its &#39;publish&#39; method.
+//..
+//     ball::RecordAttributes attributes;
+//     ball::UserFields       list;
+//     ball::Record           record(attributes, list);
+//     ball::Context          context;
+//..
+// Next, create three test observers &#39;to1&#39;, to2&#39;, and &#39;to3&#39;, each with
+// &#39;bsl::cout&#39; as the held stream.  Note that each instance will be given a
+// unique integer identifier by the constructor.
+//..
+//                                         assert(0 == ball::TestObserver::
+//                                                             numInstances());
+//     ball::TestObserver to1(bsl::cout);  assert(1 == to1.id());
+//                                         assert(1 == ball::TestObserver::
+//                                                             numInstances());
+//     ball::TestObserver to2(bsl::cout);  assert(2 == to2.id());
+//                                         assert(2 == ball::TestObserver::
+//                                                             numInstances());
+//     ball::TestObserver to3(bsl::cout);  assert(3 == to3.id());
+//                                         assert(3 == ball::TestObserver::
+//                                                             numInstances());
+//
+//                                      assert(0 == to1.numPublishedRecords());
+//                                      assert(0 == to2.numPublishedRecords());
+//                                      assert(0 == to3.numPublishedRecords());
+//..
+// Finally, set &#39;to1&#39; to &quot;verbose mode&quot; and publish &#39;record&#39; and &#39;context&#39; to
+// &#39;to1&#39; and also to &#39;to2&#39;, but not to &#39;to3&#39;.
+//..
+//     to1.setVerbose(1);
+//     to1.publish(record, context);  assert(1 == to1.numPublishedRecords());
+//     to2.publish(record, context);  assert(1 == to2.numPublishedRecords());
+//                                    assert(0 == to3.numPublishedRecords());
+//..
+// This will produce the following output on &#39;stdout&#39;:
+//..
+//     Test Observer ID 1 publishing record number 1
+//     Context: cause = PASSTHROUGH
+//              count = 1  of an expected 1 total records
+//..
+// Note that &#39;to2&#39; produces no output, although its &#39;publish&#39; method executed
+// (as verified by the &#39;numPublishedRecords&#39; method); only &#39;to1&#39; produces a
+// printed output, because it has been set to verbose mode.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_CONTEXT
+#include &lt;ball_context.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_OBSERVER
+#include &lt;ball_observer.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RECORD
+#include &lt;ball_record.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include &lt;bslmt_lockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include &lt;bsls_atomicoperations.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                         // ==================
+                         // class TestObserver
+                         // ==================
+
+class TestObserver : public Observer {
+    // This class provides an instrumented implementation of the &#39;Observer&#39;
+    // protocol suitable for testing systems that use &#39;Observer&#39;.  Each
+    // instance receives a unique (per process) integer identifier at
+    // construction, and keeps count of the number of records that it has
+    // published, as well as the contents of the most recently published record
+    // and context.
+    //
+    // By default, instances publish appropriate diagnostic information, either
+    // to &#39;stdout&#39; or to an optional &#39;bsl::ostream&#39;.  This diagnostic
+    // information can be suppressed by a call to &#39;setVerbose&#39; with a non-zero
+    // argument.  A subsequent call to &#39;setVerbose&#39; with a zero argument will
+    // restore the default behavior of &#39;publish&#39;.
+
+    typedef bsls::AtomicOperations                       AtomicOps;
+    typedef bsls::AtomicOperations::AtomicTypes::Int     AtomicInt;
+
+    // CLASS DATA
+    static AtomicInt     s_count;        // number of instances created
+
+    // DATA
+    bsl::ostream&amp;        d_stream;       // target of &#39;publish&#39; method
+
+    Record               d_record;       // most-recently-published record
+
+    Context              d_context;      // most-recently-published context
+
+    int                  d_count;        // unique (per process) id
+
+    int                  d_verboseFlag;  // &quot;verbosity&quot; mode on &#39;publish&#39;
+
+    int                  d_numRecords;   // total number of published records
+
+    mutable bslmt::Mutex d_mutex;        // serializes concurrent calls to
+                                         // &#39;publish&#39; and protects concurrent
+                                         // access to other class members
+
+    // NOT IMPLEMENTED
+    TestObserver(const TestObserver&amp;);
+    TestObserver&amp; operator=(const TestObserver&amp;);
+
+  public:
+    using Observer::publish;
+
+    // CLASS METHODS
+    static int numInstances();
+        // Return the total number of instances of this class that have been
+        // created since this process has begun.
+
+    // CREATORS
+    TestObserver(bsl::ostream&amp;     stream,
+                 bslma::Allocator *basicAllocator = 0);
+        // Create a test observer having a unique integer identifier, whose
+        // &#39;publish&#39; method will send it&#39;s output (if any) to the specified
+        // &#39;stream&#39;.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  By default, this observer prints nothing to
+        // &#39;stream&#39;.  Note that the &#39;setVerbose&#39; method will affect this
+        // default behavior.
+
+    virtual ~TestObserver();
+        // Destroy this test observer.
+
+    // MANIPULATORS
+    virtual void publish(const Record&amp;  record,
+                         const Context&amp; context);
+        // Store as the most recently published data the specified log &#39;record&#39;
+        // and publishing &#39;context&#39;.  If this test observer is in verbose mode,
+        // print an appropriate diagnostic message to the stream specified at
+        // construction.  Note that at construction test observers are not in
+        // verbose mode, but that the &#39;setVerbose&#39; method will affect this
+        // mode, and thus the behavior of this method.
+
+    void setVerbose(int flagValue);
+        // Set the internal verbose mode of this test observer to the specified
+        // (boolean) &#39;flagValue&#39;.  The default mode is *not* verbose.  If
+        // &#39;flagValue&#39; is non-zero, calls to &#39;publish&#39; will print appropriate
+        // diagnostics to the &#39;bsl::ostream&#39; associated with this test
+        // observer.  This printing is suppressed if &#39;flagValue&#39; is 0.
+
+    // ACCESSORS
+    int id() const;
+        // Return the unique (per process) integer identifier of this test
+        // observer.
+
+    int numPublishedRecords() const;
+        // Return the total number of records that this test observer has
+        // published.
+
+    const Record&amp; lastPublishedRecord() const;
+        // Return a reference to the record most recently published by this
+        // test observer.  The behavior is undefined unless &#39;publish&#39; has been
+        // called at least once, and no other thread is manipulating this
+        // object concurrently (i.e., this function is *not* thread safe).
+
+    const Context&amp; lastPublishedContext() const;
+        // Return a reference to the context most recently published by this
+        // test observer.  The behavior is undefined unless &#39;publish&#39; has been
+        // called at least once, and no other thread is manipulating this
+        // object concurrently (i.e., this function is *not* thread safe).
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                         // ------------------
+                         // class TestObserver
+                         // ------------------
+
+// CLASS METHODS
+inline
+int TestObserver::numInstances()
+{
+    return AtomicOps::getIntRelaxed(&amp;s_count);
+}
+
+// CREATORS
+inline
+TestObserver::TestObserver(bsl::ostream&amp;     stream,
+                           bslma::Allocator *basicAllocator)
+: d_stream(stream)
+, d_record(basicAllocator)
+, d_context(basicAllocator)
+, d_count(AtomicOps::incrementIntNvAcqRel(&amp;s_count))
+, d_verboseFlag(0)
+, d_numRecords(0)
+{
+}
+
+// MANIPULATORS
+inline
+void TestObserver::setVerbose(int flagValue)
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    d_verboseFlag = flagValue;
+}
+
+// ACCESSORS
+inline
+int TestObserver::id() const
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    return d_count;
+}
+
+inline
+int TestObserver::numPublishedRecords() const
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    return d_numRecords;
+}
+
+inline
+const Record&amp; TestObserver::lastPublishedRecord() const
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    return d_record;
+}
+
+inline
+const Context&amp; TestObserver::lastPublishedContext() const
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    return d_context;
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

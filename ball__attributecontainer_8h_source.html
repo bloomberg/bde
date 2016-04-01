@@ -1,0 +1,415 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_attributecontainer.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
+#define INCLUDED_BALL_ATTRIBUTECONTAINER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for containers holding logging attributes.
+//
+//@CLASSES:
+//     ball::AttributeContainer: a protocol for a collection of attributes
+//
+//@SEE_ALSO: ball_attribute, ball_attributeset
+//
+//@DESCRIPTION: This component defines a protocol class,
+// &#39;ball::AttributeContainer&#39;, for containers of &#39;ball::Attribute&#39; values.  The
+// &#39;ball::AttributeContainer&#39; protocol primarily provides a &#39;hasValue()&#39;
+// method, allowing clients to determine if a given attribute value is held by
+// the container.
+//
+///Usage
+///-----
+// In the following examples we examine two derived implementations of the
+// &#39;ball::AttributeContainer&#39; protocol.  The first implementation is
+// potentially more efficient, holding a specific group of attributes relevant
+// to a particular application.  The second implementation is more general,
+// and can hold any valid &#39;ball::Attribute&#39; value.  In the final example we
+// demonstrate how to call the methods of the &#39;ball::AttributeContainer&#39;
+// protocol.
+//
+///Example 1: An Implementation of &#39;ball::AttributeContainer&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we develop a &#39;ball::AttributeContainer&#39;
+// implementation specifically intended for a service offline that will perform
+// rule-based logging, governed by the service client&#39;s bloomberg &quot;uuid&quot;,
+// &quot;luw&quot;, and &quot;firm number&quot;.  We define a class &#39;ServiceAttributes&#39; that
+// contains three integer &#39;ball::Attribute&#39; values having the names &quot;uuid&quot;,
+// &quot;luw&quot;, and &quot;firmNumber&quot;.
+//
+// Note that this implementation requires no memory allocation, so it will be
+// more efficient than a more general set-based implementation if the container
+// is frequently created, destroyed, or modified.  We will develop a
+// &#39;ball::AttributeContainer&#39; implementation that can hold any
+// &#39;ball::Attribute&#39; value in example 2 (and one is provided by the &#39;ball&#39;
+// package in the &#39;ball_defaultattributecontainer&#39; component).
+//..
+//    // serviceattributes.h
+//
+//  class ServiceAttributes : public ball::AttributeContainer {
+//      // Provide a concrete implementation of the &#39;ball::AttributeContainer&#39;
+//      // that holds the &#39;uuid&#39;, &#39;luw&#39;, and &#39;firmNumber&#39; associated with a
+//      // request to the example service.  This concrete container
+//      // exposes those properties in attributes named &quot;uuid&quot;, &quot;luw&quot;, and
+//      // &quot;firmNumber&quot; respectively.
+//
+//..
+// Note that we use the type &#39;ball::Attribute&#39; for our data members for
+// simplicity.  It would be a little more efficient to use &#39;int&#39; data members,
+// but the implementation of &#39;hasValue()&#39; would be less readable.
+//..
+//      // DATA
+//      ball::Attribute d_uuid;        // bloomberg user id
+//      ball::Attribute d_luw;         // bloomberg luw
+//      ball::Attribute d_firmNumber;  // bloomberg firm number
+//
+//      // ...
+//
+//    public:
+//      // PUBLIC CONSTANTS
+//      static const char * const UUID_ATTRIBUTE_NAME;
+//      static const char * const LUW_ATTRIBUTE_NAME;
+//      static const char * const FIRMNUMBER_ATTRIBUTE_NAME;
+//          // The names of the attributes exposed by this attribute container.
+//
+//      // CREATORS
+//      ServiceAttributes(int uuid, int luw, int firmNumber);
+//          // Create a service-attributes object with the specified &#39;uuid&#39;,
+//          // &#39;luw&#39;, and &#39;firmNumber&#39;.
+//
+//      virtual ~ServiceAttributes();
+//          // Destroy this service-attributes object.
+//
+//      // ACCESSORS
+//      virtual bool hasValue(const ball::Attribute&amp; value) const;
+//          // Return &#39;true&#39; if the attribute having specified &#39;value&#39; exists
+//          // in this object, and &#39;false&#39; otherwise.  This implementation will
+//          // return &#39;true&#39; if &#39;value.name()&#39; equals &quot;uuid&quot;, &quot;luw&quot;, or &quot;firm&quot;
+//          // and &#39;value.value()&#39; is an &#39;int&#39; equal to the corresponding
+//          // property value supplied at construction.
+//
+//      virtual bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                                  int           level = 0,
+//                                  int           spacesPerLevel = 4) const;
+//          // Format this object to the specified output &#39;stream&#39;.
+//  };
+//
+//
+//  // CREATORS
+//  inline
+//  ServiceAttributes::ServiceAttributes(int uuid, int luw, int firmNumber)
+//  : d_uuid(UUID_ATTRIBUTE_NAME, uuid)
+//  , d_luw(LUW_ATTRIBUTE_NAME, luw)
+//  , d_firmNumber(FIRMNUMBER_ATTRIBUTE_NAME, firmNumber)
+//  {
+//  }
+//
+//    // serviceattributes.cpp
+//
+//  // PUBLIC CONSTANTS
+//  const char * const ServiceAttributes::UUID_ATTRIBUTE_NAME       = &quot;uuid&quot;;
+//  const char * const ServiceAttributes::LUW_ATTRIBUTE_NAME        = &quot;luw&quot;;
+//  const char * const ServiceAttributes::FIRMNUMBER_ATTRIBUTE_NAME =
+//                                                                &quot;firmNumber&quot;;
+//
+//  // CREATORS
+//  ServiceAttributes::~ServiceAttributes()
+//  {
+//  }
+//
+//  // ACCESSORS
+//  bool ServiceAttributes::hasValue(const ball::Attribute&amp; value) const
+//  {
+//      return d_uuid == value || d_luw == value || d_firmNumber == value;
+//  }
+//
+//  bsl::ostream&amp; ServiceAttributes::print(bsl::ostream&amp; stream,
+//                                         int           level,
+//                                         int           spacesPerLevel) const
+//  {
+//      bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//      printer.start();
+//      printer.printAttribute(&quot;uuid&quot;, d_uuid);
+//      printer.printAttribute(&quot;luw&quot;, d_luw);
+//      printer.printAttribute(&quot;firmNumber&quot;, d_firmNumber);
+//      printer.end();
+//      return stream;
+//  }
+//..
+//
+///Example 2: A Generic Implementation of &#39;ball::AttributeContainer&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this second example we define a &#39;ball::AttributeContainer&#39; that can
+// contain any valid &#39;ball::Attribute&#39; value (a &quot;generic&quot;
+// &#39;ball::AttributeContainer&#39;).  In practice, an implementation that can
+// contain any attribute values may be less efficient than one specifically
+// created for a particular group of attributes needed by an application (as
+// shown in {Example 1}).
+//
+// Note that the &#39;ball&#39; package provides a similar &#39;ball::AttributeContainer&#39;
+// implementation in the &#39;ball_defaultattributecontainer&#39; component.
+//..
+//   // attributeset.h
+//
+//  class AttributeSet : public ball::AttributeContainer {
+//      // A simple set-based implementation of the &#39;ball::AttributeContainer&#39;
+//      // protocol, used for testing.
+//
+//..
+// To define an stl-set (or hash set) for &#39;ball::Attribute&#39; values, we must
+// define a comparison (or hash) operation for attribute values.  Here we
+// define a comparison functor that compares attributes by name, then by
+// value-type, and finally by value.
+//..
+//      struct AttributeComparator {
+//          bool operator()(const ball::Attribute&amp; lhs,
+//                          const ball::Attribute&amp; rhs) const
+//              // Return &#39;true&#39; if the specified &#39;lhs&#39; attribute is ordered
+//              // before the specified &#39;rhs&#39; attribute, and &#39;false&#39; otherwise.
+//          {
+//              int cmp = bsl::strcmp(lhs.name(), rhs.name());
+//              if (0 != cmp) {
+//                  return cmp &lt; 0;
+//              }
+//              if (lhs.value().typeIndex() != rhs.value().typeIndex()) {
+//                  return lhs.value().typeIndex() &lt; rhs.value().typeIndex();
+//              }
+//              switch (lhs.value().typeIndex()) {
+//                case 0: // unset
+//                  return true;
+//                case 14: // int
+//                  return lhs.value().the&lt;int&gt;() &lt; rhs.value().the&lt;int&gt;();
+//                case 2: // int64
+//                  return lhs.value().the&lt;bsls::Types::Int64&gt;() &lt;
+//                         rhs.value().the&lt;bsls::Types::Int64&gt;();
+//               case 3: // string
+//                  return lhs.value().the&lt;bsl::string&gt;() &lt;
+//                         rhs.value().the&lt;bsl::string&gt;();
+//              }
+//              BSLS_ASSERT(false);
+//              return false;
+//          }
+//      };
+//
+//      // DATA
+//      bsl::set&lt;ball::Attribute, AttributeComparator&gt; d_set;
+//
+//    public:
+//      // CREATORS
+//      AttributeSet(bslma::Allocator *basicAllocator = 0);
+//          // Create an attribute set.
+//
+//      virtual ~AttributeSet();
+//          // Destroy this attribute set.
+//
+//      // MANIPULATORS
+//      void insert(const ball::Attribute&amp; value);
+//          // Add the specified value to this attribute set.
+//
+//      bool remove(const ball::Attribute&amp; value);
+//          // Remove the specified value from this attribute set.  Return
+//          // &#39;true&#39; if the attribute was found, and &#39;false&#39; if &#39;value&#39; was
+//          // not a member of this set.
+//
+//      // ACCESSORS
+//      virtual bool hasValue(const ball::Attribute&amp; value) const;
+//          // Return &#39;true&#39; if the attribute having specified &#39;value&#39; exists
+//          // in this object, and &#39;false&#39; otherwise.
+//
+//      virtual bsl::ostream&amp; print(bsl::ostream&amp; stream,
+//                                  int           level = 0,
+//                                  int           spacesPerLevel = 4) const;
+//          // Format this object to the specified output &#39;stream&#39; at the
+//          // (absolute value of) the optionally specified indentation &#39;level&#39;
+//          // and return a reference to &#39;stream&#39;.
+//  };
+//..
+// The &#39;ball::AttributeContainer&#39; methods are simple wrappers around &#39;bsl::set&#39;
+// methods:
+//..
+//  inline
+//  AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
+//  : d_set(AttributeComparator(), basicAllocator)
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  inline
+//  void AttributeSet::insert(const ball::Attribute&amp; value)
+//  {
+//      d_set.insert(value);
+//  }
+//
+//  inline
+//  bool AttributeSet::remove(const ball::Attribute&amp; value)
+//  {
+//      return d_set.erase(value) &gt; 0;
+//  }
+//
+//  // attributeset.cpp
+//
+//  // CREATORS
+//  AttributeSet::~AttributeSet()
+//  {
+//  }
+//
+//  // ACCESSORS
+//  bool AttributeSet::hasValue(const ball::Attribute&amp; value) const
+//  {
+//      return d_set.find(value) != d_set.end();
+//  }
+//
+//  bsl::ostream&amp; AttributeSet::print(bsl::ostream&amp; stream,
+//                                    int           level,
+//                                    int           spacesPerLevel) const
+//  {
+//      bslim::Printer printer(&amp;stream, level, spacesPerLevel);
+//      printer.start();
+//
+//      bsl::set&lt;ball::Attribute&gt;::const_iterator it = d_set.begin();
+//      for (; it != d_set.end(); ++it) {
+//          printer.printValue(*it);
+//      }
+//      printer.end();
+//
+//      return stream;
+//  }
+//..
+//
+///Example 3. Using a &#39;ball::AttributeContainer&#39;
+///- - - - - - - - - - - - - - - - - - - - - - -
+// In this final example, we demonstrate how to call the methods of the
+// &#39;ball::AttributeContainer&#39; protocol.
+//
+// First we create an object of a concrete type that implements the
+// &#39;ball::AttributeContainer&#39; protocol (e.g., &#39;ServiceAttributes&#39; defined in
+// {Example 1}).  Then we obtain a reference to this object.
+//..
+//  ServiceAttributes serviceAttributes(3938908, 1, 9001);
+//  const ball::AttributeContainer&amp; attributes = serviceAttributes;
+//..
+// We use &#39;hasValue()&#39; to examine the values in the container:
+//..
+//  assert(true == attributes.hasValue(ball::Attribute(&quot;uuid&quot;, 3938908)));
+//  assert(true == attributes.hasValue(ball::Attribute(&quot;luw&quot;,  1)));
+//  assert(true == attributes.hasValue(ball::Attribute(&quot;firmNumber&quot;, 9001)));
+//
+//  assert(false == attributes.hasValue(ball::Attribute(&quot;uuid&quot;, 1391015)));
+//  assert(false == attributes.hasValue(ball::Attribute(&quot;luw&quot;,  2)));
+//  assert(false == attributes.hasValue(ball::Attribute(&quot;bad name&quot;, 3938908)));
+//..
+// Finally we can print the attribute values in the container:
+//..
+//  bsl::cout &lt;&lt; attributes &lt;&lt; bsl::endl;
+//..
+// The resulting output should look like:
+//..
+// [ [ uuid = 3938908 ] [ luw = 1 ] [ firmNumber = 9001 ] ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+
+namespace ball {class Attribute;
+
+                    // ========================
+                    // class AttributeContainer
+                    // ========================
+
+class AttributeContainer {
+    // This class defines a protocol for a container of attribute values.  The
+    // attribute container provides a &#39;hasValue()&#39; method to determine whether
+    // an attribute value is in the container.
+
+  public:
+
+    // CREATORS
+    virtual ~AttributeContainer();
+        // Destroy this object.
+
+    // ACCESSORS
+    virtual bool hasValue(const Attribute&amp; value) const = 0;
+        // Return &#39;true&#39; if a attribute having the specified &#39;value&#39; exists in
+        // this object, and &#39;false&#39; otherwise.
+
+    virtual bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                                int           level = 0,
+                                int           spacesPerLevel = 4) const = 0;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;             stream,
+                         const AttributeContainer&amp; container);
+    // Write the value of the specified &#39;container&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to the
+    // modifiable stream.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;             stream,
+                               const AttributeContainer&amp; container)
+{
+    return container.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

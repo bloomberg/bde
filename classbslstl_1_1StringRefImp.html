@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslstl::StringRefImp</title>
+<title>BDE 3.0: Class bslstl::StringRefImp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -95,6 +95,8 @@ Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef const CHAR_TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a0d03cd63fdf1fabb25f0d369ab074d19">const_reference</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#acb4a02b16daed87a77487e3a4ebf419d">iterator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef bsl::reverse_iterator<br class="typebreak"/>
+&lt; <a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef std::ptrdiff_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a5c8f5f117278e670b4f35224ea818c3b">difference_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef std::size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#afa6ba791fcd5cc60afc6c08cf2f1a140">size_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
@@ -107,6 +109,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a3cff511bf6b94d2f657536ff810a114d">StringRefImp</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE &gt; &amp;str)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a112a6c0bb7214b981634fcc3eba89ad8">StringRefImp</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;original)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#aa7ff8217cf902a4a1e497037be1991c5">StringRefImp</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;original, int startIndex, int numCharacters)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#aea4f75da54413c29e382bad4ab6d63ad">~StringRefImp</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#aacc12b09797122c63182f7cba22b0d9c">operator=</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a28a16805190553d8e17db781bf191bbf">assign</a> (const CHAR_TYPE *data, int length)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a264526f89ddf81d55016784d8f3954e2">assign</a> (<a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> begin, <a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> end)</td></tr>
@@ -118,18 +121,21 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#adc2616816e178088bf9e3af5ed2fb18e">operator native_std::basic_string&lt; CHAR_TYPE &gt;</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a3edc3a7145921428485d2b400edc8e0f">begin</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#adeb6bfb5198edb141869f5417aff27a7">end</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a1ae57de3b5a5403e0122e929ecd21857">rbegin</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a981b89c00dc71811bd0618c79dbbea9b">rend</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a508797eb2dcdadf062afee752656cab4">empty</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a25d7089cf4040c8e0c52c37ed035de38">isEmpty</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html#afa6ba791fcd5cc60afc6c08cf2f1a140">size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a66d787ba441b3f3eddaa25910d41bf2c">length</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a68046fb1027bd92ea9044553d3cc118f">compare</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;other) const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;typename OTHER_CHAR_TYPE &gt; </td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class OTHER_CHAR_TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">std::basic_ostream<br class="typebreak"/>
 &lt; OTHER_CHAR_TYPE &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#abee9aa71717895aa4901c284e9c3ebbb">operator&lt;&lt;</a> (std::basic_ostream&lt; OTHER_CHAR_TYPE &gt; &amp;stream, const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; OTHER_CHAR_TYPE &gt; &amp;stringRef)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename CHAR_TYPE&gt;<br/>
+<h3>template&lt;class CHAR_TYPE&gt;<br/>
  class bslstl::StringRefImp&lt; CHAR_TYPE &gt;</h3>
 
 <p>This class provides a reference-semantic-like (see below) mechanism that allows <code>const</code> <code>std::string</code> values, which are represented externally as either an <code>std::string</code> or null-terminated c-style string (or parts thereof), to be treated both uniformly and efficiently when passed as an argument to a function in which the string's length will be needed. The interface of this class provides a subset of accessor methods found on <code>std::string</code> (but none of the manipulators) -- all of which apply to the referenced string. But, because only non-modifiable access is afforded to the referenced string value, each of the manipulators on this type -- assignment in particular -- apply to this string-reference object itself (as if it had pointer semantics). Hence, this class has a hybrid of reference- and pointer-semantics.</p>
@@ -156,7 +162,7 @@ is <code>const</code> <em>thread-safe</em>  </li>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const CHAR_TYPE <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#ab1d709ae097555b5021eb5259f1786a5">value_type</a></td>
@@ -171,7 +177,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const CHAR_TYPE&amp; <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#a7858e77bf43a5a656e0946214e690e3f">reference</a></td>
@@ -186,7 +192,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const CHAR_TYPE&amp; <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#a0d03cd63fdf1fabb25f0d369ab074d19">const_reference</a></td>
@@ -201,7 +207,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const CHAR_TYPE* <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#acb4a02b16daed87a77487e3a4ebf419d">iterator</a></td>
@@ -216,10 +222,25 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const CHAR_TYPE* <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0dac7f194f290e47308bbc68a4de42ea"></a><!-- doxytag: member="bslstl::StringRefImp::const_reverse_iterator" ref="a0dac7f194f290e47308bbc68a4de42ea" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef bsl::reverse_iterator&lt;<a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a>&gt; <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a></td>
         </tr>
       </table>
 </div>
@@ -231,7 +252,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::ptrdiff_t <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#a5c8f5f117278e670b4f35224ea818c3b">difference_type</a></td>
@@ -246,7 +267,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::size_t <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html#afa6ba791fcd5cc60afc6c08cf2f1a140">size_type</a></td>
@@ -262,7 +283,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -289,7 +310,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -319,7 +340,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -349,7 +370,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -370,7 +391,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -390,7 +411,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -411,7 +432,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -424,7 +445,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation is defined by the specified <code>original</code> object. The external representation must remain valid as long as it is bound to this string reference. </p>
+<p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation is defined by the specified <code>original</code> object. The external representation must remain valid as long as it is bound to this string reference. Note that this trivial copy constructor's definition is compiler generated. </p>
 
 </div>
 </div>
@@ -432,7 +453,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
@@ -464,12 +485,32 @@ template&lt;typename CHAR_TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="aea4f75da54413c29e382bad4ab6d63ad"></a><!-- doxytag: member="bslstl::StringRefImp::~StringRefImp" ref="aea4f75da54413c29e382bad4ab6d63ad" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::~<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy this object. </p>
+
+</div>
+</div>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="aacc12b09797122c63182f7cba22b0d9c"></a><!-- doxytag: member="bslstl::StringRefImp::operator=" ref="aacc12b09797122c63182f7cba22b0d9c" args="(const StringRefImp &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a>&amp; <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::operator= </td>
@@ -490,7 +531,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::assign </td>
@@ -520,7 +561,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::assign </td>
@@ -550,7 +591,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::assign </td>
@@ -571,7 +612,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::assign </td>
@@ -592,7 +633,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::assign </td>
@@ -613,7 +654,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::reset </td>
@@ -640,7 +681,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#a0d03cd63fdf1fabb25f0d369ab074d19">const_reference</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::operator[] </td>
@@ -661,7 +702,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::operator native_std::basic_string&lt; CHAR_TYPE &gt; </td>
@@ -681,7 +722,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::begin </td>
@@ -703,7 +744,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::end </td>
@@ -715,9 +756,49 @@ template&lt;typename CHAR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return an STL-compatible iterator one past the last character of the string bound to this string reference or <code><a class="el" href="classbslstl_1_1StringRefImp.html#a3edc3a7145921428485d2b400edc8e0f">begin()</a></code> if the string reference is empty. The iterator remains valid as long as this object is valid and is bound to the same string. </p>
+<p>Return an STL-compatible iterator one-past-the-last character of the string bound to this string reference or <code><a class="el" href="classbslstl_1_1StringRefImp.html#a3edc3a7145921428485d2b400edc8e0f">begin()</a></code> if the string reference is empty. The iterator remains valid as long as this object is valid and is bound to the same string. </p>
 
 <p>Reimplemented from <a class="el" href="classbslstl_1_1StringRefData.html#adbf8bcd0d629264f222b1f5ed99ba979">bslstl::StringRefData&lt; CHAR_TYPE &gt;</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a1ae57de3b5a5403e0122e929ecd21857"></a><!-- doxytag: member="bslstl::StringRefImp::rbegin" ref="a1ae57de3b5a5403e0122e929ecd21857" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::rbegin </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return an STL-compatible reverse iterator to the last character of the string bound to this string reference or <code><a class="el" href="classbslstl_1_1StringRefImp.html#a981b89c00dc71811bd0618c79dbbea9b">rend()</a></code> if the string reference is empty. The iterator remains valid as long as this object is valid and is bound to the same string. </p>
+
+</div>
+</div>
+<a class="anchor" id="a981b89c00dc71811bd0618c79dbbea9b"></a><!-- doxytag: member="bslstl::StringRefImp::rend" ref="a981b89c00dc71811bd0618c79dbbea9b" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#a0dac7f194f290e47308bbc68a4de42ea">const_reverse_iterator</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::rend </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return an STL-compatible reverse iterator to the prior-to-the-beginning character of the string bound to this string reference or <code><a class="el" href="classbslstl_1_1StringRefImp.html#a1ae57de3b5a5403e0122e929ecd21857">rbegin()</a></code> if the string reference is empty. The iterator remains valid as long as this object is valid and is bound to the same string. </p>
 
 </div>
 </div>
@@ -725,7 +806,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const CHAR_TYPE* <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::data </td>
@@ -737,7 +818,27 @@ template&lt;typename CHAR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the address of the first character of the string bound to this string reference such that <code>[<a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data()</a>, <a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data()</a>+length())</code> is a valid half-open range of characters. Note that the range of characters might not be null-terminated and may contain embedded null characters. </p>
+<p>Return the address of the first character of the string bound to this string reference such that <code>[<a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data()</a> .. <a class="el" href="classbslstl_1_1StringRefImp.html#a33dc0645904e4e3512800f3839cfc1e3">data()</a>+length())</code> is a valid half-open range of characters. Note that the range of characters might not be null-terminated and may contain embedded null characters. </p>
+
+</div>
+</div>
+<a class="anchor" id="a508797eb2dcdadf062afee752656cab4"></a><!-- doxytag: member="bslstl::StringRefImp::empty" ref="a508797eb2dcdadf062afee752656cab4" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::empty </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if this object represents an empty string value, and <code>false</code> otherwise. This object represents an empty string value if <code><a class="el" href="classbslstl_1_1StringRefImp.html#a3edc3a7145921428485d2b400edc8e0f">begin()</a> == <a class="el" href="classbslstl_1_1StringRefImp.html#adeb6bfb5198edb141869f5417aff27a7">end()</a></code>. Note that this method is functionally identical with the <code>isEmpty</code> method and allows developers to avoid distracting syntax differences when <code>StringRef</code> appears in juxtaposition with <code>string</code>, which defines <code>empty</code> but not <code>isEmpty</code>. </p>
 
 </div>
 </div>
@@ -745,7 +846,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::isEmpty </td>
@@ -765,7 +866,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html#afa6ba791fcd5cc60afc6c08cf2f1a140">size_type</a> <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::length </td>
@@ -785,7 +886,7 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::compare </td>
@@ -807,9 +908,9 @@ template&lt;typename CHAR_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE&gt; </div>
+template&lt;class CHAR_TYPE&gt; </div>
 <div class="memtemplate">
-template&lt;typename OTHER_CHAR_TYPE &gt; </div>
+template&lt;class OTHER_CHAR_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::basic_ostream&lt;OTHER_CHAR_TYPE&gt;&amp; operator&lt;&lt; </td>
@@ -838,7 +939,7 @@ template&lt;typename OTHER_CHAR_TYPE &gt; </div>
 <li><a class="el" href="bslstl__stringref_8h_source.html">bslstl_stringref.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:45 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

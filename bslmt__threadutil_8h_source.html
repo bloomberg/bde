@@ -1,0 +1,994 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_threadutil.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#define INCLUDED_BSLMT_THREADUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide platform-independent utilities related to threading.
+//
+//@CLASSES:
+//  bslmt::ThreadUtil: namespace for portable thread management utilities
+//
+//@SEE_ALSO: bslmt_threadattributes, bslmt_configuration
+//
+//@DESCRIPTION: This component defines a utility &#39;struct&#39;, &#39;bslmt::ThreadUtil&#39;,
+// that serves as a name space for a suite of pure functions to create threads,
+// join them (make one thread block and wait for another thread to exit),
+// manipulate thread handles, manipulate the current thread, and (on some
+// platforms) access thread-local storage.
+//
+///Creating a Simple Thread with Default Attributes
+///------------------------------------------------
+// Clients call &#39;bslmt::ThreadUtil::create()&#39; to create threads.  Threads may
+// be started using a &quot;C&quot; linkage function pointer (of a type defined by
+// &#39;bslmt::ThreadUtil::ThreadFunction&#39;) and a &#39;void&#39; pointer to &#39;userData&#39; to
+// be passed to the function; or an &quot;invokable&quot; object of parameterized type
+// (any copy-constructible type on which &#39;operator()&#39; may be invoked).  The
+// invoked function becomes the main driver for the new thread; when it
+// returns, the thread terminates.
+//
+///Thread Identity
+///---------------
+// A thread is identified by an object of the opaque type
+// &#39;bslmt::ThreadUtil::Handle&#39;.  A handle of this type is returned when a
+// thread is created (using &#39;bslmt::ThreadUtil::create&#39;).  A client can also
+// retrieve a &#39;Handle&#39; for the &quot;current&quot; thread via the &#39;self&#39; method:
+//..
+//  bslmt::ThreadUtil::Handle myHandle = bslmt::ThreadUtil::self();
+//..
+// Several thread manipulation functions in &#39;bslmt::ThreadUtil&#39; take a thread
+// handle, or pointer to a thread handle, as an argument.  To facilitate
+// compatibility with existing systems and allow for non-portable operations,
+// clients also have access to the &#39;bslmt::ThreadUtil::NativeHandle&#39; type,
+// which exposes the underlying, platform-specific thread identifier type:
+//..
+//  bslmt::ThreadUtil::NativeHandle myNativeHandle;
+//  myNativeHandle = bslmt::ThreadUtil::nativeHandle();
+//..
+// Note that the returned native handle may not be a globally unique identifier
+// for the thread, and, e.g., should not be converted to an integer identifier,
+// or used as a key in a map.
+//
+///Setting Thread Priorities
+///-------------------------
+// &#39;bslmt::ThreadUtil&#39; allows clients to configure the priority of newly
+// created threads by setting the &#39;inheritSchedule&#39;, &#39;schedulingPolicy&#39;, and
+// &#39;schedulingPriority&#39; of a thread attributes object supplied to the &#39;create&#39;
+// method.  The range of legal values for &#39;schedulingPriority&#39; depends on both
+// the platform and the value of &#39;schedulingPolicy&#39;, and can be obtained from
+// the &#39;getMinSchedulingPriority&#39; and &#39;getMaxSchedulingPriority&#39; methods.  Both
+// &#39;schedulingPolicy&#39; and &#39;schedulingPriority&#39; are ignored unless
+// &#39;inheritSchedule&#39; is &#39;false&#39; (the default value is &#39;true&#39;).  Note that not
+// only is effective setting of thread priorities workable on only some
+// combinations of platforms and user privileges, but setting the thread policy
+// and priority appropriately for one platform may cause thread creation to
+// fail on another platform.  Also note that an unset thread priority may be
+// interpreted as being outside the valid range defined by
+// &#39;[ getMinSchedulingPriority(policy), getMaxSchedulingPriority(policy) ]&#39;.
+//..
+// Platform      Restrictions
+// ------------  --------------------------------------------------------------
+// Solaris 5.10  None.
+//
+// Solaris 5.11  Spawning of threads fails if &#39;schedulingPolicy&#39; is
+//               &#39;BSLMT_SCHED_FIFO&#39; or &#39;BSLMT_SCHED_RR&#39;.  Note also that
+//               &#39;getMinSchedulingPriority&#39; and &#39;getMaxSchedulingPriority&#39;
+//               return different values than on Solaris 5.10.  Thread
+//               priorities have so little effect on 5.11 that it is barely
+//               detectable.
+//
+// AIX           For non-privileged clients, spawning of threads fails if
+//               &#39;schedulingPolicy&#39; is &#39;BSLMT_SCHED_FIFO&#39; or &#39;BSLMT_SCHED_RR&#39;.
+//
+// Linux         Non-privileged clients *can* *not* make effective use of
+//               thread priorities -- spawning of threads fails if
+//               &#39;schedulingPolicy&#39; is &#39;BSLMT_SCHED_FIFO&#39; or &#39;BSLMT_SCHED_RR&#39;,
+//               and &#39;getMinSchedulingPriority == getMaxSchedulingPriority&#39; if
+//               the policy has any other value.
+//
+// HPUX          Non-privileged clients *can* *not* make effective use of
+//               thread priorities -- spawning of threads fails if
+//               &#39;inheritSchedule&#39; is &#39;false&#39;.
+//
+// Darwin        Non-privileged clients *can* *not* make effective use of
+//               thread priorities -- there is no observable difference in
+//               urgency between high priority and low priority threads.
+//               Spawning of threads does succeed, however, for all scheduling
+//               policies.
+//
+// Windows       Clients *can* *not* make effective use of thread priorities --
+//               &#39;schedulingPolicy&#39;, &#39;schedulingPriority&#39;, and
+//               &#39;inheritSchedule&#39; are ignored for all clients.
+//..
+//
+///Supported Clock-Types
+///---------------------
+// The component &#39;bsls::SystemClockType&#39; supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_REALTIME&#39;, the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)&#39;.  If the
+// clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_MONOTONIC&#39;, the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)&#39;.
+//
+///Usage
+///-----
+// This section illustrates the intended use of this component.
+//
+///Example 1: Creating a Simple Thread with Default Attributes
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we create a thread using the default attribute settings.
+// Upon creation, the thread executes the user-supplied C-linkage function
+// &#39;myThreadFunction&#39; that counts 5 seconds before terminating:
+//
+// First, we create a function that will run in the spawned thread:
+//..
+//  extern &quot;C&quot; void *myThreadFunction(void *)
+//      // Print to standard output &quot;Another second has passed&quot; every second
+//      // for five seconds, and return 0.
+//  {
+//      for (int i = 0; i &lt; 3; ++i) {
+//          bslmt::ThreadUtil::microSleep(0, 1);
+//          bsl::cout &lt;&lt; &quot;Another second has passed.&quot; &lt;&lt; bsl::endl;
+//      }
+//      return 0;
+//  }
+//..
+// Now, we show how to create and join the thread.
+//
+// After creating the thread, the &#39;main&#39; routine *joins* the thread, which, in
+// effect, causes &#39;main&#39; to wait for execution of &#39;myThreadFunction&#39; to
+// complete, and guarantees that the output from &#39;main&#39; will follow the last
+// output from the user-supplied function:
+//..
+//  int main()
+//  {
+//      bslmt::Configuration::setDefaultThreadStackSize(
+//                  bslmt::Configuration::recommendedDefaultThreadStackSize());
+//
+//      bslmt::ThreadUtil::Handle handle;
+//
+//      bslmt::ThreadAttributes attr;
+//      attr.setStackSize(1024 * 1024);
+//
+//      int rc = bslmt::ThreadUtil::create(&amp;handle, attr, myThreadFunction, 0);
+//      assert(0 == rc);
+//
+//      bslmt::ThreadUtil::yield();
+//
+//      rc = bslmt::ThreadUtil::join(handle);
+//      assert(0 == rc);
+//
+//      bsl::cout &lt;&lt; &quot;A three second interval has elapsed\n&quot;;
+//
+//      return 0;
+//  }
+//..
+// Finally, the output of this program is:
+//..
+//  Another second has passed.
+//  Another second has passed.
+//  Another second has passed.
+//  A three second interval has elapsed.
+//..
+//
+///Example 2: Creating a Simple Thread with User-Specified Attributes
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will choose to override the default thread attribute
+// values.
+//
+// The attributes of a thread can be specified explicitly by supplying a
+// &#39;bslmt::ThreadAttributes&#39; object to the &#39;create&#39; method.  For instance, we
+// could specify a smaller stack size for a thread to conserve system resources
+// if we know that we will require not require the platform&#39;s default stack
+// size.
+//
+// First, we define our thread function, noting that it doesn&#39;t need much stack
+// space:
+//..
+//  extern &quot;C&quot; void *mySmallStackThreadFunction(void *threadArg)
+//      // Initialize a small object on the stack and do some work.
+//  {
+//      char *initValue = (char *)threadArg;
+//      char Small[8];
+//      bsl::memset(&amp;Small[0], *initValue, 8);
+//      // do some work ...
+//      return 0;
+//  }
+//..
+// Finally, we show how to create a detached thread running the function just
+// created with a small stack size:
+//..
+//  void createSmallStackSizeThread()
+//      // Create a detached thread with a small stack size and perform some
+//      // work.
+//  {
+//      enum { k_STACK_SIZE = 16384 };
+//      bslmt::ThreadAttributes attributes;
+//      attributes.setDetachedState(
+//                             bslmt::ThreadAttributes::e_CREATE_DETACHED);
+//      attributes.setStackSize(k_STACK_SIZE);
+//
+//      char initValue = 1;
+//      bslmt::ThreadUtil::Handle handle;
+//      int status = bslmt::ThreadUtil::create(&amp;handle,
+//                                            attributes,
+//                                            mySmallStackThreadFunction,
+//                                            &amp;initValue);
+//  }
+//..
+//
+///Example 3: Setting Thread Priorities
+/// - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate creating 3 threads with different priorities.
+// We use the &#39;convertToSchedulingPriority&#39; function to translate a normalized,
+// floating-point priority in the range &#39;[ 0.0, 1.0 ]&#39; to an integer priority
+// in the range &#39;[ getMinSchedulingPriority, getMaxSchedulingPriority ]&#39; to set
+// the &#39;schedulingPriority&#39; attribute.
+//..
+//  void runSeveralThreads()
+//      // Create 3 threads with different priorities and then wait for them
+//      // all to finish.
+//  {
+//      enum { k_NUM_THREADS = 3 };
+//
+//      bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
+//      bslmt_ThreadFunction functions[k_NUM_THREADS] = {
+//                                                MostUrgentThreadFunction,
+//                                                FairlyUrgentThreadFunction,
+//                                                LeastUrgentThreadFunction };
+//      double priorities[k_NUM_THREADS] = { 1.0, 0.5, 0.0 };
+//
+//      bslmt::ThreadAttributes attributes;
+//      attributes.setInheritSchedule(false);
+//      const bslmt::ThreadAttributes::SchedulingPolicy policy =
+//                                  bslmt::ThreadAttributes::e_SCHED_OTHER;
+//      attributes.setSchedulingPolicy(policy);
+//
+//      for (int i = 0; i &lt; k_NUM_THREADS; ++i) {
+//          attributes.setSchedulingPriority(
+//               bslmt::ThreadUtil::convertToSchedulingPriority(policy,
+//                                                             priorities[i]));
+//          int rc = bslmt::ThreadUtil::create(&amp;handles[i],
+//                                             attributes,
+//                                             functions[i], 0);
+//          assert(0 == rc);
+//      }
+//
+//      for (int i = 0; i &lt; k_NUM_THREADS; ++i) {
+//          int rc = bslmt::ThreadUtil::join(handles[i]);
+//          assert(0 == rc);
+//      }
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
+#include &lt;bslmt_entrypointfunctoradapter.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include &lt;bslmt_threadattributes.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
+#include &lt;bslmt_threadutilimpl_pthread.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTILIMPL_WIN32
+#include &lt;bslmt_threadutilimpl_win32.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include &lt;bsls_systemclocktype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+
+extern &quot;C&quot; {
+    typedef void *(*bslmt_ThreadFunction)(void *);
+        // &#39;bslmt_ThreadFunction&#39; is an alias for a function type taking a
+        // single &#39;void&#39; pointer argument and returning &#39;void *&#39;.  Such
+        // functions are suitable to be specified as thread entry-point
+        // functions to &#39;bslmt::ThreadUtil::create&#39;.  Note that &#39;create&#39; also
+        // accepts any invokable C++ &quot;functor&quot; object.
+
+    typedef void (*bslmt_KeyDestructorFunction)(void *);
+        // &#39;bslmt_KeyDestructorFunction&#39; is an alias for a function type taking
+        // a single &#39;void&#39; pointer argument and returning &#39;void&#39;.  Such
+        // functions are suitable to be specified as thread-specific key
+        // destructor functions to &#39;bslmt::ThreadUtil::createKey&#39;.
+}  // extern &quot;C&quot;
+
+namespace bslmt {
+
+template &lt;class THREAD_POLICY&gt;
+struct ThreadUtilImpl;
+
+                            // =================
+                            // struct ThreadUtil
+                            // =================
+
+struct ThreadUtil {
+    // This &#39;struct&#39; provides a suite of portable utility functions for
+    // managing threads.
+
+    // TYPES
+    typedef ThreadUtilImpl&lt;Platform::ThreadPolicy&gt; Imp;
+        // Platform-specific implementation type.  Do not use directly.
+
+    typedef Imp::Handle                            Handle;
+        // Thread handle type.  Use this type to refer to a thread in a
+        // platform-independent way.
+
+    typedef Imp::NativeHandle                      NativeHandle;
+        // Platform-specific thread handle type.
+
+    typedef Imp::Id                                Id;
+        // Thread identifier type - distinguished from a &#39;Handle&#39; in that it
+        // does not have any resources associated with it, whereas &#39;Handle&#39;
+        // may, depending on platform.
+
+    typedef bslmt_ThreadFunction                   ThreadFunction;
+        // Prototype for thread entry-point functions.
+
+    typedef Imp::Key                               Key;
+        // Thread-specific key type, used to refer to thread-specific storage.
+
+    typedef bslmt_KeyDestructorFunction            Destructor;
+        // Prototype for thread-specific key destructors.
+
+  public:
+    // PUBLIC CLASS METHODS
+                // *** Thread Management ***
+
+    static int convertToSchedulingPriority(
+              ThreadAttributes::SchedulingPolicy policy,
+              double                             normalizedSchedulingPriority);
+        // Return an integer scheduling priority appropriate for the specified
+        // &#39;normalizedSchedulingPriority&#39; and the specified &#39;policy&#39;.  If
+        // either the minimum or maximum priority for this platform cannot be
+        // determined, return &#39;ThreadAttributes::e_UNSET_PRIORITY&#39;.  Higher
+        // values of &#39;normalizedSchedulingPriority&#39; are considered to represent
+        // more urgent priorities.  The behavior is undefined unless &#39;policy&#39;
+        // is a valid &#39;ThreadAttributes::SchedulingPolicy&#39; and
+        // &#39;normalizedSchedulingPriority&#39; is in the range &#39;[ 0.0, 1.0 ]&#39;.
+
+    static int create(Handle                  *handle,
+                      ThreadFunction           function,
+                      void                    *userData);
+    static int create(Handle                  *handle,
+                      const ThreadAttributes&amp;  attributes,
+                      ThreadFunction           function,
+                      void                    *userData);
+        // Create a new thread of program control whose entry point will be the
+        // specified &#39;function&#39;, and which will be passed &#39;userData&#39; as its
+        // sole argument, and load into the specified &#39;handle&#39; an identifier
+        // that may be used to refer to this thread in calls to other
+        // &#39;ThreadUtil&#39; methods.  Optionally specify &#39;attributes&#39; describing
+        // the properties for the new thread to create.  If &#39;attributes&#39; is not
+        // supplied, a default &#39;ThreadAttributes&#39; object is used.  Return 0 on
+        // success, and a non-zero value otherwise.  &#39;bslmt::Configuration&#39; is
+        // used to determine the created thread&#39;s default stack-size if either
+        // &#39;attributes&#39; is not supplied or if &#39;attributes.stackSize()&#39; has the
+        // unset value.  The behavior is undefined unless unless &#39;attributes&#39;,
+        // if specified, has a &#39;stackSize&#39; that is either greater than 0 or
+        // &#39;e_UNSET_STACK_SIZE&#39;.  Note that unless the created thread is
+        // explicitly &quot;detached&quot; (by invoking the &#39;detach&#39; class method with
+        // &#39;handle&#39;) or the &#39;k_CREATE_DETACHED&#39; attribute is specified, a call
+        // to &#39;join&#39; must be made to reclaim any system resources associated
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // &#39;bslmt&#39;-wide default using &#39;bslmt::Configuration&#39;, because the
+        // default stack size is surprisingly small on some platforms.
+
+
+    template &lt;class INVOKABLE&gt;
+    static int create(Handle                  *handle,
+                      const INVOKABLE&amp;         function);
+    template &lt;class INVOKABLE&gt;
+    static int create(Handle                  *handle,
+                      const ThreadAttributes&amp;  attributes,
+                      const INVOKABLE&amp;         function);
+        // Create a new thread of program control whose entry point will invoke
+        // the the specified &#39;function&#39; object, and load into the specified
+        // &#39;handle&#39; an identifier that may be used to refer to this thread in
+        // calls to other &#39;ThreadUtil&#39; methods.  Optionally specify
+        // &#39;attributes&#39; describing the properties for the new thread to create.
+        // If &#39;attributes&#39; is not supplied, a default &#39;ThreadAttributes&#39; object
+        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // &#39;function&#39; shall be a reference to a type, &#39;INVOKABLE&#39;, that can be
+        // copy-constructed, and where the expression &#39;(void)function()&#39; will
+        // execute a function call (i.e., either a &#39;void()()&#39; function, or a
+        // functor object implementing &#39;void operator()()&#39;).
+        // &#39;bslmt::Configuration&#39; is used to determine the created thread&#39;s
+        // default stack-size if either &#39;attributes&#39; is not supplied or if
+        // &#39;attributes.stackSize()&#39; has the unset value.  The behavior is
+        // undefined unless unless &#39;attributes&#39;, if specified, has a
+        // &#39;stackSize&#39; that is either greater than 0 or &#39;e_UNSET_STACK_SIZE&#39;.
+        // Note that unless the created thread is explicitly &quot;detached&quot; (by
+        // invoking the &#39;detach&#39; class method with &#39;handle&#39;) or the
+        // &#39;k_CREATE_DETACHED&#39; attribute is specified, a call to &#39;join&#39; must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that users are encouraged to either
+        // explicitly provide a stack size attribute, or configure a
+        // &#39;bslmt&#39;-wide default using &#39;bslmt::Configuration&#39;,  because the
+        // default stack size is surprisingly small on some platforms.
+
+    template &lt;class INVOKABLE&gt;
+    static int createWithAllocator(Handle                  *handle,
+                                   const INVOKABLE&amp;         function,
+                                   bslma::Allocator        *allocator);
+    template &lt;class INVOKABLE&gt;
+    static int createWithAllocator(Handle                  *handle,
+                                   const ThreadAttributes&amp;  attributes,
+                                   const INVOKABLE&amp;         function,
+                                   bslma::Allocator        *allocator);
+        // Create a new thread of program control whose entry point will invoke
+        // the the specified &#39;function&#39; object (using the specified &#39;allocator&#39;
+        // to supply memory to copy &#39;function&#39;), and load into the specified
+        // &#39;handle&#39; an identifier that may be used to refer to this thread in
+        // calls to other &#39;ThreadUtil&#39; methods.  Optionally specify
+        // &#39;attributes&#39; describing the properties for the new thread to create.
+        // If &#39;attributes&#39; is not supplied, a default &#39;ThreadAttributes&#39; object
+        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // &#39;function&#39; shall be a reference to a type, &#39;INVOKABLE&#39;, that can be
+        // copy-constructed, and where the expression &#39;(void)function()&#39; will
+        // execute a function call (i.e., either a &#39;void()()&#39; function, or a
+        // functor object implementing &#39;void operator()()&#39;).
+        // &#39;bslmt::Configuration&#39; is used to determine the created thread&#39;s
+        // default stack-size if either &#39;attributes&#39; is not supplied or if
+        // &#39;attributes.stackSize()&#39; has the unset value.  The behavior is
+        // undefined unless unless &#39;attributes&#39;, if specified, has a
+        // &#39;stackSize&#39; that is either greater than 0 or &#39;e_UNSET_STACK_SIZE&#39;.
+        // Note that unless the created thread is explicitly &quot;detached&quot; (by
+        // invoking the &#39;detach&#39; class method with &#39;handle&#39;) or the
+        // &#39;k_CREATE_DETACHED&#39; attribute is specified, a call to &#39;join&#39; must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that the lifetime of &#39;allocator&#39;
+        // must exceed the lifetime of the thread.  Also note that users are
+        // encouraged to either explicitly provide a stack size attribute, or
+        // configure a &#39;bslmt&#39;-wide default using &#39;bslmt::Configuration&#39;,
+        // because the default stack size is surprisingly small on some
+        // platforms.
+
+    static int detach(Handle&amp; handle);
+        // &quot;Detach&quot; the thread identified by the specified &#39;handle&#39; such that
+        // when it terminates, the resources associated with that thread will
+        // automatically be reclaimed.  The behavior is undefined unless
+        // &#39;handle&#39; was obtained by a call to &#39;create&#39; or &#39;self&#39;.  Note that
+        // once a thread is &quot;detached&quot;, it is no longer possible to &#39;join&#39; the
+        // thread to retrieve its exit status.
+
+    static void exit(void *status);
+        // Exit the current thread and return the specified &#39;status&#39;.  If the
+        // current thread is not &quot;detached&quot;, then a call to &#39;join&#39; must be made
+        // to reclaim any resources used by the thread, and to retrieve the
+        // exit status.  Note that the preferred method of exiting a thread is
+        // to return from the entry point function.
+
+    static int getMinSchedulingPriority(
+                                    ThreadAttributes::SchedulingPolicy policy);
+        // Return the minimum available priority for the specified &#39;policy&#39;,
+        // where &#39;policy&#39; is of type &#39;ThreadAttributes::SchedulingPolicy&#39;.
+        // Return &#39;ThreadAttributes::e_UNSET_PRIORITY&#39; if the minimum
+        // scheduling priority cannot be determined.  Note that, for some
+        // platform / policy combinations, &#39;getMinSchedulingPriority(policy)&#39;
+        // and &#39;getMaxSchedulingPriority(policy)&#39; return the same value.
+
+    static int getMaxSchedulingPriority(
+                                    ThreadAttributes::SchedulingPolicy policy);
+        // Return the maximum available priority for the specified &#39;policy&#39;,
+        // where &#39;policy&#39; is of type &#39;ThreadAttributes::SchedulingPolicy&#39;.
+        // Return &#39;ThreadAttributes::e_UNSET_PRIORITY&#39; if the maximum
+        // scheduling priority cannot be determined.  Note that, for some
+        // platform / policy combinations, &#39;getMinSchedulingPriority(policy)&#39;
+        // and &#39;getMaxSchedulingPriority(policy)&#39; return the same value.
+
+    static int join(Handle&amp; threadHandle, void **status = 0);
+        // Suspend execution of the current thread until the thread referred to
+        // by the specified &#39;threadHandle&#39; terminates, and reclaim any system
+        // resources associated with &#39;threadHandle&#39;.  If the optionally
+        // specified &#39;status&#39; is not 0, load into &#39;*status&#39; the value returned
+        // by the function supplied at the creation of the thread identified by
+        // &#39;threadHandle&#39;.  The behavior is undefined unless &#39;threadHandle&#39; was
+        // obtained by a call to &#39;create&#39;.
+
+    static void microSleep(int microseconds, int seconds = 0);
+        // Suspend execution of the current thread for a period of at least the
+        // specified &#39;microseconds&#39; and the optionally specified &#39;seconds&#39;
+        // (relative time).  Note that the actual time suspended depends on
+        // many factors including system scheduling and system timer
+        // resolution, and may be significantly longer than the time requested.
+
+    static void sleep(const bsls::TimeInterval&amp; sleepTime);
+        // Suspend execution of the current thread for a period of at least the
+        // specified &#39;sleepTime&#39; (relative time).  Note that the actual time
+        // suspended depends on many factors including system scheduling and
+        // system timer resolution.
+
+    static void sleepUntil(const bsls::TimeInterval&amp;   absoluteTime,
+                           bsls::SystemClockType::Enum clockType
+                                          = bsls::SystemClockType::e_REALTIME);
+        // Suspend execution of the current thread until the specified
+        // &#39;absoluteTime&#39;.  Optionally specify &#39;clockType&#39; which determines the
+        // epoch from which the interval &#39;absoluteTime&#39; is measured (see
+        // {&#39;Supported Clock-Types&#39;} in the component documentation).  The
+        // behavior is undefined unless &#39;absoluteTime&#39; represents a time after
+        // January 1, 1970 and before the end of December 31, 9999 (i.e., a
+        // time interval greater than or equal to 0, and less than
+        // 253,402,300,800 seconds).  Note that the actual time suspended
+        // depends on many factors including system scheduling and system timer
+        // resolution.
+
+    static void yield();
+        // Move the current thread to the end of the scheduler&#39;s queue and
+        // schedule another thread to run.  Note that this allows cooperating
+        // threads of the same priority to share CPU resources equally.
+
+                       // *** Thread Identification ***
+
+    static bool areEqual(const Handle&amp; a, const Handle&amp; b);
+        // Return &#39;true&#39; if the specified &#39;a&#39; and &#39;b&#39; thread handles identify
+        // the same thread, or if both &#39;a&#39; and &#39;b&#39; are invalid handles, and
+        // &#39;false&#39; otherwise.  Note that if *either* of &#39;a&#39; or &#39;b&#39; is an
+        // invalid handle, but not both, this method returns &#39;false&#39;.
+
+    static bool areEqualId(const Id&amp; a, const Id&amp; b);
+        // Return &#39;true&#39; if the specified &#39;a&#39; thread identifier is associated
+        // with the same thread as the specified &#39;b&#39; thread identifier, and
+        // &#39;false&#39; otherwise.
+
+    static Id handleToId(const Handle&amp; threadHandle);
+        // Return the unique identifier of the thread having the specified
+        // &#39;threadHandle&#39; within the current process.  The behavior is
+        // undefined unless &#39;handle&#39; was obtained by a call to &#39;create&#39; or
+        // &#39;self&#39;.  Note that this value is valid only until the thread
+        // terminates, and may be reused thereafter.
+
+    static bsls::Types::Uint64 idAsUint64(const Id&amp; threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified &#39;threadId&#39; within the current process.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+
+    static int idAsInt(const Id&amp; threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified &#39;threadId&#39; within the current process.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+        //
+        // DEPRECATED: use &#39;idAsUint64&#39;.
+
+    static const Handle&amp; invalidHandle();
+        // Return a reference to the non-modifiable &#39;Handle&#39; object that is
+        // guaranteed never to be a valid thread handle.
+
+    static bool isEqual(const Handle&amp; a, const Handle&amp; b);
+        // Return &#39;true&#39; if the specified &#39;a&#39; and &#39;b&#39; thread handles identify
+        // the same thread, or if both &#39;a&#39; and &#39;b&#39; are invalid handles, and
+        // &#39;false&#39; otherwise.  Note that if *either* of &#39;a&#39; or &#39;b&#39; is an
+        // invalid handle, but not both, this method returns &#39;false&#39;.
+        //
+        // DEPRECATED: use &#39;areEqual&#39; instead.
+
+    static bool isEqualId(const Id&amp; a, const Id&amp; b);
+        // Return &#39;true&#39; if the specified &#39;lhs&#39; thread identifier is associated
+        // with the same thread as the specified &#39;rhs&#39; thread identifier, and
+        // &#39;false&#39; otherwise.
+        //
+        // DEPRECATED: use &#39;areEqualId&#39; instead.
+
+    static NativeHandle nativeHandle(const Handle&amp; handle);
+        // Return the platform-specific identifier associated with the thread
+        // referred to by the specified &#39;handle&#39;.  The behavior is undefined
+        // unless &#39;handle&#39; was obtained by a call to &#39;create&#39; or &#39;self&#39;.  Note
+        // that the returned native handle may not be a globally unique
+        // identifier for the thread (see &#39;selfIdAsUint&#39;).
+
+    static Handle self();
+        // Return an identifier that can be used to refer to the current thread
+        // in calls to other &#39;ThreadUtil&#39; methods.
+
+    static Id selfId();
+        // Return an identifier that can be used to uniquely identify the
+        // current thread within the current process.  Note that the identifier
+        // is only valid until the thread terminates and may be reused
+        // thereafter.
+
+    static bsls::Types::Uint64 selfIdAsInt();
+        // Return an integral identifier that can be used to uniquely identify
+        // the current thread within the current process.  Note that this
+        // representation is particularly useful for logging purposes.  Also
+        // note that this value is only valid until the thread terminates and
+        // may be reused thereafter.
+        //
+        // DEPRECATED: use &#39;selfIdAsUint64&#39; instead.
+
+    static bsls::Types::Uint64 selfIdAsUint64();
+        // Return an integral identifier that can be used to uniquely identify
+        // the current thread within the current process.  Note that this
+        // representation is particularly useful for logging purposes.  Also
+        // note that this value is valid only until the thread terminates, and
+        // may be reused thereafter.
+
+                // *** Thread-Specific (Local) Storage (TSS or TLS) ***
+
+    static int createKey(Key *key, Destructor threadKeyCleanupFunction);
+        // Load into the specified &#39;key&#39; a new process-wide identifier that can
+        // be used to store (via &#39;setSpecific&#39;) and retrieve (via
+        // &#39;getSpecific&#39;) a pointer value local to each thread, and associate
+        // with the new key the specified &#39;threadKeyCleanupFunction&#39;, which
+        // will be called by each thread, if &#39;threadKeyCleanupFunction&#39; is
+        // non-zero and the value associated with &#39;key&#39; for that thread is
+        // non-zero, with the associated value as an argument, after the
+        // function passed to &#39;create&#39; has returned and before the thread
+        // terminates.  Return 0 on success, and a non-zero value otherwise.
+        // Note that multiple keys can be defined, which can result in multiple
+        // thread key cleanup functions being called for a given thread.
+
+    static int deleteKey(Key&amp; key);
+        // Delete the specified &#39;key&#39; from the calling process, and
+        // disassociate all threads from the thread key cleanup function
+        // supplied when &#39;key&#39; was created (see &#39;createKey&#39;).  Return 0 on
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // unless &#39;key&#39; was obtained from a successful call to &#39;createKey&#39; and
+        // has not already been deleted.  Note that deleting a key does not
+        // delete any data referred to by the pointer values associated with
+        // that key in any thread.
+
+    static void *getSpecific(const Key&amp; key);
+        // Return the thread-local value associated with the specified &#39;key&#39;.
+        // A &#39;key&#39; is shared among all threads and the value associated with
+        // &#39;key&#39; for each thread is 0 until it is set by that thread using
+        // &#39;setSpecific&#39;.  The behavior is undefined unless this method is
+        // called outside any thread key cleanup function associated with any
+        // key by &#39;createKey&#39;, &#39;key&#39; was obtained from a successful call to
+        // &#39;createKey&#39;, and &#39;key&#39; has not been deleted.
+
+    static int setSpecific(const Key&amp; key, const void *value);
+        // Associate the specified thread-local &#39;value&#39; with the specified
+        // process-wide &#39;key&#39;.  Return 0 on success, and a non-zero value
+        // otherwise.  The value associated with a thread for a given key is 0
+        // until it has been set by that thread using &#39;setSpecific&#39;.  The
+        // behavior is undefined unless this method is called outside any
+        // thread key cleanup function associated with any key by &#39;createKey&#39;,
+        // &#39;key&#39; was obtained from a successful call to &#39;createKey&#39;, and &#39;key&#39;
+        // has not been deleted.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                            // -----------------
+                            // struct ThreadUtil
+                            // -----------------
+
+                    // *** Thread Management ***
+
+// CLASS METHODS
+inline
+int bslmt::ThreadUtil::create(Handle                  *handle,
+                              const ThreadAttributes&amp;  attributes,
+                              ThreadFunction           function,
+                              void                    *userData)
+{
+    return Imp::create(handle, attributes, function, userData);
+}
+
+inline
+int bslmt::ThreadUtil::create(Handle         *handle,
+                              ThreadFunction  function,
+                              void           *userData)
+{
+    return Imp::create(handle, function, userData);
+}
+
+template &lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadUtil::create(Handle           *handle,
+                              const INVOKABLE&amp;  function)
+{
+    return createWithAllocator(handle,
+                               function,
+                               bslma::Default::globalAllocator());
+}
+
+template &lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadUtil::create(Handle                  *handle,
+                              const ThreadAttributes&amp;  attributes,
+                              const INVOKABLE&amp;         function)
+{
+    return createWithAllocator(handle,
+                               attributes,
+                               function,
+                               bslma::Default::globalAllocator());
+}
+
+template &lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
+                                           const ThreadAttributes&amp;  attributes,
+                                           const INVOKABLE&amp;         function,
+                                           bslma::Allocator        *allocator)
+{
+    bslma::ManagedPtr&lt;EntryPointFunctorAdapter&lt;INVOKABLE&gt; &gt; threadData;
+    EntryPointFunctorAdapterUtil::allocateAdapter(
+                                   &amp;threadData,
+                                   function,
+                                   bslma::Default::globalAllocator(allocator));
+
+    int rc = create(handle, attributes, bslmt_EntryPointFunctorAdapter_invoker,
+                    threadData.ptr());
+    if (0 == rc) {
+        threadData.release();
+    }
+    return rc;
+}
+
+template &lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
+                                           const INVOKABLE&amp;  function,
+                                           bslma::Allocator *allocator)
+{
+    bslma::ManagedPtr&lt;EntryPointFunctorAdapter&lt;INVOKABLE&gt; &gt; threadData;
+    EntryPointFunctorAdapterUtil::allocateAdapter(
+                                   &amp;threadData,
+                                   function,
+                                   bslma::Default::globalAllocator(allocator));
+
+    int rc = create(handle, bslmt_EntryPointFunctorAdapter_invoker,
+                    threadData.ptr());
+    if (0 == rc) {
+        threadData.release();
+    }
+    return rc;
+}
+
+inline
+int bslmt::ThreadUtil::detach(Handle&amp; handle)
+{
+    return Imp::detach(handle);
+}
+
+inline
+void bslmt::ThreadUtil::exit(void *status)
+{
+    Imp::exit(status);
+}
+
+inline
+int bslmt::ThreadUtil::getMinSchedulingPriority(
+                                     ThreadAttributes::SchedulingPolicy policy)
+{
+    return Imp::getMinSchedulingPriority(policy);
+}
+
+inline
+int bslmt::ThreadUtil::getMaxSchedulingPriority(
+                                     ThreadAttributes::SchedulingPolicy policy)
+{
+    return Imp::getMaxSchedulingPriority(policy);
+}
+
+inline
+int bslmt::ThreadUtil::join(Handle&amp; threadHandle, void **status)
+{
+    return Imp::join(threadHandle, status);
+}
+
+inline
+void bslmt::ThreadUtil::microSleep(int microseconds, int seconds)
+{
+    Imp::microSleep(microseconds, seconds);
+}
+
+inline
+void bslmt::ThreadUtil::sleep(const bsls::TimeInterval&amp; sleepTime)
+{
+    Imp::sleep(sleepTime);
+}
+
+inline
+void bslmt::ThreadUtil::sleepUntil(const bsls::TimeInterval&amp;   absoluteTime,
+                                   bsls::SystemClockType::Enum clockType)
+{
+    int status = Imp::sleepUntil(absoluteTime, clockType);
+    (void) status;  // Suppress a unused variable error.
+    BSLS_ASSERT(0 == status);
+}
+
+inline
+void bslmt::ThreadUtil::yield()
+{
+    Imp::yield();
+}
+
+                    // *** Thread Identification ***
+
+inline
+bool bslmt::ThreadUtil::areEqual(const Handle&amp; a, const Handle&amp; b)
+{
+    // Some implementations (notably pthreads) do not define the result of
+    // comparing invalid handles.  We avoid undefined behavior by explicitly
+    // checking for invalid handles.
+
+    return Imp::INVALID_HANDLE == a
+           ? (Imp::INVALID_HANDLE == b)
+           : (Imp::INVALID_HANDLE == b ? false : Imp::areEqual(a, b));
+}
+
+inline
+bool bslmt::ThreadUtil::areEqualId(const Id&amp; a, const Id&amp; b)
+{
+    return Imp::areEqualId(a, b);
+}
+
+inline
+bslmt::ThreadUtil::Id bslmt::ThreadUtil::handleToId(const Handle&amp; threadHandle)
+{
+    return Imp::handleToId(threadHandle);
+}
+
+inline
+bsls::Types::Uint64 bslmt::ThreadUtil::idAsUint64(const Id&amp; threadId)
+{
+    return Imp::idAsUint64(threadId);
+}
+
+inline
+int bslmt::ThreadUtil::idAsInt(const Id&amp; threadId)
+{
+    return Imp::idAsInt(threadId);
+}
+
+inline
+const bslmt::ThreadUtil::Handle&amp; bslmt::ThreadUtil::invalidHandle()
+{
+    return Imp::INVALID_HANDLE;
+}
+
+inline
+bool bslmt::ThreadUtil::isEqual(const Handle&amp; a, const Handle&amp; b)
+{
+    return Imp::areEqual(a, b);
+}
+
+inline
+bool bslmt::ThreadUtil::isEqualId(const Id&amp; a, const Id&amp; b)
+{
+    return Imp::areEqualId(a, b);
+}
+
+inline
+bslmt::ThreadUtil::NativeHandle
+bslmt::ThreadUtil::nativeHandle(const Handle&amp; handle)
+{
+    return Imp::nativeHandle(handle);
+}
+
+inline
+bslmt::ThreadUtil::Handle bslmt::ThreadUtil::self()
+{
+    return Imp::self();
+}
+
+inline
+bslmt::ThreadUtil::Id bslmt::ThreadUtil::selfId()
+{
+    return Imp::selfId();
+}
+
+inline
+bsls::Types::Uint64 bslmt::ThreadUtil::selfIdAsInt()
+{
+    return Imp::selfIdAsInt();
+}
+
+inline
+bsls::Types::Uint64 bslmt::ThreadUtil::selfIdAsUint64()
+{
+    return Imp::selfIdAsUint64();
+}
+
+            // *** Thread-Specific (Local) Storage (TSS or TLS) ***
+
+inline
+int bslmt::ThreadUtil::createKey(Key *key, Destructor threadKeyCleanupFunction)
+{
+    return Imp::createKey(key, threadKeyCleanupFunction);
+}
+
+inline
+int bslmt::ThreadUtil::deleteKey(Key&amp; key)
+{
+    return Imp::deleteKey(key);
+}
+
+inline
+void *bslmt::ThreadUtil::getSpecific(const Key&amp; key)
+{
+    return Imp::getSpecific(key);
+}
+
+inline
+int bslmt::ThreadUtil::setSpecific(const Key&amp; key, const void *value)
+{
+    return Imp::setSpecific(key, value);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

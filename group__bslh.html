@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslh Package</title>
+<title>BDE 3.0: bslh Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -162,9 +162,9 @@ Components</h2></td></tr>
 <li>
 <a href="#3.5">Type Users</a> <ul>
 <li>
-<a href="#3.5.1">bsl::hash</a> </li>
+<a href="#3.5.1"><code>bsl::hash</code></a> </li>
 <li>
-<a href="#3.5.2">bslh::Hash</a> </li>
+<a href="#3.5.2"><code>bslh::Hash</code></a> </li>
 <li>
 <a href="#3.5.3"><code>bslh::SeededHash</code>, <code>bslh::SeedGenerator</code>, and Secure Hashing</a> <ul>
 <li>
@@ -172,7 +172,7 @@ Components</h2></td></tr>
 <li>
 <a href="#3.5.3.2"><code>bslh::SeedGenerator</code></a> </li>
 <li>
-<a href="#3.5.3.3">bslh::SeededHash</a> </li>
+<a href="#3.5.3.3"><code>bslh::SeededHash</code></a> </li>
 </ul>
 </li>
 <li>
@@ -186,7 +186,7 @@ Components</h2></td></tr>
 <li>
 <a href="#3.6.1">Hashing Algorithm Functors</a> </li>
 <li>
-<a href="#3.6.2">Hashing Algorithm Wrappers (bslh::Hash)</a> </li>
+<a href="#3.6.2">Hashing Algorithm Wrappers (<code>bslh::Hash</code>)</a> </li>
 <li>
 <a href="#3.6.3">Seed Generator</a> </li>
 </ul>
@@ -363,7 +363,7 @@ Component Synopsis  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="funneling"></a> <a class="anchor" id="terminology.funneling"></a> <a class="anchor" id="description.terminology.funneling"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
 <dl class="user"><dt><b>Funneling: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An undesirable property of hashing algorithms that results in a large number of collisions when the inputs differ by only a few bits. Funneling is related to the avalanche property of a hashing algorithm and is essentially the opposite of avalanche. More information can be found at <a href="http://burtleburtle.net/bob/hash/evahash.html">http://burtleburtle.net/bob/hash/evahash.html</a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An undesirable property of hashing algorithms that results in a large number of collisions when the inputs differ by only a few bits. Funneling is related to the avalanche property of a hashing algorithm and is essentially the opposite of avalanche. More information can be found at <code><a href="http://burtleburtle.net/bob/hash/evahash.html">http://burtleburtle.net/bob/hash/evahash.html</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="salient_to_hashing"></a> <a class="anchor" id="terminology.salient_to_hashing"></a> <a class="anchor" id="description.terminology.salient_to_hashing"></a> <a class="anchor" id="3.2.4"></a> </dd></dl>
 <dl class="user"><dt><b>Salient to Hashing: </b></dt><dd></dd></dl>
@@ -377,33 +377,34 @@ Component Synopsis  </li>
 <dl class="user"><dt><b>Better and More Predictable Performance: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This modular hashing system allows users to use known good hashing algorithms to avoid performance issues. The graph below depicts <code>unordered_map</code> (expected case O(1)) taking longer to find elements that map. This is a real-world benchmark. Internal users can read more about these tests at {TEAM BDE:FLAT MAP&lt;GO&gt;}. The anomalous behavior arose from the use of a poorly written, non-standard, hashing algorithm, which caused similar strings to hash to the same value resulting in many collisions: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">         Time to Find a pair&lt;string, string&gt; in map vs unordered_map
+<div class="fragment"><pre class="fragment">           <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a> to Find a pair&lt;string, string&gt; in map vs unordered_map
 
-   18 |
-      |                      O = map   X = unordered_map
-   16 |
-T     |                                                              X
-i  14 |                                                              |
-m     |                                                             /
-e  12 |                                                            /-O
-      |                                                           /
-i  10 |                                                        - /
-n     |                                                      -  /
-    8 |                                                    O   /
-S     |                                                 --    /
-e   6 |                                               -      /
-c     |                                             --      /
-o   4 |                                       ----O        X
-n     |                               ----O---           --
-d   2 |                      ---O-----              ----
-s     |       XO-------XO-------X--------X--------X
-      |____________________________________________________________________
-              |        |        |        |        |        |        |
-              1        10       100      1000     10000    100000   1000000
-                             Elements in Collection
+     18 |
+        |                      O = map   X = unordered_map
+     16 |
+  T     |                                                              X
+  i  14 |                                                              |
+  m     |                                                             /
+  e  12 |                                                            /-O
+        |                                                           /
+  i  10 |                                                        - /
+  n     |                                                      -  /
+      8 |                                                    O   /
+  S     |                                                 --    /
+  e   6 |                                               -      /
+  c     |                                             --      /
+  o   4 |                                       ----O        X
+  n     |                               ----O---           --
+  d   2 |                      ---O-----              ----
+  s     |       XO-------XO-------X--------X--------X
+        |____________________________________________________________________
+                |        |        |        |        |        |        |
+                1        10       100      1000     10000    100000   1000000
+                               Elements in Collection
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="less_code_duplication"></a> <a class="anchor" id="why_use_this_system~3F.less_code_duplication"></a> <a class="anchor" id="description.why_use_this_system~3F.less_code_duplication"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Less Code Duplication: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the standard C++03 hashing system, hashing algorithms were often copied into the <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> template specialization on each type. This resulted in lots of code duplication. In the new system, algorithms are not implemented directly on the type, so no algorithm duplication occurs. The little bit of code that is written on the type is specific to that type and wouldn't be copied elsewhere. </dd></dl>
@@ -420,16 +421,17 @@ s     |       XO-------XO-------X--------X--------X
 <dl class="user"><dt><b>Swappable Algorithms: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the standard C++03 hashing system, anyone who wanted to hash a type had to use the algorithm written by the type implementer, or they had to write their own algorithm in a functor (without access to private data members of course). Unfortunately, hashing algorithms are not one size fits all. In some cases, a fast identity hash is fine. In other cases a slower hash that is secure against Denial of Service (DoS) attacks is required. The new, modular hashing system offers a suite of hashing algorithms that have been vetted and are know to have good characteristics for different situations. Swapping out one algorithm for another only requires a type's users to change one line of code, as shown here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// Uses implicitly &#39;DefaultHashAlgorithm&#39;.</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;&gt;</a>&gt; unorderedMap;
+<div class="fragment"><pre class="fragment">  <span class="comment">// Uses implicitly &#39;DefaultHashAlgorithm&#39;.</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;&gt;</a>&gt; unorderedMap;
 
-<span class="comment">// Only a single line change is required to use &#39;SpookyHashAlgorithm&#39;</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a>&lt;MyType,
-                   int,
-                   <a class="code" href="structbslh_1_1Hash.html">bslh::Hash&lt;bslh::SpookyHashAlgorithm&gt;</a>&gt; unorderedMap;
+  <span class="comment">// Only a single line change is required to use &#39;SpookyHashAlgorithm&#39;</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a>&lt;MyType,
+                     int,
+                     <a class="code" href="structbslh_1_1Hash.html">bslh::Hash&lt;bslh::SpookyHashAlgorithm&gt;</a>&gt; unorderedMap;
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="type_implementers"></a> <a class="anchor" id="description.type_implementers"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Type Implementers: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>It is the type implementer's job to implement <code>hashAppend</code> (explained below) on their type, much like they have to implement <code>swap</code> on their type. It is important to note that implementing <code>hashAppend</code> on <code>MyType</code> is fully backward compatible with <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;MyType&gt;</code>. That means that when you implement <code>hashAppend</code> on <code>MyNewType</code>, <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;MyNewType&gt;</code> will automatically pick it up without you ever having to write your own template specialization. For existing types that already have a <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;MyExistingType&gt;</code> specialization, it is recommended that type implementers delete <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;MyExistingType&gt;</code> once they have implemented <code>hashAppend</code>. Deleting the <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> template specialization for <code>MyExistingType</code> will not break any code because <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;TYPE&gt;</code> automatically redirects to <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a>&lt;&gt;</code>. Note that deleting the <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> template specialization for <code>MyExistingType</code> will cause the hash value returned by calls to <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;MyExistingType&gt;</code> to change, but this is explicitly allowed in the <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> contract. </dd></dl>
@@ -438,61 +440,66 @@ s     |       XO-------XO-------X--------X--------X
 <dl class="user"><dt><b>hashAppend: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The fundamental piece of this system, at least for type implementers, is the <code>hashAppend</code> free function. What this free function does is pass the data members of a class which need to be hashed, into a hashing algorithm. It removes the need for the type implementer to actually write the hashing algorithm. An example implementation can be seen below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">namespace </span>BloombergLP {
-<span class="keyword">namespace </span>NamespaceForBoxes {
-<span class="keyword">class </span>Box {
-    <span class="comment">// A value semantic type that represents a box drawn on to a Cartesian</span>
-    <span class="comment">// plane.</span>
-  <span class="keyword">private</span>:
-    Point d_position;
-    <span class="keywordtype">int</span> d_length;
-    <span class="keywordtype">int</span> d_width;
-  <span class="keyword">public</span>:
-    Box(Point position, <span class="keywordtype">int</span> length, <span class="keywordtype">int</span> width);
-        <span class="comment">// Create a box with the specified &#39;length&#39; and &#39;width&#39;, with its upper</span>
-        <span class="comment">// left corner at the specified &#39;position&#39;</span>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>BloombergLP {
+  <span class="keyword">namespace </span>NamespaceForBoxes {
 
-    <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right);
+  <span class="keyword">class </span>Box {
+      <span class="comment">// A value semantic type that represents a box drawn on to a Cartesian</span>
+      <span class="comment">// plane.</span>
+    <span class="keyword">private</span>:
+      Point d_position;
+      <span class="keywordtype">int</span>   d_length;
+      <span class="keywordtype">int</span>   d_width;
+    <span class="keyword">public</span>:
+      Box(Point position, <span class="keywordtype">int</span> length, <span class="keywordtype">int</span> width);
+          <span class="comment">// Create a box with the specified &#39;length&#39; and &#39;width&#39;, with its</span>
+          <span class="comment">// upper left corner at the specified &#39;position&#39;</span>
 
-    <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-    <span class="keyword">friend</span>
-    <span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box);
-        <span class="comment">// Apply the specified &#39;hashAlg&#39; to the specified &#39;box&#39;</span>
-};
-Box::Box(Point position, <span class="keywordtype">int</span> length, <span class="keywordtype">int</span> width)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_position(position)
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right);
 
- \par
- &lt;/div&gt;
-,   d_length(length)
-,   d_width(width)
-{
-}
+      <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
+      <span class="keyword">friend</span>
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box);
+          <span class="comment">// Apply the specified &#39;hashAlg&#39; to the specified &#39;box&#39;</span>
+  };
 
-<span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right)
-{
-    <span class="keywordflow">return</span> (left.d_position == right.d_position) &amp;&amp;
-           (left.d_length   == right.d_length) &amp;&amp;
-           (left.d_width    == right.d_width);
-}
+  Box::Box(Point position, <span class="keywordtype">int</span> length, <span class="keywordtype">int</span> width)
+  : d_position(position)
+  , d_length(length)
+  , d_width(width)
+  {
+  }
 
-<span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-<span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
-{
-    <span class="keyword">using</span> bslh::hashAppend;
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_position);
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_length);
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_width);
-}
-} <span class="comment">// close namespace NamespaceForBoxes</span>
-} <span class="comment">// close namespace BloombergLP</span>
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right)
+  {
+      <span class="keywordflow">return</span> (left.d_position == right.d_position)
+          &amp;&amp; (left.d_length   == right.d_length)
+          &amp;&amp; (left.d_width    == right.d_width);
+  }
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
+  {
+      <span class="keyword">using</span> bslh::hashAppend;
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_position);
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_length);
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_width);
+  }
+
+  } <span class="comment">// close package namespace</span>
+  } <span class="comment">// close enterprise namespace</span>
 </pre></div><br/>
 <br/>
- A few key features of the hashAppend fuction: <ol>
+ A few key features of the <code>hashAppend</code> fuction: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ol>
 <li>
-<code>hashAppend</code> is a free function that can be picked up through argument dependent look-up (ADL). A In order to ensure <code>hashAppend</code> can be found through ADL, the function must begin with <code>using <a class="el" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">bslh::hashAppend</a></code>. Note that most of the time this isn't required because most <code>HASH_ALGORITHM</code>s will be implemented in <code>bslh</code> and thus ADL will already be looking in <code>bslh</code>. The using statement is still required, however, to support algorithms that are implemented outside of <code>blsh</code>.  </li>
+<p class="startli"><code>hashAppend</code> is a free function that can be picked up through argument dependent look-up (ADL).</p>
+<ol>
+<li>
+In order to ensure <code>hashAppend</code> can be found through ADL, the function must begin with <code>using <a class="el" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">bslh::hashAppend</a></code>. Note that most of the time this isn't required because most <code>HASH_ALGORITHM</code>s will be implemented in <code>bslh</code> and thus ADL will already be looking in <code>bslh</code>. The using statement is still required, however, to support algorithms that are implemented outside of <code>blsh</code>. </li>
+</ol>
+<p class="endli"></p>
+</li>
 <li>
 <code>hashAppend</code> is defined the header file of the type for which it is implemented.  </li>
 <li>
@@ -510,20 +517,20 @@ If <code>hashAppend</code> requires access to private data, it is declared as a 
 <dl class="user"><dt><b></b></dt><dd>Type implementers should be familiar with the rules for hash functions. There are two main rules: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
-If x == y, then both x and y shall produce the same hash.  </li>
+If <code>x == y</code>, then both <code>x</code> and <code>y</code> shall produce the same hash.  </li>
 <li>
-If x != y, then x and y should not produce the same hash.  </li>
+If <code>x != y</code>, then <code>x</code> and <code>y</code> should not produce the same hash.  </li>
 </ol>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For example, if the first rule is violated, <code>unordered_map</code> will encounter runtime errors. If the second rule is violated, collisions will occur and the performance of <code>unordered_map</code> will suffer. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Since the rule about hashing are predicated on <code>operator==</code>, the easiest way to determine what to hash is to look at <code>operator==</code>. For example, lets reexamine <code>operator==</code> from our earlier code sample: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right)
-{
-    <span class="keywordflow">return</span> (left.d_position == right.d_position) &amp;&amp;
-           (left.d_length   == right.d_length)   &amp;&amp;
-           (left.d_width    == right.d_width);
-}
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Box &amp;left, <span class="keyword">const</span> Box &amp;right)
+  {
+      <span class="keywordflow">return</span> (left.d_position == right.d_position)
+          &amp;&amp; (left.d_length   == right.d_length)
+          &amp;&amp; (left.d_width    == right.d_width);
+  }
 </pre></div><br/>
 <br/>
  In order to ensure that the first rule of hashing if followed, we must only include data members in our hash if one of the following is true: </dd></dl>
@@ -539,14 +546,14 @@ The data member is constant.  </li>
 <dl class="user"><dt><b></b></dt><dd>If we do not meet any of the above criteria, we open ourselves to the possibility that two objects that compare equal will hash to different values. If two equal objects hash to different values, hash-based data structures (<code>unordered_map</code> being the primary concern) will break. And example of something not to include in <code>hashAppend</code> would be the <code>capacity()</code> of a vector. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In order to make the second rule of hashing remain true, we should include everything that appears in <code>operator==</code> in our hash. The more data we can put into the hashing algorithm, the higher the chances of us getting unique outputs. By following these suggestions, we produced the <code>hashAppend</code> function from our earlier code example: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-<span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
-{
-    <span class="keyword">using</span> bslh::hashAppend;
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_position);
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_length);
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_width);
-}
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
+  {
+      <span class="keyword">using</span> bslh::hashAppend;
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_position);
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_length);
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_width);
+  }
 </pre></div><br/>
 <br/>
  It is worth noting that sometimes even data members that don't actually contribute entropy can still help us produce a more unique unique outputs. For example consider <code>vector&lt;vector&lt;int&gt; &gt;</code>. If we just hashed the elements in the vector, then an empty <code>vector&lt;vector&lt;int&gt; &gt;</code> would generate the same hash value as a <code>vector&lt;vector&lt;int&gt; &gt;</code> containing one (or more) empty <code>vector&lt;int&gt;</code> objects. This violates the second rule of hashing (above). By also passing <code>vector.length()</code> (which is used in equality) into the algorithm, the two vectors will hash to different values. </dd></dl>
@@ -555,14 +562,14 @@ The data member is constant.  </li>
 <dl class="user"><dt><b>Hashing Other User Defined Types: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>As we can see in code sample above showing <code>hashAppend</code>, <code>hashAppend</code> is called on a data member of the user-defined type, <code>Point</code>. This code will not compile if <code>Point</code> is a type for which <code>hashAppend</code> has not been implemented. The best route to take is to have the creator of <code>Point</code> go back and add a <code>hashAppend</code> function. If the creator, or somebody knowledgeable about the type, is not available to add the <code>hashAppend</code> function, there is a work around. Assuming <code>Point</code> supports the old system and has a <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;Point&gt;</code> specialization, you can just hash the <code>Point</code> and then pass the resulting <code>size_t</code> into <code>hashAppend</code> just like you would with any other integer data member. The following code sample shows how we can modify <code>Box</code>s <code>hashAppend</code> function to handle <code>Point</code> without a <code>hashAppend</code> free function for <code>Point</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-<span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
-{
-    <span class="keyword">using</span> bslh::hashAppend;
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;Point&gt;</a>()(box.d_position));
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_length);
-    <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.d_width);
-}
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
+  {
+      <span class="keyword">using</span> bslh::hashAppend;
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;Point&gt;</a>()(box.d_position));
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_length);
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.d_width);
+  }
 </pre></div><br/>
 <br/>
  In the above code sample, the first call to <code>hashAppend</code> is now effectively calling <code>hashAppend</code> on an integer type (the resulting hash from <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>), rather than on <code>Point</code>. This trick allows new development to use this modular hashing system without having to wait for existing code to be upgraded. </dd></dl>
@@ -571,20 +578,25 @@ The data member is constant.  </li>
 <dl class="user"><dt><b>Hashing Pointers (especially const char *): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Pointers, particularly C-Strings (in the <code>const char *</code> form), are an unfortunate exception in hashing. Because the standard mandates that we must be able to hash pointers, there is no way to distinguish a null terminated <code>const char *</code> (C-String) from a regular pointer to a <code>char</code>. Because of this, hashing C-Strings has slightly different semantics. Instead of calling <code>hashAppend</code> on the pointer, we must pass our C-String directly into the hashing algorithm functor. All of the hashing algorithm functors in <code>bslh</code> have the function signature shown below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> *data, <span class="keywordtype">size_t</span> length);
-    <span class="comment">// Incorporates the specified &#39;data&#39; of &#39;length&#39; bytes into the internal</span>
-    <span class="comment">// state of the hashing algorithm.</span>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> *data, <span class="keywordtype">size_t</span> length);
+      <span class="comment">// Incorporates the specified &#39;data&#39; of &#39;length&#39; bytes into the internal</span>
+      <span class="comment">// state of the hashing algorithm.</span>
 </pre></div><br/>
 <br/>
  As we can see, the hashing algorithm functor takes a pointer to the start of the data and a length in bytes. To hash a C-String, we call the hashing algorithm functor with our pointer and the length of the C-String which we have stored or pre-calculated. An example of this is the <code>hashAppend</code> function for string, shown here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span> &lt;<span class="keyword">class</span> HASHALG, <span class="keyword">class</span> CHAR_TYPE, <span class="keyword">class</span> CHAR_TRAITS, <span class="keyword">class</span> ALLOCATOR&gt;
-<span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASHALG&amp; hashAlg,
-                <span class="keyword">const</span> basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;&amp;  input)
-{
-    <span class="keyword">using</span> bslh::hashAppend;
-    hashAlg(input.data(), <span class="keyword">sizeof</span>(CHAR_TYPE)*input.size());
-}
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class </span>HASHALG,
+            <span class="keyword">class </span>CHAR_TYPE,
+            <span class="keyword">class </span>CHAR_TRAITS,
+            <span class="keyword">class </span>ALLOCATOR&gt;
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASHALG&amp;                        hashAlg,
+                  <span class="keyword">const</span> basic_string&lt;CHAR_TYPE,
+                                     CHAR_TRAITS,
+                                     ALLOCATOR&gt;&amp;  input)
+  {
+      <span class="keyword">using</span> bslh::hashAppend;
+      hashAlg(input.data(), <span class="keyword">sizeof</span>(CHAR_TYPE)*input.size());
+  }
 </pre></div><br/>
 <br/>
  This technique can be applied to any case where you want to hash contiguous data. It is especially important that the your data is completely contiguous, because padding bits and the like could result in the same data hashing to different values, which violates the first rule of hashing. </dd></dl>
@@ -649,33 +661,33 @@ Does not compile, please implement <code>hashAppend</code> on <code>SomeType</co
 </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that when <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;SomeType&gt;</code> redirects to <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a>&lt;&gt;</code>, <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a>&lt;&gt;</code> is always using the defualt hashing algorithm. This is fine for most use cases, but if we need to use a special algorithm, such as a secure one to prevent Denial of Service (DoS) attacks in a hash table, we must directly use <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> in order to swap out the algorithm template parameter. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh~3A~3Ahash"></a> <a class="anchor" id="type_users.bslh~3A~3Ahash"></a> <a class="anchor" id="description.type_users.bslh~3A~3Ahash"></a> <a class="anchor" id="bslh"></a> <a class="anchor" id="type_users.bslh"></a> <a class="anchor" id="description.type_users.bslh"></a> <a class="anchor" id="3.5.2"></a> </dd></dl>
 <dl class="user"><dt><b>bslh::Hash: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There are various algorithms that can be swapped into <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> as template parameters. Algorithms such as SipHash and SpookyHash (<code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> and <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code> respectively) are implemented and can be swapped into <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>. There are also a number of wrapper classes such as <code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code> and <code>balh::DefaultSeededHashAlgorithm</code> which are named to allow you to pick them based on what you need, meaning you don't need an in depth knowledge of the individual hashing algorithms. The usage of these algorithms can be seen below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// Implicitly uses &#39;bsl::hash&lt;MyType&gt;&#39;, may or may not redirect to</span>
-<span class="comment">// &#39;bslh::Hash&lt;&gt;&#39;.</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int&gt;</a> unorderedMap;
+<div class="fragment"><pre class="fragment">  <span class="comment">// Implicitly uses &#39;bsl::hash&lt;MyType&gt;&#39;, may or may not redirect to</span>
+  <span class="comment">// &#39;bslh::Hash&lt;&gt;&#39;.</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int&gt;</a> unorderedMap;
 
-<span class="comment">// Implicitly uses &#39;bslh::DefaultHashAlgorithm&#39;, which redirects to the current</span>
-<span class="comment">// best default algorithm for hashing.</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;&gt;</a>&gt; unorderedMap;
+  <span class="comment">// Implicitly uses &#39;bslh::DefaultHashAlgorithm&#39;, which redirects to the</span>
+  <span class="comment">// current best default algorithm for hashing.</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;&gt;</a>&gt; unorderedMap;
 
-<span class="comment">// Explicitly uses &#39;bslh::DefaultHashAlgorithm&#39;, which redirects to the current</span>
-<span class="comment">// best default algorithm for hashing.</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;bslh::DefaultHashAlgorithm&gt;</a>&gt;
+  <span class="comment">// Explicitly uses &#39;bslh::DefaultHashAlgorithm&#39;, which redirects to the</span>
+  <span class="comment">// current best default algorithm for hashing.</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;bslh::DefaultHashAlgorithm&gt;</a>&gt;
                                                                   unorderedMap;
 
-<span class="comment">// Explicitly uses &#39;bslh::SpookyHashAlgorithm&#39;, one of the algorithms available</span>
-<span class="comment">// in &#39;bslh&#39;.</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;bslh::SpookyHashAlgorithm&gt;</a>&gt;
+  <span class="comment">// Explicitly uses &#39;bslh::SpookyHashAlgorithm&#39;, one of the algorithms</span>
+  <span class="comment">// available in &#39;bslh&#39;.</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;bslh::SpookyHashAlgorithm&gt;</a>&gt;
                                                                   unorderedMap;
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh~3A~3Aseededhash,_bslh~3A~3Aseedgenerator,_and_secure_hashing"></a> <a class="anchor" id="type_users.bslh~3A~3Aseededhash,_bslh~3A~3Aseedgenerator,_and_secure_hashing"></a> <a class="anchor" id="description.type_users.bslh~3A~3Aseededhash,_bslh~3A~3Aseedgenerator,_and_secure_hashing"></a> <a class="anchor" id="3.5.3"></a> </dd></dl>
 <dl class="user"><dt><b>bslh::SeededHash, bslh::SeedGenerator, and Secure Hashing: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Some hashing algorithms, such as <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code>, require seeds to function. <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> was designed by its creators to provide protection against hash table DoS attacks. In order to get the most protection, <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> requires a cryptographically secure random number in order to produce hashes that will be secure against an attacker. <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> and <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code> exist to facilitate passing seeds into hashing algorithms. </dd></dl>
@@ -695,11 +707,11 @@ Does not compile, please implement <code>hashAppend</code> on <code>SomeType</co
 +-----------------------------------+-----------------------------------------+
 |<span class="stringliteral">&#39;bslh::SpookyHashAlgorithm&#39;</span>        |      Y      |       N        |     N    |
 +-----------------------------------+-----------------------------------------+
-[*] <span class="stringliteral">&quot;Crypto&quot;</span> is reverting to the requirement on the seed, not the quality of the
-algorithm.  I.e., <span class="stringliteral">&#39;bslh::SipHashAlgorithm&#39;</span> is not a cryptographically secure
-algorithm, but it *is* a cryptographically strong pseudo-random function, *<span class="keywordflow">if</span>*
-it<span class="stringliteral">&#39;s provided a cryptographically secure seed (see &#39;</span>bslh_siphashalgorithm<span class="stringliteral">&#39; for</span>
-<span class="stringliteral">more information).</span>
+ [*] <span class="stringliteral">&quot;Crypto&quot;</span> is reverting to the requirement on the seed, not the quality of
+ the algorithm.  I.e., <span class="stringliteral">&#39;bslh::SipHashAlgorithm&#39;</span> is not a cryptographically
+ secure algorithm, but it *is* a cryptographically strong pseudo-random
+ function, *<span class="keywordflow">if</span>* it<span class="stringliteral">&#39;s provided a cryptographically secure seed (see</span>
+<span class="stringliteral"> &#39;</span>bslh_siphashalgorithm<span class="stringliteral">&#39; for more information).</span>
 </pre></div><br/>
 <br/>
  Algorithms can require different sized seeds, and different quality of seeds. These variances are handled by <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>. </dd></dl>
@@ -708,24 +720,24 @@ it<span class="stringliteral">&#39;s provided a cryptographically secure seed (s
 <dl class="user"><dt><b>bslh::SeedGenerator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a> allows users to choose their Random Number Generator (RNG) and then handles the actual seed generation for algorithms. It presents the following interface: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span>&lt;<span class="keyword">class</span> RANDOM_NUM_GEN&gt;
-<span class="keyword">class </span>SeedGenerator : <span class="keyword">private</span> RANDOM_NUM_GEN {
-  <span class="keyword">private</span>:
-    <span class="comment">// PRIVATE TYPES</span>
-    <span class="keyword">typedef</span> <span class="keyword">typename</span> RANDOM_NUM_GEN::result_type result_type;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> RANDOM_NUM_GEN&gt;
+  <span class="keyword">class </span>SeedGenerator : <span class="keyword">private</span> RANDOM_NUM_GEN {
+    <span class="keyword">private</span>:
+      <span class="comment">// PRIVATE TYPES</span>
+      <span class="keyword">typedef</span> <span class="keyword">typename</span> RANDOM_NUM_GEN::result_type result_type;
 
-    <span class="comment">// DATA</span>
-    <span class="keyword">enum</span> { k_RNGOUTPUTSIZE = <span class="keyword">sizeof</span>(<span class="keyword">typename</span> RANDOM_NUM_GEN::result_type)};
+      <span class="comment">// DATA</span>
+      <span class="keyword">enum</span> { k_RNGOUTPUTSIZE = <span class="keyword">sizeof</span>(<span class="keyword">typename</span> RANDOM_NUM_GEN::result_type)};
 
-  <span class="keyword">public</span>:
-    <span class="comment">// CREATORS</span>
-    SeedGenerator();
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      SeedGenerator();
 
-    <span class="keyword">explicit</span> SeedGenerator(<span class="keyword">const</span> RANDOM_NUM_GEN &amp;randomNumberGenerator);
+      <span class="keyword">explicit</span> SeedGenerator(<span class="keyword">const</span> RANDOM_NUM_GEN &amp;randomNumberGenerator);
 
-    <span class="comment">// MANIPULATORS</span>
-    <span class="keywordtype">void</span> generateSeed(<span class="keywordtype">char</span> *seedLocation, <span class="keywordtype">size_t</span> seedLength);
-};
+      <span class="comment">// MANIPULATORS</span>
+      <span class="keywordtype">void</span> generateSeed(<span class="keywordtype">char</span> *seedLocation, <span class="keywordtype">size_t</span> seedLength);
+  };
 </pre></div><br/>
 <br/>
  Note that <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code> takes advantage of the empty base optimization when possible. </dd></dl>
@@ -736,51 +748,52 @@ it<span class="stringliteral">&#39;s provided a cryptographically secure seed (s
 <dl class="user"><dt><b>bslh::SeededHash: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is very similar to <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>. Both are wrappers for the hashing algorithm functors in 'bslh and both present an interface that meets the requirements of the standard for <code>std::hash</code>. The interface of <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> can be seen below. <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span> &lt;<span class="keyword">class </span>SEED_GENERATOR, <span class="keyword">class </span>HASH_ALGORITHM =
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class </span>SEED_GENERATOR, <span class="keyword">class </span>HASH_ALGORITHM =
                                               <a class="code" href="classbslh_1_1DefaultSeededHashAlgorithm.html">bslh::DefaultSeededHashAlgorithm</a>&gt;
-<span class="keyword">struct </span>SeededHash {
-  <span class="keyword">private</span>:
-    <span class="comment">// DATA</span>
-    <span class="keywordtype">char</span> seed[HASH_ALGORITHM::k_SEED_LENGTH];
+  <span class="keyword">struct </span>SeededHash {
+    <span class="keyword">private</span>:
+      <span class="comment">// DATA</span>
+      <span class="keywordtype">char</span> seed[HASH_ALGORITHM::k_SEED_LENGTH];
 
-  <span class="keyword">public</span>:
-    <span class="comment">// TYPES</span>
-    <span class="keyword">typedef</span> <span class="keywordtype">size_t</span> result_type;
+    <span class="keyword">public</span>:
+      <span class="comment">// TYPES</span>
+      <span class="keyword">typedef</span> <span class="keywordtype">size_t</span> result_type;
 
-    <span class="comment">// CREATORS</span>
-    SeededHash();
+      <span class="comment">// CREATORS</span>
+      SeededHash();
 
-    <span class="keyword">explicit</span> SeededHash(SEED_GENERATOR&amp; seedGenerator);
+      <span class="keyword">explicit</span> SeededHash(SEED_GENERATOR&amp; seedGenerator);
 
-    <span class="comment">// ACCESSORS</span>
-    <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-    result_type operator()(<span class="keyword">const</span> TYPE&amp; type) <span class="keyword">const</span>;
-};
+      <span class="comment">// ACCESSORS</span>
+      <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+      result_type operator()(<span class="keyword">const</span> TYPE&amp; type) <span class="keyword">const</span>;
+  };
 </pre></div><br/>
 <br/>
  Like <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> has both default and parameterized constructors. If the (template parameter) type <code>SEED_GENERATOR</code> is default constructible, then <code>bslh:SeededHash</code> will be default constructible, and it can be used in the exact same way as <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, as shown here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// Construct an unordered map with a secure hashing algorithm</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a>&lt;MyType,
-                  int,
-                  <a class="code" href="structbslh_1_1SeededHash.html">bslh::SeededHash&lt;bslh::SeedGenerator&lt;CryptoRNG&gt;</a>,
-                                   bslh::SecureHashAlgorithm&gt; &gt; unorderedMap;
+<div class="fragment"><pre class="fragment">  <span class="comment">// Construct an unordered map with a secure hashing algorithm</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a>&lt;MyType,
+                    int,
+                    <a class="code" href="structbslh_1_1SeededHash.html">bslh::SeededHash&lt;bslh::SeedGenerator&lt;CryptoRNG&gt;</a>,
+                                     bslh::SecureHashAlgorithm&gt; &gt; unorderedMap;
 </pre></div><br/>
 <br/>
  If <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is not default constructable, or you want to use a specific instance of a RNG or seed generator, then <code>unordered_map</code> can no longer be default constructed as previously shown. Instead, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> must be passed through the constructor of the unordered map, seen here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// typedefs to make the code smaller</span>
-<span class="keyword">typedef</span> <a class="code" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator&lt;CryptoRNG&gt;</a> CryptoSeedGen;
-<span class="keyword">typedef</span> <a class="code" href="structbslh_1_1SeededHash.html">bslh::SeededHash&lt;CryptoSeedGen, bslh::SecureHashAlgorithm&gt;</a>
+<div class="fragment"><pre class="fragment">  <span class="comment">// typedefs to make the code smaller</span>
+  <span class="keyword">typedef</span> <a class="code" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator&lt;CryptoRNG&gt;</a> CryptoSeedGen;
+  <span class="keyword">typedef</span> <a class="code" href="structbslh_1_1SeededHash.html">bslh::SeededHash&lt;CryptoSeedGen, bslh::SecureHashAlgorithm&gt;</a>
                                                                   CryptoHasher;
 
-<span class="comment">// Construct the required seed generator and hashing algorithm wrapper from</span>
-<span class="comment">// &#39;someRNGObject&#39;</span>
-CryptoSeedGen seedGenerator(someRNGObject);
-CryptoHasher hashAlg(seedGenerator);
+  <span class="comment">// Construct the required seed generator and hashing algorithm wrapper from</span>
+  <span class="comment">// &#39;someRNGObject&#39;</span>
+  CryptoSeedGen seedGenerator(someRNGObject);
+  CryptoHasher hashAlg(seedGenerator);
 
-<span class="comment">// Construct our unordered map</span>
-<a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, CryptoHasher&gt;</a> secureUnorderedMap(startIterator,
+  <span class="comment">// Construct our unordered map</span>
+  <a class="code" href="classbsl_1_1unordered__map.html">bsl::unordered_map&lt;MyType, int, CryptoHasher&gt;</a> secureUnorderedMap(
+                                                                 startIterator,
                                                                  endIterator,
                                                                  hashAlg);
 </pre></div><br/>
@@ -803,34 +816,34 @@ CryptoHasher hashAlg(seedGenerator);
 <dl class="user"><dt><b>Hashing Algorithm Functors: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Users are free write their own hashing algorithms and make them available via functors. In order to plug into <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> the algorithms must implement the following interface: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">class </span>SomeHashAlgorithm
-{
-  <span class="keyword">public</span>:
-    <span class="comment">// TYPES</span>
-    <span class="keyword">typedef</span> uint64 result_type;
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>SomeHashAlgorithm
+  {
+    <span class="keyword">public</span>:
+      <span class="comment">// TYPES</span>
+      <span class="keyword">typedef</span> uint64 result_type;
 
-    <span class="comment">// CREATORS</span>
-    SomeHashAlgorithm();
+      <span class="comment">// CREATORS</span>
+      SomeHashAlgorithm();
 
-    <span class="comment">// MANIPULATORS</span>
-    <span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> * key, <span class="keywordtype">size_t</span> len);
+      <span class="comment">// MANIPULATORS</span>
+      <span class="keywordtype">void</span> operator()(<span class="keyword">const</span> <span class="keywordtype">char</span> * key, <span class="keywordtype">size_t</span> len);
 
-    result_type computeHash();
-};
+      result_type computeHash();
+  };
 </pre></div><br/>
 <br/>
  The <code>result_type</code> <code>typedef</code> must define the return type of this particular algorithm. A default constructor (either implicit or explicit) must be supplied that creates an algorithm functor that is in a usable state. An <code>operator()</code> must be supplied that takes a <code>const char</code> pointer to the data to be hashed and a <code>size_t</code> length of bytes to be hashed. This operator must operate on all data uniformly, meaning that regardless of whether data is passed in all at once, or one byte at a time, the result returned by <code>computeHash()</code> will be the same. <code>computeHash()</code> will return the final result of the hashing algorithm, in the form of a <code>result_type</code>. <code>computeHash()</code> is allowed to modify the internal state of the algorithm, meaning calling <code>computeHash()</code> more than once might not return the correct value. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Hashing algorithm functors containing algorithms that require seeds must implement the interface shown above, with the exception of the default constructor. Seeded algorithm functors must also implement the following interface: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">class </span>SomeHashAlgorithm
-{
-  <span class="keyword">public</span>:
-    <span class="comment">// CONSTANTS</span>
-    <span class="keyword">enum</span> { k_SEED_LENGTH = XXX };
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>SomeHashAlgorithm
+  {
+    <span class="keyword">public</span>:
+      <span class="comment">// CONSTANTS</span>
+      <span class="keyword">enum</span> { k_SEED_LENGTH = XXX };
 
-    <span class="comment">// CREATORS</span>
-    <span class="keyword">explicit</span> SomeHashAlgorithm(<span class="keyword">const</span> <span class="keywordtype">char</span> *seed);
-};
+      <span class="comment">// CREATORS</span>
+      <span class="keyword">explicit</span> SomeHashAlgorithm(<span class="keyword">const</span> <span class="keywordtype">char</span> *seed);
+  };
 </pre></div><br/>
 <br/>
  The <code>k_SEED_LENGTH</code> enum must be in the public interface, and <code>XXX</code> must be replaced with an integer literal indicating the number of bytes of seed the algorithm requires. The parameterized constructor must accept a <code>const char</code> pointer. This pointer will point to a seed of <code>XXX</code> bytes in size. </dd></dl>
@@ -839,16 +852,16 @@ CryptoHasher hashAlg(seedGenerator);
 <dl class="user"><dt><b>Hashing Algorithm Wrappers (bslh::Hash): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Users are free to write their own versions of <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a>&lt;&gt;</code> for whatever use case they require (in fact, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a>&lt;&gt;</code> is one such example). Because no other parts of the modular hashing system rely on <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a>&lt;&gt;</code>, you are free to use whatever interface is necessary. The recommended interface for maintaining compatibility with components that previously used <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt;&gt;</code> can be seen here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-<span class="keyword">struct </span>YourHash
-{
-    <span class="comment">// TYPES</span>
-    <span class="keyword">typedef</span> <span class="keywordtype">size_t</span> result_type;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
+  <span class="keyword">struct </span>YourHash
+  {
+      <span class="comment">// TYPES</span>
+      <span class="keyword">typedef</span> <span class="keywordtype">size_t</span> result_type;
 
-    <span class="comment">// ACCESSORS</span>
-    <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-    result_type operator()(TYPE <span class="keyword">const</span>&amp; type) <span class="keyword">const</span>;
-};
+      <span class="comment">// ACCESSORS</span>
+      <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+      result_type operator()(TYPE <span class="keyword">const</span>&amp; type) <span class="keyword">const</span>;
+  };
 </pre></div><br/>
 <br/>
  The hashing algorithm wrapper that you create to replace <code>blsh::Hash&lt;&gt;</code> should be templated to operate using various <code>HASH_ALGORITHM</code>s. Whether or not there is a default option for the template is optional. The <code>result_type</code> should define the type of the hash value that you will return. The <code>operator()</code> should be templated to operate on any <code>TYPE</code>. <code>operator()</code> should take a single <code>const</code> reference to <code>TYPE</code> and should return a <code>result_type</code>. Given two <code>TYPEs</code> that compare equal with <code>operator==</code>, <code>operator()</code> <em>must</em> return the same hash. </dd></dl>
@@ -857,11 +870,11 @@ CryptoHasher hashAlg(seedGenerator);
 <dl class="user"><dt><b>Seed Generator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Users are free to write their own seed generator, a class of component required by <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>. The seed generator must conform to the interface shown here: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="keyword">class </span>YourSeedGenerator
-{
-    <span class="comment">// ACCESSORS</span>
-    <span class="keywordtype">void</span> generateSeed(<span class="keywordtype">char</span> *seedLocation, <span class="keywordtype">size_t</span> seedLength);
-};
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>YourSeedGenerator
+  {
+      <span class="comment">// ACCESSORS</span>
+      <span class="keywordtype">void</span> generateSeed(<span class="keywordtype">char</span> *seedLocation, <span class="keywordtype">size_t</span> seedLength);
+  };
 </pre></div><br/>
 <br/>
  The only mandatory piece of the seed generator interface is the <code>generateSeed</code> method which accepts a <code>char</code> pointer to memory to be written and a <code>size_t</code> length in bytes. The generateSeed method must fill the size_t bytes of the memory pointed to by the <code>char</code> pointer with a seed. If possible, it is better for the seed generator to be default constructible, however, any sort of constructor is acceptable because the seed generator can be constructed and passed directly into <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> if required. Be aware that having a non-default constructor makes it more difficult to use the seed generator (see the <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> section above to see the difference). </dd></dl>
@@ -909,46 +922,46 @@ CryptoHasher hashAlg(seedGenerator);
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_overview"></a> <a class="anchor" id="description.component_overview"></a> <a class="anchor" id="3.9"></a> </dd></dl>
 <dl class="user"><dt><b>Component Overview: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This section summarizes the components that are available in <code>bslh</code>. Subsequent sections provide more detail on component selection, performance, and usage. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section provides a brief introduction to each of the components in the <code>bslh</code> package. Full details are available in the documentation of each component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_defaulthashalgorithm"></a> <a class="anchor" id="component_overview.bslh_defaulthashalgorithm"></a> <a class="anchor" id="description.component_overview.bslh_defaulthashalgorithm"></a> <a class="anchor" id="3.9.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_defaulthashalgorithm: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code> provides an unspecified default hashing algorithm. The supplied algorithm is suitable for general purpose use in a hash table. The underlying algorithm is subject to change in future releases. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslh_defaulthashalgorithm</code> component provides an unspecified default hashing algorithm. The supplied algorithm is suitable for general purpose use in a hash table. The underlying algorithm is subject to change in future releases. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms, as defined in <code>bslh_hash</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_defaultseededhashalgorithm"></a> <a class="anchor" id="component_overview.bslh_defaultseededhashalgorithm"></a> <a class="anchor" id="description.component_overview.bslh_defaultseededhashalgorithm"></a> <a class="anchor" id="3.9.2"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_defaultseededhashalgorithm: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1DefaultSeededHashAlgorithm.html">bslh::DefaultSeededHashAlgorithm</a></code> provides an unspecified default seeded hashing algorithm. The supplied algorithm is suitable for general purpose use in a hash table. The underlying algorithm is subject to change in future releases. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslh_defaultseededhashalgorithm</code> component provides an unspecified default seeded hashing algorithm. The supplied algorithm is suitable for general purpose use in a hash table. The underlying algorithm is subject to change in future releases. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, as defined in <code>bslh_seededhash</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_hash"></a> <a class="anchor" id="component_overview.bslh_hash"></a> <a class="anchor" id="description.component_overview.bslh_hash"></a> <a class="anchor" id="3.9.3"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_hash: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a templated <code>struct</code>, <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, which provides hashing functionality. This struct is a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> is a wrapper that adapts hashing algorithms from <code>bslh</code> and <code>hashAppend</code> free functions to match the interface of <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. This component also contains <code>hashAppend</code> definitions for fundamental types, which are required to make the hashing algorithms in <code>bslh</code> work. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslh__hash.html" class="el"><code>bslh_hash</code></a> component provides a templated <code>struct</code>, <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, which provides hashing functionality. This struct is a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> is a wrapper that adapts hashing algorithms from <code>bslh</code> and <code>hashAppend</code> free functions to match the interface of <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. This component also contains <code>hashAppend</code> definitions for fundamental types, which are required to make the hashing algorithms in <code>bslh</code> work. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_seededhash"></a> <a class="anchor" id="component_overview.bslh_seededhash"></a> <a class="anchor" id="description.component_overview.bslh_seededhash"></a> <a class="anchor" id="3.9.4"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_seededhash: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a templated struct, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>, which provides hashing functionality. This struct is a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. It is similar to <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, however, it is meant for hashes that require a seed. It takes a seed generator and uses that to create seeds to give the hashing algorithm. <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is a wrapper which adapts hashing algorithms from <code>bslh</code> to match the interface of <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is a universal hashing functor that will hash any type that implements <code>hashAppend</code> using the hashing algorithm provided as a template parameter. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslh__seededhash.html" class="el"><code>bslh_seededhash</code></a> component provides a templated struct, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>, which provides hashing functionality. This <code>struct</code> is a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. It is similar to <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, however, it is meant for hashes that require a seed. It takes a seed generator and uses that to create seeds to give the hashing algorithm. <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is a wrapper which adapts hashing algorithms from <code>bslh</code> to match the interface of <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> is a universal hashing functor that will hash any type that implements <code>hashAppend</code> using the hashing algorithm provided as a template parameter. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_seedgenerator"></a> <a class="anchor" id="component_overview.bslh_seedgenerator"></a> <a class="anchor" id="description.component_overview.bslh_seedgenerator"></a> <a class="anchor" id="3.9.5"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_seedgenerator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a class, <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>, which utilizes a user-supplied random number generator (RNG) to generate arbitrary length seeds. The quality of the seeds will only be as good as the quality of the supplied RNG. A cryptographically secure RNG must be supplied in order for <code>SeedGenerator</code> to produce seeds suitable for a cryptographically secure algorithm. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for a seed generator, defined in <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslh__seedgenerator.html" class="el"><code>bslh_seedgenerator</code></a> component provides a class, <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>, which utilizes a user-supplied random number generator (RNG) to generate arbitrary length seeds. The quality of the seeds will only be as good as the quality of the supplied RNG. A cryptographically secure RNG must be supplied in order for <code>SeedGenerator</code> to produce seeds suitable for a cryptographically secure algorithm. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for a seed generator, as defined in <code>bslh_seededhash</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_siphashalgorithm"></a> <a class="anchor" id="component_overview.bslh_siphashalgorithm"></a> <a class="anchor" id="description.component_overview.bslh_siphashalgorithm"></a> <a class="anchor" id="3.9.6"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_siphashalgorithm: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> implements the SipHash algorithm. SipHash is an algorithm designed for speed and security. A primary use case for this algorithm is to provide an extra line of defense in hash tables (such as the underlying implementation of <code>unordered_map</code>) against malicious input that could cause Denial of Service (DoS) attacks. It is based on one of the finalists for the SHA-3 cryptographic hash standard. Full details of the hash function can be found here: <a href="https://131002.net/siphash/siphash.pdf">https://131002.net/siphash/siphash.pdf</a> This particular implementation has been derived from Howard Hinnant's work here: <a href="https://github.com/HowardHinnant/hash_append/blob/master/siphash.h">https://github.com/HowardHinnant/hash_append/blob/master/siphash.h</a> and as much of the original code as possible, including comment headers, has been preserved. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslh_siphashalgorithm</code> component provides an implementation of the SipHash algorithm. SipHash is an algorithm designed for speed and security. A primary use case for this algorithm is to provide an extra line of defense in hash tables (such as the underlying implementation of <code>unordered_map</code>) against malicious input that could cause Denial of Service (DoS) attacks. It is based on one of the finalists for the SHA-3 cryptographic hash standard. Full details of the hash function can be found at <code><a href="https://131002.net/siphash/siphash.pdf">https://131002.net/siphash/siphash.pdf</a></code>. This particular implementation has been derived from Howard Hinnant's work at <code><a href="https://github.com/HowardHinnant/hash_append/blob/master/siphash.h">https://github.com/HowardHinnant/hash_append/blob/master/siphash.h</a></code> and as much of the original code as possible, including comment headers, has been preserved. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, as defined in <code>bslh_seededhash</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_spookyhashalgorithm"></a> <a class="anchor" id="component_overview.bslh_spookyhashalgorithm"></a> <a class="anchor" id="description.component_overview.bslh_spookyhashalgorithm"></a> <a class="anchor" id="3.9.7"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_spookyhashalgorithm: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code> implements the SpookyHash algorithm by Bob Jenkins. This algorithm is a general purpose algorithm that is known to quickly reach good avalanche performance and execute in time that is comparable to or faster than other industry standard algorithms such as CityHash. It is a good default choice for hashing values in unordered associative containers. For more information, see: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms and seeded <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a></code> and <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code> respectively. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslh_spookyhashalgorithm</code> component provides an implementation of the SpookyHash algorithm by Bob Jenkins. This algorithm is a general purpose algorithm that is known to quickly reach good avalanche performance and execute in time that is comparable to or faster than other industry standard algorithms such as CityHash. It is a good default choice for hashing values in unordered associative containers. For more information, see <code><a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms and seeded <code>bslh</code> hashing algorithms, as defined in <code>bslh_hash</code> and <code>bslh_seededhash</code> respectively. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslh_spookyhashalgorithmimp"></a> <a class="anchor" id="component_overview.bslh_spookyhashalgorithmimp"></a> <a class="anchor" id="description.component_overview.bslh_spookyhashalgorithmimp"></a> <a class="anchor" id="3.9.8"></a> </dd></dl>
 <dl class="user"><dt><b>bslh_spookyhashalgorithmimp: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithmImp.html">bslh::SpookyHashAlgorithmImp</a></code> provides BDE style encapsulation around Bob Jenkins canonical SpookyHash implementation. SpookyHash provides a way to hash contiguous data all at once, or non-contiguous data in pieces. More information is available at: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslh_spookyhashalgorithmimp</code> component provides BDE-style encapsulation of Bob Jenkins canonical SpookyHash implementation. SpookyHash provides a way to hash contiguous data all at once, or non-contiguous data in pieces. More information is available at <code><a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a></code>. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

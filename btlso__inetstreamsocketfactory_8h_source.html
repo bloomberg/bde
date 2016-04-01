@@ -1,0 +1,331 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_inetstreamsocketfactory.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_INETSTREAMSOCKETFACTORY
+#define INCLUDED_BTLSO_INETSTREAMSOCKETFACTORY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Implementation for TCP based stream sockets.
+//
+//@CLASSES:
+//  btlso::InetStreamSocketFactory: factory for TCP-based stream-sockets
+//
+//@SEE_ALSO: btlso_inetstreamsocket, btlso_ipv4address
+//
+//@DESCRIPTION: This component implements a factory to allocate and deallocate
+// them.  The stream sockets are of type &#39;btlso::InetStreamSocket&lt;ADDRESS&gt;&#39;
+// conforming to the &#39;btlso::StreamSocket&lt;ADDRESS&gt;&#39; protocol.  The classes are
+// templatized to provide type-safe address class specialization.  The only
+// address type currently supported is IPv4 (as provided by &#39;btlso_ipv4address&#39;
+// component).  Therefore, the template parameter will always be
+// &#39;btlso::IPv4Address&#39;.  The factory,
+// &#39;btlso::InetStreamSocketFactory&lt;ADDRESS&gt;&#39;, creates and destroys instances of
+// the &#39;btlso::InetStreamSocket&lt;ADDRESS&gt;&#39;.  Two interfaces are available for
+// creation of stream sockets.  One does not take a socket handle creates a new
+// socket in the default initial state when a new stream socket is allocated.
+// The second takes the handle to an existing TCP-based stream socket and loads
+// it into newly-allocated stream socket object.  In this case, no assumption
+// is made about the state of the existing socket.  Every instance of
+// &#39;btlso::InetStreamSocket&lt;ADDRESS&gt;&#39; must be destroyed using the deallocate
+// operation of &#39;btlso::InetStreamSocketFactory&lt;ADDRESS&gt;&#39;.
+//
+// The creation of the socket factory provided by this component will enable
+// socket operations (by calling &#39;btlso::SocketImpUtil::startup&#39;) method; the
+// the destruction will disable socket operations (by calling
+// &#39;btlso::SocketImpUtil::cleanup&#39; method).
+//
+///Thread Safety
+///-------------
+// The classes provided by this component depend on a &#39;bslma::Allocator&#39;
+// instance to supply memory.  If the allocator is not thread enabled then the
+// instances of this component that use the same allocator instance will
+// consequently not be thread safe.  Otherwise, this component provides the
+// following guarantees:
+//
+// The &#39;btlso::InetStreamSocketFactory&#39; is *thread-enabled* and any thread can
+// call any method *on the same instance* safely and the operations will
+// proceed in parallel.  WARNING: simultaneous deallocation of the same
+// instance of a stream socket may result in undefined behavior.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Create a New Stream Socket
+///- - - - - - - - - - - - - - - - - - -
+// We can use &#39;btlso::InetStreamSocketFactory&#39; to allocate a new TCP-based
+// stream socket.
+//
+// First, we create a &#39;btlso::InetStreamSocketFactory&#39; object:
+//..
+//  btlso::InetStreamSocketFactory&lt;btlso::IPv4Address&gt; factory;
+//..
+// Then, we create a stream socket:
+//..
+//  btlso::StreamSocket&lt;btlso::IPv4Address&gt; *mySocket = factory.allocate();
+//  assert(mySocket);
+//..
+// &#39;mySocket&#39; can now be used for TCP communication.
+//
+// Finally, when we&#39;re done, we recycle the socket:
+//..
+//  factory.deallocate(mySocket);
+//..
+//
+///Example 2: Create a &#39;btlso::StreamSocket&#39; Object From Existing Socket Handle
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Alternatively, we can use &#39;btlso::InetStreamSocketFactory&#39; to allocate a
+// &#39;btlso::StreamSocket&#39; object that attaches to an existing socket handle.
+// This socket handle may be created from a third-party library (such as
+// OpenSSL).  Using a &#39;btlso::StreamSocket&#39; object rather than the socket
+// handle directly is highly desirable as it enables the use of other BTE
+// components on the socket.  In this example, the socket handle is created
+// from the &#39;btlso_socketimputil&#39; component for illustrative purpose.
+//
+// First, we create a socket handle &#39;fd&#39;:
+//..
+//  btlso::SocketHandle::Handle fd;
+//  int                         nativeErrNo = 0;
+//
+//  btlso::SocketImpUtil::open&lt;btlso::IPv4Address&gt;(
+//                                       &amp;fd,
+//                                       btlso::SocketImpUtil::k_SOCKET_STREAM,
+//                                       &amp;nativeErrNo);
+//  assert(0 == nativeErrNo);
+//..
+// Then, we create factory:
+//..
+//  btlso::InetStreamSocketFactory&lt;btlso::IPv4Address&gt; factory;
+//..
+// Next, we allocate a stream socket attached to &#39;fd&#39;:
+//..
+//  btlso::StreamSocket&lt;btlso::IPv4Address&gt; *mySocket = factory.allocate(fd);
+//  assert(mySocket);
+//..
+// Notice that &#39;fd&#39; is passed into the &#39;allocate&#39; method as an argument.  Any
+// BTE component that uses &#39;btlso::StreamSocket&lt;btlso::IPv4Address&gt;&#39; can now be
+// used on &#39;mySocket&#39;.
+//
+// Finally, when we&#39;re done, we recycle the socket:
+//..
+//  factory.deallocate(mySocket);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKETFACTORY
+#include &lt;btlso_streamsocketfactory.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKET
+#include &lt;btlso_streamsocket.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_INETSTREAMSOCKET
+#include &lt;btlso_inetstreamsocket.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETIMPUTIL
+#include &lt;btlso_socketimputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+                    // =============================
+                    // class InetStreamSocketFactory
+                    // =============================
+
+template &lt;class ADDRESS&gt;
+class InetStreamSocketFactory : public StreamSocketFactory&lt;ADDRESS&gt; {
+    // Provide an implementation for a factory to allocate and deallocate
+    // TCP-based stream socket objects of type &#39;InetStreamSocket&lt;ADDRESS&gt;&#39;.
+
+    bslma::Allocator *d_allocator_p;       // held, not owned
+
+  public:
+    // CREATORS
+    explicit InetStreamSocketFactory(bslma::Allocator *basicAllocator = 0);
+        // Create a stream socket factory.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    virtual ~InetStreamSocketFactory();
+        // Destroy this factory.  The stream sockets created by this factory
+        // will not be destroyed when this factory is destroyed.
+
+    // MANIPULATORS
+    virtual StreamSocket&lt;ADDRESS&gt; *allocate();
+        // Create a stream-based socket of type &#39;InetStreamSocket&lt;ADDRESS&gt;&#39;.
+        // Return the address of the newly-created socket on success, and 0
+        // otherwise.
+
+    virtual StreamSocket&lt;ADDRESS&gt; *allocate(SocketHandle::Handle handle);
+        // Create a stream-based socket of type &#39;InetStreamSocket&lt;ADDRESS&gt;&#39;
+        // attached to the specified socket &#39;handle&#39;.  Return the address of
+        // the newly-created socket on success, and 0 otherwise.  The behavior
+        // is undefined unless &#39;handle&#39; refers to a valid TCP-based stream
+        // socket with the address class &#39;ADDRESS&#39;.
+
+    virtual void deallocate(StreamSocket&lt;ADDRESS&gt; *socket);
+        // Return the specified &#39;socket&#39; back to this factory.  The behavior is
+        // undefined unless &#39;socket&#39; was allocated using this factory or was
+        // created through an &#39;accept&#39; from a stream socket created using this
+        // factory, and has not already been deallocated.  Note that the
+        // underlying TCP-based stream socket will be closed.
+
+    virtual void deallocate(StreamSocket&lt;ADDRESS&gt; *socket,
+                            bool                   closeHandleFlag);
+        // Return the specified &#39;socket&#39; back to this factory and, if the
+        // specified &#39;closeHandleFlag&#39; is &#39;true&#39;, also close the underlying
+        // TCP-based stream socket.  If &#39;closeHandleFlag&#39; is &#39;false&#39;, then
+        // ownership of the underlying TCP-based stream socket is transferred
+        // to the caller and the TCP-based socket is left open.  The behavior
+        // is undefined unless &#39;socket&#39; was allocated using this factory or was
+        // created through an &#39;accept&#39; from a stream socket created using this
+        // factory, and has not already been deallocated.
+};
+
+// ============================================================================
+//                      TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                    // -----------------------------
+                    // class InetStreamSocketFactory
+                    // -----------------------------
+
+// CREATORS
+template &lt;class ADDRESS&gt;
+inline
+InetStreamSocketFactory&lt;ADDRESS&gt;::InetStreamSocketFactory(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    SocketImpUtil::startup();
+}
+
+template &lt;class ADDRESS&gt;
+inline
+InetStreamSocketFactory&lt;ADDRESS&gt;::~InetStreamSocketFactory()
+{
+    SocketImpUtil::cleanup();
+}
+
+// MANIPULATORS
+template &lt;class ADDRESS&gt;
+StreamSocket&lt;ADDRESS&gt; *InetStreamSocketFactory&lt;ADDRESS&gt;::allocate()
+{
+    SocketHandle::Handle newSocketHandle;
+
+    int ret = SocketImpUtil::open&lt;ADDRESS&gt;(&amp;newSocketHandle,
+                                           SocketImpUtil::k_SOCKET_STREAM);
+
+    if (ret &lt; 0) {
+        return 0;                                                     // RETURN
+    }
+
+    btlso::InetStreamSocketCloseGuard autoDeallocate(newSocketHandle);
+
+    // On successfully opening a new socket, create a new &#39;InetStreamSocket&#39;
+    // for this socket.
+
+    StreamSocket&lt;ADDRESS&gt; *newStreamSocket =
+                new (*d_allocator_p) InetStreamSocket&lt;ADDRESS&gt;(newSocketHandle,
+                                                               d_allocator_p);
+
+    autoDeallocate.release();
+
+    return newStreamSocket;
+}
+
+template &lt;class ADDRESS&gt;
+StreamSocket&lt;ADDRESS&gt; *InetStreamSocketFactory&lt;ADDRESS&gt;::allocate(
+                                             SocketHandle::Handle socketHandle)
+{
+    // Create a new &#39;InetStreamSocket&#39; for this socket.
+
+    return new (*d_allocator_p) InetStreamSocket&lt;ADDRESS&gt;(socketHandle,
+                                                          d_allocator_p);
+}
+
+template &lt;class ADDRESS&gt;
+void InetStreamSocketFactory&lt;ADDRESS&gt;::deallocate(
+                                                 StreamSocket&lt;ADDRESS&gt; *socket)
+{
+    SocketImpUtil::close(socket-&gt;handle());
+
+    dynamic_cast&lt;InetStreamSocket&lt;ADDRESS&gt; *&gt;(socket)-&gt;
+                                                  ~InetStreamSocket&lt;ADDRESS&gt;();
+    d_allocator_p-&gt;deallocate(socket);
+}
+
+template &lt;class ADDRESS&gt;
+void InetStreamSocketFactory&lt;ADDRESS&gt;::deallocate(
+                                        StreamSocket&lt;ADDRESS&gt; *socket,
+                                        bool                   closeHandleFlag)
+{
+    if (closeHandleFlag) {
+        SocketImpUtil::close(socket-&gt;handle());
+    }
+
+    dynamic_cast&lt;InetStreamSocket&lt;ADDRESS&gt; *&gt;(socket)-&gt;
+                                                  ~InetStreamSocket&lt;ADDRESS&gt;();
+    d_allocator_p-&gt;deallocate(socket);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

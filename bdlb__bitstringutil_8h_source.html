@@ -1,0 +1,963 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_bitstringutil.h                                               -*-C++-*-
+#ifndef INCLUDED_BDLB_BITSTRINGUTIL
+#define INCLUDED_BDLB_BITSTRINGUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide efficient operations on a multi-word sequence of bits.
+//
+//@CLASSES:
+// bdlb::BitStringUtil: namespace for common bit-manipulation procedures
+//
+//@SEE_ALSO: bdlb_bitutil, bdlb_bitmaskutil, bdlb_bitstringimputil,
+//           bdlc_bitarray
+//
+//@DESCRIPTION: This component provides a utility &#39;struct&#39;,
+// &#39;bdlb::BitStringUtil&#39;, that serves as a namespace for a collection of
+// efficient, bit-level procedures on &quot;bit strings&quot;, sequences of bits stored
+// in arrays of 64-bit &#39;uint64_t&#39; values.  A number of operations of various
+// types are provided: bitwise-logical, copy, assignment, read, insert/remove,
+// compare, find, count, and print operations are offered, among others.
+//
+///The &quot;Bit String&quot; Pseudo-Type
+///----------------------------
+// A contiguous sequence of bits that occupy a positive integral number of
+// sequential &#39;uint64_t&#39; values can be viewed as a string of bits.  This
+// component supports operations on such sequences.  The notion of &quot;bit
+// string&quot;, a pseudo-type, is used to document those operations.
+// Correspondingly, &#39;BitStringUtil&#39; operations are categorized as either
+// &quot;manipulators&quot;, operations that modify bit strings; or &quot;accessors&quot;,
+// operations that return information and guarantee that no change to bit
+// strings occurs.
+//
+// A bit string has two &quot;structural&quot; attributes:
+//..
+//  Capacity - The capacity, in bits, of a bit string is the number of
+//             &#39;uint64_t&#39; values in the array multiplied by
+//             &#39;BitStringUtil::k_BITS_PER_UINT64&#39;.  Note that the capacity of a
+//             bit string is analogous to the capacity of a &#39;bsl::vector&#39;.
+//
+//  Length   - The number of significant bits stored in the bit string.  The
+//             length can never exceed the capacity, and the length is
+//             analogous to the length of a &#39;bsl::vector&#39;.
+//..
+// Since the bit string is a pseudo-type, there is no language support for
+// managing these values; the user must do so explicitly.
+//
+// Many operations on a bit string refer to a &quot;position&quot; within a bit string,
+// or a range of positions within a bit string:
+//..
+//  Position - The offset (in bits) of a bit value from the beginning of a
+//             bit string (also called the &quot;index&quot; of a bit).
+//..
+// The notion of &quot;position&quot; used in this component is a generalization of the
+// notion of a bit&#39;s position in a single integer value.
+//
+// Bits within a 64-bit &#39;uint64_t&#39; (irrespective of the endian-ness of a
+// platform) are here numbered, starting at 0, from the least-significant bit
+// to the most-significant bit.  In illustrations, we typically show the
+// high-order bits on the left:
+//..
+//   63 62  . . . . .   5  4  3  2  1  0
+//  +-----------------------------------+
+//  | 1| 0| . . . . . | 1| 1| 0| 0| 1| 0|
+//  +-----------------------------------+
+//..
+// Thus, left-shifting (e.g., caused by &#39;insert&#39;ing low-order bits) causes bits
+// to move up in bit-position (to positions of higher significance) and
+// right-shifting (e.g., caused by &#39;remove&#39;ing low-order bits) causes bits to
+// move into positions of less significance.
+//
+// This component extends this representation to an arbitrary sequence of bits
+// represented using an array of 64-bit &#39;uint64_t&#39; values.  For example, the
+// bit string shown below is built on an array of three &#39;uint64_t&#39; values.
+// Thus, it has a capacity of 192 (i.e.,
+// &#39;3 * BitStringUtil::k_BITS_PER_UINT64&#39;).  Note that words are ordered
+// right-to-left, so the lowest-order bits are to the right.  This is also how
+// the &#39;bdlb::BitStringUtil::print&#39; function orders the words it outputs:
+//..
+//  |&lt;------ word 2 ------&gt;|&lt;------ word 1 ------&gt;|&lt;------ word 0 ------&gt;|
+//  | 191 190 . .  129 128 | 127 126 . . .  65 64 | 63 62 . . . . .  1 0 |
+//  +----------------------+----------------------+----------------------+
+//..
+//
+///Manipulator Functions
+///---------------------
+// Manipulator functions return &#39;void&#39;, and take the address of an integer as
+// the first argument in order to modify it in place.
+//..
+//
+//
+//                                 Assignment
+// +--------------------------------------------------------------------------+
+// | assign     | Overloaded; assign 0 or more contiguous bits to a specified |
+// |            | &#39;bool&#39; value.                                               |
+// +--------------------------------------------------------------------------+
+// | assign0    | Overloaded; assign 0 or more contiguous bits to &#39;false&#39;.    |
+// +--------------------------------------------------------------------------+
+// | assign1    | Overloaded; assign 0 or more contiguous bits to &#39;true&#39;.     |
+// +--------------------------------------------------------------------------+
+// | assignBits | Assign up to one word of contiguous bits, taken from a      |
+// |            | &#39;uint64_t&#39; argument.                                        |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                Bitwise-Logical
+// +--------------------------------------------------------------------------+
+// | andEqual   | Bitwise-AND ranges of equal length from two bit strings, a  |
+// |            | &#39;dstBitString&#39; and a &#39;srcBitString&#39;, writing the result     |
+// |            | over the range from &#39;dstBitString&#39;.                         |
+// +--------------------------------------------------------------------------+
+// | minusEqual | Bitwise-MINUS ranges of equal length from two bit strings,  |
+// |            | a &#39;srcBitString&#39; from a &#39;dstBitString&#39;, writing the result  |
+// |            | over the range from &#39;dstBitString&#39;.                         |
+// +--------------------------------------------------------------------------+
+// | orEqual    | Bitwise-OR ranges of equal length from two bit strings, a   |
+// |            | &#39;dstBitString&#39; and a &#39;srcBitString&#39;, writing the result     |
+// |            | over the range from &#39;dstBitString&#39;.                         |
+// +--------------------------------------------------------------------------+
+// | xorEqual   | Bitwise-XOR ranges of equal length from two bit strings, a  |
+// |            | &#39;dstBitString&#39; and a &#39;srcBitString&#39;, writing the result     |
+// |            | over the range from &#39;dstBitString&#39;.                         |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                      Copy
+// +--------------------------------------------------------------------------+
+// | copyRaw | Copy a range from one bit string to another range, with some   |
+// |         | restrictions on overlap between the two ranges.                |
+// +--------------------------------------------------------------------------+
+// | copy    | Copy a range from one bit string to another range, with no     |
+// |         | restrictions on overlap between the two ranges.                |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                 Insert / Remove
+// +--------------------------------------------------------------------------+
+// | insert    | Overloaded; insert 0 or more bits of a specified &#39;bool&#39;      |
+// |           | value.                                                       |
+// +--------------------------------------------------------------------------+
+// | insert0   | Overloaded; insert 0 or more &#39;false&#39; bits.                   |
+// +--------------------------------------------------------------------------+
+// | insert1   | Overloaded; insert 0 or more &#39;true&#39; bits.                    |
+// +--------------------------------------------------------------------------+
+// | insertRaw | Make room for additional bits in a bit string by moving all  |
+// |           | bits above a given index up, leaving the values of the       |
+// |           | newly-inserted bits undefined.                               |
+// +--------------------------------------------------------------------------+
+// | remove         | Remove 0 or more bits from a bit string.                |
+// +--------------------------------------------------------------------------+
+// | removeAndFill0 | Remove 0 or more bits from a bit string and assign      |
+// |                | &#39;false&#39; to vacated higher-order bits.                   |
+// +--------------------------------------------------------------------------+
+// | removeAndFill1 | Remove 0 or more bits from a bit string and assign      |
+// |                | &#39;true&#39; to vacated higher-order bits.                    |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                Other Manipulators
+// +--------------------------------------------------------------------------+
+// | swapRaw | Swap two ranges of bit strings, which must not overlap.        |
+// +--------------------------------------------------------------------------+
+// | toggle  | Negate all the bits in a range of a bit string.                |
+// +--------------------------------------------------------------------------+
+//
+//..
+//
+///Accessor Functions
+///------------------
+// Accessor function return a value but do not modify a bit string.
+//..
+//
+//                                    Compare
+// +--------------------------------------------------------------------------+
+// | areEqual | Compare two ranges of bits for equality.                      |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                     Read
+// +--------------------------------------------------------------------------+
+// | bit  | Return the boolean value of a single bit from a bit string.       |
+// +--------------------------------------------------------------------------+
+// | bits | Return a &#39;uint64_t&#39; containing at most &#39;k_BITS_PER_UINT64&#39;        |
+// |      | adjacent bits from a bit string.                                  |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                     Find
+// +--------------------------------------------------------------------------+
+// | find0AtMaxIndex | Locate the highest-order 0 bit in a range.             |
+// +--------------------------------------------------------------------------+
+// | find0AtMinIndex | Locate the lowest-order 0 bit in a range.              |
+// +--------------------------------------------------------------------------+
+// | find1AtMaxIndex | Locate the highest-order 1 bit in a range.             |
+// +--------------------------------------------------------------------------+
+// | find1AtMinIndex | Locate the lowest-order 1 bit in a range.              |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                     Count
+// +--------------------------------------------------------------------------+
+// | isAny0 | Return &#39;true&#39; if any bit in a range is 0, and &#39;false&#39;           |
+// |        | otherwise.                                                      |
+// +--------------------------------------------------------------------------+
+// | isAny1 | Return &#39;true&#39; if any bit in a range is 1, and &#39;false&#39;           |
+// |        | otherwise.                                                      |
+// +--------------------------------------------------------------------------+
+// | num0   | Return the number of 0 bits in a range.                         |
+// +--------------------------------------------------------------------------+
+// | num1   | Return the number of 1 bits in a range.                         |
+// +--------------------------------------------------------------------------+
+//
+//
+//                                    Output
+// +--------------------------------------------------------------------------+
+// | print | Output a bit string in hex.                                      |
+// +--------------------------------------------------------------------------+
+//
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Maintaining a Calendar of Business Days
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Bit strings can be used to represent business calendars and facilitate
+// efficient operations on such calendars.  We will use bit strings to mark
+// properties of days of the year 2013.
+//
+// First, create an enumeration showing the number of days in the year 2013
+// before the beginning of each month, so that:
+//..
+// &lt;constant for month&gt; + &lt;day of month&gt; == &lt;day of year&gt;
+//
+//  enum {
+//      JAN =        0,    // Note: First DOY is &#39;JAN + 1&#39;.
+//      FEB = JAN + 31,
+//      MAR = FEB + 28,    // 2013 was not a leap year.
+//      APR = MAR + 31,
+//      MAY = APR + 30,
+//      JUN = MAY + 31,
+//      JUL = JUN + 30,
+//      AUG = JUL + 31,
+//      SEP = AUG + 31,
+//      OCT = SEP + 30,
+//      NOV = OCT + 31,
+//      DEC = NOV + 30
+//  };
+//..
+// Then, create a bit string with sufficient capacity to represent every day
+// of a year (note that 64 * 6 = 384) and set a 1-bit in the indices
+// corresponding to the day-of-year (DOY) for each weekend day.  For
+// convenience in date calculations, the 0 index is not used; the 365 days of
+// the year are at indices &#39;[1 .. 365]&#39;.  Further note that the values set
+// below correspond to the year 2013:
+//..
+//  uint64_t weekends[6] = { 0 };
+//
+//  // We are marking only weekend days, so start with the first weekend day
+//  // of the year: Saturday, January 5, 2013.
+//
+//  for (int i = 5; i &lt; 366; i += 7) {
+//      bdlb::BitStringUtil::assign(weekends, i,   1);
+//      if (i + 1 &lt; 366) {
+//          bdlb::BitStringUtil::assign(weekends, i + 1, 1);
+//      }
+//  }
+//..
+// Next, we can easily use &#39;bdlb::BitStringUtil&#39; methods to find days of
+// interest.  For example, we can find the first and last weekend days of the
+// year:
+//..
+//  const int firstWeekendDay = bdlb::BitStringUtil::find1AtMinIndex(weekends,
+//                                                                   365 + 1);
+//  const int lastWeekendDay  = bdlb::BitStringUtil::find1AtMaxIndex(weekends,
+//                                                                   365 + 1);
+//
+//  assert(JAN +  5 == firstWeekendDay);
+//  assert(DEC + 29 ==  lastWeekendDay);
+//..
+// Then, we define the following enumeration that allows us to easily represent
+// the US holidays of the year:
+//..
+//  uint64_t holidays[6] = { 0 };
+//
+//  enum USHolidays2013 {
+//      NEW_YEARS_DAY             = JAN +  1,
+//      MARTIN_LUTHER_KING_JR_DAY = JAN + 21,
+//      PRESIDENTS_DAY            = FEB + 18,
+//      GOOD_FRIDAY               = MAR + 29,
+//      MEMORIAL_DAY              = MAY + 27,
+//      INDEPENDENCE_DAY          = JUL +  4,
+//      LABOR_DAY                 = SEP +  2,
+//      THANKSGIVING              = NOV + 28,
+//      CHRISTMAS                 = DEC + 25
+//  };
+//
+//  bdlb::BitStringUtil::assign(holidays, NEW_YEARS_DAY,             true);
+//  bdlb::BitStringUtil::assign(holidays, MARTIN_LUTHER_KING_JR_DAY, true);
+//  bdlb::BitStringUtil::assign(holidays, PRESIDENTS_DAY,            true);
+//  bdlb::BitStringUtil::assign(holidays, GOOD_FRIDAY,               true);
+//  bdlb::BitStringUtil::assign(holidays, MEMORIAL_DAY,              true);
+//  bdlb::BitStringUtil::assign(holidays, INDEPENDENCE_DAY,          true);
+//  bdlb::BitStringUtil::assign(holidays, LABOR_DAY,                 true);
+//  bdlb::BitStringUtil::assign(holidays, THANKSGIVING,              true);
+//  bdlb::BitStringUtil::assign(holidays, CHRISTMAS,                 true);
+//..
+// Next, the following enumeration indicates the beginning of fiscal quarters:
+//..
+//  enum {
+//      Q1 = JAN + 1,
+//      Q2 = APR + 1,
+//      Q3 = JUN + 1,
+//      Q4 = OCT + 1
+//  };
+//..
+// Now, we can query our calendar for the first holiday in the third quarter,
+// if any:
+//..
+//  const bsl::size_t firstHolidayOfQ3 = bdlb::BitStringUtil::find1AtMinIndex(
+//                                                                    holidays,
+//                                                                    Q3,
+//                                                                    Q4);
+//  assert(INDEPENDENCE_DAY == firstHolidayOfQ3);
+//..
+// Finally, our weekend and holiday calendars are readily combined to represent
+// days off for either reason (i.e., holiday or weekend):
+//..
+//  uint64_t allDaysOff[6] = { 0 };
+//  bdlb::BitStringUtil::orEqual(allDaysOff, 1, weekends, 1, 365);
+//  bdlb::BitStringUtil::orEqual(allDaysOff, 1, holidays, 1, 365);
+//
+//  bool isOffMay24 = bdlb::BitStringUtil::bit(allDaysOff, MAY + 24);
+//  bool isOffMay25 = bdlb::BitStringUtil::bit(allDaysOff, MAY + 25);
+//  bool isOffMay26 = bdlb::BitStringUtil::bit(allDaysOff, MAY + 26);
+//  bool isOffMay27 = bdlb::BitStringUtil::bit(allDaysOff, MAY + 27);
+//  bool isOffMay28 = bdlb::BitStringUtil::bit(allDaysOff, MAY + 28);
+//
+//  assert(false == isOffMay24);
+//  assert(true  == isOffMay25);    // Saturday
+//  assert(true  == isOffMay26);    // Sunday
+//  assert(true  == isOffMay27);    // Note May 27, 2013 is Memorial Day.
+//  assert(false == isOffMay28);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_BITUTIL
+#include &lt;bdlb_bitutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+                            // ====================
+                            // struct BitStringUtil
+                            // ====================
+
+struct BitStringUtil {
+    // This &#39;struct&#39; provides a namespace for a suite of static functions to
+    // manipulate and access sequences of bits stored in an array of &#39;uint64_t&#39;
+    // (also known as a &quot;bit string&quot;; see {The &quot;Bit String&quot; Pseudo-Type}).
+
+    // PUBLIC TYPES
+    enum { k_BITS_PER_UINT64 = 64 };  // number of bits in a &#39;uint64_t&#39;
+
+    // PUBLIC CLASS CONSTANTS
+    static const bsl::size_t k_INVALID_INDEX = ~static_cast&lt;bsl::size_t&gt;(0);
+
+    // CLASS METHODS
+
+                                // Assign
+
+    static void assign(bsl::uint64_t *bitString,
+                       bsl::size_t    index,
+                       bool           value);
+        // Set the bit at the specified &#39;index&#39; in the specified &#39;bitString&#39; to
+        // the specified &#39;value&#39;.  The behavior is undefined unless &#39;index&#39; is
+        // less than the capacity of &#39;bitString&#39;.
+
+    static void assign(bsl::uint64_t *bitString,
+                       bsl::size_t    index,
+                       bool           value,
+                       bsl::size_t    numBits);
+        // Set the specified &#39;numBits&#39; beginning at the specified &#39;index&#39; in
+        // the specified &#39;bitString&#39; to the specified &#39;value&#39;.  The behavior is
+        // undefined unless &#39;bitString&#39; has a capacity of at least
+        // &#39;index + numBits&#39;.
+
+    static void assign0(bsl::uint64_t *bitString, bsl::size_t index);
+        // Set the bit at the specified &#39;index&#39; in the specified &#39;bitString&#39; to
+        // &#39;false&#39;.  The behavior is undefined unless &#39;index&#39; is less than the
+        // capacity of &#39;bitString&#39;.
+
+    static void assign0(bsl::uint64_t *bitString,
+                        bsl::size_t    index,
+                        bsl::size_t    numBits);
+        // Set the specified &#39;numBits&#39; beginning at the specified &#39;index&#39; in
+        // the specified &#39;bitString&#39; to &#39;false&#39;.  The behavior is undefined
+        // unless &#39;bitString&#39; has a capacity of at least &#39;index + numBits&#39;.
+
+    static void assign1(bsl::uint64_t *bitString, bsl::size_t index);
+        // Set the bit at the specified &#39;index&#39; in the specified &#39;bitString&#39; to
+        // &#39;true&#39;.  The behavior is undefined unless &#39;index&#39; is less than the
+        // capacity of &#39;bitString&#39;.
+
+    static void assign1(bsl::uint64_t *bitString,
+                        bsl::size_t    index,
+                        bsl::size_t    numBits);
+        // Set the specified &#39;numBits&#39; beginning at the specified &#39;index&#39; in
+        // the specified &#39;bitString&#39; to &#39;true&#39;.  The behavior is undefined
+        // unless &#39;bitString&#39; has a capacity of at least &#39;index + numBits&#39;.
+
+    static void assignBits(bsl::uint64_t *bitString,
+                           bsl::size_t    index,
+                           bsl::uint64_t  srcValue,
+                           bsl::size_t    numBits);
+        // Assign the low-order specified &#39;numBits&#39; from the specified
+        // &#39;srcValue&#39; to the &#39;numBits&#39; starting at the specified &#39;index&#39; in the
+        // specified &#39;bitString&#39;.  The behavior is undefined unless
+        // &#39;numBits &lt;= k_BITS_PER_UINT64&#39; and &#39;bitString&#39; has a capacity of at
+        // least &#39;index + numBits&#39;.
+
+                                // Bitwise-Logical
+
+    static void andEqual(bsl::uint64_t       *dstBitString,
+                         bsl::size_t          dstIndex,
+                         const bsl::uint64_t *srcBitString,
+                         bsl::size_t          srcIndex,
+                         bsl::size_t          numBits);
+        // Bitwise AND the specified &#39;numBits&#39; of the specified &#39;dstBitString&#39;
+        // starting at the specified &#39;dstIndex&#39; with the &#39;numBits&#39; of the
+        // specified &#39;srcBitString&#39; starting at the specified &#39;srcIndex&#39;, and
+        // write the result over the bits that were read from &#39;dstBitString&#39;.
+        // The behavior is undefined unless &#39;dstBitString&#39; has a length of at
+        // least &#39;dstIndex + numBits&#39; and &#39;srcBitString&#39; has a length of at
+        // least &#39;srcIndex + numBits&#39;.
+
+    static void minusEqual(bsl::uint64_t       *dstBitString,
+                           bsl::size_t          dstIndex,
+                           const bsl::uint64_t *srcBitString,
+                           bsl::size_t          srcIndex,
+                           bsl::size_t          numBits);
+        // Bitwise MINUS the specified &#39;numBits&#39; of the specified
+        // &#39;srcBitString&#39; starting at the specified &#39;srcIndex&#39; from the
+        // &#39;numBits&#39; of the specified &#39;dstBitString&#39; starting at the specified
+        // &#39;dstIndex&#39;, and write the result over the bits that were read from
+        // &#39;dstBitString&#39;.  The behavior is undefined unless &#39;dstBitString&#39; has
+        // a length of at least &#39;dstIndex + numBits&#39; and &#39;srcBitString&#39; has a
+        // length of at least &#39;srcIndex + numBits&#39;.  Note that the logical
+        // difference &#39;A - B&#39; is defined to be &#39;A &amp; !B&#39;.
+
+    static void orEqual(bsl::uint64_t       *dstBitString,
+                        bsl::size_t          dstIndex,
+                        const bsl::uint64_t *srcBitString,
+                        bsl::size_t          srcIndex,
+                        bsl::size_t          numBits);
+        // Bitwise OR the specified &#39;numBits&#39; of the specified &#39;dstBitString&#39;
+        // starting at the specified &#39;dstIndex&#39; with the &#39;numBits&#39; of the
+        // specified &#39;srcBitString&#39; starting at the specified &#39;srcIndex&#39;, and
+        // write the result over the bits that were read from &#39;dstBitString&#39;.
+        // The behavior is undefined unless &#39;dstBitString&#39; has a length of at
+        // least &#39;dstIndex + numBits&#39; and &#39;srcBitString&#39; has a length of at
+        // least &#39;srcIndex + numBits&#39;.
+
+    static void xorEqual(bsl::uint64_t       *dstBitString,
+                         bsl::size_t          dstIndex,
+                         const bsl::uint64_t *srcBitString,
+                         bsl::size_t          srcIndex,
+                         bsl::size_t          numBits);
+        // Bitwise XOR the specified &#39;numBits&#39; of the specified &#39;dstBitString&#39;
+        // starting at the specified &#39;dstIndex&#39; with the &#39;numBits&#39; of the
+        // specified &#39;srcBitString&#39; starting at the specified &#39;srcIndex&#39;, and
+        // write the result over the bits that were read from &#39;dstBitString&#39;.
+        // The behavior is undefined unless &#39;dstBitString&#39; has a length of at
+        // least &#39;dstIndex + numBits&#39; and &#39;srcBitString&#39; has a length of at
+        // least &#39;srcIndex + numBits&#39;.
+
+                                // Copy
+
+    static void copy(bsl::uint64_t       *dstBitString,
+                     bsl::size_t          dstIndex,
+                     const bsl::uint64_t *srcBitString,
+                     bsl::size_t          srcIndex,
+                     bsl::size_t          numBits);
+        // Copy to the specified &#39;dstBitString&#39;, beginning at the specified
+        // &#39;dstIndex&#39;, the specified &#39;numBits&#39; beginning at the specified
+        // &#39;srcIndex&#39; in the specified &#39;srcBitString&#39;.  This function works
+        // correctly regardless of whether the source and destination ranges
+        // overlap.  The behavior is undefined unless &#39;dstBitString&#39; has a
+        // capacity of at least &#39;dstIndex + numBits&#39; and &#39;srcBitString&#39; has a
+        // length of at least &#39;srcIndex + numBits&#39;.
+
+    static void copyRaw(bsl::uint64_t       *dstBitString,
+                        bsl::size_t          dstIndex,
+                        const bsl::uint64_t *srcBitString,
+                        bsl::size_t          srcIndex,
+                        bsl::size_t          numBits);
+        // Copy to the specified &#39;dstBitString&#39;, beginning at the specified
+        // &#39;dstIndex&#39;, the specified &#39;numBits&#39; beginning at the specified
+        // &#39;srcIndex&#39; in the specified &#39;srcBitString&#39;.  The behavior is
+        // undefined unless &#39;dstBitString&#39; has a capacity of at least
+        // &#39;dstIndex + numBits&#39;, &#39;srcBitString&#39; has a length of at least
+        // &#39;srcIndex + numBits&#39;, and the source and destination ranges either
+        // do not overlap, or the destination range is equal to the source
+        // range, or the start of the destination range is below the start of
+        // the source range.
+
+                                // Insert / Remove
+
+    static void insert(bsl::uint64_t *bitString,
+                       bsl::size_t    initialLength,
+                       bsl::size_t    dstIndex,
+                       bool           value,
+                       bsl::size_t    numBits);
+        // Insert the specified &#39;numBits&#39;, each having the specified &#39;value&#39;,
+        // into the specified &#39;bitString&#39; having the specified &#39;initialLength&#39;,
+        // beginning at the specified &#39;dstIndex&#39;.  Bits at or above &#39;dstIndex&#39;
+        // are shifted up by &#39;numBits&#39; index positions and the length of
+        // &#39;bitString&#39; is increased by &#39;numBits&#39;.  The behavior is undefined
+        // unless &#39;dstIndex &lt;= initialLength&#39; and &#39;bitString&#39; has a capacity of
+        // at least &#39;initialLength + numBits&#39;.
+
+    static void insert0(bsl::uint64_t *bitString,
+                        bsl::size_t    initialLength,
+                        bsl::size_t    dstIndex,
+                        bsl::size_t    numBits);
+        // Insert the specified &#39;numBits&#39; 0 bits into the specified &#39;bitString&#39;
+        // having the specified &#39;initialLength&#39; beginning at the specified
+        // &#39;dstIndex&#39;.  Bits at or above &#39;dstIndex&#39; are shifted up by &#39;numBits&#39;
+        // index positions and the length of &#39;bitString&#39; is increased by
+        // &#39;numBits&#39;.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= initialLength&#39; and &#39;bitString&#39; has a capacity of at
+        // least &#39;initialLength + numBits&#39;.
+
+    static void insert1(bsl::uint64_t *bitString,
+                        bsl::size_t    initialLength,
+                        bsl::size_t    dstIndex,
+                        bsl::size_t    numBits);
+        // Insert the specified &#39;numBits&#39; 1 bits into the specified &#39;bitString&#39;
+        // having the specified &#39;initialLength&#39; beginning at the specified
+        // &#39;dstIndex&#39;.  Bits at or above &#39;dstIndex&#39; are shifted up by &#39;numBits&#39;
+        // index positions and the length of &#39;bitString&#39; is increased by
+        // &#39;numBits&#39;.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= initialLength&#39; and &#39;bitString&#39; has a capacity of at
+        // least &#39;initialLength + numBits&#39;.
+
+    static void insertRaw(bsl::uint64_t *bitString,
+                          bsl::size_t    initialLength,
+                          bsl::size_t    dstIndex,
+                          bsl::size_t    numBits);
+        // Insert the specified &#39;numBits&#39; into the specified &#39;bitString&#39; having
+        // the specified &#39;initialLength&#39; beginning at the specified &#39;dstIndex&#39;.
+        // Bits at or above &#39;dstIndex&#39; are shifted up by &#39;numBits&#39; index
+        // positions and the length of &#39;bitString&#39; is increased by &#39;numBits&#39;.
+        // The values of the inserted bits are undefined.  The behavior is
+        // undefined unless &#39;dstIndex &lt;= initialLength&#39; and &#39;bitString&#39; has a
+        // capacity of at least &#39;initialLength + numBits&#39;.  Note that the
+        // inserted bits are not assigned any value.
+
+    static void remove(bsl::uint64_t *bitString,
+                       bsl::size_t    length,
+                       bsl::size_t    index,
+                       bsl::size_t    numBits);
+        // Remove the specified &#39;numBits&#39; from the specified &#39;bitString&#39; of the
+        // specified &#39;length&#39; beginning at the specified &#39;index&#39;.  Bits above
+        // &#39;index + numBits&#39; are shifted down by &#39;numBits&#39; index positions and
+        // the length of &#39;bitString&#39; is reduced by &#39;numBits&#39;.  The values of
+        // the vacated high-order bits are not modified.  The behavior is
+        // undefined unless &#39;index + numBits &lt;= length&#39;.
+
+    static void removeAndFill0(bsl::uint64_t *bitString,
+                               bsl::size_t    length,
+                               bsl::size_t    index,
+                               bsl::size_t    numBits);
+        // Remove the specified &#39;numBits&#39; from the specified &#39;bitString&#39; having
+        // the specified &#39;length&#39; beginning at the specified &#39;index&#39;.  Bits
+        // above &#39;index + numBits&#39; are shifted down by &#39;numBits&#39; index
+        // positions and the last &#39;numBits&#39; of &#39;bitString&#39; are set to 0.  The
+        // length of &#39;bitString&#39; is not changed.  The behavior is undefined
+        // unless &#39;index + numBits &lt;= length&#39;.
+
+    static void removeAndFill1(bsl::uint64_t *bitString,
+                               bsl::size_t    length,
+                               bsl::size_t    index,
+                               bsl::size_t    numBits);
+        // Remove the specified &#39;numBits&#39; from the specified &#39;bitString&#39; having
+        // the specified &#39;length&#39; beginning at the specified &#39;index&#39;.  Bits
+        // above &#39;index + numBits&#39; are shifted down by &#39;numBits&#39; index
+        // positions and the last &#39;numBits&#39; of &#39;bitString&#39; are set to 1.  The
+        // length of &#39;bitString&#39; is not changed.  The behavior is undefined
+        // unless &#39;index + numBits &lt;= length&#39;.
+
+                                // Other Manipulators
+
+    static void swapRaw(bsl::uint64_t *bitString1,
+                        bsl::size_t    index1,
+                        bsl::uint64_t *bitString2,
+                        bsl::size_t    index2,
+                        bsl::size_t    numBits);
+        // Exchange the specified &#39;numBits&#39; beginning at the specified &#39;index1&#39;
+        // in the specified &#39;bitString1&#39; with the &#39;numBits&#39; beginning at the
+        // specified &#39;index2&#39; in the specified &#39;bitString2&#39;.  The behavior is
+        // undefined unless &#39;bitString1&#39; has a length of at least
+        // &#39;index1 + numBits&#39;, &#39;bitString2&#39; has a length of at least
+        // &#39;index2 + numBits&#39;, and there is *no* overlap between the swapped
+        // ranges of bits.
+
+    static void toggle(bsl::uint64_t *bitString,
+                       bsl::size_t    index,
+                       bsl::size_t    numBits);
+        // Invert the values of the specified &#39;numBits&#39; in the specified
+        // &#39;bitString&#39; beginning at the specified &#39;index&#39;.  The behavior is
+        // undefined unless &#39;bitString&#39; has a length of at least
+        // &#39;index + numBits&#39;.
+
+                                // Compare
+
+    static bool areEqual(const bsl::uint64_t *bitString1,
+                         const bsl::uint64_t *bitString2,
+                         bsl::size_t          numBits);
+        // Return &#39;true&#39; if the specified low-order &#39;numBits&#39; in the specified
+        // &#39;bitString1&#39; are bitwise equal to the corresponding bits in the
+        // specified &#39;bitString2&#39;, and &#39;false&#39; otherwise.  The behavior is
+        // undefined unless both &#39;bitString1&#39; and &#39;bitString2&#39; have a length of
+        // at least &#39;numBits&#39;.
+
+    static bool areEqual(const bsl::uint64_t *bitString1,
+                         bsl::size_t          index1,
+                         const bsl::uint64_t *bitString2,
+                         bsl::size_t          index2,
+                         bsl::size_t          numBits);
+        // Return &#39;true&#39; if the specified &#39;numBits&#39; beginning at the specified
+        // &#39;index1&#39; in the specified &#39;bitString1&#39; are bitwise equal to the
+        // &#39;numBits&#39; beginning at the specified &#39;index2&#39; in the specified
+        // &#39;bitString2&#39;, and &#39;false&#39; otherwise.  The behavior is undefined
+        // unless &#39;bitString1&#39; has a length of at least &#39;index1 + numBits&#39; and
+        // &#39;bitString2&#39; has a length of at least &#39;index2 + numBits&#39;.
+
+                                // Read
+
+    static bool bit(const bsl::uint64_t *bitString, bsl::size_t index);
+        // Return the bit value at the specified &#39;index&#39; in the specified
+        // &#39;bitString&#39;.  The behavior is undefined unless &#39;index&#39; is less than
+        // the length of &#39;bitString&#39;.
+
+    static bsl::uint64_t bits(const bsl::uint64_t *bitString,
+                              bsl::size_t          index,
+                              bsl::size_t          numBits);
+        // Return the specified &#39;numBits&#39; beginning at the specified &#39;index&#39; in
+        // the specified &#39;bitString&#39; as the low-order bits of the returned
+        // value.  The behavior is undefined unless
+        // &#39;numBits &lt;= k_BITS_PER_UINT64&#39; and &#39;bitString&#39; has a length of at
+        // least &#39;index + numBits&#39;.
+
+                                // Find
+
+    static bsl::size_t find0AtMaxIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          length);
+        // Return the index of the most-significant 0 bit in the specified
+        // &#39;bitString&#39; having the specified &#39;length&#39;, if such a bit exists, and
+        // &#39;k_INVALID_INDEX&#39; otherwise.
+
+    static bsl::size_t find0AtMaxIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          begin,
+                                       bsl::size_t          end);
+        // Return the index of the most-significant 0 bit in the specified
+        // &#39;bitString&#39; in the specified range &#39;[begin .. end)&#39;, if such a bit
+        // exists, and &#39;k_INVALID_INDEX&#39; otherwise.  The behavior is undefined
+        // unless &#39;begin &lt;= end&#39; and &#39;end&#39; is less than or equal to the length
+        // of &#39;bitString&#39;.
+
+    static bsl::size_t find0AtMinIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          length);
+        // Return the index of the least-significant 0 bit in the specified
+        // &#39;bitString&#39; having the specified &#39;length&#39;, if such a bit exists, and
+        // &#39;k_INVALID_INDEX&#39; otherwise.
+
+    static bsl::size_t find0AtMinIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          begin,
+                                       bsl::size_t          end);
+        // Return the index of the least-significant 0 bit in the specified
+        // &#39;bitString&#39; in the specified range &#39;[begin .. end)&#39;, if such a bit
+        // exists, and &#39;k_INVALID_INDEX&#39; otherwise.  The behavior is undefined
+        // unless &#39;begin &lt;= end&#39; and &#39;end&#39; is less than or equal to the length
+        // of &#39;bitString&#39;.
+
+    static bsl::size_t find1AtMaxIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          length);
+        // Return the index of the most-significant 1 bit in the specified
+        // &#39;bitString&#39; having the specified &#39;length&#39;, if such a bit exists, and
+        // &#39;k_INVALID_INDEX&#39; otherwise.
+
+    static bsl::size_t find1AtMaxIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          begin,
+                                       bsl::size_t          end);
+        // Return the index of the most-significant 1 bit in the specified
+        // &#39;bitString&#39; in the specified range &#39;[begin .. end)&#39;, if such a bit
+        // exists, and &#39;k_INVALID_INDEX&#39; otherwise.  The behavior is undefined
+        // unless &#39;begin &lt;= end&#39; and &#39;end&#39; is less than or equal to the length
+        // of &#39;bitString&#39;.
+
+    static bsl::size_t find1AtMinIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          length);
+        // Return the index of the least-significant 1 bit in the specified
+        // &#39;bitString&#39; having the specified &#39;length&#39;, if such a bit exists, and
+        // &#39;k_INVALID_INDEX&#39; otherwise.
+
+    static bsl::size_t find1AtMinIndex(const bsl::uint64_t *bitString,
+                                       bsl::size_t          begin,
+                                       bsl::size_t          end);
+        // Return the index of the least-significant 1 bit in the specified
+        // &#39;bitString&#39; in the specified range &#39;[begin .. end)&#39;, if such a bit
+        // exists, and &#39;k_INVALID_INDEX&#39; otherwise.  The behavior is undefined
+        // unless &#39;begin &lt;= end&#39; and &#39;end&#39; is less than or equal to the length
+        // of &#39;bitString&#39;.
+
+                                // Count
+
+    static bool isAny0(const bsl::uint64_t *bitString,
+                       bsl::size_t          index,
+                       bsl::size_t          numBits);
+        // Return &#39;true&#39; if any of the specified &#39;numBits&#39; beginning at the
+        // specified &#39;index&#39; in the specified &#39;bitString&#39; are 0, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;bitString&#39; has a
+        // length of at least &#39;index + numBits&#39;.
+
+    static bool isAny1(const bsl::uint64_t *bitString,
+                       bsl::size_t          index,
+                       bsl::size_t          numBits);
+        // Return &#39;true&#39; if any of the specified &#39;numBits&#39; beginning at the
+        // specified &#39;index&#39; in the specified &#39;bitString&#39; are 1, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;bitString&#39; has a
+        // length of at least &#39;index + numBits&#39;.
+
+    static bsl::size_t num0(const bsl::uint64_t *bitString,
+                            bsl::size_t          index,
+                            bsl::size_t          numBits);
+        // Return the number of 0 bits in the specified &#39;numBits&#39; beginning at
+        // the specified &#39;index&#39; in the specified &#39;bitString&#39;.  The behavior is
+        // undefined unless &#39;bitString&#39; has a length of at least
+        // &#39;index + numBits&#39;.
+
+    static bsl::size_t num1(const bsl::uint64_t *bitString,
+                            bsl::size_t          index,
+                            bsl::size_t          numBits);
+        // Return the number of 1 bits in the specified &#39;numBits&#39; beginning at
+        // the specified &#39;index&#39; in the specified &#39;bitString&#39;.  The behavior is
+        // undefined unless &#39;bitString&#39; has a length of at least
+        // &#39;index + numBits&#39;.
+
+                                // Printing
+
+    static bsl::ostream&amp; print(bsl::ostream&amp;        stream,
+                               const bsl::uint64_t *bitString,
+                               bsl::size_t          numBits,
+                               int                  level          = 1,
+                               int                  spacesPerLevel = 4);
+        // Format to the specified output &#39;stream&#39; the specified low-order
+        // &#39;numBits&#39; in the specified &#39;bitString&#39; in hexadecimal, and return a
+        // reference to &#39;stream&#39;.  The highest order bits are printed first, in
+        // groups of 16 nibbles, 64 nibbles per line (in the case of multi-line
+        // output).  Optionally specify &#39;level&#39;, the indentation level for each
+        // line output.  Optionally specify &#39;spacesPerLevel&#39;, the number of
+        // spaces per indentation level.  Each line is indented by the absolute
+        // value of &#39;level * spacesPerLevel&#39;.  If &#39;spacesPerLevel&#39; is negative,
+        // suppress line breaks and format the entire output on one line.  If
+        // &#39;stream&#39; is initially invalid, this operation has no effect.  Note
+        // that a trailing newline is provided in multiline mode only.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // struct BitStringUtil
+                            // --------------------
+
+// CLASS METHODS
+
+                            // Manipulators
+
+                                // Assign
+
+inline
+void BitStringUtil::assign(bsl::uint64_t *bitString,
+                           bsl::size_t    index,
+                           bool           value)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
+    const int         pos = static_cast&lt;unsigned&gt;(index) % k_BITS_PER_UINT64;
+
+    if (value) {
+        bitString[idx] |=  (1ULL &lt;&lt; pos);
+    }
+    else {
+        bitString[idx] &amp;= ~(1ULL &lt;&lt; pos);
+    }
+}
+
+inline
+void BitStringUtil::assign0(bsl::uint64_t *bitString, bsl::size_t index)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
+    const int         pos = static_cast&lt;unsigned&gt;(index) % k_BITS_PER_UINT64;
+
+    bitString[idx] &amp;= ~(1ULL &lt;&lt; pos);
+}
+
+inline
+void BitStringUtil::assign1(bsl::uint64_t *bitString, bsl::size_t index)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
+    const int         pos = static_cast&lt;unsigned&gt;(index) % k_BITS_PER_UINT64;
+
+    bitString[idx] |= 1ULL &lt;&lt; pos;
+}
+
+                                // Insert / Remove
+
+inline
+void BitStringUtil::insert(bsl::uint64_t *bitString,
+                           bsl::size_t    initialLength,
+                           bsl::size_t    dstIndex,
+                           bool           value,
+                           bsl::size_t    numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    insertRaw(bitString, initialLength, dstIndex, numBits);
+    assign(bitString, dstIndex, value, numBits);
+}
+
+inline
+void BitStringUtil::insert0(bsl::uint64_t *bitString,
+                            bsl::size_t    initialLength,
+                            bsl::size_t    dstIndex,
+                            bsl::size_t    numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    insertRaw(bitString, initialLength, dstIndex, numBits);
+    assign0(bitString, dstIndex, numBits);
+}
+
+inline
+void BitStringUtil::insert1(bsl::uint64_t *bitString,
+                            bsl::size_t    initialLength,
+                            bsl::size_t    dstIndex,
+                            bsl::size_t    numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    insertRaw(bitString, initialLength, dstIndex, numBits);
+    assign1(bitString, dstIndex, numBits);
+}
+
+inline
+void BitStringUtil::removeAndFill0(bsl::uint64_t *bitString,
+                                   bsl::size_t    length,
+                                   bsl::size_t    index,
+                                   bsl::size_t    numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    remove(bitString, length, index, numBits);
+    assign0(bitString, length - numBits, numBits);
+}
+
+inline
+void BitStringUtil::removeAndFill1(bsl::uint64_t *bitString,
+                                   bsl::size_t    length,
+                                   bsl::size_t    index,
+                                   bsl::size_t    numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    remove(bitString, length, index, numBits);
+    assign1(bitString, length - numBits, numBits);
+}
+
+                                // Accessors
+
+                                // Read
+inline
+bool BitStringUtil::bit(const bsl::uint64_t *bitString, bsl::size_t index)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
+    const int         pos = static_cast&lt;unsigned&gt;(index) % k_BITS_PER_UINT64;
+
+    return bitString[idx] &amp; (1ULL &lt;&lt; pos);
+}
+
+                                // Count
+
+inline
+bsl::size_t BitStringUtil::num0(const bsl::uint64_t *bitString,
+                                bsl::size_t          index,
+                                bsl::size_t          numBits)
+{
+    BSLS_ASSERT_SAFE(bitString);
+
+    return numBits - num1(bitString, index, numBits);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

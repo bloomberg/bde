@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslma::SharedPtrRep</title>
+<title>BDE 3.0: Class bslma::SharedPtrRep</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -82,8 +82,9 @@ Inheritance diagram for bslma::SharedPtrRep:</div>
  <div class="center">
   <img src="classbslma_1_1SharedPtrRep.png" usemap="#bslma::SharedPtrRep_map" alt=""/>
   <map id="bslma::SharedPtrRep_map" name="bslma::SharedPtrRep_map">
-<area href="classbslma_1_1SharedPtrInplaceRep.html" alt="bslma::SharedPtrInplaceRep&lt; TYPE &gt;" shape="rect" coords="0,56,311,80"/>
-<area href="classbslma_1_1SharedPtrOutofplaceRep.html" alt="bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;" shape="rect" coords="321,56,632,80"/>
+<area href="classbdlcc_1_1SharedObjectPool__Rep.html" alt="bdlcc::SharedObjectPool_Rep&lt; TYPE, RESETTER &gt;" shape="rect" coords="0,56,311,80"/>
+<area href="classbslma_1_1SharedPtrInplaceRep.html" alt="bslma::SharedPtrInplaceRep&lt; TYPE &gt;" shape="rect" coords="321,56,632,80"/>
+<area href="classbslma_1_1SharedPtrOutofplaceRep.html" alt="bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;" shape="rect" coords="642,56,953,80"/>
 </map>
 </div>
 
@@ -108,6 +109,7 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a9d4813d43e457fb13dceefdbca5a6661">managedPtrDeleter</a> (void *, void *rep)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a19c1e289bff97685fce335bee7ad23d1">managedPtrEmptyDeleter</a> (void *, void *rep)</td></tr>
 <tr><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#abb39d67b23b66532694a2be46de9609e">~SharedPtrRep</a> ()</td></tr>
@@ -180,6 +182,34 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a19c1e289bff97685fce335bee7ad23d1"></a><!-- doxytag: member="bslma::SharedPtrRep::managedPtrEmptyDeleter" ref="a19c1e289bff97685fce335bee7ad23d1" args="(void *, void *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslma::SharedPtrRep::managedPtrEmptyDeleter </td>
+          <td>(</td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>This function has no effect. The behavior is undefined unless <code>rep</code> is null. Note that this function serves as the managed ptr deleter when converting an empty or null <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
+
+</div>
+</div>
 <a class="anchor" id="ac41472460d942cf114a59f24b3d5655f"></a><!-- doxytag: member="bslma::SharedPtrRep::disposeObject" ref="ac41472460d942cf114a59f24b3d5655f" args="()=0" -->
 <div class="memitem">
 <div class="memproto">
@@ -196,7 +226,7 @@ Protected Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Dispose of the shared object referred to by this representation. This method is automatically invoked by <code>releaseRef</code> when the number of shared references reaches zero and should not be explicitly invoked otherwise. Note that this virtual <code>disposeObject</code> method effectively serves as the shared object's destructor. Also note that derived classes must override this method to perform the appropriate action such as deleting the shared object. </p>
 
-<p>Implemented in <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a646abcc16ee84c8d00aaf7f23726ee36">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#ac03bfbb61095d48b0f2b7941cf40d773">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbdlcc_1_1SharedObjectPool__Rep.html#a66eff7f702ac80957d67a97c9eb51189">bdlcc::SharedObjectPool_Rep&lt; TYPE, RESETTER &gt;</a>, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a646abcc16ee84c8d00aaf7f23726ee36">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#ac03bfbb61095d48b0f2b7941cf40d773">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
 
 </div>
 </div>
@@ -216,7 +246,7 @@ Protected Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Dispose of this representation object. This method is automatically invoked by <code>releaseRef</code> and <code>releaseWeakRef</code> when the number of weak references and the number of shared references both reach zero and should not be explicitly invoked otherwise. The behavior is undefined unless <code>disposeObject</code> has already been called for this representation. Note that this virtual <code>disposeRep</code> method effectively serves as the representation object's destructor. Also note that derived classes must override this method to perform appropriate action such as deleting this representation, or returning it to an object pool. </p>
 
-<p>Implemented in <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#acb8c7ea7958c907ed62cf280e40e5b61">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a5c683c98e6fdae4d535817a485f32557">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbdlcc_1_1SharedObjectPool__Rep.html#a5c6fe2dbf6cfbc4f89e8ec993e5f2907">bdlcc::SharedObjectPool_Rep&lt; TYPE, RESETTER &gt;</a>, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#acb8c7ea7958c907ed62cf280e40e5b61">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a5c683c98e6fdae4d535817a485f32557">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
 
 </div>
 </div>
@@ -237,7 +267,7 @@ Protected Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return a pointer to the deleter stored by the derived representation (if any) if the deleter has the same type as that described by the specified <code>type</code>, and a null pointer otherwise. Note that while this methods appears to be a simple accessor, it is declared as non- <code>const</code> qualified to support representations storing the deleter directly as a data member. </p>
 
-<p>Implemented in <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a4a2f0332e3749809cb3d3c334455c744">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a4121bb477fd23c4a1abf5ac501cfd911">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbdlcc_1_1SharedObjectPool__Rep.html#a668a0a2c6fb6d9e195f2eb4f9fd4647c">bdlcc::SharedObjectPool_Rep&lt; TYPE, RESETTER &gt;</a>, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a4a2f0332e3749809cb3d3c334455c744">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a4121bb477fd23c4a1abf5ac501cfd911">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
 
 </div>
 </div>
@@ -257,7 +287,7 @@ Protected Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return the (untyped) address of the modifiable shared object referred to by this representation. </p>
 
-<p>Implemented in <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a887725aed073d879e39d1388ff244df2">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a86a222a4b8d5bed5599f5443bca4198e">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
+<p>Implemented in <a class="el" href="classbdlcc_1_1SharedObjectPool__Rep.html#a201f05a33b1bb01d277e9ea6d13104e1">bdlcc::SharedObjectPool_Rep&lt; TYPE, RESETTER &gt;</a>, <a class="el" href="classbslma_1_1SharedPtrInplaceRep.html#a887725aed073d879e39d1388ff244df2">bslma::SharedPtrInplaceRep&lt; TYPE &gt;</a>, and <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a86a222a4b8d5bed5599f5443bca4198e">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a>.</p>
 
 </div>
 </div>
@@ -437,7 +467,7 @@ Protected Member Functions</h2></td></tr>
 <li><a class="el" href="bslma__sharedptrrep_8h_source.html">bslma_sharedptrrep.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:35 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

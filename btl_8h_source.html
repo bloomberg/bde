@@ -1,0 +1,118 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ btl.txt
+
+@PURPOSE: Provide support, services, and frameworks for transport (IPC)
+
+@MNEMONIC: Basic Transport Environment (btl)
+
+@DESCRIPTION: The &#39;btl&#39; (&quot;Basic Transport Environment&quot;) package group provides
+ a variety of concrete transport (IPC) mechanisms and services that conform to
+ a uniform set of pure abstract interfaces.  In addition, &#39;btl&#39; supplies
+ low-level support for sockets and event managers.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;btl&#39; package group currently has 8 packages having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. btls5
+
+  5. btlmt
+
+  4. btlso
+
+  3. btls
+
+  2. btlb
+
+  1. btlsc
+     btlscm
+     btlsos
+..
+
+/Package Synopsis
+/----------------
+: &#39;btlb&#39;:
+:      Provide flexible, efficient management of message buffers.
+:
+: &#39;btlmt&#39;:
+:      Provide framework for multi-threaded TCP/IP transport.
+:
+: &#39;btls&#39;:
+:      Provide transport-specific system level services.
+:
+: &#39;btls5&#39;:
+:      Support connecting through a network of SOCKS5 proxies.
+:
+: &#39;btlsc&#39;:
+:      Provide abstract interfaces for transport channels and factories.
+:
+: &#39;btlscm&#39;:
+:      Provide versioning information for &#39;btl&#39; library components.
+:
+: &#39;btlso&#39;:
+:      Provide low-level support for sockets and event managers.
+:
+: &#39;btlsos&#39;:
+:      Provide concrete TCP/IPv4 channels derived from &#39;btlsc&#39; protocols.
+
+/Package Overview
+/----------------
+ This section provides a brief introduction to some of the packages in &#39;btl&#39;
+ package group.  See the respective Package Level documents for more details.
+
+/&#39;btlmt&#39;
+/- - - -
+ The {&#39;btlmt&#39;} package provides a multi-threaded framework that supports
+ TCP/IPv4 transport. 
+
+/&#39;btls&#39;
+/ - - -
+ The {&#39;btls&#39;} package provides &quot;system level&quot; services that are required by
+ this transport package group in a form that is portable across all suported
+ platforms.  Currently, the package supplies objects and utilities to implement
+ the Unix &#39;iovec&#39; (&quot;scatter/gather&quot;) buffer structure in a platform-neutral
+ form.
+
+/&#39;btls5&#39;
+/- - - -
+ {&#39;btls5&#39;} provides connectivity through a network of SOCKS5 proxies with
+ optional username/password authentication.
+
+/&#39;btlsc&#39;
+/- - - -
+ The {&#39;btlsc&#39;} package provides a suite of protocols (i.e., pure abstract
+ interfaces) abstracting the general behavior of communications &quot;channels&quot;.
+ All abstractions in this package consider stream-based (as opposed to
+ message-based) transport.  The three general abstractions are called
+ &quot;channel&quot;, &quot;channel allocator&quot;, and &quot;allocator factory&quot;.  In our usage,
+ &quot;allocator&quot; and &quot;factory&quot; are synonymous; we use different words to avoid
+ repetition.  In simplest form, &quot;channel&quot; abstracts the concept of an endpoint
+ of a communication mechanism, providing appropriate &quot;read&quot; and &quot;write&quot;
+ methods, while a &quot;channel allocator&quot; dispenses channels as resources, and
+ hence abstracts the concepts of creating and destroying channels.  Finally, a
+ &quot;(channel) allocator factory&quot; is substantially a naming service that is
+ capable of dispensing channel allocators that will in turn dispense channels
+ that are appropriately connected of concrete event managers.  Each of the
+ above interfaces is available in blocking and non-blocking form, and with and
+ without support for timeouts.
+
+/&#39;btlso&#39;
+/- - - -
+ The {&#39;btlso&#39;} package provides relatively low-level support for sockets as
+ well as a number of concrete event managers.
+
+/&#39;btlsos&#39;
+/ - - - -
+ The {&#39;btlsos&#39;} package provides concrete impementations of &#39;btlsc&#39; channels
+ using TCP/IPv4 sockets.  Timed and untimed, and blocking and non-blocking
+ versions of generic channels, acceptors, and connectors are provided.
+</pre>
+</body>
+</html>

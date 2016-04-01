@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_ownerless.h                                                 -*-C++-*-
@@ -22,7 +22,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //@DESCRIPTION: This component provides the C+11 standard binary comparison
 // functor, &#39;bsl::owner_less&#39;, that determines the order of two smart pointer
 // objects by the relative order of the address of their &#39;bslma::SharedPtrRep&#39;
-// data.. Note that this class is an empty POD type.
+// data.  Note that this class is an empty POD type.
 
 // Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -65,7 +65,7 @@ struct owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt; {
 
     //! owner_less(const owner_less&amp; original) = default;
         // Create an &#39;owner_less&#39; object.  Note that as &#39;hash&#39; is an empty
-        // (stateless) type, this operation will have no observable effect.
+        // (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -75,7 +75,7 @@ struct owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt; {
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
         // that as &#39;owner_less&#39; is an empty (stateless) type, this operation
-        // will have no observable effect.
+        // has no observable effect.
 
     // ACCESSORS
     bool operator()(const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
@@ -106,7 +106,7 @@ struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt; {
 
     //! owner_less(const owner_less&amp; original) = default;
         // Create an &#39;owner_less&#39; object.  Note that as &#39;hash&#39; is an empty
-        // (stateless) type, this operation will have no observable effect.
+        // (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -116,7 +116,7 @@ struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt; {
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
         // that as &#39;owner_less&#39; is an empty (stateless) type, this operation
-        // will have no observable effect.
+        // has no observable effect.
 
     // ACCESSORS
     bool operator()(const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
@@ -220,7 +220,7 @@ struct is_trivially_copyable&lt;owner_less&lt;POINTER_TYPE&gt; &gt;
 : bsl::true_type
 {};
 
-}  // close &#39;bsl&#39; namespace
+}  // close namespace bsl
 
 #endif
 

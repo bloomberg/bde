@@ -1,0 +1,189 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bdlde.txt
+
+@PURPOSE: Mechanisms for standard encodings and hashings, e.g., base64, md5.
+
+@MNEMONIC: Basic Development Environment Data Encoder (bdlde)
+
+@SEE_ALSO:
+
+@DESCRIPTION: The &#39;bdlde&#39; package provides mechanisms (typically in the form of
+ fully value-semantic objects) for performing various standard hashings of an
+ input dataset, for, e.g., basic encoding, check-sums, and cryptographic
+ hashes.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bdlde&#39; package currently has 12 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlde_base64decoder
+     bdlde_charconvertucs2
+     bdlde_charconvertutf16
+     bdlde_charconvertutf32
+
+  1. bdlde_base64encoder
+     bdlde_byteorder
+     bdlde_charconvertstatus
+     bdlde_crc32
+     bdlde_md5
+     bdlde_quotedprintabledecoder
+     bdlde_quotedprintableencoder
+     bdlde_utf8util
+..
+
+/Component Synopsis
+/------------------
+: &#39;bdlde_base64decoder&#39;:
+:      Provide automata for converting to and from Base64 encodings.
+:
+: &#39;bdlde_base64encoder&#39;:
+:      Provide automata for converting to and from Base64 encodings.
+:
+: &#39;bdlde_byteorder&#39;:
+:      Provide an enumeration of the set of possible byte orders.
+:
+: &#39;bdlde_charconvertstatus&#39;:
+:      Provide masks for interpreting status from charconvert functions.
+:
+: &#39;bdlde_charconvertucs2&#39;:
+:      Provide efficient conversions between UTF-8 and UCS-2 encodings.
+:
+: &#39;bdlde_charconvertutf16&#39;:
+:      Provide fast, safe conversion between UTF-8 and UTF-16 encodings.
+:
+: &#39;bdlde_charconvertutf32&#39;:
+:      Provide fast, safe conversion between UTF-8 encoding and UTF-32.
+:
+: &#39;bdlde_crc32&#39;:
+:      Provide a mechanism for computing the CRC-32 checksum of a dataset.
+:
+: &#39;bdlde_md5&#39;:
+:      Provide a value-semantic type encoding a message in an MD5 digest.
+:
+: &#39;bdlde_quotedprintabledecoder&#39;:
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: &#39;bdlde_quotedprintableencoder&#39;:
+:      Provide automata converting to and from Quoted-Printable encodings.
+:
+: &#39;bdlde_utf8util&#39;:
+:      Provide basic utilities for UTF-8 encodings.
+
+/Usage
+/-----
+/ This section illustrates intended use of this package.
+
+/Example 1: CRC-32
+/- - - - - - - - -
+ The following snippets of code illustrate a typical use of the &#39;bdlde_Crc32&#39;
+ class.  Each function would typically execute in separate processes or
+ potentially on separate machines.  The &#39;senderExample&#39; function below
+ demonstrates how a message sender can write a message and its CRC-32 checksum
+ to a &#39;bdlx&#39; output stream.  Note that &#39;Out&#39; may be a &#39;typedef&#39; of any class
+ that implements the &#39;bdlx_OutStream&#39; protocol:
+..
+  void senderExample(Out&amp; output)
+      // Write a message and its CRC-32 checksum to the specified &#39;output&#39;
+      // stream.
+  {
+      // prepare a message
+      bdl::string message = &quot;This is a test message.&quot;;
+
+      // generate a checksum for &#39;message&#39;
+      bdlde_Crc32 crc(message.data(), message.length());
+
+      // write the message to &#39;output&#39;
+      output &lt;&lt; message;
+
+      // write the checksum to &#39;output&#39;
+      output &lt;&lt; crc;
+  }
+..
+ The &#39;receiverExample&#39; function below illustrates how a message receiver can
+ read a message and its CRC-32 checksum from a &#39;bdlx&#39; input stream, then
+ perform a local CRC-32 computation to verify that the message was received
+ intact.  Note that &#39;In&#39; may be a &#39;typedef&#39; of any class that implements the
+ &#39;bdlx_InStream&#39; protocol:
+..
+  void receiverExample(In&amp; input)
+      // Read a message and its CRC-32 checksum from the specified &#39;input&#39;
+      // stream, and verify the integrity of the message.
+  {
+      // read the message from &#39;input&#39;
+      bdl::string message;
+      input &gt;&gt; message;
+
+      // read the checksum from &#39;input&#39;
+      bdlde_Crc32 crc;
+      input &gt;&gt; crc;
+
+      // locally compute the checksum of the received &#39;message&#39;
+      bdlde_Crc32 crcLocal;
+      crcLocal.update(message.data(), message.length());
+
+      // verify that the received and locally-computed checksums match
+      assert(crcLocal == crc);
+  }
+..
+
+/Example 2: MD5
+/ - - - - - - -
+ The following snippets of code illustrate a typical use of the &#39;bdlde_Md5&#39;
+ class.  Each function would typically execute in separate processes or
+ potentially on separate machines.  The &#39;senderExample&#39; function below
+ demonstrates how a message sender can write a message and its MD5 hash to a
+ &#39;bdlx&#39; output stream.  Note that &#39;Out&#39; may be a &#39;typedef&#39; of any class that
+ implements the &#39;bdlx_OutStream&#39; protocol:
+..
+  void senderExample(Out&amp; output)
+      // Write a message and its MD5 hash to the specified &#39;output&#39; stream.
+  {
+      // prepare a message
+      bdl::string message = &quot;This is a test message.&quot;;
+
+      // generate a hash for &#39;message&#39;
+      bdlde_Md5 hash(message.data(), message.length());
+
+      // write the message to &#39;output&#39;
+      output &lt;&lt; message;
+
+      // write the hash to &#39;output&#39;
+      output &lt;&lt; hash;
+  }
+..
+ The &#39;receiverExample&#39; function below illustrates how a message receiver can
+ read a message and its MD5 hash from a &#39;bdlx&#39; input stream, then perform a
+ local MD5 computation to verify that the message was received intact.  Note
+ that &#39;In&#39; may be a &#39;typedef&#39; of any class that implements the &#39;bdlx_InStream&#39;
+ protocol:
+..
+  void receiverExample(In&amp; input)
+      // Read a message and its MD5 hash from the specified &#39;input&#39; stream,
+      // and verify the integrity of the message.
+  {
+      // read the message from &#39;input&#39;
+      bdl::string message;
+      input &gt;&gt; message;
+
+      // read the hash from &#39;input&#39;
+      bdlde_Md5 hash;
+      input &gt;&gt; hash;
+
+      // locally compute the hash of the received &#39;message&#39;
+      bdlde_Md5 hashLocal;
+      hashLocal.update(message.data(), message.length());
+
+      // verify that the received and locally-computed hashes match
+      assert(hashLocal == hash);
+  }
+..
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt Package</title>
+<title>BDE 3.0: bdlt Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -63,11 +63,31 @@
 </div>
 <div class="contents">
 
-<p>Provide and time-related vocabulary types, and related utilities.  
+<p>Provide date and time vocabulary types, and related utilities.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="groups"></a>
 Components</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__calendar.html">Component bdlt_calendar</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide fast repository for accessing weekend/holiday information. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__calendarcache.html">Component bdlt_calendarcache</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an efficient cache for read-only <code><a class="el" href="classbdlt_1_1Calendar.html">bdlt::Calendar</a></code> objects. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__calendarloader.html">Component bdlt_calendarloader</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol (or pure interface) for loading calendars. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__calendarreverseiteratoradapter.html">Component bdlt_calendarreverseiteratoradapter</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide reverse iterator adapter for calendar iterators. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__currenttime.html">Component bdlt_currenttime</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide utilities to retrieve the current time. </p>
@@ -118,6 +138,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an ordered set of (unique) <code><a class="el" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573" title="Enumerated day-of-week values.">bdlt::DayOfWeek::Enum</a></code> values. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__defaultcalendarcache.html">Component bdlt_defaultcalendarcache</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a process-wide default <code><a class="el" href="classbdlt_1_1CalendarCache.html">bdlt::CalendarCache</a></code> object. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__epochutil.html">Component bdlt_epochutil</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Conversion between absolute/relative time with respect to epoch. </p>
@@ -128,6 +153,16 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide functions to convert between time-interval representations. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__iso8601util.html">Component bdlt_iso8601util</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide conversions between date/time objects and ISO 8601 strings. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__iso8601utilconfiguration.html">Component bdlt_iso8601utilconfiguration</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an attribute class to configure ISO 8601 string generation. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__localtimeoffset.html">Component bdlt_localtimeoffset</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide utilities to retrieve the local time offset. </p>
@@ -136,6 +171,21 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__monthofyear.html">Component bdlt_monthofyear</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Enumerate the set of month-of-year values. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__packedcalendar.html">Component bdlt_packedcalendar</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a compact repository for weekend/holiday information. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__posixdateimputil.html">Component bdlt_posixdateimputil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide low-level support functions for date-value manipulation. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__prolepticdateimputil.html">Component bdlt_prolepticdateimputil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide low-level support functions for date-value manipulation. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__serialdateimputil.html">Component bdlt_serialdateimputil</a></td></tr>
@@ -158,6 +208,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide constants characterizing ratios between common time units. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__timeutil.html">Component bdlt_timeutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide common non-primitive operations on <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>. </p>
+</td></tr>
+</p>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -171,6 +226,38 @@ Components</h2></td></tr>
 <a href="#3.1">Hierarchical Synopsis</a> </li>
 <li>
 <a href="#3.2">Component Synopsis</a> </li>
+<li>
+<a href="#3.3">Value Types</a> <ul>
+<li>
+<a href="#3.3.1">Value Types: <code>Date</code>, <code>Time</code> and <code>Datetime</code></a> <ul>
+<li>
+<a href="#3.3.1.1">Singular <code>Time</code> and <code>Datetime</code> Values</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.3.2">Timezone Augmented Value Types: <code>DateTz</code>, <code>TimeTz</code> and <code>DatetimeTz</code></a> </li>
+<li>
+<a href="#3.3.3">Enumerated Values</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.4">Utilities</a> <ul>
+<li>
+<a href="#3.4.1">Obtaining Current Date, Time, and Local-Time Offset Values</a> </li>
+<li>
+<a href="#3.4.2">Advanced Date Arithmetic: <code>bdlt::DateUtil</code></a> </li>
+<li>
+<a href="#3.4.3">Conversion of <code>Date</code>, <code>Time</code> and <code>Datetime</code> Values</a> </li>
+<li>
+<a href="#3.4.4">Conversion of Conventional Time Units</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.5">Usage</a> <ul>
+<li>
+<a href="#3.5.1">Example 1: Celebrating Milestone Dates</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -178,47 +265,67 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide and time-related vocabulary types, and related utilities. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide date and time vocabulary types, and related utilities. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_development_library_time_(bdlt)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>MNEMONIC: Basic Development Library Time (bdlt): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>Steven Breitstein (sbreitstein) </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> ("Basic Development Library Time") package provides vocabulary types for representing date and type values, utilities providing non-primitive functionality on those types, utilities that provide date- and time values (e.g., <code>bdlt_currenttime</code>), and supporting components. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> ("Basic Development Library Time") package provides vocabulary types for representing date, time, and datetime values, and utilities providing non-primitive functionality on the value types. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Additional utilities provide: <ul>
+<li>
+Current date, time, and local-time offset values.  </li>
+<li>
+Conversion between different date and time representations.  </li>
+<li>
+Arithmetic and validation functions  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>See <a href="group__bdlt.html#value_types" class="el">Value Types</a> and <a href="group__bdlt.html#utilities" class="el">Utilities</a> below for overviews of the types and functions provided by this package. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package currently has 18 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package currently has 29 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  7. bdlt_currenttime
+<div class="fragment"><pre class="fragment">  9. bdlt_defaultcalendarcache
+
+  8. bdlt_calendarcache
+
+  7. bdlt_currenttime
+     bdlt_iso8601util
 
   6. bdlt_datetimetz
      bdlt_localtimeoffset
 
-  5. bdlt_datetimeutil
+  5. bdlt_calendar
+     bdlt_calendarloader
+     bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
 
   4. bdlt_datetime
+     bdlt_dateutil
+     bdlt_packedcalendar
      bdlt_timetz
+     bdlt_timeutil
 
-  3. bdlt_dateutil
+  3. bdlt_date
      bdlt_intervalconversionutil
      bdlt_time
 
-  2. bdlt_date
-     bdlt_datetimeinterval
+  2. bdlt_datetimeinterval
      bdlt_dayofweekset
-
-  1. bdlt_dayofweek
-     bdlt_monthofyear
      bdlt_serialdateimputil
+
+  1. bdlt_calendarreverseiteratoradapter
+     bdlt_dayofweek
+     bdlt_iso8601utilconfiguration
+     bdlt_monthofyear
+     bdlt_posixdateimputil
+     bdlt_prolepticdateimputil
      bdlt_timeunitratio
 </pre></div><br/>
 <br/>
@@ -227,6 +334,14 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_synopsis"></a> <a class="anchor" id="description.component_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Component Synopsis: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_calendar</code>: <br/>
+ Provide fast repository for accessing weekend/holiday information.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_calendarcache</code>: <br/>
+ Provide an efficient cache for read-only <code><a class="el" href="classbdlt_1_1Calendar.html">bdlt::Calendar</a></code> objects.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_calendarloader</code>: <br/>
+ Provide a protocol (or pure interface) for loading calendars.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_calendarreverseiteratoradapter</code>: <br/>
+ Provide reverse iterator adapter for calendar iterators.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_currenttime</code>: <br/>
  Provide utilities to retrieve the current time.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_date</code>: <br/>
@@ -247,14 +362,26 @@ Components</h2></td></tr>
  Provide an enumeration of the set of days of the week.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_dayofweekset</code>: <br/>
  Provide an ordered set of (unique) <code><a class="el" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573" title="Enumerated day-of-week values.">bdlt::DayOfWeek::Enum</a></code> values.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_defaultcalendarcache</code>: <br/>
+ Provide a process-wide default <code><a class="el" href="classbdlt_1_1CalendarCache.html">bdlt::CalendarCache</a></code> object.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_epochutil</code>: <br/>
  Conversion between absolute/relative time with respect to epoch.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_intervalconversionutil</code>: <br/>
  Provide functions to convert between time-interval representations.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_iso8601util</code>: <br/>
+ Provide conversions between date/time objects and ISO 8601 strings.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_iso8601utilconfiguration</code>: <br/>
+ Provide an attribute class to configure ISO 8601 string generation.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_localtimeoffset</code>: <br/>
  Provide utilities to retrieve the local time offset.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_monthofyear</code>: <br/>
  Enumerate the set of month-of-year values.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_packedcalendar</code>: <br/>
+ Provide a compact repository for weekend/holiday information.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_posixdateimputil</code>: <br/>
+ Provide low-level support functions for date-value manipulation.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_prolepticdateimputil</code>: <br/>
+ Provide low-level support functions for date-value manipulation.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_serialdateimputil</code>: <br/>
  Provide low-level support functions for date-value manipulation.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_time</code>: <br/>
@@ -263,9 +390,240 @@ Components</h2></td></tr>
  Provide a representation of a time with time zone offset.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_timeunitratio</code>: <br/>
  Provide constants characterizing ratios between common time units.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_timeutil</code>: <br/>
+ Provide common non-primitive operations on <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="value_types"></a> <a class="anchor" id="description.value_types"></a> <a class="anchor" id="3.3"></a> </dd></dl>
+<dl class="user"><dt><b>Value Types: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This package defines value-semantic types that represent dates, times (of day), and combined date and time values. For each of these "time" types, there is a related type that also holds a time offset value from UTC. There are also enumerated types representing the months of the year and the days of the week. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="value_types~3A_date,_time_and_datetime"></a> <a class="anchor" id="value_types.value_types~3A_date,_time_and_datetime"></a> <a class="anchor" id="description.value_types.value_types~3A_date,_time_and_datetime"></a> <a class="anchor" id="value_types.value_types"></a> <a class="anchor" id="description.value_types.value_types"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Value Types: Date, Time and Datetime: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package defines <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> to represent date values, <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> to represent time values (to millisecond resolution) within a day, and the combined <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>, to represent all points in time (to millisecond resolution) across the range of date values. The ranges of each type are shown below. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>     Range
+  -------  ------------------------------------------------------
+  <a class="code" href="namespacebdet.html#afaf7185f28d8d6122ae4fe36a6b88ba5">Date</a>     [0001/01/01              ..  9999/12/31              ]
+  <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a>     [           00:00:00.000 ..             23:59:59.999 ]
+  <a class="code" href="namespacebdet.html#a7cc67ae2240c06a6a70bf001c5a858b5">Datetime</a> [0001/01/01_00:00:00.000 ..  9999/12/31_23:59:59.999 ]
+</pre></div><br/>
+<br/>
+ Further note that: <ul>
+<li>
+The date values follow the Unix (POSIX) calendar (see <a href="group__bdlt__date.html" class="el"><code>bdlt_date</code></a>.  </li>
+<li>
+The definition of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> does <em>not</em> allow for leap seconds.  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The above classes define values representing points on a timeline (e.g., dates on a calendar, positions on a clock) whereas the <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code> class represents the <em>difference</em> (to millisecond resolution) between those points. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>             Difference <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>
+  -------          ----------------
+  <a class="code" href="namespacebdet.html#afaf7185f28d8d6122ae4fe36a6b88ba5">Date</a>             int (days)
+  <a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a>             DatetimeInterval
+  <a class="code" href="namespacebdet.html#a7cc67ae2240c06a6a70bf001c5a858b5">Datetime</a>         DatetimeInterval
+  DatetimeInterval DatetimeInterval
+</pre></div><br/>
+<br/>
+ Each of these classes are designed to hold date and time values, but do not themselves provide means for obtaining values such as current time and date. Those values are available via separate utility components. See <a href="group__bdlt.html#obtaining_current_date,_time,_and_local-time_offset_values" class="el">Obtaining Current Date, Time, and Local-Time Offset Values</a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="singular_time_and_datetime_values"></a> <a class="anchor" id="value_types.singular_time_and_datetime_values"></a> <a class="anchor" id="value_types.value_types.singular_time_and_datetime_values"></a> <a class="anchor" id="description.value_types.value_types.singular_time_and_datetime_values"></a> <a class="anchor" id="3.3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Singular Time and Datetime Values: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> class defines a singular value, "24:00:00.000", which is also the default-constructed value. This singular value is distinguished in two ways: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+<p class="startli">Relational comparisons to other time values are disallowed -- the behavior is undefined. Note that comparisons of equality and inequality to other values <em>are</em> legal.</p>
+<ul>
+<li>
+Note that the singular value cannot appear as a key value in any of the standard ordered containers (which require weak ordering of keys). </li>
+</ul>
+<p class="endli"></p>
+</li>
+<li>
+The singular value is implicitly converted to "00:00:00.000" (midnight) in arithmetic operations using <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> values.  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Similarly, the <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> class defines one singular value, "0001/01/01_24:00:00.000", which happens to be the default constructed value. The restrictions and semantics of this value parallel those of the singular <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Some applications use the singular values of these types as placeholders when a value must be provided but is not known. (See <code>bdetu_unset</code>.) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="timezone_augmented_value_types~3A_datetz,_timetz_and_datetimetz"></a> <a class="anchor" id="value_types.timezone_augmented_value_types~3A_datetz,_timetz_and_datetimetz"></a> <a class="anchor" id="description.value_types.timezone_augmented_value_types~3A_datetz,_timetz_and_datetimetz"></a> <a class="anchor" id="timezone_augmented_value_types"></a> <a class="anchor" id="value_types.timezone_augmented_value_types"></a> <a class="anchor" id="description.value_types.timezone_augmented_value_types"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Timezone Augmented Value Types: DateTz, TimeTz and DatetimeTz: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For each of the basic date and time types there is a corresponding value-semantic type that is augmented with a value representing an offset (in minutes) from UTC. Note that other BDE types represent local time offset as seconds (e.g., the <code>seconds</code> attribute of <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The local time offset augmented types are: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  Basis <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>    Augmented <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>
+  ----------    ----------------
+  bldt:<a class="code" href="namespacebdet.html#afaf7185f28d8d6122ae4fe36a6b88ba5">Date</a>     <a class="code" href="classbdlt_1_1DateTz.html">bdlt::DateTz</a>
+  bldt:<a class="code" href="namespacebdet.html#aac65e816e68f5285b127a9071544c5c1">Time</a>     <a class="code" href="classbdlt_1_1TimeTz.html">bdlt::TimeTz</a>
+  bldt:<a class="code" href="namespacebdet.html#a7cc67ae2240c06a6a70bf001c5a858b5">Datetime</a> <a class="code" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a>
+</pre></div><br/>
+<br/>
+ These types are not normalized to a common time zone when they are compared, hence, equality between objects of any of these types requires that the object have both the same local time and the same local-time offset values. To determine <em>equivalence</em> between such objects, each of these classes provides a <code>utc*</code> accessor method. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>These types themselves do not validate that the combinations of dates, times, and local-time offset values they hold correspond to a valid time in any officially recognized time zone. See <a href="group__bdlt.html#obtaining_current_date,_time,_and_local-time_offset_values" class="el">Obtaining Current Date, Time, and Local-Time Offset Values</a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="enumerated_values"></a> <a class="anchor" id="value_types.enumerated_values"></a> <a class="anchor" id="description.value_types.enumerated_values"></a> <a class="anchor" id="3.3.3"></a> </dd></dl>
+<dl class="user"><dt><b>Enumerated Values: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package provides enumerations in <code>bdlt_monthofyear</code> and <code>bdlt_dayofweek</code>. The <code>bdlt_dayofweekset</code> provides an efficient, ordered container of unique <code>btdl::DayofWeek::Enum</code> values (i.e., containing no more than seven elements). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="utilities"></a> <a class="anchor" id="description.utilities"></a> <a class="anchor" id="3.4"></a> </dd></dl>
+<dl class="user"><dt><b>Utilities: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This package provides utility components that: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+Provide current date, time, and local-time offset values.  </li>
+<li>
+Provide date arithmetic functions.  </li>
+<li>
+Provide a wide variety of conversion methods: between the value types defined in this package, between the package value types and standard types for date and time, between time values in different standard units (e.g., hours, minutes, nanoseconds).  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="obtaining_current_date,_time,_and_local-time_offset_values"></a> <a class="anchor" id="utilities.obtaining_current_date,_time,_and_local-time_offset_values"></a> <a class="anchor" id="description.utilities.obtaining_current_date,_time,_and_local-time_offset_values"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>Obtaining Current Date, Time, and Local-Time Offset Values: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt_currenttime</code> component provides: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+A <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> value for the current UTC time.  </li>
+<li>
+A <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> value for the current local time.  </li>
+<li>
+A <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code> from the start of the epoch.  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt_localtimeoffset</code> component defines a function that returns the offset of the host machines designated time zone (as set by the system administrator) from UTC, including adjustments between standard and daylight-saving time, as of a given UTC time and date. For local-time offset for arbitrary time zones see the <a href="group__baetzo.html" class="el"><code>baetzo</code></a> package. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Both <code><a class="el" href="structbdlt_1_1CurrentTime.html">bdlt::CurrentTime</a></code> and <code><a class="el" href="structbdlt_1_1LocalTimeOffset.html">bdlt::LocalTimeOffset</a></code> obtain their values via user-installed callback functions. The default callbacks obtain their values from platform appropriate system calls. User-defined callbacks can provide high-performance (e.g., cached) alternatives to the default system calls, can be instrumented to gather statistics, and can simulate the passage of time for test scenarios. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="advanced_date_arithmetic~3A_bdlt~3A~3Adateutil"></a> <a class="anchor" id="utilities.advanced_date_arithmetic~3A_bdlt~3A~3Adateutil"></a> <a class="anchor" id="description.utilities.advanced_date_arithmetic~3A_bdlt~3A~3Adateutil"></a> <a class="anchor" id="advanced_date_arithmetic"></a> <a class="anchor" id="utilities.advanced_date_arithmetic"></a> <a class="anchor" id="description.utilities.advanced_date_arithmetic"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
+<dl class="user"><dt><b>Advanced Date Arithmetic: bdlt::DateUtil: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdet_dateutil</code> component provides functions on <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> values that extend those provided by the <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> class itself. For example: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+Calculate the <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> that is a specified number of months -- or years -- before or after a given date. Two different end-of-month conventions are provided.  </li>
+<li>
+Find the next -- or previous -- occurrence of a given day of week relative to a specified date (inclusive or exclusive of that specified date).  </li>
+<li>
+Find the date of a specified day of week that is the <em>nth</em> (e.g., 1st, 3rd) or last occurrence in a specified year and month.  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This utility also provides a function for conversion of <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> values to and from <code>int</code> values in the "YYYYMMDD" format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="conversion_of_date,_time_and_datetime_values"></a> <a class="anchor" id="utilities.conversion_of_date,_time_and_datetime_values"></a> <a class="anchor" id="description.utilities.conversion_of_date,_time_and_datetime_values"></a> <a class="anchor" id="3.4.3"></a> </dd></dl>
+<dl class="user"><dt><b>Conversion of Date, Time and Datetime Values: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Several utility components of <code>bdlt</code> provide functions for the conversion of date and time types to other types, some defined in the C++ Standard, others defined elsewhere in BDE. In particular, the <code>bdlt_epochutil</code> component provides functions that convert <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> values (in UTC) -- understood to represent an absolute date and time in UTC -- to equivalent difference values measured from the start of the Unix standard epoch (1970/01/01_00:00:00.000 UTC). <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  Component          Conversions
+  -----------------  --------------------------------------------------------
+  bdlt_dateutil      <a class="code" href="classbdlt_1_1Date.html">bdlt::Date     &lt;=&gt;</a> <span class="stringliteral">&#39;int&#39;</span> in <span class="stringliteral">&quot;YYYYMMDD&quot;</span> format
+
+  bdlt_datetimeutil  <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime &lt;=&gt;</a> bsl::tm
+
+  bdlt_epochutil     <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime &lt;=&gt;</a> bsl::time_t            from the epoch
+                     <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime &lt;=&gt;</a> bdlt::TimeT64          from the epoch
+                     <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime &lt;=&gt;</a> <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>     from the epoch
+                     <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime &lt;=&gt;</a> bdlt::DateTimeInterval from the epoch
+
+  bdlt_intervalconversionutil
+                     <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a>
+                                    &lt;=&gt; <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>
+  bdlt_serialdateimputil
+                     <a class="code" href="classbdlt_1_1Date.html">bdlt::Date     &lt;=&gt;</a> <span class="stringliteral">&#39;int&#39;</span> in the range <span class="stringliteral">&#39;[1 .. 3652059]&#39;</span>
+                                        (corresponding to
+                                        <span class="stringliteral">&#39;[00001/01/01 .. 9999/12/31]&#39;</span>)
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="conversion_of_conventional_time_units"></a> <a class="anchor" id="utilities.conversion_of_conventional_time_units"></a> <a class="anchor" id="description.utilities.conversion_of_conventional_time_units"></a> <a class="anchor" id="3.4.4"></a> </dd></dl>
+<dl class="user"><dt><b>Conversion of Conventional Time Units: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt_timeunitratio</code> component provides a set of constants that express the ratios between standard time units such as days, hours, ..., nanoseconds. One example is <code><a class="el" href="structbdlt_1_1TimeUnitRatio.html#add4d4be03bd9b4da9bfd3778faf7ec66">bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of these components. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_celebrating_milestone_dates"></a> <a class="anchor" id="usage.example_1~3A_celebrating_milestone_dates"></a> <a class="anchor" id="description.usage.example_1~3A_celebrating_milestone_dates"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Celebrating Milestone Dates: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Date and time calculations are simple in principle but tedious and error- prone in practice. Consequently, people tend to schedule events on dates that are easy to calculate -- e.g., first of the month, anniversary dates -- even though we know that not all months and years express intervals of the same length. Access to a rich set of types and utilities for date and time calculations affords us other options. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we wish to commemorate the 20,000th day since our birth. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, create a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object to represent our date of birth. Let us assume that we were born at the exact start of the Unix epoch: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> dtBirthday = <a class="code" href="structbdlt_1_1EpochUtil.html#ae2e0d2e91687e5f6eb75921dfb64a785">bdlt::EpochUtil::epoch</a>();
+    assert(<a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>(1970, 1, 1, 0, 0, 0, 0) == dtBirthday);
+</pre></div><br/>
+<br/>
+ Next, we calculate the milestone date (and time). <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> dt20k(dtBirthday);  dt20k.addDays(20000);
+    assert(bdlt::DatetimeInterval(20000) == dt20k - dtBirthday);
+
+    bsl::cout &lt;&lt; dt20k &lt;&lt; bsl::endl;
+</pre></div><br/>
+<br/>
+ and find: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  04OCT2024_00:00:00.000
+</pre></div><br/>
+<br/>
+ The above value represents UTC date and time values. We, however, plan to celebrate the milestone in New York City. Thus, we must obtain the local time offset in NYC for that future date and use it to calculate the milestone (date) in that time zone. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>     localTimeOffset =
+                                 <a class="code" href="structbdlt_1_1LocalTimeOffset.html#aa713a683be317c3b747f59920c380d86">bdlt::LocalTimeOffset::localTimeOffset</a>(dt20k);
+
+    bdlt::DatetimeInterval dtOffset =
+      <a class="code" href="structbdlt_1_1IntervalConversionUtil.html#a14a392ef7f8c2be4bb4805f3c356accc">bdlt::IntervalConversionUtil::convertToDatetimeInterval</a>(localTimeOffset);
+
+    <a class="code" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a>       dtz20kLocal(
+                                    dt20k + dtOffset,
+                                    static_cast&lt;int&gt;(dtOffset.<a class="code" href="classbdlt_1_1DatetimeInterval.html#af5806abc45396f6cdcb3b6303a0352ed">totalMinutes</a>()));
+
+    bsl::cout &lt;&lt; dtz20kLocal &lt;&lt; bsl::endl;
+</pre></div><br/>
+<br/>
+ which is one calendar day earlier: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  03OCT2024_20:00:00.000-0400
+</pre></div><br/>
+<br/>
+ Notice that the local time offset was expressed in units of minutes for the constructor of <code><a class="el" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a></code>, but the class <code>print</code> method shows that value as the concatenated decimal values four hours and minutes. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Next, since we prefer to hold celebrations on weekend days, not weekdays, we determine the day of the week on which the milestone date falls. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>To aid our calculation, we define a <code><a class="el" href="classbdlt_1_1DayOfWeekSet.html">bdlt::DayOfWeekSet</a></code> object set of the weekend days in New York City. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    <a class="code" href="classbdlt_1_1DayOfWeekSet.html">bdlt::DayOfWeekSet</a> weekendDays;
+    weekendDays.<a class="code" href="classbdlt_1_1DayOfWeekSet.html#ac9e05a9c317a136cfa64e5ede72bbea1">add</a>(<a class="code" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573afb2abd6b87033cc4b2c98825167f4668">bdlt::DayOfWeek::e_SATURDAY</a>);
+    weekendDays.<a class="code" href="classbdlt_1_1DayOfWeekSet.html#ac9e05a9c317a136cfa64e5ede72bbea1">add</a>(<a class="code" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573ad9450df97c416ffadb004f0dd8048833">bdlt::DayOfWeek::e_SUNDAY</a>);
+</pre></div><br/>
+<br/>
+ Now, we determine if the target date is a weekend day. If so, we can plan our celebration for that date; otherwise, we will plan for the next weekend date. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    <a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a> milestone = dtz20kLocal.localDatetime().date();
+    <a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a> holdDate  = weekendDays.<a class="code" href="classbdlt_1_1DayOfWeekSet.html#a2f9f7db464b70123d3c51e6ebedd789b">isMember</a>(milestone.<a class="code" href="classbdlt_1_1Date.html#a09a32dde23c4cf38fd19336ff249b9b8">dayOfWeek</a>())
+                         ? milestone
+                         : <a class="code" href="structbdlt_1_1DateUtil.html#aa921da68602e9d0282d3af1f93b0f08c">bdlt::DateUtil::nextDayOfWeek</a>(
+                                                   <a class="code" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573afb2abd6b87033cc4b2c98825167f4668">bdlt::DayOfWeek::e_SATURDAY</a>,
+                                                   milestone);
+</pre></div><br/>
+<br/>
+ Finally, we examine our results: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">    bsl::cout &lt;&lt; <span class="stringliteral">&quot;Milestone:&quot;</span>          &lt;&lt; <span class="stringliteral">&quot; &quot;</span>
+              &lt;&lt; milestone.<a class="code" href="classbdlt_1_1Date.html#a09a32dde23c4cf38fd19336ff249b9b8">dayOfWeek</a>() &lt;&lt; <span class="stringliteral">&quot; &quot;</span>
+              &lt;&lt; milestone             &lt;&lt; bsl::endl;
+
+    bsl::cout &lt;&lt; <span class="stringliteral">&quot;Hold date:&quot;</span>          &lt;&lt; <span class="stringliteral">&quot; &quot;</span>
+              &lt;&lt; holdDate.<a class="code" href="classbdlt_1_1Date.html#a09a32dde23c4cf38fd19336ff249b9b8">dayOfWeek</a>()  &lt;&lt; <span class="stringliteral">&quot; &quot;</span>
+              &lt;&lt; holdDate              &lt;&lt; bsl::endl;
+</pre></div><br/>
+<br/>
+ we find: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  Milestone: THU 03OCT2024
+  Hold date: SAT 05OCT2024
+</pre></div><br/>
+<br/>
+ and we send out hold-the-date requests to our friends and family. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

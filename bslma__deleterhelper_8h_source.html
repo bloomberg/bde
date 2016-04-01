@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_deleterhelper.h                                              -*-C++-*-
@@ -111,7 +111,7 @@ namespace bslma {
 
 template &lt;int IS_POLYMORPHIC&gt;
 struct DeleterHelper_Helper {
-    template &lt;typename TYPE&gt;
+    template &lt;class TYPE&gt;
     static void *caster(const TYPE *object)
     {
         return static_cast&lt;void *&gt;(const_cast&lt;TYPE *&gt;(object));
@@ -120,7 +120,7 @@ struct DeleterHelper_Helper {
 
 template &lt;&gt;
 struct DeleterHelper_Helper&lt;1&gt; {
-    template &lt;typename TYPE&gt;
+    template &lt;class TYPE&gt;
     static void *caster(const TYPE *object)
     {
         return dynamic_cast&lt;void *&gt;(const_cast&lt;TYPE *&gt;(object));

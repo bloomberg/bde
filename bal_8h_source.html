@@ -1,0 +1,68 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bal.txt
+
+@PURPOSE: Provide application-level support services.
+
+@MNEMONIC: Basic Application Environment (bal)
+
+@DESCRIPTION: The &#39;bal&#39; (&quot;Basic Applications Environment&quot;) package group
+ contains packages that provide application-level support services in varied
+ areas such as encoders/decoders, timezone support, command-line handling,
+ metrics, and logging.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bal&#39; package group currently has 9 packages having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. baljsn
+
+  3. balb
+     balm
+     balst
+     baltzo
+
+  2. balber
+     ball
+
+  1. balscm
+     balxml
+..
+
+/Package Synopsis
+/----------------
+: &#39;balb&#39;:
+:      Provide common application-level facilities.
+:
+: &#39;balber&#39;:
+:      Provide encoding/decoding of data per the (binary) BER rules.
+:
+: &#39;baljsn&#39;:
+:      Provide components for encoding/decoding in the JSON format.
+:
+: &#39;ball&#39;:
+:      Provide thread-safe logging toolkit suitable for all platforms.
+:
+: &#39;balm&#39;:
+:      Provide thread-safe collection and publishing of metrics.
+:
+: &#39;balscm&#39;:
+:      Provide versioning information for library components in &#39;bal&#39;
+:
+: &#39;balst&#39;:
+:      Provide a portable facility for obtaining &amp; printing a stack trace
+:
+: &#39;baltzo&#39;:
+:      Provide timezone data for use with timezone-enabled vocabulary types.
+:
+: &#39;balxml&#39;:
+:      Provide utility components for using XML and XSD.
+</pre>
+</body>
+</html>

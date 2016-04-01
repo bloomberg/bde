@@ -1,0 +1,281 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baljsn_decoderoptions.h                                            -*-C++-*-
+#ifndef INCLUDED_BALJSN_DECODEROPTIONS
+#define INCLUDED_BALJSN_DECODEROPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class for specifying JSON decoding options.
+//
+//@CLASSES:
+//  baljsn::DecoderOptions: options for decoding objects in the JSON format
+//
+//@SEE_ALSO: baljsn_decoder, baljsn_encoderoptions
+//
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, &#39;baljsn::DecoderOptions&#39;, that is used to
+// specify options for decoding objects in the JSON format.
+//
+///Attributes
+///----------
+//..
+//  Name                  Type           Default         Simple Constraints
+//  ------------------    -----------    -------         ------------------
+//  maxDepth              int            32              &gt;= 0
+//  skipUnknownElements   bool           true            none
+//..
+//: o &#39;maxDepth&#39;: maximum depth of the decoded data
+//:
+//: o &#39;skipUnknownElements&#39;: flag specifying if unknown elements are skipped
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating and Populating an Options Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This component is designed to be used at a higher level to set the options
+// for decoding objects in the JSON format.  This example shows how to create
+// and populate an options object.
+//
+// First, we default-construct a &#39;baljsn::DecoderOptions&#39; object:
+//..
+//  const int  MAX_DEPTH             = 10;
+//  const bool SKIP_UNKNOWN_ELEMENTS = false;
+//
+//  baljsn::DecoderOptions options;
+//  assert(32   == options.maxDepth());
+//  assert(true == options.skipUnknownElements());
+//..
+// Next, we populate that object to decode using a different &#39;maxDepth&#39; value
+// and &#39;skipUnknownElements&#39; value:
+//..
+//  options.setMaxDepth(MAX_DEPTH);
+//  assert(MAX_DEPTH == options.maxDepth());
+//
+//  options.setSkipUnknownElements(SKIP_UNKNOWN_ELEMENTS);
+//  assert(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#define INCLUDED_BSL_IOSFWD
+#endif
+
+namespace BloombergLP {
+namespace baljsn {
+
+                            // ====================
+                            // class DecoderOptions
+                            // ====================
+
+class DecoderOptions {
+    // This simply constrained (value-semantic) attribute class describes
+    // options for decoding an object in the JSON format.  See the Attributes
+    // section under @DESCRIPTION in the component-level documentation.  Note
+    // that the class invariants are identically the constraints on the
+    // individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value-semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-safe*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // CONSTANTS
+    enum {
+        e_DEFAULT_MAX_DEPTH = 32  // default value for
+                                       // &#39;maxDepth&#39; attribute
+    };
+
+    // DATA
+    int  d_maxDepth;             // maximum recursion depth
+    bool d_skipUnknownElements;  // flag specifying if unknown elements should
+                                 // be skipped
+
+  public:
+    // CREATORS
+    DecoderOptions();
+        // Create a &#39;DecoderOptions&#39; object having the (default) attribute
+        // values:
+        //..
+        //  maxDepth            == 0
+        //  skipUnknownElements == true
+        //..
+
+    //! DecoderOptions(const DecoderOptions&amp; original) = default;
+        // Create a &#39;DecoderOptions&#39; object having the same value as the
+        // specified &#39;original&#39; object.
+
+    ~DecoderOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! DecoderOptions&amp; operator=(const DecoderOptions&amp; rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setMaxDepth(int value);
+        // Set the &#39;maxDepth&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setSkipUnknownElements(bool value);
+        // Set the &#39;skipUnknownElements&#39; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    // ACCESSORS
+    int maxDepth() const;
+        // Return the value of the &#39;maxDepth&#39; attribute of this object.
+
+    bool skipUnknownElements() const;
+        // Return the value of the &#39;skipUnknownElements&#39; attribute of this
+        // object.
+
+                                  // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;EncoderOptions&#39; objects have the
+    // same value if all of the corresponding values of their &#39;maxDepth&#39; and
+    // &#39;skipUnknownElements&#39;attributes are the same.
+
+bool operator!=(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;EncoderOptions&#39; objects do not
+    // have the same value if any of the corresponding values of their
+    // &#39;maxDepth&#39; and &#39;skipUnknownElements&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;         stream,
+                         const DecoderOptions&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39;, but with
+    // the attribute names elided.
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class DecoderOptions
+                            // --------------------
+
+// CREATORS
+inline
+DecoderOptions::DecoderOptions()
+: d_maxDepth(e_DEFAULT_MAX_DEPTH)
+, d_skipUnknownElements(true)
+{
+}
+
+inline
+DecoderOptions::~DecoderOptions()
+{
+    BSLS_ASSERT_SAFE(0 &lt;= d_maxDepth);
+}
+
+// MANIPULATORS
+inline
+void DecoderOptions::setMaxDepth(int value)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= value);
+
+    d_maxDepth = value;
+}
+
+inline
+void DecoderOptions::setSkipUnknownElements(bool value)
+{
+    d_skipUnknownElements = value;
+}
+
+// ACCESSORS
+inline
+int DecoderOptions::maxDepth() const
+{
+    return d_maxDepth;
+}
+
+inline
+bool DecoderOptions::skipUnknownElements() const
+{
+    return d_skipUnknownElements;
+}
+}  // close package namespace
+
+// FREE FUNCTIONS
+inline
+bool baljsn::operator==(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs)
+{
+    return  lhs.maxDepth()            == rhs.maxDepth()
+         &amp;&amp; lhs.skipUnknownElements() == rhs.skipUnknownElements();
+}
+
+inline
+bool baljsn::operator!=(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs)
+{
+    return  lhs.maxDepth()            != rhs.maxDepth()
+         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

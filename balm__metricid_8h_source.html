@@ -1,0 +1,355 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_metricid.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_METRICID
+#define INCLUDED_BALM_METRICID
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $&quot;)
+
+//@PURPOSE: Provide an identifier for a metric.
+//
+//@CLASSES:
+//   balm::MetricId: an identifier for a metric
+//
+//@SEE_ALSO: balm_metricregistry, balm_metricdescription, balm_category
+//
+//@DESCRIPTION: This component implements an in-core value-semantic type used
+// to identify a metric.  A &#39;balm::MetricId&#39; object&#39;s value is the *address* of
+// a (non-modifiable) &#39;balm::MetricDescription&#39; object.  A &#39;balm::MetricId&#39;
+// object also provides auxiliary methods, &#39;category&#39;, &#39;categoryName&#39;, and
+// &#39;metricName&#39;, that enables access to the properties of the held
+// &#39;balm::MetricDescription&#39;.  Two &#39;balm::MetricId&#39; objects have the same value
+// if the values of their respective &#39;balm::MetricDescription&#39; object
+// *addresses* are the same.
+//
+///Thread Safety
+///-------------
+// &#39;balm::MetricId&#39; is *const* *thread-safe*, meaning that accessors may be
+// invoked concurrently from different threads, but it is not safe to access
+// or modify a &#39;balm::MetricId&#39; in one thread while another thread modifies the
+// same object.
+//
+///Usage
+///-----
+// The following example demonstrates how to create and use a &#39;balm::MetricId&#39;
+// object.  We start by creating a category and two metric description objects:
+//..
+//  balm::Category category(&quot;MyCategory&quot;);
+//  balm::MetricDescription descriptionA(&amp;category, &quot;MetricA&quot;);
+//  balm::MetricDescription descriptionB(&amp;category, &quot;MetricB&quot;);
+//..
+// Now we create three &#39;balm::MetricId&#39; objects:
+//..
+//  balm::MetricId invalidId;
+//  balm::MetricId metricIdA(&amp;descriptionA);
+//  balm::MetricId metricIdB(&amp;descriptionB);
+//..
+// We can access and verify the properties of the &#39;balm::MetricId&#39; objects we
+// have created:
+//..
+//  assert(false == invalidId.isValid());
+//  assert(true  == metricIdA.isValid());
+//  assert(true  == metricIdB.isValid());
+//
+//  assert(0             == invalidId.description());
+//  assert(&amp;descriptionA == metricIdA.description());
+//  assert(&amp;descriptionB == metricIdB.description());
+//
+//  assert(invalidId != metricIdA);
+//  assert(invalidId != metricIdB);
+//  assert(metricIdA != metricIdB);
+//..
+// We now verify that copies of a metric id have the same value as the
+// original:
+//..
+//  balm::MetricId copyMetricIdA(metricIdA);
+//
+//  assert(metricIdA == copyMetricIdA);
+//..
+// Note that two &#39;balm::MetricId&#39; objects that have different
+// &#39;balm::MetricDescription&#39; object addresses are *not* equal, *even* if the
+// descriptions have the same name and category.
+//..
+//  balm::MetricDescription newDescriptionB(&amp;category, &quot;MetricB&quot;);
+//  balm::MetricId          differentIdB(&amp;newDescriptionB);
+//
+//  assert(0 == bsl::strcmp(differentIdB.metricName(),metricIdB.metricName()));
+//  assert(differentIdB.category() == metricIdB.category());
+//
+//  assert(metricIdB != differentIdB);   // The &#39;balm::MetricDescription&#39;
+//                                       // object addresses are not equal!
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_CATEGORY
+#include &lt;balm_category.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICDESCRIPTION
+#include &lt;balm_metricdescription.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balm {
+                               // ==============
+                               // class MetricId
+                               // ==============
+
+class MetricId {
+    // This class defines an in-core value-semantic type used to identify a
+    // metric.  A &#39;MetricId&#39; object&#39;s value is the *address* of a
+    // non-modifiable &#39;MetricDescription&#39; object.  In addition, a
+    // &#39;MetricDescription&#39; object provides auxiliary methods, &#39;category&#39;,
+    // &#39;categoryName&#39;, and &#39;name&#39;, that enable access to the properties of the
+    // held &#39;MetricDescription&#39;.  Two &#39;MetricId&#39; objects have the same value if
+    // the values of their respective &#39;MetricDescription&#39; object *addresses*
+    // are the same.
+
+    // DATA
+    const MetricDescription *d_description_p;  // metric description
+                                               // (held, not owned)
+  public:
+    // CREATORS
+    MetricId();
+        // Create an invalid metric id.
+
+    MetricId(const MetricDescription *metricDescription);
+        // Create a metric id whose value is the specified &#39;metricDescription&#39;
+        // address.  The behavior is undefined unless &#39;metricDescription&#39; is
+        // 0, or the indicated metric description object remains valid for the
+        // lifetime of this metric id object.
+
+    MetricId(const MetricId&amp; original);
+        // Create a metric id with the value of the specified &#39;original&#39;
+        // metric id.  The behavior is undefined unless the &#39;description()&#39; of
+        // &#39;original&#39; is 0, or the indicated metric description object remains
+        // valid for the lifetime of this metric id object.
+
+    // ~MetricId();
+        // Destroy this metric id.  Note that this trivial destructor is
+        // generated by the compiler.
+
+    // MANIPULATORS
+    MetricId&amp; operator=(const MetricId&amp; rhs);
+        // Assign this metric id the value of the specified &#39;rhs&#39; metric id
+        // object, and return a reference to this object.  The behavior is
+        // undefined unless the &#39;description()&#39; of &#39;rhs&#39; is 0, or the
+        // metric-description object remains valid for the lifetime of this
+        // metric-id object.
+
+    const MetricDescription *&amp;description();
+        // Return a reference to the modifiable address of the *held*
+        // non-modifiable &#39;MetricDescription&#39;, which defines the value of this
+        // metric id.
+
+     // ACCESSORS
+    const MetricDescription * const &amp; description() const;
+        // Return a reference to the non-modifiable address of the *held*
+        // non-modifiable &#39;MetricDescription&#39;, which defines the value of this
+        // metric id.
+
+    bool isValid() const;
+        // Return &#39;true&#39; if this metric id object contains the address of a
+        // valid &#39;MetricDescription&#39; object, and false &#39;otherwise&#39;.  Note that
+        // this method is logically equivalent to &#39;0 != description()&#39;.
+
+    const Category *category() const;
+        // Return the address of the non-modifiable &#39;Category&#39; object
+        // identifying the category with which this metric id is associated.
+        // The behavior is undefined unless &#39;isValid()&#39; is &#39;true&#39;.  Note that
+        // this method is logically equivalent to &#39;description()-&gt;category()&#39;.
+
+    const char *categoryName() const;
+        // Return the address of the non-modifiable name for the category with
+        // which this metric id is associated.  The behavior is undefined
+        // unless &#39;isValid()&#39; is &#39;true&#39;.  Note that this method is logically
+        // equivalent to &#39;description()-&gt;category()-&gt;name()&#39;.
+
+    const char *metricName() const;
+        // Return the address of the non-modifiable name of this metric id.
+        // The behavior is undefined unless &#39;isValid()&#39; is &#39;true&#39;.  Note that
+        // this method is logically equivalent to &#39;description()-&gt;name()&#39;.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream) const;
+        // Print this metric id to the specified output &#39;stream&#39; in some
+        // single-line human-readable form, and return a reference to the
+        // modifiable &#39;stream&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bool operator==(const MetricId&amp; lhs, const MetricId&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric ids have the same
+    // value and &#39;false&#39; otherwise.  Two metric ids have the same value if they
+    // each hold the address of the same &#39;MetricDescription&#39; object, or both
+    // addresses are 0.
+
+inline
+bool operator!=(const MetricId&amp; lhs, const MetricId&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric ids do not have
+    // the same value and &#39;false&#39; otherwise.  Two metric ids do not have same
+    // value if they refer to different &#39;MetricDescription&#39; object *addresses*,
+    // or exactly one address is 0.
+
+inline
+bool operator&lt;(const MetricId&amp; lhs, const MetricId&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; metric id is less than (ordered
+    // before) the specified &#39;rhs&#39; metric id, and return &#39;false&#39; otherwise&#39;.
+    // The &#39;lhs&#39; is considered less if the (unsigned) *address* of the
+    // contained &#39;MetricDescription&#39; object is numerically less than the &#39;rhs&#39;
+    // description.  Note that this function does *not* provide any form of
+    // alphabetic ordering, and is logically equivalent to the expression
+    // &#39;lhs.description() &lt; rhs.description()&#39;.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const MetricId&amp; rhs);
+    // Write a description of the specified &#39;rhs&#39; metric id to the specified
+    // &#39;stream&#39; in some human-readable format, and return a reference to the
+    // modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                               // --------------
+                               // class MetricId
+                               // --------------
+
+// CREATORS
+inline
+MetricId::MetricId()
+: d_description_p(0)
+{
+}
+
+inline
+MetricId::MetricId(const MetricDescription *metricDescription)
+: d_description_p(metricDescription)
+{
+}
+
+inline
+MetricId::MetricId(const MetricId&amp; original)
+: d_description_p(original.d_description_p)
+{
+}
+
+// MANIPULATORS
+inline
+MetricId&amp; MetricId::operator=(const MetricId&amp; rhs)
+{
+    d_description_p = rhs.d_description_p;
+    return *this;
+}
+
+inline
+const MetricDescription *&amp;MetricId::description()
+{
+    return d_description_p;
+}
+
+// ACCESSORS
+inline
+const MetricDescription * const &amp; MetricId::description() const
+{
+    return d_description_p;
+}
+
+inline
+bool MetricId::isValid() const
+{
+    return 0 != d_description_p;
+}
+
+inline
+const Category *MetricId::category() const
+{
+    return d_description_p-&gt;category();
+}
+
+inline
+const char *MetricId::categoryName() const
+{
+    return d_description_p-&gt;category()-&gt;name();
+}
+
+inline
+const char *MetricId::metricName() const
+{
+    return d_description_p-&gt;name();
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const MetricId&amp; lhs, const MetricId&amp; rhs)
+{
+    return lhs.description() == rhs.description();
+}
+
+inline
+bool balm::operator!=(const MetricId&amp; lhs, const MetricId&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool balm::operator&lt;(const MetricId&amp; lhs, const MetricId&amp; rhs)
+{
+    return lhs.description() &lt; rhs.description();
+}
+
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp; stream, const MetricId&amp; rhs)
+{
+    return rhs.print(stream);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>
