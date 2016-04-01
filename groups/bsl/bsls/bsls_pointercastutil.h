@@ -7,10 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 //@PURPOSE: Provide function to cast between function and data pointers.
 //
 //@CLASSES:
@@ -111,8 +107,13 @@ template <class TO, class FROM>
 inline
 TO bsls::PointerCastUtil::cast(FROM from)
 {
-    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(FROM));
-    BSLS_ASSERT_SAFE(sizeof(bsls::Types::IntPtr) >= sizeof(TO));
+    typedef char FROM_SizeCheck[
+                         sizeof(bsls::Types::IntPtr) >= sizeof(FROM) ? 1 : -1];
+    typedef char   TO_SizeCheck[
+                         sizeof(bsls::Types::IntPtr) >= sizeof(TO)   ? 1 : -1];
+        // Static assert that the 'FROM' and 'TO' types are not larger than the
+        // intermediate integer type.  Note that 'bslmf_Assert' cannot be used
+        // here because of package dependency rules.
 
     return reinterpret_cast<TO>(reinterpret_cast<bsls::Types::IntPtr>(from));
 }
