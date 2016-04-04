@@ -1,0 +1,22 @@
+ bdlpcre.txt
+
+@PURPOSE: Provide a mechanism to process Perl-compatible regular expressions.   
+
+@MNEMONIC: Basic Development Library Perl Compat. Regular Expressions (bdlpcre)
+
+@DESCRIPTION: This component provides a mechanism for compiling (or
+ "preparing") regular expressions and matching those against strings.  The
+ regular expressions supported by this component correspond approximately with
+ Perl 5.10.  See {'bdlpcre_regex'} for more details.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlpcre' package currently has 1 component.
+..
+  1. bdlpcre_regex
+..
+
+/Component Synopsis
+/------------------
+: 'bdlpcre_regex':
+:      Provide a mechanism for regular expression pattern matching.

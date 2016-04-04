@@ -1,15 +1,15 @@
  bdld.txt
 
-@PURPOSE: Provide a variant type ('Datum') and supporting utilities.            
-                                                                                
-@MNEMONIC: Basic Development Library Datum (bdlb)                               
-                                                                                
-@DESCRIPTION: The 'bdld' package defines in 'bdld_datum' a type that can        
- contain an assortment of different value types, including user-defined types.  
- Other components provide utilities for assembling arrays and maps of 'Datum'   
- objects.                                                                       
-                                                                                
- Note that `bdlt::Datum` has many features of value-semantic types (including   
+@PURPOSE: Provide a variant type ('Datum') and supporting utilities.
+
+@MNEMONIC: Basic Development Library Datum (bdlb)
+
+@DESCRIPTION: The 'bdld' package defines in 'bdld_datum' a type that can
+ contain an assortment of different value types, including user-defined types.
+ Other components provide utilities for assembling arrays and maps of 'Datum'
+ objects.
+
+ Note that `bdlt::Datum` has many features of value-semantic types (including
  an 'operator=='), but is not a VST.  See {'bdlt_datum'|Notion of Value}.
 
 /Hierarchical Synopsis
