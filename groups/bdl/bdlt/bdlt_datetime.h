@@ -422,6 +422,20 @@ class Datetime {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
+    Datetime& operator+=(const bsls::TimeInterval& rhs);
+        // Add to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  If
+        // '24 == hour()' on entry, set the 'hour' attribute of this object to
+        // 0 before performing the addition.  The behavior is undefined unless
+        // the resulting value is valid for 'Datetime' (see 'isValid').
+
+    Datetime& operator-=(const bsls::TimeInterval& rhs);
+        // Subtract from this object the value of the specified 'rhs' object,
+        // and return a reference providing modifiable access to this object.
+        // If '24 == hour()' on entry, set the 'hour' attribute of this object
+        // to 0 before performing the subtraction.  The behavior is undefined
+        // unless the resulting value is valid for 'Datetime' (see 'isValid').
+
     Datetime& operator+=(const DatetimeInterval& rhs);
         // Add to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.  If
@@ -994,7 +1008,45 @@ Datetime& Datetime::operator=(const Datetime& rhs)
     return *this;
 }
 
-// TBD add bsls::TimeInterval versions
+inline
+Datetime& Datetime::operator+=(const bsls::TimeInterval& rhs)
+{
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                            DatetimeImpUtil::k_MAX_VALUE
+                                          - DatetimeImpUtil::k_0001_01_01_VALUE
+                                          - microsecondsFromEpoch()));
+
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                             microsecondsFromEpoch() + rhs.totalMicroseconds();
+    setMicrosecondsFromEpoch(totalMicroseconds);
+
+    return *this;
+}
+
+inline
+Datetime& Datetime::operator-=(const bsls::TimeInterval& rhs)
+{
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                            DatetimeImpUtil::k_MAX_VALUE
+                                          - DatetimeImpUtil::k_0001_01_01_VALUE
+                                          - microsecondsFromEpoch()));
+
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                             microsecondsFromEpoch() - rhs.totalMicroseconds();
+    setMicrosecondsFromEpoch(totalMicroseconds);
+
+    return *this;
+}
 
 inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
@@ -1343,7 +1395,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
 
     days         += microseconds / TimeUnitRatio::k_US_PER_D;
     microseconds %= TimeUnitRatio::k_US_PER_D;
-    
+
     if (days > 0 && microseconds < 0) {
         --days;
         microseconds += TimeUnitRatio::k_US_PER_D;
@@ -1377,7 +1429,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     totalMicroseconds += microseconds;
 
     // Assign the value.
-    
+
     setMicrosecondsFromEpoch(totalMicroseconds);
 }
 

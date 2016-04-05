@@ -1,6 +1,8 @@
 // bdlt_datetime.t.cpp                                                -*-C++-*-
 #include <bdlt_datetime.h>
 
+#include <bdlt_datetimeinterval.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -9,6 +11,7 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_timeinterval.h>
 
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>
@@ -83,6 +86,8 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] Datetime& operator=(const Datetime& rhs);
+// [15] Datetime& operator+=(const bsls::TimeInterval& rhs);
+// [15] Datetime& operator-=(const bsls::TimeInterval& rhs);
 // [15] Datetime& operator+=(const DatetimeInterval& rhs);
 // [15] Datetime& operator-=(const DatetimeInterval& rhs);
 // [12] void setDatetime(int, int, int, int, int, int, int);
@@ -1717,8 +1722,9 @@ if (veryVerbose)
         //:   operator functions are standard.
         //:
         //: 2 The value of 'Datetime' object can be changed by an arbitrary
-        //:   'DatetimeInterval' (valid) value, subject to the constraint that
-        //:   the valid 'Datetime' range is not exceeded.
+        //:   'DatetimeInterval' and 'bsls::TimeInterval' (valid) value,
+        //:   subject to the constraint that the valid 'Datetime' range is not
+        //:   exceeded.
         //:
         //:   1 Differences in "time" part are propagated to the "date" part as
         //:     needed.
@@ -1739,11 +1745,11 @@ if (veryVerbose)
         //:   signatures and return types.  (C-1)
         //:
         //: 2 Using a table-driven test, iterate through the cross product of
-        //:   representative sets 'Datetime' values and 'DatetimeInterval'
-        //:   values (to be applied as a "delta" to the 'Datetime' values).
-        //:   The resulting values cover the (valid) range of 'Datetime' values
-        //:   (C-2) and include cases that trigger changes in the "date" part
-        //:   (C-2.1).
+        //:   representative sets 'Datetime' values and 'DatetimeInterval' /
+        //:   'bsls::TimeInterval' values (to be applied as a "delta" to the
+        //:   'Datetime' values).   The resulting values cover the (valid)
+        //:   range of 'Datetime' values (C-2) and include cases that trigger
+        //:   changes in the "date" part (C-2.1).
         //:
         //:   1 For each pair, use 'operator+=' to apply the delta to the base
         //:     value and compare the result to that obtained by adding the
@@ -1774,6 +1780,8 @@ if (veryVerbose)
         //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
+        //   Datetime& operator+=(const bsls::TimeInterval& rhs);
+        //   Datetime& operator-=(const bsls::TimeInterval& rhs);
         //   Datetime& operator+=(const DatetimeInterval& rhs);
         //   Datetime& operator-=(const DatetimeInterval& rhs);
         // --------------------------------------------------------------------
@@ -1784,6 +1792,17 @@ if (veryVerbose)
 
         if (verbose) cout <<
                 "\nAssign the address of each operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(const bsls::TimeInterval&);
+
+            // Verify that the signatures and return types are standard.
+
+            operatorPtr operatorPlusEquals  = &Obj::operator+=;
+            operatorPtr operatorMinusEquals = &Obj::operator-=;
+
+            (void)operatorPlusEquals;   // quash potential compiler warnings
+            (void)operatorMinusEquals;
+        }
         {
             typedef Obj& (Obj::*operatorPtr)(const DatetimeInterval&);
 
@@ -1806,28 +1825,29 @@ if (veryVerbose)
             int d_minute;
             int d_second;
             int d_msec;
+            int d_usec;
         } INITIAL_VALUES[] = {
-            {    5,  1,  1,   0,  0,  0,   0 },
-            {   10,  4,  5,   0,  0,  0,   1 },
-            {  100,  6,  7,   0,  0,  0, 999 },
-            { 1000,  8,  9,   0,  0,  1,   0 },
-            { 2000,  1, 31,   0,  0, 59, 999 },
-            { 2002,  7,  4,   0,  1,  0,   0 },
-            { 2002, 12, 31,   0,  1,  0,   1 },
-            { 2003,  1,  1,   0, 59, 59, 999 },
-            { 2003,  1,  2,   1,  0,  0,   0 },
-            { 2003,  8,  5,   1,  0,  0,   1 },
-            { 2003,  8,  6,  23,  0,  0,   0 },
-            { 2003,  8,  7,  23, 22, 21, 209 },
-            { 2004,  9,  3,  23, 22, 21, 210 },
-            { 2004,  9,  4,  23, 22, 21, 211 },
-            { 9990, 12, 31,  23, 59, 59, 999 },
+            {    5,  1,  1,   0,  0,  0,   0,   0 },
+            {   10,  4,  5,   0,  0,  0,   1,   0 },
+            {  100,  6,  7,   0,  0,  0, 999,   0 },
+            { 1000,  8,  9,   0,  0,  1,   0,   0 },
+            { 2000,  1, 31,   0,  0, 59, 999,   0 },
+            { 2002,  7,  4,   0,  1,  0,   0,   0 },
+            { 2002, 12, 31,   0,  1,  0,   1,   0 },
+            { 2003,  1,  1,   0, 59, 59, 999,   0 },
+            { 2003,  1,  2,   1,  0,  0,   0,   0 },
+            { 2003,  8,  5,   1,  0,  0,   1,   0 },
+            { 2003,  8,  6,  23,  0,  0,   0,   0 },
+            { 2003,  8,  7,  23, 22, 21, 209,   0 },
+            { 2004,  9,  3,  23, 22, 21, 210,   0 },
+            { 2004,  9,  4,  23, 22, 21, 211,   0 },
+            { 9990, 12, 31,  23, 59, 59, 999,   0 },
          };
         const int NUM_INIT_VALUES =
               static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
         if (verbose) cout
-                     << "\nCreate table of 'DatetimeInterval' values." << endl;
+                     << "\nCreate table of interval values." << endl;
 
         static const struct {
             int d_days;
@@ -1835,35 +1855,36 @@ if (veryVerbose)
             int d_minutes;
             int d_seconds;
             int d_msecs;
+            int d_usecs;
         } INTERVAL_VALUES[] = {
-            { -1001,    0,   0,   0,    0 },
-            { -1000,  -23, -59, -59, -999 },
-            { -1000,  -23, -59, -59, -998 },
-            {   -10,   25,  80,  70,   -1 },
-            {   -10,   25,  80,  70,    0 },
-            {   -10,   25,  80,  70,    1 },
-            {    -1,    0,  -1,   0,    0 },
-            {    -1,    0,   0,   0,    0 },
-            {    -1,    0,   1,   0,    0 },
-            {     0,    0,   0,   0,    0 },
-            {     1,    0,  -1,   0,    0 },
-            {     1,    0,   0,   0,    0 },
-            {     1,    0,   1,   0,    0 },
-            {    10,   25,  80,  70,   -1 },
-            {    10,   25,  80,  70,    0 },
-            {    10,   25,  80,  70,    1 },
-            {  1000,   23,  59,  59,  998 },
-            {  1000,   23,  59,  59,  999 },
-            {  1001,    0,   0,   0,    0 },
+            { -1001,    0,   0,   0,    0,    0 },
+            { -1000,  -23, -59, -59, -999,    0 },
+            { -1000,  -23, -59, -59, -998,    0 },
+            {   -10,   25,  80,  70,   -1,    0 },
+            {   -10,   25,  80,  70,    0,    0 },
+            {   -10,   25,  80,  70,    1,    0 },
+            {    -1,    0,  -1,   0,    0,    0 },
+            {    -1,    0,   0,   0,    0,    0 },
+            {    -1,    0,   1,   0,    0,    0 },
+            {     0,    0,   0,   0,    0,    0 },
+            {     1,    0,  -1,   0,    0,    0 },
+            {     1,    0,   0,   0,    0,    0 },
+            {     1,    0,   1,   0,    0,    0 },
+            {    10,   25,  80,  70,   -1,    0 },
+            {    10,   25,  80,  70,    0,    0 },
+            {    10,   25,  80,  70,    1,    0 },
+            {  1000,   23,  59,  59,  998,    0 },
+            {  1000,   23,  59,  59,  999,    0 },
+            {  1001,    0,   0,   0,    0,    0 },
          };
         const int NUM_INTERVAL_VALUES =
             static_cast<int>(sizeof INTERVAL_VALUES / sizeof *INTERVAL_VALUES);
 
-        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
-        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
+        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
+        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
         if (verbose) cout
-              << "\nApply each 'DatetimeInterval' to each 'Datetime'." << endl;
+              << "\nApply each interval to each 'Datetime'." << endl;
 
         for (int i = 0; i < NUM_INIT_VALUES; ++i) {
             const int YEAR   = INITIAL_VALUES[i].d_year;
@@ -1873,10 +1894,65 @@ if (veryVerbose)
             const int MINUTE = INITIAL_VALUES[i].d_minute;
             const int SECOND = INITIAL_VALUES[i].d_second;
             const int MSEC   = INITIAL_VALUES[i].d_msec;
+            const int USEC   = INITIAL_VALUES[i].d_usec;
 
-            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC, USEC);
 
             if (veryVerbose) P(R);
+
+            // Test 'bsls::TimeInterval'.
+
+            for (int j = 0; j < NUM_INTERVAL_VALUES; ++j) {
+                const int DAYS    = INTERVAL_VALUES[i].d_days;
+                const int HOURS   = INTERVAL_VALUES[i].d_hours;
+                const int MINUTES = INTERVAL_VALUES[i].d_minutes;
+                const int SECONDS = INTERVAL_VALUES[i].d_seconds;
+                const int MSECS   = INTERVAL_VALUES[i].d_msecs;
+                const int USECS   = INTERVAL_VALUES[i].d_usecs;
+
+                Obj x(R);  const Obj& X = x;
+                Obj y(R);  const Obj& Y = y;
+
+                bsls::TimeInterval delta;
+                delta.addDays(DAYS);
+                delta.addHours(HOURS);
+                delta.addMinutes(MINUTES);
+                delta.addSeconds(SECONDS);
+                delta.addMilliseconds(MSECS);
+                delta.addMicroseconds(USECS);
+
+                if (veryVerbose) { P(delta); }
+
+                x += delta; // 'operator+='
+
+                y.addMilliseconds(delta.totalMilliseconds());
+
+                if (veryVerbose) { P_(X);  P(Y); }
+
+                LOOP2_ASSERT(i, j, Y == X);
+
+                x -= delta; // 'operator-=' to undo the change, yielding 'R'
+
+                LOOP2_ASSERT(i, j, R == X);
+
+                // Repeat operations in reverse order.
+                Obj u(R);  const Obj& U = u;
+                Obj v(R);  const Obj& V = v;
+
+                u -= delta;  // 'operator-='
+
+                v.addMilliseconds(-delta.totalMilliseconds());
+
+                if (veryVerbose) { P_(U);  P(V); }
+
+                LOOP2_ASSERT(i, j, V == U);
+
+                u += delta;  // 'operator+=' to undo the change, yielding 'R'
+
+                LOOP2_ASSERT(i, j, R == U);
+            }
+
+            // Test 'DatetimeInterval'.
 
             for (int j = 0; j < NUM_INTERVAL_VALUES; ++j) {
                 const int DAYS    = INTERVAL_VALUES[i].d_days;
@@ -1896,7 +1972,6 @@ if (veryVerbose)
                     ASSERT(delta < maxDelta);
                 } else {
                     DatetimeInterval minDelta  = startOfEpoch - x;
-                    P(minDelta); // JEFF
                     ASSERT(minDelta < delta);
                 }
 
@@ -1943,7 +2018,14 @@ if (veryVerbose)
         {
             const int              numDaysEpoch =   endOfEpoch.date()
                                                 - startOfEpoch.date();
-            const DatetimeInterval delta(numDaysEpoch, 23, 59, 59, 999);
+            bsls::TimeInterval     delta;
+
+            delta.addDays(numDaysEpoch);
+            delta.addHours(23);
+            delta.addMinutes(59);
+            delta.addSeconds(59);
+            delta.addMilliseconds(999);
+            delta.addMicroseconds(999);
 
             if (veryVerbose) { P(startOfEpoch)
                                P(  endOfEpoch)
@@ -1966,9 +2048,51 @@ if (veryVerbose)
 
             ASSERT(startOfEpoch == Y);
         }
+        {
+            const int              numDaysEpoch =   endOfEpoch.date()
+                                                - startOfEpoch.date();
+            const DatetimeInterval delta(numDaysEpoch, 23, 59, 59, 999);
+
+            if (veryVerbose) { P(startOfEpoch)
+                               P(  endOfEpoch)
+                               P(delta)
+                              }
+
+            Obj x(startOfEpoch);  const Obj& X = x;
+
+            if (veryVerbose) { P(x) }
+            x += delta;
+            if (veryVerbose) { P(x) }
+
+            x.setMicrosecond(999);
+
+            ASSERT(endOfEpoch == X);
+
+            Obj y(endOfEpoch);  const Obj& Y = y;
+
+            if (veryVerbose) { P(y) }
+            y -= delta;
+            if (veryVerbose) { P(y) }
+
+            y.setMicrosecond(0);
+
+            ASSERT(startOfEpoch == Y);
+        }
 
         if (verbose) cout
           << "\nTest handling of hour 24." << endl;
+        {
+            Obj x;  const Obj& X = x;
+            Obj y;  const Obj& Y = y;
+
+            const bsls::TimeInterval zero(0, 0);
+
+            x += zero;
+            y -= zero;
+
+            ASSERT(Obj(1, 1, 1, 0, 0, 0, 0) == X);
+            ASSERT(Obj(1, 1, 1, 0, 0, 0, 0) == Y);
+        }
         {
             Obj x;  const Obj& X = x;
             Obj y;  const Obj& Y = y;
@@ -1983,6 +2107,36 @@ if (veryVerbose)
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const bsls::TimeInterval zero;
+            const bsls::TimeInterval oneUsec(0, 1000);
+
+            if (veryVerbose) cout << "\t'operator+='" << endl;
+            {
+                Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0 += (-oneUsec));
+
+                Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1 += (    zero));
+                Obj x2(startOfEpoch); ASSERT_SAFE_PASS(x2 += ( oneUsec));
+
+                Obj y0(  endOfEpoch); ASSERT_SAFE_PASS(y0 += (-oneUsec));
+                Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1 += (    zero));
+                Obj y2(  endOfEpoch); ASSERT_SAFE_FAIL(y2 += ( oneUsec));
+            }
+
+            if (veryVerbose) cout << "\t'operator-='" << endl;
+            {
+                Obj x0(startOfEpoch); ASSERT_SAFE_PASS(x0 -= (-oneUsec));
+                Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1 -= (    zero));
+                Obj x2(startOfEpoch); ASSERT_SAFE_FAIL(x2 -= ( oneUsec));
+
+                Obj y0(  endOfEpoch); ASSERT_SAFE_FAIL(y0 -= (-oneUsec));
+                Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1 -= (    zero));
+                Obj y2(  endOfEpoch); ASSERT_SAFE_PASS(y2 -= ( oneUsec));
+            }
+        }
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
@@ -4792,28 +4946,34 @@ if (veryVerbose)
                 int         d_minute;
                 int         d_second;
                 int         d_msec;
+                int         d_usec;
                 int         d_numBytes;
                 const char *d_expected_p;
             } DATA[] = {
-// TBD add USEC
 //--------------^
-//LINE YEAR MON DAY HR MIN SEC MSEC LIMIT  EXPECTED
-//---- ---- --- --- -- --- --- ---- -----  -------------------------
-{ L_,    1,  1,  1,  0,  0,  0,   0,  100,  "01JAN0001_00:00:00.000000" },
-{ L_,    1,  1,  1, 24,  0,  0,   0,  100,  "01JAN0001_24:00:00.000000" },
-{ L_, 1999,  1,  1, 23, 22, 21, 209,  100,  "01JAN1999_23:22:21.209000" },
-{ L_, 2000,  2,  1, 23, 22, 21, 210,  100,  "01FEB2000_23:22:21.210000" },
-{ L_, 2001,  3,  1, 23, 22, 21, 211,  100,  "01MAR2001_23:22:21.211000" },
-{ L_, 2001,  7,  9, 24,  0,  0,   0,  100,  "09JUL2001_24:00:00.000000" },
-{ L_, 9999, 12, 31, 24,  0,  0,   0,  100,  "31DEC9999_24:00:00.000000" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,  100,  "31DEC9999_23:59:59.999000" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,    0,  "" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,    1,  "" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,    2,  "3" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   10,  "31DEC9999" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   22,  "31DEC9999_23:59:59.99"  },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   23,  "31DEC9999_23:59:59.999" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   24,  "31DEC9999_23:59:59.9990" },
+//LINE YEAR MON DAY HR MIN SEC MSEC USEC LIMIT  EXPECTED
+//---- ---- --- --- -- --- --- ---- ---- -----  -------------------------
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0,  100,  "01JAN0001_00:00:00.000000" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7,  100,  "01JAN0001_00:00:00.000007" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,  17,  100,  "01JAN0001_00:00:00.000017" },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 317,  100,  "01JAN0001_00:00:00.000317" },
+{ L_,    1,  1,  1, 24,  0,  0,   0,   0,  100,  "01JAN0001_24:00:00.000000" },
+{ L_, 1999,  1,  1, 23, 22, 21, 209,   0,  100,  "01JAN1999_23:22:21.209000" },
+{ L_, 2000,  2,  1, 23, 22, 21, 210,   0,  100,  "01FEB2000_23:22:21.210000" },
+{ L_, 2001,  3,  1, 23, 22, 21, 211,   0,  100,  "01MAR2001_23:22:21.211000" },
+{ L_, 2001,  7,  9, 24,  0,  0,   0,   0,  100,  "09JUL2001_24:00:00.000000" },
+{ L_, 9999, 12, 31, 24,  0,  0,   0,   0,  100,  "31DEC9999_24:00:00.000000" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,  100,  "31DEC9999_23:59:59.999000" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   5,  100,  "31DEC9999_23:59:59.999005" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,  65,  100,  "31DEC9999_23:59:59.999065" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765,  100,  "31DEC9999_23:59:59.999765" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    0,  ""                          },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    1,  ""                          },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    2,  "3"                         },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   10,  "31DEC9999"                 },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   22,  "31DEC9999_23:59:59.99"     },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   23,  "31DEC9999_23:59:59.999"    },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   24,  "31DEC9999_23:59:59.9990"   },
 //--------------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -4836,6 +4996,7 @@ if (veryVerbose)
                 const int         MINUTE   = DATA[ti].d_minute;
                 const int         SECOND   = DATA[ti].d_second;
                 const int         MSEC     = DATA[ti].d_msec;
+                const int         USEC     = DATA[ti].d_usec;
                 const int         LIMIT    = DATA[ti].d_numBytes;
                 const char *const EXPECTED = DATA[ti].d_expected_p;
 
@@ -4858,7 +5019,7 @@ if (veryVerbose)
 
                 Obj x;  const Obj& X = x;
                 x.setYearMonthDay(YEAR, MONTH, DAY);
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 char      *p = buf + sizeof(buf)/2;
                 const int  RC = X.printToBuffer(p, LIMIT);
