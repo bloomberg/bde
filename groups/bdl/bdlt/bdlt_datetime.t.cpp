@@ -73,14 +73,14 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [17] bool isValid(int y, int m, int d, int h, int m, int s, int ms);
+// [17] bool isValid(y, m, d, h, m, s, ms, us);
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
 // [ 2] Datetime();
 // [11] Datetime(const Date& date);
 // [11] Datetime(const Date& date, const Time& time);
-// [11] Datetime(int y, int m, int d, int h, int m, int s, int ms);
+// [11] Datetime(y, m, d, h, m, s, ms, us);
 // [ 7] Datetime(const Datetime& original);
 // [ 2] ~Datetime();
 //
@@ -90,8 +90,8 @@ using namespace bsl;
 // [15] Datetime& operator-=(const bsls::TimeInterval& rhs);
 // [15] Datetime& operator+=(const DatetimeInterval& rhs);
 // [15] Datetime& operator-=(const DatetimeInterval& rhs);
-// [12] void setDatetime(int, int, int, int, int, int, int);
-// [18] int setDatetimeIfValid(int, int, int, int, int, int, int);
+// [12] void setDatetime(int, int, int, int, int, int, int, int);
+// [18] int setDatetimeIfValid(int, int, int, int, int, int, int, int);
 // [20] void setDate(const Date& date);
 // [19] void setYearMonthDay(int year, int month, int day);
 // [19] void setYearDay(int year, int dayOfYear);
@@ -101,12 +101,14 @@ using namespace bsl;
 // [12] void setMinute(int minute);
 // [12] void setSecond(int second);
 // [12] void setMillisecond(int millisecond);
-// [14] void addTime(Int64 hours, Int64 mins, Int64 secs, Int64 msecs);
+// [12] void setMicrosecond(int microsecond);
+// [14] void addTime(hours, mins, secs, msecs);
 // [21] void addDays(int days);
 // [14] void addHours(Int64 hours);
 // [14] void addMinutes(Int64 minutes);
 // [14] void addSeconds(Int64 seconds);
 // [14] void addMilliseconds(Int64 milliseconds);
+// [14] void addMicroseconds(Int64 microseconds);
 //
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
@@ -122,6 +124,7 @@ using namespace bsl;
 // [ 4] int minute() const;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
+// [ 4] int microsecond() const;
 // [ 5] int printToBuffer(char *result, int size) const;
 //
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
@@ -255,23 +258,25 @@ struct DefaultDataRow {
     int d_minute;
     int d_second;
     int d_msec;
+    int d_usec;
 };
 
 static const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE YEAR MON DAY  HR MIN SEC MSEC
-    //---- ---- --- ---  -- --- --- ----
-    {  L_,    1,  1,  1, 24,  0,  0,   0 },  // default object
-    {  L_,    1,  1,  1,  0,  0,  0,   0 },  // start of epoch
-    {  L_,   10,  4,  5,  0,  0,  0, 999 },
-    {  L_,  100,  6,  7,  0,  0, 59,   0 },
-    {  L_, 1000,  8,  9,  0, 59,  0,   0 },
-    {  L_, 2000,  2, 29, 23,  0,  0,   0 },
-    {  L_, 2002,  7,  4, 21, 22, 23, 209 },
-    {  L_, 2003,  8,  5, 21, 22, 23, 210 },
-    {  L_, 2004,  9,  3, 22, 44, 55, 888 },
-    {  L_, 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
-    {  L_,    1,  1,  2, 24,  0,  0,   0 }   // 24 on 1/1/2
+    //LINE YEAR MON DAY  HR MIN SEC MSEC USEC
+    //---- ---- --- ---  -- --- --- ---- ----
+    {  L_,    1,  1,  1, 24,  0,  0,   0,   0 },  // default object
+    {  L_,    1,  1,  1,  0,  0,  0,   0,   0 },  // start of epoch
+    {  L_,    3,  2,  1,  0,  0,  0,   0, 999 },
+    {  L_,   10,  4,  5,  0,  0,  0, 999,   0 },
+    {  L_,  100,  6,  7,  0,  0, 59,   0,   0 },
+    {  L_, 1000,  8,  9,  0, 59,  0,   0,   0 },
+    {  L_, 2000,  2, 29, 23,  0,  0,   0,   0 },
+    {  L_, 2002,  7,  4, 21, 22, 23, 209, 709 },
+    {  L_, 2003,  8,  5, 21, 22, 23, 210, 456 },
+    {  L_, 2004,  9,  3, 22, 44, 55, 888, 112 },
+    {  L_, 9999, 12, 31, 23, 59, 59, 999, 999 },  // end of epoch
+    {  L_,    1,  1,  2, 24,  0,  0,   0,   0 }   // 24 on 1/1/2
 };
 const int DEFAULT_NUM_DATA =
                   static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
@@ -714,29 +719,31 @@ if (veryVerbose)
             int d_minute;
             int d_second;
             int d_msec;
+            int d_usec;
         } VALUES[] = {
-            {    1,  1,  1, 24,  0,  0,   0 },  // default
-            {    1,  1,  1,  0,  0,  0,   0 },  // start of epoch
-            {   10,  4,  5,  0,  0,  0, 999 },
-            {  100,  6,  7,  0,  0, 59,   0 },
-            { 1000,  8,  9,  0, 59,  0,   0 },
-            { 2000,  2, 29, 23,  0,  0,   0 },
-            { 2002,  7,  4, 21, 22, 23, 209 },
-            { 2003,  8,  5, 21, 22, 23, 210 },
-            { 2004,  9,  3, 22, 44, 55, 888 },
-            { 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
+            {    1,  1,  1, 24,  0,  0,   0,   0 },  // default
+            {    1,  1,  1,  0,  0,  0,   0,   0 },  // start of epoch
+            {    6,  2,  3,  0,  0,  0,   0, 999 },
+            {   10,  4,  5,  0,  0,  0, 999,   0 },
+            {  100,  6,  7,  0,  0, 59,   0,   0 },
+            { 1000,  8,  9,  0, 59,  0,   0,   0 },
+            { 2000,  2, 29, 23,  0,  0,   0,   0 },
+            { 2002,  7,  4, 21, 22, 23, 209, 123 },
+            { 2003,  8,  5, 21, 22, 23, 210, 512 },
+            { 2004,  9,  3, 22, 44, 55, 888, 174 },
+            { 9999, 12, 31, 23, 59, 59, 999, 999 },  // end of epoch
 
             // values with 24 == hour
-            {    1,  1,  1, 24,  0,  0,   0 },
-            {    1,  1,  2, 24,  0,  0,   0 },
-            {   10,  4,  5, 24,  0,  0,   0 },
-            {  100,  6,  7, 24,  0,  0,   0 },
-            { 1000,  8,  9, 24,  0,  0,   0 },
-            { 2000,  2, 29, 24,  0,  0,   0 },
-            { 2002,  7,  4, 24,  0,  0,   0 },
-            { 2003,  8,  5, 24,  0,  0,   0 },
-            { 2004,  9,  3, 24,  0,  0,   0 },
-            { 9999, 12, 31, 24,  0,  0,   0 },
+            {    1,  1,  1, 24,  0,  0,   0,   0 },
+            {    1,  1,  2, 24,  0,  0,   0,   0 },
+            {   10,  4,  5, 24,  0,  0,   0,   0 },
+            {  100,  6,  7, 24,  0,  0,   0,   0 },
+            { 1000,  8,  9, 24,  0,  0,   0,   0 },
+            { 2000,  2, 29, 24,  0,  0,   0,   0 },
+            { 2002,  7,  4, 24,  0,  0,   0,   0 },
+            { 2003,  8,  5, 24,  0,  0,   0,   0 },
+            { 2004,  9,  3, 24,  0,  0,   0,   0 },
+            { 9999, 12, 31, 24,  0,  0,   0,   0 },
         };
         const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
@@ -753,8 +760,8 @@ if (veryVerbose)
                             };
         const int NUM_DAYS = static_cast<int>(sizeof DAYS / sizeof *DAYS);
 
-        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
-        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
+        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
+        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int YEAR   = VALUES[i].d_year;
@@ -764,6 +771,7 @@ if (veryVerbose)
             const int MINUTE = VALUES[i].d_minute;
             const int SECOND = VALUES[i].d_second;
             const int MSEC   = VALUES[i].d_msec;
+            const int USEC   = VALUES[i].d_usec;
 
             if (veryVerbose) {
                 T_ P_(YEAR)
@@ -775,7 +783,7 @@ if (veryVerbose)
                    P(MSEC)
             }
 
-            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC, USEC);
 
             for (int j = 0; j < NUM_DAYS; ++j) {
                 const int D = DAYS[j];
@@ -800,8 +808,8 @@ if (veryVerbose)
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
-            const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
+            const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
+            const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
             if (veryVerbose) cout << "\t'addDays'" << endl;
             {
@@ -1020,11 +1028,12 @@ if (veryVerbose)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
         const Obj  RDT(RD, RT);
 
-        Obj ARRAY[] = { Obj(),                              // default value
-                        Obj(   1,  1,  1,  0,  0,  0,   0), // start of epoch
-                        RDT,                                // arbitrary value
-                        Obj(9999, 12, 31, 23, 59, 59, 999), // end of epoch
-                        Obj(   1,  1,  2, 24,  0,  0,   0)  // 24 on 1/1/2
+        Obj ARRAY[] = {
+                    Obj(),                                   // default value
+                    Obj(   1,  1,  1,  0,  0,  0,   0,   0), // start of epoch
+                    RDT,                                     // arbitrary value
+                    Obj(9999, 12, 31, 23, 59, 59, 999, 999), // end of epoch
+                    Obj(   1,  1,  2, 24,  0,  0,   0)       // 24 on 1/1/2
                       };
         const int NUM_ARRAY = static_cast<int>(sizeof ARRAY / sizeof *ARRAY);
 
@@ -1133,7 +1142,7 @@ if (veryVerbose)
         //:   one more of the four optional arguments.  (C-6)
         //
         // Testing:
-        //   int setDatetimeIfValid(int, int, int, int, int, int, int);
+        //   int setDatetimeIfValid(int, int, int, int, int, int, int, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1172,50 +1181,59 @@ if (veryVerbose)
                 int d_minute;
                 int d_second;
                 int d_msec;
+                int d_usec;
                 int d_expected;
             } DATA[] = {
-                //line year   mo   day   hr   min  sec   msec   valid
-                //---- ----   --   ---   --   ---  ---   ----   ------
-                { L_,     1,   1,   1,    0,    0,   0,     0,    1   },
+            //line year   mo   day   hr  min  sec  msec  usec  valid
+            //---- ----   --   ---   --  ---  ---  ----  ----  -----
 
-                { L_,     1,   1,   1,    0,    0,   0,   999,    1   },
-                { L_,     1,   1,   1,    0,    0,  59,     0,    1   },
-                { L_,     1,   1,   1,    0,   59,   0,     0,    1   },
-                { L_,     1,   1,   1,   23,    0,   0,     0,    1   },
-                { L_,     1,   1,  31,    0,    0,   0,     0,    1   },
-                { L_,     1,  12,   1,    0,    0,   0,     0,    1   },
-                { L_,  9999,   1,   1,    0,    0,   0,     0,    1   },
+            // valid 'Obj' arguments
+            { L_,     1,   1,   1,   24,   0,   0,    0,    0,   1 },
 
-                { L_,     1,   1,   1,   24,    0,   0,     0,    1   },
-                { L_,     2,   1,   1,   24,    0,   0,     0,    1   },
+            { L_,     1,   1,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,     1,   1,   1,    0,   0,   0,    0,  999,   1 },
+            { L_,     1,   1,   1,    0,   0,   0,  999,    0,   1 },
+            { L_,     1,   1,   1,    0,   0,  59,    0,    0,   1 },
+            { L_,     1,   1,   1,    0,  59,   0,    0,    0,   1 },
+            { L_,     1,   1,   1,   23,   0,   0,    0,    0,   1 },
+            { L_,     1,   1,  31,    0,   0,   0,    0,    0,   1 },
+            { L_,     1,  12,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,  9999,   1,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,  9999,  12,  31,   23,  59,  59,  999,  999,   1 },
 
-                { L_,  1400,  10,   2,    7,   31,   2,    22,    1   },
-                { L_,  2002,   8,  27,   14,    2,  48,   976,    1   },
+            { L_,  1400,  10,   2,    7,  31,   2,   22,  415,   1 },
+            { L_,  2002,   8,  27,   14,   2,  48,  976,  120,   1 },
 
-                { L_,     1,   1,   1,    0,    0,   0,    -1,    0   },
-                { L_,     1,   1,   1,    0,    0,  -1,     0,    0   },
-                { L_,     1,   1,   1,    0,   -1,   0,     0,    0   },
-                { L_,     1,   1,   1,   -1,    0,   0,     0,    0   },
-                { L_,     1,   1,   0,    0,    0,   0,     0,    0   },
-                { L_,     1,   0,   1,    0,    0,   0,     0,    0   },
-                { L_,     0,   1,   1,    0,    0,   0,     0,    0   },
+            { L_,     1,   1,   2,   24,   0,   0,    0,    0,   1 },
 
-                { L_,     1,   1,   1,    0,    0,   0,  1000,    0   },
-                { L_,     1,   1,   1,    0,    0,  60,     0,    0   },
-                { L_,     1,   1,   1,    0,   60,   0,     0,    0   },
-                { L_,     1,   1,   1,   25,    0,   0,     0,    0   },
-                { L_,     1,   1,  32,    0,    0,   0,     0,    0   },
-                { L_,     1,  13,   1,    0,    0,   0,     0,    0   },
-                { L_, 10000,   1,   1,    0,    0,   0,     0,    0   },
+            // invalid 'Obj' arguments
+            { L_,     1,   1,   1,    0,   0,   0,    0,   -1,   0 },
+            { L_,     1,   1,   1,    0,   0,   0,   -1,    0,   0 },
+            { L_,     1,   1,   1,    0,   0,  -1,    0,    0,   0 },
+            { L_,     1,   1,   1,    0,  -1,   0,    0,    0,   0 },
+            { L_,     1,   1,   1,   -1,   0,   0,    0,    0,   0 },
+            { L_,     1,   1,   0,    0,   0,   0,    0,    0,   0 },
+            { L_,     1,   0,   1,    0,   0,   0,    0,    0,   0 },
+            { L_,     0,   1,   1,    0,   0,   0,    0,    0,   0 },
 
-                { L_,     1,   1,   1,   24,    0,   0,     1,    0   },
-                { L_,     1,   1,   1,   24,    0,   1,     0,    0   },
-                { L_,     1,   1,   1,   24,    1,   0,     0,    0   },
+            { L_,     1,   1,   1,    0,   0,   0,    0, 1000,   0 },
+            { L_,     1,   1,   1,    0,   0,   0, 1000,    0,   0 },
+            { L_,     1,   1,   1,    0,   0,  60,    0,    0,   0 },
+            { L_,     1,   1,   1,    0,  60,   0,    0,    0,   0 },
+            { L_,     1,   1,   1,   25,   0,   0,    0,    0,   0 },
+            { L_,     1,   1,  32,    0,   0,   0,    0,    0,   0 },
+            { L_,     1,  13,   1,    0,   0,   0,    0,    0,   0 },
+            { L_, 10000,   1,   1,    0,   0,   0,    0,    0,   0 },
 
-                { L_,     0,   0,   0,   -1,   -1,  -1,    -1,    0   },
+            { L_,     1,   1,   1,   24,   0,   0,    0,    1,   0 },
+            { L_,     1,   1,   1,   24,   0,   0,    1,    0,   0 },
+            { L_,     1,   1,   1,   24,   0,   1,    0,    0,   0 },
+            { L_,     1,   1,   1,   24,   1,   0,    0,    0,   0 },
 
-                { L_,  1401,   2,  29,    7,   31,   2,    22,    0   },
-                { L_,  2002,   2,  29,   14,    2,  48,   976,    0   },
+            { L_,     0,   0,   0,   -1,  -1,  -1,   -1,   -1,   0 },
+
+            { L_,  1401,   2,  29,    7,  31,   2,   22,    0,   0 },
+            { L_,  2002,   2,  29,   14,   2,  48,  976,    0,   0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1228,12 +1246,14 @@ if (veryVerbose)
                 const int MINUTE   = DATA[i].d_minute;
                 const int SECOND   = DATA[i].d_second;
                 const int MSEC     = DATA[i].d_msec;
+                const int USEC     = DATA[i].d_usec;
                 const int EXPECTED = DATA[i].d_expected;
 
                 Obj mX(OBJ);  const Obj& X = mX;
 
                 if (1 == EXPECTED) {
-                    const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+                    const Obj R(YEAR, MONTH, DAY,
+                                HOUR, MINUTE, SECOND, MSEC, USEC);
 
                     LOOP_ASSERT(LINE,
                                 0 == mX.setDatetimeIfValid(YEAR,
@@ -1242,7 +1262,8 @@ if (veryVerbose)
                                                            HOUR,
                                                            MINUTE,
                                                            SECOND,
-                                                           MSEC));
+                                                           MSEC,
+                                                           USEC));
                     LOOP_ASSERT(LINE, R == X);
 
                     if (veryVerbose) { T_ T_ P_(EXPECTED) P_(R) P(X) }
@@ -1255,7 +1276,8 @@ if (veryVerbose)
                                                            HOUR,
                                                            MINUTE,
                                                            SECOND,
-                                                           MSEC));
+                                                           MSEC,
+                                                           USEC));
                     LOOP_ASSERT(LINE, OBJ == X);
 
                     if (veryVerbose) { T_ T_ P_(EXPECTED) P_(OBJ) P(X) }
@@ -1273,36 +1295,45 @@ if (veryVerbose)
             const int MIN  = 6;
             const int SECS = 7;
             const int MSEC = 8;
+            const int USEC = 9;
 
             Obj mA0;  const Obj& A0 = mA0;
             Obj mA1;  const Obj& A1 = mA1;
-            mA0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
-            mA1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
+            mA0.setDatetimeIfValid(YEAR, MON, DAY,
+                                   HOUR, MIN, SECS, MSEC, USEC);
+            mA1.setDatetimeIfValid(YEAR, MON, DAY,
+                                   HOUR, MIN, SECS, MSEC, USEC);
             ASSERT(A0 == A1);
 
             Obj mB0;  const Obj& B0 = mB0;
             Obj mB1;  const Obj& B1 = mB1;
-            mB0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS,    0);
-            mB1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS);
+            mB0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC,   0);
+            mB1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
             ASSERT(B0 == B1);
 
             Obj mC0;  const Obj& C0 = mC0;
             Obj mC1;  const Obj& C1 = mC1;
-            mC0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN,   0,    0);
-            mC1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN);
+            mC0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS,    0,   0);
+            mC1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS);
             ASSERT(C0 == C1);
 
             Obj mD0;  const Obj& D0 = mD0;
             Obj mD1;  const Obj& D1 = mD1;
-            mD0.setDatetimeIfValid(YEAR, MON, DAY, HOUR,   0,   0,    0);
-            mD1.setDatetimeIfValid(YEAR, MON, DAY, HOUR);
+            mD0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN,    0,    0,   0);
+            mD1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN);
             ASSERT(D0 == D1);
 
             Obj mE0;  const Obj& E0 = mE0;
             Obj mE1;  const Obj& E1 = mE1;
-            mE0.setDatetimeIfValid(YEAR, MON, DAY,    0,   0,   0,    0);
-            mE1.setDatetimeIfValid(YEAR, MON, DAY);
+            mE0.setDatetimeIfValid(YEAR, MON, DAY, HOUR,   0,    0,    0,   0);
+            mE1.setDatetimeIfValid(YEAR, MON, DAY, HOUR);
             ASSERT(E0 == E1);
+
+            Obj mF0;  const Obj& F0 = mF0;
+            Obj mF1;  const Obj& F1 = mF1;
+            mF0.setDatetimeIfValid(YEAR, MON, DAY,    0,   0,    0,    0,   0);
+            mF1.setDatetimeIfValid(YEAR, MON, DAY);
+            ASSERT(F0 == F1);
         }
 
       } break;
@@ -1320,7 +1351,7 @@ if (veryVerbose)
         //:   test the range limits for each field.  (C-1)
         //
         // Testing:
-        //   bool isValid(int y, int m, int d, int h, int m, int s, int ms);
+        //   bool isValid(y, m, d, h, m, s, ms, us);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1336,54 +1367,59 @@ if (veryVerbose)
             int d_minute;
             int d_second;
             int d_msec;
+            int d_usec;
             int d_expected;
         } DATA[] = {
-            //line year   mo   day   hr   min  sec   msec   exp
-            //---- ----   --   ---   --   ---  ---   ----   ---
+            //line year   mo   day   hr  min  sec  msec  usec  exp
+            //---- ----   --   ---   --  ---  ---  ----  ----  ---
 
             // valid 'Obj' arguments
-            { L_,     1,   1,   1,   24,    0,   0,     0,    1   }, // default
+            { L_,     1,   1,   1,   24,   0,   0,    0,    0,   1 },
 
-            { L_,     1,   1,   1,    0,    0,   0,     0,    1   }, // start
-            { L_,     1,   1,   1,    0,    0,   0,   999,    1   },
-            { L_,     1,   1,   1,    0,    0,  59,     0,    1   },
-            { L_,     1,   1,   1,    0,   59,   0,     0,    1   },
-            { L_,     1,   1,   1,   23,    0,   0,     0,    1   },
-            { L_,     1,   1,  31,    0,    0,   0,     0,    1   },
-            { L_,     1,  12,   1,    0,    0,   0,     0,    1   },
-            { L_,  9999,   1,   1,    0,    0,   0,     0,    1   },
-            { L_,  9999,  12,  31,   23,   59,  59,   999,    1   }, // end
+            { L_,     1,   1,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,     1,   1,   1,    0,   0,   0,    0,  999,   1 },
+            { L_,     1,   1,   1,    0,   0,   0,  999,    0,   1 },
+            { L_,     1,   1,   1,    0,   0,  59,    0,    0,   1 },
+            { L_,     1,   1,   1,    0,  59,   0,    0,    0,   1 },
+            { L_,     1,   1,   1,   23,   0,   0,    0,    0,   1 },
+            { L_,     1,   1,  31,    0,   0,   0,    0,    0,   1 },
+            { L_,     1,  12,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,  9999,   1,   1,    0,   0,   0,    0,    0,   1 },
+            { L_,  9999,  12,  31,   23,  59,  59,  999,  999,   1 },
 
-            { L_,  1400,  10,   2,    7,   31,   2,    22,    1   }, // ad hoc
-            { L_,  2002,   8,  27,   14,    2,  48,   976,    1   }, // ad hoc
+            { L_,  1400,  10,   2,    7,  31,   2,   22,  415,   1 },
+            { L_,  2002,   8,  27,   14,   2,  48,  976,  120,   1 },
 
-            { L_,     1,   1,   2,   24,    0,   0,     0,    1   }, // 24 on 2
+            { L_,     1,   1,   2,   24,   0,   0,    0,    0,   1 },
 
             // invalid 'Obj' arguments
-            { L_,     1,   1,   1,    0,    0,   0,    -1,    0   },
-            { L_,     1,   1,   1,    0,    0,  -1,     0,    0   },
-            { L_,     1,   1,   1,    0,   -1,   0,     0,    0   },
-            { L_,     1,   1,   1,   -1,    0,   0,     0,    0   },
-            { L_,     1,   1,   0,    0,    0,   0,     0,    0   },
-            { L_,     1,   0,   1,    0,    0,   0,     0,    0   },
-            { L_,     0,   1,   1,    0,    0,   0,     0,    0   },
+            { L_,     1,   1,   1,    0,   0,   0,    0,   -1,   0 },
+            { L_,     1,   1,   1,    0,   0,   0,   -1,    0,   0 },
+            { L_,     1,   1,   1,    0,   0,  -1,    0,    0,   0 },
+            { L_,     1,   1,   1,    0,  -1,   0,    0,    0,   0 },
+            { L_,     1,   1,   1,   -1,   0,   0,    0,    0,   0 },
+            { L_,     1,   1,   0,    0,   0,   0,    0,    0,   0 },
+            { L_,     1,   0,   1,    0,   0,   0,    0,    0,   0 },
+            { L_,     0,   1,   1,    0,   0,   0,    0,    0,   0 },
 
-            { L_,     1,   1,   1,    0,    0,   0,  1000,    0   },
-            { L_,     1,   1,   1,    0,    0,  60,     0,    0   },
-            { L_,     1,   1,   1,    0,   60,   0,     0,    0   },
-            { L_,     1,   1,   1,   25,    0,   0,     0,    0   },
-            { L_,     1,   1,  32,    0,    0,   0,     0,    0   },
-            { L_,     1,  13,   1,    0,    0,   0,     0,    0   },
-            { L_, 10000,   1,   1,    0,    0,   0,     0,    0   },
+            { L_,     1,   1,   1,    0,   0,   0,    0, 1000,   0 },
+            { L_,     1,   1,   1,    0,   0,   0, 1000,    0,   0 },
+            { L_,     1,   1,   1,    0,   0,  60,    0,    0,   0 },
+            { L_,     1,   1,   1,    0,  60,   0,    0,    0,   0 },
+            { L_,     1,   1,   1,   25,   0,   0,    0,    0,   0 },
+            { L_,     1,   1,  32,    0,   0,   0,    0,    0,   0 },
+            { L_,     1,  13,   1,    0,   0,   0,    0,    0,   0 },
+            { L_, 10000,   1,   1,    0,   0,   0,    0,    0,   0 },
 
-            { L_,     1,   1,   1,   24,    0,   0,     1,    0   },
-            { L_,     1,   1,   1,   24,    0,   1,     0,    0   },
-            { L_,     1,   1,   1,   24,    1,   0,     0,    0   },
+            { L_,     1,   1,   1,   24,   0,   0,    0,    1,   0 },
+            { L_,     1,   1,   1,   24,   0,   0,    1,    0,   0 },
+            { L_,     1,   1,   1,   24,   0,   1,    0,    0,   0 },
+            { L_,     1,   1,   1,   24,   1,   0,    0,    0,   0 },
 
-            { L_,     0,   0,   0,   -1,   -1,  -1,    -1,    0   },
+            { L_,     0,   0,   0,   -1,  -1,  -1,   -1,   -1,   0 },
 
-            { L_,  1401,   2,  29,    7,   31,   2,    22,    0   }, // ad hoc
-            { L_,  2002,   2,  29,   14,    2,  48,    976,   0   }, // ad hoc
+            { L_,  1401,   2,  29,    7,  31,   2,   22,    0,   0 },
+            { L_,  2002,   2,  29,   14,   2,  48,  976,    0,   0 },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1396,11 +1432,13 @@ if (veryVerbose)
             const int MINUTE   = DATA[i].d_minute;
             const int SECOND   = DATA[i].d_second;
             const int MSEC     = DATA[i].d_msec;
+            const int USEC     = DATA[i].d_usec;
             const int EXPECTED = DATA[i].d_expected;
 
             if (veryVerbose) {
                 T_  P_(LINE) P_(YEAR)   P_(MONTH)  P(DAY)
-                T_  P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(EXPECTED)
+                T_  P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P_(USEC)
+                    P(EXPECTED)
             }
 
             LOOP_ASSERT(LINE, EXPECTED == Obj::isValid(YEAR,
@@ -1409,7 +1447,8 @@ if (veryVerbose)
                                                        HOUR,
                                                        MINUTE,
                                                        SECOND,
-                                                       MSEC));
+                                                       MSEC,
+                                                       USEC));
         }
 
       } break;
@@ -2193,18 +2232,18 @@ if (veryVerbose)
         //
         // Plan:
         //: 1 Thoroughly test the 'addTime' method, then use that method as an
-        //:   oracle for tests of 'addHours', 'addMinutes', 'addSeconds', and
-        //:   'addMilliseconds' methods.  (C-1,3)
+        //:   oracle for tests of 'addHours', 'addMinutes', 'addSeconds',
+        //:   'addMilliseconds', and 'addMicroseconds' methods.  (C-1,3)
         //:
         //:   1 Using a table-driven test, perform a series of 'addTime'
         //:     invocations on a object created from a single, reference date,
         //:     and compare the result to the calculated expected value.
         //:
-        //:   2 The 'hour', 'minute', 'second', and 'millisecond' values used
-        //:     include positive, negative, and 0 values.  The non-zero values
-        //:     used are of sufficient magnitude to demonstrate propagation of
-        //:     changes to the other "time" fields and, in some cases, to the
-        //:     "date" part.
+        //:   2 The 'hour', 'minute', 'second', 'millisecond', and
+        //:     'microsecond' values used include positive, negative, and 0
+        //:     values.  The non-zero values used are of sufficient magnitude
+        //:     to demonstrate propagation of changes to the other "time"
+        //:     fields and, in some cases, to the "date" part.
         //:
         //: 2 Using loop-based tests: (C-1,2)
         //:
@@ -2216,7 +2255,7 @@ if (veryVerbose)
         //:     of sufficient magnitude to cross date boundaries.
         //:
         //:   2 Perform tests analogous to P-1.1 for the 'addMinutes',
-        //:     'addSeconds', and 'addMilliseconds' methods.
+        //:     'addSeconds', 'addMilliseconds', and 'addMicroseconds' methods.
         //:
         //: 4 Create a series of object pairs having the same reference
         //:   datetime value and identically adjust the time value of each of
@@ -2240,11 +2279,12 @@ if (veryVerbose)
         //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
-        //   void addTime(Int64 hours, Int64 mins, Int64 secs, Int64 msecs);
+        //   void addTime(hours, mins, secs, msecs, usecs);
         //   void addHours(Int64 hours);
         //   void addMinutes(Int64 minutes);
         //   void addSeconds(Int64 seconds);
         //   void addMilliseconds(Int64 milliseconds);
+        //   void addMicroseconds(Int64 microseconds);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2258,55 +2298,66 @@ if (veryVerbose)
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
+                int d_usecs;         // microseconds to add
                 int d_expDays;       // expected whole days added to object
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
                 int d_expMsec;       // expected milliseconds value
+                int d_expUsec;       // expected microseconds value
             } DATA[] = {
-    //----------^
-    //        - - - - - - time added - - - - - -   ---expected values---
-    //line #   h       m         s           ms    days  h   m   s   ms
-    //------   --      --        --          ---   ----  --  --  --  ---
-    { L_,       0,      0,        0,           0,     0,  0,  0,  0,   0 },
-    { L_,       0,      0,        0,           1,     0,  0,  0,  0,   1 },
-    { L_,       0,      0,        0,          -1,    -1, 23, 59, 59, 999 },
-    { L_,       0,      0,        0,        1000,     0,  0,  0,  1,   0 },
-    { L_,       0,      0,        0,       60000,     0,  0,  1,  0,   0 },
-    { L_,       0,      0,        0,     3600000,     0,  1,  0,  0,   0 },
-    { L_,       0,      0,        0,    86400000,     1,  0,  0,  0,   0 },
-    { L_,       0,      0,        0,   -86400000,    -1,  0,  0,  0,   0 },
-    { L_,       0,      0,        0,   864000000,    10,  0,  0,  0,   0 },
+//--------------^
+//        - - - - - - time added - - - - - -   ---expected values---
+//line #   h       m         s           ms    us  days  h   m   s   ms   us
+//------   --      --        --          ---   --  ----  --  --  --  ---  ---
+{ L_,       0,      0,        0,    0,          0,   0,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,        0,    0,          1,   0,  0,  0,  0,   0,  1 },
+{ L_,       0,      0,        0,    0,         -1,  -1, 23, 59, 59, 999,999 },
+{ L_,       0,      0,        0,    0,       1000,   0,  0,  0,  0,   1,  0 },
+{ L_,       0,      0,        0,    0,      60000,   0,  0,  0,  0,  60,  0 },
+{ L_,       0,      0,        0,    0,    3600000,   0,  0,  0,  3, 600,  0 },
+{ L_,       0,      0,        0,    0,   86400000,   0,  0,  1, 26, 400,  0 },
+{ L_,       0,      0,        0,    0,  864000000,   0,  0, 14, 24,   0,  0 },
 
-    { L_,       0,      0,        1,           0,     0,  0,  0,  1,   0 },
-    { L_,       0,      0,       -1,           0,    -1, 23, 59, 59,   0 },
-    { L_,       0,      0,       60,           0,     0,  0,  1,  0,   0 },
-    { L_,       0,      0,     3600,           0,     0,  1,  0,  0,   0 },
-    { L_,       0,      0,    86400,           0,     1,  0,  0,  0,   0 },
-    { L_,       0,      0,   -86400,           0,    -1,  0,  0,  0,   0 },
-    { L_,       0,      0,   864000,           0,    10,  0,  0,  0,   0 },
+{ L_,       0,      0,        0,           0,   0,    0,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,        0,           1,   0,    0,  0,  0,  0,   1,  0 },
+{ L_,       0,      0,        0,          -1,   0,   -1, 23, 59, 59, 999,  0 },
+{ L_,       0,      0,        0,        1000,   0,    0,  0,  0,  1,   0,  0 },
+{ L_,       0,      0,        0,       60000,   0,    0,  0,  1,  0,   0,  0 },
+{ L_,       0,      0,        0,     3600000,   0,    0,  1,  0,  0,   0,  0 },
+{ L_,       0,      0,        0,    86400000,   0,    1,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,        0,   -86400000,   0,   -1,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,        0,   864000000,   0,   10,  0,  0,  0,   0,  0 },
 
-    { L_,       0,      1,        0,           0,     0,  0,  1,  0,   0 },
-    { L_,       0,     -1,        0,           0,    -1, 23, 59,  0,   0 },
-    { L_,       0,     60,        0,           0,     0,  1,  0,  0,   0 },
-    { L_,       0,   1440,        0,           0,     1,  0,  0,  0,   0 },
-    { L_,       0,  -1440,        0,           0,    -1,  0,  0,  0,   0 },
-    { L_,       0,  14400,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,       0,      0,        1,           0,   0,    0,  0,  0,  1,   0,  0 },
+{ L_,       0,      0,       -1,           0,   0,   -1, 23, 59, 59,   0,  0 },
+{ L_,       0,      0,       60,           0,   0,    0,  0,  1,  0,   0,  0 },
+{ L_,       0,      0,     3600,           0,   0,    0,  1,  0,  0,   0,  0 },
+{ L_,       0,      0,    86400,           0,   0,    1,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,   -86400,           0,   0,   -1,  0,  0,  0,   0,  0 },
+{ L_,       0,      0,   864000,           0,   0,   10,  0,  0,  0,   0,  0 },
 
-    { L_,       1,      0,        0,           0,     0,  1,  0,  0,   0 },
-    { L_,      -1,      0,        0,           0,    -1, 23,  0,  0,   0 },
-    { L_,      24,      0,        0,           0,     1,  0,  0,  0,   0 },
-    { L_,     -24,      0,        0,           0,    -1,  0,  0,  0,   0 },
-    { L_,     240,      0,        0,           0,    10,  0,  0,  0,   0 },
+{ L_,       0,      1,        0,           0,   0,    0,  0,  1,  0,   0,  0 },
+{ L_,       0,     -1,        0,           0,   0,   -1, 23, 59,  0,   0,  0 },
+{ L_,       0,     60,        0,           0,   0,    0,  1,  0,  0,   0,  0 },
+{ L_,       0,   1440,        0,           0,   0,    1,  0,  0,  0,   0,  0 },
+{ L_,       0,  -1440,        0,           0,   0,   -1,  0,  0,  0,   0,  0 },
+{ L_,       0,  14400,        0,           0,   0,   10,  0,  0,  0,   0,  0 },
 
-    { L_,      24,   1440,    86400,    86400000,     4,  0,  0,  0,   0 },
-    { L_,      24,   1440,    86400,   -86400000,     2,  0,  0,  0,   0 },
-    { L_,      24,   1440,   -86400,   -86400000,     0,  0,  0,  0,   0 },
-    { L_,      24,  -1440,   -86400,   -86400000,    -2,  0,  0,  0,   0 },
-    { L_,     -24,  -1440,   -86400,   -86400000,    -4,  0,  0,  0,   0 },
-    { L_,      25,   1441,    86401,    86400001,     4,  1,  1,  1,   1 },
+{ L_,       1,      0,        0,           0,   0,    0,  1,  0,  0,   0,  0 },
+{ L_,      -1,      0,        0,           0,   0,   -1, 23,  0,  0,   0,  0 },
+{ L_,      24,      0,        0,           0,   0,    1,  0,  0,  0,   0,  0 },
+{ L_,     -24,      0,        0,           0,   0,   -1,  0,  0,  0,   0,  0 },
+{ L_,     240,      0,        0,           0,   0,   10,  0,  0,  0,   0,  0 },
 
-    //----------v
+{ L_,      24,   1440,    86400,    86400000,   0,    4,  0,  0,  0,   0,  0 },
+{ L_,      24,   1440,    86400,   -86400000,   0,    2,  0,  0,  0,   0,  0 },
+{ L_,      24,   1440,   -86400,   -86400000,   0,    0,  0,  0,  0,   0,  0 },
+{ L_,      24,  -1440,   -86400,   -86400000,   0,   -2,  0,  0,  0,   0,  0 },
+{ L_,     -24,  -1440,   -86400,   -86400000,   0,   -4,  0,  0,  0,   0,  0 },
+{ L_,      25,   1441,    86401,    86400001,   0,    4,  1,  1,  1,   1,  0 },
+
+//--------------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2327,26 +2378,28 @@ if (veryVerbose)
                 const int MINUTES  = DATA[i].d_minutes;
                 const int SECONDS  = DATA[i].d_seconds;
                 const int MSECS    = DATA[i].d_msecs;
+                const int USECS    = DATA[i].d_usecs;
 
                 const int EXP_DAYS = DATA[i].d_expDays;
                 const int EXP_HR   = DATA[i].d_expHour;
                 const int EXP_MIN  = DATA[i].d_expMinute;
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
+                const int EXP_USEC = DATA[i].d_expUsec;
 
                 Obj mX(INITIAL_DATE, INITIAL_TIME);  const Obj& X = mX;
                 if (veryVerbose) { T_  P_(X) }
 
-                mX.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                mX.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
 
-                const Date EXP_D(REFERENCE_YEAR,
-                                 REFERENCE_MONTH,
-                                 REFERENCE_DAY + EXP_DAYS);
-                const Time EXP_T(EXP_HR,
-                                 EXP_MIN,
-                                 EXP_SEC,
-                                 EXP_MSEC);
-                const Obj EXP(EXP_D, EXP_T);
+                const Obj EXP(REFERENCE_YEAR,
+                              REFERENCE_MONTH,
+                              REFERENCE_DAY + EXP_DAYS,
+                              EXP_HR,
+                              EXP_MIN,
+                              EXP_SEC,
+                              EXP_MSEC,
+                              EXP_USEC);
 
                 if (veryVerbose) { P_(X)  P(EXP) }
 
@@ -2367,38 +2420,46 @@ if (veryVerbose)
             const int MINUTE = 6;
             const int SECOND = 7;
             const int MSEC   = 8;
+            const int USEC   = 9;
 
-            const Obj IDT(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+            const Obj IDT(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC, USEC);
 
             // Adjustment Values, none corresponding to the default values.
             const int HOURS   = 100;
             const int MINUTES = 200;
             const int SECONDS = 300;
             const int MSECS   = 400;
+            const int USECS   = 500;
 
             Obj mA0(IDT);  const Obj& A0 = mA0;
             Obj mA1(IDT);  const Obj& A1 = mA1;
-            mA0.addTime(HOURS, MINUTES, SECONDS, MSECS);
-            mA1.addTime(HOURS, MINUTES, SECONDS, MSECS);
+            mA0.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
+            mA1.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
             ASSERT(A0 == A1);
 
             Obj mB0(IDT);  const Obj& B0 = mB0;
             Obj mB1(IDT);  const Obj& B1 = mB1;
-            mB0.addTime(HOURS, MINUTES, SECONDS,     0);
-            mB1.addTime(HOURS, MINUTES, SECONDS);
+            mB0.addTime(HOURS, MINUTES, SECONDS, MSECS,     0);
+            mB1.addTime(HOURS, MINUTES, SECONDS, MSECS);
             ASSERT(B0 == B1);
 
             Obj mC0(IDT);  const Obj& C0 = mC0;
             Obj mC1(IDT);  const Obj& C1 = mC1;
-            mC0.addTime(HOURS, MINUTES,       0,     0);
-            mC1.addTime(HOURS, MINUTES);
+            mC0.addTime(HOURS, MINUTES, SECONDS,     0,     0);
+            mC1.addTime(HOURS, MINUTES, SECONDS);
             ASSERT(C0 == C1);
 
             Obj mD0(IDT);  const Obj& D0 = mD0;
             Obj mD1(IDT);  const Obj& D1 = mD1;
-            mD0.addTime(HOURS,       0,       0,      0);
-            mD1.addTime(HOURS);
+            mD0.addTime(HOURS, MINUTES,       0,     0,     0);
+            mD1.addTime(HOURS, MINUTES);
             ASSERT(D0 == D1);
+
+            Obj mE0(IDT);  const Obj& E0 = mE0;
+            Obj mE1(IDT);  const Obj& E1 = mE1;
+            mE0.addTime(HOURS,       0,       0,     0,     0);
+            mE1.addTime(HOURS);
+            ASSERT(E0 == E1);
         }
 
         if (verbose) cout
@@ -2409,11 +2470,12 @@ if (veryVerbose)
             const int MINUTES = 200;
             const int SECONDS = 300;
             const int MSECS   = 400;
+            const int USECS   = 500;
 
             Obj mA0;                    const Obj& A0 = mA0;
             Obj mA1(1, 1, 1, 0, 0, 0);  const Obj& A1 = mA1;
-            mA0.addTime(HOURS, MINUTES, SECONDS, MSECS);
-            mA1.addTime(HOURS, MINUTES, SECONDS, MSECS);
+            mA0.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
+            mA1.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
             ASSERT(A0 == A1);
 
             Obj mB0;                    const Obj& B0 = mB0;
@@ -2439,6 +2501,12 @@ if (veryVerbose)
             mE0.addMilliseconds(MSECS);
             mE1.addMilliseconds(MSECS);
             ASSERT(E0 == E1);
+
+            Obj mF0;                    const Obj& F0 = mF0;
+            Obj mF1(1, 1, 1, 0, 0, 0);  const Obj& F1 = mF1;
+            mF0.addMicroseconds(USECS);
+            mF1.addMicroseconds(USECS);
+            ASSERT(F0 == F1);
         }
 
         {
@@ -2528,6 +2596,26 @@ if (veryVerbose)
                 LOOP_ASSERT(msi, Y == X);
             }
 
+            if (verbose) cout << "\nTesting: 'addMicroseconds'" << endl;
+
+            const int START_USECS = -900000000;
+            const int STOP_USECS  =  900000000;
+            const int STEP_USECS  =   90000000;
+
+            for (int usi = START_USECS; usi <= STOP_USECS; usi += STEP_USECS) {
+                Obj x(ID, IT);  const Obj &X = x;
+                Obj y(ID, IT);  const Obj &Y = y;
+
+                if (veryVerbose) { T_  P_(X) }
+
+                x.addMicroseconds(usi);
+                y.addTime(0, 0, 0, 0, usi);
+
+                if (veryVerbose) { P_(X)  P_(Y)  P(usi) }
+
+                LOOP_ASSERT(usi, Y == X);
+            }
+
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2535,19 +2623,23 @@ if (veryVerbose)
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
-            const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
+            const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
+            const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
             if (veryVerbose) cout << "\t'addTime'" << endl;
             {
-                Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0.addTime(0,0,0, -1));
+                Obj x0(startOfEpoch);
+                ASSERT_SAFE_FAIL(x0.addTime(0, 0, 0, 0, -1));
 
-                Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1.addTime(0,0,0,  0));
-                Obj x2(startOfEpoch); ASSERT_SAFE_PASS(x2.addTime(0,0,0,  1));
+                Obj x1(startOfEpoch);
+                ASSERT_SAFE_PASS(x1.addTime(0, 0, 0, 0,  0));
 
-                Obj y0(  endOfEpoch); ASSERT_SAFE_PASS(y0.addTime(0,0,0, -1));
-                Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1.addTime(0,0,0,  0));
-                Obj y2(  endOfEpoch); ASSERT_SAFE_FAIL(y2.addTime(0,0,0,  1));
+                Obj x2(startOfEpoch);
+                ASSERT_SAFE_PASS(x2.addTime(0, 0, 0, 0,  1));
+
+                Obj y0(endOfEpoch); ASSERT_SAFE_PASS(y0.addTime(0,0,0,0, -1));
+                Obj y1(endOfEpoch); ASSERT_SAFE_PASS(y1.addTime(0,0,0,0,  0));
+                Obj y2(endOfEpoch); ASSERT_SAFE_FAIL(y2.addTime(0,0,0,0,  1));
             }
 
             if (veryVerbose) cout << "\t'addHours'" << endl;
@@ -2592,6 +2684,17 @@ if (veryVerbose)
                 Obj y0(  endOfEpoch); ASSERT_SAFE_PASS(y0.addMilliseconds(-1));
                 Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1.addMilliseconds( 0));
                 Obj y2(  endOfEpoch); ASSERT_SAFE_FAIL(y2.addMilliseconds( 1));
+            }
+
+            if (veryVerbose) cout << "\t'addMicroseconds'" << endl;
+            {
+                Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0.addMicroseconds(-1));
+                Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1.addMicroseconds( 0));
+                Obj x2(startOfEpoch); ASSERT_SAFE_PASS(x2.addMicroseconds( 1));
+
+                Obj y0(  endOfEpoch); ASSERT_SAFE_PASS(y0.addMicroseconds(-1));
+                Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1.addMicroseconds( 0));
+                Obj y2(  endOfEpoch); ASSERT_SAFE_FAIL(y2.addMicroseconds( 1));
             }
         }
       } break;
@@ -2686,34 +2789,39 @@ if (veryVerbose)
             int d_minute;
             int d_second;
             int d_msec;
+            int d_usec;
         } VALUES[] = {
 
             // default omitted
 
-            {    1,  1,  1,   0,  0,  0,   0 },  // start of epoch
+            {    1,  1,  1,   0,  0,  0,   0,   0 },  // start of epoch
 
-            {    1,  1,  1,   0,  0,  0,   1 },  // each field participates
-            {    1,  1,  1,   0,  0,  1,   0 },
-            {    1,  1,  1,   0,  1,  0,   0 },
-            {    1,  1,  1,   1,  0,  0,   0 },
-            {    1,  1,  2,   0,  0,  0,   0 },
-            {    1,  2,  1,   0,  0,  0,   0 },
-            {    2,  1,  1,   0,  0,  0,   0 },
+            // each field participates
+            {    1,  1,  1,   0,  0,  0,   0,   1 },
+            {    1,  1,  1,   0,  0,  0,   1,   0 },
+            {    1,  1,  1,   0,  0,  1,   0,   0 },
+            {    1,  1,  1,   0,  1,  0,   0,   0 },
+            {    1,  1,  1,   1,  0,  0,   0,   0 },
+            {    1,  1,  2,   0,  0,  0,   0,   0 },
+            {    1,  2,  1,   0,  0,  0,   0,   0 },
+            {    2,  1,  1,   0,  0,  0,   0,   0 },
 
-            {   10,  4,  5,   0,  0,  0,   1 },
-            {  100,  6,  7,   0,  0,  0, 999 },
-            { 1000,  8,  9,   0,  0,  1,   0 },
-            { 2000,  1, 31,   0,  0, 59, 999 },
-            { 2002,  7,  4,   0,  1,  0,   0 },
-            { 2002, 12, 31,   0,  1,  0,   1 },
-            { 2003,  1,  1,   0, 59, 59, 999 },
-            { 2003,  1,  2,   1,  0,  0,   0 },
-            { 2003,  8,  5,   1,  0,  0,   1 },
-            { 2003,  8,  6,  23,  0,  0,   0 },
-            { 2003,  8,  7,  23, 22, 21, 209 },
-            { 2004,  9,  3,  23, 22, 21, 210 },
-            { 2004,  9,  4,  23, 22, 21, 211 },
-            { 9999, 12, 31,  23, 59, 59, 999 }   // end of epoch
+            {   10,  4,  5,   0,  0,  0,   1,   0 },
+            {   10,  4,  5,   0,  0,  0,   1, 112 },
+            {  100,  6,  7,   0,  0,  0, 999, 112 },
+            { 1000,  8,  9,   0,  0,  1,   0,   0 },
+            { 2000,  1, 31,   0,  0, 59, 999,   0 },
+            { 2002,  7,  4,   0,  1,  0,   0,   0 },
+            { 2002, 12, 31,   0,  1,  0,   1,  17 },
+            { 2003,  1,  1,   0, 59, 59, 999,   0 },
+            { 2003,  1,  2,   1,  0,  0,   0,   0 },
+            { 2003,  8,  5,   1,  0,  0,   1,   0 },
+            { 2003,  8,  6,  23,  0,  0,   0,  57 },
+            { 2003,  8,  6,  23,  0,  0,   0,  63 },
+            { 2003,  8,  7,  23, 22, 21, 209,   0 },
+            { 2004,  9,  3,  23, 22, 21, 210,   0 },
+            { 2004,  9,  4,  23, 22, 21, 211,   0 },
+            { 9999, 12, 31,  23, 59, 59, 999, 999 }   // end of epoch
          };
         const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
@@ -2728,8 +2836,10 @@ if (veryVerbose)
             const int MINUTE1 = VALUES[i].d_minute;
             const int SECOND1 = VALUES[i].d_second;
             const int MSEC1   = VALUES[i].d_msec;
+            const int USEC1   = VALUES[i].d_usec;
 
-            const Obj V(YEAR1, MONTH1, DAY1, HOUR1, MINUTE1, SECOND1, MSEC1);
+            const Obj V(YEAR1, MONTH1, DAY1,
+                        HOUR1, MINUTE1, SECOND1, MSEC1, USEC1);
 
             for (int j = 0; j < NUM_VALUES; ++j) {
                 const int YEAR2   = VALUES[j].d_year;
@@ -2739,9 +2849,10 @@ if (veryVerbose)
                 const int MINUTE2 = VALUES[j].d_minute;
                 const int SECOND2 = VALUES[j].d_second;
                 const int MSEC2   = VALUES[j].d_msec;
+                const int USEC2   = VALUES[j].d_usec;
 
                 const Obj U(YEAR2, MONTH2, DAY2,
-                            HOUR2, MINUTE2, SECOND2, MSEC2);
+                            HOUR2, MINUTE2, SECOND2, MSEC2, USEC2);
 
                 if (veryVerbose) { T_  P_(i)  P_(j)  P_(V)  P(U) }
 
@@ -2870,7 +2981,8 @@ if (veryVerbose)
         //   void setMinute(int minute);
         //   void setSecond(int second);
         //   void setMillisecond(int millisecond);
-        //   void setDatetime(int, int, int, int, int, int, int);
+        //   void setMicrosecond(int microsecond);
+        //   void setDatetime(int, int, int, int, int, int, int, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -2889,10 +3001,10 @@ if (veryVerbose)
                        RT.millisecond());
 
         Obj ARRAY1[] = {  // default value excluded
-                         Obj(   1,  1,  1,  0,  0,  0,   0), // start of epoch
+                    Obj(   1,  1,  1,  0,  0,  0,   0,   0), // start of epoch
                          RDT,                                // arbitrary value
-                         Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
-                      };
+                    Obj(9999, 12, 31, 23, 59, 59, 999, 999)  // end of epoch
+                       };
         const int NUM_ARRAY1 =
                               static_cast<int>(sizeof ARRAY1 / sizeof *ARRAY1);
 
@@ -2909,14 +3021,16 @@ if (veryVerbose)
                 int d_minute;
                 int d_second;
                 int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },
-                {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },
-                {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },
-                { 23, 22, 21, 209  },  // an ad-hoc value
-                { 23, 59, 59, 999  },  // 24:00:00.000 NOT tested here
+                {  0,  0,  0,   0,   0  },
+                {  0,  0,  0,   0, 999  },
+                {  0,  0,  0, 999,   0  },
+                {  0,  0, 59,   0,   0  },
+                {  0, 59,  0,   0,   0  },
+                { 23,  0,  0,   0,   0  },
+                { 23, 22, 21, 209,   0  },  // an ad-hoc value
+                { 23, 59, 59, 999, 999  },  // 24:00:00.000 NOT tested here
             };
 
             const int NUM_VALUES =
@@ -2927,11 +3041,12 @@ if (veryVerbose)
                 const int MINUTE = VALUES[j].d_minute;
                 const int SECOND = VALUES[j].d_second;
                 const int MSEC   = VALUES[j].d_msec;
+                const int USEC   = VALUES[j].d_usec;
 
                 Obj x(OBJ);  const Obj& X = x;
 
                 if (veryVerbose) {
-                    T_ T_ P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(X)
+                    T_ T_ P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P_(USEC) P(X)
                 }
 
                 x.setHour(HOUR);
@@ -2940,6 +3055,7 @@ if (veryVerbose)
                 LOOP2_ASSERT(i, j, OBJ.minute()      == X.minute());
                 LOOP2_ASSERT(i, j, OBJ.second()      == X.second());
                 LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
 
                 x.setMinute(MINUTE);
                 LOOP2_ASSERT(i, j, OBJ.date()        == X.date());
@@ -2947,6 +3063,7 @@ if (veryVerbose)
                 LOOP2_ASSERT(i, j, MINUTE            == X.minute());
                 LOOP2_ASSERT(i, j, OBJ.second()      == X.second());
                 LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
 
                 x.setSecond(SECOND);
                 LOOP2_ASSERT(i, j, OBJ.date()        == X.date());
@@ -2954,6 +3071,7 @@ if (veryVerbose)
                 LOOP2_ASSERT(i, j, MINUTE            == X.minute());
                 LOOP2_ASSERT(i, j, SECOND            == X.second());
                 LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
 
                 x.setMillisecond(MSEC);
                 LOOP2_ASSERT(i, j, OBJ.date()        == X.date());
@@ -2961,6 +3079,15 @@ if (veryVerbose)
                 LOOP2_ASSERT(i, j, MINUTE            == X.minute());
                 LOOP2_ASSERT(i, j, SECOND            == X.second());
                 LOOP2_ASSERT(i, j, MSEC              == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
+
+                x.setMicrosecond(USEC);
+                LOOP2_ASSERT(i, j, OBJ.date()        == X.date());
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, MINUTE            == X.minute());
+                LOOP2_ASSERT(i, j, SECOND            == X.second());
+                LOOP2_ASSERT(i, j, MSEC              == X.millisecond());
+                LOOP2_ASSERT(i, j, USEC              == X.microsecond());
             }
         }
 
@@ -2974,6 +3101,7 @@ if (veryVerbose)
             ASSERT(  0 == R24.minute());
             ASSERT(  0 == R24.second());
             ASSERT(  0 == R24.millisecond());
+            ASSERT(  0 == R24.microsecond());
 
             Obj x;  const Obj& X = x;  if (veryVerbose) { T_  P_(X) }
 
@@ -2985,6 +3113,7 @@ if (veryVerbose)
             ASSERT(         0 == X.minute());
             ASSERT(         0 == X.second());
             ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
 
             x = R24;                   if (veryVerbose) { T_  P_(X) }
             ASSERT(        24 == X.hour());
@@ -2994,6 +3123,7 @@ if (veryVerbose)
             ASSERT(        59 == X.minute());
             ASSERT(         0 == X.second());
             ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
 
             x = R24;                   if (veryVerbose) { T_ P_(X) }
             ASSERT(        24 == X.hour());
@@ -3003,6 +3133,7 @@ if (veryVerbose)
             ASSERT(         0 == X.minute());
             ASSERT(         0 == X.second());
             ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
 
             x = R24;                   if (veryVerbose) { T_ P_(X) }
             ASSERT(        24 == X.hour());
@@ -3012,6 +3143,7 @@ if (veryVerbose)
             ASSERT(         0 == X.minute());
             ASSERT(        59 == X.second());
             ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
 
             x = R24;                   if (veryVerbose) { T_ P_(X) }
             ASSERT(        24 == X.hour());
@@ -3021,6 +3153,7 @@ if (veryVerbose)
             ASSERT(         0 == X.minute());
             ASSERT(         0 == X.second());
             ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
 
             x = R24;                   if (veryVerbose) { T_ P_(X) }
             ASSERT(        24 == X.hour());
@@ -3030,6 +3163,17 @@ if (veryVerbose)
             ASSERT(         0 == X.minute());
             ASSERT(         0 == X.second());
             ASSERT(       999 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                   if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            x.setMicrosecond(999);     if (veryVerbose) { P(X); cout << endl; }
+            ASSERT(R24.date() == X.date());
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(       999 == X.microsecond());
         }
 
         if (verbose) cout << "\tSetting to value 24:00:00.000." << endl;
@@ -3044,16 +3188,18 @@ if (veryVerbose)
             ASSERT( 0   == X.time().minute());
             ASSERT( 0   == X.time().second());
             ASSERT( 0   == X.time().millisecond());
+            ASSERT( 0   == X.microsecond());
         }
 
         if (verbose)
             cout << "\nTesting: 'setDatetime(7 x int)'" << endl;
 
-        Obj ARRAY2[] = { Obj(),                              // default value
-                         Obj(   1,  1,  1,  0,  0,  0,   0), // start of epoch
-                         RDT,                                // arbitrary value
-                         Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
-                      };
+        Obj ARRAY2[] = {
+                    Obj(),                                   // default value
+                    Obj(   1,  1,  1,  0,  0,  0,   0,   0), // start of epoch
+                    RDT,                                     // arbitrary value
+                    Obj(9999, 12, 31, 23, 59, 59, 999, 999)  // end of epoch
+                        };
         const int NUM_ARRAY2 =
                               static_cast<int>(sizeof ARRAY2 / sizeof *ARRAY2);
 
@@ -3070,20 +3216,22 @@ if (veryVerbose)
                 int d_minute;
                 int d_second;
                 int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {    1,  1,  1,  24,  0,  0,   0 },  // default
+                {    1,  1,  1,  24,  0,  0,   0,   0 },  // default
 
-                {    1,  1,  1,   0,  0,  0,   0 },  // start of epoch
-                {    1,  1,  2,  24,  0,  0,   0 },
-                {   10,  4,  5,   0,  0,  0, 999 },
-                {  100,  6,  7,   0,  0, 59,   0 },
-                { 1000,  8,  9,   0, 59,  0,   0 },
-                { 1100,  1, 31,  23,  0,  0,   0 },
-                { 2000, 10, 31,  23, 22, 21, 209 },
-                { 2100, 11, 30,  23, 22, 21, 210 },
-                { 2200, 12, 31,  23, 22, 21, 211 },
-                { 2400, 12, 31,  23, 22, 21, 211 },
-                { 9999, 12, 31,  23, 59, 59, 999 },  // end of epoch
+                {    1,  1,  1,   0,  0,  0,   0,   0 },  // start of epoch
+                {    1,  1,  2,  24,  0,  0,   0,   0 },
+                {    7,  4,  5,   0,  0,  0,   0, 999 },
+                {   10,  4,  5,   0,  0,  0, 999,   0 },
+                {  100,  6,  7,   0,  0, 59,   0,   0 },
+                { 1000,  8,  9,   0, 59,  0,   0,   0 },
+                { 1100,  1, 31,  23,  0,  0,   0,   0 },
+                { 2000, 10, 31,  23, 22, 21, 209,   0 },
+                { 2100, 11, 30,  23, 22, 21, 210, 112 },
+                { 2200, 12, 31,  23, 22, 21, 211, 341 },
+                { 2400, 12, 31,  23, 22, 21, 211, 674 },
+                { 9999, 12, 31,  23, 59, 59, 999, 999 },  // end of epoch
             };
             const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
@@ -3096,17 +3244,20 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 if (veryVerbose) {
                     T_ T_  P_(YEAR) P_(MONTH) P(DAY)
-                    T_ T_  P_(HOUR) P_(MINUTE) P_(SECOND) P(MSEC)
+                    T_ T_  P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(USEC)
                 }
 
-                const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+                const Obj R(YEAR, MONTH, DAY,
+                            HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 Obj mX(OBJ);  const Obj& X = mX;
 
-                mX.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+                mX.setDatetime(YEAR, MONTH, DAY,
+                               HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 if (veryVerbose) { T_ T_  P_(R)  P(X) }
                 LOOP_ASSERT(i, R == X);
@@ -3121,38 +3272,45 @@ if (veryVerbose)
             const int DAY    = 4;
             const int HOUR   = 5;
             const int MINUTE = 6;
-            const int SECOND = 7;
+            const int SEC    = 7;
             const int MSEC   = 8;
+            const int USEC   = 9;
 
             Obj mA0;  const Obj& A0 = mA0;
             Obj mA1;  const Obj& A1 = mA1;
-            mA0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
-            mA1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+            mA0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC, USEC);
+            mA1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC, USEC);
             ASSERT(A0 == A1);
 
             Obj mB0;  const Obj& B0 = mB0;
             Obj mB1;  const Obj& B1 = mB1;
-            mB0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND,    0);
-            mB1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
+            mB0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC,    0);
+            mB1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC);
             ASSERT(B0 == B1);
 
             Obj mC0;  const Obj& C0 = mC0;
             Obj mC1;  const Obj& C1 = mC1;
-            mC0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE,      0,    0);
-            mC1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE);
+            mC0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC,    0,    0);
+            mC1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC);
             ASSERT(C0 == C1);
 
             Obj mD0;  const Obj& D0 = mD0;
             Obj mD1;  const Obj& D1 = mD1;
-            mD0.setDatetime(YEAR, MONTH, DAY, HOUR,       0,      0,   0);
-            mD1.setDatetime(YEAR, MONTH, DAY, HOUR);
+            mD0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE,   0,    0,    0);
+            mD1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE);
             ASSERT(D0 == D1);
 
             Obj mE0;  const Obj& E0 = mE0;
             Obj mE1;  const Obj& E1 = mE1;
-            mE0.setDatetime(YEAR, MONTH, DAY,    0,       0,      0,    0);
-            mE1.setDatetime(YEAR, MONTH, DAY);
+            mE0.setDatetime(YEAR, MONTH, DAY, HOUR,      0,   0,    0,    0);
+            mE1.setDatetime(YEAR, MONTH, DAY, HOUR);
             ASSERT(E0 == E1);
+
+            Obj mF0;  const Obj& F0 = mF0;
+            Obj mF1;  const Obj& F1 = mF1;
+            mF0.setDatetime(YEAR, MONTH, DAY,    0,      0,   0,    0,    0);
+            mF1.setDatetime(YEAR, MONTH, DAY);
+            ASSERT(F0 == F1);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -3198,6 +3356,14 @@ if (veryVerbose)
                 Obj x4; ASSERT_SAFE_FAIL(x4.setMillisecond(1000));
             }
 
+            if (veryVerbose) cout << "\t'setMicrosecond'" << endl;
+            {
+                Obj x0; ASSERT_SAFE_FAIL(x0.setMicrosecond(  -1));
+                Obj x1; ASSERT_SAFE_PASS(x1.setMicrosecond(   0));
+                Obj x2; ASSERT_SAFE_PASS(x2.setMicrosecond( 999));
+                Obj x4; ASSERT_SAFE_FAIL(x4.setMicrosecond(1000));
+            }
+
             if (veryVerbose) cout << "\t'setDatetime'" << endl;
             {
                 Obj x0;
@@ -3216,6 +3382,8 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(x6.setDatetime(1,  1,  1,  1,  0, 60,   0));
                 Obj x7;
                 ASSERT_SAFE_FAIL(x7.setDatetime(1,  1,  1,  1,  0,  0,  -1));
+                Obj x8;
+                ASSERT_SAFE_FAIL(x8.setDatetime(1, 1, 1, 1, 0, 0, 0, -1));
             }
         }
       } break;
@@ -3276,7 +3444,7 @@ if (veryVerbose)
         // Testing:
         //   Datetime(const Date& date);
         //   Datetime(const Date& date, const Time& time);
-        //   Datetime(int y, int m, int d, int h, int m, int s, int ms);
+        //   Datetime(y, m, d, h, m, s, ms, us);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3298,17 +3466,19 @@ if (veryVerbose)
                 const int MINUTE = DATA[ti].d_minute;
                 const int SECOND = DATA[ti].d_second;
                 const int MSEC   = DATA[ti].d_msec;
+                const int USEC   = DATA[ti].d_usec;
 
                 if (veryVerbose) {
                     T_  P_(YEAR) P_(MONTH)  P(DAY)
-                    T_  P_(HOUR) P_(MINUTE) P_(SECOND) P(MSEC)
+                    T_  P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(USEC)
                 }
 
                 Obj mX;  const Obj& X = mX;
                 mX.setYearMonthDay(YEAR, MONTH, DAY);
-                mX.setTime(HOUR, MINUTE, SECOND, MSEC);
+                mX.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
-                const Obj A(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+                const Obj A(YEAR, MONTH, DAY,
+                            HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 LOOP3_ASSERT(LINE, X, A, X == A);
 
@@ -3317,11 +3487,14 @@ if (veryVerbose)
 
                 const Obj B(DATE, TIME);
 
+                if (24 != HOUR) {
+                    mX.setMicrosecond(0);
+                }
                 LOOP3_ASSERT(LINE, X, B, X == B);
 
                 Obj mY;  const Obj& Y = mY;
                 mY.setYearMonthDay(YEAR, MONTH, DAY);
-                mY.setTime(0, 0, 0, 0);
+                mY.setTime(0, 0, 0, 0, 0);
 
                 const Obj C(DATE);
 
@@ -3825,7 +3998,8 @@ if (veryVerbose)
                                      || (     24 == T1.time().hour()
                                          &&    0 == T1.time().minute()
                                          &&    0 == T1.time().second()
-                                         &&    0 == T1.time().millisecond())));
+                                         &&    0 == T1.time().millisecond()
+                                         &&    0 == T1.microsecond())));
 
                         LOOP_ASSERT(i,
                                     bdlt::Date::isValidYearDay(
@@ -3843,7 +4017,8 @@ if (veryVerbose)
                                      || (     24 == T2.time().hour()
                                          &&    0 == T2.time().minute()
                                          &&    0 == T2.time().second()
-                                         &&    0 == T2.time().millisecond())));
+                                         &&    0 == T2.time().millisecond()
+                                         &&    0 == T2.microsecond())));
 
                         LOOP_ASSERT(i,
                                     bdlt::Date::isValidYearDay(
@@ -3861,7 +4036,8 @@ if (veryVerbose)
                                      || (     24 == T3.time().hour()
                                          &&    0 == T3.time().minute()
                                          &&    0 == T3.time().second()
-                                         &&    0 == T3.time().millisecond())));
+                                         &&    0 == T3.time().millisecond()
+                                         &&    0 == T3.microsecond())));
 
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
                 }
@@ -4292,15 +4468,16 @@ if (veryVerbose)
                 const int MINUTE1 = DATA[ti].d_minute;
                 const int SECOND1 = DATA[ti].d_second;
                 const int MSEC1   = DATA[ti].d_msec;
+                const int USEC1   = DATA[ti].d_usec;
 
                 if (veryVerbose) {
                     T_  P_(YEAR1) P_(MONTH1)  P(DAY1)
-                    T_  P_(HOUR1) P_(MINUTE1) P_(SECOND1) P(MSEC1)
+                    T_  P_(HOUR1) P_(MINUTE1) P_(SECOND1) P_(MSEC1) P(USEC1)
                 }
 
                 Obj mZ;  const Obj& Z = mZ;
                 mZ.setYearMonthDay(YEAR1, MONTH1, DAY1);
-                mZ.setTime(HOUR1, MINUTE1, SECOND1, MSEC1);
+                mZ.setTime(HOUR1, MINUTE1, SECOND1, MSEC1, USEC1);
 
                 const Obj ZZ(Z);
 
@@ -4324,15 +4501,17 @@ if (veryVerbose)
                     const int MINUTE2 = DATA[tj].d_minute;
                     const int SECOND2 = DATA[tj].d_second;
                     const int MSEC2   = DATA[tj].d_msec;
+                    const int USEC2   = DATA[tj].d_usec;
 
                     if (veryVerbose) {
                         T_  P_(YEAR2) P_(MONTH2)  P(DAY2)
-                        T_  P_(HOUR2) P_(MINUTE2) P_(SECOND2) P(MSEC2)
+                        T_  P_(HOUR2) P_(MINUTE2) P_(SECOND2)
+                            P_(MSEC2) P(USEC2)
                     }
 
                     Obj mX;  const Obj& X = mX;
                     mX.setYearMonthDay(YEAR2, MONTH2, DAY2);
-                    mX.setTime(HOUR2, MINUTE2, SECOND2, MSEC2);
+                    mX.setTime(HOUR2, MINUTE2, SECOND2, MSEC2, USEC2);
 
                     if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -4352,7 +4531,7 @@ if (veryVerbose)
                 {
                     Obj mX;  const Obj& X = mX;
                     mX.setYearMonthDay(YEAR1, MONTH1, DAY1);
-                    mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1);
+                    mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1, USEC1);
 
                     const Obj  ZZ(X);
                     const Obj& Z = mX;
@@ -4451,15 +4630,16 @@ if (veryVerbose)
             const int MINUTE = DATA[ti].d_minute;
             const int SECOND = DATA[ti].d_second;
             const int MSEC   = DATA[ti].d_msec;
+            const int USEC   = DATA[ti].d_usec;
 
             if (veryVerbose) {
                 T_  P_(YEAR) P_(MONTH)  P(DAY)
-                T_  P_(HOUR) P_(MINUTE) P_(SECOND) P(MSEC)
+                T_  P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(USEC)
             }
 
             Obj mZZ;  const Obj& ZZ = mZZ;  // control
             mZZ.setYearMonthDay(YEAR, MONTH, DAY);
-            mZZ.setTime(HOUR, MINUTE, SECOND, MSEC);
+            mZZ.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
             // Ensure the first row of the table contains the
             // default-constructed value.
@@ -4472,7 +4652,7 @@ if (veryVerbose)
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setYearMonthDay(YEAR, MONTH, DAY);
-            mZ.setTime(HOUR, MINUTE, SECOND, MSEC);
+            mZ.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
             const Obj X(Z);
 
@@ -4593,6 +4773,7 @@ if (veryVerbose)
             int d_minute;
             int d_second;
             int d_msec;
+            int d_usec;
         } DATA[] = {
 
             // There are two sets of values in this table.  The first row of
@@ -4600,28 +4781,30 @@ if (veryVerbose)
             // subsequent rows in each differ (slightly) in exactly one salient
             // attribute.
 
-            //LINE YEAR      MONTH   DAY     HOUR    MINUTE  SECOND  MSEC
-            //---- ----      ------  ------  ------  ------  ------  -------
-            { L_,    1    ,  1    ,  1    ,  24    ,  0    ,  0    ,   0     },
-            { L_,    1    ,  1    ,  1    ,   0    ,  0    ,  0    ,   0     },
+//LINE YEAR      MONTH   DAY     HOUR    MINUTE  SECOND  MSEC     USEC
+//---- ----      ------  ------  ------  ------  ------  -------  -------
+{ L_,    1    ,  1    ,  1    ,  24    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,   0    ,  0    ,  0    ,   0    ,   0     },
 
-            { L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0     },
-            { L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0 + 1 },
-            { L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0 + 1,   0     },
-            { L_,    1    ,  1    ,  1    ,  23    ,  0 + 1,  0    ,   0     },
-                                          // 23 + 1 equals 24 (done earlier)
-            { L_,    1    ,  1    ,  1 + 1,  23    ,  0    ,  0    ,   0     },
-            { L_,    1    ,  1 + 1,  1    ,  23    ,  0    ,  0    ,   0     },
-            { L_,    1 + 1,  1    ,  1    ,  23    ,  0    ,  0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0 + 1 },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0    ,   0 + 1,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0    ,  0 + 1,   0    ,   0     },
+{ L_,    1    ,  1    ,  1    ,  23    ,  0 + 1,  0    ,   0    ,   0     },
+                              // 23 + 1 equals 24 (done earlier)
+{ L_,    1    ,  1    ,  1 + 1,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1    ,  1 + 1,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
+{ L_,    1 + 1,  1    ,  1    ,  23    ,  0    ,  0    ,   0    ,   0     },
 
-            { L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999     },
-            { L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999 - 1 },
-            { L_, 9999    , 12    , 31    ,  23    , 59    , 59 - 1, 999     },
-            { L_, 9999    , 12    , 31    ,  23    , 59 - 1, 59    , 999     },
-            { L_, 9999    , 12    , 31    ,  23 - 1, 59    , 59    , 999     },
-            { L_, 9999    , 12    , 31 - 1,  23    , 59    , 59    , 999     },
-            { L_, 9999    , 12 - 1, 31 - 1,  23    , 59    , 59    , 999     },
-            { L_, 9999 - 1, 12    , 31    ,  23    , 59    , 59    , 999     },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999    , 999     },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999    , 999 - 1 },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59    , 999 - 1,   0     },
+{ L_, 9999    , 12    , 31    ,  23    , 59    , 59 - 1, 999    ,   0     },
+{ L_, 9999    , 12    , 31    ,  23    , 59 - 1, 59    , 999    ,   0     },
+{ L_, 9999    , 12    , 31    ,  23 - 1, 59    , 59    , 999    ,   0     },
+{ L_, 9999    , 12    , 31 - 1,  23    , 59    , 59    , 999    ,   0     },
+{ L_, 9999    , 12 - 1, 31 - 1,  23    , 59    , 59    , 999    ,   0     },
+{ L_, 9999 - 1, 12    , 31    ,  23    , 59    , 59    , 999    ,   0     },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -4636,10 +4819,11 @@ if (veryVerbose)
             const int MINUTE1 = DATA[ti].d_minute;
             const int SECOND1 = DATA[ti].d_second;
             const int MSEC1   = DATA[ti].d_msec;
+            const int USEC1   = DATA[ti].d_usec;
 
             if (veryVerbose) {
                 T_  P_(YEAR1) P_(MONTH1)  P(DAY1)
-                T_  P_(HOUR1) P_(MINUTE1) P_(SECOND1) P(MSEC1)
+                T_  P_(HOUR1) P_(MINUTE1) P_(SECOND1) P_(MSEC1) P(USEC1)
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
@@ -4651,21 +4835,22 @@ if (veryVerbose)
                 const int MINUTE2 = DATA[tj].d_minute;
                 const int SECOND2 = DATA[tj].d_second;
                 const int MSEC2   = DATA[tj].d_msec;
+                const int USEC2   = DATA[tj].d_usec;
 
                 if (veryVerbose) {
                     T_ T_ P_(YEAR2) P_(MONTH2)  P(DAY2)
-                    T_ T_ P_(HOUR2) P_(MINUTE2) P_(SECOND2) P(MSEC2)
+                    T_ T_ P_(HOUR2) P_(MINUTE2) P_(SECOND2) P_(MSEC2) P(USEC2)
                 }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
                 Obj mX;  const Obj& X = mX;
                 mX.setYearMonthDay(YEAR1, MONTH1, DAY1);
-                mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1);
+                mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1, USEC1);
 
                 Obj mY;  const Obj& Y = mY;
                 mY.setYearMonthDay(YEAR2, MONTH2, DAY2);
-                mY.setTime(HOUR2, MINUTE2, SECOND2, MSEC2);
+                mY.setTime(HOUR2, MINUTE2, SECOND2, MSEC2, USEC2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -5114,6 +5299,7 @@ if (veryVerbose)
         //   int minute() const;
         //   int second() const;
         //   int millisecond() const;
+        //   int microsecond() const;
         //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
@@ -5131,16 +5317,17 @@ if (veryVerbose)
                 int d_minute;
                 int d_second;
                 int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {    1,  1,  1,     0,  0,  0,   0  },
-                { 1700,  7, 31,    23, 22, 21, 206  },
-                { 1800,  8, 31,    23, 22, 21, 207  },
-                { 1900,  9, 30,    23, 22, 21, 208  },
-                { 2000, 10, 31,    23, 22, 21, 209  },
-                { 2100, 11, 30,    23, 22, 21, 210  },
-                { 9999, 12, 31,    23, 59, 59, 999  },
+                {    1,  1,  1,     0,  0,  0,   0,   0  },
+                { 1700,  7, 31,    23, 22, 21, 206,   7  },
+                { 1800,  8, 31,    23, 22, 21, 207,  17  },
+                { 1900,  9, 30,    23, 22, 21, 208, 312  },
+                { 2000, 10, 31,    23, 22, 21, 209, 406  },
+                { 2100, 11, 30,    23, 22, 21, 210, 512  },
+                { 9999, 12, 31,    23, 59, 59, 999, 999  },
 
-                {    1,  1,  1,    24,  0,  0,   0  },
+                {    1,  1,  1,    24,  0,  0,   0,   0  },
             };
 
             const int NUM_VALUES =
@@ -5154,10 +5341,11 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 Obj x;  const Obj& X = x;
                 x.setYearMonthDay(YEAR, MONTH, DAY);
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 if (veryVerbose) {
                     T_  P_(YEAR)
@@ -5166,7 +5354,8 @@ if (veryVerbose)
                     T_  P_(HOUR)
                         P_(MINUTE)
                         P_(SECOND)
-                        P(MSEC)
+                        P_(MSEC)
+                        P(USEC)
                 }
                 LOOP_ASSERT(i, Date(YEAR, MONTH,  DAY) == X.date());
                 LOOP_ASSERT(i, Time(HOUR,
@@ -5183,6 +5372,8 @@ if (veryVerbose)
                 LOOP_ASSERT(i, X.time().minute()       == X.minute());
                 LOOP_ASSERT(i, X.time().second()       == X.second());
                 LOOP_ASSERT(i, X.time().millisecond()  == X.millisecond());
+
+                LOOP_ASSERT(i, USEC == X.microsecond());
             }
         }
 
@@ -5275,6 +5466,7 @@ if (veryVerbose)
         ASSERT( 0 == X.time().minute());
         ASSERT( 0 == X.time().second());
         ASSERT( 0 == X.time().millisecond());
+        ASSERT( 0 == X.microsecond());
 
         if (verbose) cout << "\nTesting 'setTime'." << endl;
         {
@@ -5283,16 +5475,17 @@ if (veryVerbose)
                 int d_minute;
                 int d_second;
                 int d_msec;
+                int d_usec;
             } VALUES[] = {
-                {  0,  0,  0,   0  },
-                {  0,  0,  0, 999  },
-                {  0,  0, 59,   0  },
-                {  0, 59,  0,   0  },
-                { 23,  0,  0,   0  },
-                { 23, 22, 21, 209  },  // an ad-hoc value
-                { 23, 59, 59, 999  },
-
-                { 24,  0,  0,   0  },
+                {  0,  0,  0,   0,   0  },
+                {  0,  0,  0,   0, 999  },
+                {  0,  0,  0, 999,   0  },
+                {  0,  0, 59,   0,   0  },
+                {  0, 59,  0,   0,   0  },
+                { 23,  0,  0,   0,   0  },
+                { 23, 22, 21, 209,   0  },  // an ad-hoc value
+                { 23, 59, 59, 999, 999  },
+                { 24,  0,  0,   0,   0  },
             };
             const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
@@ -5302,25 +5495,24 @@ if (veryVerbose)
                 const int MINUTE = VALUES[i].d_minute;
                 const int SECOND = VALUES[i].d_second;
                 const int MSEC   = VALUES[i].d_msec;
+                const int USEC   = VALUES[i].d_usec;
 
                 if (veryVerbose) {
                     T_  P_(HOUR)
                         P_(MINUTE)
                         P_(SECOND)
-                        P(MSEC)
-                    T_  P_(X.time().hour())
-                        P_(X.time().minute())
-                        P_(X.time().second())
-                        P(X.time().millisecond())
+                        P_(MSEC)
+                        P(USEC)
                 }
 
                 Obj x;  const Obj& X = x;
-                x.setTime(HOUR, MINUTE, SECOND, MSEC);
+                x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 LOOP_ASSERT(i, HOUR   == X.time().hour());
                 LOOP_ASSERT(i, MINUTE == X.time().minute());
                 LOOP_ASSERT(i, SECOND == X.time().second());
                 LOOP_ASSERT(i, MSEC   == X.time().millisecond());
+                LOOP_ASSERT(i, USEC   == X.microsecond());
                 LOOP_ASSERT(i, Date() == X.date());
             }
         }
@@ -5332,30 +5524,37 @@ if (veryVerbose)
             const int MIN  = 6;
             const int SECS = 7;
             const int MSEC = 8;
+            const int USEC = 9;
 
             Obj mA0;  const Obj& A0 = mA0;
             Obj mA1;  const Obj& A1 = mA1;
-            mA0.setTime(HOUR, MIN, SECS, MSEC);
-            mA1.setTime(HOUR, MIN, SECS, MSEC);
+            mA0.setTime(HOUR, MIN, SECS, MSEC, USEC);
+            mA1.setTime(HOUR, MIN, SECS, MSEC, USEC);
             ASSERT(A0 == A1);
 
             Obj mB0;  const Obj& B0 = mB0;
             Obj mB1;  const Obj& B1 = mB1;
-            mB0.setTime(HOUR, MIN, SECS,    0);
-            mB1.setTime(HOUR, MIN, SECS);
+            mB0.setTime(HOUR, MIN, SECS, MSEC,    0);
+            mB1.setTime(HOUR, MIN, SECS, MSEC);
             ASSERT(B0 == B1);
 
             Obj mC0;  const Obj& C0 = mC0;
             Obj mC1;  const Obj& C1 = mC1;
-            mC0.setTime(HOUR, MIN,    0,    0);
-            mC1.setTime(HOUR, MIN);
+            mC0.setTime(HOUR, MIN, SECS,    0,    0);
+            mC1.setTime(HOUR, MIN, SECS);
             ASSERT(C0 == C1);
 
             Obj mD0;  const Obj& D0 = mD0;
             Obj mD1;  const Obj& D1 = mD1;
-            mD0.setTime(HOUR,   0,    0,    0);
-            mD1.setTime(HOUR);
+            mD0.setTime(HOUR, MIN,    0,    0,    0);
+            mD1.setTime(HOUR, MIN);
             ASSERT(D0 == D1);
+
+            Obj mE0;  const Obj& E0 = mE0;
+            Obj mE1;  const Obj& E1 = mE1;
+            mE0.setTime(HOUR,   0,    0,    0,    0);
+            mE1.setTime(HOUR);
+            ASSERT(E0 == E1);
         }
 
         if (verbose) cout << "\nTesting 'setYearMonthDay'." << endl;

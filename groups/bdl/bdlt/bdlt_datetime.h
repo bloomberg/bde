@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
-// etc.). In particular, note that adding units of time to a 'bdlt::Datetime'
+// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
 // object can affect the values of both the time and date parts of the object.
 // For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
 // is "1987/10/03_22:30:00.000000" updates the value to
