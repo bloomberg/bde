@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 // Now, we populate the 'fields' object with the username and current task
 // identifier (for the purpose of illustration, these are simply constants):
 //..
-//    static const char         *TEST_USER = "testUser";
-//    static const bsl::int64_t  TEST_TASK = 4315;
+//    static const char               *TEST_USER = "testUser";
+//    static const bsls::Types::Int64  TEST_TASK = 4315;
 //
 //    fields->appendString(TEST_USER);
 //    fields->appendInt64(TEST_TASK);
@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDINT
-#include <bsl_cstdint.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -149,7 +149,7 @@ class UserFields {
     void appendNull();
         // Append an element having the unset value to this object.
 
-    void appendInt64(bsl::int64_t value);
+    void appendInt64(bsls::Types::Int64 value);
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
@@ -290,7 +290,7 @@ void UserFields::appendNull()
 }
 
 inline
-void UserFields::appendInt64(bsl::int64_t value)
+void UserFields::appendInt64(bsls::Types::Int64 value)
 {
     d_values.emplace_back(value);
 }

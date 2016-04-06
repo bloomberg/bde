@@ -90,8 +90,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDINT
-#include <bsl_cstdint.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -117,7 +117,7 @@ class UserFieldValue {
     // 'ball::UserFieldType::e_VOID').
 
     // TYPES
-    typedef bdlb::Variant<bsl::int64_t,
+    typedef bdlb::Variant<bsls::Types::Int64,
                           double,
                           bsl::string,
                           bdlt::DatetimeTz,
@@ -140,7 +140,7 @@ class UserFieldValue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit UserFieldValue(bsl::int64_t              value,
+    explicit UserFieldValue(bsls::Types::Int64        value,
                             bslma::Allocator         *basicAllocator = 0);
     explicit UserFieldValue(double                    value,
                             bslma::Allocator         *basicAllocator = 0);
@@ -161,17 +161,17 @@ class UserFieldValue {
                 bslma::Allocator *basicAllocator = 0,
                 typename bsl::enable_if<
                      bsl::is_integral<INTEGRAL_TYPE>::value>::type * = 0)
-    : d_value(static_cast<bsl::int64_t>(value), basicAllocator) {}
+    : d_value(static_cast<bsls::Types::Int64>(value), basicAllocator) {}
         // Create a user field value having the specified integral 'value'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
         //
         // Note that this constructor is provided to disambiguate between
-        // constructors taking 'double' and 'bsl::int64_t' when supplied a
-        // integer that is not of type 'bsl::int64_t'.  Note also that the
-        // implementation is (temporarily) provided inline to avoid issues with
-        // MSVC 2008.
+        // constructors taking 'double' and 'bsls::Types::Int64' when supplied
+        // an integer that is not of type 'bsls::Types::Int64'.  Also note that
+        // the implementation is (temporarily) provided inline to avoid issues
+        // with MSVC 2008.
 
     UserFieldValue(const UserFieldValue&  original,
                    bslma::Allocator      *basicAllocator = 0);
@@ -192,7 +192,7 @@ class UserFieldValue {
         // Set this object to have the unset value.  After this operation,
         // 'type() == ball::UserFieldType::e_VOID'.
 
-    void setInt64(bsl::int64_t value);
+    void setInt64(bsls::Types::Int64 value);
         // Set this object to have the specified 'value'.  After this
         // operation, 'type() == ball::UserFieldType::e_INT64'.
 
@@ -230,7 +230,7 @@ class UserFieldValue {
         // Return the type of this user field value.  The type
         // 'ball::UserFieldValue::e_VOID' represents the unset value.
 
-    const bsl::int64_t& theInt64() const;
+    const bsls::Types::Int64& theInt64() const;
         // Return a reference providing non-modifiable access to the 64-bit
         // integer value of this object.  The behavior is undefined unless
         // 'type() == ball::UserFieldType::e_INT64'.
@@ -328,8 +328,8 @@ UserFieldValue::UserFieldValue(bslma::Allocator *basicAllocator)
 }
 
 inline
-UserFieldValue::UserFieldValue(bsl::int64_t      value,
-                               bslma::Allocator *basicAllocator)
+UserFieldValue::UserFieldValue(bsls::Types::Int64  value,
+                               bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -384,7 +384,7 @@ void UserFieldValue::reset()
 }
 
 inline
-void UserFieldValue::setInt64(bsl::int64_t value)
+void UserFieldValue::setInt64(bsls::Types::Int64 value)
 {
     d_value.assign(value);
 }
@@ -441,7 +441,7 @@ ball::UserFieldType::Enum UserFieldValue::type() const
         return ball::UserFieldType::e_VOID;                           // RETURN
       } break;
       case 1: {
-        BSLS_ASSERT_SAFE(d_value.is<bsl::int64_t>());
+        BSLS_ASSERT_SAFE(d_value.is<bsls::Types::Int64>());
         return ball::UserFieldType::e_INT64;                          // RETURN
       } break;
       case 2: {
@@ -469,10 +469,10 @@ ball::UserFieldType::Enum UserFieldValue::type() const
 }
 
 inline
-const bsl::int64_t& UserFieldValue::theInt64() const
+const bsls::Types::Int64& UserFieldValue::theInt64() const
 {
-    BSLS_ASSERT_SAFE(d_value.is<bsl::int64_t>());
-    return d_value.the<bsl::int64_t>();
+    BSLS_ASSERT_SAFE(d_value.is<bsls::Types::Int64>());
+    return d_value.the<bsls::Types::Int64>();
 }
 
 inline

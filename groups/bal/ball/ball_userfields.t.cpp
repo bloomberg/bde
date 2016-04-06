@@ -151,8 +151,8 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 // Now, we populate the 'fields' object with the username and current task
 // identifier (for the purpose of illustration, these are simply constants):
 //..
-      static const char         *TEST_USER = "testUser";
-      static const bsl::int64_t  TEST_TASK = 4315;
+      static const char               *TEST_USER = "testUser";
+      static const bsls::Types::Int64  TEST_TASK = 4315;
 //
       fields->appendString(TEST_USER);
       fields->appendInt64(TEST_TASK);
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
         const char               *A_STRING = "A";
         double                    A_DOUBLE = 2.0;
-        const bsl::int64_t        A_INT    = 5;
+        const bsls::Types::Int64  A_INT    = 5;
         const bdlt::DatetimeTz    A_DATE(bdlt::Datetime(1999,1,1), 0);
         const bsl::vector<char>&  A_CHAR_ARRAY = mCA;
 
