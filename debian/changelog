@@ -1,9 +1,22 @@
-bsl-internal (2.26.0.5) unstable; urgency=low
+bsl-internal (2.26.1.0) unstable; urgency=low
 
+  * e602cf2 Merge pull request #297 from hversche/backout-sharedptr-back-to-2.25
+  * e050001 Merge pull request #298 from mgiroux/review/bump-version-to-2.26.1.0
+  * 64904a9 Bump patchversion for 2.26.1
+  * 529dccf Revert shared pointer to BDE 2.25.x version
+  * af367f8 Merge pull request #295 from hversche/pr/correct-bdlt_date-comment-typo-drqs-80595394-rebase
+  * 9583960 Merge pull request #264 from eschaefer3/correct-bdlpcre-de-file
+  * b0744e5 Merge pull request #263 from eschaefer3/remove-unknown-bdlmt-from-bdl.mem
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 6 Apr 2016 07:40:19 -0400
+
+bsl-internal (2.26.0.5) git; urgency=low
+
+  * 8743d05 Changelog for version 2.26.0.5
   * d1053f8 Merge pull request #237 from sbreitst/add_bdld.txt_2.26.x-bde-1004
   * 2c4d3ff Merge pull request #230 from hversche/fix-tuple-clang-drqs-79683576-2.26
 
- -- Steven Breitstein <sbreitstein@bloomberg.net>  Fri, 18 Mar 2016 11:34:55 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Mar 2016 11:02:00 -0400
 
 bsl-internal (2.26.0.4) git; urgency=low
 
