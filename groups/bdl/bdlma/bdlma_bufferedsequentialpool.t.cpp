@@ -1396,7 +1396,7 @@ int main(int argc, char *argv[])
                                               static_cast<uint64_t>(numBytes));
                 ASSERT(size == objectAllocator.numBytesInUse());
             }
-#ifdef BSLS_PLATFORM_CPU_64_BIT
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_LINUX)
             {
                 Obj mX(buffer, bufferSize, NAT, &objectAllocator);
 
