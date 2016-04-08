@@ -1,5 +1,5 @@
 {
-    "uors": ["bsl", "bdl", "bbl", "inteldfp", "decnumber"],
+    "uors": ["bsl", "bdl", "bbl", "inteldfp", "decnumber", "pcre2"],
     "rssuite_uors": ["bsl", "bdl", "bbl"],
     "bdemeta": "bsl-internal",
     "linux-x86_64-32": {
