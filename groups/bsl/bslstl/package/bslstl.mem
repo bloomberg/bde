@@ -8,6 +8,7 @@ bslstl_bitset
 bslstl_deque
 bslstl_equalto
 bslstl_forwarditerator
+bslstl_function
 bslstl_hash
 bslstl_hashtable
 bslstl_hashtablebucketiterator

@@ -1,6 +1,6 @@
 {
-    "uors": ["bsl", "bdl", "inteldfp", "decnumber", "pcre2"],
-    "rssuite_uors": ["bsl", "bdl"],
+    "uors": ["bsl", "bdl", "bbl", "inteldfp", "decnumber", "pcre2"],
+    "rssuite_uors": ["bsl", "bdl", "bbl"],
     "bdemeta": "bsl-internal",
     "linux-x86_64-32": {
         "ufids": ["opt_exc_mt", "dbg_exc_mt", "opt_dbg_exc_mt",

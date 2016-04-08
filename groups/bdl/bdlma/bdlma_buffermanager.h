@@ -1,4 +1,12 @@
 // bdlma_buffermanager.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_BUFFERMANAGER
 #define INCLUDED_BDLMA_BUFFERMANAGER
 
@@ -129,8 +137,9 @@ BSLS_IDENT("$Id: $")
 //  int my_IntegerCountingHashTable::calculateBufferSize(int tableLength,
 //                                                       int numNodes)
 //  {
-//      return tableLength * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-//                                   + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+//      return static_cast<int>(tableLength * sizeof(my_Node *)
+//                            + numNodes * sizeof(my_Node)
+//                            + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 //  }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation
@@ -166,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //              tmp = &((*tmp)->d_next_p);
 //          }
 //          else {
-//              return ++((*tmp)->d_count);
+//              return ++((*tmp)->d_count);                           // RETURN
 //          }
 //      }
 //
@@ -197,7 +206,6 @@ BSLS_IDENT("$Id: $")
 //      const int MAX_SIZE = my_IntegerCountingHashTable::
 //                                         calculateBufferSize(length, length);
 //..
-//
 // We then allocate an external buffer to be used by 'bdlma::BufferManager'.
 // Normally, this buffer will be created on the program stack if we know the
 // length in advance (for example, if we specify in the contract of this
@@ -243,8 +251,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -258,9 +274,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ===================
-                        // class BufferManager
-                        // ===================
+                           // ===================
+                           // class BufferManager
+                           // ===================
 
 class BufferManager {
     // This class implements a buffer manager that dispenses heterogeneous
@@ -273,35 +289,31 @@ class BufferManager {
     // buffer.
 
     // DATA
-    char   *d_buffer_p;    // external buffer (held, not owned)
+    char                   *d_buffer_p;          // external buffer (held, not
+                                                 // owned)
 
-    int     d_bufferSize;  // size (in bytes) of external buffer
+    bsls::Types::size_type  d_bufferSize;        // size (in bytes) of external
+                                                 // buffer
 
-    int     d_cursor;      // offset to next available byte in buffer
+    bsls::Types::IntPtr     d_cursor;            // offset to next available
+                                                 // byte in buffer
 
-    void *(*d_allocate_p)(int *, char *, int, int);
-                           // address of non-raw 'Alignment::Strategy'-specific
-                           // method from 'bdlma::BufferImpUtil'
+    bsls::Types::size_type  d_alignmentAndMask;  // a mask used during the
+                                                 // alignment calculation
 
-    void *(*d_allocateRaw_p)(int *, char *, int);
-                           // address of raw 'Alignment::Strategy'-specific
-                           // method from 'bdlma::BufferImpUtil'
+    bsls::Types::size_type  d_alignmentOrMask;   // a mask used during the
+                                                 // alignment calculation
 
   private:
     // NOT IMPLEMENTED
     BufferManager(const BufferManager&);
     BufferManager& operator=(const BufferManager&);
 
-  private:
-    // PRIVATE MANIPULATORS
-    void init(bsls::Alignment::Strategy strategy);
-        // Initialize this object to use the specified alignment 'strategy'.
-
   public:
     // CREATORS
     explicit
-    BufferManager(bsls::Alignment::Strategy strategy =
-                                                bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+           bsls::Alignment::Strategy strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks.  Optionally
         // specify an alignment 'strategy' used to align allocated memory
         // blocks.  If 'strategy' is not specified, natural alignment is used.
@@ -309,10 +321,10 @@ class BufferManager {
         // memory until an external buffer is provided by calling the
         // 'replaceBuffer' method.
 
-    BufferManager(char                      *buffer,
-                  int                        bufferSize,
-                  bsls::Alignment::Strategy  strategy
-                                              = bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+          char                      *buffer,
+          bsls::Types::size_type     bufferSize,
+          bsls::Alignment::Strategy  strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks from the
         // specified external 'buffer' having the specified 'bufferSize' (in
         // bytes).  Optionally specify an alignment 'strategy' used to align
@@ -327,18 +339,17 @@ class BufferManager {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) on success, according to the alignment strategy
-        // specified at construction, and 0 if the allocation request
-        // exceeds the remaining free memory space in the external buffer.  The
-        // behavior is undefined unless '0 < size' and this object is currently
-        // managing a buffer.
+        // specified at construction.  If 'size' is 0 or the allocation request
+        // exceeds the remaining free memory space in the external buffer, no
+        // memory is allocated and 0 is returned.
 
-    void *allocateRaw(int size);
+    void *allocateRaw(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  The behavior is undefined unless the allocation
         // request does not exceed the remaining free memory space in the
-        // external buffer, '0 < size', and this object is currently managing
-        // a buffer.
+        // external buffer, '0 < size', and this object is currently managing a
+        // buffer.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
@@ -352,7 +363,7 @@ class BufferManager {
         // effect as the 'deleteObjectRaw' method (since no deallocation is
         // involved), and exists for consistency with a pool interface.
 
-    int expand(void *address, int size);
+    bsls::Types::size_type expand(void *address, bsls::Types::size_type size);
         // Increase the amount of memory allocated at the specified 'address'
         // from the original 'size' (in bytes) to also include the maximum
         // amount remaining in the buffer.  Return the amount of memory
@@ -365,12 +376,12 @@ class BufferManager {
         // 'address' is 'size', and 'release' was not called after allocating
         // the memory at 'address'.
 
-    char *replaceBuffer(char *newBuffer, int newBufferSize);
+    char *replaceBuffer(char *newBuffer, bsls::Types::size_type newBufferSize);
         // Replace the buffer currently managed by this object with the
         // specified 'newBuffer' of the specified 'newBufferSize' (in bytes);
         // return the address of the previously held buffer, or 0 if this
-        // object currently manages no buffer.  The replaced buffer (if any)
-        // is removed from the management of this object with no effect on the
+        // object currently manages no buffer.  The replaced buffer (if any) is
+        // removed from the management of this object with no effect on the
         // outstanding allocated memory blocks.  Subsequent allocations will
         // allocate memory from the beginning of the new external buffer.  The
         // behavior is undefined unless '0 < newBufferSize' and 'newBuffer' has
@@ -389,18 +400,20 @@ class BufferManager {
         // of this object with no effect on the outstanding allocated memory
         // blocks.
 
-    int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified 'address'
-        // of the specified 'originalSize' (in bytes) to the specified
-        // 'newSize' (in bytes).  Return 'newSize' after truncating, or
-        // 'originalSize' if the memory at 'address' cannot be truncated.  This
-        // method can only 'truncate' the memory block returned by the most
-        // recent 'allocate' or 'allocateRaw' request from this object, and
-        // otherwise has no effect.  The behavior is undefined unless the
-        // memory at 'address' was originally allocated by this buffer manager,
-        // the size of the memory at 'address' is 'originalSize',
-        // 'newSize <= originalSize', '0 <= newSize', and 'release' was not
-        // called after allocating the memory at 'address'.
+    bsls::Types::size_type truncate(void                   *address,
+                                    bsls::Types::size_type  originalSize,
+                                    bsls::Types::size_type  newSize);
+        // Reduce the amount of memory allocated at the specified 'address' of
+        // the specified 'originalSize' (in bytes) to the specified 'newSize'
+        // (in bytes).  Return 'newSize' after truncating, or 'originalSize' if
+        // the memory at 'address' cannot be truncated.  This method can only
+        // 'truncate' the memory block returned by the most recent 'allocate'
+        // or 'allocateRaw' request from this object, and otherwise has no
+        // effect.  The behavior is undefined unless the memory at 'address'
+        // was originally allocated by this buffer manager, the size of the
+        // memory at 'address' is 'originalSize', 'newSize <= originalSize',
+        // '0 <= newSize', and 'release' was not called after allocating the
+        // memory at 'address'.
 
     // ACCESSORS
     char *buffer() const;
@@ -408,11 +421,21 @@ class BufferManager {
         // currently managed by this object, or 0 if this object currently
         // manages no buffer.
 
-    int bufferSize() const;
+    bsls::Types::size_type bufferSize() const;
         // Return the size (in bytes) of the buffer currently managed by this
         // object, or 0 if this object currently manages no buffer.
 
-    bool hasSufficientCapacity(int size) const;
+    int calculateAlignmentOffsetFromSize(const void             *address,
+                                         bsls::Types::size_type  size) const;
+        // Return the minimum non-negative integer that, when added to the
+        // numerical value of the specified 'address', yields the alignment as
+        // per the 'alignmentStrategy' provided at construction for an
+        // allocation of the specified 'size'.  Note that if '0 == size' and
+        // natural alignment was provided at construction, the result of this
+        // method is identical to the result for '0 == size' and maximal
+        // alignment.
+
+    bool hasSufficientCapacity(bsls::Types::size_type size) const;
         // Return 'true' if there is sufficient memory space in the buffer to
         // allocate a contiguous memory block of the specified 'size' (in
         // bytes) after taking the alignment strategy into consideration, and
@@ -421,12 +444,12 @@ class BufferManager {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------
-                        // class Buffer
-                        // ------------
+                               // ------------
+                               // class Buffer
+                               // ------------
 
 // CREATORS
 inline
@@ -434,57 +457,81 @@ BufferManager::BufferManager(bsls::Alignment::Strategy strategy)
 : d_buffer_p(0)
 , d_bufferSize(0)
 , d_cursor(0)
+, d_alignmentAndMask(  strategy != bsls::Alignment::BSLS_MAXIMUM
+                     ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1
+                     : 0)
+, d_alignmentOrMask(  strategy != bsls::Alignment::BSLS_BYTEALIGNED
+                    ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+                    : 1)
 {
-    init(strategy);
 }
 
 inline
 BufferManager::BufferManager(char                      *buffer,
-                             int                        bufferSize,
+                             bsls::Types::size_type     bufferSize,
                              bsls::Alignment::Strategy  strategy)
 : d_buffer_p(buffer)
 , d_bufferSize(bufferSize)
 , d_cursor(0)
+, d_alignmentAndMask(  strategy != bsls::Alignment::BSLS_MAXIMUM
+                     ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1
+                     : 0)
+, d_alignmentOrMask(  strategy != bsls::Alignment::BSLS_BYTEALIGNED
+                    ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+                    : 1)
 {
     BSLS_ASSERT_SAFE(buffer);
     BSLS_ASSERT_SAFE(0 < bufferSize);
-
-    init(strategy);
 }
 
 inline
 BufferManager::~BufferManager()
 {
     BSLS_ASSERT_SAFE(0 <= d_cursor);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
-    BSLS_ASSERT_SAFE((0 != d_buffer_p && 0 <  d_bufferSize)
-                  || (0 == d_buffer_p && 0 == d_bufferSize));
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
+    BSLS_ASSERT_SAFE(   (0 != d_buffer_p && 0 <  d_bufferSize)
+                     || (0 == d_buffer_p && 0 == d_bufferSize));
 }
 
 // MANIPULATORS
 inline
 void *BufferManager::allocate(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 < size);
-    BSLS_ASSERT_SAFE(d_buffer_p);
     BSLS_ASSERT_SAFE(0 <= d_cursor);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
 
-    return (*d_allocate_p)(&d_cursor,
-                           d_buffer_p,
-                           d_bufferSize,
-                           static_cast<int>(size));
+    char *address = d_buffer_p + d_cursor;
+
+    int offset = calculateAlignmentOffsetFromSize(address, size);
+
+    bsls::Types::IntPtr cursor = d_cursor + offset + size;
+    if (   BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                   static_cast<bsls::Types::size_type>(cursor) <= d_bufferSize)
+        && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < size)) {
+        d_cursor = cursor;
+        return address + offset;
+    }
+
+    return 0;
 }
 
 inline
-void *BufferManager::allocateRaw(int size)
+void *BufferManager::allocateRaw(bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 < size);
-    BSLS_ASSERT_SAFE(d_buffer_p);
+    BSLS_ASSERT_SAFE(0 <  size);
     BSLS_ASSERT_SAFE(0 <= d_cursor);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
+    BSLS_ASSERT_SAFE(d_buffer_p);
 
-    return (*d_allocateRaw_p)(&d_cursor, d_buffer_p, size);
+    char *address = d_buffer_p + d_cursor;
+
+    int offset = calculateAlignmentOffsetFromSize(address, size);
+
+    d_cursor = d_cursor + offset + size;
+    return address + offset;
 }
 
 template <class TYPE>
@@ -508,7 +555,8 @@ void BufferManager::deleteObject(const TYPE *object)
 }
 
 inline
-char *BufferManager::replaceBuffer(char *newBuffer, int newBufferSize)
+char *BufferManager::replaceBuffer(char                   *newBuffer,
+                                   bsls::Types::size_type  newBufferSize)
 {
     BSLS_ASSERT_SAFE(newBuffer);
     BSLS_ASSERT_SAFE(0 < newBufferSize);
@@ -543,21 +591,40 @@ char *BufferManager::buffer() const
 }
 
 inline
-int BufferManager::bufferSize() const
+bsls::Types::size_type BufferManager::bufferSize() const
 {
     return d_bufferSize;
 }
 
 inline
-bool BufferManager::hasSufficientCapacity(int size) const
+int BufferManager::calculateAlignmentOffsetFromSize(
+                                            const void             *address,
+                                            bsls::Types::size_type  size) const
+{
+    bsls::Types::size_type alignment = (size & d_alignmentAndMask)
+                                                           | d_alignmentOrMask;
+
+    alignment &= -alignment;  // clear all but lowest order set bit
+
+    return static_cast<int>(
+                (alignment - reinterpret_cast<bsls::Types::size_type>(address))
+              & (alignment - 1));
+}
+
+inline
+bool BufferManager::hasSufficientCapacity(bsls::Types::size_type size) const
 {
     BSLS_ASSERT_SAFE(0 < size);
     BSLS_ASSERT_SAFE(d_buffer_p);
     BSLS_ASSERT_SAFE(0 <= d_cursor);
-    BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
+    BSLS_ASSERT_SAFE(static_cast<bsls::Types::size_type>(d_cursor)
+                                                              <= d_bufferSize);
 
-    int cursorTmp = d_cursor;
-    return 0 != (*d_allocate_p)(&cursorTmp, d_buffer_p, d_bufferSize, size);
+    char *address = d_buffer_p + d_cursor;
+
+    int offset = calculateAlignmentOffsetFromSize(address, size);
+
+    return d_cursor + offset + size <= d_bufferSize;
 }
 
 }  // close package namespace
@@ -566,7 +633,7 @@ bool BufferManager::hasSufficientCapacity(int size) const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

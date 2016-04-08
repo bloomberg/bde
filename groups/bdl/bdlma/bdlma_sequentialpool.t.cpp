@@ -1,8 +1,11 @@
 // bdlma_sequentialpool.t.cpp                                         -*-C++-*-
 #include <bdlma_sequentialpool.h>
 
-#include <bdls_testutil.h>
+#include <bdlb_bitutil.h>
 
+#include <bslim_testutil.h>
+
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -10,9 +13,11 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -58,15 +63,18 @@ using namespace bsl;
 // [ 3] bdlma::SequentialPool(AS a, bslma::Allocator *a = 0);
 // [ 3] bdlma::SequentialPool(GS g, AS a, bslma::Allocator *a = 0);
 //
-// [ 3] bdlma::SequentialPool(int i, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, GS g, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, AS a, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(int initSize);
+// [ 3] bdlma::SequentialPool(initSize, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, GS g, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, AS a, bslma::Allocator *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, GS g, AS a, *a = 0);
 //
-// [ 3] bdlma::SequentialPool(int i, int m, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, GS g, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a = 0);
-// [ 3] bdlma::SequentialPool(int i, int m, GS g, AS a, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, AS a, *a = 0);
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, AS a, *a = 0);
+//
+// [ 3] bdlma::SequentialPool(initSize, int m, GS g, AS a, bool aIB, *a = 0);
 //
 // [  ] ~bdlma::SequentialPool();
 //
@@ -76,14 +84,14 @@ using namespace bsl;
 // [ 6] void deleteObjectRaw(const TYPE *object);
 // [ 6] void deleteObject(const TYPE *object);
 // [ 5] void release();
-// [ 5] void rewind();
+// [11] void rewind();
 // [ 9] void reserveCapacity(int numBytes);
 // [ 8] int truncate(void *address, int originalSize, int newSize);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
 // [10] FREE FUNCTION: 'operator new(size_t, bdlma::SequentialPool)'
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -108,22 +116,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -136,6 +144,8 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+
 //=============================================================================
 //                  GLOBAL VARIABLES / TYPEDEF FOR TESTING
 //-----------------------------------------------------------------------------
@@ -144,9 +154,9 @@ typedef bdlma::SequentialPool     Obj;
 
 typedef bsls::Alignment::Strategy Strat;
 
-enum { MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
-enum { DEFAULT_SIZE = 256 };  // initial size of the buffer if none specified
+enum { k_DEFAULT_SIZE = 256 };  // initial size of the buffer if none specified
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -188,29 +198,11 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(Block) - 1;
-        numBytes &= ~(MAX_ALIGN - 1);
+        numBytes += static_cast<int>(sizeof(Block)) - 1;
+        numBytes &= ~(k_MAX_ALIGN - 1);
     }
 
     return numBytes;
-}
-
-//-----------------------------------------------------------------------------
-
-static int calculateNextSize(int currSize, int size)
-{
-    ASSERT(0 < currSize);
-    ASSERT(0 < size);
-
-    if (0 == currSize) {
-        return 0;                                                     // RETURN
-    }
-
-    do {
-        currSize *= 2;
-    } while (currSize < size);
-
-    return currSize;
 }
 
 //=============================================================================
@@ -219,8 +211,10 @@ static int calculateNextSize(int currSize, int size)
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::SequentialPool' for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, 'my_IntDoubleArray', that holds both
 // 'int' and 'double' values.  The class can be implemented using two parallel
 // arrays: one storing the type information, and the other storing pointers to
@@ -253,9 +247,12 @@ static int calculateNextSize(int currSize, int size)
             // Increase the capacity of the internal arrays used to store
             // elements added to this array by at least one element.
 
+        // Not implemented:
+        my_IntDoubleArray(const my_IntDoubleArray&);
+
       public:
         // TYPES
-        enum Type { MY_INT, MY_DOUBLE };
+        enum Type { k_MY_INT, k_MY_DOUBLE };
 
         // CREATORS
         explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
@@ -296,10 +293,9 @@ static int calculateNextSize(int currSize, int size)
 // dynamically-allocated buffers to supply memory.  This greatly reduces the
 // amount of dynamic allocation needed:
 //..
-//  // my_intdoublearray.cpp
-//  #include <my_intdoublearray.h>
+    // my_intdoublearray.cpp
 
-    enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+    enum { k_INITIAL_SIZE = 1 };
 
     // PRIVATE MANIPULATORS
     void my_IntDoubleArray::increaseSize()
@@ -311,7 +307,7 @@ static int calculateNextSize(int currSize, int size)
     // CREATORS
     my_IntDoubleArray::my_IntDoubleArray(bslma::Allocator *basicAllocator)
     : d_length(0)
-    , d_capacity(INITIAL_SIZE)
+    , d_capacity(k_INITIAL_SIZE)
     , d_pool(basicAllocator)
     {
         d_typeArray_p  = static_cast<char *>(
@@ -340,7 +336,7 @@ static int calculateNextSize(int currSize, int size)
         int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
         *item = value;
 
-        d_typeArray_p[d_length]  = static_cast<char>(MY_INT);
+        d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
         d_valueArray_p[d_length] = item;
 
         ++d_length;
@@ -355,12 +351,13 @@ static int calculateNextSize(int currSize, int size)
         double *item = static_cast<double *>(d_pool.allocate(sizeof *item));
         *item = value;
 
-        d_typeArray_p[d_length]  = static_cast<char>(MY_DOUBLE);
+        d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
         d_valueArray_p[d_length] = item;
 
         ++d_length;
     }
 //..
+//
 ///Example 2: Implementing an Allocator Using 'bdlma::SequentialPool'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
@@ -447,8 +444,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator.
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -465,7 +462,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -487,6 +484,120 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+      } break;
+      case 11: {
+        // -------------------------------------------------------------------
+        // TESTING 'rewind'
+        //   Ensure this manipulator appropriately allows memory reuse.
+        //
+        // Concerns:
+        //: 1 The method allows reuse of allocated memory.
+        //:
+        //: 2 The method does not release any memory back to the underlying
+        //:   allocator.  While the contract allows memory to be released, this
+        //:   implementation does not release any memory.
+        //:
+        //: 3 The method does not violate any invariants for the class.
+        //
+        // Plan:
+        //: 1 For all growth and allocation strategies, perform a set of
+        //:   allocations, perform the 'rewind', and then re-allocate the
+        //:   identical set of sizes and ensure the returned addresses match
+        //:   the addresses returned during the initial allocations.  (C-1)
+        //:
+        //: 2 Through use of a 'bslma::TestAllocator' provided during
+        //:   construction, directly verify no memory is returned during
+        //:   'rewind'.  (C-2)
+        //:
+        //: 3 Allow the object to go out-of-scope and verify all memory has
+        //:   been returned to the underlying allocator.  (C-3)
+        //
+        // Testing:
+        //   void rewind();
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'rewind'" << endl
+                          << "================" << endl;
+
+        bsls::BlockGrowth::Strategy growthStrategy[] = {
+            bsls::BlockGrowth::BSLS_GEOMETRIC,
+            bsls::BlockGrowth::BSLS_CONSTANT
+        };
+        const bsl::size_t numGrowthStrategy = sizeof  growthStrategy
+                                            / sizeof *growthStrategy;
+
+        const bsls::Alignment::Strategy alignmentStrategy[] = {
+            bsls::Alignment::BSLS_NATURAL,
+            bsls::Alignment::BSLS_MAXIMUM,
+            bsls::Alignment::BSLS_BYTEALIGNED
+        };
+        const bsl::size_t numAlignmentStrategy = sizeof  alignmentStrategy
+                                               / sizeof *alignmentStrategy;
+
+        bsl::size_t allocationSize[] = {
+            4, 8, 1024, 256, 512, 4, 4, 16, 1, 2, 3, 4, 5, 2048, 12, 7
+        };
+        const bsl::size_t numAllocationSize = sizeof  allocationSize
+                                            / sizeof *allocationSize;
+
+        for (bsl::size_t growthIndex = 0;
+             growthIndex < numGrowthStrategy;
+             ++growthIndex) {
+
+            for (bsl::size_t alignmentIndex = 0;
+                 alignmentIndex < numAlignmentStrategy;
+                 ++alignmentIndex) {
+
+                for (bsl::size_t allocationMaxIndex = 0;
+                     allocationMaxIndex < numAllocationSize;
+                     ++allocationMaxIndex) {
+
+                    std::vector<void *> address;
+                    address.reserve(numAllocationSize);
+
+                    bslma::TestAllocator allocator("Local Allocator",
+                                                   veryVeryVeryVerbose);
+
+                    {
+                        Obj mX(growthStrategy[growthIndex],
+                               alignmentStrategy[alignmentIndex],
+                               &allocator);
+
+                        // Initial allocation.
+
+                        for (bsl::size_t allocationIndex = 0;
+                             allocationIndex <= allocationMaxIndex;
+                             ++allocationIndex) {
+                            address.push_back(
+                                 mX.allocate(allocationSize[allocationIndex]));
+                        }
+
+                        bsls::Types::Int64 numBytesInUse =
+                                                     allocator.numBytesInUse();
+
+                        // Rewind.
+
+                        mX.rewind();
+
+                        ASSERT(numBytesInUse == allocator.numBytesInUse());
+
+                        // Re-allocate.
+
+                        for (bsl::size_t allocationIndex = 0;
+                             allocationIndex <= allocationMaxIndex;
+                             ++allocationIndex) {
+                            ASSERT(address[allocationIndex] ==
+                                 mX.allocate(allocationSize[allocationIndex]));
+                        }
+
+                        ASSERT(numBytesInUse == allocator.numBytesInUse());
+                    }
+
+                    ASSERT(0 == allocator.numBytesInUse());
+                }
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -532,9 +643,6 @@ int main(int argc, char *argv[])
         //   3) That 'reserveCapacity' can override the maximum buffer size
         //      parameter supplied to the pool at construction.
         //
-        //   4) QoI: Asserted precondition violations are detected when
-        //      enabled.
-        //
         // Plan:
         //   Create a 'bdlma::SequentialPool' using a test allocator and
         //   specify an initial size and maximum buffer size.
@@ -553,9 +661,6 @@ int main(int argc, char *argv[])
         //   larger than the maximum buffer size.  Repeat verification for
         //   concern 2.
         //
-        //   Finally, for concern 4, verify that in appropriate build modes,
-        //   defensive checks are triggered.
-        //
         // Testing:
         //   void reserveCapacity(int numBytes);
         // --------------------------------------------------------------------
@@ -563,33 +668,33 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "'reserveCapacity' TEST" << endl
                                   << "======================" << endl;
 
-        enum { INITIAL_SIZE = 64, MAX_BUFFER = INITIAL_SIZE * 4 };
+        enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
         if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
                              "trigger dynamic memory allocation." << endl;
 
         {
-            Obj mX(INITIAL_SIZE, MAX_BUFFER, &objectAllocator);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            Obj mX(k_INITIAL_SIZE, k_MAX_BUFFER, &objectAllocator);
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.reserveCapacity(INITIAL_SIZE / 2);
+            mX.reserveCapacity(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.allocate(INITIAL_SIZE / 2);
+            mX.allocate(k_INITIAL_SIZE / 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(INITIAL_SIZE * 2);
+            mX.reserveCapacity(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(INITIAL_SIZE * 2);
+            mX.allocate(k_INITIAL_SIZE * 2);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(MAX_BUFFER * 2);
+            mX.reserveCapacity(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(MAX_BUFFER * 2);
+            mX.allocate(k_MAX_BUFFER * 2);
             ASSERT(numBytesUsed = objectAllocator.numBytesInUse());
         }
 
@@ -599,33 +704,18 @@ int main(int argc, char *argv[])
             Obj mX(&objectAllocator);
             ASSERT(0 == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE);
-            int numBytesUsed = objectAllocator.numBytesInUse();
+            mX.reserveCapacity(k_DEFAULT_SIZE);
+            bsls::Types::Int64 numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE);
+            mX.allocate(k_DEFAULT_SIZE);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
 
-            mX.reserveCapacity(DEFAULT_SIZE * 4);
+            mX.reserveCapacity(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed < objectAllocator.numBytesInUse());
             numBytesUsed = objectAllocator.numBytesInUse();
 
-            mX.allocate(DEFAULT_SIZE * 4);
+            mX.allocate(k_DEFAULT_SIZE * 4);
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            {
-                ASSERT_SAFE_PASS(mX.reserveCapacity( 1));
-
-                ASSERT_SAFE_FAIL(mX.reserveCapacity( 0));
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
-            }
         }
       } break;
       case 8: {
@@ -698,18 +788,18 @@ int main(int argc, char *argv[])
 
             // MAXIMUM ALIGNMENT
             {  L_,      MAX,           1,           0,           0 },
-            {  L_,      MAX,           1,           1,   MAX_ALIGN },
+            {  L_,      MAX,           1,           1, k_MAX_ALIGN },
             {  L_,      MAX,           2,           0,           0 },
-            {  L_,      MAX,           2,           1,   MAX_ALIGN },
-            {  L_,      MAX,           2,           2,   MAX_ALIGN },
+            {  L_,      MAX,           2,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           2,           2, k_MAX_ALIGN },
             {  L_,      MAX,           3,           0,           0 },
-            {  L_,      MAX,           3,           1,   MAX_ALIGN },
-            {  L_,      MAX,           3,           2,   MAX_ALIGN },
-            {  L_,      MAX,           3,           3,   MAX_ALIGN },
-            {  L_,      MAX,           8,           4,   MAX_ALIGN },
+            {  L_,      MAX,           3,           1, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           2, k_MAX_ALIGN },
+            {  L_,      MAX,           3,           3, k_MAX_ALIGN },
+            {  L_,      MAX,           8,           4, k_MAX_ALIGN },
             {  L_,      MAX,         511,         511,          -1 },  // *
             {  L_,      MAX,         512,           0,           0 },
-            {  L_,      MAX,         512,           1,   MAX_ALIGN },
+            {  L_,      MAX,         512,           1, k_MAX_ALIGN },
             {  L_,      MAX,         512,         511,          -1 },  // *
             {  L_,      MAX,         512,         512,          -1 },  // *
 
@@ -750,7 +840,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P_(NEWSIZE) P(EXPOFFSET)
@@ -762,7 +852,7 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != objectAllocator.numBytesInUse());
 
-            int used = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 used = objectAllocator.numBytesInUse();
 
             mX.truncate(addr1, INITIALSIZE, NEWSIZE);
             ASSERT(used == objectAllocator.numBytesInUse());
@@ -881,41 +971,37 @@ int main(int argc, char *argv[])
             // ----     -----       -----------       -------
 
             // NATURAL ALIGNMENT
-            {  L_,      NAT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      NAT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      NAT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      NAT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      NAT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      NAT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      NAT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      NAT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      NAT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      NAT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      NAT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      NAT,           1,   k_DEFAULT_SIZE - 1           },
+            {  L_,      NAT,           2,   k_DEFAULT_SIZE - 2           },
+            {  L_,      NAT,           3,   k_DEFAULT_SIZE - 3           },
+            {  L_,      NAT,           4,   k_DEFAULT_SIZE - 4           },
+            {  L_,      NAT,           7,   k_DEFAULT_SIZE - 7           },
+            {  L_,      NAT,           8,   k_DEFAULT_SIZE - 8           },
+            {  L_,      NAT,          15,   k_DEFAULT_SIZE - 15          },
+            {  L_,      NAT,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      NAT,         100,   k_DEFAULT_SIZE - 100         },
 
             // MAXIMUM ALIGNMENT
-            {  L_,      MAX,           1,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           2,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           3,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           4,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           7,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,           8,     DEFAULT_SIZE * 2 - MAX_ALIGN   },
-            {  L_,      MAX,          15,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      MAX,         108,     DEFAULT_SIZE * 2 - 112         },
+            {  L_,      MAX,           1,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           2,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           3,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           4,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           7,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,           8,   k_DEFAULT_SIZE - k_MAX_ALIGN },
+            {  L_,      MAX,          15,   k_DEFAULT_SIZE - 16          },
+            {  L_,      MAX,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      MAX,         108,   k_DEFAULT_SIZE - 112         },
 
             // 1-BYTE ALIGNMENT
-            {  L_,      BYT,           1,     DEFAULT_SIZE * 2 - 1           },
-            {  L_,      BYT,           2,     DEFAULT_SIZE * 2 - 2           },
-            {  L_,      BYT,           3,     DEFAULT_SIZE * 2 - 3           },
-            {  L_,      BYT,           4,     DEFAULT_SIZE * 2 - 4           },
-            {  L_,      BYT,           7,     DEFAULT_SIZE * 2 - 7           },
-            {  L_,      BYT,           8,     DEFAULT_SIZE * 2 - 8           },
-            {  L_,      BYT,          15,     DEFAULT_SIZE * 2 - 15          },
-            {  L_,      BYT,          16,     DEFAULT_SIZE * 2 - 16          },
-            {  L_,      BYT,         100,     DEFAULT_SIZE * 2 - 100         },
-            {  L_,      BYT,         510,     DEFAULT_SIZE * 2 - 510         },
-            {  L_,      BYT,         511,     DEFAULT_SIZE * 2 - 511         },
+            {  L_,      BYT,           1,   k_DEFAULT_SIZE - 1           },
+            {  L_,      BYT,           2,   k_DEFAULT_SIZE - 2           },
+            {  L_,      BYT,           3,   k_DEFAULT_SIZE - 3           },
+            {  L_,      BYT,           4,   k_DEFAULT_SIZE - 4           },
+            {  L_,      BYT,           7,   k_DEFAULT_SIZE - 7           },
+            {  L_,      BYT,           8,   k_DEFAULT_SIZE - 8           },
+            {  L_,      BYT,          15,   k_DEFAULT_SIZE - 15          },
+            {  L_,      BYT,          16,   k_DEFAULT_SIZE - 16          },
+            {  L_,      BYT,         100,   k_DEFAULT_SIZE - 100         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -933,7 +1019,7 @@ int main(int argc, char *argv[])
                 else if (STRAT == MAX) {
                     cout << "STRAT = MAXIMUM ALIGNMENT, ";
                 }
-                else {  // STRAT == BYT
+                else {  // STRAT == BYTE
                     cout << "STRAT = 1-BYTE ALIGNMENT, ";
                 }
                 P_(INITIALSIZE) P(EXPUSED)
@@ -944,8 +1030,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == objectAllocator.numBlocksInUse());
 
             void *addr1 = mX.allocate(INITIALSIZE);
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             bsls::Types::size_type size = 1;
@@ -958,7 +1043,7 @@ int main(int argc, char *argv[])
             else {
                 int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                    (char *)addr1 + INITIALSIZE,
-                                                   MAX_ALIGN);
+                                                   k_MAX_ALIGN);
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
@@ -966,8 +1051,7 @@ int main(int argc, char *argv[])
             ASSERT(EXPUSED == (int)size);
 
             // Check for no new allocations.
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             // Check that new allocations causes dynamic memory allocations.
@@ -984,8 +1068,7 @@ int main(int argc, char *argv[])
 
             bsls::Types::size_type size = 1;
             mX.allocateAndExpand(&size);
-            ASSERT(blockSize(DEFAULT_SIZE * 2) ==
-                                              objectAllocator.numBytesInUse());
+            ASSERT(k_DEFAULT_SIZE == objectAllocator.numBytesInUse());
             ASSERT(1 == objectAllocator.numBlocksInUse());
 
             mX.allocate(1);
@@ -1006,18 +1089,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.allocateAndExpand(&size));
 
                 ASSERT_SAFE_FAIL(mX.allocateAndExpand(    0));
-            }
-
-            if (veryVerbose) cout << "\t'0 < *size'" << endl;
-            {
-                Obj mX;
-                bsls::Types::size_type size = 1;
-
-                ASSERT_SAFE_PASS(mX.allocateAndExpand(&size));
-
-                size = 0;
-
-                ASSERT_SAFE_FAIL(mX.allocateAndExpand(&size));
             }
         }
 
@@ -1114,8 +1185,8 @@ int main(int argc, char *argv[])
             int d_requestSize;  // request size
             int d_numRequests;  // number of requests
         } DATA[] = {
-            // LINE     BUFSIZE     REQSIZE         NUMREQ
-            // ----     -------     -------         ------
+            //LINE      BUFSIZE     REQUEST SIZE    # REQUESTS
+            //----      -------     ------------    ----------
 
             {  L_,      1,          1,              2                 },
             {  L_,      1,          5,              2                 },
@@ -1183,58 +1254,6 @@ int main(int argc, char *argv[])
                 mX.release();
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(0 == ta.numBytesInUse());
-
-                // Again, make 'NUMREQ' requests for memory, recording how the
-                // allocator was used after each request.
-
-                for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
-                    LOOP2_ASSERT(LINE, reqNum, returnAddr);
-                    LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
-
-                    if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
-                    }
-                }
-
-                void* addrPre =  mX.allocate(BUFSIZE);
-
-                // Now release all the allocations, but keep the last buffer
-                // to use again.
-
-                mX.rewind();
-                void* addrPost = mX.allocate(1);
-                ASSERT(addrPre == addrPost);
-                ASSERT(1 == ta.numBlocksInUse());
-
-                mX.release();
-                ASSERT(0 == ta.numBlocksInUse());
-                ASSERT(0 == ta.numBytesInUse());
-
-                if (1 == BUFSIZE) continue;
-
-                if (verbose) cout << "\nTesting alignment and growth"
-                                     " strategies." << endl;
-
-                // Testing alignment.
-                void *addr1 = mX.allocate(1);
-                void *addr2 = mX.allocate(2);
-
-                if (bsls::Alignment::BSLS_NATURAL == strategy) {
-                    ASSERT((char *)addr1 +         2 == (char *)addr2);
-                }
-                else if (bsls::Alignment::BSLS_MAXIMUM == strategy) {
-                    ASSERT((char *)addr1 + MAX_ALIGN == (char *)addr2);
-                }
-                else {  // bsls::Alignment::BSLS_BYTEALIGNED == strategy
-                    ASSERT((char *)addr1 +         1 == (char *)addr2);
-                }
-
-                ASSERT(                     1 == ta.numBlocksInUse());
-                ASSERT(    blockSize(BUFSIZE) == ta.numBytesInUse());
-                mX.allocate(BUFSIZE);
-                ASSERT(                     2 == ta.numBlocksInUse());
-                ASSERT(2 * blockSize(BUFSIZE) == ta.numBytesInUse());
             }
         }
 
@@ -1260,8 +1279,8 @@ int main(int argc, char *argv[])
         //      from the internal block list if the they cannot be satisfied by
         //      the pool's internal buffer.
         //
-        //   3) QoI: Asserted precondition violations are detected when
-        //      enabled.
+        //   3) Large allocations (e.g., INT_MAX) work as expected (DRQS
+        //      78107275).
         //
         // Plan:
         //   For concerns 1 and 2, construct objects 'mV', 'mW', 'mX', and 'mY'
@@ -1272,8 +1291,7 @@ int main(int argc, char *argv[])
         //   allocations by the pool.  Confirm the bytes allocated by the
         //   objects are as expected.
         //
-        //   For concern 3, verify that, in appropriate build modes, defensive
-        //   checks are triggered.
+        //   For concern 3, direct testing of large allocations is performed.
         //
         // Testing:
         //   void *allocate(size_type size);
@@ -1284,7 +1302,7 @@ int main(int argc, char *argv[])
 
         const int DATA[]   = { 2, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
                                63, 64, 65, 66, 127, 128, 129, 255, 256,
-                               511, 512, 1023, 1024, 1025 };
+                               257, 511, 512, 513, 1023, 1024, 1025 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         Strat MAX = bsls::Alignment::BSLS_MAXIMUM;
@@ -1315,27 +1333,38 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                if (SIZE <= DEFAULT_SIZE * 2) {
-                    LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == ta.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == tb.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == tc.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                            blockSize(DEFAULT_SIZE * 2) == td.numBytesInUse());
+                if (SIZE <= k_DEFAULT_SIZE) {
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == ta.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == tb.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == tc.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 k_DEFAULT_SIZE == td.numBytesInUse());
                 }
                 else {
-                    int nextSize = calculateNextSize(DEFAULT_SIZE, SIZE);
-                    LOOP4_ASSERT(i, SIZE, blockSize(nextSize),
+                    int size = static_cast<int>(
+                              bdlb::BitUtil::roundUpToBinaryPower(
+                                                 static_cast<uint64_t>(SIZE)));
+                    LOOP4_ASSERT(i,
+                                 SIZE,
+                                 size,
                                  ta.numBytesInUse(),
-                                 blockSize(nextSize) == ta.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == tb.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == tc.numBytesInUse());
-                    LOOP2_ASSERT(i, SIZE,
-                                 blockSize(nextSize) == td.numBytesInUse());
+                                 size == ta.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == tb.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == tc.numBytesInUse());
+                    LOOP2_ASSERT(i,
+                                 SIZE,
+                                 size == td.numBytesInUse());
                 }
             }
         }
@@ -1372,7 +1401,8 @@ int main(int argc, char *argv[])
                                          td(veryVeryVerbose);
 
                     if (veryVerbose) {
-                        P(INITIAL_SIZE) P(SIZE)
+                        P_(bsls::BlockGrowth::toAscii(STRATEGY))
+                                                      P_(INITIAL_SIZE) P(SIZE);
                     }
 
                     Obj mV(INITIAL_SIZE, STRATEGY,      &ta);
@@ -1380,56 +1410,45 @@ int main(int argc, char *argv[])
                     Obj mX(INITIAL_SIZE, STRATEGY, NAT, &tc);
                     Obj mY(INITIAL_SIZE, STRATEGY, BYT, &td);
 
-                    const int NA = ta.numBytesInUse();
-                    const int NB = tb.numBytesInUse();
-                    const int NC = tc.numBytesInUse();
-                    const int ND = td.numBytesInUse();
+                    const bsls::Types::Int64 NA = ta.numBytesInUse();
+                    const bsls::Types::Int64 NB = tb.numBytesInUse();
+                    const bsls::Types::Int64 NC = tc.numBytesInUse();
+                    const bsls::Types::Int64 ND = td.numBytesInUse();
 
                     mV.allocate(SIZE);
                     mW.allocate(SIZE);
                     mX.allocate(SIZE);
                     mY.allocate(SIZE);
 
-                    if (SIZE <= bsl::abs(INITIAL_SIZE)) {
+                    int actualInitialSize = INITIAL_SIZE;
+                    if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRATEGY) {
+                        actualInitialSize = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
+                    }
+
+                    if (SIZE <= actualInitialSize) {
                         LOOP_ASSERT(i, NA == ta.numBytesInUse());
                         LOOP_ASSERT(i, NB == tb.numBytesInUse());
                         LOOP_ASSERT(i, NC == tc.numBytesInUse());
                         LOOP_ASSERT(i, ND == td.numBytesInUse());
                     }
-                    else if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT[j]) {
-                        int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
-                        LOOP3_ASSERT(i, NA + blockSize(nextSize),
-                                     ta.numBytesInUse(),
-                                     NA + blockSize(nextSize)
-                                                        == ta.numBytesInUse());
-                        LOOP_ASSERT(i, NB + blockSize(nextSize)
-                                                        == tb.numBytesInUse());
-                        LOOP_ASSERT(i, NC + blockSize(nextSize)
-                                                        == tc.numBytesInUse());
-                        LOOP_ASSERT(i, ND + blockSize(nextSize)
-                                                        == td.numBytesInUse());
-                    }
                     else {
-                        if (0 == INITIAL_SIZE && SIZE < DEFAULT_SIZE) {
-                            LOOP_ASSERT(i, NA + blockSize(DEFAULT_SIZE)
-                                                        == ta.numBytesInUse());
-                            LOOP_ASSERT(i, NB + blockSize(DEFAULT_SIZE)
-                                                        == tb.numBytesInUse());
-                            LOOP_ASSERT(i, NC + blockSize(DEFAULT_SIZE)
-                                                        == tc.numBytesInUse());
-                            LOOP_ASSERT(i, ND + blockSize(DEFAULT_SIZE)
-                                                        == td.numBytesInUse());
+                        int size = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
+                        while (size < SIZE) {
+                            size *= 2;
                         }
-                        else {
-                            LOOP_ASSERT(i, NA + blockSize(SIZE)
-                                                        == ta.numBytesInUse());
-                            LOOP_ASSERT(i, NB + blockSize(SIZE)
-                                                        == tb.numBytesInUse());
-                            LOOP_ASSERT(i, NC + blockSize(SIZE)
-                                                        == tc.numBytesInUse());
-                            LOOP_ASSERT(i, ND + blockSize(SIZE)
-                                                        == td.numBytesInUse());
+
+                        if (veryVerbose) {
+                            T_ P(size);
                         }
+
+                        LOOP_ASSERT(i, NA + size == ta.numBytesInUse());
+                        LOOP_ASSERT(i, NB + size == tb.numBytesInUse());
+                        LOOP_ASSERT(i, NC + size == tc.numBytesInUse());
+                        LOOP_ASSERT(i, ND + size == td.numBytesInUse());
                     }
                 }
             }
@@ -1500,34 +1519,46 @@ int main(int argc, char *argv[])
                             Obj mX(INITIAL_SIZE, MAX_SIZE, STRATEGY, NAT, &tc);
                             Obj mY(INITIAL_SIZE, MAX_SIZE, STRATEGY, BYT, &td);
 
-                            const int NA = ta.numBytesInUse();
-                            const int NB = tb.numBytesInUse();
-                            const int NC = tc.numBytesInUse();
-                            const int ND = td.numBytesInUse();
+                            const bsls::Types::Int64 NA = ta.numBytesInUse();
+                            const bsls::Types::Int64 NB = tb.numBytesInUse();
+                            const bsls::Types::Int64 NC = tc.numBytesInUse();
+                            const bsls::Types::Int64 ND = td.numBytesInUse();
 
                             mV.allocate(ALLOC_SIZE);
                             mW.allocate(ALLOC_SIZE);
                             mX.allocate(ALLOC_SIZE);
                             mY.allocate(ALLOC_SIZE);
 
-                            if (ALLOC_SIZE <= INITIAL_SIZE) {
+                            int actualInitialSize = INITIAL_SIZE;
+                            if (bsls::BlockGrowth::BSLS_GEOMETRIC
+                                                                 == STRATEGY) {
+                                actualInitialSize = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
+                            }
+
+                            if (ALLOC_SIZE <= actualInitialSize) {
                                 LOOP_ASSERT(i, NA == ta.numBytesInUse());
                                 LOOP_ASSERT(i, NB == tb.numBytesInUse());
                                 LOOP_ASSERT(i, NC == tc.numBytesInUse());
                                 LOOP_ASSERT(i, ND == td.numBytesInUse());
                             }
-                            else if (bsls::BlockGrowth::BSLS_GEOMETRIC ==
-                                                                    STRATEGY) {
-                                if (ALLOC_SIZE < MAX_SIZE) {
-                                    int nextSize = calculateNextSize(
-                                                     INITIAL_SIZE, ALLOC_SIZE);
-                                    LOOP_ASSERT(i, NA + blockSize(nextSize)
+                            else {
+                                int size = static_cast<int>(
+                                     bdlb::BitUtil::roundUpToBinaryPower(
+                                         static_cast<uint64_t>(INITIAL_SIZE)));
+                                while (size < ALLOC_SIZE) {
+                                    size *= 2;
+                                }
+
+                                if (size <= MAX_SIZE) {
+                                    LOOP_ASSERT(i, NA + size
                                                         == ta.numBytesInUse());
-                                    LOOP_ASSERT(i, NB + blockSize(nextSize)
+                                    LOOP_ASSERT(i, NB + size
                                                         == tb.numBytesInUse());
-                                    LOOP_ASSERT(i, NC + blockSize(nextSize)
+                                    LOOP_ASSERT(i, NC + size
                                                         == tc.numBytesInUse());
-                                    LOOP_ASSERT(i, ND + blockSize(nextSize)
+                                    LOOP_ASSERT(i, ND + size
                                                         == td.numBytesInUse());
                                 }
                                 else {
@@ -1541,35 +1572,31 @@ int main(int argc, char *argv[])
                                                         == td.numBytesInUse());
                                 }
                             }
-                            else {
-                                LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
-                                                        == ta.numBytesInUse());
-                                LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
-                                                        == tb.numBytesInUse());
-                                LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
-                                                        == tc.numBytesInUse());
-                                LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
-                                                        == td.numBytesInUse());
-                            }
                         }
                     }
                 }
             }
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
+        if (verbose) cout << "\nTesting large allocations." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(0 < size)'" << endl;
             {
-                ASSERT_SAFE_PASS(mX.allocate(1));
+                Obj mX;
 
-                ASSERT_SAFE_FAIL(mX.allocate(0));
+                mX.allocate(INT_MAX / 4);
             }
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+            {
+                Obj mX;
+
+                mX.allocate(INT_MAX / 2 + 2);  // DRQS 78107275
+            }
+            {
+                Obj mX;
+
+                mX.allocate(INT_MAX);
+            }
+#endif
         }
       } break;
       case 3: {
@@ -1619,15 +1646,18 @@ int main(int argc, char *argv[])
         //   bdlma::SequentialPool(AS a, bslma::Allocator *a = 0);
         //   bdlma::SequentialPool(GS g, AS a, bslma::Allocator *a = 0);
         //
-        //   bdlma::SequentialPool(int i, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, GS g, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, AS a, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, GS g, AS a, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(int initSize);
+        //   bdlma::SequentialPool(initSize, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, GS g, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, AS a, bslma::Allocator *a = 0);
+        //   bdlma::SequentialPool(initSize, GS g, AS a, *a = 0);
         //
-        //   bdlma::SequentialPool(int i, int m, bslma::Allocator *a = 0);
-        //   bdlma::SequentialPool(int i, int m, GS g, bslma::Allocator *a= 0);
-        //   bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a= 0);
-        //   bdlma::SequentialPool(int, int, GS g, AS a, *a= 0);
+        //   bdlma::SequentialPool(initSize, int m, *a = 0);
+        //   bdlma::SequentialPool(initSize, int m, GS g, *a = 0);
+        //   bdlma::SequentialPool(initSize, int m, AS a, *a = 0);
+        //   bdlma::SequentialPool(initSize, int, GS g, AS a, *a = 0);
+        //
+        //   bdlma::SequentialPool(initSize, int, GS g, AS a, bool aIB, *a= 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR TEST" << endl
@@ -1670,7 +1700,13 @@ int main(int argc, char *argv[])
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
 
-            Obj mE(INITIAL_SIZE);                           mE.allocate(1);
+            Obj mEI(INITIAL_SIZE);                          mEI.allocate(1);
+            ASSERT(0   == objectAllocator.numBlocksTotal());
+            ASSERT(++x == defaultAllocator.numBlocksTotal());
+            ASSERT(0   == globalAllocator.numBlocksTotal());
+
+            Obj mE(INITIAL_SIZE, static_cast<bslma::Allocator *>(0));
+                                                            mE.allocate(1);
             ASSERT(0   == objectAllocator.numBlocksTotal());
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
@@ -1710,7 +1746,7 @@ int main(int argc, char *argv[])
             ASSERT(++x == defaultAllocator.numBlocksTotal());
             ASSERT(0   == globalAllocator.numBlocksTotal());
 
-            ASSERT(12 == x);  // 12 variations
+            ASSERT(13 == x);  // 13 variations
         }
         ASSERT(0 == objectAllocator.numBlocksTotal());
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1745,13 +1781,11 @@ int main(int argc, char *argv[])
                 Obj mA;
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mA.allocate(DEFAULT_SIZE + 1);
-                addr1 = mA.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+                void *addr1 = mA.allocate(k_DEFAULT_SIZE);
+                addr1 = mA.allocate(k_DEFAULT_SIZE);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                   DEFAULT_SIZE + 1))
+                ASSERT(3 * k_DEFAULT_SIZE
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1760,13 +1794,11 @@ int main(int argc, char *argv[])
                 Obj mB(NAT);
 
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-                void *addr1 = mB.allocate(DEFAULT_SIZE + 1);
-                addr1 = mB.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+                void *addr1 = mB.allocate(k_DEFAULT_SIZE);
+                addr1 = mB.allocate(k_DEFAULT_SIZE);  // triggers alloc.
                 (void)addr1;
 
-                ASSERT(blockSize(DEFAULT_SIZE * 2) +
-                       blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                   DEFAULT_SIZE + 1))
+                ASSERT(3 * k_DEFAULT_SIZE
                                         == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1775,16 +1807,12 @@ int main(int argc, char *argv[])
                 Obj mC(INITIAL_SIZE);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mC.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1792,16 +1820,12 @@ int main(int argc, char *argv[])
                 Obj mD(INITIAL_SIZE, NAT);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mD.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1809,16 +1833,12 @@ int main(int argc, char *argv[])
                 Obj mE(INITIAL_SIZE, MAX_BUFFER);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mE.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
@@ -1826,16 +1846,12 @@ int main(int argc, char *argv[])
                 Obj mF(INITIAL_SIZE, MAX_BUFFER, MAX);
 
                 // Check initial memory allocation.
-                ASSERT(blockSize(INITIAL_SIZE) ==
-                                             defaultAllocator.numBytesInUse());
+                ASSERT(INITIAL_SIZE == defaultAllocator.numBytesInUse());
 
                 void *addr1 = mF.allocate(INITIAL_SIZE + 1);  // trigger
                 (void)addr1;
 
-                ASSERT(blockSize(INITIAL_SIZE) +
-                       blockSize(calculateNextSize(INITIAL_SIZE,
-                                                   INITIAL_SIZE + 1))
-                                        == defaultAllocator.numBytesInUse());
+                ASSERT(3 * INITIAL_SIZE == defaultAllocator.numBytesInUse());
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
@@ -1871,34 +1887,34 @@ int main(int argc, char *argv[])
                 // ----     -----       ---------       ---------
 
                 // NATURAL ALIGNMENT
-                {  L_,      NAT,         1,             1         },
-                {  L_,      NAT,         2,             2         },
-                {  L_,      NAT,         3,             1         },
-                {  L_,      NAT,         4,             4         },
-                {  L_,      NAT,         7,             1         },
-                {  L_,      NAT,         8,             8         },
-                {  L_,      NAT,        15,             1         },
-                {  L_,      NAT,        16,             MAX_ALIGN },
+                {  L_,      NAT,         1,             1           },
+                {  L_,      NAT,         2,             2           },
+                {  L_,      NAT,         3,             1           },
+                {  L_,      NAT,         4,             4           },
+                {  L_,      NAT,         7,             1           },
+                {  L_,      NAT,         8,             8           },
+                {  L_,      NAT,        15,             1           },
+                {  L_,      NAT,        16,             k_MAX_ALIGN },
 
                 // MAXIMUM ALIGNMENT
-                {  L_,      MAX,         1,             MAX_ALIGN },
-                {  L_,      MAX,         2,             MAX_ALIGN },
-                {  L_,      MAX,         3,             MAX_ALIGN },
-                {  L_,      MAX,         4,             MAX_ALIGN },
-                {  L_,      MAX,         7,             MAX_ALIGN },
-                {  L_,      MAX,         8,             MAX_ALIGN },
-                {  L_,      MAX,        15,             MAX_ALIGN },
-                {  L_,      MAX,        16,             MAX_ALIGN },
+                {  L_,      MAX,         1,             k_MAX_ALIGN },
+                {  L_,      MAX,         2,             k_MAX_ALIGN },
+                {  L_,      MAX,         3,             k_MAX_ALIGN },
+                {  L_,      MAX,         4,             k_MAX_ALIGN },
+                {  L_,      MAX,         7,             k_MAX_ALIGN },
+                {  L_,      MAX,         8,             k_MAX_ALIGN },
+                {  L_,      MAX,        15,             k_MAX_ALIGN },
+                {  L_,      MAX,        16,             k_MAX_ALIGN },
 
                 // 1-BYTE ALIGNMENT
-                {  L_,      BYT,         1,             1         },
-                {  L_,      BYT,         2,             1         },
-                {  L_,      BYT,         3,             1         },
-                {  L_,      BYT,         4,             1         },
-                {  L_,      BYT,         7,             1         },
-                {  L_,      BYT,         8,             1         },
-                {  L_,      BYT,        15,             1         },
-                {  L_,      BYT,        16,             1         },
+                {  L_,      BYT,         1,             1           },
+                {  L_,      BYT,         2,             1           },
+                {  L_,      BYT,         3,             1           },
+                {  L_,      BYT,         4,             1           },
+                {  L_,      BYT,         7,             1           },
+                {  L_,      BYT,         8,             1           },
+                {  L_,      BYT,        15,             1           },
+                {  L_,      BYT,        16,             1           },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1947,16 +1963,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            mX.allocate(DEFAULT_SIZE + 1);
-            mX.allocate(DEFAULT_SIZE + 1);  // triggers allocation
+            mX.allocate(k_DEFAULT_SIZE);
+            mX.allocate(k_DEFAULT_SIZE);  // triggers allocation
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            int totalSize = blockSize(DEFAULT_SIZE * 2) +
-                            blockSize(calculateNextSize(DEFAULT_SIZE * 2,
-                                                        DEFAULT_SIZE + 1));
+            int totalSize = k_DEFAULT_SIZE * 3;
 
             LOOP2_ASSERT(totalSize, objectAllocator.numBytesInUse(),
                                  totalSize == objectAllocator.numBytesInUse());
@@ -1976,15 +1990,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            mX.allocate(DEFAULT_SIZE / 2 + 1);
-            mX.allocate(DEFAULT_SIZE / 2 + 1);  // triggers allocation
+            mX.allocate(k_DEFAULT_SIZE / 2 + 1);
+            mX.allocate(k_DEFAULT_SIZE / 2 + 1);  // triggers allocation
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 == globalAllocator.numBytesInUse());
 
-            int totalSize = blockSize(DEFAULT_SIZE) +
-                            blockSize(DEFAULT_SIZE);
+            int totalSize = blockSize(k_DEFAULT_SIZE) +
+                            blockSize(k_DEFAULT_SIZE);
 
             LOOP2_ASSERT(totalSize, objectAllocator.numBytesInUse(),
                                  totalSize == objectAllocator.numBytesInUse());
@@ -1993,6 +2007,44 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numBytesInUse());
         ASSERT(0 == globalAllocator.numBytesInUse());
 
+        if (verbose) {
+            cout << "\nTesting specification of 'allocateInitialBuffer'."
+                 << endl;
+        }
+        {
+            ASSERT(0 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == defaultAllocator.numBlocksInUse());
+            ASSERT(0 == globalAllocator.numBlocksInUse());
+
+            {
+                Obj mX(128, 128, CON, NAT, false);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(0 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, CON, NAT, true);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(1 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, GEO, NAT, false);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(0 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, GEO, NAT, true);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(1 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
@@ -2000,86 +2052,75 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'Obj(i, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1));
+                ASSERT_PASS(Obj( 1));
 
-                ASSERT_SAFE_FAIL(Obj( 0));
-                ASSERT_SAFE_FAIL(Obj(-1));
+                ASSERT_FAIL_RAW(Obj( 0));
+                ASSERT_FAIL_RAW(Obj(-1));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON));
+                ASSERT_PASS(Obj( 1, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON));
-                ASSERT_SAFE_FAIL(Obj(-1, CON));
+                ASSERT_FAIL_RAW(Obj( 0, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, MAX));
+                ASSERT_PASS(Obj( 1, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON, MAX));
+                ASSERT_PASS(Obj( 1, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8));
+                ASSERT_PASS(Obj( 1,  8));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8));
-                ASSERT_SAFE_FAIL(Obj(-1,  8));
+                ASSERT_FAIL_RAW(Obj( 0,  8));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2));
+                ASSERT_PASS(Obj( 2,  2));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1));
-                ASSERT_SAFE_FAIL(Obj( 2, -2));
+                ASSERT_FAIL_RAW(Obj( 2,  1));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, CON));
+                ASSERT_PASS(Obj( 1,  8, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, CON));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, CON));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, CON));
+                ASSERT_PASS(Obj( 2,  2, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, CON));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, CON));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, MAX));
+                ASSERT_PASS(Obj( 1,  8, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, MAX));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, MAX));
+                ASSERT_PASS(Obj( 2,  2, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, MAX));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, CON, MAX));
+                ASSERT_PASS(Obj( 1,  8, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON, MAX));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, CON, MAX));
+                ASSERT_PASS(Obj( 2,  2, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON, MAX));
             }
         }
 
@@ -2130,7 +2171,9 @@ int main(int argc, char *argv[])
             // If the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called; thus, 'lastAllocateddSize' will return -1 instead of 0.
 
-            const int EXP = i || SIZE ? a.lastAllocatedNumBytes() : 0;
+            const int EXP = i || SIZE
+                          ? static_cast<int>(a.lastAllocatedNumBytes())
+                          : 0;
 
             if (veryVerbose) { T_ P_(SIZE); T_ P_(blkSize); T_ P(EXP); }
             LOOP_ASSERT(i, EXP == blkSize);
@@ -2175,7 +2218,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8, ALLOC_SIZE3 = 1024 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8, k_ALLOC_SIZE3 = 1024 };
 
         {
             if (verbose) cout << "\nTesting construction of pool." << endl;
@@ -2188,16 +2231,17 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
             if (verbose) cout << "\nTesting allocation." << endl;
-            void *addr1 = mX.allocate(ALLOC_SIZE1);
+            void *addr1 = mX.allocate(k_ALLOC_SIZE1);
 
             ASSERT(0 != objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
-            int oldNumBytesInUse = objectAllocator.numBytesInUse();
+            bsls::Types::Int64 oldNumBytesInUse =
+                                               objectAllocator.numBytesInUse();
 
             if (verbose) cout << "\nTesting internal buffering." << endl;
-            void *addr2 = mX.allocate(ALLOC_SIZE2);
+            void *addr2 = mX.allocate(k_ALLOC_SIZE2);
 
             ASSERT(oldNumBytesInUse == objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
@@ -2209,15 +2253,21 @@ int main(int argc, char *argv[])
             ASSERT((char *)addr1 + 8 == (char *)addr2);
 
             if (verbose) cout << "\nTesting large allocation." << endl;
-            void *addr3 = mX.allocate(ALLOC_SIZE3);
+            void *addr3 = mX.allocate(k_ALLOC_SIZE3);
             (void)addr3;
 
             ASSERT(oldNumBytesInUse < objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
+            if (verbose) cout << "\nTesting rewind." << endl;
             mX.rewind();
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+
+            addr1 = mX.allocate(k_ALLOC_SIZE1);
+
+            ASSERT(0 != objectAllocator.numBytesInUse());
+            ASSERT(0 == defaultAllocator.numBlocksTotal());
+            ASSERT(0 == globalAllocator.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting destruction." << endl;
@@ -2240,7 +2290,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

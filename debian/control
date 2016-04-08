@@ -27,6 +27,12 @@ Architecture: any
 Description: BDL
  groups/bdl development files
 
+Package: libbbl-dev
+Depends: libbsl-dev, libbdl-dev
+Architecture: any
+Description: BBL
+ groups/bbl development files
+
 Package: libdecnumber-dev
 Architecture: any
 Description: DecNumber Library

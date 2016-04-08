@@ -1,7 +1,7 @@
 // bdlma_blocklist.t.cpp                                              -*-C++-*-
 #include <bdlma_blocklist.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -9,6 +9,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -28,12 +29,12 @@ using namespace bsl;
 // that 'bdlma::BlockList' (1) returns maximally-aligned memory blocks of the
 // expected size from the object allocator, and (2) returns memory blocks back
 // to the object allocator via the 'deallocate' and 'release' methods, and upon
-// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure
-// that these concerns are satisfied.
+// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure that
+// these concerns are satisfied.
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::BlockList(bslma::Allocator *ba = 0);
 // [ 3] ~bdlma::BlockList();
-// [ 2] void *allocate(int size);
+// [ 2] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
 //-----------------------------------------------------------------------------
@@ -66,22 +67,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -129,7 +130,7 @@ int roundUp(int x, int y)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::BlockList' in a Memory Pool
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::BlockList' object is commonly used to supply memory to more
 // elaborate memory managers that distribute parts of each (larger) allocated
 // memory block supplied by the 'bdlma::BlockList' object.  The 'my_StrPool'
@@ -139,26 +140,27 @@ int roundUp(int x, int y)
 //
 // First, we define the interface of our 'my_StrPool' class:
 //..
-//  // my_strpool.h
-//
+    // my_strpool.h
+
     class my_StrPool {
 
         // DATA
-        int               d_blockSize;  // size of current memory block
+        bsls::Types::size_type  d_blockSize;  // size of current memory block
 
-        char             *d_block_p;    // current free memory block
+        char                   *d_block_p;    // current free memory block
 
-        int               d_cursor;     // offset to next available byte in
-                                        // block
+        bsls::Types::IntPtr     d_cursor;     // offset to next available byte
+                                              // in block
 
-        bdlma::BlockList  d_blockList;  // supplies managed memory blocks
+        bdlma::BlockList        d_blockList;  // supplies managed memory blocks
 
       private:
         // PRIVATE MANIPULATORS
-        void *allocateBlock(int numBytes);
+        void *allocateBlock(bsls::Types::size_type numBytes);
             // Request a new memory block of at least the specified 'numBytes'
             // size and allocate the initial 'numBytes' from this block.
-            // Return the address of the allocated memory.
+            // Return the address of the allocated memory.  The behavior is
+            // undefined unless '0 < numBytes'.
 
       private:
         // NOT IMPLEMENTED
@@ -168,18 +170,17 @@ int roundUp(int x, int y)
       public:
         // CREATORS
         my_StrPool(bslma::Allocator *basicAllocator = 0);
-            // Create a memory manager using the specified 'basicAllocator' to
-            // supply memory.  If 'basicAllocator' is 0, the currently
+            // Create a memory manager.  Optionally specify a 'basicAllocator'
+            // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
 
         ~my_StrPool();
             // Destroy this object and release all associated memory.
 
         // MANIPULATORS
-        void *allocate(int numBytes);
+        void *allocate(bsls::Types::size_type numBytes);
             // Allocate the specified 'numBytes' of memory and return its
             // address.  If 'numBytes' is 0, return 0 with no other effect.
-            // The behavior is undefined unless '0 <= numBytes'.
 
         void release();
             // Release all memory currently allocated through this object.
@@ -195,39 +196,42 @@ int roundUp(int x, int y)
 //..
 // Finally, we provide the implementation of our 'my_StrPool' class:
 //..
-//  // my_strpool.cpp
-//  #include <my_strpool.h>
-//
+    // my_strpool.cpp
+
     enum {
-        INITIAL_SIZE  = 128,  // initial block size
+        k_INITIAL_SIZE  = 128,  // initial block size
 
-        GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
+        k_GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
 
-        THRESHOLD     = 128   // size beyond which an individual block may be
-                              // allocated if it doesn't fit in current block
+        k_THRESHOLD     = 128   // size beyond which an individual block may be
+                                // allocated if it doesn't fit in current block
     };
 
     // PRIVATE MANIPULATORS
-    void *my_StrPool::allocateBlock(int numBytes)
+    void *my_StrPool::allocateBlock(bsls::Types::size_type numBytes)
     {
         ASSERT(0 < numBytes);
 
-        if (THRESHOLD < numBytes) { // Alloc separate block if above threshold.
-            return (char *)d_blockList.allocate(numBytes);
+        if (k_THRESHOLD < numBytes) {
+            // Alloc separate block if above threshold.
+
+            return (char *)d_blockList.allocate(numBytes);            // RETURN
         }
         else {
-            if (d_block_p) { // Don't increase block size if no current block.
-                d_blockSize *= GROWTH_FACTOR;
+            if (d_block_p) {
+                // Do not increase block size if no current block.
+
+                d_blockSize *= k_GROWTH_FACTOR;
             }
             d_block_p = (char *)d_blockList.allocate(d_blockSize);
             d_cursor = numBytes;
-            return d_block_p;
+            return d_block_p;                                         // RETURN
         }
     }
 
     // CREATORS
     my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
-    : d_blockSize(INITIAL_SIZE)
+    : d_blockSize(k_INITIAL_SIZE)
     , d_block_p(0)
     , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
     {
@@ -235,38 +239,36 @@ int roundUp(int x, int y)
 
     my_StrPool::~my_StrPool()
     {
-        ASSERT(INITIAL_SIZE <= d_blockSize);
+        ASSERT(k_INITIAL_SIZE <= d_blockSize);
         ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
     }
 
     // MANIPULATORS
-    void *my_StrPool::allocate(int numBytes)
+    void *my_StrPool::allocate(bsls::Types::size_type numBytes)
     {
-        ASSERT(0 <= numBytes);
-
         if (0 == numBytes) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (d_block_p && numBytes + d_cursor <= d_blockSize) {
             char *p = d_block_p + d_cursor;
             d_cursor += numBytes;
-            return p;
+            return p;                                                 // RETURN
         }
         else {
-            return allocateBlock(numBytes);
+            return allocateBlock(numBytes);                           // RETURN
         }
     }
 //..
 // In the code shown above, the 'my_StrPool' memory manager allocates from its
 // 'bdlma::BlockList' member object an initial memory block of size
-// 'INITIAL_SIZE'.  This size is multiplied by 'GROWTH_FACTOR' each time a
+// 'k_INITIAL_SIZE'.  This size is multiplied by 'k_GROWTH_FACTOR' each time a
 // depleted memory block is replaced by a newly-allocated block.  The
 // 'allocate' method distributes memory from the current memory block
 // piecemeal, except when the requested size either (1) is not available in the
-// current block, or (2) exceeds the 'THRESHOLD_SIZE', in which case a separate
-// memory block is allocated and returned.  When the 'my_StrPool' memory
-// manager is destroyed, its 'bdlma::BlockList' member object is also
+// current block, or (2) exceeds the 'k_THRESHOLD_SIZE', in which case a
+// separate memory block is allocated and returned.  When the 'my_StrPool'
+// memory manager is destroyed, its 'bdlma::BlockList' member object is also
 // destroyed, which, in turn, automatically deallocates all of its managed
 // memory blocks.
 
@@ -394,7 +396,7 @@ int main(int argc, char *argv[])
             int d_numAlloc;       // number of allocations
             int d_deallocSeq[5];  // deallocation sequence
         } DATA[] = {
-            //LINE   NUM. ALLOC  DEALLOC. SEQUENCE
+            //LINE   # ALLOC     DEALLOC SEQUENCE
             //----   ----------  -----------------
             { L_,    1,          { 0 }             },
 
@@ -442,7 +444,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, NUM_ALLOC == oa.numBlocksInUse());
 
             for (int i = 0; i < NUM_ALLOC; ++i) {
-                const int numBlocksInUse = oa.numBlocksInUse();
+                const bsls::Types::Int64 numBlocksInUse = oa.numBlocksInUse();
 
                 mX.deallocate(p[DEALLOC_SEQ[i]]);
                 LOOP_ASSERT(LINE, numBlocksInUse - 1 == oa.numBlocksInUse());
@@ -673,7 +675,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bdlma::BlockList(bslma::Allocator *ba = 0);
-        //   void *allocate(int size);
+        //   void *allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "DEFAULT CTOR & ALLOCATE" << endl
@@ -813,7 +815,7 @@ int main(int argc, char *argv[])
 
             const void *EXP_P = (char *)oa.lastAllocatedAddress() + HDRSZ;
 
-            int numBytes = oa.lastAllocatedNumBytes();
+            bsls::Types::Int64 numBytes = oa.lastAllocatedNumBytes();
 
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
 
@@ -839,21 +841,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == p);
             ASSERT(0 == oa.numBlocksTotal());
             ASSERT(0 == da.numBlocksTotal());
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;
-
-            if (veryVerbose) cout << "\t'allocate(size < 0)'" << endl;
-            {
-                ASSERT_SAFE_PASS(mX.allocate( 1));
-                ASSERT_SAFE_PASS(mX.allocate( 0));
-                ASSERT_SAFE_FAIL(mX.allocate(-1));
-            }
         }
 
       } break;
@@ -926,7 +913,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

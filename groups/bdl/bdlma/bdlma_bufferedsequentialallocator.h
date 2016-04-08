@@ -24,6 +24,7 @@ BSLS_IDENT("$Id: $")
 //  ( bdlma::BufferedSequentialAllocator )
 //   `----------------------------------'
 //                   |        ctor/dtor
+//                   |        rewind
 //                   |
 //                   V
 //       ,-----------------------.
@@ -37,8 +38,8 @@ BSLS_IDENT("$Id: $")
 //                            allocate
 //                            deallocate
 //..
-// If an allocation request exceeds the remaining free memory space in
-// the external buffer, the allocator will fall back to a sequence of
+// If an allocation request exceeds the remaining free memory space in the
+// external buffer, the allocator will fall back to a sequence of
 // dynamically-allocated buffers.  Users can optionally specify a growth
 // strategy at construction that governs the growth rate of the
 // dynamically-allocated buffers.  If no growth strategy is specified at
@@ -46,9 +47,12 @@ BSLS_IDENT("$Id: $")
 // an alignment strategy at construction that governs the alignment of
 // allocated memory blocks.  If no alignment strategy is specified at
 // construction, natural alignment is used.  The 'release' method releases all
-// memory allocated through the allocator, as does the destructor.  Note that,
-// even though a 'deallocate' method is available, it has no effect:
-// Individually allocated memory blocks cannot be separately deallocated.
+// memory allocated through the allocator, as does the destructor.  The
+// 'rewind' method releases all memory allocated through the allocator and
+// returns to the underlying allocator *only* memory that was allocated outside
+// of the typical internal buffer growth of the allocator (i.e., large blocks).
+// Note that individually allocated memory blocks cannot be separately
+// deallocated.
 //
 // 'bdlma::BufferedSequentialAllocator' is typically used when users have a
 // reasonable estimation of the amount of memory needed.  This amount of memory
@@ -92,8 +96,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a method, 'calculate', that performs
 // calculations (where the specifics are not important to illustrate the use of
 // this component), which require three vectors of 'double' values.
@@ -109,7 +115,7 @@ BSLS_IDENT("$Id: $")
 // (which triggers more allocations) by reserving for the specific capacity we
 // need:
 //..
-//      enum { SIZE = 3 * 100 * sizeof(double) };
+//      enum { k_SIZE = 3 * 100 * sizeof(double) };
 //..
 // In the above calculation, we assume that the only memory allocation
 // requested by the vector is the allocation for the array that stores the
@@ -121,15 +127,16 @@ BSLS_IDENT("$Id: $")
 // To avoid alignment issues described in the "Warning" section (above), we
 // create a 'bsls::AlignedBuffer':
 //..
-//      bsls::AlignedBuffer<SIZE> bufferStorage;
+//      bsls::AlignedBuffer<k_SIZE> bufferStorage;
 //
-//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
+//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(),
+//                                               k_SIZE);
 //
 //      bsl::vector<double> v1(&alloc);     v1.reserve(100);
 //      bsl::vector<double> v2(&alloc);     v2.reserve(100);
 //      bsl::vector<double> v3(&alloc);     v3.reserve(100);
 //
-//      // ...
+//      return data.empty() ? 0.0 : data.front();
 //  }
 //..
 // By making use of a 'bdlma::BufferedSequentialAllocator', *all* dynamic
@@ -150,24 +157,26 @@ BSLS_IDENT("$Id: $")
 // stack:
 //..
 //  enum {
-//      NUM_SECURITIES = 100,
+//      k_NUM_SECURITIES = 100,
 //
-//      TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
+//      k_TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
 //                       + sizeof(void *) * 4,
 //
-//      AVERAGE_SECURITY_LENGTH = 5,
+//      k_AVERAGE_SECURITY_LENGTH = 5,
 //
-//      TOTAL_SIZE = NUM_SECURITIES *
-//                   (TREE_NODE_SIZE + AVERAGE_SECURITY_LENGTH )
+//      k_TOTAL_SIZE = k_NUM_SECURITIES *
+//                               (k_TREE_NODE_SIZE + k_AVERAGE_SECURITY_LENGTH)
 //  };
 //
-//  bsls::AlignedBuffer<TOTAL_SIZE> bufferStorage;
+//  bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
 //..
 // The calculation of the amount of memory needed is just an estimate, as we
 // used the average security size instead of the maximum security size.  We
 // also assume that a 'bsl::map's node size is roughly the size of 4 pointers.
 //..
-//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(), TOTAL_SIZE);
+//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(),
+//                                         k_TOTAL_SIZE,
+//                                         &objectAllocator);
 //  bsl::map<bsl::string, double> updateMap(&bsa);
 //
 //  receivePriceQuotes(&updateMap);
@@ -200,6 +209,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -208,17 +225,17 @@ namespace bdlma {
                     // =================================
 
 class BufferedSequentialAllocator : public ManagedAllocator {
-    // This class implements the 'ManagedAllocator' protocol to provide
-    // a fast allocator that dispenses heterogeneous blocks of memory (of
-    // varying, user-specified sizes) from an external buffer whose address and
-    // size (in bytes) are supplied at construction.  If an allocation request
-    // exceeds the remaining free memory space in the external buffer, memory
-    // will be supplied by an (optional) allocator also supplied at
-    // construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  This class is *exception* *neutral*: If
-    // memory cannot be allocated, the behavior is defined by the (optional)
-    // allocator supplied at construction.  Note that in no case will the
-    // buffered sequential allocator attempt to deallocate the external buffer.
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from an external buffer whose address and size (in
+    // bytes) are supplied at construction.  If an allocation request exceeds
+    // the remaining free memory space in the external buffer, memory will be
+    // supplied by an (optional) allocator also supplied at construction; if no
+    // allocator is supplied, the currently installed default allocator is
+    // used.  This class is *exception* *neutral*: If memory cannot be
+    // allocated, the behavior is defined by the (optional) allocator supplied
+    // at construction.  Note that in no case will the buffered sequential
+    // allocator attempt to deallocate the external buffer.
 
     // DATA
     BufferedSequentialPool d_pool;  // manager for allocated memory blocks
@@ -230,23 +247,21 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 
   public:
     // CREATORS
+    BufferedSequentialAllocator(char                   *buffer,
+                                bsls::Types::size_type  size,
+                                bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
+                              bsls::Types::size_type       size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                bsls::Types::size_type     size,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
+                              bsls::Types::size_type       size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bsls::Alignment::Strategy    alignmentStrategy,
                               bslma::Allocator            *basicAllocator = 0);
@@ -268,27 +283,25 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
+    BufferedSequentialAllocator(char                   *buffer,
+                                bsls::Types::size_type  size,
+                                bsls::Types::size_type  maxBufferSize,
+                                bslma::Allocator       *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
+                              bsls::Types::size_type       size,
+                              bsls::Types::size_type       maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                bsls::Types::size_type     size,
+                                bsls::Types::size_type     maxBufferSize,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
+                              bsls::Types::size_type       size,
+                              bsls::Types::size_type       maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bsls::Alignment::Strategy    alignmentStrategy,
                               bslma::Allocator            *basicAllocator = 0);
@@ -327,30 +340,33 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // This method has no effect on the memory block at the specified
         // 'address' as all memory allocated by this allocator is managed.  The
         // behavior is undefined unless 'address' is 0, or was allocated by
-        // this allocator and has not already been deallocated. The effect of
+        // this allocator and has not already been deallocated.  The effect of
         // using 'address' after this call is undefined.
 
     virtual void release();
-        // Release all memory currently allocated through this allocator.  This
-        // method deallocates all memory (if any) allocated with the allocator
-        // provided at construction, and makes the memory from the entire
+        // Release all memory allocated through this allocator and return to
+        // the underlying allocator *all* memory except the external buffer
+        // supplied at construction.  The allocator is reset to its
+        // default-constructed state, making the memory from the entire
         // external buffer supplied at construction available for subsequent
-        // allocations, but has no effect on the contents of the buffer.  Note
-        // that this allocator is reset to its initial state by this method.
-        // The effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // allocations, retaining the alignment and growth strategies, and the
+        // initial and maximum buffer sizes in effect following construction.
+        // The effect of subsequently - to this invokation of 'release' - using
+        // a pointer obtained from this object prior to this call to 'release'
+        // is undefined.
 
     virtual void rewind();
-        // Release all memory allocated through this pool.  Return to the
-        // construction-time supplied allocator all but the last block obtained
-        // from it, if any, and satisfy subsequent allocations from that block,
-        // or from the buffer supplied upon construction, where possible. The
-        // effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // Release all memory allocated through this allocator and return to
+        // the underlying allocator *only* memory that was allocated outside of
+        // the typical internal buffer growth of this allocator (i.e., large
+        // blocks).  All retained memory will be used to satisfy subsequent
+        // allocations.  The effect of subsequently - to this invokation of
+        // 'rewind' - using a pointer obtained from this object prior to this
+        // call to 'rewind' is undefined.
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                     // ---------------------------------
@@ -360,9 +376,9 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 // CREATORS
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
-                                              char             *buffer,
-                                              int               size,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bslma::Allocator       *basicAllocator)
 : d_pool(buffer, size, basicAllocator)
 {
 }
@@ -370,7 +386,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                    char                        *buffer,
-                                   int                          size,
+                                   bsls::Types::size_type       size,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, growthStrategy, basicAllocator)
@@ -380,7 +396,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                   char                      *buffer,
-                                  int                        size,
+                                  bsls::Types::size_type     size,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, alignmentStrategy, basicAllocator)
@@ -390,7 +406,7 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                 char                        *buffer,
-                                int                          size,
+                                bsls::Types::size_type       size,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)
@@ -400,10 +416,10 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
-                                              char             *buffer,
-                                              int               size,
-                                              int               maxBufferSize,
-                                              bslma::Allocator *basicAllocator)
+                                        char                   *buffer,
+                                        bsls::Types::size_type  size,
+                                        bsls::Types::size_type  maxBufferSize,
+                                        bslma::Allocator       *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, basicAllocator)
 {
 }
@@ -411,8 +427,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                    char                        *buffer,
-                                   int                          size,
-                                   int                          maxBufferSize,
+                                   bsls::Types::size_type       size,
+                                   bsls::Types::size_type       maxBufferSize,
                                    bsls::BlockGrowth::Strategy  growthStrategy,
                                    bslma::Allocator            *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, growthStrategy, basicAllocator)
@@ -422,8 +438,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                   char                      *buffer,
-                                  int                        size,
-                                  int                        maxBufferSize,
+                                  bsls::Types::size_type     size,
+                                  bsls::Types::size_type     maxBufferSize,
                                   bsls::Alignment::Strategy  alignmentStrategy,
                                   bslma::Allocator          *basicAllocator)
 : d_pool(buffer, size, maxBufferSize, alignmentStrategy, basicAllocator)
@@ -433,8 +449,8 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 inline
 BufferedSequentialAllocator::BufferedSequentialAllocator(
                                 char                        *buffer,
-                                int                          size,
-                                int                          maxBufferSize,
+                                bsls::Types::size_type       size,
+                                bsls::Types::size_type       maxBufferSize,
                                 bsls::BlockGrowth::Strategy  growthStrategy,
                                 bsls::Alignment::Strategy    alignmentStrategy,
                                 bslma::Allocator            *basicAllocator)
@@ -448,6 +464,17 @@ BufferedSequentialAllocator::BufferedSequentialAllocator(
 }
 
 // MANIPULATORS
+inline
+void *BufferedSequentialAllocator::allocate(size_type size)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
+    }
+
+    return d_pool.allocate(size);
+}
+
 inline
 void BufferedSequentialAllocator::deallocate(void *)
 {
@@ -471,7 +498,7 @@ void BufferedSequentialAllocator::rewind()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

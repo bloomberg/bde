@@ -1,25 +1,24 @@
 // bdlma_localsequentialallocator.t.cpp                               -*-C++-*-
 #include <bdlma_localsequentialallocator.h>
 
-#include <bsls_alignedbuffer.h>
-#include <bsls_alignmentutil.h>
-
-#include <bsl_sstream.h>
-
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_alignedbuffer.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_vector.h>
 #include <bsl_utility.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -85,22 +84,22 @@ void aSsErT(int c, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -131,64 +130,98 @@ typedef bdlma::LocalSequentialAllocator<k_SIZE> Obj;
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-typedef bsl::string DatabaseKey;
-typedef bsl::string DatabaseValue;
+///Usage
+///-----
+///Example 1: Recommended Usage
+/// - - - - - - - - - - - - - -
+// Suppose we have a function which takes a map of items to update in some
+// database:
+//..
+    typedef bsl::string DatabaseKey;
+    typedef bsl::string DatabaseValue;
 
-void updateRecords_1(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        bsl::stringbuf stringBuf;
-        bsl::ostream   ostr(&stringBuf);
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
-                "myKey = '" << it->second << "'";
-        // execute query using 'stringBuf.str()'
+    void updateRecords_1(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            bsl::stringbuf stringBuf;
+            bsl::ostream   ostr(&stringBuf);
+
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+                    "myKey = '" << it->second << "'";
+
+            // execute query using 'stringBuf.str()'
+        }
     }
-}
+//..
+// We call this method a lot, and after profiling, we notice that it's
+// contributing a significant proportion of time, due to the allocations it is
+// making.  We decide to see whether a LocalSequentialAllocator would help.
+//
+// First, use a 'bslma::TestAllocator' to track the typical memory usage:
+//..
+    void updateRecords_2(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        bslma::TestAllocator ta;
 
-void updateRecords_2(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    bslma::TestAllocator ta;
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            bsl::stringbuf stringBuf(&ta);
+            bsl::ostream   ostr(&stringBuf);
 
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        bsl::stringbuf stringBuf(&ta);
-        bsl::ostream   ostr(&stringBuf);
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+                    "myKey = '" << it->second << "'";
 
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
-                "myKey = '" << it->second << "'";
+            // execute query using 'stringBuf.str()'
 
-        // execute query using 'stringBuf.str()'
+            bsl::cout << "In use: " << ta.numBytesInUse() << '\n';
+        }
 
-        bsl::cout << "In use: " << ta.numBytesInUse() << '\n';
+        bsl::cout << "Max: " << ta.numBytesMax() << '\n';
     }
+//..
+// Then we run our program again, and observe the following output:
+//..
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  Max: 129
+//..
+// It looks like 129 is a good choice for the size of our allocator, so we go
+// with that:
+//..
+    void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
+    {
+        bdlma::LocalSequentialAllocator<129> lsa;
 
-    bsl::cout << "Max: " << ta.numBytesMax() << '\n';
-}
+        for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
+                 it = values.begin(), end = values.end();
+             it != end;
+             ++it) {
+            lsa.release();
 
-void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
-{
-    bdlma::LocalSequentialAllocator<129> lsa;
+            bsl::stringbuf stringBuf(&lsa);
+            bsl::ostream   ostr(&stringBuf);
 
-    for (bsl::map<DatabaseKey, DatabaseValue>::const_iterator
-             it = values.begin(), end = values.end();
-         it != end;
-         ++it) {
-        lsa.release();
+            ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
+                    "myKey = '" << it->second << "'";
 
-        bsl::stringbuf stringBuf(&lsa);
-        bsl::ostream   ostr(&stringBuf);
-
-        ostr << "UPDATE myTable SET myValue = '" << it->first << "' WHERE "
-                "myKey = '" << it->second << "'";
-
-        // execute query using 'stringBuf.str()'
+            // execute query using 'stringBuf.str()'
+        }
     }
-}
+//..
+// Note that we release at the end of every iteration, as the deallocate method
+// is a no-op, so without this, subsequent memory would be allocated from the
+// default allocator (or the allocator passed to 'bsa' at construction).
+//
+// Finally, we re-profile our code to determine whether the addition of a
+// 'LocalSequentialAllocator' helped.
 
 //=============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
@@ -220,8 +253,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -365,6 +398,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\nTesting subsequent allocations come"
                                  " first from the initial buffer." << endl;
             void *addr = mX.allocate(16);
+            ASSERT(0 != addr);
 
             ASSERT(0 == objectAllocator.numBlocksInUse());
         }
@@ -397,12 +431,13 @@ int main(int argc, char *argv[])
 
         Obj mX(&objectAllocator);
 
-        int lastNumBytesInUse = objectAllocator.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = objectAllocator.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = mX.allocate(SIZE);
-            const int numBytesInUse = objectAllocator.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse =
+                                               objectAllocator.numBytesInUse();
             mX.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == objectAllocator.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <=
@@ -460,7 +495,10 @@ int main(int argc, char *argv[])
                                                   &taA);
 
             void *addrA = mA.allocate(DATA[i]);
+            LOOP_ASSERT(i, 0 != addrA);
+
             void *addrV = mV.allocate(DATA[i]);
+            LOOP_ASSERT(i, 0 != addrV);
 
             // If one allocates from the provided allocator, the other should
             // too.
@@ -481,7 +519,10 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 void *addrA = mA.allocate(DATA[i]);
+                LOOP_ASSERT(i, 0 != addrA);
+
                 void *addrV = mV.allocate(DATA[i]);
+                LOOP_ASSERT(i, 0 != addrV);
 
                 // If one allocates from the provided allocator, the other
                 // should too.
@@ -552,19 +593,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        enum { ALLOC_SIZE1 = 4, ALLOC_SIZE2 = 8 };
+        enum { k_ALLOC_SIZE1 = 4, k_ALLOC_SIZE2 = 8 };
 
         if (verbose) cout << "\nTesting constructor." << endl;
         {
             Obj mX(&objectAllocator);
 
             if (verbose) cout << "\nTesting allocate from buffer." << endl;
-            void *addr1 = mX.allocate(ALLOC_SIZE1);
+            void *addr1 = mX.allocate(k_ALLOC_SIZE1);
+            ASSERT(0 != addr1);
 
             // Allocation comes from within the buffer.
             ASSERT(0 == objectAllocator.numBlocksTotal());
 
-            void *addr2 = mX.allocate(ALLOC_SIZE2);
+            void *addr2 = mX.allocate(k_ALLOC_SIZE2);
+            ASSERT(0 != addr2);
 
             // Make sure no memory comes from the object, default, and global
             // allocators.
@@ -600,13 +643,16 @@ int main(int argc, char *argv[])
 
                 // Exhaust the local buffer.
                 char *addr0 = static_cast<char *>(mY.allocate(k_SIZE));
+                ASSERT(0 != addr0);
 
                 char *addr1 = static_cast<char *>(mY.allocate(1));
+                ASSERT(0 != addr1);
 
                 // Ensure that we're allocating from the supplied allocator.
                 LOOP_ASSERT(i, 0 != objectAllocator.numBlocksInUse());
 
                 char *addr2 = static_cast<char *>(mY.allocate(DATA[i]));
+                ASSERT(0 != addr2);
 
                 // We expect natural alignment.
                 const int expectedAlignment
@@ -650,10 +696,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2015
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
