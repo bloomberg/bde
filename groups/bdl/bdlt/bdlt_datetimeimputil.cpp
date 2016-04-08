@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdlt_datetimeimputil_cpp,"$Id$ $CSID$")
 
 #include <bdlt_timeunitratio.h>
 
+#include <bslmf_assert.h>
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -45,6 +47,11 @@ const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
                              // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
 
 #endif
+
+BSLMF_ASSERT(  DatetimeImpUtil::k_0001_01_01_VALUE
+             < DatetimeImpUtil::k_1970_01_01_VALUE);
+BSLMF_ASSERT(  DatetimeImpUtil::k_1970_01_01_VALUE
+             < DatetimeImpUtil::k_MAX_VALUE);
 
 }  // close package namespace
 }  // close enterprise namespace
