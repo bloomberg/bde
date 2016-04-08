@@ -1,6 +1,6 @@
 // bsls_macrorepeat.t.cpp                  -*-C++-*-
 
-#include "bsls_macrorepeat.h"
+#include <bsls_macrorepeat.h>
 
 #include <cstdio>
 #include <cstdlib>
