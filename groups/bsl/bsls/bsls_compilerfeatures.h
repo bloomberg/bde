@@ -598,7 +598,29 @@ BSLS_IDENT("$Id: $")
 #   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 #       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
 #   endif
-#endif
+
+#   if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+namespace BloombergLP {
+namespace bsls {
+
+    enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
+
+#   define BSLS_COMPILERFEATURES_NILT BloombergLP::bsls::CompilerFeaturesNilT
+#   define BSLS_COMPILERFEATURES_NILV BloombergLP::bsls::CompilerFeaturesNilV
+
+#   define BSLS_COMPILERFEATURES_NILTR(n) BSLS_COMPILERFEATURES_NILT,
+#   define BSLS_COMPILERFEATURES_FILLT(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILTR) BSLS_COMPILERFEATURES_NILT
+
+#   define BSLS_COMPILERFEATURES_NILVR(n) BSLS_COMPILERFEATURES_NILV,
+#   define BSLS_COMPILERFEATURES_FILLV(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #   define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND 1
@@ -634,7 +656,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2013-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

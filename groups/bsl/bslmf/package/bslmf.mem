@@ -5,6 +5,7 @@ bslmf_addlvaluereference
 bslmf_addreference
 bslmf_addrvaluereference
 bslmf_addvolatile
+bslmf_allocatorargt
 bslmf_arraytopointer
 bslmf_assert
 bslmf_conditional
@@ -23,6 +24,7 @@ bslmf_isclass
 bslmf_isconst
 bslmf_isconvertible
 bslmf_isconvertibletoany
+bslmf_isempty
 bslmf_isenum
 bslmf_isfloatingpoint
 bslmf_isfunction
@@ -50,6 +52,7 @@ bslmf_metaint
 bslmf_movableref
 bslmf_nestedtraitdeclaration
 bslmf_nil
+bslmf_nthparameter
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
@@ -60,3 +63,5 @@ bslmf_switch
 bslmf_selecttrait
 bslmf_tag
 bslmf_typelist
+bslmf_usesallocatorargt
+bslmf_util
