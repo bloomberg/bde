@@ -10,6 +10,7 @@ import sys
 top = '.'
 out = 'build'
 
+min_bde_tools_version = "1.1"
 
 def _get_tools_path(ctx):
     waf_path = sys.argv[0]
