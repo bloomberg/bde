@@ -3,7 +3,6 @@
 
 #include <bsls_ident.h>
 
-#include <bsl_c_string.h> // '::strncasecmp'
 #include <bsl_cstring.h>  // 'bsl::memcmp'
 
 namespace BloombergLP {
@@ -45,6 +44,7 @@ static inline bool u_isWhitespace(unsigned char ch)
 
     return true;
 }
+
 
 static const bslstl::StringRef u_NOT_FOUND;
 
@@ -168,7 +168,10 @@ bslstl::StringRef StringRefUtil::strstrCaseless(
     const char * const end = string.end() - subStrLength + 1;
 
     for (const char *cur = string.data(); cur < end; ++cur) {
-        if (0 == strncasecmp(cur, subStr.data(), subStrLength)) {
+         if (0 == lowerCaseCmp(
+                             bslstl::StringRef(cur,           subStrLength),
+                             bslstl::StringRef(subStr.data(), subStrLength))) {
+                                        
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
     }
@@ -219,7 +222,9 @@ bslstl::StringRef StringRefUtil::strrstrCaseless(
     const char        *cur   = string.end()    - subStrLength;
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
-        if (0 == strncasecmp(cur, subStr.data(), subStrLength)) {
+        if (0 == lowerCaseCmp(
+                             bslstl::StringRef(cur,           subStrLength),
+                             bslstl::StringRef(subStr.data(), subStrLength))) {
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
     }
