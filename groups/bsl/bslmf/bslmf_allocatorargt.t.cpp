@@ -1,6 +1,6 @@
 // bslmf_allocatorargt.t.cpp                                          -*-C++-*-
 
-#include "bslmf_allocatorargt.h"
+#include <bslmf_allocatorargt.h>
 
 #include <bsls_bsltestutil.h>
 

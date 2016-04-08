@@ -1,6 +1,6 @@
 // bslma_allocatoradaptor.t.cpp                  -*-C++-*-
 
-#include "bslma_allocatoradaptor.h"
+#include <bslma_allocatoradaptor.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_alignment.h>
