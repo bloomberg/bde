@@ -18,13 +18,19 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test implements a single utility 'struct', that defines
-// a set of constants.  There is no executable code.  Therefore the component
-// can be tested in a single test case that simply checks the values defined in
-// the 'struct'.
+// a set of constants and methods to obtain pointers to 'bdlt::Datetime'
+// suitable for use during static initialization.  The component can be tested
+// in a test case that simply checks the values defined in the 'struct' and one
+// that verifies the returned pointers are correct.
 // ----------------------------------------------------------------------------
 // [ 1] static const bsls::Types::Uint64 k_0001_01_01_VALUE;
+// [ 1] static const bsls::Types::Uint64 k_1970_01_01_VALUE;
 // [ 1] static const bsls::Types::Uint64 k_MAX_VALUE;
+// [ 2] static const bdlt::Datetime *epoch_0001_01_01();
+// [ 2] static const bdlt::Datetime *epoch_1970_01_01();
+// [ 2] static const bdlt::Datetime *epoch_max();
 // ----------------------------------------------------------------------------
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -83,6 +89,77 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// To obtain the 'bdlt::Datetime' internal value for 0001/01/01 at
+// static-initialization time:
+//..
+    static const bdlt::Datetime *firstDatetime =
+                                     bdlt::DatetimeImpUtil::epoch_0001_01_01();
+
+    ASSERT(reinterpret_cast<const bdlt::Datetime *>(
+                 &bdlt::DatetimeImpUtil::k_0001_01_01_VALUE) == firstDatetime);
+//..
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'DatetimeImpUtil' METHODS
+        //
+        // Concerns:
+        //: 1 That each method defined in 'DatetimeImpUtil' is correct.
+        //
+        // Plan:
+        //: 1 Using brute force, verify every returned pointer.  (C-1)
+        //
+        // Testing:
+        //   static const bdlt::Datetime *epoch_0001_01_01();
+        //   static const bdlt::Datetime *epoch_1970_01_01();
+        //   static const bdlt::Datetime *epoch_max();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'DatetimeImpUtil' METHODS" << endl
+                          << "=================================" << endl;
+
+        ASSERT(reinterpret_cast<const bdlt::Datetime *>(
+                                 &bdlt::DatetimeImpUtil::k_0001_01_01_VALUE) ==
+                                    bdlt::DatetimeImpUtil::epoch_0001_01_01());
+
+        ASSERT(reinterpret_cast<const bdlt::Datetime *>(
+                                 &bdlt::DatetimeImpUtil::k_1970_01_01_VALUE) ==
+                                    bdlt::DatetimeImpUtil::epoch_1970_01_01());
+
+        ASSERT(reinterpret_cast<const bdlt::Datetime *>(
+                                        &bdlt::DatetimeImpUtil::k_MAX_VALUE) ==
+                                           bdlt::DatetimeImpUtil::epoch_max());
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING 'DatetimeImpUtil' VALUES
@@ -97,6 +174,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static const bsls::Types::Uint64 k_0001_01_01_VALUE;
+        //   static const bsls::Types::Uint64 k_1970_01_01_VALUE;
         //   static const bsls::Types::Uint64 k_MAX_VALUE;
         // --------------------------------------------------------------------
 

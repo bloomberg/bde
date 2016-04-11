@@ -13,16 +13,28 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DatetimeImpUtil: namespace for datetime encoding constants
 //
 //@DESCRIPTION: This component implements a utility 'struct',
-// 'bdlt::DatetimeImpUtil', that defines a namespace for constants that are
-// useful to encoding datetimes.  The assumptions for this encoding are that a
-// collection of unset values, one per day over the valid range of
+// 'bdlt::DatetimeImpUtil', that defines a namespace for obtaining constants
+// and 'bdlt::Datetime *' to constant values that are useful to encoding
+// datetimes at static-initilaization time.  The assumptions for this encoding
+// are that a collection of unset values, one per day over the valid range of
 // 'bdlt::Date', are encoded in the lowest values, and then microsecond
 // resolution over the entire 'bdlt::Date' range.
 //
 ///Usage
 ///-----
-// This component is not meant to be used directly and hence no usage example
-// is provided.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// To obtain the 'bdlt::Datetime' internal value for 0001/01/01 at
+// static-initialization time:
+//..
+//  static const bdlt::Datetime *firstDatetime =
+//                                   bdlt::DatetimeImpUtil::epoch_0001_01_01();
+//
+//  assert(reinterpret_cast<const bdlt::Datetime *>(
+//               &bdlt::DatetimeImpUtil::k_0001_01_01_VALUE) == firstDatetime);
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -35,6 +47,8 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
+class Datetime;
+
                           // ======================
                           // struct DatetimeImpUtil
                           // ======================
@@ -46,6 +60,22 @@ struct DatetimeImpUtil {
     static const bsls::Types::Uint64 k_0001_01_01_VALUE;
     static const bsls::Types::Uint64 k_1970_01_01_VALUE;
     static const bsls::Types::Uint64 k_MAX_VALUE;
+
+    // CLASS METHODS
+    static const Datetime *epoch_0001_01_01();
+        // Return a pointer to a 'bdlt::Datetime' with value
+        // 'bdlt::Datetime(1, 1, 1)' suitable for use during static
+        // initialization.
+
+    static const Datetime *epoch_1970_01_01();
+        // Return a pointer to a 'bdlt::Datetime' with value
+        // 'bdlt::Datetime(1970, 1, 1)' suitable for use during static
+        // initialization.
+
+    static const Datetime *epoch_max();
+        // Return a pointer to a 'bdlt::Datetime' with value
+        // 'bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 999)' suitable for
+        // use during static initialization.
 };
 
 }  // close package namespace

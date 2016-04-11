@@ -4,24 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#include <bdlt_datetimeimputil.h>
-
 namespace BloombergLP {
 namespace bdlt {
 
-                            // CONSTANTS
+                             // ----------------
+                             // struct EpochUtil
+                             // ----------------
 
-// The following '*s_epochData_p' object represents the footprint of a
-// 'bdlt::Datetime' object initialized to the value representing the epoch time
-// (1970/1/1_00:00:00.000).  The test driver must verify this representation.
-//
-// Note that if a change is made to the underlying data format of a
-// 'bdlt::Datetime' object, the 'epochData' object must be changed to match.
-//
-// This code runs afoul of strict aliasing restrictions, but it is difficult to
-// devise a legal formulation to get a load-time-initialized 'Datetime' object
-// that adheres to those restrictions without C++11 'constexpr' constructors.
-// (In C, a union can be used to type pun, but not in C++.)
+// CLASS DATA
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
     #ifdef BDE_USE_PROLEPTIC_DATES
@@ -39,15 +29,6 @@ const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
 
 const EpochUtil::TimeT64 EpochUtil::s_latestAsTimeT64   = 253402300799LL;
                                                  // December  31, 9999 23:59:59
-
-                             // ----------------
-                             // struct EpochUtil
-                             // ----------------
-
-// CLASS DATA
-
-const bdlt::Datetime *EpochUtil::s_epoch_p =
-reinterpret_cast<const bdlt::Datetime *>(&DatetimeImpUtil::k_1970_01_01_VALUE);
 
 }  // close package namespace
 }  // close enterprise namespace

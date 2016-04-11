@@ -132,6 +132,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIMEIMPUTIL
+#include <bdlt_datetimeimputil.h>
+#endif
+
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
 #endif
@@ -182,9 +186,8 @@ struct EpochUtil {
 
   private:
     // CLASS DATA
-    static const Datetime *s_epoch_p;            // pointer to epoch time value
-    static const TimeT64   s_earliestAsTimeT64;  // January   1, 0001 00:00:00
-    static const TimeT64   s_latestAsTimeT64;    // December 31, 9999 23:59:59
+    static const TimeT64 s_earliestAsTimeT64;  // January   1, 0001 00:00:00
+    static const TimeT64 s_latestAsTimeT64;    // December 31, 9999 23:59:59
 
   public:
     // CLASS METHODS
@@ -353,7 +356,7 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
-    return *s_epoch_p;
+    return *DatetimeImpUtil::epoch_1970_01_01();
 }
 
                            // 'time_t'-Based Methods

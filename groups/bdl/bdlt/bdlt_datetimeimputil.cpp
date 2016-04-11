@@ -53,6 +53,22 @@ BSLMF_ASSERT(  DatetimeImpUtil::k_0001_01_01_VALUE
 BSLMF_ASSERT(  DatetimeImpUtil::k_1970_01_01_VALUE
              < DatetimeImpUtil::k_MAX_VALUE);
 
+// CLASS METHODS
+const Datetime *DatetimeImpUtil::epoch_0001_01_01()
+{
+    return reinterpret_cast<const bdlt::Datetime *>(&k_0001_01_01_VALUE);
+}
+
+const Datetime *DatetimeImpUtil::epoch_1970_01_01()
+{
+    return reinterpret_cast<const bdlt::Datetime *>(&k_1970_01_01_VALUE);
+}
+
+const Datetime *DatetimeImpUtil::epoch_max()
+{
+    return reinterpret_cast<const bdlt::Datetime *>(&k_MAX_VALUE);
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
