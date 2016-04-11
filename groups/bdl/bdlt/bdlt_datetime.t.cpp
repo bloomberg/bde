@@ -4096,7 +4096,7 @@ if (veryVerbose)
             using bslx::OutStreamFunctions::bdexStreamOut;
 
             out.putUint64(  bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
-                          + bdlt::TimeUnitRatio::k_US_PER_H);
+                          + (1ULL << 32));
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -4230,11 +4230,11 @@ if (veryVerbose)
 { L_,   2014,   7,  12,  5,  32,  14,  72, 999,   1,   7,
                                               "\x0b\x38\xc4\x01\x30\x2b\x78" },
 { L_,      1,   1,   1, 14,  10,   2, 117,   0,   2,   8,
-                                          "\x00\x00\x00\x0b\xe0\x2e\x45\x65" },
+                                          "\x00\x00\x44\x2e\x28\x21\xd4\x00" },
 { L_,      1,   1,   1, 20,   8,  27, 983,  57,   2,   8,
-                                          "\x00\x00\x00\x10\xe2\x07\xbe\xae" },
+                                          "\x00\x00\x44\x34\x21\xbf\x5c\x39" },
 { L_,   2014,   7,  12,  5,  32,  14,  72, 999,   2,   8,
-                                          "\x00\xe1\xbe\x1f\x9c\x6f\xaa\x84" }
+                                          "\x01\xf7\x9d\x85\x80\xe1\x23\xe7" }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 

@@ -305,6 +305,9 @@ class Datetime {
     // 'Datetime' objects whose "time" part has the same value as that of a
     // default constructed 'Time' object.
 
+    // CLASS DATA
+    static const bsls::Types::Uint64 k_MAX_MS_FROM_EPOCH;
+
     // DATA
     bsls::Types::Uint64 d_value;  // encoded offset from the epoch
 
@@ -324,24 +327,11 @@ class Datetime {
         // difference between this datetime and the epoch is the specified
         // 'totalMicroseconds'.
 
-    void setUnset(int totalDays);
-        // Assign to 'd_value' the representation of a datetime such that the
-        // difference, measured at day accuracy, between this datetime and the
-        // epoch is the specified 'totalDays' and the time portion of this
-        // datetime corresponds to a default constructed 'bdlt::Time' value.
-
     // PRIVATE ACCESSORS
     bsls::Types::Uint64 microsecondsFromEpoch() const;
         // Return the difference, measured in microseconds, between this
         // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
         // and the epoch.
-
-    bsls::Types::Uint64 microsecondsFromEpoch(bool *unset) const;
-        // Return the difference, measured in microseconds, between this
-        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
-        // and the epoch, and load into the specified 'unset' the value 'true'
-        // if the time portion of this datetime has the value 24:00:00.000000,
-        // and 'false' otherwise.
 
   public:
     // CLASS METHODS
@@ -877,31 +867,39 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
 inline
 void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
 {
-    d_value = totalMicroseconds + DatetimeImpUtil::k_0001_01_01_VALUE;
-}
-
-inline
-void Datetime::setUnset(int totalDays)
-{
-    d_value = totalDays;
+    setDatetime(Date() + totalMicroseconds / TimeUnitRatio::k_US_PER_D,
+                totalMicroseconds / TimeUnitRatio::k_US_PER_H
+                                                    % TimeUnitRatio::k_H_PER_D,
+                totalMicroseconds / TimeUnitRatio::k_US_PER_M
+                                                    % TimeUnitRatio::k_M_PER_H,
+                totalMicroseconds / TimeUnitRatio::k_US_PER_S
+                                                    % TimeUnitRatio::k_S_PER_M,
+                totalMicroseconds / TimeUnitRatio::k_US_PER_MS
+                                                   % TimeUnitRatio::k_MS_PER_S,
+                totalMicroseconds % TimeUnitRatio::k_US_PER_MS);
 }
 
 // PRIVATE ACCESSORS
 inline
 bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                             DatetimeImpUtil::k_0001_01_01_VALUE <= d_value)) {
-        return d_value - DatetimeImpUtil::k_0001_01_01_VALUE;         // RETURN
-    }
-    return d_value * TimeUnitRatio::k_US_PER_D;
-}
+    int h = hour();
 
-inline
-bsls::Types::Uint64 Datetime::microsecondsFromEpoch(bool *unset) const
-{
-    *unset = d_value < DatetimeImpUtil::k_0001_01_01_VALUE;
-    return microsecondsFromEpoch();
+    if (TimeUnitRatio::k_H_PER_D_32 != h) {
+        return static_cast<bsls::Types::Uint64>(date() - Date())
+                                                    * TimeUnitRatio::k_US_PER_D
+             + static_cast<bsls::Types::Uint64>(h)  * TimeUnitRatio::k_US_PER_H
+             + static_cast<bsls::Types::Uint64>(minute())
+                                                    * TimeUnitRatio::k_US_PER_M
+             + static_cast<bsls::Types::Uint64>(second())
+                                                    * TimeUnitRatio::k_US_PER_S
+             + static_cast<bsls::Types::Uint64>(millisecond())
+                                                   * TimeUnitRatio::k_US_PER_MS
+             + static_cast<bsls::Types::Uint64>(microsecond());       // RETURN
+    }
+
+    return static_cast<bsls::Types::Uint64>(date() - Date())
+                                                   * TimeUnitRatio::k_US_PER_D;
 }
 
 // CLASS METHODS
@@ -944,14 +942,22 @@ int Datetime::maxSupportedBdexVersion(int versionSelector)
 // CREATORS
 inline
 Datetime::Datetime()
-: d_value(0)
+: d_value(1ULL << 46 | 1ULL << 42 | 1ULL << 37 | 24ULL << 32)
 {
 }
 
 inline
 Datetime::Datetime(const Date& date)
 {
-    setMicrosecondsFromEpoch((date - Date()) * TimeUnitRatio::k_US_PER_D);
+    int year;
+    int month;
+    int day;
+
+    date.getYearMonthDay(&year, &month, &day);
+
+    d_value = static_cast<bsls::Types::Uint64>(year)  << 46
+            | static_cast<bsls::Types::Uint64>(month) << 42
+            | static_cast<bsls::Types::Uint64>(day)   << 37;
 }
 
 inline
@@ -970,27 +976,14 @@ Datetime::Datetime(int year,
                    int millisecond,
                    int microsecond)
 {
-    BSLS_ASSERT_SAFE(Datetime::isValid(year,
-                                       month,
-                                       day,
-                                       hour,
-                                       minute,
-                                       second,
-                                       millisecond,
-                                       microsecond));
-
-    if (24 != hour) {
-        setMicrosecondsFromEpoch(  (Date(year, month, day) - Date())
-                                               * TimeUnitRatio::k_US_PER_D
-                                 + hour        * TimeUnitRatio::k_US_PER_H
-                                 + minute      * TimeUnitRatio::k_US_PER_M
-                                 + second      * TimeUnitRatio::k_US_PER_S
-                                 + millisecond * TimeUnitRatio::k_US_PER_MS
-                                 + microsecond);
-    }
-    else {
-        setUnset(Date(year, month, day) - Date());
-    }
+    setDatetime(year,
+                month,
+                day,
+                hour,
+                minute,
+                second,
+                millisecond,
+                microsecond);
 }
 
 inline
@@ -1013,9 +1006,7 @@ Datetime& Datetime::operator+=(const bsls::TimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
-                                            DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch()));
+                               k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch()));
 
     BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
@@ -1033,9 +1024,7 @@ Datetime& Datetime::operator-=(const bsls::TimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
-                                            DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch()));
+                               k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch()));
 
     BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
                      <= static_cast<bsls::Types::Int64>(
@@ -1053,9 +1042,7 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
                      <= static_cast<bsls::Types::Int64>(
-                                            DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch()));
+                               k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch()));
 
     BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
                      <= static_cast<bsls::Types::Int64>(
@@ -1074,9 +1061,7 @@ Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
                      <= static_cast<bsls::Types::Int64>(
-                                            DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch()));
+                               k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch()));
 
     BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
                      <= static_cast<bsls::Types::Int64>(
@@ -1098,17 +1083,20 @@ void Datetime::setDatetime(const Date& date,
                            int         millisecond,
                            int         microsecond)
 {
-    if (24 != hour) {
-        setMicrosecondsFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
-                                 + hour            * TimeUnitRatio::k_US_PER_H
-                                 + minute          * TimeUnitRatio::k_US_PER_M
-                                 + second          * TimeUnitRatio::k_US_PER_S
-                                 + millisecond     * TimeUnitRatio::k_US_PER_MS
-                                 + microsecond);
-    }
-    else {
-        setUnset(date - Date());
-    }
+    int year;
+    int month;
+    int day;
+
+    date.getYearMonthDay(&year, &month, &day);
+
+    setDatetime(year,
+                month,
+                day,
+                hour,
+                minute,
+                second,
+                millisecond,
+                microsecond);
 }
 
 inline
@@ -1143,12 +1131,14 @@ void Datetime::setDatetime(int year,
                                        millisecond,
                                        microsecond));
 
-    setDatetime(Date(year, month, day),
-                hour,
-                minute,
-                second,
-                millisecond,
-                microsecond);
+    d_value = static_cast<bsls::Types::Uint64>(year)        << 46
+            | static_cast<bsls::Types::Uint64>(month)       << 42
+            | static_cast<bsls::Types::Uint64>(day)         << 37
+            | static_cast<bsls::Types::Uint64>(hour)        << 32
+            | static_cast<bsls::Types::Uint64>(minute)      << 26
+            | static_cast<bsls::Types::Uint64>(second)      << 20
+            | static_cast<bsls::Types::Uint64>(millisecond) << 10
+            | static_cast<bsls::Types::Uint64>(microsecond);
 }
 
 inline
@@ -1187,17 +1177,13 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
-    bool                unset;
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
+    int year;
+    int month;
+    int day;
 
-    if (!unset) {
-        setMicrosecondsFromEpoch(  (date - Date()) * TimeUnitRatio::k_US_PER_D
-                                 + totalMicroseconds
-                                                  % TimeUnitRatio::k_US_PER_D);
-    }
-    else {
-        setUnset(date - Date());
-    }
+    date.getYearMonthDay(&year, &month, &day);
+
+    setYearMonthDay(year, month, day);
 }
 
 inline
@@ -1213,7 +1199,10 @@ void Datetime::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(Date::isValidYearMonthDay(year, month, day));
 
-    setDate(Date(year, month, day));
+    d_value = static_cast<bsls::Types::Uint64>(year)  << 46
+            | static_cast<bsls::Types::Uint64>(month) << 42
+            | static_cast<bsls::Types::Uint64>(day)   << 37
+            | (d_value & 0x1fffffffff);
 }
 
 inline
@@ -1250,21 +1239,12 @@ void Datetime::setTime(int hour,
                 0                                 == millisecond &&
                 0                                 == microsecond));
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    int days = static_cast<int>(totalMicroseconds / TimeUnitRatio::k_US_PER_D);
-
-    if (24 != hour) {
-        setMicrosecondsFromEpoch(  days        * TimeUnitRatio::k_US_PER_D
-                                 + hour        * TimeUnitRatio::k_US_PER_H
-                                 + minute      * TimeUnitRatio::k_US_PER_M
-                                 + second      * TimeUnitRatio::k_US_PER_S
-                                 + millisecond * TimeUnitRatio::k_US_PER_MS
-                                 + microsecond);
-    }
-    else {
-        setUnset(days);
-    }
+    d_value = static_cast<bsls::Types::Uint64>(hour)        << 32
+            | static_cast<bsls::Types::Uint64>(minute)      << 26
+            | static_cast<bsls::Types::Uint64>(second)      << 20
+            | static_cast<bsls::Types::Uint64>(millisecond) << 10
+            | static_cast<bsls::Types::Uint64>(microsecond)
+            | (d_value & 0xffffffe000000000);
 }
 
 inline
@@ -1273,18 +1253,13 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    if (24 != hour) {
-        setMicrosecondsFromEpoch(
-                                totalMicroseconds / TimeUnitRatio::k_US_PER_D
-                                                    * TimeUnitRatio::k_US_PER_D
-                              + totalMicroseconds % TimeUnitRatio::k_US_PER_H
-                              + hour              * TimeUnitRatio::k_US_PER_H);
+    if (TimeUnitRatio::k_H_PER_D_32 != hour) {
+        d_value = static_cast<bsls::Types::Uint64>(hour) << 32
+                | (d_value & 0xffffffe0ffffffff);
     }
     else {
-        setUnset(static_cast<int>(totalMicroseconds
-                                                 / TimeUnitRatio::k_US_PER_D));
+        d_value = TimeUnitRatio::k_H_PER_D << 32
+                | (d_value & 0xffffffe000000000);
     }
 }
 
@@ -1294,12 +1269,12 @@ void Datetime::setMinute(int minute)
     BSLS_ASSERT_SAFE(0 <= minute);
     BSLS_ASSERT_SAFE(     minute <= 59);
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+    if (TimeUnitRatio::k_H_PER_D_32 == hour()) {
+        setHour(0);
+    }
 
-    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_H
-                                                    * TimeUnitRatio::k_US_PER_H
-                             + totalMicroseconds % TimeUnitRatio::k_US_PER_M
-                             + minute            * TimeUnitRatio::k_US_PER_M);
+    d_value = static_cast<bsls::Types::Uint64>(minute) << 26
+            | (d_value & 0xffffffff03ffffff);
 }
 
 inline
@@ -1308,12 +1283,12 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(0 <= second);
     BSLS_ASSERT_SAFE(     second <= 59);
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+    if (TimeUnitRatio::k_H_PER_D_32 == hour()) {
+        setHour(0);
+    }
 
-    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_M
-                                                    * TimeUnitRatio::k_US_PER_M
-                             + totalMicroseconds % TimeUnitRatio::k_US_PER_S
-                             + second            * TimeUnitRatio::k_US_PER_S);
+    d_value = static_cast<bsls::Types::Uint64>(second) << 20
+            | (d_value & 0xfffffffffc0fffff);
 }
 
 inline
@@ -1322,12 +1297,12 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(0 <= millisecond);
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+    if (TimeUnitRatio::k_H_PER_D_32 == hour()) {
+        setHour(0);
+    }
 
-    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_S
-                                                    * TimeUnitRatio::k_US_PER_S
-                             + totalMicroseconds % TimeUnitRatio::k_US_PER_MS
-                             + millisecond       * TimeUnitRatio::k_US_PER_MS);
+    d_value = static_cast<bsls::Types::Uint64>(millisecond) << 10
+            | (d_value & 0xfffffffffff003ff);
 }
 
 inline
@@ -1336,11 +1311,12 @@ void Datetime::setMicrosecond(int microsecond)
     BSLS_ASSERT_SAFE(0 <= microsecond);
     BSLS_ASSERT_SAFE(     microsecond <= 999);
 
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+    if (TimeUnitRatio::k_H_PER_D_32 == hour()) {
+        setHour(0);
+    }
 
-    setMicrosecondsFromEpoch(  totalMicroseconds / TimeUnitRatio::k_US_PER_MS
-                                                   * TimeUnitRatio::k_US_PER_MS
-                             + microsecond);
+    d_value = static_cast<bsls::Types::Uint64>(microsecond)
+            | (d_value & 0xfffffffffffffc00);
 }
 
 inline
@@ -1348,17 +1324,7 @@ void Datetime::addDays(int days)
 {
     BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
 
-    bool                unset;
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
-
-    if (!unset) {
-        setMicrosecondsFromEpoch(  days           * TimeUnitRatio::k_US_PER_D
-                                 + totalMicroseconds);
-    }
-    else {
-        setUnset(days + static_cast<int>(  totalMicroseconds
-                                         / TimeUnitRatio::k_US_PER_D));
-    }
+    setDate(Date(year(), month(), day()) + days);
 }
 
 inline
@@ -1410,9 +1376,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     BSLS_ASSERT_SAFE( days <= static_cast<bsls::Types::Int64>
-                                        ((  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                            - totalMicroseconds)
+                                     ((k_MAX_MS_FROM_EPOCH - totalMicroseconds)
                                                  / TimeUnitRatio::k_US_PER_D));
     BSLS_ASSERT_SAFE(-days <= static_cast<bsls::Types::Int64>
                               (totalMicroseconds / TimeUnitRatio::k_US_PER_D));
@@ -1420,9 +1384,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     totalMicroseconds += days * TimeUnitRatio::k_US_PER_D;
 
     BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
-                                         (  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - totalMicroseconds));
+                                    (k_MAX_MS_FROM_EPOCH - totalMicroseconds));
     BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
                                                           (totalMicroseconds));
 
@@ -1437,9 +1399,7 @@ inline
 void Datetime::addHours(bsls::Types::Int64 hours)
 {
     BSLS_ASSERT_SAFE( hours <= static_cast<bsls::Types::Int64>
-                                        ((  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch())
+                               ((k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_H));
     BSLS_ASSERT_SAFE(-hours <= static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_H));
@@ -1454,9 +1414,7 @@ inline
 void Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
     BSLS_ASSERT_SAFE( minutes <= static_cast<bsls::Types::Int64>
-                                        ((  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch())
+                               ((k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_M));
     BSLS_ASSERT_SAFE(-minutes <= static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_M));
@@ -1471,9 +1429,7 @@ inline
 void Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
     BSLS_ASSERT_SAFE( seconds <= static_cast<bsls::Types::Int64>
-                                        ((  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch())
+                               ((k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch())
                                                  / TimeUnitRatio::k_US_PER_S));
     BSLS_ASSERT_SAFE(-seconds <= static_cast<bsls::Types::Int64>
                         (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_S));
@@ -1488,9 +1444,7 @@ inline
 void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     BSLS_ASSERT_SAFE( milliseconds <= static_cast<bsls::Types::Int64>
-                                        ((  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch())
+                               ((k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch())
                                                 / TimeUnitRatio::k_US_PER_MS));
     BSLS_ASSERT_SAFE(-milliseconds <= static_cast<bsls::Types::Int64>
                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_MS));
@@ -1505,9 +1459,7 @@ inline
 void Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
 {
     BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
-                                         (  DatetimeImpUtil::k_MAX_VALUE
-                                          - DatetimeImpUtil::k_0001_01_01_VALUE
-                                          - microsecondsFromEpoch()));
+                              (k_MAX_MS_FROM_EPOCH - microsecondsFromEpoch()));
     BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
                                                     (microsecondsFromEpoch()));
 
@@ -1561,47 +1513,31 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    return Date() + static_cast<int>(  totalMicroseconds
-                                     / TimeUnitRatio::k_US_PER_D);
+    return Date(year(), month(), day());
 }
 
 inline
 Time Datetime::time() const
 {
-    bool                unset;
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
-
-    if (unset) {
-        return Time(24);                                              // RETURN
-    }
-
-    Time time;
-
-    time.addMilliseconds(static_cast<int>(  totalMicroseconds
-                                          % TimeUnitRatio::k_US_PER_D
-                                          / TimeUnitRatio::k_US_PER_MS));
-
-    return time;
+    return Time(hour(), minute(), second(), millisecond());
 }
 
 inline
 int Datetime::year() const
 {
-    return date().year();
+    return (d_value >> 46) & 0x3fff;
 }
 
 inline
 int Datetime::month() const
 {
-    return date().month();
+    return (d_value >> 42) & 0xf;
 }
 
 inline
 int Datetime::day() const
 {
-    return date().day();
+    return (d_value >> 37) & 0x1f;
 }
 
 inline
@@ -1623,47 +1559,15 @@ void Datetime::getTime(int *hour,
                        int *millisecond,
                        int *microsecond) const
 {
-    bool                unset;
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
-
-    if (!unset) {
-        *hour = static_cast<int>(totalMicroseconds / TimeUnitRatio::k_US_PER_H
-                                                   % TimeUnitRatio::k_H_PER_D);
-
-        if (minute) {
-            *minute = static_cast<int>(totalMicroseconds
-                                                   / TimeUnitRatio::k_US_PER_M
-                                                   % TimeUnitRatio::k_M_PER_H);
-
-            if (second) {
-                *second = static_cast<int>(totalMicroseconds
-                                                   / TimeUnitRatio::k_US_PER_S
-                                                   % TimeUnitRatio::k_S_PER_M);
-
-                if (millisecond) {
-                    *millisecond = static_cast<int>(totalMicroseconds
-                                                  / TimeUnitRatio::k_US_PER_MS
-                                                  % TimeUnitRatio::k_MS_PER_S);
-
-                    if (microsecond) {
-                        *microsecond = static_cast<int>(totalMicroseconds
-                                                 % TimeUnitRatio::k_US_PER_MS);
-                    }
-                }
-            }
-        }
-    }
-    else {
-        *hour = 24;
-        if (minute) {
-            *minute = 0;
-            if (second) {
-                *second = 0;
-                if (millisecond) {
-                    *millisecond = 0;
-                    if (microsecond) {
-                        *microsecond = 0;
-                    }
+    *hour == Datetime::hour();
+    if (minute) {
+        *minute = Datetime::minute();
+        if (second) {
+            *second = Datetime::second();
+            if (millisecond) {
+                *millisecond = Datetime::millisecond();
+                if (microsecond) {
+                    *microsecond = Datetime::microsecond();
                 }
             }
         }
@@ -1673,55 +1577,31 @@ void Datetime::getTime(int *hour,
 inline
 int Datetime::hour() const
 {
-    bool                unset;
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch(&unset);
-
-    if (unset) {
-        return 24;                                                    // RETURN
-    }
-
-    return static_cast<int>(  totalMicroseconds
-                            / TimeUnitRatio::k_US_PER_H
-                            % TimeUnitRatio::k_H_PER_D);
+    return (d_value >> 32) & 0x1f;
 }
 
 inline
 int Datetime::minute() const
 {
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    return static_cast<int>(  totalMicroseconds
-                            / TimeUnitRatio::k_US_PER_M
-                            % TimeUnitRatio::k_M_PER_H);
+    return (d_value >> 26) & 0x3f;
 }
 
 inline
 int Datetime::second() const
 {
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    return static_cast<int>(  totalMicroseconds
-                            / TimeUnitRatio::k_US_PER_S
-                            % TimeUnitRatio::k_S_PER_M);
+    return (d_value >> 20) & 0x3f;
 }
 
 inline
 int Datetime::millisecond() const
 {
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    return static_cast<int>(  totalMicroseconds
-                            / TimeUnitRatio::k_US_PER_MS
-                            % TimeUnitRatio::k_MS_PER_S);
+    return (d_value >> 10) & 0x3ff;
 }
 
 inline
 int Datetime::microsecond() const
 {
-    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
-
-    return static_cast<int>(  totalMicroseconds
-                            % TimeUnitRatio::k_US_PER_MS);
+    return d_value & 0x3ff;
 }
 
                                   // Aspects
@@ -1862,8 +1742,8 @@ bool bdlt::operator!=(const Datetime& lhs, const Datetime& rhs)
 inline
 bool bdlt::operator<(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= lhs.d_value);
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= rhs.d_value);
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
     return lhs.d_value < rhs.d_value;
 }
@@ -1871,8 +1751,8 @@ bool bdlt::operator<(const Datetime& lhs, const Datetime& rhs)
 inline
 bool bdlt::operator<=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= lhs.d_value);
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= rhs.d_value);
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
     return lhs.d_value <= rhs.d_value;
 }
@@ -1880,8 +1760,8 @@ bool bdlt::operator<=(const Datetime& lhs, const Datetime& rhs)
 inline
 bool bdlt::operator>(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= lhs.d_value);
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= rhs.d_value);
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
     return lhs.d_value > rhs.d_value;
 }
@@ -1889,8 +1769,8 @@ bool bdlt::operator>(const Datetime& lhs, const Datetime& rhs)
 inline
 bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= lhs.d_value);
-    BSLS_ASSERT_SAFE(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE <= rhs.d_value);
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
     return lhs.d_value >= rhs.d_value;
 }

@@ -11,42 +11,19 @@ BSLS_IDENT_RCSID(bdlt_datetimeimputil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-                           // ----------------------
-                           // struct DatetimeImpUtil
-                           // ----------------------
+                          // ----------------------
+                          // struct DatetimeImpUtil
+                          // ----------------------
+
 // CLASS VALUES
-
-#ifdef BDE_USE_PROLEPTIC_DATES
-
-const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652058ULL + 1;
-                   // 3652058 is 9999/12/31 - 0001/01/01 in Proleptic Gregorian
+const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE =
+                                          1ULL << 46 | 1ULL << 42 | 1ULL << 37;
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
-   719162ULL * TimeUnitRatio::k_US_PER_D + DatetimeImpUtil::k_0001_01_01_VALUE;
-                    // 719162 is 1970/01/01 - 0001/01/01 in Proleptic Gregorian
+                                       1970ULL << 46 | 1ULL << 42 | 1ULL << 37;
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
-                                         3652059ULL * TimeUnitRatio::k_US_PER_D
-                                       + DatetimeImpUtil::k_0001_01_01_VALUE
-                                       - 1;
-               // 3652059 is 9999/12/31 - 0001/01/01 + 1 in Proleptic Gregorian
-
-#else
-
-const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 3652060ULL + 1;
-                                 // 3652060 is 9999/12/31 - 0001/01/01 in POSIX
-
-const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
-   719164ULL * TimeUnitRatio::k_US_PER_D + DatetimeImpUtil::k_0001_01_01_VALUE;
-                                  // 719164 is 1970/01/01 - 0001/01/01 in POSIX
-
-const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
-                                         3652061ULL * TimeUnitRatio::k_US_PER_D
-                                       + DatetimeImpUtil::k_0001_01_01_VALUE
-                                       - 1;
-                             // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
-
-#endif
+                       9999ULL << 46 | 12ULL << 42 | 31ULL << 37 | 24ULL << 32;
 
 BSLMF_ASSERT(  DatetimeImpUtil::k_0001_01_01_VALUE
              < DatetimeImpUtil::k_1970_01_01_VALUE);

@@ -27,6 +27,17 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
                               // class Datetime
                               // --------------
 
+// CLASS VALUES
+#ifdef BDE_USE_PROLEPTIC_DATES
+const bsls::Types::Uint64 Datetime::k_MAX_MS_FROM_EPOCH =
+                                    3652059ULL * TimeUnitRatio::k_US_PER_D - 1;
+               // 3652059 is 9999/12/31 - 0001/01/01 + 1 in Proleptic Gregorian
+#else
+const bsls::Types::Uint64 Datetime::k_MAX_MS_FROM_EPOCH =
+                                    3652061ULL * TimeUnitRatio::k_US_PER_D - 1;
+                             // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
+#endif
+
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
                               int           level,
@@ -62,10 +73,9 @@ int Datetime::printToBuffer(char *result, int numBytes) const
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 <= numBytes);
 
-    int year;
-    int month;
-    int day;
-    date().getYearMonthDay(&year, &month, &day);
+    int year  = Datetime::year();
+    int month = Datetime::month();
+    int day   = Datetime::day();
 
     static const char *const k_MONTHS[] = {
         0,
@@ -74,14 +84,12 @@ int Datetime::printToBuffer(char *result, int numBytes) const
         "SEP", "OCT", "NOV", "DEC"
     };
 
-    const char *const asciiMonth = k_MONTHS[month];
-    int               hour;
-    int               minute;
-    int               second;
-    int               millisecond;
-    int               microsecond;
-
-    getTime(&hour, &minute, &second, &millisecond, &microsecond);
+    const char *const asciiMonth  = k_MONTHS[month];
+    int               hour        = Datetime::hour();
+    int               minute      = Datetime::minute();
+    int               second      = Datetime::second();
+    int               millisecond = Datetime::millisecond();
+    int               microsecond = Datetime::microsecond();
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
