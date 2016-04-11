@@ -103,6 +103,8 @@ BSLS_IDENT("$Id: $")
 //  const char * const rawInput    = "    \t\r\n  Hello, world!    \r\n";
 //                                  //1234 5 6 789             1234 5 6
 //                                  //            123456789ABCD
+//                                  // Note lengths of whitespace and
+//                                  // non-whitespace substrings for later.
 //..
 // First, for this pedagogical example, we copy the contents at 'rawInput' for
 // later reference:
@@ -161,23 +163,23 @@ struct StringRefUtil {
 
     static bool areEqualCaseless(const bslstl::StringRef& lhs,
                                  const bslstl::StringRef& rhs);
-        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return
-        // 'true' if 'lhs' and 'rhs' are equal up to a case conversion, and
-        // 'false' otherwise.  See {Caseless Comparisons}.
+        // Compare (the referent data of) the specified 'lhs' and 'rhs'.
+        // Return 'true' if 'lhs' and 'rhs' are equal up to a case conversion,
+        // and 'false' otherwise.  See {Caseless Comparisons}.
 
     static int lowerCaseCmp(const bslstl::StringRef& lhs,
                             const bslstl::StringRef& rhs);
-        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return 1
-        // if, after a conversion to lower case, 'lhs' is greater than 'rhs', 0
-        // if 'lhs' and 'rhs' are equal up to a case conversion, and -1
-        // otherwise.  See {Caseless Comparisons}.
+        // Compare (the referent data of) the specified 'lhs' and 'rhs'.
+        // Return 1 if, after a conversion to lower case, 'lhs' is greater than
+        // 'rhs', 0 if 'lhs' and 'rhs' are equal up to a case conversion, and
+        // -1 otherwise.  See {Caseless Comparisons}.
 
     static int upperCaseCmp(const bslstl::StringRef& lhs,
                             const bslstl::StringRef& rhs);
-        // Compare the (referent data of) specified 'lhs' and 'rhs'.  Return 1
-        // if, after a conversion to upper case, 'lhs' is greater than 'rhs', 0
-        // if 'lhs' and 'rhs' are equal up to a case conversion, and -1
-        // otherwise.  See {Caseless Comparisons}.
+        // Compare (the referent data of) the specified 'lhs' and 'rhs'.
+        // Return 1 if, after a conversion to upper case, 'lhs' is greater than
+        // 'rhs', 0 if 'lhs' and 'rhs' are equal up to a case conversion, and
+        // -1 otherwise.  See {Caseless Comparisons}.
 
                         // Trim
 
@@ -194,16 +196,16 @@ struct StringRefUtil {
         // (the referent data of) the specified 'stringRef' that excludes all
         // trailing whitespace.  See {Whitespace Character Specification}.  If
         // 'stringRef' consists entirely of whitespace, return a zero-length
-        // reference to 'stringRef' (i.e.,
-        // 'bslstl::StringRef(stringRef.data(), 0)').
+        // reference to the beginning of (the referent data of) 'stringRef'
+        // (i.e., 'bslstl::StringRef(stringRef.data(), 0)').
 
     static bslstl::StringRef trim(const bslstl::StringRef& stringRef);
         // Return a 'bslstl::StringRef' object referring to the substring of
         // (the referent data of) the specified 'stringRef' that excludes all
         // leading and trailing whitespace.  See {Whitespace Character
         // Specification}.  If 'stringRef' consists entirely of whitespace,
-        // return a zero-length reference to 'stringRef' (i.e.,
-        // 'bslstl::StringRef(stringRef.data(), 0)').
+        // return a zero-length reference to beginning of (the referent data
+        // of) 'stringRef' (i.e., 'bslstl::StringRef(stringRef.data(), 0)').
 
                         // Find 'subString'
 

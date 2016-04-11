@@ -7,10 +7,10 @@
 
 #include <bsl_algorithm.h> // 'bsl::transform'
 #include <bsl_cctype.h>    // 'bsl::toupper', 'bsl::tolower'
-#include <bsl_cstdlib.h>   // 'bsl::atoi'
+#include <bsl_cstdlib.h>   // 'bsl::atoi',    'bsl::strspn'
 #include <bsl_cstring.h>   // 'bsl::strlen'
 #include <bsl_iostream.h>
-#include <bsl_string.h>    // 'bsl::memcpy', 'bsl::memcmp'
+#include <bsl_string.h>    // 'bsl::memcpy',  'bsl::memcmp'
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -24,11 +24,15 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test is a utility component having functions that are
-// (with on exceptions) implemented individually and can be tested in any
-// order.  The 'trim' function is implemented in terms of 'ltrim' and 'rtim',
-// All will be tested in case 3; each test for 'trim' will parallel and follow
-// the corresponding tests for 'ltrim' and 'rtrim'.
+// The component under test is a utility component in which some functions
+// are used in the implementation of other functions:
+//
+//: o The 'lowerCaseCmp' function (test case 2) is used in the implementations
+//:   of 'strstrCaseless' and 'strrstrCaseless' (test case 4).
+//:
+//: o The 'trim' function is implemented in terms of 'ltrim' and 'rtim', All
+//:   will be tested in case 3; each test for 'trim' will parallel but follow
+//:   the corresponding tests for 'ltrim' and 'rtrim'.
 //
 // The Global Concerns listed below apply to each function of this utility and
 // are not repeated in the description of the individual test cases.
@@ -39,9 +43,9 @@ using bsl::flush;
 // the specific functions being tested.
 //
 // Global Concerns:
-//
+// ---------------
 //: 1 The functions handle string in each of these distinguished categories:
-//
+//:
 //:   o '2 < length': distinct first and last elements, and one or more
 //:     undistinguished (neither first nor last) middle elements.
 //:
@@ -56,15 +60,15 @@ using bsl::flush;
 //:
 //: 2 The functions handle all possible byte values in arbitrary order such as:
 //:   o ASCII values with embedded '\0' values.
+//;   o ASCII values corresonding to upper and lower case letters.
 //:   o Extended ASCII values (which have the 8th bit [msb] set).
 //:
 //: 3 The functions operate on the intended sequence of bytes and no other.
 //:
-//: 4 The functions (except '*trim') accept constant references to
-//:   'bslstl::StringRef' objects.
-//:
-//: Global Plans:
-//:
+//: 4 The functions accept constant references to 'bslstl::StringRef' objects.
+// 
+// Global Plans:
+// -------------
 //: 1 Define test input in each length category.  When there are two inputs,
 //:   the cross product of the categories is defined.
 //:
@@ -362,6 +366,8 @@ int main(int argc, char *argv[])
     const char * const rawInput    = "    \t\r\n  Hello, world!    \r\n";
                                     //1234 5 6 789             1234 5 6
                                     //            123456789ABCD
+                                    // Note lengths of whitespace and
+                                    // non-whitespace substrings for later.
 //..
 // First, for this pedagogical example, we copy the contents at 'rawInput' for
 // later reference:
@@ -587,36 +593,103 @@ int main(int argc, char *argv[])
                 P(OVERLAP)
             }
 
-            bsl::string string(CSTRING);
-            bsl::string substr(CSUBSTR);
-            bsl::size_t lenCSUBSTR = substr.length();
+            const char * const lettersInData = "abcde";
 
-            bsl::string ucSubstr(substr);
-            bsl::transform(ucSubstr.begin(),
-                           ucSubstr.end(),
-                           ucSubstr.begin(), // output
-                           Local::toUpper);
+            bool stringHasLetters =    bsl::strcspn(CSTRING, lettersInData)
+                                    == bsl::strlen (CSTRING)
+                                    ?  false
+                                    :  true;
+            bool substrHasLetters =    bsl::strcspn(CSUBSTR, lettersInData)
+                                    == bsl::strlen (CSUBSTR)
+                                    ?  false
+                                    :  true;
+            bool   bothHaveLetters  = stringHasLetters && substrHasLetters;
 
             if (veryVeryVerbose) {
-                P_(string) P_(substr) P(ucSubstr)
+                P_(CSTRING)
+                P_(stringHasLetters)
+                P_(CSUBSTR)
+                P_(substrHasLetters)
+                P(bothHaveLetters)
             }
 
-            const SR expected = 0 <= POSITION  && lenCSUBSTR == OVERLAP
+            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+
+                bsl::string string(CSTRING);
+                bsl::string substr(CSUBSTR);
+                bsl::size_t lenCSUBSTR = substr.length();
+
+                bool areSameCaseStrSubstr;
+
+                switch (cfg) {
+                  case 'a': {
+                    areSameCaseStrSubstr = true;
+                  } break;
+                  case 'b': {
+                    bsl::transform(substr.begin(),
+                                   substr.end(),
+                                   substr.begin(), // output
+                                   Local::toUpper);
+
+                    areSameCaseStrSubstr = false;
+                  } break;
+                  case 'c': {
+                    bsl::transform(string.begin(),
+                                   string.end(),
+                                   string.begin(), // output
+                                   Local::toUpper);
+
+                    areSameCaseStrSubstr = false;
+                  } break;
+                  case 'd': {
+                    bsl::transform(string.begin(),
+                                   string.end(),
+                                   string.begin(), // output
+                                   Local::toUpper);
+
+                    bsl::transform(substr.begin(),
+                                   substr.end(),
+                                   substr.begin(), // output
+                                   Local::toUpper);
+
+                    areSameCaseStrSubstr = true;
+                  } break;
+                  default: {
+                      LOOP_ASSERT(cfg, !"Unknown 'cfg'");
+                  } break;
+                };
+
+                // bool areNotSameCaseStrSubstr = !areSameCaseStrSubstr;
+    
+                if (veryVeryVerbose) {
+                    P_(cfg)
+                    P_(string)
+                    P_(substr)
+                    P(areSameCaseStrSubstr)
+                }
+    
+    //--------->| 
+    const SR expected         = 0 <= POSITION  && lenCSUBSTR == OVERLAP
                                 ? SR(string.data() + POSITION, lenCSUBSTR)
                                 : SR();
 
-            const SR result          = Util::strstr (SR(string), SR(substr));
-            const SR resultR         = Util::strrstr(SR(string), SR(substr));
+    const SR expectedCasefull = bothHaveLetters && ! areSameCaseStrSubstr
+                                ? SR()
+                                : expected;
 
-            const SR resultCaseless  = Util::strstrCaseless (SR(  string),
-                                                             SR(ucSubstr));
-            const SR resultCaselessR = Util::strrstrCaseless(SR(  string),
-                                                             SR(ucSubstr));
+    const SR expectedCaseless = expected;
 
-            LOOP_ASSERT(LINE, isEqual(expected, result));
-            LOOP_ASSERT(LINE, isEqual(expected, resultCaseless ));
-            LOOP_ASSERT(LINE, isEqual(expected, resultR));
-            LOOP_ASSERT(LINE, isEqual(expected, resultCaselessR));
+    const SR resultCasefull  = Util::strstr         (SR(string), SR(substr));
+    const SR resultCasefullR = Util::strrstr        (SR(string), SR(substr));
+    const SR resultCaseless  = Util::strstrCaseless (SR(string), SR(substr));
+    const SR resultCaselessR = Util::strrstrCaseless(SR(string), SR(substr));
+
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefull));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaseless));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefullR));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaselessR));
+    //--------->| 
+            }
         }
 
         if (veryVerbose) cout << "\n"
@@ -1309,22 +1382,10 @@ int main(int argc, char *argv[])
 
                     // Compare expected with actual values.
 
-                    if (expectedEquality != actualEquality) {
-                        static int count = 0;
-                        ++count;
-                    }
                     ASSERT(expectedEquality == actualEquality);
 
-                    if (expectedLowerCmp != actualLowerCmp) {
-                        static int count = 0;
-                        ++count;
-                    }
                     ASSERT(expectedLowerCmp == actualLowerCmp);
 
-                    if (expectedUpperCmp != actualUpperCmp) {
-                        static int count = 0;
-                        ++count;
-                    }
                     ASSERT(expectedUpperCmp == actualUpperCmp);
 
                     if (true == expectedEquality && true == actualEquality) {
