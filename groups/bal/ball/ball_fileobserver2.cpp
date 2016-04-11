@@ -388,10 +388,10 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
     stream.write(message.data(), message.length());
     stream << ' ';
 
-    const ball::UserFields& userFields = record.userFields();
-    const int numUserFields = userFields.length();
-    for (int i = 0; i < numUserFields; ++i) {
-        stream << userFields[i] << ' ';
+    const ball::UserFields& customFields = record.customFields();
+    const int numCustomFields = customFields.length();
+    for (int i = 0; i < numCustomFields; ++i) {
+        stream << customFields[i] << ' ';
     }
 
     stream << '\n';
