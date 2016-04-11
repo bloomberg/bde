@@ -511,6 +511,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_date.h>
 #endif
 
+#ifndef INCLUDED_BDLT_EPOCHUTIL
+#include <bdlt_epochutil.h>
+#endif
+
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -769,6 +773,19 @@ class Datum {
                                               // data type needs to be shifted
                                               // into place
 
+    static const short k_DATETIME_OFFSET_FROM_EPOCH = 18262;
+        // Number of days offset from 1970 Jan 1 used to create the epoch used
+        // to determine if 'Datum' stores a date-time value using dynamic
+        // memory allocation or withing the 'Datum' itself.  This offset, added
+        // to the 1970 Jan 1 date, creates an (mid) epoch of 2020 Jan 1.
+        // Given that 'Datum' uses a signed 16 bits day-offset when storing
+        // date-time internally, the 2020 Jan 1 epoch enables of storing
+        // date-times internally the range of 1930 Apr 15 to 2109 Sept 18.
+        // Note that the time part of date-time can be stored internally
+        // without data loss, so that makes the no-allocation range to be
+        // 1930 Apr 15 00:00:00.000 to 2109 Sept 18 24:00:00.000. See
+        // 'createDatetime' and 'theDatetime' methods for the implementation.
+
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     // Check if platform is little endian.
     static const int k_EXPONENT_OFFSET  = 6;  // offset of the exponent part in
@@ -841,8 +858,6 @@ class Datum {
         e_DECIMAL64_SPECIAL_INFINITY,
         e_DECIMAL64_SPECIAL_NEGATIVE_INFINITY
     };
-
-    static bdlt::Date s_dateTimeBase;
 
     // DATA
     // 32-bit variation
@@ -2707,13 +2722,14 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // Check if number of days from now fits in two bytes.
 
-    int dateOffsetFromNow = value.date() - s_dateTimeBase;
-    short shortDateOffsetFromNow = static_cast<short>(dateOffsetFromNow);
+    int dateOffsetFromEpoch = (value.date() - bdlt::EpochUtil::epoch().date())
+                                                - k_DATETIME_OFFSET_FROM_EPOCH;
+    short shortDateOffsetFromEpoch = static_cast<short>(dateOffsetFromEpoch);
 
-    if (static_cast<int>(shortDateOffsetFromNow) == dateOffsetFromNow) {
+    if (static_cast<int>(shortDateOffsetFromEpoch) == dateOffsetFromEpoch)
         result.d_exp.d_value =
             (k_DOUBLE_MASK | e_INTERNAL_DATETIME) << k_TYPE_MASK_BITS
-            | (0xffff & shortDateOffsetFromNow);
+            | (0xffff & dateOffsetFromEpoch);
         *reinterpret_cast<bdlt::Time*>(&result.d_as.d_int) = value.time();
     } else {
         void *mem = new (*basicAllocator) bdlt::Datetime(value);
@@ -3232,8 +3248,9 @@ bdlt::Datetime Datum::theDatetime() const
 
     if (type == e_INTERNAL_DATETIME) {
         return bdlt::Datetime(
-                  s_dateTimeBase + d_as.d_short,
-                  *reinterpret_cast<const bdlt::Time*>(&d_as.d_int)); // RETURN
+               bdlt::EpochUtil::epoch().date() + k_DATETIME_OFFSET_FROM_EPOCH +
+                                                                  d_as.d_short,
+               *reinterpret_cast<const bdlt::Time*>(&d_as.d_int));    // RETURN
     }
 
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
