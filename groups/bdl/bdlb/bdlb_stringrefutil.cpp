@@ -171,7 +171,6 @@ bslstl::StringRef StringRefUtil::strstrCaseless(
          if (0 == lowerCaseCmp(
                              bslstl::StringRef(cur,           subStrLength),
                              bslstl::StringRef(subStr.data(), subStrLength))) {
-                                        
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
     }

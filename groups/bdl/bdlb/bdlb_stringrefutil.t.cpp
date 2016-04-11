@@ -24,8 +24,8 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test is a utility component in which some functions
-// are used in the implementation of other functions:
+// The component under test is a utility component in which some functions are
+// used in the implementation of other functions:
 //
 //: o The 'lowerCaseCmp' function (test case 2) is used in the implementations
 //:   of 'strstrCaseless' and 'strrstrCaseless' (test case 4).
@@ -42,8 +42,8 @@ using bsl::flush;
 // The test case concerns and descriptions will focus on issues particular to
 // the specific functions being tested.
 //
-// Global Concerns:
-// ---------------
+///Global Concerns:
+///---------------
 //: 1 The functions handle string in each of these distinguished categories:
 //:
 //:   o '2 < length': distinct first and last elements, and one or more
@@ -66,9 +66,9 @@ using bsl::flush;
 //: 3 The functions operate on the intended sequence of bytes and no other.
 //:
 //: 4 The functions accept constant references to 'bslstl::StringRef' objects.
-// 
-// Global Plans:
-// -------------
+//
+///Global Plans:
+///-------------
 //: 1 Define test input in each length category.  When there are two inputs,
 //:   the cross product of the categories is defined.
 //:
@@ -196,7 +196,8 @@ static void testWhitespaceLabel()
     // Execute the validation test for the 'whitespacelabel' helper function.
 {
     for (int ch = 0; ch <= 255; ++ch) {
-      switch(ch) {
+        switch(ch) {
+      //-|
       case ' ' : ASSERT(0 == bsl::strcmp("SP", whitespaceLabel( ' '))); break;
       case '\t': ASSERT(0 == bsl::strcmp("HT", whitespaceLabel('\t'))); break;
       case '\n': ASSERT(0 == bsl::strcmp("NL", whitespaceLabel('\n'))); break;
@@ -204,7 +205,8 @@ static void testWhitespaceLabel()
       case '\f': ASSERT(0 == bsl::strcmp("FF", whitespaceLabel('\f'))); break;
       case '\r': ASSERT(0 == bsl::strcmp("CR", whitespaceLabel('\r'))); break;
       default  : ASSERT(0 == bsl::strcmp("XX", whitespaceLabel(  ch))); break;
-      }
+      //-|
+        }
     }
 }
 
@@ -222,10 +224,12 @@ static void testIsEqual()
     // Execute the validation test for the 'isEqual' helper function.
 {
     struct Local {
-        static const char *dataLabel(const char *dataPtr) 
+        static const char *dataLabel(const char *dataPtr)
+            // Return "null pointer" if the specified 'dataPtr' is 0,
+            // and "non-null pointer" otherwise.
         {
             return 0 == dataPtr
-                   ? "null pointer"   
+                   ? "null pointer"
                    : "non-null pointer";
         }
     };
@@ -659,16 +663,14 @@ int main(int argc, char *argv[])
                   } break;
                 };
 
-                // bool areNotSameCaseStrSubstr = !areSameCaseStrSubstr;
-    
                 if (veryVeryVerbose) {
                     P_(cfg)
                     P_(string)
                     P_(substr)
                     P(areSameCaseStrSubstr)
                 }
-    
-    //--------->| 
+
+    //--------->|
     const SR expected         = 0 <= POSITION  && lenCSUBSTR == OVERLAP
                                 ? SR(string.data() + POSITION, lenCSUBSTR)
                                 : SR();
@@ -679,16 +681,16 @@ int main(int argc, char *argv[])
 
     const SR expectedCaseless = expected;
 
-    const SR resultCasefull  = Util::strstr         (SR(string), SR(substr));
-    const SR resultCasefullR = Util::strrstr        (SR(string), SR(substr));
-    const SR resultCaseless  = Util::strstrCaseless (SR(string), SR(substr));
-    const SR resultCaselessR = Util::strrstrCaseless(SR(string), SR(substr));
+    const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
+    const SR resultCasefullR  = Util::strrstr        (SR(string), SR(substr));
+    const SR resultCaseless   = Util::strstrCaseless (SR(string), SR(substr));
+    const SR resultCaselessR  = Util::strrstrCaseless(SR(string), SR(substr));
 
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefull));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaseless));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefullR));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaselessR));
-    //--------->| 
+    //--------->|
             }
         }
 
