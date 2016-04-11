@@ -1,8 +1,6 @@
 // ball_userfields.t.cpp                                              -*-C++-*-
 #include <ball_userfields.h>
 
-#include <ball_userfieldsschema.h>                          // for testing only
-
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -18,6 +16,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -140,37 +139,20 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 // one described by the 'ball::LoggerManagerConfiguration'
 // 'UserFieldsPopulatorCallback'.
 //..
-    void populateLoggingFields(ball::UserFields              *fields,
-                               const ball::UserFieldsSchema&  fieldsSchema)
-        // Populate the specifield 'fields' with the user name and current
-        // task identifier so that in matches the specified 'fieldsSchema'.
-        // The behavior is undefiend unless 'fields' is empty, and
-        // 'fieldsSchema' describes a user fields object whose fist element is
-        // a string called "username" and whose second element is a integer
-        // called "taskId".
+    void populateLoggingFields(ball::UserFields *fields)
+        // Populate the specified 'fields' with the username and current task
+        // identifier.  The behavior is undefined unless 'fields' is empty.
     {
 //..
-// Notice that we have decided for this application the schema for the custom
-// logging fields are fixed at compile time.
-//
-// Next, we assert that the schema matches the preconditions for this function:
-//..
-      typedef ball::UserFieldType Type;
-      BSLS_ASSERT(2 == fieldsSchema.length());
-      BSLS_ASSERT("username"     == fieldsSchema.name(0));
-      BSLS_ASSERT(Type::e_STRING == fieldsSchema.type(0));
-      BSLS_ASSERT("taskId"       == fieldsSchema.name(1));
-      BSLS_ASSERT(Type::e_INT64  == fieldsSchema.type(1));
-//..
-// Then we assert the additional precondition that 'fields' is empty:
+// Next, we assert the precondition that 'fields' is empty:
 //..
       BSLS_ASSERT(0 == fields->length());
 //..
-// Now we populate the 'fields' object with the user name and current task
+// Now, we populate the 'fields' object with the username and current task
 // identifier (for the purpose of illustration, these are simply constants):
 //..
-      static const char         *TEST_USER = "testUser";
-      static const bsl::int64_t  TEST_TASK = 4315;
+      static const char               *TEST_USER = "testUser";
+      static const bsls::Types::Int64  TEST_TASK = 4315;
 //
       fields->appendString(TEST_USER);
       fields->appendInt64(TEST_TASK);
@@ -178,7 +160,7 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 // Finally, for the purposes of illustration, we verify that 'fields' has been
 // set correctly:
 //..
-      ASSERT(2 == fields->length());
+      ASSERT(2              == fields->length());
       ASSERT(Type::e_STRING == fields->value(0).type());
       ASSERT(TEST_USER      == fields->value(0).theString());
       ASSERT(Type::e_INT64  == fields->value(1).type());
@@ -241,13 +223,10 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
         ball::UserFields result;
-        ball::UserFieldsSchema schema;
-        schema.appendFieldDescription("username", Type::e_STRING);
-        schema.appendFieldDescription("taskId", Type::e_INT64);
 
-        populateLoggingFields(&result, schema);
+        populateLoggingFields(&result);
 
-        ASSERT(2 == result.length());
+        ASSERT(2          == result.length());
         ASSERT("testUser" == result[0].theString());
         ASSERT(4315       == result[1].theInt64());
 
@@ -285,11 +264,14 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator("breathing", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&testAllocator);
 
+        bsl::vector<char> mCA;
+        mCA.push_back('a');  mCA.push_back('b');  mCA.push_back('c');
 
-        const char             *A_STRING = "A";
-        double                  A_DOUBLE = 2.0;
-        const bsl::int64_t      A_INT    = 5;
-        const bdlt::DatetimeTz  A_DATE(bdlt::Datetime(1999,1,1), 0);
+        const char               *A_STRING = "A";
+        double                    A_DOUBLE = 2.0;
+        const bsls::Types::Int64  A_INT    = 5;
+        const bdlt::DatetimeTz    A_DATE(bdlt::Datetime(1999,1,1), 0);
+        const bsl::vector<char>&  A_CHAR_ARRAY = mCA;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -336,15 +318,17 @@ int main(int argc, char *argv[])
         mX.appendString(A_STRING);
         mX.appendDatetimeTz(A_DATE);
         mX.appendDouble(A_DOUBLE);
+        mX.appendCharArray(A_CHAR_ARRAY);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(4         == X.length());
-        ASSERT(A_INT     == X.value(0).theInt64());
-        ASSERT(A_STRING  == X.value(1).theString());
-        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
-        ASSERT(A_DOUBLE  == X.value(3).theDouble());
+        ASSERT(5            == X.length());
+        ASSERT(A_INT        == X.value(0).theInt64());
+        ASSERT(A_STRING     == X.value(1).theString());
+        ASSERT(A_DATE       == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE     == X.value(3).theDouble());
+        ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -363,16 +347,17 @@ int main(int argc, char *argv[])
         mY.appendString(A_STRING);
         mY.appendDatetimeTz(A_DATE);
         mY.appendDouble(A_DOUBLE);
-
+        mY.appendCharArray(A_CHAR_ARRAY);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
-        ASSERT(4        == Y.length());
-        ASSERT(A_INT    == Y.value(0).theInt64());
-        ASSERT(A_STRING == Y.value(1).theString());
-        ASSERT(A_DATE   == Y.value(2).theDatetimeTz());
-
+        ASSERT(5            == Y.length());
+        ASSERT(A_INT        == Y.value(0).theInt64());
+        ASSERT(A_STRING     == Y.value(1).theString());
+        ASSERT(A_DATE       == Y.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE     == X.value(3).theDouble());
+        ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
                 "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
@@ -391,11 +376,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(4         == Z.length());
-        ASSERT(A_INT     == Z.value(0).theInt64());
-        ASSERT(A_STRING  == Z.value(1).theString());
-        ASSERT(A_DATE    == Z.value(2).theDatetimeTz());
-        ASSERT(A_DOUBLE  == Z.value(3).theDouble());
+        ASSERT(5            == Z.length());
+        ASSERT(A_INT        == Z.value(0).theInt64());
+        ASSERT(A_STRING     == Z.value(1).theString());
+        ASSERT(A_DATE       == Z.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE     == Z.value(3).theDouble());
+        ASSERT(A_CHAR_ARRAY == Z.value(4).theCharArray());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -435,11 +421,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(4         == W.length());
-        ASSERT(A_INT     == W.value(0).theInt64());
-        ASSERT(A_STRING  == W.value(1).theString());
-        ASSERT(A_DATE    == W.value(2).theDatetimeTz());
-        ASSERT(A_DOUBLE  == W.value(3).theDouble());
+        ASSERT(5            == W.length());
+        ASSERT(A_INT        == W.value(0).theInt64());
+        ASSERT(A_STRING     == W.value(1).theString());
+        ASSERT(A_DATE       == W.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE     == W.value(3).theDouble());
+        ASSERT(A_CHAR_ARRAY == W.value(4).theCharArray());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -479,11 +466,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(4         == X.length());
-        ASSERT(A_INT     == X.value(0).theInt64());
-        ASSERT(A_STRING  == X.value(1).theString());
-        ASSERT(A_DATE    == X.value(2).theDatetimeTz());
-        ASSERT(A_DOUBLE  == X.value(3).theDouble());
+        ASSERT(5            == X.length());
+        ASSERT(A_INT        == X.value(0).theInt64());
+        ASSERT(A_STRING     == X.value(1).theString());
+        ASSERT(A_DATE       == X.value(2).theDatetimeTz());
+        ASSERT(A_DOUBLE     == X.value(3).theDouble());
+        ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

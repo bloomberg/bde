@@ -290,12 +290,10 @@ BSLS_IDENT("$Id: $")
 //     severity       int              severity of logged record
 //     message        string           log message text
 //..
-// The user-defined fields, if any, are described by a 'ball::UserFieldsSchema'
-// optionally supplied by the client when the logger manager singleton is
-// created.  If a schema is supplied by the client, a corresponding
-// 'ball::Logger::UserPopulatorCallback' functor must also be supplied.
-// Thereafter, every logged record has its user-defined fields (indirectly)
-// populated by an invocation of the 'UserPopulatorCallback' functor.
+// If a 'ball::Logger::UserFieldsPopulatorCallback' functor is supplied by the
+// client (see 'ball_loggermanagerconfiguration'), thereafter, every logged
+// record has its user-defined fields (indirectly) populated by an invocation
+// of the 'UserFieldsPopulatorCallback' functor.
 //
 ///Multi-Threaded Usage
 ///--------------------
@@ -939,8 +937,7 @@ class Logger {
                                                    UserFieldsPopulatorCallback;
         // 'UserFieldsPopulatorCallback' is the type of a user-supplied
         // callback functor used to populate the user-defined fields in each
-        // log record.  Note that the user-defined fields of each record must
-        // be type-consistent with the schema of the user populator callback.
+        // log record.
 
     typedef bsl::function<void(Transmission::Cause)> PublishAllTriggerCallback;
         // 'PublishAllTriggerCallback' is the type of the functor that is
@@ -955,10 +952,6 @@ class Logger {
 
     RecordBuffer         *d_recordBuffer_p;     // holds log record buffer
                                                 // (not owned)
-
-    const ball::UserFieldsSchema
-                         *d_userFieldsSchema_p; // holds schema for user-
-                                                // defined fields (not owned)
 
     UserFieldsPopulatorCallback
                           d_populator;          // user populator functor
@@ -991,10 +984,8 @@ class Logger {
     Logger& operator=(const Logger& rhs);
 
     // PRIVATE CREATORS
-    Logger(
-           Observer                                   *observer,
+    Logger(Observer                                   *observer,
            RecordBuffer                               *recordBuffer,
-           const ball::UserFieldsSchema               *schema,
            const UserFieldsPopulatorCallback&          populator,
            const PublishAllTriggerCallback&            publishAllCallback,
            int                                         scratchBufferSize,
@@ -1003,18 +994,17 @@ class Logger {
            bslma::Allocator                           *globalAllocator);
         // Create a logger having the specified 'observer' that receives
         // published log records, the specified 'recordBuffer' that stores log
-        // records, the specified 'schema' that describes the structure of the
-        // user-defined fields of log records, the specified 'populator' that
-        // populates the user-defined fields of log records, the specified
-        // 'publishAllCallback' that is invoked when a Trigger-All event
-        // occurs, the specified 'scratchBufferSize' for the internal message
-        // buffer accessible via 'obtainMessageBuffer', and the specified
-        // 'globalAllocator' used to supply memory.  On a Trigger or
-        // Trigger-All event, the messages are published in the specified
-        // 'logOrder'.  The behavior is undefined unless 'observer',
-        // 'recordBuffer', 'schema', and 'globalAllocator' are non-null.  Note
-        // that this constructor is 'private' since the creation of instances
-        // of 'Logger' is managed by its 'friend' 'LoggerManager'.
+        // records, the specified 'populator' that populates the user-defined
+        // fields of log records, the specified 'publishAllCallback' that is
+        // invoked when a Trigger-All event occurs, the specified
+        // 'scratchBufferSize' for the internal message buffer accessible via
+        // 'obtainMessageBuffer', and the specified 'globalAllocator' used to
+        // supply memory.  On a Trigger or Trigger-All event, the messages are
+        // published in the specified 'logOrder'.  The behavior is undefined
+        // unless 'observer', 'recordBuffer', and 'globalAllocator' are
+        // non-null.  Note that this constructor is 'private' since the
+        // creation of instances of 'Logger' is managed by its 'friend'
+        // 'LoggerManager'.
 
     ~Logger();
         // Destroy this logger.
@@ -1211,9 +1201,6 @@ class LoggerManager {
                            d_factoryThresholdLevels;
                                                  // factory default threshold
                                                  // levels
-
-    ball::UserFieldsSchema d_userFieldsSchema;   // schema for user-defined
-                                                 // fields
 
     Logger::UserFieldsPopulatorCallback
                            d_populator;          // populator functor

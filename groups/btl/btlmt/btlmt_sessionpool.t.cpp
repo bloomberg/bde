@@ -242,8 +242,8 @@ void poolStateCallbackWithError(int             reason,
                                 bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
-        MTCOUT << "Pool state changed: (" << reason << ", " << source
-               << ", " << error << ") " << MTENDL;
+        MTCOUT << "Pool state changed: " << reason << ", " << " error: "
+               << *platformError << MTENDL;
     }
     *platformError = error;
     barrier->wait();
@@ -1894,12 +1894,12 @@ int main(int argc, char *argv[])
         const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
         const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
         void                *UD   = (void *) 0;                 // UserData
-        const int            BP   = 80;                         // Bad PortNum
+        const int            BP   =  80;                        // Bad PortNum
         const TimeInterval   T;                                 // TimeInterval
         IPAddress            BA(getLocalAddress());             // Bad IPAddr
         BA.setPortNumber(BP);
 
-        Obj::ConnectResolutionMode CRM = Obj::RESOLVE_ONCE;
+        Obj::ConnectResolutionMode CRM = Obj::e_RESOLVE_ONCE;
 
         // Listening on an invalid port number through various 'listen'
         // overloads.
@@ -1908,6 +1908,7 @@ int main(int argc, char *argv[])
 
         int h;
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         {
             int error = 0;
 
@@ -1996,32 +1997,33 @@ int main(int argc, char *argv[])
             SocketOptions SO;
             SO.setSendTimeout(0);
 
-            int rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+            int rc = mX.listen(&h, scb, 0, B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, 0, B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BA, B, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, IPAddress(), B, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
 
             error = 0;
 
-            rc = mX.listen(&h, scb, BA, B, RA, &TF, UD, &SO, &error);
+            rc = mX.listen(&h, scb, IPAddress(), B, RA, &TF, UD, &SO, &error);
 
             ASSERT(0 != rc);
             ASSERT(0 != error);
         }
+#endif
 
         // 'connect' synchronous error -- unresolvable address
 
@@ -2082,8 +2084,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
-
+#endif
             rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
                             CRM, &SO, LA, &error);
 
@@ -2092,7 +2095,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
 
         // 'connect' asynchronous error -- using an unreachable peer address
@@ -2174,7 +2179,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
 
         // Invoking the overload taking a 'btlb::BlobBufferFactory'
@@ -2219,8 +2226,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
-
+#endif
             rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
                             CRM, &SO, LA, &error);
 
@@ -2229,7 +2237,9 @@ int main(int argc, char *argv[])
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
       } break;
       case 14: {

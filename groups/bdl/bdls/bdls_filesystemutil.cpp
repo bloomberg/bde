@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
-#include <bdls_processutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -123,6 +122,18 @@ struct NameRec {
 };
 
 }  // close unnamed namespace
+
+int getProcessId()
+    // Return an identifier for the current running process.  Note that this
+    // duplicates functionality in 'ProcessUtil', and is reproduced here to
+    // avoid a cycle.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return static_cast<int>(GetCurrentProcessId());
+#else
+    return static_cast<int>(getpid());
+#endif
+}
 
 static inline
 bool shortIsDotOrDots(const char *path)
@@ -2141,7 +2152,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
     hashAppend(hashee, prefix);
     hashAppend(hashee, (const bslstl::StringRef&) *outPath);
     hashAppend(hashee, tid);
-    hashAppend(hashee, bdls::ProcessUtil::getProcessId());
+    hashAppend(hashee, getProcessId());
     bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
     for (int i = 0; i < int(sizeof(suffix)); ++i) {
         static const char s[63] =

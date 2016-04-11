@@ -22,10 +22,28 @@ Description: BSL
  groups/bsl development files
 
 Package: libbdl-dev
-Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev
+Depends: libbsl-dev, libdecnumber-dev, libinteldfp-dev, libpcre2-dev
 Architecture: any
 Description: BDL
  groups/bdl development files
+
+Package: libbtl-dev
+Depends: libbsl-dev
+Architecture: any
+Description: BTL
+ groups/btl development files
+
+Package: libbal-dev
+Depends: libbsl-dev, libbdl-dev
+Architecture: any
+Description: BAL
+ groups/bal development files
+
+Package: libbbl-dev
+Depends: libbsl-dev, libbdl-dev
+Architecture: any
+Description: BBL
+ groups/bbl development files
 
 Package: libdecnumber-dev
 Architecture: any
@@ -34,3 +52,7 @@ Description: DecNumber Library
 Package: libinteldfp-dev
 Architecture: any
 Description: Intel Decimal Floating-Point Math Library
+
+Package: libpcre2-dev
+Architecture: any
+Description: PCRE 2 Regular Expression Library

@@ -75,10 +75,10 @@ BSLS_IDENT("$Id: $")
 //    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&trigger,    argv[2]));
 //    assert(0 == ball::SeverityUtil::fromAsciiCaseless(&triggerAll, argv[3]));
 //
-//    assert(ball::Severity::BAEL_INFO  == record);
-//    assert(ball::Severity::BAEL_WARN  == pass);
-//    assert(ball::Severity::BAEL_ERROR == trigger);
-//    assert(ball::Severity::BAEL_FATAL == triggerAll);
+//    assert(ball::Severity::e_INFO  == record);
+//    assert(ball::Severity::e_WARN  == pass);
+//    assert(ball::Severity::e_ERROR == trigger);
+//    assert(ball::Severity::e_FATAL == triggerAll);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

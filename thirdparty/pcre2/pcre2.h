@@ -72,7 +72,19 @@ uint8_t, UCHAR_MAX, etc are defined. */
 
 #include <limits.h>
 #include <stdlib.h>
+
+/* Prior to VS2010, Visual Studio did not provide stdint.h.  In that case,
+ * manually provide the needed typedef's and #define. */
+#if (!defined(_MSC_VER)) || (_MSC_VER >= 1600)
 #include <stdint.h>
+#else
+typedef unsigned char  uint8_t;
+typedef unsigned short uint16_t;
+typedef signed int     int32_t;
+typedef unsigned int   uint32_t;
+
+#define UINT32_MAX     0xFFFFFFFFU
+#endif
 
 /* Allow for C++ users compiling this directly. */
 
