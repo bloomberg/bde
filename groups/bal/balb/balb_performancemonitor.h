@@ -36,37 +36,37 @@ BSLS_IDENT("$Id: $")
 //..
 // Measure           Identifier           Description
 // -------           ----------           -----------
-// User CPU Time     e_CPU_TIME_USER   Total amount of time spent executing
+// User CPU Time     e_CPU_TIME_USER      Total amount of time spent executing
 //                                        instructions in user mode.
 //
-// System CPU Time   e_CPU_TIME_SYSTEM Total amount of time spent executing
+// System CPU Time   e_CPU_TIME_SYSTEM    Total amount of time spent executing
 //                                        instructions in kernel mode.
 //
-// CPU Time          e_CPU_TIME        The sum of User and System CPU times.
+// CPU Time          e_CPU_TIME           The sum of User and System CPU times.
 //
-// User CPU %        e_CPU_UTIL_USER   Percentage of elapsed CPU time this
+// User CPU %        e_CPU_UTIL_USER      Percentage of elapsed CPU time this
 //                                        process spent executing instructions
 //                                        in user mode.
 //
-// System CPU %      e_CPU_UTIL_SYSTEM Percentage of elapsed CPU time this
+// System CPU %      e_CPU_UTIL_SYSTEM    Percentage of elapsed CPU time this
 //                                        process spent executing instructions
 //                                        in kernel mode.
 //
-// CPU %             e_CPU_UTIL        Sum of User CPU % and System CPU %.
+// CPU %             e_CPU_UTIL           Sum of User CPU % and System CPU %.
 //
-// Resident Size     e_RESIDENT_SIZE   Number of mega-bytes of physical
+// Resident Size     e_RESIDENT_SIZE      Number of mega-bytes of physical
 //                                        memory used by the process.
 //
-// Virtual Size      e_VIRTUAL_SIZE    The size of the heap, in
+// Virtual Size      e_VIRTUAL_SIZE       The size of the heap, in
 //                                        mega-bytes. This value does not
 //                                        include the size of the address
 //                                        space mapped to files (anonymous or
 //                                        otherwise.)
 //
-// Thread Count      e_NUM_THREADS     Number of threads executing in the
+// Thread Count      e_NUM_THREADS        Number of threads executing in the
 //                                        process.
 //
-// Page Faults       e_NUM_PAGEFAULTS  Total number of page faults incurred
+// Page Faults       e_NUM_PAGEFAULTS     Total number of page faults incurred
 //                                        throughout the lifetime of the
 //                                        process.
 //..
