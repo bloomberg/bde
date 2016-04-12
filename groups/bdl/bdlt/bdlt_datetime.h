@@ -1222,7 +1222,7 @@ void Datetime::setHour(int hour)
     if (TimeUnitRatio::k_H_PER_D_32 != hour) {
         bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_D
-                                     * microseconds / TimeUnitRatio::k_US_PER_D
+                                                    * TimeUnitRatio::k_US_PER_D
                      + microseconds % TimeUnitRatio::k_US_PER_H
                      + hour         * TimeUnitRatio::k_US_PER_H;
         d_value = microseconds | (d_value & 0xffffffe000000000);
@@ -1241,7 +1241,7 @@ void Datetime::setMinute(int minute)
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_H
-                                     * microseconds / TimeUnitRatio::k_US_PER_H
+                                                    * TimeUnitRatio::k_US_PER_H
                      + microseconds % TimeUnitRatio::k_US_PER_M
                      + minute       * TimeUnitRatio::k_US_PER_M;
         d_value = microseconds | (d_value & 0xffffffe000000000);
@@ -1261,7 +1261,7 @@ void Datetime::setSecond(int second)
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_M
-                                     * microseconds / TimeUnitRatio::k_US_PER_M
+                                                    * TimeUnitRatio::k_US_PER_M
                      + microseconds % TimeUnitRatio::k_US_PER_S
                      + second       * TimeUnitRatio::k_US_PER_S;
         d_value = microseconds | (d_value & 0xffffffe000000000);
@@ -1281,7 +1281,7 @@ void Datetime::setMillisecond(int millisecond)
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_S
-                                     * microseconds / TimeUnitRatio::k_US_PER_S
+                                                    * TimeUnitRatio::k_US_PER_S
                      + microseconds % TimeUnitRatio::k_US_PER_MS
                      + millisecond  * TimeUnitRatio::k_US_PER_MS;
         d_value = microseconds | (d_value & 0xffffffe000000000);
@@ -1301,7 +1301,7 @@ void Datetime::setMicrosecond(int microsecond)
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_MS
-                                    * microseconds / TimeUnitRatio::k_US_PER_MS
+                                                   * TimeUnitRatio::k_US_PER_MS
                      + microsecond;
         d_value = microseconds | (d_value & 0xffffffe000000000);
     }
@@ -1570,7 +1570,7 @@ void Datetime::getTime(int *hour,
                 *millisecond = microseconds / TimeUnitRatio::k_US_PER_MS
                                                    % TimeUnitRatio::k_MS_PER_S;
                 if (microsecond) {
-                    *microsecond = microseconds % TimeUnitRatio::k_US_PER_M;
+                    *microsecond = microseconds % TimeUnitRatio::k_US_PER_MS;
                 }
             }
         }
