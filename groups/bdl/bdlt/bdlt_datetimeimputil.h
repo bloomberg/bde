@@ -74,8 +74,8 @@ struct DatetimeImpUtil {
 
     static const Datetime *epoch_max();
         // Return a pointer to a 'bdlt::Datetime' with value
-        // 'bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 999)' suitable for
-        // use during static initialization.
+        // 'bdlt::Datetime(9999, 12, 31, 24)' suitable for use during static
+        // initialization.
 };
 
 }  // close package namespace

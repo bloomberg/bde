@@ -185,10 +185,8 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Uint64 value;
 
-            value = 1;
-            value = (value << 4) + 1;
-            value = (value << 5) + 1;
-            value = value << 37;
+            value = static_cast<bsls::Types::Uint64>(
+                                     bdlt::Date(1, 1, 1) - bdlt::Date()) << 37;
 
             ASSERTV(bdlt::DatetimeImpUtil::k_0001_01_01_VALUE,
                     value,
@@ -198,10 +196,8 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Uint64 value;
 
-            value = 1970;
-            value = (value << 4) + 1;
-            value = (value << 5) + 1;
-            value = value << 37;
+            value = static_cast<bsls::Types::Uint64>(
+                                  bdlt::Date(1970, 1, 1) - bdlt::Date()) << 37;
 
             ASSERTV(bdlt::DatetimeImpUtil::k_1970_01_01_VALUE,
                     value,
@@ -211,11 +207,9 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Uint64 value;
 
-            value = 9999;
-            value = (value << 4) + 12;
-            value = (value << 5) + 31;
-            value = (value << 5) + 24;
-            value = value << 32;
+            value = static_cast<bsls::Types::Uint64>(
+                                bdlt::Date(9999, 12, 31) - bdlt::Date()) << 37;
+            value = value + bdlt::TimeUnitRatio::k_US_PER_D;
 
             ASSERTV(bdlt::DatetimeImpUtil::k_MAX_VALUE,
                     value,

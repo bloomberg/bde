@@ -58,7 +58,7 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     int rc = printToBuffer(buffer, k_BUFFER_SIZE);
 
     (void)rc;
-    BSLS_ASSERT(25 == rc);  // The datetime format contains 22 characters.
+    BSLS_ASSERT(25 == rc);  // The datetime format contains 25 characters.
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);    // 'true' -> suppress '['
@@ -73,9 +73,11 @@ int Datetime::printToBuffer(char *result, int numBytes) const
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 <= numBytes);
 
-    int year  = Datetime::year();
-    int month = Datetime::month();
-    int day   = Datetime::day();
+    int year;
+    int month;
+    int day;
+
+    date().getYearMonthDay(&year, &month, &day);
 
     static const char *const k_MONTHS[] = {
         0,
@@ -85,11 +87,14 @@ int Datetime::printToBuffer(char *result, int numBytes) const
     };
 
     const char *const asciiMonth  = k_MONTHS[month];
-    int               hour        = Datetime::hour();
-    int               minute      = Datetime::minute();
-    int               second      = Datetime::second();
-    int               millisecond = Datetime::millisecond();
-    int               microsecond = Datetime::microsecond();
+
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+    int microsecond;
+
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
