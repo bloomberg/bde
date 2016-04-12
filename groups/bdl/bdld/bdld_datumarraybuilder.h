@@ -225,7 +225,8 @@ class DatumArrayBuilder {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit DatumArrayBuilder(SizeType          initialCapacity = 0,
+    explicit DatumArrayBuilder(bslma::Allocator *basicAllocator  = 0);
+    explicit DatumArrayBuilder(SizeType          initialCapacity,
                                bslma::Allocator *basicAllocator  = 0);
         // Create a 'DatumArrayBuilder' object that will administer the process
         // of building a 'Datum' array.  Optionally specify an

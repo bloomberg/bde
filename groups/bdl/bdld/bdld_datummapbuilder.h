@@ -158,7 +158,8 @@ class DatumMapBuilder {
         // 'DatumMapBuilder' objects use 'bslma::Allocator'.
 
     // CREATORS
-    explicit DatumMapBuilder(SizeType          initialCapacity = 0,
+    explicit DatumMapBuilder(bslma::Allocator *basicAllocator  = 0);
+    explicit DatumMapBuilder(SizeType          initialCapacity,
                              bslma::Allocator *basicAllocator  = 0);
         // Create a 'DatumMapBuilder' object that will administer the process
         // of building a 'Datum' map.  Optionally specify an 'initialCapacity'
