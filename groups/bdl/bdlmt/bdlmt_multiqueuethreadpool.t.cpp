@@ -24,6 +24,7 @@
 #include <bslma_default.h>
 #include <bslma_rawdeleterproctor.h>
 #include <bsls_assert.h>
+#include <bsls_systemtime.h>
 #include <bsls_platform.h>
 
 #include <bdlf_bind.h>
@@ -220,6 +221,31 @@ void incrementCounter(bsls::AtomicInt *counter)
 
     ASSERT(counter);
     ++*counter;
+}
+
+static void waitTwiceAndIncrement(bslmt::Barrier *barrier, 
+                                  bsls::AtomicInt *counter) 
+{
+    // Wait two times on the specified 'barrier' and increment the specified
+    // 'counter'
+    barrier->wait();
+    barrier->wait();
+    (*counter)++;
+}
+
+static void waitPauseAndIncrement(bslmt::Barrier  *barrier, 
+                                  Obj             *pool, 
+                                  int              queueId, 
+                                  bsls::AtomicInt  *counter) 
+{
+    // Wait on the specified 'barrier', pause the queue with the specified 
+    // 'queueId' in the specified 'pool' and then increment the specified 
+    // 'counter'.  Finally, wait on the barrier again.
+    barrier->wait();
+    int rc = pool->pauseQueue(queueId);
+    ASSERT(0 == rc);
+    (*counter)++;
+    barrier->wait();
 }
 
 static
@@ -781,7 +807,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -859,6 +885,202 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // PAUSE/RESUME
+        // 
+        // Concerns:
+        //   * Pausing a queue with jobs executing blocks until the current
+        //     job finishes.
+        //   * Jobs on other queues continue to execute.
+        //   * No jobs execute on a paused queue, even if more jobs are
+        //     enqueued to it.
+        //   * Jobs execute after resume is invoked.
+        //   * A paused queue may be disabled/enabled.
+        //   * A disabled queue may be paused/resumed.
+        //   * A paused queue may be deleted.
+        //   * A pool having a paused queue may be drained.
+        //   * A pool having a paused queue may be stopped/shutdown.
+        //
+        // Plan:
+        //   Using an underlying threadpool with N threads, exercise the 
+        //   scenarios listed above.  Conditions that refer to a "paused 
+        //   queue" should always have a job on the queue during the
+        //   test.
+        //
+        //   Run the tests with N=1, to verify that no deadlocks exist that
+        //   involve waiting for another threadpool thread, and N=2, to verify
+        //   no problems arise from putting two processing jobs into the 
+        //   threadpool for the same queue.
+        // --------------------------------------------------------------------
+        if (verbose) {
+            cout << "Testing Pause/Resume\n"
+                    "====================\n";
+        }
+
+        bslmt::ThreadAttributes   defaultAttrs;
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::ThreadAttributes   detached;
+        detached.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
+        
+        enum { SHORT_SLEEP = 20 * 1000 }; // 20 ms
+
+        for (int NUM_THREADS = 1; NUM_THREADS <= 2; ++NUM_THREADS) {
+            if (veryVerbose) {
+                cout << "Pool with " << NUM_THREADS << " thread" <<
+                    (NUM_THREADS > 1 ? "s" : "") << endl;
+            }
+            
+            Obj mX(defaultAttrs, NUM_THREADS, NUM_THREADS, INT_MAX);
+            const Obj& X = mX;
+            int rc = mX.start();
+            ASSERT(0 == rc);
+            
+            bslmt::Barrier controlBarrier(2);
+            bsls::AtomicInt count(0);
+            int id1;
+            {
+                if (veryVerbose) {
+                    cout << "\tPause blocks until job finishes" << endl;
+                }
+                Func job = bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
+                                                &controlBarrier, 
+                                                &count);
+                id1 = mX.createQueue();
+                mX.enqueueJob(id1, job);
+                mX.enqueueJob(id1, job);
+                
+                // ensure the first job is running
+                controlBarrier.wait();
+
+                bsls::AtomicInt pauseCount(0);
+                bslmt::Barrier pauseBarrier(2);
+                bslmt::ThreadUtil::create(
+                                   &handle, detached,
+                                   bdlf::BindUtil::bind(&waitPauseAndIncrement,
+                                                        &pauseBarrier, 
+                                                        &mX, id1, &pauseCount));
+                pauseBarrier.wait();
+                // Now the thread will invoke pauseQueue. Wait a little bit
+                // and ensure it hasn't finished (because the threadpool job
+                // is still running)
+                bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
+                ASSERT(0 == pauseCount);
+                controlBarrier.wait();
+                
+                // Having unblocked the threadpool job, pause() should now be 
+                // able to complete
+                pauseBarrier.wait();
+                ASSERT(1 == pauseCount);
+                ASSERT(X.isPaused(id1));
+
+                // Pausing waited till the first job completed
+                ASSERT(1 == count);
+                
+                // At this point there's still one blocked job sitting on
+                // the queue. Try to wait for it for a short time -- this
+                // will fail, as the queue is paused.
+                ASSERT(0 != controlBarrier.timedWait(
+                                      bsls::SystemTime::nowRealtimeClock()
+                                      .addMicroseconds(SHORT_SLEEP)));
+                       
+            }
+            {
+                if (veryVerbose) {
+                    cout << "\tJobs on other queues continue to execute"
+                         << endl;
+                }
+                int id2 = mX.createQueue();
+                bsls::AtomicInt count2(0);
+                Func job = 
+                    bdlf::BindUtil::bind(&incrementCounter, &count2);
+
+                mX.enqueueJob(id2, job);
+                mX.enqueueJob(id2, job);
+                mX.drainQueue(id2);
+                ASSERT(2 == count2);
+            }
+            {
+                if (veryVerbose) {
+                    cout << "\tJobs do not execute when added to paused queue"
+                         << endl;
+                }
+                // Queue id1 is still paused
+                Func job = 
+                    bdlf::BindUtil::bind(&waitTwiceAndIncrement, 
+                                        &controlBarrier, 
+                                        &count);
+                mX.enqueueJob(id1, job);
+                // Try a timedWait; adding a job should not cause anything to
+                // execute on the queue
+                ASSERT(0 != controlBarrier.timedWait(
+                                      bsls::SystemTime::nowRealtimeClock()
+                                      .addMicroseconds(SHORT_SLEEP)));
+                // count should be unchanged, with nothing executing
+                ASSERT(1 == count);
+            }
+            {
+                if (veryVerbose) {
+                    cout << "\tJobs execute after resume is invoked"
+                         << endl;
+                }
+                // Queue id1 is still paused and still has two jobs
+                // sitting on it
+                mX.resumeQueue(id1);
+                ASSERT(!X.isPaused(id1));
+                controlBarrier.wait();
+                controlBarrier.wait();
+                controlBarrier.wait();
+                controlBarrier.wait();
+                mX.drainQueue(id1);
+                ASSERT(3 == count);
+            }
+            {
+                if (veryVerbose) {
+                    cout << "\tPool with paused queue: drain"
+                         << endl;
+                }
+                // Reset the count
+                count = 0;
+                
+                // Pause the queue again and submit another job
+                mX.pauseQueue(id1);
+                Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
+                mX.enqueueJob(id1, job);
+                
+                // Drain; should return with no effect
+                mX.drain();
+                ASSERT(0 == count);
+
+                // Queue should still be paused
+                mX.enqueueJob(id1, job);
+                ASSERT(0 == count);
+            }
+            {
+                if (veryVerbose) {
+                    cout << "\tPool with paused queue: stop/shutdown"
+                         << endl;
+                }
+                // Queue 1 is still paused with two jobs on it
+
+                // Stop (jobs should not execute)
+                mX.stop();
+                ASSERT(0 == count);
+
+                // Start
+                mX.start();
+
+                // Submit another job (queue should have been re-enabled even
+                // though paused)
+                Func job = bdlf::BindUtil::bind(&incrementCounter, &count);
+                ASSERT(0 == mX.enqueueJob(id1, job));
+                
+                mX.shutdown();
+                ASSERT(0 == count);
+            }
+        }
+      } break;
+          
       case 17: {
         // --------------------------------------------------------------------
         // TESTING UNDER STRESS
@@ -2394,6 +2616,38 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == X.numQueues());
             }
 
+            //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // Re-start the pool; pause the queue. Enqueue a job to the queue.
+            // Stop the pool and ensure the job is not executed and stop()
+            // does not deadlock. Start, resume, drain, and stop the queue.
+            if (veryVerbose) {
+                const int LINE = L_;
+                P_(LINE);
+                cout << "Re-start; stop a paused queue." << endl;
+            }
+            {
+                counter = 0;
+                ASSERT(0 == mX.start());
+                ASSERT(1 == X.numQueues());
+                ASSERT(0 == X.numElements(id));
+
+                mX.pauseQueue(id);
+                ASSERT(X.isPaused(id));
+                mX.enqueueJob(id, bdlf::BindUtil::bind(&incrementCounter,
+                                                       &counter));
+                ASSERT(1 == X.numElements(id));
+                mX.stop();
+                ASSERT(1 == X.numElements(id));
+                
+                ASSERT(0 == mX.start());
+                mX.resumeQueue(id);
+                ASSERT(!X.isPaused(id));
+                mX.drain();
+                ASSERT(0 == X.numElements(id));
+                ASSERT(1 == counter);
+                mX.stop();
+            }
+                
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Re-start the pool.  Enqueue a job to the queue.  Then, delete
             // the queue.
