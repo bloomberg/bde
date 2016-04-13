@@ -101,7 +101,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Datum objects containing certain types *may* (or *may*-*not*!) require
 // memory allocation, so their creation functions *require* an allocator:
 //..
-//  bslma::Allocator *allocator = bslma::Default(0);
+//  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //  Datum int64    = Datum::createInteger64(1LL, allocator);
 //..
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // The contents of a 'Datum' object are destroyed using the static method
 // 'destroy'.  For example:
 //..
-//  bslma::Allocator *allocator = bslma::Default(0);
+//  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //
 //  Datume::destroy(datetime, allocator);
