@@ -197,7 +197,7 @@ static void testWhitespaceLabel()
 {
     for (int ch = 0; ch <= 255; ++ch) {
         switch(ch) {
-      //-|
+      //--^
       case ' ' : ASSERT(0 == bsl::strcmp("SP", whitespaceLabel( ' '))); break;
       case '\t': ASSERT(0 == bsl::strcmp("HT", whitespaceLabel('\t'))); break;
       case '\n': ASSERT(0 == bsl::strcmp("NL", whitespaceLabel('\n'))); break;
@@ -205,7 +205,7 @@ static void testWhitespaceLabel()
       case '\f': ASSERT(0 == bsl::strcmp("FF", whitespaceLabel('\f'))); break;
       case '\r': ASSERT(0 == bsl::strcmp("CR", whitespaceLabel('\r'))); break;
       default  : ASSERT(0 == bsl::strcmp("XX", whitespaceLabel(  ch))); break;
-      //-|
+      //--V
         }
     }
 }
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
                     P(areSameCaseStrSubstr)
                 }
 
-    //--------->|
+    //----------^
     const SR expected         = 0 <= POSITION  && lenCSUBSTR == OVERLAP
                                 ? SR(string.data() + POSITION, lenCSUBSTR)
                                 : SR();
@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaseless));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefullR));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaselessR));
-    //--------->|
+    //----------V
             }
         }
 
@@ -750,11 +750,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n" "Check default contructed input"  << "\n";
         {
-            const char    *empty = "";   const SR     EMPTY(   empty);
-            const char *nonEmpty = "a";  const SR NON_EMPTY(nonEmpty);
+           const char    *empty = "";   const SR     EMPTY(   empty);
+           const char *nonEmpty = "a";  const SR NON_EMPTY(nonEmpty);
 
-            const SR DEFAULT;
- //------->|
+           const SR DEFAULT;
+
+ //--------^
  ASSERT(isEqual(SR(   empty, 0), Util::strstr         (    EMPTY,     EMPTY)));
  ASSERT(isEqual(SR(   empty, 0), Util::strstr         (    EMPTY,   DEFAULT)));
  ASSERT(isEqual(SR(       0, 0), Util::strstr         (  DEFAULT,     EMPTY)));
@@ -794,7 +795,7 @@ int main(int argc, char *argv[])
  ASSERT(isEqual(SR(nonEmpty, 0), Util::strrstrCaseless(NON_EMPTY,   DEFAULT)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstrCaseless(  DEFAULT, NON_EMPTY)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstrCaseless(  DEFAULT,   DEFAULT)));
- //------->|
+ //--------V
         }
 
         if (verbose) cout << "\n" "Multiple matching substrings"  << "\n";

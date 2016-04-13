@@ -204,8 +204,9 @@ struct StringRefUtil {
         // (the referent data of) the specified 'stringRef' that excludes all
         // leading and trailing whitespace.  See {Whitespace Character
         // Specification}.  If 'stringRef' consists entirely of whitespace,
-        // return a zero-length reference to beginning of (the referent data
-        // of) 'stringRef' (i.e., 'bslstl::StringRef(stringRef.data(), 0)').
+        // return a zero-length reference to the beginning of (the referent
+        // data of) 'stringRef' (i.e.,
+        // 'bslstl::StringRef(stringRef.data(), 0)').
 
                         // Find 'subString'
 
