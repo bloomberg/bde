@@ -1031,9 +1031,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 bsls::Types::size_type numBytes = 65;
-                bsls::Types::size_type newSize =
+                bsls::Types::Int64     newSize =
+                                       static_cast<bsls::Types::Int64>(
                                            bdlb::BitUtil::roundUpToBinaryPower(
-                                              static_cast<uint64_t>(numBytes));
+                                             static_cast<uint64_t>(numBytes)));
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
@@ -1063,9 +1064,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 bsls::Types::size_type numBytes = 66;
-                bsls::Types::size_type newSize =
+                bsls::Types::Int64     newSize =
+                                       static_cast<bsls::Types::Int64>(
                                            bdlb::BitUtil::roundUpToBinaryPower(
-                                              static_cast<uint64_t>(numBytes));
+                                             static_cast<uint64_t>(numBytes)));
                 cBuffer = (char *)mX.allocate(numBytes);
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize  == objectAllocator.numBytesInUse());
@@ -1110,9 +1112,11 @@ int main(int argc, char *argv[])
                 ASSERT(0       == objectAllocator.numBytesInUse());
 
                 cBuffer = (char *)mX.allocate(1);
-                bsls::Types::size_type newSize =
+
+                bsls::Types::Int64 newSize =
+                                       static_cast<bsls::Types::Int64>(
                                            bdlb::BitUtil::roundUpToBinaryPower(
-                                            static_cast<uint64_t>(bufferSize));
+                                           static_cast<uint64_t>(bufferSize)));
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1263,10 +1267,13 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
-                cBuffer     = (char *)mX.allocate(64);
-                bsls::Types::size_type newSize =
+                cBuffer = (char *)mX.allocate(64);
+
+                bsls::Types::Int64 newSize =
+                                       static_cast<bsls::Types::Int64>(
                                            bdlb::BitUtil::roundUpToBinaryPower(
-                                            static_cast<uint64_t>(bufferSize));
+                                           static_cast<uint64_t>(bufferSize)));
+
                 ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                 ASSERT(newSize == objectAllocator.numBytesInUse());
 
@@ -1289,7 +1296,8 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
 
-                const int MAXBUFFERSIZE = DATA[i];
+                const bsls::Types::size_type MAXBUFFERSIZE =
+                                  static_cast<bsls::Types::size_type>(DATA[i]);
 
                 if (veryVerbose) {
                     T_ P_(bufferSize) P(MAXBUFFERSIZE)
@@ -1339,9 +1347,10 @@ int main(int argc, char *argv[])
                     nC = tc.numBytesInUse();
                     nD = td.numBytesInUse();
 
-                    bsls::Types::size_type size =
+                    bsls::Types::Int64 size =
+                               static_cast<bsls::Types::Int64>(
                                    bdlb::BitUtil::roundUpToBinaryPower(
-                                        static_cast<uint64_t>(bufferSize * j));
+                                       static_cast<uint64_t>(bufferSize * j)));
 
                     LOOP3_ASSERT(nA, oldNA, j, nA == oldNA + size);
                     LOOP3_ASSERT(nB, oldNB, j, nB == oldNB + size);
@@ -1364,7 +1373,8 @@ int main(int argc, char *argv[])
                 nC = tc.numBytesInUse();
                 nD = td.numBytesInUse();
 
-                bsls::Types::size_type size = blockSize(bufferSize * j);
+                bsls::Types::Int64 size =
+                                   blockSize(static_cast<int>(bufferSize * j));
 
                 LOOP3_ASSERT(nA, oldNA, size, nA == oldNA + size);
             }
@@ -1378,10 +1388,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 bsls::Types::size_type numBytes = 65;
+
                 cBuffer = (char *)mX.allocate(numBytes);
-                bsls::Types::size_type size =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
-                                              static_cast<uint64_t>(numBytes));
+
+                bsls::Types::Int64 size =
+                               static_cast<bsls::Types::Int64>(
+                                   bdlb::BitUtil::roundUpToBinaryPower(
+                                             static_cast<uint64_t>(numBytes)));
+
                 ASSERT(size == objectAllocator.numBytesInUse());
             }
             {
@@ -1390,10 +1404,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 bsls::Types::size_type numBytes = INT_MAX / 4;
+
                 cBuffer = (char *)mX.allocate(numBytes);
-                bsls::Types::size_type size =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
-                                              static_cast<uint64_t>(numBytes));
+
+                bsls::Types::Int64 size =
+                               static_cast<bsls::Types::Int64>(
+                                   bdlb::BitUtil::roundUpToBinaryPower(
+                                             static_cast<uint64_t>(numBytes)));
+
                 ASSERT(size == objectAllocator.numBytesInUse());
             }
 #ifdef BSLS_PLATFORM_CPU_64_BIT
@@ -1403,10 +1421,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == objectAllocator.numBytesInUse());
 
                 bsls::Types::size_type numBytes = INT_MAX;
+
                 cBuffer = (char *)mX.allocate(numBytes);
-                bsls::Types::size_type size =
-                                           bdlb::BitUtil::roundUpToBinaryPower(
-                                              static_cast<uint64_t>(numBytes));
+
+                bsls::Types::Int64 size =
+                               static_cast<bsls::Types::Int64>(
+                                   bdlb::BitUtil::roundUpToBinaryPower(
+                                             static_cast<uint64_t>(numBytes)));
+
                 ASSERT(size == objectAllocator.numBytesInUse());
             }
 #endif

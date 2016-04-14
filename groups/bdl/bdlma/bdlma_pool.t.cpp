@@ -1587,14 +1587,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'allocate' with varying block sizes."
                           << endl;
 
-        const int DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-        const int NUM_BLOCKS = 5;
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        const bsls::Types::size_type DATA[]     = { 1, 2, 5, 6, 12, 24, 32 };
+        const int                    NUM_DATA   = sizeof DATA / sizeof *DATA;
+        const int                    NUM_BLOCKS = 5;
+        bslma::TestAllocator         testAllocator(veryVeryVerbose);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const int BLOCK_SIZE = DATA[ti];
+                const bsls::Types::size_type BLOCK_SIZE = DATA[ti];
                 Obj mX(BLOCK_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT,
                        NUM_BLOCKS,
@@ -1611,7 +1611,7 @@ int main(int argc, char *argv[])
 
                         bsls::Types::Int64       size = p - lastP;
                         const bsls::Types::Int64 EXP  =
-                                                     poolBlockSize(BLOCK_SIZE);
+                                   poolBlockSize(static_cast<int>(BLOCK_SIZE));
 
                         if (veryVerbose) { T_ P_(size) T_ P(EXP) }
                         LOOP2_ASSERT(ti, oi, EXP == size);
