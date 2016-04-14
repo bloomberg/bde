@@ -2,7 +2,7 @@
 
 #include <bdlt_time.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -17,12 +17,12 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strcmp'
 #include <bsl_c_time.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -146,23 +146,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -2240,14 +2240,14 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int         d_lineNum;      // source line number
-                int         d_hour;         // specification hour
-                int         d_minute;       // specification minute
-                int         d_second;       // specification second
-                int         d_millisecond;  // specification millisecond
-                int         d_version;      // version to stream with
-                int         d_length;       // expect output length
-                const char *d_fmt_p;        // expected output format
+                int          d_lineNum;      // source line number
+                int          d_hour;         // specification hour
+                int          d_minute;       // specification minute
+                int          d_second;       // specification second
+                int          d_millisecond;  // specification millisecond
+                int          d_version;      // version to stream with
+                bsl::size_t  d_length;       // expect output length
+                const char  *d_fmt_p;        // expected output format
             } DATA[] = {
                 //LINE  HOUR  MIN  SEC    MS   VER  LEN  FORMAT
                 //----  ----  ---  ---  -----  ---  ---  -------------------
@@ -2263,7 +2263,7 @@ if (veryVerbose)
                 const int         SECOND      = DATA[i].d_second;
                 const int         MILLISECOND = DATA[i].d_millisecond;
                 const int         VERSION     = DATA[i].d_version;
-                const int         LEN         = DATA[i].d_length;
+                const bsl::size_t LEN         = DATA[i].d_length;
                 const char *const FMT         = DATA[i].d_fmt_p;
 
                 // Test using class methods.
@@ -2282,7 +2282,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -2320,7 +2320,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -2592,7 +2592,7 @@ if (veryVerbose)
         //: 1 Methods produce expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
@@ -2662,24 +2662,32 @@ if (veryVerbose)
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset 'buf1' to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset 'buf2' to Z2 values.
-
-                if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
-                ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
-                ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) cout << "ACTUAL FORMAT:" << endl<<buf1<<endl;
+                if (veryVerbose) {
+                    cout << "EXPECTED FORMAT:" << endl << FMT << endl;
+                }
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
+                X.print(out1, IND, SPL) << ends;
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
+                X.print(out2, IND, SPL) << ends;
+                if (veryVerbose) {
+                    cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
+                }
 
                 const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(buf2, FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                LOOP_ASSERT(ti,
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(ti,
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(ti, 0 == strcmp(out1.str().c_str(), FMT));
+                LOOP_ASSERT(ti, 0 == strcmp(out2.str().c_str(), FMT));
+                LOOP_ASSERT(ti, 0 == memcmp(out1.str().c_str() + SZ,
+                                            CTRL_BUF1 + SZ,
+                                            REST));
+                LOOP_ASSERT(ti, 0 == memcmp(out2.str().c_str() + SZ,
+                                            CTRL_BUF2 + SZ,
+                                            REST));
             }
         }
 
@@ -2722,22 +2730,24 @@ if (veryVerbose)
                 const int         MSEC   = DATA[di].d_msec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
-                char buf[SIZE];
-                memcpy(buf, CTRL_BUF, SIZE); // Preset 'buf' to 'unset' values.
-
                 Obj x;  const Obj& X = x;
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
-                ostrstream out(buf, SIZE);  out << X << ends;
-                if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
+                ostringstream out(std::string(CTRL_BUF, SIZE));
+                out << X << ends;
+                if (veryVerbose) {
+                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
+                }
 
                 const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, XX == buf[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, SZ));
-                LOOP_ASSERT(LINE,  0 ==
-                                     memcmp(buf + SZ, CTRL_BUF + SZ, SIZE-SZ));
+                LOOP_ASSERT(LINE,
+                            XX == out.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
+                                              CTRL_BUF + SZ,
+                                              SIZE - SZ));
             }
         }
 
@@ -2782,22 +2792,26 @@ if (veryVerbose)
                 const int         MSEC   = DATA[di].d_msec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
-                char buf[SIZE];
-                memcpy(buf, CTRL_BUF, SIZE); // Preset 'buf' to 'unset' values.
-
                 Obj x;  const Obj& X = x;
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
-                ostrstream out(buf, SIZE);  X.streamOut(out);  out << ends;
-                if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
+                ostringstream out(bsl::string(CTRL_BUF, SIZE));
+                X.streamOut(out);  out << ends;
+                if (veryVerbose) {
+                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
+                }
 
                 const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, XX == buf[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, SZ));
-                LOOP_ASSERT(LINE,  0 ==
-                                     memcmp(buf + SZ, CTRL_BUF + SZ, SIZE-SZ));
+                LOOP_ASSERT(LINE,
+                            XX == out.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(),
+                                              FMT,
+                                              SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
+                                              CTRL_BUF + SZ,
+                                              SIZE - SZ));
             }
         }
 
