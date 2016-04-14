@@ -174,12 +174,17 @@ native_std::ostream& TimeInterval::print(
         // If 'level <= 0' the value will not be indented, otherwise the
         // indentation is 'level * abs(spacesPerLevel)'.
 
-        // Use 'unsigned' to suppress gcc compiler warning.
+        int absSpacesPerLevel = spacesPerLevel;
 
-        unsigned int indentation = level *
-                      (spacesPerLevel < 0 ? -spacesPerLevel : spacesPerLevel);
-        for (unsigned int i = 0; i < indentation; ++i) {
-            stream << ' ';
+        if (absSpacesPerLevel < 0) {
+            absSpacesPerLevel = -absSpacesPerLevel;
+        }
+
+        // Use nested loops rather than multiplication to avoid gcc warning.
+        for (int i = 0; i < absSpacesPerLevel; ++i) {
+            for (int j = 0; i < level; ++j) {
+                stream << ' ';
+            }
         }
     }
 
