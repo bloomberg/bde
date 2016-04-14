@@ -870,7 +870,9 @@ int main(int argc, char *argv[])
             // Truncating previously allocated address should fail.
             if (EXPOFFSET >= 0
              && ((char *)addr1 + INITIALSIZE) != ((char *)addr2 + 1)) {
-                int ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+                int ret = static_cast<int>(mX.truncate(addr1,
+                                                       INITIALSIZE,
+                                                       NEWSIZE));
                 LOOP2_ASSERT(INITIALSIZE, ret, INITIALSIZE == ret);
             }
         }
@@ -1585,7 +1587,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(INT_MAX / 4);
             }
-#ifdef BSLS_PLATFORM_CPU_64_BIT
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_LINUX)
             {
                 Obj mX;
 
