@@ -182,7 +182,7 @@ native_std::ostream& TimeInterval::print(
 
         // Use nested loops rather than multiplication to avoid gcc warning.
         for (int i = 0; i < absSpacesPerLevel; ++i) {
-            for (int j = 0; i < level; ++j) {
+            for (int j = 0; j < level; ++j) {
                 stream << ' ';
             }
         }
