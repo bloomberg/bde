@@ -106,7 +106,7 @@
 
 <h3><a class="anchor" id="index_c"></a>- c -</h3><ul>
 <li>c_str()
-: <a class="el" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 </li>
 <li>calculateAlignmentFromSize()
 : <a class="el" href="structbsls_1_1AlignmentUtil.html#a22499d10c8827af367d52693472ca491">bsls::AlignmentUtil</a>
@@ -225,6 +225,9 @@
 , <a class="el" href="classbdlc_1_1PackedIntArray.html#abdd42a4a461614b821de3bb190361df0">bdlc::PackedIntArray&lt; TYPE &gt;</a>
 , <a class="el" href="classbdlcc_1_1FixedQueue.html#a0a6cd98ce33023ab6ef9b1e06f26902e">bdlcc::FixedQueue&lt; TYPE &gt;</a>
 , <a class="el" href="classbdlcc_1_1FixedQueueIndexManager.html#a1c32a7053880fe475d6f28f8f600bfe1">bdlcc::FixedQueueIndexManager</a>
+, <a class="el" href="classbdld_1_1DatumArrayBuilder.html#a24ba3d9a4b152b6eb3c6729c16949471">bdld::DatumArrayBuilder</a>
+, <a class="el" href="classbdld_1_1DatumMapBuilder.html#aadeddd404df74aa56b28e16ef9426091">bdld::DatumMapBuilder</a>
+, <a class="el" href="classbdld_1_1DatumMapOwningKeysBuilder.html#a46a5276d41a110519cecf09bdebb49d6">bdld::DatumMapOwningKeysBuilder</a>
 , <a class="el" href="classbdlsb_1_1FixedMemInput.html#a7edc3905dc1e6bf115e86ffafa770bd6">bdlsb::FixedMemInput</a>
 , <a class="el" href="classbdlsb_1_1FixedMemOutput.html#a387b4fab700f6552dff583aeb6c28ba0">bdlsb::FixedMemOutput</a>
 , <a class="el" href="classbdlsb_1_1FixedMemOutStreamBuf.html#af0d0b11e8377833863d74e2fff1c89de">bdlsb::FixedMemOutStreamBuf</a>
@@ -235,6 +238,9 @@
 </li>
 <li>capacityHint()
 : <a class="el" href="classbdlc_1_1HashTable.html#af36122cd777922594f32cf3398532846">bdlc::HashTable&lt; KEY, VALUE, TRAITS, HASH1, HASH2 &gt;</a>
+</li>
+<li>cast()
+: <a class="el" href="group__bsls__pointercastutil.html#gac0bef8d3507ba5ed9eb74466030e9b8d">bsls::PointerCastUtil</a>
 </li>
 <li>caster()
 : <a class="el" href="structbslma_1_1DeleterHelper__Helper.html#a40deea1b0c427c82d335febae00db115">bslma::DeleterHelper_Helper&lt; IS_POLYMORPHIC &gt;</a>
@@ -288,7 +294,10 @@
 : <a class="el" href="structbdldfp_1_1DecimalUtil.html#a88cac879ca1c6a6f58fad1a0c8561e29">bdldfp::DecimalUtil</a>
 </li>
 <li>cend()
-: <a class="el" href="group__bslstl__unorderedmap.html#ga0a2155283876261fb11074ad92ec9b02">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__multiset.html#ga2f927fc2f76c5892989772b7d1180580">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__set.html#gab123b6838099254ac81615cf1c429b41">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga1c0b9b5e42d3a9d5c8bad06dfea65a9f">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmap.html#gae19ec5a71a5c5af0a07252e1ad7c6822">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultimap.html#ga070ba9c33597017c6f43734a051caf28">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultiset.html#gabdf1ff49beccf1dd68cfce1bf96147a8">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedset.html#gab9e05cf6528849f4d6ce70fdd04f2345">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
@@ -299,10 +308,6 @@
 , <a class="el" href="group__bslstl__list.html#ga66457b97f8c525546b3773bd3cb1223e">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__map.html#ga26d2bb52dd9486a4a9b7964f9578cf73">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multimap.html#ga23292ff5a01daff91924fa78bf3f6aff">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#ga2f927fc2f76c5892989772b7d1180580">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__set.html#gab123b6838099254ac81615cf1c429b41">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga1c0b9b5e42d3a9d5c8bad06dfea65a9f">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#gae19ec5a71a5c5af0a07252e1ad7c6822">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>channel()
 : <a class="el" href="classbtlmt_1_1Session.html#ae949c992b618b3884d55fbe6f8d3234e">btlmt::Session</a>
@@ -374,8 +379,7 @@
 </li>
 <li>clear()
 : <a class="el" href="classball_1_1AttributeContext__RuleEvaluationCache.html#a95ecc39ac214bdf63cc30c7e63704e56">ball::AttributeContext_RuleEvaluationCache</a>
-, <a class="el" href="classbdlf_1_1Function__Rep.html#aa1631a61edecac919ab3a024d571c64b">bdlf::Function_Rep</a>
-, <a class="el" href="classbdlf_1_1Function.html#a3c224b63c48e96364f81d34f6e636cb4">bdlf::Function&lt; PROTOTYPE &gt;</a>
+, <a class="el" href="classbdlpcre_1_1RegEx.html#aeb4b1af38f8f1414d040abc72d8ddd38">bdlpcre::RegEx</a>
 , <a class="el" href="classbdls_1_1FdStreamBuf__FileHandler.html#ac28d29f728773d1525cfe3cae0a33e9b">bdls::FdStreamBuf_FileHandler</a>
 , <a class="el" href="classbdls_1_1FdStreamBuf.html#a4a063eeabf80fc754ef7b7ae59492c0e">bdls::FdStreamBuf</a>
 , <a class="el" href="classbslma_1_1ManagedPtr.html#ab929c98b414c3feabd00d8e4430b60d1">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
@@ -421,6 +425,13 @@
 <li>clockSeqLow()
 : <a class="el" href="classbdlb_1_1Guid.html#ac7c28dd6b55e1259d6988a047f71f72d">bdlb::Guid</a>
 </li>
+<li>clockType()
+: <a class="el" href="classbdlmt_1_1EventScheduler.html#a9fc58f41634dd6747e2ce14188361255">bdlmt::EventScheduler</a>
+, <a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a73034c40aeba79731184cdd1adaf07c7">bdlmt::TimerEventScheduler</a>
+</li>
+<li>clone()
+: <a class="el" href="classbdld_1_1ManagedDatum.html#aa35ecf2893a4d6aed2fff939886d3191">bdld::ManagedDatum</a>
+</li>
 <li>cloneBaseObject()
 : <a class="el" href="classbsltf_1_1DegenerateFunctor.html#a51698b42d5a1cb126bf7f17492ff8318">bsltf::DegenerateFunctor&lt; FUNCTOR, ENABLE_SWAP &gt;</a>
 </li>
@@ -463,6 +474,9 @@
 <li>closeObject()
 : <a class="el" href="classbaljsn_1_1Encoder__Formatter.html#a10aeabff146bf6edd880325fd6e63f72">baljsn::Encoder_Formatter</a>
 </li>
+<li>code()
+: <a class="el" href="classbdld_1_1DatumError.html#a4f6ea54bbe06aaa1db8f091bb235198d">bdld::DatumError</a>
+</li>
 <li>collect()
 : <a class="el" href="classbalb_1_1PerformanceMonitor.html#a6dc7b67aece74ec2dd25f37247adac01">balb::PerformanceMonitor</a>
 , <a class="el" href="classbalm_1_1CollectorRepository.html#a83a7a2d1df35b07564eb71c125a9c2c7">balm::CollectorRepository</a>
@@ -494,6 +508,11 @@
 </li>
 <li>columnNumber()
 : <a class="el" href="classbalxml_1_1ErrorInfo.html#ae07e54d82b86fd07106b700b45d6e59f">balxml::ErrorInfo</a>
+</li>
+<li>commit()
+: <a class="el" href="classbdld_1_1DatumArrayBuilder.html#a113d39b652b6ce845a836e804439b1ca">bdld::DatumArrayBuilder</a>
+, <a class="el" href="classbdld_1_1DatumMapBuilder.html#a924a51c5eb2916def0e05d6bc3fa9384">bdld::DatumMapBuilder</a>
+, <a class="el" href="classbdld_1_1DatumMapOwningKeysBuilder.html#a0a65a6aa43f1806f9a5740c50bc2930b">bdld::DatumMapOwningKeysBuilder</a>
 </li>
 <li>commitPopIndex()
 : <a class="el" href="classbdlcc_1_1FixedQueueIndexManager.html#a8e3c65e057e9e148c830184571e5f9fa">bdlcc::FixedQueueIndexManager</a>
@@ -578,22 +597,24 @@
 : <a class="el" href="classbalb_1_1PerformanceMonitor_1_1ConstIterator.html#a8982119bb79731650929dafa8bfae065">balb::PerformanceMonitor::ConstIterator</a>
 </li>
 <li>construct()
-: <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#aed005f74ad7e0284372fa8db580f9a47">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="classbsltf_1_1StdTestAllocator.html#a979bd9789465d59d50670306e11aa9c9">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#acf75317c458b1dc8f199d353352ba1cb">bslalg::ScalarPrimitives_Imp</a>
+: <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a18a52e5b9fea7a41d8e40dceb63b0557">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="group__bslstl__allocatortraits.html#gab1c6b0656d9734078a2f1ffe3afcb675">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a88d41209fb368910547e3397c234365d">bslalg::ScalarPrimitives_Imp</a>
 , <a class="el" href="classbdlcc_1_1SkipList__NodeCreationHelper.html#a5d9c377f3947ecfc1544a69f47ada571">bdlcc::SkipList_NodeCreationHelper&lt; KEY, DATA &gt;</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a934d08c72d5ab7c5e42893277b6c1138">bslalg::ScalarPrimitives_Imp</a>
 , <a class="el" href="classbslalg_1_1ContainerBase.html#a05f903b809e5feddbcc119aa148457c4">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a2a589c408ae61aaf57853373a742c181">bslalg::ScalarPrimitives</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a46e6bd7c9c34f1ec9bc40088bac2b497">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#aa1b65fed987aa0a56411b4a299bd4855">bslalg::ScalarPrimitives</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a666b81700113b1b8dfb307d072c5eb88">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a90b70bbc0ae308cce026f1b386aa59d8">bslalg::ScalarPrimitives</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a8f35e2ba92409d58ce8c17d72c905e04">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a3ccd898135e12fd17ac85b3dc8bead71">bslalg::ScalarPrimitives</a>
 , <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a497e9164cca015a1192e9c0da50a8711">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#ae3322e7e8496734874f8ac20c60bd97e">bslalg::ScalarPrimitives</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a19f641cb43f332cacf35cc9e4748c38c">bslalg::ScalarPrimitives_Imp</a>
 , <a class="el" href="group__bslstl__allocator.html#ga5e518d9b03c50eee5403a90963826910">bsl::allocator&lt; TYPE &gt;</a>
-, <a class="el" href="group__bslstl__allocatortraits.html#gab1c6b0656d9734078a2f1ffe3afcb675">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__allocatortraits.html#ga9205e72e5182ead99085d2c7987de4f3">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;</a>
+, <a class="el" href="classbsltf_1_1StdTestAllocator.html#a979bd9789465d59d50670306e11aa9c9">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
 </li>
 <li>ConstructorProxy()
-: <a class="el" href="classbslalg_1_1ConstructorProxy.html#a6d492a2e0b9fc82971b92a7bd5983832">bslalg::ConstructorProxy&lt; OBJECT_TYPE &gt;</a>
+: <a class="el" href="classbslalg_1_1ConstructorProxy.html#ae931429978ad37ba1587db7d1d775e25">bslalg::ConstructorProxy&lt; OBJECT_TYPE &gt;</a>
 </li>
 <li>ContainerBase()
 : <a class="el" href="classbslalg_1_1ContainerBase.html#a0951943541bccda529a8bb9b58dd4ac0">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
@@ -617,42 +638,52 @@
 : <a class="el" href="classbalb_1_1ControlManager.html#a5f132fe674637d60443fc9673ce6ebf2">balb::ControlManager</a>
 </li>
 <li>ControlManager_Entry()
-: <a class="el" href="classbalb_1_1ControlManager__Entry.html#a36a26a031872ebeeef85c5401d86f0ff">balb::ControlManager_Entry</a>
+: <a class="el" href="classbalb_1_1ControlManager__Entry.html#a7fc35ba9768a1009247ef64a496d6559">balb::ControlManager_Entry</a>
 </li>
 <li>convert()
-: <a class="el" href="classbdlat__SymbolicConverter__Imp.html#ab469008b91ae3e93346405bc1c13438a">bdlat_SymbolicConverter_Imp</a>
-, <a class="el" href="classbdlde_1_1QuotedPrintableDecoder.html#a4090e9346574f81c6d809c8b62ba4d18">bdlde::QuotedPrintableDecoder</a>
-, <a class="el" href="structbdlat__SymbolicConverter.html#a118ea2c2805fbde7471514ba6428b795">bdlat_SymbolicConverter</a>
+: <a class="el" href="classbdlde_1_1Base64Encoder.html#a404d6aff016801d401162e928a1fb6cd">bdlde::Base64Encoder</a>
+, <a class="el" href="classbdlat__SymbolicConverter__Imp.html#a0e7eac69809a79e103eece700ccb88f5">bdlat_SymbolicConverter_Imp</a>
+, <a class="el" href="structbdlat__SymbolicConverter.html#a6b665c64dc218a77ddc846b387261106">bdlat_SymbolicConverter</a>
 , <a class="el" href="classbdlat__SymbolicConverter__Imp.html#a22052cc469f818f819b0e024e78c2f08">bdlat_SymbolicConverter_Imp</a>
 , <a class="el" href="classbdlde_1_1Base64Decoder.html#a54e44e763290e6023b7aba7ce72372ed">bdlde::Base64Decoder</a>
-, <a class="el" href="classbdlde_1_1Base64Encoder.html#a404d6aff016801d401162e928a1fb6cd">bdlde::Base64Encoder</a>
+, <a class="el" href="classbdlde_1_1Base64Encoder.html#ae3bbad8b0cedaec9ef92c82d9ce555c8">bdlde::Base64Encoder</a>
+, <a class="el" href="classbdlde_1_1QuotedPrintableDecoder.html#a4090e9346574f81c6d809c8b62ba4d18">bdlde::QuotedPrintableDecoder</a>
 , <a class="el" href="classbdlde_1_1QuotedPrintableEncoder.html#aacfe62dcd0a8acb7fca70898df66fc9f">bdlde::QuotedPrintableEncoder</a>
 </li>
 <li>convertFromBaseType()
-: <a class="el" href="structbdlat__CustomizedTypeFunctions__Imp.html#a440ac06a657ef87757120f66376b1e2b">bdlat_CustomizedTypeFunctions_Imp</a>
+: <a class="el" href="structbdlat__CustomizedTypeFunctions__Imp.html#a35b65547708008f5ced8aa4956299d91">bdlat_CustomizedTypeFunctions_Imp</a>
 </li>
 <li>convertFromBID()
-: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#af1a8595daff0ad371debfd393239e7e8">bdldfp::DecimalImpUtil</a>
+: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a083a547249d8a739aeba2c4c1fed7a14">bdldfp::DecimalImpUtil</a>
 </li>
 <li>convertFromDatetimeInterval()
-: <a class="el" href="structbdlt_1_1EpochUtil.html#a146c66013e7a748c5e15f8cc8151e04e">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a91b41edd6f1c29399ad4e38c57b2f31c">bdlt::EpochUtil</a>
 </li>
 <li>convertFromDPD()
 : <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a5f0bff1083377c26ed94a30080ffd64f">bdldfp::DecimalImpUtil</a>
+, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a9ff4bed00699b4954643deb9300f19b2">bdldfp::DecimalImpUtil_DecNumber</a>
+, <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a0cd2d87520e23066840818134c76932d">bdldfp::DecimalImpUtil</a>
 , <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a008d224278af40b464a2598b7cc105de">bdldfp::DecimalImpUtil_DecNumber</a>
 , <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a28e9a39b8424a8a77afcd11aec95fa64">bdldfp::DecimalImpUtil</a>
-, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a9ff4bed00699b4954643deb9300f19b2">bdldfp::DecimalImpUtil_DecNumber</a>
+, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a985576a86cc83239db58259071c90da9">bdldfp::DecimalImpUtil_DecNumber</a>
+</li>
+<li>convertFromHHMM()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#aae942a8352645b7764c4cc5a71128941">bdlt::TimeUtil</a>
+</li>
+<li>convertFromHHMMSS()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#a9af3811b40d6d52b8160c0d26a8a4ffa">bdlt::TimeUtil</a>
+</li>
+<li>convertFromHHMMSSmmm()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#a47442a0e5ed210d362f524527666e54d">bdlt::TimeUtil</a>
 </li>
 <li>convertFromTimeInterval()
-: <a class="el" href="structbdlt_1_1EpochUtil.html#a62e9a2dc38b2905d627c0ed7d4818be9">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a786168daf1cb4bfccf5b58938f21829f">bdlt::EpochUtil</a>
 </li>
 <li>convertFromTimeT()
-: <a class="el" href="structbdlt_1_1EpochUtil.html#ad5f4405d83c5fafd680d609083cb39f0">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a37b7a887d7621e947b93d349cff48078">bdlt::EpochUtil</a>
 </li>
 <li>convertFromTimeT64()
 : <a class="el" href="structbdlt_1_1EpochUtil.html#a0e3dc985ccdc3525752c0e04fb18008d">bdlt::EpochUtil</a>
-, <a class="el" href="classbaltzo_1_1Zoneinfo.html#a5c19426953262f8a29b80e714f31e0f2">baltzo::Zoneinfo</a>
-, <a class="el" href="structbdlt_1_1EpochUtil.html#a78fe43b41ae12fba14ce31654783e6eb">bdlt::EpochUtil</a>
 </li>
 <li>convertFromTm()
 : <a class="el" href="structbdlt_1_1DatetimeUtil.html#aed0636588affb57af955757daa13adeb">bdlt::DatetimeUtil</a>
@@ -667,56 +698,62 @@
 : <a class="el" href="structbsltf_1_1ConvertibleValueWrapper.html#ae64172b496ee3fa33a6f230c280ce36a">bsltf::ConvertibleValueWrapper&lt; TYPE &gt;</a>
 </li>
 <li>convertLocalToLocalTime()
-: <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#ad055320469b15b50520108323b307bf8">baltzo::TimeZoneUtil</a>
+: <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#ab6faf9afe4f5a8a7b46b1fd9648e82ad">baltzo::TimeZoneUtil</a>
 </li>
 <li>convertLocalToUtc()
-: <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#affbebbc1bc612aec9dad54099ad8e1be">baltzo::TimeZoneUtil</a>
+: <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#ad2832c992ef973bd77f7cee52babad0d">baltzo::TimeZoneUtil</a>
 </li>
 <li>convertRawTime()
 : <a class="el" href="structbsls_1_1TimeUtil.html#a50106670de771665300872a63259ef51">bsls::TimeUtil</a>
 </li>
 <li>convertToBaseType()
-: <a class="el" href="structbdlat__CustomizedTypeFunctions__Imp.html#ab00b4326427278666cb3f368648dd3e5">bdlat_CustomizedTypeFunctions_Imp</a>
+: <a class="el" href="structbdlat__CustomizedTypeFunctions__Imp.html#ab3932de5011056383b2b4e590feb66f6">bdlat_CustomizedTypeFunctions_Imp</a>
 </li>
 <li>convertToBID()
-: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a5a6ee492550544fd2c9d3fe417322f91">bdldfp::DecimalImpUtil</a>
+: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#aafdcf0ee8d3863604d3de57c0c745394">bdldfp::DecimalImpUtil</a>
 </li>
 <li>convertToDatetimeInterval()
-: <a class="el" href="structbdlt_1_1EpochUtil.html#a3e5251efe9fc597d2905cfdded1990d2">bdlt::EpochUtil</a>
-, <a class="el" href="structbdlt_1_1IntervalConversionUtil.html#a14a392ef7f8c2be4bb4805f3c356accc">bdlt::IntervalConversionUtil</a>
+: <a class="el" href="structbdlt_1_1IntervalConversionUtil.html#a14a392ef7f8c2be4bb4805f3c356accc">bdlt::IntervalConversionUtil</a>
+, <a class="el" href="structbdlt_1_1EpochUtil.html#a3e5251efe9fc597d2905cfdded1990d2">bdlt::EpochUtil</a>
 </li>
 <li>convertToDecimal128()
 : <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a4c1f6424c6d306dff6fd1c7125f5a513">bdldfp::DecimalImpUtil</a>
-, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a5965ae0a7eb3ede062114f7f30fe4095">bdldfp::DecimalImpUtil_DecNumber</a>
+, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#ac1347f6d170a52256c0ae00e8ce8dcbc">bdldfp::DecimalImpUtil_DecNumber</a>
 </li>
 <li>convertToDecimal32()
 : <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a7ff5bb6ca01068c05bf3211704bff714">bdldfp::DecimalImpUtil</a>
 , <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#ac92485456790dae77b7ffb2162d13d34">bdldfp::DecimalImpUtil_DecNumber</a>
 </li>
 <li>convertToDecimal64()
-: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#afab6189c2f9f78e5a9d531b9f1634f2c">bdldfp::DecimalImpUtil</a>
-, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a678164f3a578b69eaa838fb1cea1f030">bdldfp::DecimalImpUtil_DecNumber</a>
+: <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a678164f3a578b69eaa838fb1cea1f030">bdldfp::DecimalImpUtil_DecNumber</a>
 , <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a9920a8066384b03c371bfafca8d370b2">bdldfp::DecimalImpUtil</a>
-, <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#a27ae034417b2369e4ccdf01823125196">bdldfp::DecimalImpUtil_DecNumber</a>
 </li>
 <li>convertToDPD()
-: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a3035500217c7235014973126d320c8fb">bdldfp::DecimalImpUtil</a>
+: <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#a066d02270038f76ef5f79473ded80c79">bdldfp::DecimalImpUtil</a>
 , <a class="el" href="structbdldfp_1_1DecimalImpUtil__DecNumber.html#aa5535a916fffd5549993114eb3340877">bdldfp::DecimalImpUtil_DecNumber</a>
 , <a class="el" href="classbdldfp_1_1DecimalImpUtil.html#adb3f52a561b461a891cdc7a7966d38e9">bdldfp::DecimalImpUtil</a>
+</li>
+<li>convertToHHMM()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#ad7bc0a4d64cc21f36cc133dbd55691db">bdlt::TimeUtil</a>
+</li>
+<li>convertToHHMMSS()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#a4fb0829bcab1c1cf8a6a379b98a5259f">bdlt::TimeUtil</a>
+</li>
+<li>convertToHHMMSSmmm()
+: <a class="el" href="structbdlt_1_1TimeUtil.html#a869d3a16d1c4782321c7c469efeae0aa">bdlt::TimeUtil</a>
 </li>
 <li>convertToSchedulingPriority()
 : <a class="el" href="structbslmt_1_1ThreadUtil.html#abf87f34e8ce727a1342f05476a42427b">bslmt::ThreadUtil</a>
 </li>
 <li>convertToTimeInterval()
-: <a class="el" href="structbdlt_1_1IntervalConversionUtil.html#a26fc24aa8f997f86fd940d780c28a7c0">bdlt::IntervalConversionUtil</a>
-, <a class="el" href="structbdlt_1_1EpochUtil.html#a02844bd25c4aab7b7051b511b60d3cff">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a02844bd25c4aab7b7051b511b60d3cff">bdlt::EpochUtil</a>
+, <a class="el" href="structbdlt_1_1IntervalConversionUtil.html#a26fc24aa8f997f86fd940d780c28a7c0">bdlt::IntervalConversionUtil</a>
 </li>
 <li>convertToTimeT()
-: <a class="el" href="structbdlt_1_1EpochUtil.html#a28932a587d941703ade42cbfe71fd560">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a20144e6ebd53d3fcd9b1a789cc3cc8ed">bdlt::EpochUtil</a>
 </li>
 <li>convertToTimeT64()
-: <a class="el" href="classbaltzo_1_1Zoneinfo.html#ae2f61cf31565ec0b8c1ee4a2008bc23d">baltzo::Zoneinfo</a>
-, <a class="el" href="structbdlt_1_1EpochUtil.html#a0d49ee9bccf80740fe6d92faefd33315">bdlt::EpochUtil</a>
+: <a class="el" href="structbdlt_1_1EpochUtil.html#a0d49ee9bccf80740fe6d92faefd33315">bdlt::EpochUtil</a>
 </li>
 <li>convertToTm()
 : <a class="el" href="structbdlt_1_1DatetimeUtil.html#ad12946c907a881a665173f158ac5914d">bdlt::DatetimeUtil</a>
@@ -725,29 +762,26 @@
 : <a class="el" href="structbdlt_1_1DateUtil.html#a77c5b1bd18375099ab6896988e5b71d4">bdlt::DateUtil</a>
 </li>
 <li>convertUtcToLocalTime()
-: <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#ae87a14bf9fe0d1afa933ace3ba6cc20c">baltzo::TimeZoneUtil</a>
-, <a class="el" href="structbaltzo_1_1TimeZoneUtilImp.html#aec975907f9e2f30f3a7297d1e33e3b70">baltzo::TimeZoneUtilImp</a>
+: <a class="el" href="structbaltzo_1_1ZoneinfoUtil.html#ad5ef5d9bc5686af9606c740a7a90f395">baltzo::ZoneinfoUtil</a>
 , <a class="el" href="structbaltzo_1_1TimeZoneUtil.html#ab07a5e38365f151cf6f522dcfaabde4a">baltzo::TimeZoneUtil</a>
-, <a class="el" href="structbaltzo_1_1ZoneinfoUtil.html#ad5ef5d9bc5686af9606c740a7a90f395">baltzo::ZoneinfoUtil</a>
+, <a class="el" href="structbaltzo_1_1TimeZoneUtilImp.html#aec975907f9e2f30f3a7297d1e33e3b70">baltzo::TimeZoneUtilImp</a>
 </li>
 <li>copy()
-: <a class="el" href="structbdlb_1_1String.html#acabef333d78d78ad848d3b6c84be71d4">bdlb::String</a>
+: <a class="el" href="structbdlb_1_1BitStringUtil.html#ac8d7d4820404bbd8ab3be85f263f22f6">bdlb::BitStringUtil</a>
+, <a class="el" href="structbdlb_1_1String.html#acabef333d78d78ad848d3b6c84be71d4">bdlb::String</a>
 , <a class="el" href="structbtlb_1_1BlobUtil.html#a1323cfba123417ce35155b2775c39cf9">btlb::BlobUtil</a>
+, <a class="el" href="structbdlb_1_1String.html#a7237b14a331d6ce1f0176a4f167adb4f">bdlb::String</a>
 , <a class="el" href="group__bslstl__string.html#gac5e22eff992ef88d3184444ea7d40313">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
-, <a class="el" href="structbdlb_1_1BitStringUtil.html#ac8d7d4820404bbd8ab3be85f263f22f6">bdlb::BitStringUtil</a>
-, <a class="el" href="structbdlb_1_1String.html#a1605837d0eae3496778e78a3df2e85ea">bdlb::String</a>
 </li>
 <li>copyConstruct()
-: <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a4468ca1f5dd90740b27d2bd1babfcbbb">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a673fd4b551f4e1595cfb0b0da6b75c4f">bslalg::ScalarPrimitives</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#ad2afbb6a4a665759b62b2751866c9f57">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#acfd7ceb935a75a2ad254c76edabf4b11">bslalg::ArrayPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a880560a59e288402a464b419903fc7e2">bslalg::ScalarPrimitives</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#ab3b2faada6341d555ceb351bba426933">bslalg::ArrayPrimitives</a>
-, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a7b97447906377cf209fb6199c2d44c73">bslalg::ScalarPrimitives_Imp</a>
+: <a class="el" href="structbslalg_1_1ArrayPrimitives.html#a760bb693f1393fb2638ce6d6c5703d69">bslalg::ArrayPrimitives</a>
 , <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a91b5d0afe84637f8237d003f8c29555e">bslalg::ArrayPrimitives_Imp</a>
 , <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a6fd8ec3e3cdb32936d8137b8d7a735e3">bslalg::ScalarPrimitives_Imp</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a16932c23bcdddfaed64f5346cc0ec7b7">bslalg::ArrayPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives.html#ab3b2faada6341d555ceb351bba426933">bslalg::ArrayPrimitives</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5931ba677b3fce413e776c018552c6cf">bslalg::ArrayPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a4468ca1f5dd90740b27d2bd1babfcbbb">bslalg::ScalarPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#acfd7ceb935a75a2ad254c76edabf4b11">bslalg::ArrayPrimitives_Imp</a>
+, <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a880560a59e288402a464b419903fc7e2">bslalg::ScalarPrimitives</a>
 </li>
 <li>copyRaw()
 : <a class="el" href="structbdlb_1_1BitStringUtil.html#a6000ea1eefd585616be9e5269c852b9d">bdlb::BitStringUtil</a>
@@ -756,17 +790,21 @@
 : <a class="el" href="structbslalg_1_1RbTreeUtil.html#a9382adc1df5bc87bef8672edae3e041e">bslalg::RbTreeUtil</a>
 </li>
 <li>count()
-: <a class="el" href="group__bslstl__map.html#ga8587fdee615e9bb1c5563a1de18a968c">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultiset.html#ga041cef546e2d0dc73a4fcb821f0ce907">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multimap.html#gadf3c410ea2d36df8a944b0ab962bbdd4">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#gaaa0c47d3476e8d9e1b448f1e4f59c0fd">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__bitset.html#ga04b4e7536481f87961d5680978a101cf">bsl::bitset&lt; N &gt;</a>
-, <a class="el" href="classbalm_1_1MetricRecord.html#affaaf4cd704d5e55e64a9d7a1e18c33f">balm::MetricRecord</a>
-, <a class="el" href="group__bslstl__deque.html#ga90a77f046090a502fdd5a7b83a5d4fa1">bsl::Deque_Guard&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__set.html#ga56543b435185f611cded5bccaf188e8c">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+: <a class="el" href="classbalm_1_1MetricRecord.html#affaaf4cd704d5e55e64a9d7a1e18c33f">balm::MetricRecord</a>
 , <a class="el" href="group__bslstl__unorderedmap.html#ga6d72213f6bf2c16da92876c175f7af9d">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultimap.html#ga85711e390197559118773821479f95ff">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultiset.html#ga041cef546e2d0dc73a4fcb821f0ce907">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#ga90a77f046090a502fdd5a7b83a5d4fa1">bsl::Deque_Guard&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__bitset.html#ga04b4e7536481f87961d5680978a101cf">bsl::bitset&lt; N &gt;</a>
+, <a class="el" href="group__bslstl__map.html#ga8587fdee615e9bb1c5563a1de18a968c">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedset.html#ga532765cfdb43d014a118b1427fb8073f">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multimap.html#gadf3c410ea2d36df8a944b0ab962bbdd4">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__set.html#ga56543b435185f611cded5bccaf188e8c">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="classbalm_1_1MetricRecord.html#a53d1c4938af03c0aa3cf274931e91da6">balm::MetricRecord</a>
+, <a class="el" href="group__bslstl__multiset.html#gaaa0c47d3476e8d9e1b448f1e4f59c0fd">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultimap.html#ga85711e390197559118773821479f95ff">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+</li>
+<li>countDown()
+: <a class="el" href="classbslmt_1_1Latch.html#a07a0f87b174f4c67802867c0f5df0216">bslmt::Latch</a>
 </li>
 <li>countElements()
 : <a class="el" href="structbslalg_1_1HashTableBucket.html#a9c0d470a51f41fe9d39bcb630e4bf088">bslalg::HashTableBucket</a>
@@ -775,77 +813,78 @@
 : <a class="el" href="classbslstl_1_1HashTable.html#a0a832a91848f46d46b08b73d45076dd5">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>CountingAllocator()
-: <a class="el" href="classball_1_1CountingAllocator.html#a7b7a8dd9e91f3827d7cc8fbef3adc4c2">ball::CountingAllocator</a>
-, <a class="el" href="classbdlma_1_1CountingAllocator.html#a5bea9fa4f027f49fc1e36b985247a33c">bdlma::CountingAllocator</a>
+: <a class="el" href="classbdlma_1_1CountingAllocator.html#a5bea9fa4f027f49fc1e36b985247a33c">bdlma::CountingAllocator</a>
+, <a class="el" href="classball_1_1CountingAllocator.html#a7b7a8dd9e91f3827d7cc8fbef3adc4c2">ball::CountingAllocator</a>
 </li>
 <li>crbegin()
-: <a class="el" href="group__bslstl__vector.html#gac8fe319720a2ef4788a2feea029c56f4">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga259f561373a610c2accfdf2961596c7d">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__set.html#ga07c01ec5842e778169b33311ca395f8f">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#gac5f581dbe717f63420654ff503ea0ede">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multimap.html#gab48e9b44197d1db572b77cc781f6aa96">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#gaff94077a39bcf9f788d8a4db6bb3972b">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga7acd8f6ac7e55437aa76379e6bdf1361">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#gaff94077a39bcf9f788d8a4db6bb3972b">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#ga39a868cfb734a6f82c0c8d1553e9d549">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__map.html#ga8c5eda4921dc7231878a2414e2fbf4e2">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga61dff8fef269f5ae29a51105dbd4e5d0">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga259f561373a610c2accfdf2961596c7d">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__string.html#gac5f581dbe717f63420654ff503ea0ede">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__map.html#ga8c5eda4921dc7231878a2414e2fbf4e2">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#gac8fe319720a2ef4788a2feea029c56f4">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multimap.html#gab48e9b44197d1db572b77cc781f6aa96">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multiset.html#ga39a868cfb734a6f82c0c8d1553e9d549">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__set.html#ga07c01ec5842e778169b33311ca395f8f">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>Crc32()
-: <a class="el" href="classbdlde_1_1Crc32.html#ad43c33e745c7e9c47c6991ab25042f1d">bdlde::Crc32</a>
+: <a class="el" href="classbdlde_1_1Crc32.html#a0d7bbb8d6b698921a34dfcc2dfd74523">bdlde::Crc32</a>
 </li>
 <li>create()
-: <a class="el" href="structbslmt_1_1ThreadUtil.html#adbdebc8b1f70acfd6de3c433ec2b7435">bslmt::ThreadUtil</a>
-, <a class="el" href="structbalm_1_1DefaultMetricsManager.html#a46f3ecc47bfc5c253bd6d7df5c106a03">balm::DefaultMetricsManager</a>
+: <a class="el" href="structbalm_1_1DefaultMetricsManager.html#a46f3ecc47bfc5c253bd6d7df5c106a03">balm::DefaultMetricsManager</a>
+, <a class="el" href="structbslmt_1_1ThreadUtil.html#adbdebc8b1f70acfd6de3c433ec2b7435">bslmt::ThreadUtil</a>
 , <a class="el" href="structbsltf_1_1TemplateTestFacility.html#a25bdbb625d95655860cda3626e35e29a">bsltf::TemplateTestFacility</a>
 , <a class="el" href="structbslmt_1_1ThreadUtil.html#a3948c1f54b2420a8e6b3d9a0821c8190">bslmt::ThreadUtil</a>
-, <a class="el" href="structbalm_1_1DefaultMetricsManager.html#a6759d62f54b7bd0f221793b67145009d">balm::DefaultMetricsManager</a>
-, <a class="el" href="structbslmt_1_1ThreadUtil.html#a6dd3dd9d6a00474655d6d054850802d2">bslmt::ThreadUtil</a>
 </li>
 <li>createDirectories()
 : <a class="el" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">bdls::FilesystemUtil</a>
-</li>
-<li>createInPlace()
-: <a class="el" href="classbdlb_1_1VariantImp.html#a439d5f8acd4b43a94d16b58131746c53">bdlb::VariantImp&lt; TYPES &gt;</a>
-</li>
-<li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#a03b9c9c63a4f1edccfb12a1a1075f72e">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-</li>
-<li>createInPlace()
-: <a class="el" href="classbdlb_1_1VariantImp.html#adc1b8f2f21a1f452509e6d4734d07162">bdlb::VariantImp&lt; TYPES &gt;</a>
-</li>
-<li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#aafc3dbf236739df5e017f082b64db6ea">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-</li>
-<li>createInPlace()
-: <a class="el" href="classbdlb_1_1VariantImp.html#ad4f4327412acef29630615a49f3e2b49">bdlb::VariantImp&lt; TYPES &gt;</a>
 </li>
 <li>createInplace()
 : <a class="el" href="classbsl_1_1shared__ptr.html#aa80b3327e687a5abf2c479986507d1aa">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
 </li>
 <li>createInPlace()
+: <a class="el" href="classbdlb_1_1VariantImp.html#a6850996bc498c51d509657e7ab586442">bdlb::VariantImp&lt; TYPES &gt;</a>
+</li>
+<li>createInplace()
+: <a class="el" href="classbsl_1_1shared__ptr.html#a652422a023fdaa27313f11d5d0ce384c">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>createInPlace()
 : <a class="el" href="classbdlb_1_1VariantImp.html#a8e2d13dfd58e838b29030bf286def834">bdlb::VariantImp&lt; TYPES &gt;</a>
 </li>
 <li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#a55af65860795eb30bad02fb83508d5e2">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-</li>
-<li>createInPlace()
-: <a class="el" href="classbdlb_1_1VariantImp.html#a9a4bc79b9a7856bc04c33a0040315ede">bdlb::VariantImp&lt; TYPES &gt;</a>
-</li>
-<li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#a39246fe1a4523a81686c59232495a3f5">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-</li>
-<li>createInPlace()
-: <a class="el" href="classbdlb_1_1VariantImp.html#af394aa26741fba5094940f7643077f8f">bdlb::VariantImp&lt; TYPES &gt;</a>
-</li>
-<li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#ab3fc58be99de52434c7974e3d6fa795e">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-, <a class="el" href="structBloombergLP_1_1bsltf_1_1TestValuesArray__DefaultConverter.html#a6c4c30aec67002bef665f7963e016bce">BloombergLP::bsltf::TestValuesArray_DefaultConverter&lt; VALUE &gt;</a>
+: <a class="el" href="classbsl_1_1shared__ptr.html#a640c4b75bf8a9ac0fb2af1604605a833">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
 </li>
 <li>createInPlace()
 : <a class="el" href="classbdlb_1_1VariantImp.html#a0d9b0c176c9ea1151d63d07c045e2d94">bdlb::VariantImp&lt; TYPES &gt;</a>
 </li>
 <li>createInplace()
-: <a class="el" href="classbsl_1_1shared__ptr.html#af998e53f52f90d11c49a564bdbf5ae61">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+: <a class="el" href="classbsl_1_1shared__ptr.html#a55af65860795eb30bad02fb83508d5e2">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>createInPlace()
+: <a class="el" href="classbdlb_1_1VariantImp.html#adc1b8f2f21a1f452509e6d4734d07162">bdlb::VariantImp&lt; TYPES &gt;</a>
+</li>
+<li>createInplace()
+: <a class="el" href="classbsl_1_1shared__ptr.html#a6565009e5d3855e7dc86f62de741b928">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>createInPlace()
+: <a class="el" href="classbdlb_1_1VariantImp.html#a9a4bc79b9a7856bc04c33a0040315ede">bdlb::VariantImp&lt; TYPES &gt;</a>
+</li>
+<li>createInplace()
+: <a class="el" href="classbsl_1_1shared__ptr.html#a03b9c9c63a4f1edccfb12a1a1075f72e">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>createInPlace()
+: <a class="el" href="classbdlb_1_1VariantImp.html#ad8b1980441158ef0a50f2a14db3f6e7c">bdlb::VariantImp&lt; TYPES &gt;</a>
+</li>
+<li>createInplace()
+: <a class="el" href="classbsl_1_1shared__ptr.html#a39246fe1a4523a81686c59232495a3f5">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+</li>
+<li>createInPlace()
+: <a class="el" href="classbdlb_1_1VariantImp.html#a439d5f8acd4b43a94d16b58131746c53">bdlb::VariantImp&lt; TYPES &gt;</a>
+</li>
+<li>createInplace()
+: <a class="el" href="structBloombergLP_1_1bsltf_1_1TestValuesArray__DefaultConverter.html#a6c4c30aec67002bef665f7963e016bce">BloombergLP::bsltf::TestValuesArray_DefaultConverter&lt; VALUE &gt;</a>
+, <a class="el" href="classbsl_1_1shared__ptr.html#a51e62667dc0fa364f94d7d70d34f424b">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
 </li>
 <li>createInplaceUninitializedBuffer()
 : <a class="el" href="structbslstl_1_1SharedPtrUtil.html#a4e3706052c8814e27373ccee9f64fc91">bslstl::SharedPtrUtil</a>
@@ -860,31 +899,43 @@
 : <a class="el" href="classball_1_1LoggerManager.html#adfad119974147cad77259ec292c18182">ball::LoggerManager</a>
 </li>
 <li>createNode()
-: <a class="el" href="classbslstl_1_1TreeNodePool.html#a7ea5b8f6a3f65ffeae49d55e3443e3e9">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#aee5935c04e238ee29e8d8d7956e4c2e0">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
+: <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#a6c3d73300caa6115d5fa13968e253e8e">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1TreeNodePool.html#a40b40024ba00193ef610041754016a6c">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#ac60074cabbc0e534fa6d0d894c0cee06">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="classbslstl_1_1TreeNodePool.html#a7ea5b8f6a3f65ffeae49d55e3443e3e9">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
 </li>
 <li>createObject()
-: <a class="el" href="classbdlcc_1_1ObjectPool.html#a434a94e74f4bbe097a090939c49334d6">bdlcc::ObjectPool&lt; TYPE, CREATOR, RESETTER &gt;</a>
-, <a class="el" href="classbdlma_1_1Factory.html#aada9ccbcc9313d18d6d3318e60aee2e9">bdlma::Factory&lt; TYPE &gt;</a>
+: <a class="el" href="classbdlma_1_1Factory.html#aada9ccbcc9313d18d6d3318e60aee2e9">bdlma::Factory&lt; TYPE &gt;</a>
+, <a class="el" href="classbdlcc_1_1ObjectPool.html#a434a94e74f4bbe097a090939c49334d6">bdlcc::ObjectPool&lt; TYPE, CREATOR, RESETTER &gt;</a>
 </li>
 <li>createPoolManager()
 : <a class="el" href="structbdlcc_1_1SkipList__PoolUtil.html#af83e9cf8a34f3c6714138c6d710abaca">bdlcc::SkipList_PoolUtil</a>
 </li>
+<li>createPrivateDirectory()
+: <a class="el" href="structbdls_1_1FilesystemUtil.html#a17aa19c48b57f1b1df9a5ebf68f9c154">bdls::FilesystemUtil</a>
+</li>
 <li>createQueue()
 : <a class="el" href="classbdlmt_1_1MultiQueueThreadPool.html#a12bd44efc3cc2327bed255cbb674d0bb">bdlmt::MultiQueueThreadPool</a>
 </li>
+<li>createTemporaryDirectory()
+: <a class="el" href="structbdls_1_1FilesystemUtil.html#a3b7129e9b10564eaf0576e336ed0558d">bdls::FilesystemUtil</a>
+</li>
+<li>createTemporaryFile()
+: <a class="el" href="structbdls_1_1FilesystemUtil.html#ae9a635878b67dc8d8cd3a10a029e76c3">bdls::FilesystemUtil</a>
+</li>
 <li>createUserDataKey()
-: <a class="el" href="classbalm_1_1MetricRegistry.html#abef7b69dc9b67072873dc3757c4ae02f">balm::MetricRegistry</a>
-, <a class="el" href="structbalm_1_1ConfigurationUtil.html#a2050c586fa464a8ed534d65b80899fcf">balm::ConfigurationUtil</a>
+: <a class="el" href="structbalm_1_1ConfigurationUtil.html#a2050c586fa464a8ed534d65b80899fcf">balm::ConfigurationUtil</a>
+, <a class="el" href="classbalm_1_1MetricRegistry.html#abef7b69dc9b67072873dc3757c4ae02f">balm::MetricRegistry</a>
 </li>
 <li>createWithAllocator()
-: <a class="el" href="structbslmt_1_1ThreadUtil.html#a7881184fbe7910c15638c884a6a386ca">bslmt::ThreadUtil</a>
+: <a class="el" href="structbslmt_1_1ThreadUtil.html#ab70c3d5765f9fec97cd20589c3da23dd">bslmt::ThreadUtil</a>
 </li>
 <li>creator()
 : <a class="el" href="classbdlcc_1_1ObjectPool__CreatorConverter_3_01ObjectPoolFunctors_1_1DefaultCreator_00_01bsl_1_1d17a2b94f5298974a5ac79c7a48bbbd0.html#aa016dcd65b9c0dcef0a74758b9d23e3f">bdlcc::ObjectPool_CreatorConverter&lt; ObjectPoolFunctors::DefaultCreator, bsl::function&lt; void(void *)&gt; &gt;</a>
 , <a class="el" href="classbdlcc_1_1ObjectPool__CreatorConverter.html#a241ed4b0482bac10426ddd1f6fead788">bdlcc::ObjectPool_CreatorConverter&lt; TYPE, OTHERTYPE &gt;</a>
+</li>
+<li>Credentials()
+: <a class="el" href="classbtls5_1_1Credentials.html#af6cd55e5707938e192ddaf22a728e852">btls5::Credentials</a>
 </li>
 <li>credentials()
 : <a class="el" href="classbtls5_1_1ProxyDescription.html#a7ef11cd8b185a3a30ea3baa5bd517c65">btls5::ProxyDescription</a>
@@ -893,16 +944,16 @@
 : <a class="el" href="classbtls5_1_1Credentials.html#af5a184d918ac82bf2494a8fa7b59f7b9">btls5::Credentials</a>
 </li>
 <li>crend()
-: <a class="el" href="group__bslstl__map.html#ga4731cbc6488be5f944d306a16a6222fc">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__set.html#ga37fe01c174ed0b90cd8a5ca1b56980f2">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga6881743b0d8620d9293e77b6c0061fcd">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#ga49660436d7ad4cc4154bdcbab7e40c49">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga75f53a4cfb1be952b49f0ca6f2f74784">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga03dbba1d8ff19a8c45b3d617aad600ca">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__vector.html#gaf7cd9b62a54f46268ef4d55c8358abbb">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__multimap.html#gaaad5c8bceb989a22d727fbcfeffb3d8d">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__list.html#ga195576747609462cda1a5f4afe3fe5c2">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multiset.html#ga49660436d7ad4cc4154bdcbab7e40c49">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga03dbba1d8ff19a8c45b3d617aad600ca">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gae1d17dce2e3f11f2a410513266227dc7">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#gaf7cd9b62a54f46268ef4d55c8358abbb">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__map.html#ga4731cbc6488be5f944d306a16a6222fc">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga6881743b0d8620d9293e77b6c0061fcd">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__set.html#ga37fe01c174ed0b90cd8a5ca1b56980f2">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga195576747609462cda1a5f4afe3fe5c2">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#ga75f53a4cfb1be952b49f0ca6f2f74784">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
 </li>
 <li>CStringEqualTo()
 : <a class="el" href="structbdlb_1_1CStringEqualTo.html#a9ea1e076f8c0bb62cd0838a959888b64">bdlb::CStringEqualTo</a>
@@ -920,6 +971,9 @@
 <li>currentCategory()
 : <a class="el" href="classbtlso_1_1TimeMetrics.html#af45c38d483f7badf63b8067c7a5e2262">btlso::TimeMetrics</a>
 </li>
+<li>currentCount()
+: <a class="el" href="classbslmt_1_1Latch.html#a818157faf4771cfb6a1d204e5ee9e9c0">bslmt::Latch</a>
+</li>
 <li>currentResolveByNameCallback()
 : <a class="el" href="structbtlso_1_1ResolveUtil.html#a343ca91fd38d60c229e76fdf8748f123">btlso::ResolveUtil</a>
 </li>
@@ -930,18 +984,18 @@
 : <a class="el" href="structbdlt_1_1CurrentTime.html#a52799562a228ac45921c80a77b4b2596">bdlt::CurrentTime</a>
 </li>
 <li>cursor()
-: <a class="el" href="classbslx_1_1ByteInStream.html#ac07a06bbe2c8697f175aad0e07db8ac1">bslx::ByteInStream</a>
-, <a class="el" href="classbslx_1_1TestInStream.html#a124ace6f584b858e1aaa7dfc229fd9cb">bslx::TestInStream</a>
+: <a class="el" href="classbslx_1_1TestInStream.html#a124ace6f584b858e1aaa7dfc229fd9cb">bslx::TestInStream</a>
+, <a class="el" href="classbslx_1_1ByteInStream.html#ac07a06bbe2c8697f175aad0e07db8ac1">bslx::ByteInStream</a>
 </li>
 <li>CustomInt()
-: <a class="el" href="classbalb_1_1CustomInt.html#a2ed04e98e4c5667700cfac0eb3b2a75e">balb::CustomInt</a>
+: <a class="el" href="classbalb_1_1CustomInt.html#ae77052015a6251bc1d91686d18cdbcfe">balb::CustomInt</a>
 </li>
 <li>CustomString()
-: <a class="el" href="classbalb_1_1CustomString.html#acdca6adeee321d39c748a2f01c26485e">balb::CustomString</a>
+: <a class="el" href="classbalb_1_1CustomString.html#a03f0c4060045a160567dfee203d9fb19">balb::CustomString</a>
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:22 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

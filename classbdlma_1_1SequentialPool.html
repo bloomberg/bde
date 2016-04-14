@@ -99,6 +99,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html#a4d90a0efa766b57f06988ce9eb7e00f9">deleteObject</a> (const TYPE *object)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html#abfabe031af8ad173bcdb604f42dad5bb">release</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html#a18b0d488fe0f4bc7664fedcad55b0a4d">rewind</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html#a56a831290d4f1bacccbe44bc6331c3f4">reserveCapacity</a> (int numBytes)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html#a6811148a5e1889268526a0e50b446ee7">truncate</a> (void *address, int originalSize, int newSize)</td></tr>
 </table>
@@ -614,7 +615,25 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Release all memory allocated through this pool. The pool is reset to its default-constructed state, retaining the alignment and growth strategies, and the initial and maximum buffer sizes in effect following construction. </p>
+<p>Release all memory allocated through this pool. The pool is reset to its default-constructed state, retaining the alignment and growth strategies, and the initial and maximum buffer sizes in effect following construction. The effect of using a pointer after this call that was obtained before this call from this object is undefined. </p>
+
+</div>
+</div>
+<a class="anchor" id="a18b0d488fe0f4bc7664fedcad55b0a4d"></a><!-- doxytag: member="bdlma::SequentialPool::rewind" ref="a18b0d488fe0f4bc7664fedcad55b0a4d" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bdlma::SequentialPool::rewind </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Release all memory allocated through this pool. Return to the construction-time supplied allocator all but the last block obtained from it, if any, and satisfy subsequent allocations from the beginning of the remaining block, where possible. The effect of using a pointer after this call that was obtained from this object before this call is undefined. </p>
 
 </div>
 </div>
@@ -675,7 +694,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlma__sequentialpool_8h_source.html">bdlma_sequentialpool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:46 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:32 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

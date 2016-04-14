@@ -81,14 +81,14 @@
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <br/>
-&nbsp;&nbsp;<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116a27d21385c3f7228ce33207159ae6ea01">k_DATE_STRLEN</a> =  10, 
-<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116a23f18301809b236f78cdfe09677a8978">k_DATETZ_STRLEN</a> =  16, 
-<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116a57545825e0870acbbfbc47bf24d78f3d">k_TIME_STRLEN</a> =  12, 
-<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116acc156b8b96f4509b34fa55edf28476cd">k_TIMETZ_STRLEN</a> =  18, 
+&nbsp;&nbsp;<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909ea27d21385c3f7228ce33207159ae6ea01">k_DATE_STRLEN</a> =  10, 
+<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909ea23f18301809b236f78cdfe09677a8978">k_DATETZ_STRLEN</a> =  16, 
+<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909ea57545825e0870acbbfbc47bf24d78f3d">k_TIME_STRLEN</a> =  12, 
+<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909eacc156b8b96f4509b34fa55edf28476cd">k_TIMETZ_STRLEN</a> =  18, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116ae2b530ae3fd2a928730b2f1de2d52463">k_DATETIME_STRLEN</a> =  23, 
-<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116a9416ee07a9acd3a77b3f9cf2641abba9">k_DATETIMETZ_STRLEN</a> =  29, 
-<a class="el" href="structbdlt_1_1Iso8601Util.html#af1a1aaed3c208291e6bc94348cf25116aa79fa01bfecc011a695c127da4de26fc">k_MAX_STRLEN</a> =  k_DATETIMETZ_STRLEN
+&nbsp;&nbsp;<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909eae2b530ae3fd2a928730b2f1de2d52463">k_DATETIME_STRLEN</a> =  23, 
+<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909ea9416ee07a9acd3a77b3f9cf2641abba9">k_DATETIMETZ_STRLEN</a> =  29, 
+<a class="el" href="structbdlt_1_1Iso8601Util.html#ad4e1705b0de1f6ee3e46b71b18e9909eaa79fa01bfecc011a695c127da4de26fc">k_MAX_STRLEN</a> =  k_DATETIMETZ_STRLEN
 <br/>
  }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
@@ -157,7 +157,7 @@ Static Public Member Functions</h2></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>struct</code> provides a namespace for a suite of pure functions that perform conversions between objects of <code>bdlt</code> vocabulary type and their ISO 8601 representations. Each <code>generate</code> and <code>generateRaw</code> method takes a <code>bdlt</code> object (of type <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code>, <code><a class="el" href="classbdlt_1_1DateTz.html">DateTz</a></code>, <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code>, <code><a class="el" href="classbdlt_1_1TimeTz.html">TimeTz</a></code>, <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code>, or <code><a class="el" href="classbdlt_1_1DatetimeTz.html">DatetimeTz</a></code>) and outputs its corresponding ISO 8601 representation to a user-supplied character buffer or <code>bsl::ostream</code>. The <code>parse</code> methods effect the opposite conversion in that they populate a <code>bdlt</code> object from the result of parsing an ISO 8601 representation. </p>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116"></a><!-- doxytag: member="bdlt::Iso8601Util::@223" ref="af1a1aaed3c208291e6bc94348cf25116" args="" -->
+<a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909e"></a><!-- doxytag: member="bdlt::Iso8601Util::@216" ref="ad4e1705b0de1f6ee3e46b71b18e9909e" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -169,25 +169,25 @@ Static Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>This enumeration defines fixed lengths for the ISO 8601 representations of date, time, and datetime values. Note that these constants do <em>not</em> account for the null terminator that may be produced by the <code>generate</code> functions taking a <code>bufferLength</code> argument. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116a27d21385c3f7228ce33207159ae6ea01"></a><!-- doxytag: member="k_DATE_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116a27d21385c3f7228ce33207159ae6ea01" args="" -->k_DATE_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909ea27d21385c3f7228ce33207159ae6ea01"></a><!-- doxytag: member="k_DATE_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909ea27d21385c3f7228ce33207159ae6ea01" args="" -->k_DATE_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116a23f18301809b236f78cdfe09677a8978"></a><!-- doxytag: member="k_DATETZ_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116a23f18301809b236f78cdfe09677a8978" args="" -->k_DATETZ_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909ea23f18301809b236f78cdfe09677a8978"></a><!-- doxytag: member="k_DATETZ_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909ea23f18301809b236f78cdfe09677a8978" args="" -->k_DATETZ_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1DateTz.html">bdlt::DateTz</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116a57545825e0870acbbfbc47bf24d78f3d"></a><!-- doxytag: member="k_TIME_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116a57545825e0870acbbfbc47bf24d78f3d" args="" -->k_TIME_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909ea57545825e0870acbbfbc47bf24d78f3d"></a><!-- doxytag: member="k_TIME_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909ea57545825e0870acbbfbc47bf24d78f3d" args="" -->k_TIME_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116acc156b8b96f4509b34fa55edf28476cd"></a><!-- doxytag: member="k_TIMETZ_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116acc156b8b96f4509b34fa55edf28476cd" args="" -->k_TIMETZ_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909eacc156b8b96f4509b34fa55edf28476cd"></a><!-- doxytag: member="k_TIMETZ_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909eacc156b8b96f4509b34fa55edf28476cd" args="" -->k_TIMETZ_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1TimeTz.html">bdlt::TimeTz</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116ae2b530ae3fd2a928730b2f1de2d52463"></a><!-- doxytag: member="k_DATETIME_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116ae2b530ae3fd2a928730b2f1de2d52463" args="" -->k_DATETIME_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909eae2b530ae3fd2a928730b2f1de2d52463"></a><!-- doxytag: member="k_DATETIME_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909eae2b530ae3fd2a928730b2f1de2d52463" args="" -->k_DATETIME_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116a9416ee07a9acd3a77b3f9cf2641abba9"></a><!-- doxytag: member="k_DATETIMETZ_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116a9416ee07a9acd3a77b3f9cf2641abba9" args="" -->k_DATETIMETZ_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909ea9416ee07a9acd3a77b3f9cf2641abba9"></a><!-- doxytag: member="k_DATETIMETZ_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909ea9416ee07a9acd3a77b3f9cf2641abba9" args="" -->k_DATETIMETZ_STRLEN</em>&nbsp;</td><td>
 <p><code><a class="el" href="classbdlt_1_1DatetimeTz.html">bdlt::DatetimeTz</a></code> </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="af1a1aaed3c208291e6bc94348cf25116aa79fa01bfecc011a695c127da4de26fc"></a><!-- doxytag: member="k_MAX_STRLEN" ref="af1a1aaed3c208291e6bc94348cf25116aa79fa01bfecc011a695c127da4de26fc" args="" -->k_MAX_STRLEN</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ad4e1705b0de1f6ee3e46b71b18e9909eaa79fa01bfecc011a695c127da4de26fc"></a><!-- doxytag: member="k_MAX_STRLEN" ref="ad4e1705b0de1f6ee3e46b71b18e9909eaa79fa01bfecc011a695c127da4de26fc" args="" -->k_MAX_STRLEN</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -2160,7 +2160,7 @@ Static Public Member Functions</h2></td></tr>
 <li><a class="el" href="bdlt__iso8601util_8h_source.html">bdlt_iso8601util.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:48 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:34 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

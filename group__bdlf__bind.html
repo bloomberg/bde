@@ -167,7 +167,8 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>An invocable object is any object that can be invoked in syntactically the same manner as a function. Invocable objects include function pointers, and objects that provide an <code>operator()</code> method. This component supports bound objects that can be function pointers, member function pointers (the first bound argument must evaluate to an instance of the class of which the function is a member), or function objects passed by address or by value. In addition, there is a limitation on the number of parameters that such an object can take (currently no more than 14). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> functor can be constructed, usually by one of the <code><a class="el" href="structbdlf_1_1BindUtil.html">bdlf::BindUtil</a></code> factory methods, from a bound functor and from 0 up to 14 bound arguments that can be either literal values, place-holders of type <code><a class="el" href="structbdlf_1_1PlaceHolder.html">bdlf::PlaceHolder</a></code>, or further <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> functors. The type of a binder object is a complicated expression, which is why a binder is typically a short-lived object that is returned or passed as parameter to a function template. That is also why the <code><a class="el" href="structbdlf_1_1BindUtil.html">bdlf::BindUtil</a></code> factory methods are the preferred way to create a binder. When a binder is later invoked with some arguments, literal values are passed to the bound functor and place-holders are substituted by their respective invocation arguments. In addition, any argument that is a binder itself is invoked recursively with the same invocation arguments and the result of that invocation is passed to the parent binder. The section "Elementary construction and usage of
  &lt;code&gt;bdlf::Bind&lt;/code&gt; objects" below details the whole mechanism and offers some examples. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> functors support <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code> arguments and, when constructed with an allocator via the <code>bdlf::BindUtil::bindA</code> factory methods, allocate all the memory for holding copies of the bound functor and arguments through that allocator. See the section "Binding with allocators" below for a more detailed discussion. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> functors support <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code> arguments. When binders are constructed by the <code><a class="el" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a></code> (and <code>bindR</code>) factory methods, the currently installed default allocator is used. When binders are constructed by the <code><a class="el" href="structbdlf_1_1BindUtil.html#acb10b9c931d6715c67d588722ded3423">bdlf::BindUtil::bindS</a></code> (and <code>bindSR</code>) factory methods, the non-optional, user-supplied allocator is used both for the creation of the bound functor arguments and for the reference counting mechanism that manages those arguments. See the section "Binding with
+ allocators" below for a more detailed discussion. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="elementary_construction_and_usage_of_bdlf~3A~3Abind_objects"></a> <a class="anchor" id="description.elementary_construction_and_usage_of_bdlf~3A~3Abind_objects"></a> <a class="anchor" id="elementary_construction_and_usage_of_bdlf"></a> <a class="anchor" id="description.elementary_construction_and_usage_of_bdlf"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Elementary Construction and Usage of bdlf::Bind Objects: </b></dt><dd></dd></dl>
@@ -309,7 +310,7 @@ Defines</h2></td></tr>
   <span class="keywordtype">void</span> bindTest4(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator = 0) {
       marker = 0;
       callBinderWithSideEffects1(<a class="code" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a>(
-                                                &amp;singleArgumentFunction, 2));
+                                               &amp;singleArgumentFunction, <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a1b20b113c529e7825ad00bb527fcc6ad">_2</a>));
 </pre></div><br/>
 <br/>
  In the above snippets of code, <code>singleArgumentFunction</code> will be called with only the second argument (14) specified to the binder at invocation time in the <code>callBinderWithSideEffects1</code> function. Thus the return value of the invocation must be 14. The <code>identityFunctionWithSideEffects(10)</code> will be evaluated, even though its return value (10) will be discarded. We can check this as follows: <br/>
@@ -387,8 +388,9 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="binding_to_function_objects_by_value_or_by_address"></a> <a class="anchor" id="bound_functors.binding_to_function_objects_by_value_or_by_address"></a> <a class="anchor" id="description.bound_functors.binding_to_function_objects_by_value_or_by_address"></a> <a class="anchor" id="3.4.3"></a> </dd></dl>
 <dl class="user"><dt><b>Binding to Function Objects by Value or by Address: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Although function objects are invoked in syntactically the same manner as free functions, they can be used by value or by address in conjunction with <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code>. When the binder detects that a pointer to a function object was specified, it automatically dereferences that pointer prior to invoking the function object. The difference between the two usages is that the binder object holds a copy of the whole object or of its address only. In particular, when passing by value an object that takes an allocator, the copy held by the binder uses the same allocator as the binder object (if constructed by <code>bdlf::BindUtil::bindA</code>) or the default allocator (if constructed by <code><a class="el" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a></code> or <code><a class="el" href="structbdlf_1_1BindUtil.html#a9fcde06a8f9646f60f38a46d671cee4f">bdlf::BindUtil::bindR</a></code>), but <em>not</em> the allocator of the original object. For keeping the same allocator, pass the object by address to the binder instead. See the section "Binding with
- allocators" and the usage example sections "Binding to Function Objects" and "Binding to Function Objects by Reference" below. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Although function objects are invoked in syntactically the same manner as free functions, they can be used by value or by address in conjunction with <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code>. When the binder detects that a pointer to a function object was specified, it automatically dereferences that pointer prior to invoking the function object. The difference between the two usages is that the binder object holds a copy of the whole object or of its address only. In particular, when passing by value an object that takes an allocator, the copy held by the binder uses the default allocator if constructed by <code><a class="el" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a></code> or <code><a class="el" href="structbdlf_1_1BindUtil.html#a9fcde06a8f9646f60f38a46d671cee4f">bdlf::BindUtil::bindR</a></code>, <em>not</em> the allocator of the original object. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For keeping the same allocator, pass the object by address to the binder, or call <code>bindS</code> or <code>bindSR</code> instead. See the section "Binding with allocators" and the usage example sections "Binding to Function Objects" and "Binding to
+ Function Objects by Reference" below. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>CAVEAT: When passing a function object by value, only the (non-modifiable) copy held by the binder will be invoked. Prior to this version, it was possible to modifiably invoke this copy (hence a non-const <code>operator()</code>) with the intent to modify the state of the function object. However, only the copy held by the binder was modified and the original function object passed to the binder was not, but this usage error went undetected. In this version, a binder cannot modifiably invoke functors held by value, and attempting to do so will trigger a compilation error. If it is desired that an invocation modifies the state of the function object, then this function object must be passed to the binder <em>by</em> <em>address</em>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="inferring_the_signature_of_the_bound_functor"></a> <a class="anchor" id="bound_functors.inferring_the_signature_of_the_bound_functor"></a> <a class="anchor" id="description.bound_functors.inferring_the_signature_of_the_bound_functor"></a> <a class="anchor" id="3.4.4"></a> </dd></dl>
@@ -402,12 +404,14 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="binding_with_constants_and_temporaries"></a> <a class="anchor" id="bound_functors.binding_with_constants_and_temporaries"></a> <a class="anchor" id="description.bound_functors.binding_with_constants_and_temporaries"></a> <a class="anchor" id="3.4.5"></a> </dd></dl>
 <dl class="user"><dt><b>Binding with Constants and Temporaries: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Due to a technical restriction of the C++ language known as the "forwarding
- problem", it is not possible to match the signature of a function object exactly when passing a mix of non-'const' lvalues and rvalues as invocation arguments. Nevertheless, this component supports passing literal values and temporaries as invocation arguments to a <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> object. There is however one limitation: if <em>any</em> of the arguments in the signature of the bound functor should be of a modifiable reference type, then <em>all</em> the invocation arguments need to be modifiable references. That is, it is not possible to pass a literal (const) value to some argument of a bound functor when another argument expects a modifiable reference. Note that a direct call to the bound functor (without the binder) would accept such an argument. This is not a severe limitation, and the workaround is to pass instead a local modifiable variable initialized to the literal value. </dd></dl>
+ problem", it is not possible to match the signature of a function object exactly when passing a mix of non-'const' lvalues and rvalues as invocation arguments. Nevertheless, this component supports passing literal values and temporaries as invocation arguments to a <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> object. There is however one limitation: if <em>any</em> of the arguments in the signature of the bound functor should be of a modifiable reference type, then <em>all</em> the invocation arguments need to be modifiable references. That is, it is not possible to pass a literal (<code>const</code>) value to some argument of a bound functor when another argument expects a modifiable reference. Note that a direct call to the bound functor (without the binder) would accept such an argument. This is not a severe limitation, and the workaround is to pass instead a local modifiable variable initialized to the literal value. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="binding_with_allocators"></a> <a class="anchor" id="description.binding_with_allocators"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Binding with Allocators: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The bound functor and bound arguments are created as members of the <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> object, so no memory is allocated for storing them. However, if the bound functor or bound argument's copy constructor requires memory allocation, that memory is supplied by the default allocator unless <code>bdlf::BindUtil::bindA</code> is used to specify the allocator to be passed to the copy constructors of the bound functor and arguments. Note that the invocation arguments, passed to the binder at invocation time, are passed "as is" to the bound functor, and are not copied if the bound functor takes them by modifiable or non-modifiable reference. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In order to make clear where the allocation occurs, we will wrap "p3" (the third parameter for the function object <code>invocable</code> into a type that takes an allocator, e.g., a class <code>MyString</code> (kept minimal here for the purpose of exposition), and automatically converts to <code>const char *</code>: <br/>
+<dl class="user"><dt><b></b></dt><dd>The bound functor and bound arguments are created as members of the <code><a class="el" href="classbdlf_1_1Bind.html">bdlf::Bind</a></code> object, so no memory is allocated for storing them. However, if the bound functor or bound argument's copy constructor requires memory allocation, that memory is supplied by the currently installed default allocator unless <code><a class="el" href="structbdlf_1_1BindUtil.html#acb10b9c931d6715c67d588722ded3423">bdlf::BindUtil::bindS</a></code> (or <code>bindSR</code>) method is used. In the latter cases, the non-optional, user-supplied allocator is passed to the copy constructors of the bound functor and arguments. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When invoking a bound functor object, the (unbound) arguments are passed "as
+ is" to the bound functor. Those arguments are not copied if the bound functor takes them by modifiable or non-modifiable reference. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In order to make clear where the allocation occurs, we will wrap "p3" into a type that takes an allocator, e.g., a class <code>MyString</code> (kept minimal here for the purpose of exposition): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyString {
  PRIVATE INSTANCE DATA
@@ -416,8 +420,7 @@ Defines</h2></td></tr>
 
     <span class="keyword">public</span>:
  TRAITS
-      <a class="code" href="group__bslalg__typetraits.html#gab7a247c93e0d83c005ceb01cc291937b">BSLALG_DECLARE_NESTED_TRAITS</a>(MyString,
-                                   <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>);
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(MyString, <a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a>);
 
 CREATORS
       MyString(<span class="keyword">const</span> <span class="keywordtype">char</span> *str, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator = 0)
@@ -445,43 +448,31 @@ CREATORS
 <br/>
  We will also use a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> to keep track of the memory allocated: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> bindTest6(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator = 0) {
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> bindTest6() {
       <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> allocator;
       MyString myString((<span class="keyword">const</span> <span class="keywordtype">char</span>*)<span class="stringliteral">&quot;p3&quot;</span>, &amp;allocator);
-      <span class="keyword">const</span> <span class="keywordtype">int</span> NUM_ALLOCS = allocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>();
+      <span class="keyword">const</span> Int64 NUM_ALLOCS = allocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>();
 </pre></div><br/>
 <br/>
- To expose that the default allocator is not used, we will use a default allocator guard, which will re-route any default allocation to the <code>defaultAllocator</code>: <br/>
+ To expose that the default allocator is not used, we will use a default allocator guard, which will re-route any default allocation to the local <code>defaultAllocator</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> defaultAllocator;
+<div class="fragment"><pre class="fragment">      <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> defaultAllocator(<span class="stringliteral">&quot;Default&quot;</span>, globalVerbose);
       <a class="code" href="classbslma_1_1DefaultAllocatorGuard.html">bslma::DefaultAllocatorGuard</a> defaultAllocatorGuard(&amp;defaultAllocator);
-      assert(0 == defaultAllocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
+      <span class="keyword">const</span> Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 </pre></div><br/>
 <br/>
- We now create a binder object with allocator using <code>bindA</code>. If the bound object were an instance of a class taking an allocator, then <code>allocator</code> would be passed to its copy constructor; in this case, <code>allocator</code> will be ignored. But <code>allocator</code> <em>will</em> be used to make the copy of <code>myString</code> held by the binder: <br/>
+ We now create a shared binder object with <code>allocator</code> using <code>bindS</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      callBinder(bdlf::BindUtil::bindA(&amp;allocator, &amp;invocable,
-                                      <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a15d6194465744f5f4a1c9f98ca44ebca">_1</a>, <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a1b20b113c529e7825ad00bb527fcc6ad">_2</a>, myString));
+<div class="fragment"><pre class="fragment">      callBinder(
+            <a class="code" href="structbdlf_1_1BindUtil.html#acb10b9c931d6715c67d588722ded3423">bdlf::BindUtil::bindS</a>(&amp;allocator, &amp;invocable, <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a15d6194465744f5f4a1c9f98ca44ebca">_1</a>, <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a1b20b113c529e7825ad00bb527fcc6ad">_2</a>, myString));
 </pre></div><br/>
 <br/>
- We now check that memory was allocated from the test allocator, and none from the default allocator: <br/>
+ When the bound object is an instance of a class taking an allocator, then <code>allocator</code> is be passed to its copy constructor as occurs in this example. Here <code>allocator</code> is used to make the copy of <code>myString</code> held by the binder. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>We now check that memory was allocated from the test allocator, and none from the default allocator: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      assert(NUM_ALLOCS &lt; allocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
-      assert(0 == defaultAllocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
-</pre></div><br/>
-<br/>
- Next, we repeat the same calls using <code>bindS</code> below: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">       callBinder(<a class="code" href="structbdlf_1_1BindUtil.html#acb10b9c931d6715c67d588722ded3423">bdlf::BindUtil::bindS</a>(&amp;allocator,
-                                        &amp;invocable,
-                                        <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a15d6194465744f5f4a1c9f98ca44ebca">_1</a>, <a class="code" href="namespacebdlf_1_1PlaceHolders.html#a1b20b113c529e7825ad00bb527fcc6ad">_2</a>, myString));
-</pre></div><br/>
-<br/>
- We now check that memory was allocated from the test allocator, and none from the default allocator: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">       assert(NUM_ALLOCS != allocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
-       assert(2 * NUM_DEFAULT_ALLOCS == defaultAllocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
-   }
+<div class="fragment"><pre class="fragment">      assert(NUM_ALLOCS         != allocator.<a class="code" href="classbslma_1_1TestAllocator.html#a464a6bc3f5125e8b0d303efbd339afec">numAllocations</a>());
+      assert(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+  }
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -739,7 +730,7 @@ CREATORS
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="binding_to_a_function_object_with_explicit_return_type"></a> <a class="anchor" id="usage.binding_to_a_function_object_with_explicit_return_type"></a> <a class="anchor" id="description.usage.binding_to_a_function_object_with_explicit_return_type"></a> <a class="anchor" id="3.6.7"></a> </dd></dl>
 <dl class="user"><dt><b>Binding to a Function Object with Explicit Return Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>When the return type cannot be inferred from the bound functor (using <code>FUNC::ResultType</code>), the binder needs an explicitly specification. This is done by using the <code><a class="el" href="structbdlf_1_1BindUtil.html#a9fcde06a8f9646f60f38a46d671cee4f">bdlf::BindUtil::bindR</a></code> function template as exemplified below: <br/>
+<dl class="user"><dt><b></b></dt><dd>When the return type cannot be inferred from the bound functor (using <code>typename FUNC::ResultType</code>), the binder needs an explicit specification. This is done by using the <code><a class="el" href="structbdlf_1_1BindUtil.html#a9fcde06a8f9646f60f38a46d671cee4f">bdlf::BindUtil::bindR</a></code> function template as exemplified below: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">void</span> GlobalResultType;
   <span class="keyword">struct </span>MyCallbackObjectWithoutResultType {
@@ -841,7 +832,7 @@ CREATORS
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:43 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

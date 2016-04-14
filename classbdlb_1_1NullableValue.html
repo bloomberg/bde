@@ -108,6 +108,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class BDE_OTHER_TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">TYPE &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue.html#acb037ed43eb82d61c09884d510474107">makeValue</a> (const BDE_OTHER_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue.html#af4b48cb4071d6461500179b016e40c5e">makeValue</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">TYPE &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue.html#acf08178877570bb4ba210dd11ed26db5">makeValueInplace</a> (ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue.html#aeeb4d10da95e3fb45e6c2fc782b2c6bf">bdexStreamIn</a> (STREAM &amp;stream, int version)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue.html#a10a886752d373be2d316e9aa38f332e9">reset</a> ()</td></tr>
@@ -651,6 +653,29 @@ template&lt;class TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="acf08178877570bb4ba210dd11ed26db5"></a><!-- doxytag: member="bdlb::NullableValue::makeValueInplace" ref="acf08178877570bb4ba210dd11ed26db5" args="(ARGS &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class... ARGS&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">TYPE&amp; <a class="el" href="classbdlb_1_1NullableValue.html">bdlb::NullableValue</a>&lt; TYPE &gt;::makeValueInplace </td>
+          <td>(</td>
+          <td class="paramtype">ARGS &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assign to this nullable object the value of the (template parameter) <code>TYPE</code> created in place using the specified <code>args</code>. Return a reference providing modifiable access to the created (value) object. The object is also accessible via the <code>value</code> method. If this nullable object already contains an object (<code>false == <a class="el" href="classbdlb_1_1NullableValue.html#a83baec5f7a78c69fd245c2f0f908de9e">isNull()</a></code>), that object is destroyed before the new object is created. If <code>TYPE</code> has the trait <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> (<code>TYPE</code> is allocator-enabled) the allocator specified at the construction of this nullable object is used to supply memory to the value object. Attempts to explicitly specify via <code>args</code> another allocator to supply memory to the created (value) object are disallowed by the compiler. Note that if the constructor of <code>TYPE</code> throws an exception this object is left in the null state. </p>
+
+</div>
+</div>
 <a class="anchor" id="aeeb4d10da95e3fb45e6c2fc782b2c6bf"></a><!-- doxytag: member="bdlb::NullableValue::bdexStreamIn" ref="aeeb4d10da95e3fb45e6c2fc782b2c6bf" args="(STREAM &amp;stream, int version)" -->
 <div class="memitem">
 <div class="memproto">
@@ -918,7 +943,7 @@ template&lt;class TYPE&gt; </div>
 <li><a class="el" href="bdlb__nullablevalue_8h_source.html">bdlb_nullablevalue.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:34 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

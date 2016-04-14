@@ -80,6 +80,7 @@
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbalxml_1_1PrefixStack.html#a5e0a21c96361536ae8db9e93c73e7397">PrefixStack</a> (<a class="el" href="classbalxml_1_1NamespaceRegistry.html">NamespaceRegistry</a> *namespaceRegistry, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbalxml_1_1PrefixStack.html#a67bba101cb55a2277669cc36e69809f5">PrefixStack</a> (const <a class="el" href="classbalxml_1_1PrefixStack.html">PrefixStack</a> &amp;original, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbalxml_1_1PrefixStack.html#a8ab276a248d8ce82ce56681b7a777e4d">~PrefixStack</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbalxml_1_1PrefixStack.html#a7613733114beea71ce3a23035aa635e5">pushPrefix</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;prefix, const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;namespaceUri)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbalxml_1_1PrefixStack.html#a89b5e32c5db7660581cced47a75fdb9d">popPrefixes</a> (int count)</td></tr>
@@ -123,7 +124,35 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty registry. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. </p>
+<p>Create an empty registry. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. </p>
+
+</div>
+</div>
+<a class="anchor" id="a67bba101cb55a2277669cc36e69809f5"></a><!-- doxytag: member="balxml::PrefixStack::PrefixStack" ref="a67bba101cb55a2277669cc36e69809f5" args="(const PrefixStack &amp;original, bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">balxml::PrefixStack::PrefixStack </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbalxml_1_1PrefixStack.html">PrefixStack</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>original</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a registry object having the same value as the specified <code>original</code> object. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. </p>
 
 </div>
 </div>
@@ -431,7 +460,7 @@ Public Member Functions</h2></td></tr>
 <li><a class="el" href="balxml__prefixstack_8h_source.html">balxml_prefixstack.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:32 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

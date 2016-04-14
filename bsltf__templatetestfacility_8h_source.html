@@ -620,7 +620,7 @@ struct TemplateTestFacility {
                         bslma::Allocator *allocator);
         // Create an object of the parameterized &#39;TYPE&#39; at the specified
         // &#39;address&#39; whose state is unique for the specified &#39;identifier&#39;.  The
-        // behavior is undefined unless &#39;0 &lt;= value &lt; 128&#39; and &#39;TYPE&#39; is
+        // behavior is undefined unless &#39;0 &lt;= identifier &lt; 128&#39; and &#39;TYPE&#39; is
         // contained in the macro &#39;BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL&#39;.
 
     template &lt;class TYPE&gt;
@@ -629,7 +629,23 @@ struct TemplateTestFacility {
                         bslma::Allocator  *allocator);
         // Create a pointer to the parameterized &#39;TYPE&#39; at the specified
         // &#39;address&#39; whose value is unique for the specified &#39;identifier&#39;.  The
-        // behavior is undefined unless &#39;0 &lt;= value &lt; 128&#39;.
+        // behavior is undefined unless &#39;0 &lt;= identifier &lt; 128&#39;.
+
+    static void emplace(char             *address,
+                        int               identifier,
+                        bslma::Allocator *allocator);
+    static void emplace(signed char      *address,
+                        int               identifier,
+                        bslma::Allocator *allocator);
+    static void emplace(unsigned char    *address,
+                        int               identifier,
+                        bslma::Allocator *allocator);
+        // Set the character object at the specified &#39;address&#39; to the value of
+        // the specified &#39;identifier&#39;.  The specified &#39;allocator&#39; is not used.
+        // The behavior is undefined unless &#39;0 &lt;= identifier &lt; 128&#39;.  Note that
+        // these overloads are needed only to avoid narrowing conversion
+        // warnings that will occur in &#39;bslalg::ScalarPrimitives&#39; when using
+        // this test facility.
 
     template &lt;class TYPE&gt;
     static int getIdentifier(const TYPE&amp; object);
@@ -984,6 +1000,9 @@ void TemplateTestFacility::emplace(TYPE             *address,
                                    int               identifier,
                                    bslma::Allocator *allocator)
 {
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
     bslalg::ScalarPrimitives::construct(address, identifier, allocator);
 }
 
@@ -991,12 +1010,45 @@ template &lt;class TYPE&gt;
 inline
 void TemplateTestFacility::emplace(TYPE             **address,
                                    int                identifier,
-                                   bslma::Allocator  *allocator)
+                                   bslma::Allocator  *)
 {
-    bslalg::ScalarPrimitives::construct(
-                     address,
-                     reinterpret_cast&lt;TYPE *&gt;(bsls::Types::IntPtr(identifier)),
-                     allocator);
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
+    *address = reinterpret_cast&lt;TYPE *&gt;(bsls::Types::IntPtr(identifier));
+}
+
+inline
+void TemplateTestFacility::emplace(char             *address,
+                                   int               identifier,
+                                   bslma::Allocator *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
+    *address = static_cast&lt;char&gt;(identifier);
+}
+
+inline
+void TemplateTestFacility::emplace(signed char      *address,
+                                   int               identifier,
+                                   bslma::Allocator *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
+    *address = static_cast&lt;signed char&gt;(identifier);
+}
+
+inline
+void TemplateTestFacility::emplace(unsigned char    *address,
+                                   int               identifier,
+                                   bslma::Allocator *)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
+    *address = static_cast&lt;unsigned char&gt;(identifier);
 }
 
 template &lt;&gt;
@@ -1006,6 +1058,9 @@ void TemplateTestFacility::emplace&lt;EnumeratedTestType::Enum&gt;(
                                           int                       identifier,
                                           bslma::Allocator         *allocator)
 {
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 &lt;= identifier);  BSLS_ASSERT_SAFE(identifier &lt; 128);
+
     bslalg::ScalarPrimitives::construct(
                              address,
                              static_cast&lt;EnumeratedTestType::Enum&gt;(identifier),

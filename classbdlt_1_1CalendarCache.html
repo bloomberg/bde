@@ -86,6 +86,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1CalendarCache.html#aecb2952e3edae257ef6efa54f271ed46">invalidate</a> (const char *calendarName)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1CalendarCache.html#a426bb3f44950cace66e722739d7d55a6">invalidateAll</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; const <a class="el" href="classbdlt_1_1Calendar.html">Calendar</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1CalendarCache.html#adec8fe93f53cefa267746328a24d0bae">lookupCalendar</a> (const char *calendarName) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1CalendarCache.html#a3f94ec58d8ebcbf359ccf681fa6e7913">lookupLoadTime</a> (const char *calendarName) const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class implements an efficient cache of <em>read-only</em> <code><a class="el" href="classbdlt_1_1Calendar.html">bdlt::Calendar</a></code> objects that are loaded into the cache, using a calendar loader supplied at construction, as a side-effect of the <code>getCalendar</code> manipulator. Calendars in the cache can be invalidated, and removed from the cache via the <code>invalidate</code> and <code>invalidateAll</code> methods. In addition, calendars in the cache can be made to expire based on a timeout that may be optionally supplied at construction. The <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt;const <a class="el" href="classbdlt_1_1Calendar.html">bdlt::Calendar</a>&gt;</code> objects returned from the <code>getCalendar</code> and <code>lookupCalendar</code> methods allow for the safe removal of calendars from the cache that may still have outstanding references to them.</p>
@@ -248,11 +249,30 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a3f94ec58d8ebcbf359ccf681fa6e7913"></a><!-- doxytag: member="bdlt::CalendarCache::lookupLoadTime" ref="a3f94ec58d8ebcbf359ccf681fa6e7913" args="(const char *calendarName) const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a> bdlt::CalendarCache::lookupLoadTime </td>
+          <td>(</td>
+          <td class="paramtype">const char *&nbsp;</td>
+          <td class="paramname"> <em>calendarName</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the datetime, in Coordinated Universal <a class="el" href="classbdlt_1_1Time.html">Time</a> (UTC), at which the calendar having the specified <code>calendarName</code> was loaded into this calendar cache. If the calendar having <code>calendarName</code> is not found in the cache, or if the calendar has expired (i.e., per a timeout optionally supplied at construction), return <code><a class="el" href="namespacebdet.html#a7cc67ae2240c06a6a70bf001c5a858b5">Datetime()</a></code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bdlt__calendarcache_8h_source.html">bdlt_calendarcache.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:34 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

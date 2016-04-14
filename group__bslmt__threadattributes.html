@@ -237,7 +237,7 @@ Namespaces</h2></td></tr>
       <span class="comment">// referring to the spawned thread to the specified &#39;*threadHandle&#39;.</span>
   {
       <span class="keywordtype">int</span> stackSize = attributes.<a class="code" href="classbslmt_1_1ThreadAttributes.html#aa65f51c0bdf6cfa4729abbc6e37fbba8">stackSize</a>();
-      <span class="keywordflow">if</span> (<a class="code" href="classbslmt_1_1ThreadAttributes.html#a3e6593193667b1a7ede8f2a5def40c0faecad9d40a05a294415b8ed8b113d86b4">bslmt::ThreadAttributes::e_UNSET_STACK_SIZE</a> == stackSize) {
+      <span class="keywordflow">if</span> (<a class="code" href="classbslmt_1_1ThreadAttributes.html#a21679b30c880e88cefb6e3310b675296aecad9d40a05a294415b8ed8b113d86b4">bslmt::ThreadAttributes::e_UNSET_STACK_SIZE</a> == stackSize) {
           stackSize = <a class="code" href="structbslmt_1_1Configuration.html#a400d7f8cf2497952f91b59246224a18a">bslmt::Configuration::defaultThreadStackSize</a>();
       }
 
@@ -255,7 +255,7 @@ Namespaces</h2></td></tr>
 <span class="preprocessor">  #endif</span>
 <span class="preprocessor"></span>
       <span class="keywordtype">int</span> guardSize = attributes.<a class="code" href="classbslmt_1_1ThreadAttributes.html#a5e2058643f5b534058ac3406fdb4c55e">guardSize</a>();
-      <span class="keywordflow">if</span> (<a class="code" href="classbslmt_1_1ThreadAttributes.html#a3e6593193667b1a7ede8f2a5def40c0fa823ce037ba5968f67cf557f420cbcf04">bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE</a> == guardSize) {
+      <span class="keywordflow">if</span> (<a class="code" href="classbslmt_1_1ThreadAttributes.html#a21679b30c880e88cefb6e3310b675296a823ce037ba5968f67cf557f420cbcf04">bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE</a> == guardSize) {
           guardSize = <a class="code" href="structbslmt_1_1Configuration.html#ae424b7293376e153b78ae6b024c54dd4">bslmt::Configuration::nativeDefaultThreadGuardSize</a>();
       }
 
@@ -282,7 +282,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that a new value derived from the <code>stackSize</code> attribute is used so that the meaning of the attribute is platform neutral. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

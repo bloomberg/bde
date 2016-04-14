@@ -178,6 +178,16 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a compact repository for weekend/holiday information. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__posixdateimputil.html">Component bdlt_posixdateimputil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide low-level support functions for date-value manipulation. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__prolepticdateimputil.html">Component bdlt_prolepticdateimputil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide low-level support functions for date-value manipulation. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__serialdateimputil.html">Component bdlt_serialdateimputil</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide low-level support functions for date-value manipulation. </p>
@@ -196,6 +206,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__timeunitratio.html">Component bdlt_timeunitratio</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide constants characterizing ratios between common time units. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlt__timeutil.html">Component bdlt_timeutil</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide common non-primitive operations on <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>. </p>
 </td></tr>
 </p>
 </table>
@@ -257,9 +272,6 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="author"><dt><b>Author:</b></dt><dd>Steven Breitstein (sbreitstein) </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> ("Basic Development Library Time") package provides vocabulary types for representing date, time, and datetime values, and utilities providing non-primitive functionality on the value types. </dd></dl>
@@ -276,39 +288,44 @@ Arithmetic and validation functions  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package currently has 26 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlt</code> package currently has 29 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  7. bdlt_currenttime
+<div class="fragment"><pre class="fragment">  9. bdlt_defaultcalendarcache
+
+  8. bdlt_calendarcache
+
+  7. bdlt_currenttime
      bdlt_iso8601util
 
   6. bdlt_datetimetz
-     bdlt_defaultcalendarcache
      bdlt_localtimeoffset
 
-  5. bdlt_calendarcache
+  5. bdlt_calendar
+     bdlt_calendarloader
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
 
-  4. bdlt_calendar
-     bdlt_calendarloader
-     bdlt_datetime
-     bdlt_timetz
-
-  3. bdlt_dateutil
-     bdlt_intervalconversionutil
+  4. bdlt_datetime
+     bdlt_dateutil
      bdlt_packedcalendar
+     bdlt_timetz
+     bdlt_timeutil
+
+  3. bdlt_date
+     bdlt_intervalconversionutil
      bdlt_time
 
-  2. bdlt_date
-     bdlt_datetimeinterval
+  2. bdlt_datetimeinterval
      bdlt_dayofweekset
+     bdlt_serialdateimputil
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
      bdlt_iso8601utilconfiguration
      bdlt_monthofyear
-     bdlt_serialdateimputil
+     bdlt_posixdateimputil
+     bdlt_prolepticdateimputil
      bdlt_timeunitratio
 </pre></div><br/>
 <br/>
@@ -361,6 +378,10 @@ Arithmetic and validation functions  </li>
  Enumerate the set of month-of-year values.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_packedcalendar</code>: <br/>
  Provide a compact repository for weekend/holiday information.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_posixdateimputil</code>: <br/>
+ Provide low-level support functions for date-value manipulation.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_prolepticdateimputil</code>: <br/>
+ Provide low-level support functions for date-value manipulation.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_serialdateimputil</code>: <br/>
  Provide low-level support functions for date-value manipulation.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_time</code>: <br/>
@@ -369,6 +390,8 @@ Arithmetic and validation functions  </li>
  Provide a representation of a time with time zone offset.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_timeunitratio</code>: <br/>
  Provide constants characterizing ratios between common time units.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlt_timeutil</code>: <br/>
+ Provide common non-primitive operations on <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="value_types"></a> <a class="anchor" id="description.value_types"></a> <a class="anchor" id="3.3"></a> </dd></dl>
@@ -388,7 +411,7 @@ Arithmetic and validation functions  </li>
 <br/>
  Further note that: <ul>
 <li>
-The date values follow the proleptic Gregorian calendar.  </li>
+The date values follow the Unix (POSIX) calendar (see <a href="group__bdlt__date.html" class="el"><code>bdlt_date</code></a>.  </li>
 <li>
 The definition of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> does <em>not</em> allow for leap seconds.  </li>
 </ul>
@@ -600,7 +623,7 @@ Find the date of a specified day of week that is the <em>nth</em> (e.g., 1st, 3r
 <br/>
  and we send out hold-the-date requests to our friends and family. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:46 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -79,7 +79,11 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Usage</a> <ul>
+<li>
+<a href="#3.1.1">Example 1: Basic Use of <code>bdlb::NullOutputIterator</code></a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -95,15 +99,15 @@ Namespaces</h2></td></tr>
 <tr>
 <td><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator</a> </td><td>output iterator template that discards the output  </td></tr>
 <tr>
-<td><a class="el" href="classbdlb_1_1NullOutputIteratorAssignmentProxy.html">bdlb::NullOutputIteratorAssignmentProxy</a> </td><td>proxy for assignment  </td></tr>
+<td><a class="el" href="classbdlb_1_1NullOutputIterator.html#a37e5645fe0e8ed23ebc6b8353c4355ed">bdlb::NullOutputIterator::AssignmentProxy</a> </td><td>proxy for assignment  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bdlb__nullinputiterator.html" title="Provide a pure input iterator for an empty range.">Component bdlb_nullinputiterator</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd>bdlb_nullinputiterator </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a class template defining an output iterator type, <code><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator</a></code>, with the following attributes: <ul>
+<dl class="user"><dt><b></b></dt><dd>This component provides a mechanism, <code><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator</a></code>, that defines an output iterator with the following attributes: <ul>
 <li>
 Meets exactly the requirements for an output iterator according to the C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).  </li>
 <li>
@@ -112,10 +116,35 @@ De-referencing an iterator and assigning to the returned value has no effect.  <
 Incrementing an iterator has no effect.  </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This iterator type is typically used to call functions purely for their side-effects, discarding the normal output. It is also useful for testing whether a template function will compile when presented with a pure output iterator. This component also provides a template <code><a class="el" href="classbdlb_1_1NullOutputIteratorAssignmentProxy.html">bdlb::NullOutputIteratorAssignmentProxy</a></code> allowing assignment from any type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This iterator type is typically used to call functions purely for their side-effects, discarding the normal output. It is also useful for testing whether a template function will compile when presented with a pure output iterator. This component also provides a template <code><a class="el" href="classbdlb_1_1NullOutputIterator.html#a37e5645fe0e8ed23ebc6b8353c4355ed">bdlb::NullOutputIterator::AssignmentProxy</a></code>, that is used as the return type of <code>bdlb::NullOutputIterator::operator*</code>. The <code>AssignmentProxy</code> provides an <code>operator=</code> that does nothing, so that the result of the iterator's <code>operator*</code> can be assigned to even if the value type of the <code><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator</a></code> does not provide a default constructor: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>ValueType {
+      <span class="comment">// ... data members ...</span>
+
+    <span class="keyword">public</span>:
+      ValueType(<span class="keywordtype">int</span> value) { ... implementation elided ... }
+
+      <span class="comment">// ... rest of class definition elided ...</span>
+
+  };
+
+  ValueType v(42);
+  <a class="code" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator&lt;ValueType&gt;</a> i;
+
+  <span class="comment">// With a non-proxy return type for &#39;operator*&#39; it would be difficult to</span>
+  <span class="comment">// provide a value for the lefthand side of this expression:</span>
+
+  *i = v;
+</pre></div><br/>
+<br/>
+ </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_use_of_bdlb~3A~3Anulloutputiterator"></a> <a class="anchor" id="usage.example_1~3A_basic_use_of_bdlb~3A~3Anulloutputiterator"></a> <a class="anchor" id="description.usage.example_1~3A_basic_use_of_bdlb~3A~3Anulloutputiterator"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Basic Use of bdlb::NullOutputIterator: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the following example we use a <code><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator</a></code> to enable us to call a function to capture its return code, while ignoring the output provided through an iterator. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a function <code>runningSum</code> that returns output both through an output iterator and through a return status code: <br/>
 <br/>
@@ -136,14 +165,26 @@ Incrementing an iterator has no effect.  </li>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> average(<span class="keywordtype">int</span> values[], <span class="keywordtype">int</span> numValues)
   {
-      <span class="keywordtype">int</span> sum = runningSum(values, values + numValues,
-                           <a class="code" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator&lt;int&gt;</a>()) / numValues;
+      <span class="comment">// ... input validation elided ...</span>
+      <span class="keywordflow">return</span> runningSum(values, values + numValues,
+                        <a class="code" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator&lt;int&gt;</a>()) / numValues;
+  }
+</pre></div><br/>
+<br/>
+ Finally, we invoke function <code>average</code> on user array and validate result. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> usageExample()
+  {
+      <span class="keyword">const</span> <span class="keywordtype">int</span> myArray[5] = { 3, 4, 5, 7, 11 };
+
+      <span class="keywordtype">int</span> averageValue = average(myArray, 5);
+      assert( averageValue == 6 );
   }
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:38 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:35 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

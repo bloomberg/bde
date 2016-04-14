@@ -121,7 +121,7 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides the base-level protocol (pure abstract interface) class, <code>bslma_allocator</code>, that serves as a ubiquitous vocabulary type for various memory allocation mechanisms. The functional capabilities documented by this protocol are similar to those afforded by global operators <code>new</code> and <code>delete</code>: sufficiently (but not necessarily maximally) aligned memory is guaranteed for any object of a given size. Clients of this abstract base class will typically accept a supplied allocator (often at construction) and use its <code>allocate</code> and <code>deallocate</code> methods instead of <code>new</code> and <code>delete</code> directly. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The use of (abstract) allocators provide at least three distinct advantages over direct (hard-coded) calls to global <code>new</code> and <code>delete</code> (see <code>bslma_newdeleteallocator</code>): </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The use of (abstract) allocators provides at least three distinct advantages over direct (hard-coded) calls to global <code>new</code> and <code>delete</code> (see <code>bslma_newdeleteallocator</code>): </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
 The particular choice of allocator can be selected to improve performance on a per-object basis. Without allocators, the best we can do in C++ is to overload the class-specific new and delete. Class-specific allocators tend to hoard memory even when most objects of the class have been deallocated, and often mask memory leaks that would otherwise have been detected. See Lakos-96, Section 10.3.4.2, pp 705-711.  </li>
@@ -238,7 +238,7 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
   <span class="comment">// ...</span>
 </pre></div><br/>
 <br/>
- The stack interface takes an optional <code>basicAllocator</code> supplied only at construction. (We avoid use of the name <code>allocator</code> so as not to conflict with the STL use of the word, which differs slightly.) If non-zero, the stack holds a pointer to this allocator, but does not own it. If no allocator is supplied, the implementation itself must either conditionally invoke global <code>new</code> and <code>delete</code> explicitly whenever memory dynamic memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts use of these global operators to the <code>bslma_allocator</code> interface (see <code>bslma_newdeleteallocator</code>). <br/>
+ The stack interface takes an optional <code>basicAllocator</code> supplied only at construction. (We avoid use of the name <code>allocator</code> so as not to conflict with the STL use of the word, which differs slightly.) If non-zero, the stack holds a pointer to this allocator, but does not own it. If no allocator is supplied, the implementation itself must either conditionally invoke global <code>new</code> and <code>delete</code> explicitly whenever dynamic memory must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts use of these global operators to the <code>bslma_allocator</code> interface (see <code>bslma_newdeleteallocator</code>). <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_doublestack.cpp</span>
 <span class="preprocessor">  #include &lt;my_doublestack.h&gt;</span>
@@ -449,11 +449,11 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 <div class="fragment"><pre class="fragment">      <span class="keywordtype">void</span> deleteMyType(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator, my_Type *address)
       {
           address-&gt;~my_Type();
-          basicAllocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">deallocate</a>(<span class="keywordtype">object</span>);
+          basicAllocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">deallocate</a>(address);
       }
 </pre></div><p><br/>
 <br/>
- See also <code>deleteObjectRaw</code> for better performance when <code>address</code> is known not be a secondary base type of the object being deleted. </p>
+ See also <code>deleteObjectRaw</code> for better performance when <code>address</code> is known not to be a secondary base type of the object being deleted. </p>
 
 </div>
 </div>
@@ -542,7 +542,7 @@ The <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:56 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

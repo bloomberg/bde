@@ -178,30 +178,37 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="second_implementation"></a> <a class="anchor" id="usage.second_implementation"></a> <a class="anchor" id="description.usage.second_implementation"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Second Implementation: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The next singleton function implementation directly uses the <code>doOnce</code> method of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>. We begin by declaring a simple function that does most of the work of the singleton, i.e., constructing the string and setting a (static) pointer to the string: <br/>
+<dl class="user"><dt><b></b></dt><dd>The next singleton function implementation directly uses the <code>doOnce</code> method of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>. We begin by declaring a functor type that does most of the work of the singleton, i.e., constructing the string and setting a (static) pointer to the string: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> *theSingletonPtr = 0;
 
-  <span class="keywordtype">void</span> singletonImp(<span class="keyword">const</span> <span class="keywordtype">char</span> *s)
-  {
-      <span class="keyword">static</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> theSingleton(s);
-      theSingletonPtr = &amp;theSingleton;
-  }
+  <span class="keyword">class </span>SingletonInitializer {
+      <span class="keyword">const</span> <span class="keywordtype">char</span> *d_initialValue;
+
+    <span class="keyword">public</span>:
+      SingletonInitializer(<span class="keyword">const</span> <span class="keywordtype">char</span> *initialValue)
+      : d_initialValue(initialValue)
+      {
+      }
+
+      <span class="keywordtype">void</span> operator()()<span class="keyword"> const </span>{
+         <span class="keyword">static</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> theSingleton(d_initialValue);
+         theSingletonPtr = &amp;theSingleton;
+      }
+  };
 </pre></div><br/>
 <br/>
- The above function is <em>not</em> thread-safe. Firstly, many threads might attempt to simultaneously construct the <code>theSingleton</code> object. Secondly, once <code>theSingletonPtr</code> is set by one thread, other threads still might not see the change (and try to initialize the singleton again). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>singleton1</code> function, below, calls <code>singletonImp</code> via the <code>callOnce</code> method of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code> to ensure that <code>singletonImp</code> is called by only one thread and that the result is visible to all threads. We start by creating and initializing a static object of type <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>: <br/>
+ The function call operator of the type above is <em>not</em> thread-safe. Firstly, many threads might attempt to simultaneously construct the <code>theSingleton</code> object. Secondly, once <code>theSingletonPtr</code> is set by one thread, other threads still might not see the change (and try to initialize the singleton again). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>singleton1</code> function, below, invokes <code>SingletonInitializer::operator()</code> via the <code>callOnce</code> method of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code> to ensure that <code>operator()</code> is called by only one thread and that the result is visible to all threads. We start by creating and initializing a static object of type <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="preprocessor">  #include &lt;<a class="code" href="bdlf__bind_8h.html" title="Provide a signature-specific function object (functor).">bdlf_bind.h</a>&gt;</span>
-
-  <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; singleton1(<span class="keyword">const</span> <span class="keywordtype">char</span> *s)
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; singleton1(<span class="keyword">const</span> <span class="keywordtype">char</span> *s)
   {
       <span class="keyword">static</span> <a class="code" href="classbslmt_1_1Once.html">bslmt::Once</a> once = BSLMT_ONCE_INITIALIZER;
 </pre></div><br/>
 <br/>
- Since the <code>callOnce</code> method takes only a no-argument functor (or function), to call <code>callOnce</code>, we must bind our argument <code>s</code> to our function, <code>singletonImp</code> using a binder method and then pass that functor to <code>callOnce</code>. The first thread (and only the first thread) entering this section of code we will set <code>theSingleton</code>. <br/>
+ We construct a <code>SingletonInitializer</code> instance, effectively "binding" the argument <code>s</code> so that it may be used in a function invoked by <code>callOnce</code>, which takes only a no-argument functor (or function). The first thread (and only the first thread) entering this section of code will set <code>theSingleton</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      once.<a class="code" href="classbslmt_1_1Once.html#a495b39de49e6b81abb992ce3597b640f">callOnce</a>(<a class="code" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a>(singletonImp, s));
+<div class="fragment"><pre class="fragment">      once.<a class="code" href="classbslmt_1_1Once.html#a495b39de49e6b81abb992ce3597b640f">callOnce</a>(SingletonInitializer(s));
       <span class="keywordflow">return</span> *theSingletonPtr;
   }
 </pre></div><br/>
@@ -212,7 +219,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="third_implementation"></a> <a class="anchor" id="usage.third_implementation"></a> <a class="anchor" id="description.usage.third_implementation"></a> <a class="anchor" id="3.3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Third Implementation: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Our next implementation, <code>singleton2</code>, eliminates the need for the <code>singletonImp</code> function and thereby does away with the use of the <code><a class="el" href="structbdlf_1_1BindUtil.html">bdlf::BindUtil</a></code> method; however, it does require use of <code><a class="el" href="classbslmt_1_1Once.html#afd2a5f1e281f4ec32ea8334c4a12425f">bslmt::Once::OnceLock</a></code>, created on each thread's stack and passed to the methods of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>. First, we declare a static <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code> object as before, and also declare a static pointer to <code>bsl::string</code>: <br/>
+<dl class="user"><dt><b></b></dt><dd>Our next implementation, <code>singleton2</code>, eliminates the need for the <code>singletonImp</code> function and thereby does away with the use of the a functor type to "bind" the initialization parameter; however, it does require use of <code><a class="el" href="classbslmt_1_1Once.html#afd2a5f1e281f4ec32ea8334c4a12425f">bslmt::Once::OnceLock</a></code>, created on each thread's stack and passed to the methods of <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code>. First, we declare a static <code><a class="el" href="classbslmt_1_1Once.html">bslmt::Once</a></code> object as before, and also declare a static pointer to <code>bsl::string</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; singleton2(<span class="keyword">const</span> <span class="keywordtype">char</span> *s)
   {
@@ -386,7 +393,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

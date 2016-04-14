@@ -112,15 +112,15 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This example illustrates a very simple queue where potential clients can push integers to a queue, and later retrieve the integer values from the queue in FIFO order. It illustrates two potential uses of semaphores: to enforce exclusive access, and to allow resource sharing. <br/>
+<dl class="user"><dt><b></b></dt><dd>This example illustrates a very simple queue where potential clients can push integers to a queue, and later retrieve the integer values from the queue in FIFO order. It illustrates two potential uses of semaphores: to enforce exclusive access, and to allow resource sharing. This queue allows clients to set a limit on how long they wait to retrieve values. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>IntQueue {
       <span class="comment">// FIFO queue of integer values.</span>
 
       <span class="comment">// DATA</span>
-      <a class="code" href="classbdlc_1_1Queue.html">bdlc::Queue&lt;int&gt;</a>      d_queue;       <span class="comment">// underlying queue</span>
-      <a class="code" href="classbslmt_1_1TimedSemaphore.html">bslmt::TimedSemaphore</a> d_mutexSem;    <span class="comment">// mutual-access semaphore</span>
+      <a class="code" href="classbsl_1_1deque.html">bsl::deque&lt;int&gt;</a>       d_queue;       <span class="comment">// underlying queue</span>
       <a class="code" href="classbslmt_1_1TimedSemaphore.html">bslmt::TimedSemaphore</a> d_resourceSem; <span class="comment">// resource-availability semaphore</span>
+      <a class="code" href="classbslmt_1_1TimedSemaphore.html">bslmt::TimedSemaphore</a> d_mutexSem;    <span class="comment">// mutual-access semaphore</span>
 
       <span class="comment">// NOT IMPLEMENTED</span>
       IntQueue(<span class="keyword">const</span> IntQueue&amp;);
@@ -137,9 +137,11 @@ Namespaces</h2></td></tr>
           <span class="comment">// Destroy this &#39;IntQueue&#39; object.</span>
 
       <span class="comment">// MANIPULATORS</span>
-      <span class="keywordtype">int</span> getInt();
-          <span class="comment">// Retrieve an integer from this &#39;IntQueue&#39; object.  Integer values</span>
-          <span class="comment">// are obtained from the queue in FIFO order.</span>
+      <span class="keywordtype">int</span> getInt(<span class="keywordtype">int</span> *result, <span class="keywordtype">int</span> maxWaitSeconds = 0);
+          <span class="comment">// Load the first integer in this queue into the specified &#39;result&#39;</span>
+          <span class="comment">// and return 0 unless the operation takes more than the optionally</span>
+          <span class="comment">// specified &#39;maxWaitSeconds&#39;, in which case return a nonzero value</span>
+          <span class="comment">// and leave &#39;result&#39; unmodified.</span>
 
       <span class="keywordtype">void</span> pushInt(<span class="keywordtype">int</span> value);
           <span class="comment">// Push the specified &#39;value&#39; to this &#39;IntQueue&#39; object.</span>
@@ -151,6 +153,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
   IntQueue::IntQueue(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
   : d_queue(basicAllocator)
+  , d_resourceSem(bsls::SystemClockType::e_MONOTONIC)
   {
       d_mutexSem.post();
   }
@@ -161,18 +164,27 @@ Namespaces</h2></td></tr>
   }
 
   <span class="comment">// MANIPULATORS</span>
-  <span class="keywordtype">int</span> IntQueue::getInt()
+  <span class="keywordtype">int</span> IntQueue::getInt(<span class="keywordtype">int</span> *result, <span class="keywordtype">int</span> maxWaitSeconds)
   {
       <span class="comment">// Waiting for resources.</span>
-      d_resourceSem.wait();    <span class="comment">// TBD modify to use &#39;timedWait&#39;</span>
+      <span class="keywordflow">if</span> (0 == maxWaitSeconds) {
+          d_resourceSem.wait();
+      } <span class="keywordflow">else</span> {
+          <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> timeout = <a class="code" href="structbsls_1_1SystemTime.html#af51e07dec47dfc6ff0d21b352be3335f">bsls::SystemTime::nowMonotonicClock</a>()
+              .addSeconds(maxWaitSeconds);
+          <span class="keywordtype">int</span> rc = d_resourceSem.timedWait(timeout);
+          <span class="keywordflow">if</span> (0 != rc) {
+             <span class="keywordflow">return</span> rc;
+          }
+      }
 
       <span class="comment">// &#39;d_mutexSem&#39; is used for exclusive access.</span>
       d_mutexSem.wait();       <span class="comment">// lock</span>
-      <span class="keyword">const</span> <span class="keywordtype">int</span> ret = d_queue.back();
-      d_queue.popBack();
+      *result = d_queue.back();
+      d_queue.pop_back();
       d_mutexSem.post();       <span class="comment">// unlock</span>
 
-      <span class="keywordflow">return</span> ret;
+      <span class="keywordflow">return</span> 0;
   }
 
   <span class="keywordtype">void</span> IntQueue::pushInt(<span class="keywordtype">int</span> value)
@@ -187,7 +199,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

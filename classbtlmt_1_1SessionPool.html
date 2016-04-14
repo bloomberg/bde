@@ -87,8 +87,8 @@ Public Types</h2></td></tr>
 <a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aad795c27362f5a95120b66e4e826ca20f">e_SESSION_ALLOC_FAILED</a> =  3, 
 <a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa3ab565cb1eabe6693c5138d8efd2ec98">e_SESSION_STARTUP_FAILED</a> =  4, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa06a6ed386e95b09e183185e155c8571b">e_WRITE_CACHE_LOWWAT</a> =  5, 
-<a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa1447d678a36719832b06406a7a056d2b">e_WRITE_CACHE_HIWAT</a> =  6, 
+&nbsp;&nbsp;<a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa5065cf306d335a6017cdac867b834a98">e_WRITE_QUEUE_LOWWATER</a> =  5, 
+<a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa17c3d0f245bde63c62b3ea65d6402d46">e_WRITE_QUEUE_HIGHWATER</a> =  6, 
 <a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa5cc598e6f6a5998ca50c94566f8374da">e_ACCEPT_FAILED</a> =  7, 
 <a class="el" href="classbtlmt_1_1SessionPool.html#a4471b4199deb1c044105be42448ed89aa90e0e7c16736e45cc5933aa0db047c2d">e_CONNECT_ATTEMPT_FAILED</a> =  8, 
 <br/>
@@ -127,7 +127,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#a5ad1a3553cec19e154309f651e44a715">connect</a> (int *handleBuffer, const <a class="el" href="classbtlmt_1_1SessionPool.html#a2175efd4427f49e1e5f2c70346e7a60b">SessionPool::SessionStateCallback</a> &amp;callback, <a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> const &amp;endpoint, int numAttempts, const <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> &amp;interval, <a class="el" href="classbtlmt_1_1SessionFactory.html">SessionFactory</a> *factory, void *userData=0, const <a class="el" href="classbtlso_1_1SocketOptions.html">btlso::SocketOptions</a> *socketOptions=0, const <a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> *localAddress=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#ae52dbcbd92671559fb4a7a7fd0ddfe9d">import</a> (int *handleBuffer, const <a class="el" href="classbtlmt_1_1SessionPool.html#a2175efd4427f49e1e5f2c70346e7a60b">SessionPool::SessionStateCallback</a> &amp;callback, <a class="el" href="classbtlso_1_1StreamSocket.html">btlso::StreamSocket</a>&lt; <a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> &gt; *streamSocket, <a class="el" href="classbtlso_1_1StreamSocketFactory.html">btlso::StreamSocketFactory</a>&lt; <a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> &gt; *socketFactory, <a class="el" href="classbtlmt_1_1SessionFactory.html">SessionFactory</a> *sessionFactory, void *userData=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#a9363f920d26e30dc692e8a1522f72d1a">import</a> (int *handleBuffer, const <a class="el" href="classbtlmt_1_1SessionPool.html#a2175efd4427f49e1e5f2c70346e7a60b">SessionPool::SessionStateCallback</a> &amp;callback, <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; <a class="el" href="classbtlso_1_1StreamSocket.html">btlso::StreamSocket</a>&lt; <a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> &gt; &gt; *streamSocket, <a class="el" href="classbtlmt_1_1SessionFactory.html">SessionFactory</a> *sessionFactory, void *userData=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#a55b14d033673512129ca5ff7aac050cd">setWriteCacheWatermarks</a> (int handleId, int lowWatermark, int hiWatermark)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#a99d3efee5dbf196d4660d0ac081a3587">setWriteQueueWatermarks</a> (int handleId, int lowWatermark, int highWatermark)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#afafeeac972b76eb93c6ae841590cc30b">config</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#aaeca7d07e73ae6a8f56447e63bf83827">getChannelHandleStatistics</a> (<a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt; <a class="el" href="structbtlmt_1_1ChannelPool_1_1HandleInfo.html">ChannelPool::HandleInfo</a> &gt; *handleInfo) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1SessionPool.html#a345736669f5c424c92a51732a609fe33">numSessions</a> () const </td></tr>
@@ -191,11 +191,11 @@ Friends</h2></td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa3ab565cb1eabe6693c5138d8efd2ec98"></a><!-- doxytag: member="e_SESSION_STARTUP_FAILED" ref="a4471b4199deb1c044105be42448ed89aa3ab565cb1eabe6693c5138d8efd2ec98" args="" -->e_SESSION_STARTUP_FAILED</em>&nbsp;</td><td>
 <p>the call to <code>start</code> failed </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa06a6ed386e95b09e183185e155c8571b"></a><!-- doxytag: member="e_WRITE_CACHE_LOWWAT" ref="a4471b4199deb1c044105be42448ed89aa06a6ed386e95b09e183185e155c8571b" args="" -->e_WRITE_CACHE_LOWWAT</em>&nbsp;</td><td>
-<p>write cache low watermark reached </p>
+<tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa5065cf306d335a6017cdac867b834a98"></a><!-- doxytag: member="e_WRITE_QUEUE_LOWWATER" ref="a4471b4199deb1c044105be42448ed89aa5065cf306d335a6017cdac867b834a98" args="" -->e_WRITE_QUEUE_LOWWATER</em>&nbsp;</td><td>
+<p>write queue low watermark reached </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa1447d678a36719832b06406a7a056d2b"></a><!-- doxytag: member="e_WRITE_CACHE_HIWAT" ref="a4471b4199deb1c044105be42448ed89aa1447d678a36719832b06406a7a056d2b" args="" -->e_WRITE_CACHE_HIWAT</em>&nbsp;</td><td>
-<p>write cache high watermark reached </p>
+<tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa17c3d0f245bde63c62b3ea65d6402d46"></a><!-- doxytag: member="e_WRITE_QUEUE_HIGHWATER" ref="a4471b4199deb1c044105be42448ed89aa17c3d0f245bde63c62b3ea65d6402d46" args="" -->e_WRITE_QUEUE_HIGHWATER</em>&nbsp;</td><td>
+<p>write queue high watermark reached </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4471b4199deb1c044105be42448ed89aa5cc598e6f6a5998ca50c94566f8374da"></a><!-- doxytag: member="e_ACCEPT_FAILED" ref="a4471b4199deb1c044105be42448ed89aa5cc598e6f6a5998ca50c94566f8374da" args="" -->e_ACCEPT_FAILED</em>&nbsp;</td><td>
 <p>accept failed </p>
@@ -1081,12 +1081,12 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a55b14d033673512129ca5ff7aac050cd"></a><!-- doxytag: member="btlmt::SessionPool::setWriteCacheWatermarks" ref="a55b14d033673512129ca5ff7aac050cd" args="(int handleId, int lowWatermark, int hiWatermark)" -->
+<a class="anchor" id="a99d3efee5dbf196d4660d0ac081a3587"></a><!-- doxytag: member="btlmt::SessionPool::setWriteQueueWatermarks" ref="a99d3efee5dbf196d4660d0ac081a3587" args="(int handleId, int lowWatermark, int highWatermark)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::SessionPool::setWriteCacheWatermarks </td>
+          <td class="memname">int btlmt::SessionPool::setWriteQueueWatermarks </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>handleId</em>, </td>
@@ -1101,7 +1101,7 @@ Friends</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&nbsp;</td>
-          <td class="paramname"> <em>hiWatermark</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>highWatermark</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1111,7 +1111,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the write cache low- and high-water marks for the session associated with the specified <code>handleId</code> to the specified <code>lowWatermark</code> and <code>hiWatermark</code> values, respectively; return 0 on success, and a non-zero value otherwise. A <code>BTEMT_WRITE_CACHE_LOWWAT</code> alert is provided (via the channel state callback) if <code>lowWatermark</code> is greater than or equal to the current size of the write cache, and a <code>BTEMT_WRITE_CACHE_HIWAT</code> alert is provided if <code>hiWatermark</code> is less than or equal to the current size of the write cache. (See the component-level documentation of <code>btlmt_channelpool</code> for details on <code>BTEMT_WRITE_CACHE_HIWAT</code> and <code>BTEMT_WRITE_CACHE_LOWWAT</code> alerts.) The behavior is undefined unless <code>0 &lt;= lowWatermark</code> and <code>lowWatermark &lt;= hiWatermark</code>. Note that this method overrides the values configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
+<p>Set the write queue low- and high-water marks for the session associated with the specified <code>handleId</code> to the specified <code>lowWatermark</code> and <code>highWatermark</code> values, respectively; return 0 on success, and a non-zero value otherwise. A <code>e_WRITE_QUEUE_LOWWATER</code> alert is provided (via the channel state callback) if <code>lowWatermark</code> is greater than or equal to the current size of the write queue, and a <code>e_WRITE_QUEUE_HIGHWATER</code> alert is provided if <code>highWatermark</code> is less than or equal to the current size of the write queue. (See the component-level documentation of <code>btlmt_channelpool</code> for details on <code>e_WRITE_QUEUE_HIGHWATER</code> and <code>e_WRITE_QUEUE_LOWWATER</code> alerts.) The behavior is undefined unless <code>0 &lt;= lowWatermark</code> and <code>0 &lt;= highWatermark</code>. Note that this method overrides the values configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
 
 </div>
 </div>
@@ -1207,7 +1207,7 @@ Friends</h2></td></tr>
 <li><a class="el" href="btlmt__sessionpool_8h_source.html">btlmt_sessionpool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:14 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

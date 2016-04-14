@@ -115,7 +115,7 @@ typedef Nil TypeListNil;
 template &lt;unsigned INDEX,  // &#39;unsigned&#39; is a proxy for &#39;size_t&#39;
           class LIST,
           class DEFAULTTYPE = Nil,
-          bool  INRANGE = INDEX &lt; LIST::LENGTH&gt;
+          bool  INRANGE = (INDEX &lt; LIST::LENGTH)&gt;
 struct TypeListTypeAt {
     // This template is specialized below to return the type the &#39;INDEX&#39;th
     // member of the typelist &#39;LIST&#39;.  If &#39;0 &gt; INDEX &lt;= LIST::LENGTH&#39; then

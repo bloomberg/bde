@@ -1,0 +1,4026 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdld_datum.h                                                       -*-C++-*-
+
+#ifndef INCLUDED_BDLD_DATUM
+#define INCLUDED_BDLD_DATUM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a discriminated variant type with a small footprint.
+//
+//@CLASSES:
+//   bdld::Datum: POD type representing general-purpose values
+//   bdld::DatumArrayRef: type for const ref to array of datums
+//   bdld::DatumMapEntry: type for entry inside map of datums
+//   bdld::DatumMapRef: type for const ref to map of datums
+//   bdld::DatumMutableArrayRef: type for mutable ref to array of datums
+//   bdld::DatumMutableMapRef: type for mutable ref to a map of datums
+//   bdld::DatumMutableMapOwningKeysRef: mutable ref to a map owning keys
+//
+//@SEE ALSO: bdld_datumerror, bdld_datumudt, bdld_datumbinaryref,
+//   bdld_manageddatum
+//
+//@DESCRIPTION: This component defines a mechanism, &#39;bdld::Datum&#39;, that
+// provides a space-efficient discriminated union (i.e., a variant) that holds
+// the value of either a scalar type (e.g., &#39;int&#39;, &#39;double&#39;, &#39;Date&#39;) or an
+// aggregate (i.e., array or map) of &#39;Datum&#39; objects.  The set of possible
+// types that a datum may hold is described in the &#39;Supported Types&#39; section.
+//
+// The &#39;Datum&#39; class is implemented as a POD-type, such that instances of the
+// class are bitwise copyable and have trivial initialization, assignment and
+// destruction.  The &#39;Datum&#39; class is also (primarily) designed to be compact,
+// especially on a 32-bit platform.  Being a compact POD type, &#39;Datum&#39; is
+// ideal for applications creating and copying very large numbers of variant
+// values (the canonical use-case is for the values in a spreadsheet).
+//
+// However, not all representable values can be stored in-line in footprint of
+// a &#39;Datum&#39; object itself.  Those types may require memory be allocated for
+// storage.  In order to keep the footprint of a &#39;Datum&#39; object as small as
+// possible, a &#39;Datum&#39; object does not hold a reference to an allocator, and so
+// memory must be explicitly managed by the user of &#39;Datum&#39;.  See &#39;Memory
+// Management&#39; for more details.
+//
+///Notion of Value
+///---------------
+// &#39;Datum&#39; has a notion of value, but is neither a value-semantic type, nor is
+// it an in-core value-semantic type (see {&#39;bsldoc_glossary&#39;}).  A consequence
+// of the &#39;Datum&#39; class&#39;s space-efficient design is that it does not fall
+// neatly into any of the standard BDE type-classifications.  The &#39;Datum&#39;
+// type&#39;s notion of value is expressed by its equality-operator -- notice, in
+// particular, that two &#39;Datum&#39; objects compare equal if the values they refer
+// to are the same.  However, &#39;Datum&#39;, as a POD, has compiler supplied copy and
+// assignment operators that do not copy any of the storage a &#39;Datum&#39; may be
+// pointing to, and only copy the address to which the &#39;Datum&#39; is pointing.
+//
+// Notice that the differing treatment of references to external data between
+// the equality comparison and the copy and assignment operations violates a
+// couple properties required of a value-semantic type, most obviously: &quot;The
+// value of an object of the type is independent of any modifiable state that
+// is not owned exclusively by that object.&quot; (See {&#39;bsldoc_glossary&#39;}.)
+//
+///Memory Management
+///-----------------
+// A primary design goal for &#39;Datum&#39; is space-efficiency, particularly on
+// 32-bit platforms.  In order to minimize the foot-print (i.e., the &#39;sizeof&#39;)
+// of a &#39;Datum&#39; object, &#39;Datum&#39; does not hold a reference to the allocator that
+// was used to allocate its contents.  Therefore any allocated memory referred
+// to by a &#39;Datum&#39; must be *externally* *managed*.  The &#39;bdld&#39; package, and
+// this component, provide tools to simplify the process of managing the
+// memory.
+//
+///Analogy to Raw Pointers
+///- - - - - - - - - - - -
+// A good way to understand the model for a &#39;Datum&#39; object&#39;s relationship to
+// its data is by analogy: The relationship between a &#39;Datum&#39; object and the
+// memory to which it refers is analogous to that of a raw-pointer and the data
+// to which it points.  Where &#39;new&#39; and &#39;delete&#39; are used allocate and free
+// memory a that a pointer points to, the static class methods &#39;Datum::create*&#39;
+// and &#39;Datum::destroy&#39; are used to allocate and release the memory a &#39;Datum&#39;
+// refers to.
+//
+// In order to create a &#39;Datum&#39; object a client calls one of the &#39;create*&#39;
+// static methods on the &#39;Datum&#39; class.  In order to release the data a
+// &#39;Datum&#39; holds, a client calls &#39;destroy&#39;.
+//
+///Creating a Datum that Requires No Allocation
+/// - - - - - - - - - - - - - - - - - - - - - -
+// Datum&#39;s containing certain types of scalar values do not require any memory
+// allocation, so their factory functions do *not* take an allocator.  These
+// values are small enough that they can always fit inside of the footprint of
+// the &#39;Datum&#39; object itself.
+//..
+//  Datum boolean = Datum::createBoolean(true);   // Create a boolean datum
+//  Datum integer = Datum::createInteger(7);      // Create a integer
+//  Datum    real = Datum::createDouble(2.0);     // Create a double
+//..
+//
+///Creating a Datum that *May* Require Allocation
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Datum objects containing certain types *may* (or *may*-*not*!) require
+// memory allocation, so their creation functions *require* an allocator:
+//..
+//  bslma::Allocator *allocator = bslma::Default(0);
+//  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
+//  Datum int64    = Datum::createInteger64(1LL, allocator);
+//..
+// In the example above, &#39;createDatetime&#39; takes an allocator, but may not
+// allocate memory.  Depending on the value of the &#39;Datetime&#39;, a &#39;Datum&#39; might
+// either store the value within the footprint of the &#39;Datum&#39; (requiring no
+// allocation) or allocate external storage.  The situations in which creation
+// functions taking an allocator do, and do not, actually allocate memory is
+// *implementation*-*defined*.
+//
+// Clients of &#39;Datum&#39; should treat any creation function taking an allocator
+// *as-if* it allocated memory, and eventually call &#39;Datum::destroy&#39; on the
+// resulting &#39;Datum&#39;, even though in some instances memory allocation may not
+// be required.
+//
+///Destroying a &#39;Datum&#39; Object
+///- - - - - - - - - - - - - -
+// The contents of a &#39;Datum&#39; object are destroyed using the static method
+// &#39;destroy&#39;.  For example:
+//..
+//  bslma::Allocator *allocator = bslma::Default(0);
+//  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
+//
+//  Datume::destroy(datetime, allocator);
+//     // &#39;datetime&#39; now refers to deallocated memory.  It cannot be used
+//     // used unless it is assigned a new value.
+//..
+// Notice that the destroyed &#39;Datum&#39; again behaves similar to a raw-pointer
+// that has been deallocated: the destroyed &#39;Datum&#39; refers to garbage and must
+// be assigned a new value before it can be used.
+//
+// For aggregate types -- i.e., maps and arrays -- &#39;destroy&#39; will recursively
+// call &#39;destroy&#39; on the &#39;Datum&#39; objects that compose the aggregate.  The
+// exception to this is references to external arrays (discussed below).
+//
+///References to External Strings and Arrays
+///- - - - - - - - - - - - - - - - - - - - -
+// Although a &#39;Datum&#39; does not own memory in the traditional sense, a call to
+// &#39;Datum::destroy&#39; will release the memory to which that &#39;Datum&#39; refers.
+// However, a &#39;Datum&#39; object also allows a user to create a &#39;Datum&#39; referring
+// to an externally managed array or string.  For a &#39;Datum&#39; having a reference
+// to an external string or array, the &#39;isExternalReference&#39; method will return
+// &#39;true&#39; and &#39;Datum::destroy&#39; will not deallocate memory for the data;
+// otherwise, &#39;isExternalReference&#39; will return &#39;false&#39; and &#39;Datum::destroy&#39;
+// will deallocate memory for the data.
+//
+// For example, to create a &#39;Datum&#39; for an externally managed string:
+//..
+//  Datum externalStringRef = Datum::createStringRef(&quot;text&quot;, allocator);
+//..
+// Notice that the supplied &#39;allocator&#39; is *not* used to allocate memory in
+// order copy the contents of the string, but *may* (or *may*-*not*) be used to
+// allocate meta-data that the &#39;Datum&#39; stores about the string (e.g., the
+// string&#39;s length).
+//
+// To create a &#39;Datum&#39; that is responsible for the memory of a string:
+//..
+//  Datum managedString = Datum::copyString(&quot;text&quot;, allocator);
+//..
+// Here the contents of the string are copied and managed by the created
+// datum, and later released by &#39;Datum::destroy&#39;.
+//
+// External references to arrays and strings are important for efficiently
+// handling memory allocations in situations where a string or array is
+// externally supplied (e.g., as input to a function) and will clearly outlive
+// the &#39;Datum&#39; object being created (e.g., a &#39;Datum&#39; variable within the scope
+// of that function).
+//
+// In general factory methods of the form &#39;create*Ref&#39; create a reference to
+// external data that the &#39;Datum&#39; is not responsible for, while &#39;copy*&#39;
+// methods copy the data and the resulting &#39;Datum&#39; is responsible for the
+// allocated memory.
+//
+///Supported Types
+///---------------
+// The table below describes the set of types that a &#39;Datum&#39; may be.
+//
+//..
+//                        external   requires
+//  dataType              reference  allocation  Description
+//  --------              ---------  ----------  -----------
+//  e_NIL                 no         no          null value
+//  e_INTEGER             no         no          integer value
+//  e_REAL                no         no          double value
+//  e_STRING              maybe      maybe       string value
+//  e_BOOLEAN             no         no          boolean value
+//  e_ERROR               no         maybe       error value
+//  e_DATE                no         no          date value
+//  e_TIME                no         no          time value
+//  e_DATETIME            no         maybe       date+time value
+//  e_DATETIME_INTERVAL   no         maybe       date+time interval value
+//  e_INTEGER64           no         maybe       64-bit integer value
+//  e_USERDEFINED         always     maybe       pointer to a user-defined obj
+//  e_BINARY              no         maybe       binary data
+//  e_DECIMAL64           no         maybe       Decimal64
+//
+//                        external   requires
+//  dataType              reference  allocation  Description
+//  --------              ---------  ----------  -----------
+//  e_ARRAY               maybe      maybe       array
+//  e_MAP                 no         maybe       map keyed by string values
+//..
+//: o *dataType* - the value returned by the &#39;type()&#39;
+//:
+//: o *external-reference* - whether &#39;isExternalReference&#39; will return &#39;true&#39;,
+//:   in which case &#39;Datum::destroy&#39; will not release the externally
+//:   referenced data (see &#39;References to External Strings and Arrays&#39;})
+//:
+//: o *requires-allocation* - whether a &#39;Datum&#39; refering to this type requires
+//:   memory allocation.  Note that for externally represented string or
+//:   arrays, meta-data may still need to be allocated.
+//
+///User Defined Data
+///- - - - - - - - -
+// &#39;Datum&#39; exposes a type &#39;DatumUdt&#39; with which a user can arbitrarily expand
+// the set of types a &#39;Datum&#39; can support.  A &#39;DatumUdt&#39; object hold a void
+// pointer, and an an integer identifying the type.  A &#39;DatumUdt&#39; object is
+// always treated as an external reference, and the memory it refers to is not
+// released by &#39;Datum::destroy&#39;.  The meaning of the integer type identifier is
+// determined by the application, which is responsible for ensuring the set of
+// &quot;user-defined&quot; type identifiers remains unique.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdld::Datum&#39;
+///- - - - - - - - - - - - - - - - - - -
+// This example illustrates the construction, manipulation and lifecycle of
+// datums.  Datums are created via a set of static methods called &#39;createTYPE&#39;,
+// &#39;copyTYPE&#39; or &#39;adoptTYPE&#39; where TYPE is one of the supported types.  The
+// creation methods take a value and sometimes an allocator.
+//
+// First, we create an allocator that will supply dynamic memory needed for the
+// &#39;Datum&#39; objects being created:
+//..
+//  bslma::TestAllocator oa(&quot;object&quot;);
+//..
+// Then, we create a &#39;Datum&#39;, &#39;number&#39;, having an integer value of &#39;3&#39;:
+//..
+//  Datum number = Datum::createInteger(3);
+//..
+// Next, we verify that the created object actually represents an integer value
+// and verify that the value was set correctly:
+//..
+//  assert(true == number.isInteger());
+//  assert(3    == number.theInteger());
+//..
+// Note that this object does not allocate any dynamic memory on any supported
+// platforms and thus we do not need to explicitly destroy this object to
+// release any dynamic memory.
+//
+// Then, we create a &#39;Datum&#39;, &#39;cityName&#39;, having the string value &quot;Boston&quot;:
+//..
+//  Datum cityName = Datum::copyString(&quot;Boston&quot;, strlen(&quot;Boston&quot;), &amp;oa);
+//..
+// Note, that the &#39;copyString&#39; makes a copy of the specified string and will
+// allocate memory to hold the copy.  Whether the copy is stored in the object
+// internal storage buffer or in memory obtained from the allocator depends on
+// the length of the string and the platform.
+//
+// Next, we verify that the created object actually represents a string value
+// and verify that the value was set correctly:
+//..
+//  assert(true     == cityName.isString());
+//  assert(&quot;Boston&quot; == cityName.theString());
+//..
+// Finally, we destroy the &#39;cityName&#39; object to deallocate memory used to hold
+// string value:
+//..
+//  Datum::destroy(cityName, &amp;oa);
+//..
+//
+///Example 2: Creating &#39;Datum&#39; Referring to the Array of &#39;Datum&#39; objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates the construction of the &#39;Datum&#39; object referring
+// to an existing array of &#39;Datum&#39; object.
+//
+// First, we create array of the &#39;Datum&#39; object:
+//..
+//  const char theDay[] = &quot;Birthday&quot;;
+//  const Datum array[2] = { Datum::createDate(bdlt::Date(2015, 10, 15)),
+//                           Datum::createStringRef(StringRef(theDay), &amp;oa) };
+//..
+// Note, that in this case, the second element of the array does not make a
+// copy of the string, but represents a string reference.
+//
+// Then, we create a &#39;Datum&#39; that refers to the array of Datums:
+//..
+//  const Datum arrayRef = Datum::createArrayReference(array, 2, &amp;oa);
+//..
+// Next, we verify that the created &#39;Datum&#39; represents the array value and that
+// elements of this array can be accessed.  We also verify that the object
+// refers to external data:
+//..
+//  assert(true == arrayRef.isArray());
+//  assert(true == arrayRef.isExternalReference());
+//  assert(2    == arrayRef.theArray().length());
+//  assert(array[0] == arrayRef.theArray().data()[0]);
+//  assert(array[1] == arrayRef.theArray().data()[1]);
+//..
+// Then, we call &#39;destroy&#39; on &#39;arrayRef&#39;, releasing any memory it may have
+// allocated, and verify that the external array is intact:
+//..
+//  Datum::destroy(arrayRef, &amp;oa);
+//
+//  assert(bdlt::Date(2015, 10, 15) == array[0].theDate());
+//  assert(&quot;Birthday&quot;               == array[1].theString());
+//..
+// Finally, we need to deallocate memory that was potentially allocated for the
+// (external) &#39;Datum&#39; string in the external &#39;array&#39;:
+//..
+//  Datum::destroy(array[1], &amp;oa);
+//..
+//
+///Example 3: Creating the &#39;Datum&#39; having the array value.
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example illustrates the construction of an owned array of
+// datums.
+//
+// *WARNING*: Using corresponding builder components is a preferred way of
+// constructing &#39;Datum&#39; array objects.  This example shows how a user-facing
+// builder component might use the primitives provided in &#39;bdld_datum&#39;.
+//
+// First we create an array of datums:
+//..
+//  DatumMutableArrayRef bartArray;
+//  Datum::createUninitializedArray(&amp;bartArray, 3, &amp;oa);
+//  bartArray.data()[0] = Datum::createStringRef(&quot;Bart&quot;, &amp;oa);
+//  bartArray.data()[1] = Datum::createStringRef(&quot;Simpson&quot;, &amp;oa);
+//  bartArray.data()[2] = Datum::createInteger(10);
+//  *bartArray.length() = 3;
+//..
+// Then, we construct the Datum that holds the array itself:
+//..
+//  Datum bart = Datum::adoptArray(bartArray);
+//..
+// Note that after the &#39;bartArray&#39; has been adopted, the &#39;bartArray&#39; object can
+// be destroyed without invalidating the array contained in the datum.
+//
+// A DatumArray may be adopted by only one datum. If the DatumArray is not
+// adopted, it must be destroyed via &#39;disposeUnitializedArray&#39;.
+//
+// Now, we can access the contents of the array through the datum:
+//..
+//  assert(3      == bart.theArray().length());
+//  assert(&quot;Bart&quot; == bart.theArray()[0].theString());
+//..
+// Finally, we destroy the datum, which releases all memory associated with the
+// array:
+//..
+//  Datum::destroy(bart, &amp;oa);
+//..
+// Note that the same allocator must be used to create the array, the
+// elements, and to destroy the datum.
+//
+///Example 4: Creating the &#39;Datum&#39; having the map value
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example illustrates the construction of a map of datums
+// indexed by string keys.
+//
+// *WARNING*: Using corresponding builder components is a preferred way of
+// constructing &#39;Datum&#39; map objects.  This example shows how a user-facing
+// builder component might use the primitives provided in &#39;bdld_datum&#39;.
+//
+// First we create a map of datums:
+//..
+//  DatumMutableMapRef lisaMap;
+//  Datum::createUninitializedMap(&amp;lisaMap, 3, &amp;oa);
+//  lisaMap.data()[0] = DatumMapEntry(StringRef(&quot;firstName&quot;),
+//                                    Datum::createStringRef(&quot;Lisa&quot;, &amp;oa));
+//  lisaMap.data()[1] = DatumMapEntry(StringRef(&quot;lastName&quot;),
+//                                    Datum::createStringRef(&quot;Simpson&quot;, &amp;oa));
+//  lisaMap.data()[2] = DatumMapEntry(StringRef(&quot;age&quot;),
+//                                    Datum::createInteger(8));
+//  *lisaMap.size() = 3;
+//..
+// Then, we construct the Datum that holds the map itself:
+//..
+//  Datum lisa = Datum::adoptMap(lisaMap);
+//..
+// Note that after the &#39;lisaMap&#39; has been adopted, the &#39;lisaMap&#39; object can be
+// destroyed without invalidating the map contained in the datum.
+//
+// A &#39;DatumMutableMapRef&#39; may be adopted by only one datum. If the
+// &#39;DatumMutableMapRef&#39; is not adopted, it must be destroyed via
+// &#39;disposeUninitializedMap&#39;.
+//
+// Now, we can access the contents of the map through the datum:
+//..
+//  assert(3      == lisa.theMap().size());
+//  assert(&quot;Lisa&quot; == lisa.theMap().find(&quot;firstName&quot;)-&gt;theString());
+//..
+// Finally, we destroy the datum, which releases all memory associated with the
+// array:
+//..
+//  Datum::destroy(lisa, &amp;oa);
+//..
+// Note that the same allocator must be used to create the map, the elements,
+// and to destroy the datum.
+//
+///Example 5: Mass Destruction
+///- - - - - - - - - - - - - -
+// The following example illustrates an important idiom: the en masse
+// destruction of a series of datums allocated in an arena.
+//..
+//  {
+//      // scope
+//      bsls::AlignedBuffer&lt;200&gt; bufferStorage;
+//      bdlma::BufferedSequentialAllocator arena(bufferStorage.buffer(), 200);
+//
+//      Datum patty = Datum::copyString(&quot;Patty Bouvier&quot;,
+//                                      strlen(&quot;Patty Bouvier&quot;),
+//                                      &amp;arena);
+//
+//      Datum selma = Datum::copyString(&quot;Selma Bouvier&quot;,
+//                                      strlen(&quot;Selma Bouvier&quot;),
+//                                      &amp;arena);
+//      DatumMutableArrayRef maggieArray;
+//      Datum::createUninitializedArray(&amp;maggieArray, 2, &amp;arena);
+//      maggieArray.data()[0] = Datum::createStringRef(&quot;Maggie&quot;, &amp;arena);
+//      maggieArray.data()[1] = Datum::createStringRef(&quot;Simpson&quot;, &amp;arena);
+//      *maggieArray.length() = 2;
+//      Datum maggie = Datum::adoptArray(maggieArray);
+//  } // end of scope
+//..
+// Here all the allocated memory is lodged in the &#39;arena&#39; allocator. At the end
+// of the scope the memory is freed in a single step.  Calling &#39;destroy&#39; for
+// each datum individually is neither necessary nor permitted.
+//
+///Example 6: User-defined, error and binary types
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Imagine we are using &#39;Datum&#39; within an expression evaluation subsystem.
+// Within that subsystem, along with the set of types defined by
+// &#39;Datum::DataType&#39; we also need to hold &#39;Sequence&#39; and &#39;Choice&#39; types within
+// &#39;Datum&#39; values (which are not natively represented by &#39;Datum&#39;).  First, we
+// define the set of types used by our subsystem that are an extension to the
+// types in &#39;DatumType&#39;:
+//..
+//  struct Sequence {
+//      struct Sequence *d_next_p;
+//      int              d_value;
+//  };
+//
+//  enum ExtraExpressionTypes {
+//      e_SEQUENCE = 5,
+//      e_CHOICE = 6
+//  };
+//..
+// Notice that the numeric values will be provided as the &#39;type&#39; attribute when
+// constructing &#39;Datum&#39; object.
+//
+// Then we create a &#39;Sequence&#39; object, and create a &#39;Datum&#39; to hold it (note
+// that we&#39;ve created the object on the stack for clarity):
+//..
+//  Sequence sequence;
+//  const Datum datumS0 = Datum::createUdt(&amp;sequence, e_SEQUENCE);
+//  assert(true == datumS0.isUdt());
+//..
+// Next, we verify that the &#39;datumS0&#39; refers to the external &#39;Sequence&#39; object:
+//..
+//  bdld::DatumUdt udt = datumS0.theUdt();
+//  assert(e_SEQUENCE == udt.type());
+//  assert(&amp;sequence  == udt.data());
+//..
+// Then, we create a &#39;Datum&#39; to hold a &#39;DatumError&#39;, consisting of an error
+// code and an error description message:
+//..
+//  enum { e_FATAL_ERROR = 100 };
+//  Datum datumError = Datum::createError(e_FATAL_ERROR, &quot;Fatal error.&quot;, &amp;oa);
+//  assert(true == datumError.isError());
+//  DatumError error = datumError.theError();
+//  assert(e_FATAL_ERROR == error.code());
+//  assert(&quot;Fatal error.&quot; == error.message());
+//  Datum::destroy(datumError, &amp;oa);
+//..
+// Finally, we create a &#39;Datum&#39; that holds an arbitrary binary data:
+//..
+//  int buffer[] = { 1, 2, 3 };
+//  Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &amp;oa);
+//  buffer[2] = 666;
+//  assert(true == datumBlob.isBinary());
+//  DatumBinaryRef blob = datumBlob.theBinary();
+//  assert(blob.size() == 3 * sizeof(int));
+//  assert(reinterpret_cast&lt;const int*&gt;(blob.data())[2] == 3);
+//  Datum::destroy(datumBlob, &amp;oa);
+//..
+// Note, that the bytes have been copied.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLD_DATUMBINARYREF
+#include &lt;bdld_datumbinaryref.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLD_DATUMERROR
+#include &lt;bdld_datumerror.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLD_DATUMUDT
+#include &lt;bdld_datumudt.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATE
+#include &lt;bdlt_date.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_TIME
+#include &lt;bdlt_time.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include &lt;bdlt_datetimeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include &lt;bdldfp_decimal.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include &lt;bslmf_nil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
+#include &lt;bsls_alignedbuffer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include &lt;bsl_limits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_UTILITY
+#include &lt;bsl_utility.h&gt;
+#endif
+
+#if !defined(BSLS_PLATFORM_CPU_32_BIT) &amp;&amp; !defined(BSLS_PLATFORM_CPU_64_BIT)
+#error &#39;bdld::Datum&#39; supports 32- or 64-bit platforms only.
+BSLS_PLATFORM_COMPILER_ERROR;
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define BDLD_DATUM_FORCE_INLINE __forceinline
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+#define BDLD_DATUM_FORCE_INLINE inline
+#else
+#define BDLD_DATUM_FORCE_INLINE inline
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace bdld {
+
+class DatumArrayRef;
+class DatumMapEntry;
+class DatumMapRef;
+class DatumMutableArrayRef;
+class DatumMutableMapOwningKeysRef;
+class DatumMutableMapRef;
+
+                                // ===========
+                                // class Datum
+                                // ===========
+
+class Datum {
+    // This class implements a mechanism that provides a space-efficient
+    // discriminated union that holds the value of ether scalar type or an
+    // aggregate of &#39;Datum&#39; objects.  The size of &#39;Datum&#39; is 8 bytes (same as a
+    // &#39;double&#39;) on 32-bit platforms and 16 bytes on 64-bit platforms.
+    // Separate representation are needed on 32 and 64 bit platforms because of
+    // the differing size of a pointer (a 64-bit pointer cannot reasonably be
+    // held in a 32-bit footprint).
+    //
+    // Representation on a 32-bit Platforms: Values are stored inside an 8-byte
+    // unsigned char array (&#39;d_data&#39;).  Any &#39;double&#39; value (including NaN and
+    // infinity values) can be stored inside &#39;Datum&#39;.  When storing a value of
+    // a type other than &#39;double&#39;, the bits in &#39;d_data&#39; that correspond to the
+    // exponent part of a &#39;double&#39; value are set to 1, with the 4 bits in the
+    // fraction part used to indicate the type of value stored.
+    //
+    // Representation on 64-bit platforms:  Values are stored inside a 16 byte
+    // unsigned char array (&#39;d_data&#39;) to store values.  The type information is
+    // stored in the upper 2 bytes of the character array.  Remaining 14 bytes
+    // are used to store the actual value or the pointer to the external memory
+    // that holds the value.
+    //
+    // For details on the internal representations that are used for various
+    // types on 32 and 64 bit platforms, please see the implementation notes in
+    // &#39;bdld_datum.cpp&#39;.
+    //
+    // Datum objects are bitwise copyable and have trivial initialization,
+    // assignment and destruction.  Only one of the copies of the same &#39;Datum&#39;
+    // object can be passed to &#39;destroy&#39;.  The rest of those copies then become
+    // invalid and it is undefined behavior to deep-copy or destroy them.
+    // Although, these copies can be used on the left hand side of assignment.
+
+  public:
+    // TYPES
+    enum DataType {
+        // Enumeration used to discriminate among the different externally-
+        // exposed types of values that can be stored inside &#39;Datum&#39;.
+        e_NIL                    =  0  // null value
+        , e_INTEGER              =  1  // integer value
+        , e_REAL                 =  2  // double value
+        , e_STRING               =  3  // string value
+        , e_BOOLEAN              =  4  // boolean value
+        , e_ERROR                =  5  // error value
+        , e_DATE                 =  6  // date value
+        , e_TIME                 =  7  // time value
+        , e_DATETIME             =  8  // datetime value
+        , e_DATETIME_INTERVAL    =  9  // datetime interval value
+        , e_INTEGER64            = 10  // 64-bit integer value
+        , e_USERDEFINED          = 11  // pointer to a user-defined object
+        , e_ARRAY                = 12  // array reference
+        , e_MAP                  = 13  // map reference
+        , e_BINARY               = 14  // pointer to the binary data
+        , e_DECIMAL64            = 15  // Decimal64
+        , k_NUM_TYPES            = 16  // number of distinct enumerated types
+    };
+
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+  private:
+    // PRIVATE TYPES
+    // 32-bit variation
+    enum InternalDataType {
+        // Enumeration used to discriminate among the different types of values
+        // that can be stored inside &#39;Datum&#39;.
+
+          e_INTERNAL_INF                 =  0  // +/- infinity value
+        , e_INTERNAL_LONGEST_SHORTSTRING =  1  // 6 character string
+        , e_INTERNAL_BOOLEAN             =  2  // boolean value
+        , e_INTERNAL_SHORTSTRING         =  3  // short string value
+        , e_INTERNAL_STRING              =  4  // string value
+        , e_INTERNAL_DATE                =  5  // date value
+        , e_INTERNAL_TIME                =  6  // time value
+        , e_INTERNAL_DATETIME            =  7  // date+time value
+        , e_INTERNAL_DATETIME_INTERVAL   =  8  // date+time interval value
+        , e_INTERNAL_INTEGER             =  9  // integer value
+        , e_INTERNAL_INTEGER64           = 10  // 64-bit integer value
+        , e_INTERNAL_USERDEFINED         = 11  // pointer to a user-defined obj
+        , e_INTERNAL_ARRAY               = 12  // array of datums
+        , e_INTERNAL_STRING_REFERENCE    = 13  // unowned string
+        , e_INTERNAL_ARRAY_REFERENCE     = 14  // unowned array of
+        , e_INTERNAL_EXTENDED            = 15  // extended data types
+        , e_INTERNAL_REAL                = 16  // double value
+        , k_NUM_INTERNAL_TYPES           = 17  // number of internal types
+    };
+
+    enum ExtendedInternalDataType {
+        // Enumeration used to discriminate among different types of values
+        // that map on to the &#39;e_INTERNAL_EXTENDED&#39; discriminator value inside
+        // &#39;Datum&#39;.  It is used to add any new required types.
+
+          e_EXTENDED_INTERNAL_MAP         = 0  // map of datums keyed by string
+                                               // values that are not owned
+
+        , e_EXTENDED_INTERNAL_OWNED_MAP   = 1  // map of datums keyed by string
+                                               // values that are owned
+
+        , e_EXTENDED_INTERNAL_NAN2        = 2  // NaN double value
+
+        , e_EXTENDED_INTERNAL_ERROR       = 3  // error with code only
+
+        , e_EXTENDED_INTERNAL_ERROR_ALLOC = 4  // error with code and
+                                               // desription string
+
+        // We never need to externally allocate the reference types with the
+        // 64-bit implementation because we can fit 32 bits of length inline.
+
+        , e_EXTENDED_INTERNAL_SREF_ALLOC        = 5  // allocated string ref
+
+        , e_EXTENDED_INTERNAL_AREF_ALLOC        = 6  // allocated array ref
+
+        , e_EXTENDED_INTERNAL_DATETIME_ALLOC    = 7  // allocated datetime
+
+        , e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC = 8 // allocated datetime
+                                                          // interval
+
+        , e_EXTENDED_INTERNAL_INTEGER64_ALLOC   = 9  // 64-bit integer value
+
+        , e_EXTENDED_INTERNAL_BINARY_ALLOC      = 10 // binary data
+
+        , e_EXTENDED_INTERNAL_DECIMAL64         = 11 // Decimal64
+
+        , e_EXTENDED_INTERNAL_DECIMAL64_SPECIAL = 12 // Decimal64 NaN of Inf
+
+        , e_EXTENDED_INTERNAL_DECIMAL64_ALLOC   = 13 // allocated Decimal64
+
+        , e_EXTENDED_INTERNAL_NIL               = 14 // null value
+
+        , k_NUM_EXTENDED_INTERNAL_TYPES         = 15 // number of distinct
+                                                     // enumerated extended
+                                                     // types
+    };
+
+    // PRIVATE CLASS DATA
+    // 32-bit variation
+    static const unsigned short k_DOUBLE_MASK = 0x7ff0U;  // mask value to be
+                                                          // stored in the
+                                                          // exponent part of
+                                                          // &#39;d_data&#39; to
+                                                          // indicate a special
+                                                          // &#39;double&#39; value
+
+    static const int k_SHORTSTRING_SIZE  = 6; // maximum size of short strings
+                                              // stored in the internal storage
+                                              // buffer
+
+    static const int k_TYPE_MASK_BITS = 16;   // number of bits the internal
+                                              // data type needs to be shifted
+                                              // into place
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    // Check if platform is little endian.
+    static const int k_EXPONENT_OFFSET  = 6;  // offset of the exponent part in
+                                              // the internal storage buffer
+
+    static const int k_EXPONENT_LSB     = k_EXPONENT_OFFSET;      // Low Byte
+
+    static const int k_EXPONENT_MSB     = k_EXPONENT_OFFSET + 1;  // High Byte
+
+    static const int k_DATA_OFFSET      = 0;  // offset of the data part in the
+                                              // internal storage buffer
+
+    static const int k_SHORTSTRING_OFFSET = 0;// offset of short-strings stored
+                                              // in the internal storage buffer
+
+    static const int k_SHORT_OFFSET     = 4;  // offset of (2 byte values like)
+                                              // discriminator values for
+                                              // extended types and information
+                                              // for user-defined objects in
+                                              // the internal storage buffer
+
+    static const int k_MASK_OFFSET      = 4;  // offset of the special mask
+                                              // value in the internal storage
+                                              // buffer
+
+    static const int k_NEARDATE_OFFSET  = 4;  // offset of the short date
+                                              // offset from now value in the
+                                              // internal storage buffer
+
+    static const int k_TIME_OFFSET      = 0;  // offset of the time value in
+                                              // the internal storage buffer
+#else  // BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    // Check if platform is big endian.
+    static const int k_EXPONENT_OFFSET  = 0;  // offset of the exponent part in
+                                              // the internal storage buffer
+
+    static const int k_EXPONENT_LSB     = k_EXPONENT_OFFSET + 1;  // Low Byte
+
+    static const int k_EXPONENT_MSB     = k_EXPONENT_OFFSET;     // High Byte
+
+    static const int k_DATA_OFFSET      = 4;  // offset of the data part in the
+                                              // internal storage buffer
+
+    static const int k_SHORTSTRING_OFFSET = 2;// offset of short-strings stored
+                                              // in the internal storage buffer
+
+    static const int k_SHORT_OFFSET     = 2;  // offset of (2 byte values like)
+                                              // discriminator values for
+                                              // extended types and information
+                                              // for user-defined objects in
+                                              // the internal storage buffer
+
+    static const int k_MASK_OFFSET      = 0;  // offset of the special mask
+                                              // value in the internal storage
+                                              // buffer
+
+    static const int k_NEARDATE_OFFSET  = 2;  // offset of the short date
+                                              // offset from now value in the
+                                              // internal storage buffer
+
+    static const int k_TIME_OFFSET      = 4;  // offset of the time value in
+                                              // the internal storage buffer
+#endif
+
+    enum {
+        // Enumeration used to discriminate between the special uncompressible
+        // Decimal64 values.
+
+        e_DECIMAL64_SPECIAL_NAN,
+        e_DECIMAL64_SPECIAL_INFINITY,
+        e_DECIMAL64_SPECIAL_NEGATIVE_INFINITY
+    };
+
+    static bdlt::Date s_dateTimeBase;
+
+    // DATA
+    // 32-bit variation
+
+    struct ShortString5 {
+        // Storage for a string shorter than 6 chars and its length.
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        char                d_chars[5]; // the string&#39;s characters
+        char                d_length;   // the string&#39;s length
+        unsigned short      d_exponent; // the exponent inside the double
+#else
+        unsigned short      d_exponent; // the exponent inside the double
+        char                d_chars[5]; // the string&#39;s characters
+        char                d_length;   // the string&#39;s length
+#endif
+    };
+
+    struct ShortString6 {
+        // Storage for a string of exactly 6 chars. Length is implicit.
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        char                d_chars[6]; // the string&#39;s characters
+        unsigned short      d_exponent; // the exponent inside the double
+#else
+        unsigned short      d_exponent; // the exponent inside the double
+        char                d_chars[6]; // the string&#39;s characters
+#endif
+    };
+
+    struct TypedAccess {
+        // Storage for various combinations of short, int and pointer.
+        // TYPE                     FIELDS
+        // ---------------          -------------------------------
+        // Null                     d_short = extended type
+        //
+        // Boolean                  d_int = value
+        //
+        // Integer                  d_int = value
+        //
+        // String                   d_cvp = allocated memory containing copy
+        // (length &gt; 6)                     of string preceded by length
+        //
+        // StringRef                d_ushort = length
+        // (length &lt; USHORT_MAX)    d_cvp = pointer to the c-string
+        //
+        // StringRef                d_short = extended type
+        // (length &gt;= USHORT_MAX)   d_cvp = pointer to allocated memory
+        //                                  containing pointer to the c-string
+        //                                  preceded by c-string length
+        //
+        // Date                     d_int = value
+        //
+        // Time                     d_int = value
+        //
+        // Datetime                 d_short = days from now
+        // (near offset)            d_int = time part
+        //
+        // Datetime                 d_short = extended type
+        // (far offset)             d_cvp = pointer to allocated value
+        //
+        //
+        // DatetimeInterval         d_short = upper 16 bits
+        // (short)                  d_int = lower 32
+        //
+        // DatetimeInterval         d_short = extended type
+        // (long)                   d_cvp = pointer to allocated value
+        //
+        // Error                    d_short = extended type
+        // (code only)              d_int = value
+        //
+        // Error                    d_short = extended type
+        // (code + error string)    d_cvp = pointer to allocated memory
+        //                                  containing: code, length, c-string
+        //
+        // Udt                      d_ushort = udt type
+        //                          d_cvp = pointer to udt object
+        //
+        // ArrayReference           d_ushort = length
+        // (length &lt; USHORT_MAX)    d_cvp = pointer to array
+        //
+        // ArrayReference
+        // (length &gt;= USHORT_MAX)   d_short = extended type
+        //                          d_cvp = pointer to allocated memory
+        //                                  containing: pointer to array,
+        //                                  length
+        //
+        // Map                      d_short = extended type
+        //                          d_cvp = pointer to allocated memory
+        //                                  containing: length, sorted flag,
+        //                                  array of map entries
+        //
+        // Binary:                  d_short = extended type
+        //                          d_cvp = pointer to allocated memory
+        //                                  containing: length, binary copy
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        union {
+            int             d_int;      // as integer value
+            const void     *d_cvp;      // as const void* value
+        };
+        union {
+            short           d_short;    // as signed short value
+            unsigned short  d_ushort;   // as unsigned short value
+        };
+        unsigned short      d_exponent; // the exponent inside the double
+#else
+        unsigned short      d_exponent; // the exponent inside the double
+        union {
+            short           d_short;    // as signed short value
+            unsigned short  d_ushort;   // as unsigned short
+        };
+        union {
+            int             d_int;      // as integer value
+            const void     *d_cvp;      // as const void* value
+        };
+#endif
+    };
+
+    struct ExponentAccess {
+        // For accessing exponent as a word, for better performance.
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        unsigned int        d_dummy;
+        unsigned int        d_value;  // the exponent as a 32 bit word
+#else
+        unsigned int        d_value;  // the exponent as a 32 bit word
+        unsigned int        d_dummy;
+#endif
+    };
+
+    // Internal Datum representation
+    union {
+        // Do not change the order of these member, otherwise the code will not
+        // work properly with the clang compiler.
+
+        char              d_data[8];  // as a byte array of internal storage
+
+        ShortString5      d_string5;  // as a string shorter than 5 chars
+
+        ShortString6      d_string6;  // as a string of exactly 6 chars
+
+        TypedAccess       d_as;       // as a combination of pointer, int and
+                                      // short
+
+        ExponentAccess    d_exp;      // as the exponent as a 32 bit word
+
+        double            d_double;   // as a double value
+    };
+
+    // PRIVATE CLASS METHODS
+    // 32-bit variation
+    static Datum createExtendedDataObject(ExtendedInternalDataType  type,
+                                          void                     *data);
+    static Datum createExtendedDataObject(ExtendedInternalDataType  type,
+                                          int                       data);
+        // Return a datum by copying the specified &#39;data&#39; of the specified
+        // &#39;type&#39;.  Note that the pointer value in &#39;data&#39; is copied and the
+        // pointed object is not cloned.
+
+    // PRIVATE ACCESSORS
+    // 32-bit variation
+    ExtendedInternalDataType extendedInternalType() const;
+        // Return the extended type of the value stored in this object (which
+        // cannot be represented by the 4-bit discriminator &#39;InternalDataType&#39;)
+        // as one of the enumeration values defined in
+        // &#39;ExtendedInternalDataType&#39;.
+
+    DataType typeFromExtendedInternalType() const;
+        // Return the type of the value stored in this object as one of the
+        // enumeration values defined in &#39;DataType&#39; (mapped from the
+        // &#39;ExtendedInternalDataType&#39; value).
+
+    bsls::Types::Int64 theLargeInteger64() const;
+        // Return the 64-bit integer value stored in the allocated storage.
+
+    DatumArrayRef theLongArrayReference() const;
+        // Return the array referenced by this object.  The behavior is
+        // undefined unless this object references an array with &#39;length &gt;=
+        // USHORT_MAX&#39;.
+
+    bslstl::StringRef theLongestShortString() const;
+        // Return the short string value stored in this object as a
+        // &#39;bslstl::StringRef&#39; object.  The behavior is undefined unless this
+        // object actually stores a short string value.
+
+    bslstl::StringRef theLongStringReference() const;
+        // Return the string referenced by this object.  The behavior is
+        // undefined unless this object holds a reference to a string with
+        // &#39;length &gt;= USHORT_MAX&#39;.
+
+    bsls::Types::Int64 theSmallInteger64() const;
+        // Return the 64-bit integer value stored inline in this object.
+
+#else // defined(BSLS_PLATFORM_CPU_32_BIT)
+  private:
+    // PRIVATE TYPES
+    enum InternalDataType {
+        // Enumeration used to discriminate among the different types of values
+        // that can be stored inside &#39;Datum&#39;.
+
+        e_INTERNAL_UNINITIALIZED     =  0,  // zero-filled Datums are invalid
+
+        e_INTERNAL_INF               =  1,  // +/- infinity value
+
+        e_INTERNAL_NIL               =  2,  // null value
+
+        e_INTERNAL_BOOLEAN           =  3,  // boolean value
+
+        e_INTERNAL_SHORTSTRING       =  4,  // short string value
+
+        e_INTERNAL_STRING            =  5,  // string value
+
+        e_INTERNAL_DATE              =  6,  // date value
+
+        e_INTERNAL_TIME              =  7,  // time value
+
+        e_INTERNAL_DATETIME          =  8,  // date+time value
+
+        e_INTERNAL_DATETIME_INTERVAL =  9,  // date+time interval value
+
+        e_INTERNAL_INTEGER           = 10,  // integer value
+
+        e_INTERNAL_INTEGER64         = 11,  // 64-bit integer value
+
+        e_INTERNAL_USERDEFINED       = 12,  // pointer to a user-defined object
+
+        e_INTERNAL_ARRAY             = 13,  // array of datums
+
+        e_INTERNAL_STRING_REFERENCE  = 14,  // not owned string
+
+        e_INTERNAL_ARRAY_REFERENCE   = 15,  // not owned array
+
+        e_INTERNAL_REAL              = 16,  // double value
+
+        e_INTERNAL_MAP               = 17,  // map of datums keyed by string
+                                            // values that are not owned
+
+        e_INTERNAL_OWNED_MAP         = 18,  // map of datums keyed by string
+                                            // values that are owned
+
+        e_INTERNAL_ERROR             = 19,  // error code, internal storage
+
+        e_INTERNAL_ERROR_ALLOC       = 20,  // error code, allocated storage
+
+        e_INTERNAL_BINARY            = 21,  // binary data, internal storage
+
+        e_INTERNAL_BINARY_ALLOC      = 22,  // binary data, allocated storage
+
+        e_INTERNAL_DECIMAL64         = 23,  // Decimal64
+
+        k_NUM_INTERNAL_TYPES         = 24   // number of enumerated types
+    };
+
+    // CLASS DATA
+
+    // 64-bit variation
+    static const int k_TYPE_OFFSET  = 14;             // offset of type in the
+                                                      // internal storage
+                                                      // buffer
+
+    static const int k_SHORTSTRING_SIZE  = 13;        // maximum size of short
+                                                      // strings that stored in
+                                                      // the internal storage
+                                                      // buffer
+
+    static const int k_SMALLBINARY_SIZE_OFFSET = 13;  // offset of the size of
+                                                      // small-size binaries
+                                                      // stored in the internal
+                                                      // storage buffer
+
+    static const int k_SMALLBINARY_SIZE    = 13;      // maximum size of
+                                                      // small-size binaries
+                                                      // stored in the internal
+                                                      // storage buffer
+
+    // DATA
+
+    // 64-bit variation
+    struct TypedAccess {
+        // Typed access to the bits of the &#39;Datum&#39; internal representation
+        union {                                       // Offset: 0
+            bsls::Types::Int64  d_int64;
+            void               *d_ptr;
+            double              d_double;
+        };
+        int                     d_int32;              // Offset: 8
+        short                   d_filler;             // Offset: 12
+        short                   d_type;               // Offset: 14
+    };
+
+    union {
+        // Ensures proper alignment (16 byte) and provides 2 types of access to
+        // the 64-bit &#39;Datum&#39; internal representation.  The &#39;d_data&#39; array
+        // allows us raw access to the bytes; while &#39;d_as&#39; provides typed
+        // access to the individual &quot;data compartments&quot;.
+        bsls::AlignedBuffer&lt;16&gt; d_data;
+        TypedAccess             d_as;
+    };
+
+    // PRIVATE CLASS METHODS
+
+    // 64-bit variation
+    static Datum createDatum(InternalDataType type, void *data);
+        // Create a &#39;Datum&#39; object of the specified &#39;type&#39; with the specified
+        // &#39;data&#39; value.
+
+    static Datum createDatum(InternalDataType type, int data);
+        // Create a &#39;Datum&#39; object of the specified &#39;type&#39; with the specified
+        // &#39;data&#39; value.
+
+    // PRIVATE ACCESSORS
+
+    // 64-bit variation
+    void* theInlineStorage();
+        // Return a pointer to the internal storage buffer
+
+    const void* theInlineStorage() const;
+        // Return a non-modifiable pointer to the internal storage buffer.
+
+#endif // defined(BSLS_PLATFORM_CPU_32_BIT)
+
+  private:
+    // FRIENDS
+    friend bool operator==(const Datum&amp; lhs, const Datum&amp; rhs);
+    friend bool operator!=(const Datum&amp; lhs, const Datum&amp; rhs);
+    friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Datum&amp; rhs);
+
+    // PRIVATE CLASS METHODS
+    static void destroyMemory(const Datum&amp;      value,
+                              bslma::Allocator *basicAllocator);
+        // Deallocate any memory that was previously allocated for the
+        // specified &#39;value&#39; using the specified &#39;basicAllocator&#39;.
+
+    // PRIVATE ACCESSORS
+    InternalDataType internalType() const;
+        // Return the internal type of value stored in this object as one of
+        // the enumeration values defined in &#39;InternalDataType&#39;.
+
+    DatumArrayRef theArrayReference() const;
+        // Return the array reference represented by this object as
+        // &#39;DatumArrayRef&#39; object.  The behavior is undefined unless the object
+        // represents an array reference whose size is stored in the object
+        // internal storage buffer.  Note that all array references store their
+        // size in the object internal storage buffer on 64-bit platforms.
+
+    DatumArrayRef theInternalArray() const;
+        // Return the array represented by this object as &#39;DatumArrayRef&#39;
+        // object.  The behavior is undefined unless the object represents an
+        // array of &#39;Datum&#39;s.
+
+    bslstl::StringRef theInternalString() const;
+        // Return the string value represented by this object as a
+        // &#39;bslstl::StringRef&#39; object.  The behavior is undefined unless the
+        // object represents an internal (non-reference, non-short) string.
+
+    bslstl::StringRef theShortString() const;
+        // Return the short string value represented by this object as a
+        // &#39;bslstl::StringRef&#39; object.  The behavior is undefined unless the
+        // object actually represents a short string value.
+
+    bslstl::StringRef theStringReference() const;
+        // Return the string reference represented by this object as a
+        // &#39;bslstl::StringRef&#39; object.  The behavior is undefined unless the
+        // object represents a string reference whose size is stored in the
+        // object internal storage buffer.  Note that the size always stored in
+        // the object internal storage buffer on 64-bit platforms.
+
+  public:
+    // TYPES
+    typedef bsls::Types::size_type SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+    // CLASS METHODS
+    static Datum createArrayReference(const Datum      *array,
+                                      SizeType          length,
+                                      bslma::Allocator *basicAllocator);
+        // Return, by value, a datum referring to the specified &#39;array&#39;,
+        // having the specified &#39;length&#39;, using the specified &#39;basicAllocator&#39;
+        // to supply memory (if needed).  &#39;array&#39; is not copied, and is not
+        // freed when the returned object is destroyed with &#39;Datum::destroy&#39;.
+        // The behavior is undefined unless &#39;array&#39; contains at least &#39;length&#39;
+        // elements.  The behaviour is also undefined unless &#39;length &lt;
+        // UINT_MAX&#39;.
+
+    static Datum createArrayReference(const DatumArrayRef&amp;  value,
+                                      bslma::Allocator     *basicAllocator);
+        // Return, by value, a datum having the specified &#39;value&#39;, using the
+        // specified &#39;basicAllocator&#39; to supply memory (if needed).  The array
+        // referenced by &#39;value&#39; is not copied, and is not freed if
+        // &#39;Datum::destroy&#39; is called on the returned object.  The behavior is
+        // undefined unless &#39;value.length() &lt; UINT_MAX&#39;.
+
+    static Datum createBoolean(bool value);
+        // Return, by value, a datum having the specified &#39;bool&#39; &#39;value&#39;.
+
+    static Datum createDate(const bdlt::Date&amp; value);
+        // Return, by value, a datum having the specified &#39;Date&#39; &#39;value&#39;.
+
+    static Datum createDatetime(const bdlt::Datetime&amp;  value,
+                                bslma::Allocator      *basicAllocator);
+        // Return, by value, a datum having the specified &#39;Datetime&#39; &#39;value&#39;,
+        // using the specified &#39;basicAllocator&#39; to supply memory (if needed).
+
+    static Datum createDatetimeInterval(
+                                const bdlt::DatetimeInterval&amp;  value,
+                                bslma::Allocator              *basicAllocator);
+        // Return, by value, a datum holding the specified &#39;DatetimeInterval&#39;
+        // &#39;value&#39;, using the specified &#39;basicAllocator&#39; to supply memory (if
+        // needed).
+
+    static Datum createDecimal64(bdldfp::Decimal64  value,
+                                 bslma::Allocator  *basicAllocator);
+        // Return, by value, a datum having the specified &#39;Decimal64&#39; &#39;value&#39;,
+        // using the specified &#39;basicAllocator&#39; to supply memory (if needed).
+        // Note that the argument is passed by value because it is assumed to
+        // be a fundamental type.
+
+    static Datum createDouble(double value);
+        // Return, by value, a datum having the specified &#39;double&#39; &#39;value&#39;.
+        // Note that this method normalizes any NaN or IND value to a Quiet NaN
+        // value for the particular platform.
+
+    static Datum createError(int code);
+        // Return, by value, a datum having a &#39;DatumError&#39; value with the
+        // specified &#39;code&#39;.
+
+    static Datum createError(int                       code,
+                             const bslstl::StringRef&amp;  message,
+                             bslma::Allocator         *basicAllocator);
+        // Return, by value, a datum having a &#39;DatumError&#39; value with the
+        // specified &#39;code&#39; and the specified &#39;message&#39;, using the specified
+        // &#39;basicAllocator&#39; to supply memory (if needed).
+
+    static Datum createInteger(int value);
+        // Return, by value, a datum having the specified &#39;int&#39; &#39;value&#39;.
+
+    static Datum createInteger64(bsls::Types::Int64  value,
+                                 bslma::Allocator   *basicAllocator);
+        // Return, by value, a datum having the specified &#39;Integer64&#39; &#39;value&#39;,
+        // using the specified &#39;basicAllocator&#39; to supply memory (if needed).
+
+    static Datum createNull();
+        // Return, by value, a datum having no value.
+
+    static Datum createStringRef(const char       *string,
+                                 SizeType          length,
+                                 bslma::Allocator *basicAllocator);
+        // Return, by value, a datum that refers to the specified &#39;string&#39;
+        // having the specified &#39;length&#39;, using the specified &#39;basicAllocator&#39;
+        // to supply memory (if needed).  The behavior is undefined unless
+        // &#39;0 != string || 0 == length&#39;.  The behaviour is also undefined
+        // unless &#39;length &lt; UINT_MAX&#39;.  Note that &#39;string&#39; is not copied, and
+        // is not freed if &#39;Datum::destroy&#39; is called on the returned object.
+
+    static Datum createStringRef(const char       *string,
+                                 bslma::Allocator *basicAllocator);
+        // Return, by value, a datum that refers to the specified &#39;string&#39;,
+        // using the specified &#39;basicAllocator&#39; to supply memory (if needed).
+        // The behavior is undefined unless &#39;string&#39; points to a UTF-8 encoded
+        // c-string.  The behaviour is also undefined unless &#39;strlen(string) &lt;
+        // UINT_MAX&#39;.  Note that &#39;string&#39; is not copied, and is not freed if
+        // &#39;Datum::destroy&#39; is called on the returned object.
+
+    static Datum createStringRef(const bslstl::StringRef&amp;  value,
+                                 bslma::Allocator         *basicAllocator);
+        // Return, by value, a datum having the specified &#39;StringRef&#39; &#39;value&#39;,
+        // using the specified &#39;basicAllocator&#39; to supply memory (if needed).
+        // The behavior is undefined unless &#39;value.length() &lt; UINT_MAX&#39;.  Note
+        // that &#39;string&#39; is not copied, and is not freed if &#39;Datum::destroy&#39; is
+        // called on the returned object.
+
+    static Datum createTime(const bdlt::Time&amp; value);
+        // Return, by value, a datum having the specified &#39;Time&#39; &#39;value&#39;.
+
+    static Datum createUdt(void *data, int type);
+        // Return, by value, a datum having the &#39;DatumUdt&#39; value with the
+        // specified &#39;data&#39; and the specified &#39;type&#39; values.  The behavior is
+        // undefined unless &#39;0 &lt;= type &lt;= 65535&#39;.  Note that &#39;data&#39; is held,
+        // not owned.  Also note that the content pointed to by &#39;data&#39; object
+        // is not copied.
+
+    static Datum copyBinary(const void       *value,
+                            SizeType          size,
+                            bslma::Allocator *basicAllocator);
+        // Return, by value, a datum referring to the copy of the specified
+        // &#39;value&#39; of the specified &#39;size&#39;, using the specified
+        // &#39;basicAllocator&#39; to supply memory (if needed).  The behavior is
+        // undefined unless &#39;size &lt; UINT_MAX&#39;.  Note that the copy of the
+        // binary data is owned and will be freed if &#39;Datum::destroy&#39; is called
+        // on the returned object.
+
+    static Datum copyString(const char       *string,
+                            SizeType          length,
+                            bslma::Allocator *basicAllocator);
+        // Return, by value, a datum that refers to the copy of the specified
+        // &#39;string&#39; having the specified &#39;length&#39;, using the specified
+        // &#39;basicAllocator&#39; to supply memory (if needed).  The behavior is
+        // undefined unless &#39;0 != string || 0 == length&#39;.  The behavior is also
+        // undefined unless &#39;length &lt; UINT_MAX&#39;.  Note that the copied string
+        // is owned and will be freed if &#39;Datum::destroy&#39; is called on the
+        // returned object.
+
+    static Datum copyString(const bslstl::StringRef&amp;  value,
+                            bslma::Allocator         *basicAllocator);
+        // Return, by value, a datum having the copy of the specified
+        // &#39;StringRef&#39; &#39;value&#39;, using the specified &#39;basicAllocator&#39; to supply
+        // memory (if needed).  The behavior is undefined unless
+        // &#39;value.length() &lt; UINT_MAX&#39;.  Note that the copied string is owned,
+        // and will be freed if &#39;Datum::destroy&#39; is called on the returned
+        // object.
+
+    static Datum adoptArray(const DatumMutableArrayRef&amp; array);
+        // Return, by value, a datum that refers to the specified &#39;array&#39;.  The
+        // behavior is undefined unless &#39;array&#39; was created using
+        // &#39;createUninitializedArray&#39; method.  The behavior is also undefined
+        // unless each element in the held datum array has been assigned a
+        // value and the array&#39;s length has been set accordingly.  Note that
+        // the adopted array is owned and will be freed if &#39;Datum::destroy&#39; is
+        // called on the returned object.
+
+    static Datum adoptMap(const DatumMutableMapRef&amp; map);
+        // Return, by value, a datum that refers to the specified &#39;map&#39;.  The
+        // behavior is undefined unless &#39;map&#39; was created using
+        // &#39;createUninitializedMap&#39; method.  The behavior is also undefined
+        // unless each element in the held map has been assigned a value and
+        // the size of the map has been set accordingly.  Note that the adopted
+        // map is owned and will be freed if &#39;Datum::destroy&#39; is called on the
+        // returned object.
+
+    static Datum adoptMap(const DatumMutableMapOwningKeysRef&amp; map);
+        // Return, by value, a datum that refers to the specified &#39;map&#39;.  The
+        // behavior is undefined unless &#39;map&#39; was created using
+        // &#39;createUninitializedMapOwningKeys&#39; method.  The behavior is also
+        // undefined unless each element in the held map has been assigned a
+        // value and the size of the map has been set accordingly.  The
+        // behavior is also undefined unless keys have been copied into the
+        // map.  Note that the adopted map is owned and will be freed if
+        // &#39;Datum::destroy&#39; is called on the returned object.
+
+    static void createUninitializedArray(DatumMutableArrayRef *result,
+                                         SizeType              capacity,
+                                         bslma::Allocator     *basicAllocator);
+        // Load the specified &#39;result&#39; with a reference to a newly created
+        // datum array having the specified &#39;capacity&#39;, using the specified
+        // &#39;basicAllocator&#39; to supply memory.  The behavior is undefined if
+        // &#39;capacity&#39; &#39;Datum&#39; objects would exceed the addressable memory for
+        // the platform.  Note that the caller is responsible for filling in
+        // elements into the datum array and setting its length accordingly.
+        // The number of elements in the datum array cannot exceed &#39;capacity&#39;.
+        // Also note that any elements in the datum array that need dynamic
+        // memory must be allocated with &#39;basicAllocator&#39;.
+
+    static void createUninitializedMap(DatumMutableMapRef *result,
+                                       SizeType            capacity,
+                                       bslma::Allocator   *basicAllocator);
+        // Load the specified &#39;result&#39; with a reference to a newly created
+        // datum map having the specified &#39;capacity&#39;,  using the specified
+        // &#39;basicAllocator&#39; to supply memory.  The behavior is undefined if
+        // &#39;capacity&#39; &#39;DatumMapEntry&#39; objects would exceed the addressable
+        // memory for the platform.  Note that the caller is responsible for
+        // filling in elements into the datum map and setting its size
+        // accordingly.  The number of elements in the datum map cannot exceed
+        // &#39;capacity&#39;.  Also note that any elements in the datum map that need
+        // dynamic memory, should also be allocated with &#39;basicAllocator&#39;.
+
+    static void createUninitializedMap(
+                                 DatumMutableMapOwningKeysRef *result,
+                                 SizeType                      capacity,
+                                 SizeType                      keysCapacity,
+                                 bslma::Allocator             *basicAllocator);
+        // Load the specified &#39;result&#39; with a reference to a newly created
+        // datum-key-owning map having the specified &#39;capacity&#39; and
+        // &#39;keysCapacity&#39;, using the specified &#39;basicAllocator&#39; to supply
+        // memory.  The behavior is undefined if &#39;capacity&#39; &#39;DatumMapEntry&#39;
+        // objects plus &#39;keysCapacity&#39; would exceed the addressable memory for
+        // the platform.  Note that the caller is responsible for filling in
+        // elements into the datum-key-owning map, copying the keys into it,
+        // and setting its size accordingly.  The number of elements in the
+        // datum-key-owning map cannot exceed &#39;capacity&#39; and total size of all
+        // the keys cannot exceed &#39;keysCapacity&#39;.  Also note that any elements
+        // in the datum-key-owning map that need dynamic memory, should also be
+        // allocated with &#39;basicAllocator&#39;.
+
+    static char *createUninitializedString(Datum            *result,
+                                           SizeType          length,
+                                           bslma::Allocator *basicAllocator);
+        // Load the specified &#39;result&#39; with a reference to a newly created
+        // character buffer of the specified &#39;length&#39;, using the specified
+        // &#39;basicAllocator&#39; to supply memory, and return the address of this
+        // buffer.  The behavior is undefined unless &#39;length &lt; UINT_MAX&#39;.  Note
+        // that the caller is responsible for initializing the returned buffer
+        // with a UTF-8 encoded string.
+
+    static const char *dataTypeToAscii(DataType type);
+        // Return the non-modifiable string representation corresponding to the
+        // specified &#39;type&#39;, if it exists, and a unique (error) string
+        // otherwise.  The string representation of &#39;type&#39; matches its
+        // corresponding enumerator name with the &#39;e_&#39; prefix elided.
+        //
+        // For example:
+        //..
+        //  bsl::cout &lt;&lt; bdld::Datum::dataTypeToAscii(bdld::Datum::e_NIL);
+        //..
+        // will print the following on standard output:
+        //..
+        //  NIL
+        //..
+        // Note that specifying a &#39;type&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+
+    static void destroy(const Datum&amp; value, bslma::Allocator *basicAllocator);
+        // Deallocate any memory that was previously allocated within the
+        // specified &#39;value&#39; using the specified &#39;basicAllocator&#39;.  If the
+        // &#39;value&#39; contains an adopted array of datums, &#39;destroy&#39; is called on
+        // each array element.  If the &#39;value&#39; contains an adopted map of
+        // datums, &#39;destroy&#39; is called on each map element.  The behavior is
+        // undefined unless all dynamically allocated memory owned by &#39;value&#39;
+        // was allocated using &#39;basicAllocator&#39;, and has not previously been
+        // released by a call to &#39;destroy&#39;, either on this object, or on
+        // another object refering to same contents as this object (i.e., only
+        // one copy of a &#39;Datum&#39; object can be destroyed).  The behavior is
+        // also undefined if &#39;value&#39; has an uninitialized or partially
+        // initialized array or map (created using &#39;createUninitializedArray&#39;,
+        // &#39;createUninitializedMap&#39; or &#39;createUninitializeMapOwningKeys&#39;).
+        // Note that after this operation completes, &#39;value&#39; is left in an
+        // uninitialized state, and must be assigned a new value before being
+        // accessed again.
+
+    static void disposeUninitializedArray(
+                                  const DatumMutableArrayRef&amp;  array,
+                                  bslma::Allocator            *basicAllocator);
+        // Deallocate the memory used by the specified &#39;array&#39; (but *not*
+        // memory allocated for its contained elements) using the specified
+        // &#39;basicAllocator&#39;.  This method does not destroy individual array
+        // elements and the memory allocated for those elements must be
+        // explicitly deallocated before calling this method.  The behavior is
+        // undefined unless &#39;array&#39; was created with &#39;createUninitializedArray&#39;
+        // using &#39;basicAllocator&#39;.
+
+    static void disposeUninitializedMap(
+                                    const DatumMutableMapRef&amp;  map,
+                                    bslma::Allocator          *basicAllocator);
+    static void disposeUninitializedMap(
+                          const DatumMutableMapOwningKeysRef&amp;  map,
+                          bslma::Allocator                    *basicAllocator);
+        // Deallocate the memory used by the specified &#39;map&#39; (but *not* memory
+        // allocated for its contained elements) using the specified
+        // &#39;basicAllocator&#39;.  This method does not destroy individual map
+        // elements and the memory allocated for those elements must be
+        // explicitly deallocated before calling this method.  The behavior is
+        // undefined unless &#39;map&#39; was created with &#39;createUninitializedMap&#39;
+        // using &#39;basicAllocator&#39;.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Datum, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Datum,
+                                   bsl::is_trivially_default_constructible);
+    BSLMF_NESTED_TRAIT_DECLARATION(Datum, bslmf::IsBitwiseMoveable);
+
+    // CREATORS
+    //! Datum() = default;
+        // Create a datum having an uninitialized value.  The behavior for
+        // every accessor method is undefined until this object is assigned a
+        // value.
+
+    //! Datum(const Datum&amp; original) = default;
+        // Create a datum having the value of the specified &#39;original&#39;.
+
+    //! ~Datum() = default;
+        // Destroy this object. Note that this method does not deallocate any
+        // dynamically allocated memory used by this object (see &#39;destroy&#39;).
+
+    // MANIPULATORS
+    //! Datum&amp; operator=(const Datum&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object. Note
+        // that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    template &lt;class BDLD_VISITOR&gt;
+    void apply(BDLD_VISITOR&amp; visitor) const;
+        // Apply the specified &#39;visitor&#39; to the current value represented by
+        // this object by passing held value to the &#39;visitor&#39; object&#39;s
+        // &#39;operator()&#39; overload.
+
+    Datum clone(bslma::Allocator *basicAllocator) const;
+        // Return a datum holding a &quot;deep-copy&quot; of this object, using the
+        // specified &#39;basicAllocator&#39; to allocate memory.
+
+                               // Type-Identifiers
+
+    bool isArray() const;
+        // Return &#39;true&#39; if this object represents an array of &#39;Datum&#39;s and
+        // &#39;false&#39; otherwise.
+
+    bool isBinary() const;
+        // Return &#39;true&#39; if this object represents a binary value and &#39;false&#39;
+        // otherwise.
+
+    bool isBoolean() const;
+        // Return &#39;true&#39; if this object represents a boolean value and &#39;false&#39;
+        // otherwise.
+
+    bool isDate() const;
+        // Return &#39;true&#39; if this object represents a &#39;bdlt::Date&#39; value and
+        // &#39;false&#39; otherwise.
+
+    bool isDatetime() const;
+        // Return &#39;true&#39; if this object represents a &#39;bdlt::Datetime&#39; value and
+        // &#39;false&#39; otherwise.
+
+    bool isDatetimeInterval() const;
+        // Return &#39;true&#39; if this object represents a &#39;bdlt::DatetimeInterval&#39;
+        // value and &#39;false&#39; otherwise.
+
+    bool isDecimal64() const;
+        // Return &#39;true&#39; if this object represents a &#39;bdlfpd::Decimal64&#39; value
+        // and &#39;false&#39; otherwise.
+
+    bool isDouble() const;
+        // Return &#39;true&#39; if this object represents a &#39;double&#39; value and &#39;false&#39;
+        // otherwise.
+
+    bool isError() const;
+        // Return &#39;true&#39; if this object represents a &#39;DatumError&#39; value and
+        // &#39;false&#39; otherwise.
+
+    bool isExternalReference() const;
+        // Return &#39;true&#39; if this object represents a reference to an externally
+        // managed array, string or user-defined object and &#39;false&#39; otherwise.
+        // If this method returns &#39;false&#39;, calling &#39;destroy&#39; on this object
+        // will release the memory used by the array, string, or used-defined
+        // object as well as any meta-data directly used by this datum (e.g.,
+        // length information); otherwise (if this method returns &#39;true&#39;)
+        // calling &#39;destroy&#39; on this object will release any allocated
+        // meta-data, but will not impact the externally managed array, string,
+        // or user-defined object.
+
+    bool isInteger() const;
+        // Return &#39;true&#39; if this object represents an integer value and &#39;false&#39;
+        // otherwise.
+
+    bool isInteger64() const;
+        // Return &#39;true&#39; if this object represents a &#39;Int64&#39; value and &#39;false&#39;
+        // otherwise.
+
+    bool isMap() const;
+        // Return &#39;true&#39; if this object represents a map of datums that are
+        // keyed by string values and &#39;false&#39; otherwise.
+
+    bool isNull() const;
+        // Return &#39;true&#39; if this object represents no value and &#39;false&#39;
+        // otherwise.
+
+    bool isString() const;
+        // Return &#39;true&#39; if this object represents a string value and &#39;false&#39;
+        // otherwise.
+
+    bool isTime() const;
+        // Return &#39;true&#39; if this object represents a &#39;bdlt::Time&#39; value and
+        // &#39;false&#39; otherwise.
+
+    bool isUdt() const;
+        // Return &#39;true&#39; if this object represents a &#39;DatumUdt&#39; value and
+        // &#39;false&#39; otherwise.
+
+                               // Type-Accessors
+
+    DatumArrayRef theArray() const;
+        // Return the array value represented by this object as a
+        // &#39;DatumArrayRef&#39; object.  The behavior is undefined unless this
+        // object actually represents an array of datums.
+
+    DatumBinaryRef theBinary() const;
+        // Return the binary reference represented by this object as a
+        // &#39;DatumBinaryRef&#39; object.  The behavior is undefined unless this
+        // object actually represents a binary reference.
+
+    bool theBoolean() const;
+        // Return the boolean value represented by this object.  The behavior
+        // is undefined unless this object actually represents a &#39;bool&#39; value.
+
+    bdlt::Date theDate() const;
+        // Return the date value represented by this object as a &#39;bdlt::Date&#39;
+        // object.  The behavior is undefined unless this object actually
+        // represents a date value.
+
+    bdlt::Datetime theDatetime() const;
+        // Return the date+time value represented by this object as a
+        // &#39;bdlt::Datetime&#39; object.  The behavior is undefined unless this
+        // object actually represents date+time value.
+
+    bdlt::DatetimeInterval theDatetimeInterval() const;
+        // Return the date+time interval value represented by this object as a
+        // &#39;bdlt::DatetimeInterval&#39;.  The behavior is undefined unless this
+        // object actually represents a date+time interval value.
+
+    bdldfp::Decimal64 theDecimal64() const;
+        // Return the decimal floating point value represented by this object
+        // as a &#39;bdlfpd::Decimal64&#39; value.  The behavior is undefined unless
+        // this object actually represents a decimal floating point value.
+
+    double theDouble() const;
+        // Return the double value represented by this object.  The behavior is
+        // undefined unless this object actually represents a double value.
+
+    DatumError theError() const;
+        // Return the error value represented by this object as a &#39;DatumError&#39;
+        // value.  The behavior is undefined unless this object actually
+        // represents an error value.
+
+    int theInteger() const;
+        // Return the integer value represented by this object.  The behavior
+        // is undefined unless this object actually represents an integer
+        // value.
+
+    bsls::Types::Int64 theInteger64() const;
+        // Return the 64-bit integer value represented by this object as a
+        // &#39;Int64&#39; value.  The behavior is undefined unless this object
+        // actually represents a 64-bit integer value.
+
+    DatumMapRef theMap() const;
+        // Return the map value represented by this object as a &#39;DatumMapRef&#39;
+        // object.  The behavior is undefined unless this object actually
+        // represents a map of datums.
+
+    bslstl::StringRef theString() const;
+        // Return the string value represented by this object as a
+        // &#39;bslstl::StringRef&#39; object.  The behavior is undefined unless this
+        // object actually represents a string value.
+
+    bdlt::Time theTime() const;
+        // Return the time value represented by this object as a &#39;bdlt::Time&#39;
+        // object.  The behavior is undefined unless this object actually
+        // represents a time value.
+
+    DatumUdt theUdt() const;
+        // Return the user-defined object represented by this object as a
+        // &#39;DatumUdt&#39; object.  The behavior is undefined unless this object
+        // actually represents a user-defined object.
+
+    DataType type() const;
+        // Return the type of value represented by this object as one of the
+        // enumeration values defined in &#39;DataType&#39;.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(const Datum&amp; lhs, const Datum&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; represent the same value,
+    // and &#39;false&#39; otherwise.  Two datums (not holding strings and user-
+    // defined objects) represent the same value if they have the same type of
+    // value stored inside them and invoking &#39;==&#39; operator on the stored values
+    // returns &#39;true&#39;.  Two datums holding strings are equal if the strings
+    // have the same length and and values at each respective character
+    // position are also same.  Two datums holding user-defined objects are
+    // equal if the user-defined objects have the same pointer and type values.
+    // Two &#39;nil&#39; datums are always equal.  Two &#39;Datum&#39; objects holding &#39;NaN&#39;
+    // values are never equal.  Two datums that hold array of datums have the
+    // same value if the underlying arrays have the same length and invoking
+    // &#39;==&#39; operator on each corresponding element returns &#39;true&#39;.  Two datums
+    // that hold map of datums have the same value if the underlying maps have
+    // the same size and each corresponding pair of elements in the maps have
+    // the same keys and invoking &#39;==&#39; operator on the values returns &#39;true&#39;.
+
+bool operator!=(const Datum&amp; lhs, const Datum&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; datums do not represent
+    // the same value, and &#39;false&#39; otherwise.  Two datums do not represent the
+    // same value if they do not hold values of the same type, or they hold
+    // values of the same type but invoking &#39;==&#39; operator on the stored values
+    // returns &#39;false&#39;.  Two strings do not have the same value if they have
+    // different lengths or values at one of the respective character position
+    // are not the same.  Two &#39;DatumUdt&#39; objects are not equal if they have
+    // different pointer or type values.  Two &#39;bdemf_Nil&#39; values are always
+    // equal.  Two datums with &#39;NaN&#39; values are never equal.  Two datums that
+    // hold array of datums have different values if the the underlying arrays
+    // have different lengths or invoking &#39;==&#39; operator on at least one of the
+    // corresponding pair of contained elements returns &#39;false&#39;.  Two datums
+    // that hold map of datums have different values if the underlying maps
+    // have different sizes or at least one of the corresponding pair of
+    // elements in the maps have different keys or invoking &#39;==&#39; operator on
+    // the values returns &#39;false&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Datum&amp; rhs);
+    // Write the specified &#39;rhs&#39; value to the specified output &#39;stream&#39; in the
+    // format shown in the second column in the table below (based on the type
+    // of value stored, indicated by the first column):
+    //..
+    //  null                   - [nil]
+    //
+    //  bool                   - true/false
+    //
+    //  DatumError             - error(code)/error(code, &#39;msg&#39;)
+    //                           where &#39;code&#39; is the integer error code and
+    //                           &#39;msg&#39; is the error description message
+    //
+    //  int                    - plain integer value
+    //
+    //  Int64                  - plain Int64 value
+    //
+    //  double                 - plain double value
+    //
+    //  string                 - plain double-quoted string value
+    //
+    //  array                  - [ elem0, ..., elemN]
+    //                           where elem1..elemN are output for individul
+    //                           array elements
+    //
+    //  map                    - [key0 = val0, ..., keyN = valN]
+    //                           where keyX and valX are respectively key and
+    //                           value of the map entry elements of the map
+    //
+    //  bdlt::Date             - ddMONyyyy
+    //
+    //  bdlt::Time             - hh:mm:ss.sss
+    //
+    //  bdlt::Datetime         - ddMONyyyy_hh:mm:ss.sss
+    //
+    //  bdlt::DatetimeInterval - sDD_HH:MM:SS.SSS (where s is the sign(+/-))
+    //
+    //  DatumUdt               - user-defined(address,type)
+    //                           where &#39;address&#39; is a hex encoded pointer to
+    //                           the user-defined object and &#39;type&#39; is its type
+    //..
+    // and return a reference to the modifiable &#39;stream&#39;.  The function will
+    // have no effect if the specified &#39;stream&#39; is not valid.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, Datum::DataType rhs);
+    // Write the string representation of the specified enumeration &#39;rhs&#39; to
+    // the specified &#39;stream&#39; in a single-line format, and return a reference
+    // to the modifyable &#39;stream&#39;.  See &#39;dataTypeToAscii&#39; for what constitutes
+    // the string representation of a &#39;Datum::DataType&#39; value.
+
+                         // ==========================
+                         // class DatumMutableArrayRef
+                         // ==========================
+
+class DatumMutableArrayRef {
+    // This &#39;class&#39; provides mutable access to a datum array.  The users of
+    // this class can read from and assign to the individual elements as well
+    // as change the length of the array.
+
+  public:
+    // TYPES
+    typedef Datum::SizeType SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the capacity of a datum array.
+
+  private:
+    // DATA
+    Datum    *d_data_p;    // pointer to an array (not owned)
+    SizeType *d_length_p;  // pointer to the length of the array
+
+  public:
+    // CREATORS
+    DatumMutableArrayRef();
+        // Create a &#39;DatumMutableArrayRef&#39; object that refers to no array.
+
+    DatumMutableArrayRef(Datum *data, SizeType *length);
+        // Create a &#39;DatumMutableArrayRef&#39; object having the specified &#39;data&#39;
+        // and &#39;length&#39;.
+
+    //! DatumMutableArrayRef(const DatumMutableArrayRef&amp; original) = default;
+        // Create a &#39;DatumMutableArrayRef&#39; having the value of the specified
+        // &#39;original&#39; object.  Note that this method&#39;s definition is compiler
+        // generated.
+
+    //! ~DatumMutableArrayRef() = default;
+        // Destroy this object. Note that this method&#39;s definition is compiler
+        // generated.
+
+    // MANIPULATORS
+    //! DatumMutableArrayRef&amp; operator=(
+    //!                             const DatumMutableArrayRef&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object. Note
+        // that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    Datum *data() const;
+        // Return pointer to the first element of the held array.
+
+    SizeType *length() const;
+        // Return pointer to the length of the array.
+};
+
+                          // ======================
+                          // struct Datum_MapHeader
+                          // ======================
+
+struct Datum_MapHeader{
+    // This component-local class provides a layout of the meta-information
+    // stored in front of the Datum maps.
+
+    // DATA
+    Datum::SizeType d_size;      // size of the map
+    bool            d_sorted;    // sorted flag
+    bool            d_ownsKeys;  // owns keys flag
+};
+
+                          // ========================
+                          // class DatumMutableMapRef
+                          // ========================
+
+class DatumMutableMapRef {
+    // This &#39;class&#39; provides a mutable access to a datum map.  The users of
+    // this class can assign to the individual elements and also change the
+    // size of the map.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+  private:
+    // DATA
+    DatumMapEntry *d_data_p;    // pointer to a map of datums (not owned)
+
+    SizeType      *d_size_p;    // pointer to the size of the map
+
+    bool          *d_sorted_p;  // pointer to flag indicating whether the map
+                                // is sorted or not
+
+  public:
+    // CREATORS
+    DatumMutableMapRef();
+        // Create a &#39;DatumMutableMapRef&#39; object.
+
+    DatumMutableMapRef(DatumMapEntry *data, SizeType *size, bool *sorted);
+        // Create a &#39;DatumMutableMapRef&#39; object having the specified &#39;data&#39;,
+        // &#39;size&#39;, and &#39;sorted&#39;.
+
+    //! DatumMutableMapRef(const DatumMutableMapRef&amp; original) = default;
+        // Create a &#39;DatumMutableMapRef&#39; having the value of the specified
+        // &#39;original&#39; object.  Note that this method&#39;s definition is compiler
+        // generated.
+
+    //! ~DatumMutableMapRef() = default;
+        // Destroy this object. Note that this method&#39;s definition is compiler
+        // generated.
+
+    // MANIPULATORS
+    //! DatumMutableMapRef&amp; operator=(const DatumMutableMapRef&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object. Note
+        // that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    DatumMapEntry *data() const;
+        // Return pointer to the first element in the (held) map.
+
+    SizeType *size() const;
+        // Return pointer to the location where the (held) map&#39;s size is
+        // stored.
+
+    bool *sorted() const;
+        // Return pointer to the location where the (held) map&#39;s *sorted* flag
+        // is stored.
+};
+
+                     // ==================================
+                     // class DatumMutableMapOwningKeysRef
+                     // ==================================
+
+class DatumMutableMapOwningKeysRef {
+    // This &#39;class&#39; provides mutable access to a datum key-owning map.  The
+    // users of this class can assign to the individual elements, copy keys and
+    // change the size of the map.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+  private:
+    // DATA
+    DatumMapEntry *d_data_p;    // pointer to a map of datums (not owned)
+
+    SizeType      *d_size_p;    // pointer to the size of the map
+
+    char          *d_keys_p;    // pointer to the key storage
+
+    bool          *d_sorted_p;  // pointer to flag indicating whether the map
+                                // is sorted or not
+
+  public:
+    // CREATORS
+    DatumMutableMapOwningKeysRef();
+        // Create a &#39;DatumMutableMapOwningKeysRef&#39; object.
+
+    DatumMutableMapOwningKeysRef(DatumMapEntry *data,
+                                 SizeType      *size,
+                                 char          *keys,
+                                 bool          *sorted);
+        // Create a &#39;DatumMutableMapOwningKeysRef&#39; object having the specified
+        // &#39;data&#39;, &#39;size&#39;, &#39;keys&#39;, and &#39;sorted&#39;.
+
+    //! DatumMutableMapOwningKeysRef(
+    //!                const DatumMutableMapOwningKeysRef&amp; original) = default;
+        // Create a &#39;DatumMutableMapOwningKeysRef&#39; having the value of the
+        // specified &#39;original&#39; object.  Note that this method&#39;s definition is
+        // compiler generated.
+
+    //!~DatumMutableMapOwningKeysRef() = default;
+        // Destroy this object. Note that this method&#39;s definition is compiler
+        // generated.
+
+    // MANIPULATORS
+    //! DatumMutableMapOwningKeysRef&amp; operator=(
+    //!                     const DatumMutableMapOwningKeysRef&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object. Note
+        // that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    DatumMapEntry *data() const;
+        // Return pointer to the first element in the held map.
+
+    char *keys() const;
+        // Return pointer to the start of the buffer where keys are stored.
+
+    SizeType *size() const;
+        // Return pointer to the location where the (held) map&#39;s size is
+        // stored.
+
+    bool *sorted() const;
+        // Return pointer to the location where the (held) map&#39;s *sorted* flag
+        // is stored.
+};
+
+                          // ===================
+                          // class DatumArrayRef
+                          // ===================
+
+class DatumArrayRef {
+    // This &#39;class&#39; provides a read-only view to an array of datums.  It holds
+    // the array by a &#39;const&#39; pointer and an integral length value.  It acts as
+    // return value for accessors inside the &#39;Datum&#39; class that return an array
+    // of datums.  Note that zero-length arrays are valid.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the length of a datum array.
+
+  private:
+    // DATA
+    const Datum *d_data_p;  // pointer to the first array element (not owned)
+    SizeType     d_length;  // length of the array of
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayRef, bsl::is_trivially_copyable);
+
+    // CREATORS
+    DatumArrayRef();
+        // Create a &#39;DatumArrayRef&#39; object representing an empty array.
+
+    DatumArrayRef(const Datum *data, SizeType length);
+        // Create a &#39;DatumArrayRef&#39; object having the specified &#39;data&#39; and
+        // &#39;length&#39;.  The behavior is undefined unless &#39;0 != data&#39; or &#39;0 ==
+        // length&#39;.  Note that the pointer to the array is just copied.
+
+    //! DatumArrayRef(const DatumArrayRef&amp; other) = default;
+        // Create a &#39;DatumArrayRef&#39; object having the value of the specified
+        // &#39;original&#39; object.  Note that this method&#39;s definition is compiler
+        // generated.
+
+    //! ~DatumArrayRef() = default;
+        // Destroy this object. Note that this method&#39;s definition is compiler
+        // generated.
+
+    // MANIPULATORS
+    //! DatumArrayRef&amp; operator=(const DatumArrayRef&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object. Note
+        // that this method&#39;s definition is compiler generated.
+
+    // ACCESSORS
+    const Datum&amp; operator[](SizeType index) const;
+        // Return the element stored at the specified &#39;index&#39; position in this
+        // array.
+
+    const Datum *data() const;
+        // Return pointer to the first array element.
+
+    SizeType length() const;
+        // Return the length of the array.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DatumArrayRef&amp; lhs, const DatumArrayRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value, and
+    // &#39;false&#39; otherwise.  Two &#39;DatumArrayRef&#39; objects have the same value if
+    // they hold arrays of the same length and all the corresponding &#39;Datum&#39;
+    // objects in the two arrays also compare equal.
+
+bool operator!=(const DatumArrayRef&amp; lhs, const DatumArrayRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values,
+    // and &#39;false&#39; otherwise.  Two &#39;DatumArrayRef&#39; objects have different
+    // values if they hold arrays of different lengths or invoking operator
+    // &#39;==&#39; returns false for at least one of the corresponding elements in the
+    // arrays.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumArrayRef&amp; rhs);
+    // Write the specified &#39;rhs&#39; value to the specified output &#39;stream&#39; in the
+    // format shown below:
+    //..
+    //  [aa,bb,cc] - aa, bb and cc are the result of invoking operator &#39;&lt;&lt;&#39;
+    //               on the individual elements in the array
+    //..
+    // and return a reference to the modifiable &#39;stream&#39;.  The function will
+    // have no effect if the &#39;stream&#39; is not valid.
+
+                            // ===================
+                            // class DatumMapEntry
+                            // ===================
+
+class DatumMapEntry {
+    // This class represents an entry in a datum map keyed by string values.
+
+  private:
+    // DATA
+    bslstl::StringRef d_key_p;  // key for this entry (not owned)
+    Datum             d_value;  // value for this entry
+
+  public:
+    // CREATORS
+    DatumMapEntry();
+        // Create a &#39;DatumMapEntry&#39; object.
+
+    DatumMapEntry(const bslstl::StringRef&amp; key, const Datum&amp; value);
+        // Create a &#39;DatumMapEntry&#39; object using the specified &#39;key&#39; and
+        // &#39;value&#39;.
+
+    //!~DatumMapEntry() = default;
+
+    // MANIPULATORS
+    void setKey(const bslstl::StringRef&amp; key);
+        // Set the key for this entry to the specified &#39;key&#39;.
+
+    void setValue(const Datum&amp; value);
+        // Set the value for this entry to the specified &#39;value&#39;.
+
+    // ACCESSORS
+    const bslstl::StringRef&amp; key() const;
+        // Return the key for this entry.
+
+    const Datum&amp; value() const;
+        // Return the value for this entry.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapEntry, bsl::is_trivially_copyable);
+};
+
+// FREE OPERATORS
+bool operator==(const DatumMapEntry&amp; lhs, const DatumMapEntry&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value, and
+    // &#39;false&#39; otherwise.  Two &#39;DatumMapEntry&#39; objects have the same value if
+    // their keys and values compare equal.
+
+bool operator!=(const DatumMapEntry&amp; lhs, const DatumMapEntry&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values,
+    // and &#39;false&#39; otherwise.  Two &#39;DatumMapEntry&#39; objects have different
+    // values if either the keys or values are not equal.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumMapEntry&amp; rhs);
+    // Write the specified &#39;rhs&#39; value to the specified output &#39;stream&#39; in the
+    // format shown below:
+    //..
+    //  (abc,aa) - abc is key string, while aa is the result of invoking
+    //             operator &#39;&lt;&lt;&#39; on the value
+    //..
+    // and return a reference to the modifiable &#39;stream&#39;.  The function will
+    // have no effect if the &#39;stream&#39; is not valid.
+
+                            // =================
+                            // class DatumMapRef
+                            // =================
+
+class DatumMapRef {
+    // This class provides a read-only view to a map of datums (an array of
+    // &#39;DatumMapEntry&#39; objects).  It holds the array by a &#39;const&#39; pointer and
+    // an integral size value.  It acts as return value for accessors inside
+    // the &#39;Datum&#39; class that return a map of &#39;Datum&#39; objects.  Note that
+    // zero-size maps are valid.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // &#39;SizeType&#39; is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+  private:
+    // DATA
+    const DatumMapEntry *d_data_p;   // pointer to the array of &#39;DatumMapEntry&#39;
+                                     // objects (not owned)
+
+    SizeType             d_size;     // length of the array
+
+    bool                 d_sorted;   // flag indicating whether the array is
+                                     // sorted or not
+
+    bool                 d_ownsKeys; // flag indicating whether the map owns
+                                     // the keys or not
+
+  public:
+    // CREATORS
+    DatumMapRef(const DatumMapEntry *data,
+                SizeType             size,
+                bool                 sorted,
+                bool                 ownsKeys);
+        // Create a &#39;DatumMapRef&#39; object having the specified &#39;data&#39; of the
+        // specified &#39;size&#39; and the specified &#39;sorted&#39; and &#39;ownsKeys&#39; flags.
+        // The behavior is undefined unless &#39;0 != data&#39; or &#39;0 == size&#39;.  Note
+        // that the pointer to the array is just copied.
+
+    //!~DatumMapRef() = default;
+
+    // ACCESSORS
+    const DatumMapEntry&amp; operator[](SizeType index) const;
+        // Return the element stored at the specified &#39;index&#39; position in this
+        // map.  The behaviour is undefined unless &#39;index &lt; size()&#39;.
+
+    const DatumMapEntry *data() const;
+        // Return pointer to the first element in the map.
+
+    bool isSorted() const;
+        // Return &#39;true&#39; if underlying map is sorted and &#39;false&#39; otherwise.
+
+    bool ownsKeys() const;
+        // Return &#39;true&#39; if underlying map owns the keys and &#39;false&#39; otherwise.
+        // Note that &#39;false&#39; is always returned for zero-sized &#39;DatumMapRef&#39;.
+
+    SizeType size() const;
+        // Return the size of the map.
+
+    const Datum *find(const bslstl::StringRef&amp; key) const;
+        // Return a const pointer to the datum having the specified &#39;key&#39;, if
+        // it exists and 0 otherwise.  Note that the &#39;find&#39; has order of &#39;O(n)&#39;
+        // if the data is not sorted based on the keys.  If the data is sorted,
+        // it has order of &#39;O(log(n))&#39;.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
+};
+
+// FREE OPERATORS
+bool operator==(const DatumMapRef&amp; lhs, const DatumMapRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value, and
+    // &#39;false&#39; otherwise.  Two &#39;DatumMapRef&#39; objects have the same value if
+    // they hold maps of the same size and all the corresponding
+    // &#39;DatumMapEntry&#39; elements in the two maps also compare equal.
+
+bool operator!=(const DatumMapRef&amp; lhs, const DatumMapRef&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values,
+    // and &#39;false&#39; otherwise.  Two &#39;DatumMapRef&#39; objects have different values
+    // if they hold maps of different sizes or operator &#39;==&#39; returns false for
+    // at least one of the corresponding elements in the maps.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumMapRef&amp; rhs);
+    // Write the specified &#39;rhs&#39; value to the specified output &#39;stream&#39; in the
+    // format shown below:
+    //..
+    //  [ abc = aa, pqr = bb] - abc and pqr are key strings, while aa and bb
+    //                          are the result of invoking operator &#39;&lt;&lt;&#39; on the
+    //                          individual value elements in the map
+    //..
+    // and return a reference to the modifiable &#39;stream&#39;.  The function will
+    // have no effect if the &#39;stream&#39; is not valid.
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+
+                           // ----------------------
+                           // struct Datum_Helpers32
+                           // ----------------------
+
+struct Datum_Helpers32 {
+    // This struct contains helper functions used in the 32-bit variation.  The
+    // functions are for internal use only and may change or disappear without
+    // notice.
+
+    // CLASS DATA
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    static const int b00          = 0; // Bits 0 to 32.
+    static const int b32          = 4; // Bits 32 to 48.
+    static const int b48          = 6; // Bits 48 to 64.
+#else
+    static const int b00          = 4;
+    static const int b32          = 2;
+    static const int b48          = 0;
+#endif
+
+    // CLASS METHODS
+    static bsls::Types::Int64 loadSmallInt64(short high16, int low32);
+        // Load an Int64 from the specified &#39;high16&#39; and &#39;low32&#39; values created
+        // by storeSmallInt64.  This method is public for testing purpose only.
+        // It may change or be removed without notice.
+
+    static bool storeSmallInt64(bsls::Types::Int64  value,
+                                short              *phigh16,
+                                int                *plow32);
+        // Store an Int64 in short at &#39;phigh16&#39; and int at &#39;plow32&#39;.  Return
+        // true if it fits.  This method is public for testing purpose only.
+        // It may change or be removed without notice.
+};
+
+// CLASS METHODS
+inline
+bsls::Types::Int64 Datum_Helpers32::loadSmallInt64(short high16, int low32)
+{
+    bsls::Types::Int64 value;
+    unsigned char *pv = reinterpret_cast&lt;unsigned char*&gt;(&amp;value);
+
+    if ((*reinterpret_cast&lt;short*&gt;(pv + b32) = high16) &lt; 0) {
+        *reinterpret_cast&lt;short*&gt;(pv + b48) = -1;
+    } else {
+        *reinterpret_cast&lt;short*&gt;(pv + b48) = 0;
+    }
+
+    *reinterpret_cast&lt;long*&gt;(pv + b00) = low32;
+
+    return value;
+}
+
+inline
+bool Datum_Helpers32::storeSmallInt64(bsls::Types::Int64  value,
+                                      short              *phigh16,
+                                      int                *plow32)
+{
+    const unsigned char *pv = reinterpret_cast&lt;const unsigned char*&gt;(&amp;value);
+
+    // Check that the sign can be infered from the compressed 6-byte integer.
+    // It is the case if the upper 16 bits are the same as the 17th bit.
+
+    if ((*reinterpret_cast&lt;const short*&gt;(pv + b48) == 0
+         &amp;&amp; *reinterpret_cast&lt;const short*&gt;(pv + b32) &gt;= 0)
+        || (*reinterpret_cast&lt;const short*&gt;(pv + b48) == -1
+            &amp;&amp; *reinterpret_cast&lt;const short*&gt;(pv + b32) &lt; 0)) {
+        *plow32 = *reinterpret_cast&lt;const long*&gt;(pv + b00);
+        *phigh16 = *reinterpret_cast&lt;const short*&gt;(pv + b32);
+        return true;
+    } else {
+        return false;
+    }
+}
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+                                // -----------
+                                // class Datum
+                                // -----------
+
+// This section contains all class methods and private accessors that are used
+// only in implementation for specific platform.
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+// PRIVATE CLASS METHODS
+// 32-bit only
+inline
+Datum Datum::createExtendedDataObject(ExtendedInternalDataType  type,
+                                      void                     *data)
+{
+    Datum result;
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_EXTENDED)
+                            &lt;&lt; k_TYPE_MASK_BITS | type;
+    result.d_as.d_cvp = data;
+    return result;
+}
+
+inline
+Datum Datum::createExtendedDataObject(ExtendedInternalDataType  type,
+                                      int                       data)
+{
+    Datum result;
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_EXTENDED)
+                            &lt;&lt; k_TYPE_MASK_BITS | type;
+    result.d_as.d_int = data;
+    return result;
+}
+
+// PRIVATE ACCESSORS
+// 32-bit only
+inline
+Datum::ExtendedInternalDataType Datum::extendedInternalType() const
+{
+    BSLS_ASSERT_SAFE(e_INTERNAL_EXTENDED == internalType());
+    return static_cast&lt;ExtendedInternalDataType&gt;(d_as.d_short);
+}
+
+inline
+Datum::DataType Datum::typeFromExtendedInternalType() const
+{
+    BSLS_ASSERT_SAFE(e_INTERNAL_EXTENDED == internalType());
+
+    static const DataType convert[] = {
+        Datum::e_MAP            // e_EXTENDED_INTERNAL_MAP                 = 0
+      , Datum::e_MAP            // e_EXTENDED_INTERNAL_OWNED_MAP           = 1
+      , Datum::e_REAL           // e_EXTENDED_INTERNAL_NAN2                = 2
+      , Datum::e_ERROR          // e_EXTENDED_INTERNAL_ERROR               = 3
+      , Datum::e_ERROR          // e_EXTENDED_INTERNAL_ERROR_ALLOC         = 4
+      , Datum::e_STRING         // e_EXTENDED_INTERNAL_SREF_ALLOC          = 5
+      , Datum::e_ARRAY          // e_EXTENDED_INTERNAL_AREF_ALLOC          = 6
+      , Datum::e_DATETIME       // e_EXTENDED_INTERNAL_DATETIME_ALLOC      = 7
+      , Datum::e_DATETIME_INTERVAL
+                      // e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC       = 8
+      , Datum::e_INTEGER64      // e_EXTENDED_INTERNAL_INTEGER64_ALLOC     = 9
+      , Datum::e_BINARY         // e_EXTENDED_INTERNAL_BINARY_ALLOC        = 10
+      , Datum::e_DECIMAL64      // e_EXTENDED_INTERNAL_DECIMAL64           = 11
+      , Datum::e_DECIMAL64      // e_EXTENDED_INTERNAL_DECIMAL64_SPECIAL   = 12
+      , Datum::e_DECIMAL64      // e_EXTENDED_INTERNAL_DECIMAL64_ALLOC     = 13
+      , Datum::e_NIL            // e_EXTENDED_INTERNAL_NIL                 = 14
+    };
+
+    BSLMF_ASSERT(sizeof(convert)/sizeof(convert[0]) ==
+                 k_NUM_EXTENDED_INTERNAL_TYPES);
+
+    const ExtendedInternalDataType type = extendedInternalType();
+    const int convertLength = sizeof(convert) / sizeof(convert[0]);
+
+    BSLS_ASSERT_OPT(type &lt; convertLength);
+
+    return convert[type];
+}
+
+inline
+bsls::Types::Int64 Datum::theLargeInteger64() const
+{
+    BSLS_ASSERT_SAFE(internalType() == e_INTERNAL_EXTENDED);
+    BSLS_ASSERT_SAFE(
+        extendedInternalType() == e_EXTENDED_INTERNAL_INTEGER64_ALLOC);
+    return *static_cast&lt;const bsls::Types::Int64*&gt;(d_as.d_cvp);
+}
+
+inline
+DatumArrayRef Datum::theLongArrayReference() const
+{
+    const char *data = static_cast&lt;const char *&gt;(d_as.d_cvp);
+    return DatumArrayRef(
+           *reinterpret_cast&lt;Datum *const *&gt;(data),
+           *reinterpret_cast&lt;const SizeType *&gt;(data + sizeof(const Datum *)));
+}
+
+inline
+bslstl::StringRef Datum::theLongestShortString() const
+{
+    return bslstl::StringRef(d_string6.d_chars, sizeof d_string6.d_chars);
+}
+
+inline
+bslstl::StringRef Datum::theLongStringReference() const
+{
+    const char *data = static_cast&lt;const char*&gt;(d_as.d_cvp);
+    return bslstl::StringRef(
+                    *reinterpret_cast&lt;char *const *&gt;(data),
+                    *reinterpret_cast&lt;const SizeType *&gt;(data + sizeof(data)));
+}
+
+inline
+bsls::Types::Int64 Datum::theSmallInteger64() const
+{
+    BSLS_ASSERT_SAFE(internalType() == e_INTERNAL_INTEGER64);
+    return Datum_Helpers32::loadSmallInt64(d_as.d_short, d_as.d_int);
+}
+
+#else   // BSLS_PLATFORM_CPU_32_BIT
+// PRIVATE CLASS METHODS
+
+// 64-bit only
+inline
+Datum Datum::createDatum(InternalDataType type, void *data)
+{
+    Datum result;
+    result.d_as.d_type = type;
+    result.d_as.d_ptr  = data;
+    return result;
+}
+
+inline
+Datum Datum::createDatum(InternalDataType type, int data)
+{
+    Datum result;
+    result.d_as.d_type  = type;
+    result.d_as.d_int64 = data;
+    return result;
+}
+
+// PRIVATE ACCESSORS
+
+// 64-bit only
+inline
+void* Datum::theInlineStorage()
+{
+    return d_data.buffer();
+}
+
+inline
+const void* Datum::theInlineStorage() const
+{
+    return d_data.buffer();
+}
+
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+// This section contains all methods that are common for all platforms, but may
+// have platform-specific implementation.
+
+// PRIVATE CLASS METHODS
+inline
+void Datum::destroyMemory(const Datum&amp;      value,
+                          bslma::Allocator *basicAllocator)
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    basicAllocator-&gt;deallocate(const_cast&lt;void*&gt;(value.d_as.d_cvp));
+#else    // BSLS_PLATFORM_CPU_32_BIT
+    basicAllocator-&gt;deallocate(value.d_as.d_ptr);
+#endif   // BSLS_PLATFORM_CPU_32_BIT
+}
+
+// PRIVATE ACCESSORS
+inline
+Datum::InternalDataType Datum::internalType() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    if (0x7f == d_data[k_EXPONENT_MSB] &amp;&amp;
+        0xf0 == (d_data[k_EXPONENT_LSB] &amp; 0xf0)) {
+        return static_cast&lt;InternalDataType&gt;(d_data[k_EXPONENT_LSB] &amp; 0x0f);
+    }
+    return e_INTERNAL_REAL;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return static_cast&lt;InternalDataType&gt;(d_as.d_type);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+DatumArrayRef Datum::theArrayReference() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return DatumArrayRef(static_cast&lt;const Datum *&gt;(d_as.d_cvp),
+                         d_as.d_ushort);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return DatumArrayRef(static_cast&lt;const Datum *&gt;(d_as.d_ptr),
+                         d_as.d_int32);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+DatumArrayRef Datum::theInternalArray() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const Datum *data = static_cast&lt;const Datum *&gt;(d_as.d_cvp);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    const Datum *data = reinterpret_cast&lt;const Datum *&gt;(d_as.d_ptr);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+    if (data) {
+        const SizeType size = *reinterpret_cast&lt;const SizeType *&gt;(data);
+        return DatumArrayRef(data + 1, size);                         // RETURN
+    }
+    return DatumArrayRef(0, 0);
+}
+
+inline
+bslstl::StringRef Datum::theInternalString() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const char *data = static_cast&lt;const char *&gt;(d_as.d_cvp);
+    return bslstl::StringRef(data + sizeof(SizeType),
+                             *reinterpret_cast&lt;const SizeType *&gt;(data));
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return bslstl::StringRef(static_cast&lt;const char *&gt;(d_as.d_ptr),
+                             d_as.d_int32);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+BDLD_DATUM_FORCE_INLINE
+bslstl::StringRef Datum::theShortString() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return bslstl::StringRef(d_string5.d_chars, d_string5.d_length);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    const char     *str = reinterpret_cast&lt;const char *&gt;(theInlineStorage());
+    const SizeType  len = *str++;
+    return bslstl::StringRef(str, static_cast&lt;int&gt;(len));
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+bslstl::StringRef Datum::theStringReference() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return bslstl::StringRef(static_cast&lt;const char *&gt;(d_as.d_cvp),
+                             d_as.d_ushort);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return bslstl::StringRef(static_cast&lt;const char *&gt;(d_as.d_ptr),
+                             d_as.d_int32);
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+// CLASS METHODS
+inline
+Datum Datum::createArrayReference(const Datum      *array,
+                                  SizeType          length,
+                                  bslma::Allocator *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(array || 0 == length);
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // If the length will fit in the &#39;d_ushort&#39; area, store everything inline;
+    // otherwise, must allocate space.
+
+    if (bsl::numeric_limits&lt;unsigned short&gt;::max() &gt;= length) {
+        Datum result;
+        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_ARRAY_REFERENCE;
+        result.d_as.d_ushort = static_cast&lt;unsigned short&gt;(length);
+        result.d_as.d_cvp = array;
+        return result;                                                // RETURN
+    }
+
+    char *mem = static_cast&lt;char *&gt;(
+                     basicAllocator-&gt;allocate(sizeof(array) + sizeof(length)));
+    *reinterpret_cast&lt;const Datum **&gt;(mem) = array;
+    *reinterpret_cast&lt;SizeType *&gt;(mem + sizeof(array)) = length;
+
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_AREF_ALLOC, mem);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    (void)basicAllocator;
+
+    BSLS_ASSERT_SAFE(length &lt;= bsl::numeric_limits&lt;unsigned int&gt;::max());
+
+    Datum result;
+    result.d_as.d_type  = e_INTERNAL_ARRAY_REFERENCE;
+    result.d_as.d_int32 = static_cast&lt;int&gt;(length);
+    result.d_as.d_ptr   = reinterpret_cast&lt;void*&gt;(const_cast&lt;Datum*&gt;(array));
+    return result;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum Datum::createArrayReference(const DatumArrayRef&amp;  value,
+                                  bslma::Allocator     *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    return createArrayReference(value.data(), value.length(), basicAllocator);
+}
+
+inline
+Datum Datum::createBoolean(bool value)
+{
+    Datum result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_BOOLEAN)
+                            &lt;&lt; k_TYPE_MASK_BITS;
+    result.d_as.d_int    = value;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type   = e_INTERNAL_BOOLEAN;
+    result.d_as.d_int32  = value;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createDate(const bdlt::Date&amp; value)
+{
+    Datum result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    BSLMF_ASSERT(sizeof(value) == sizeof(result.d_as.d_int));
+    BSLMF_ASSERT(bsl::is_trivially_copyable&lt;bdlt::Date&gt;::value);
+
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_DATE)
+                            &lt;&lt; k_TYPE_MASK_BITS;
+    *reinterpret_cast&lt;bdlt::Date*&gt;(&amp;result.d_as.d_int) = value;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type = e_INTERNAL_DATE;
+    new (result.theInlineStorage()) bdlt::Date(value);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+    return result;
+}
+
+inline
+Datum Datum::createDatetime(const bdlt::Datetime&amp;  value,
+                            bslma::Allocator      *basicAllocator)
+{
+    BSLS_ASSERT(basicAllocator);
+
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // Check if number of days from now fits in two bytes.
+
+    int dateOffsetFromNow = value.date() - s_dateTimeBase;
+    short shortDateOffsetFromNow = static_cast&lt;short&gt;(dateOffsetFromNow);
+
+    if (static_cast&lt;int&gt;(shortDateOffsetFromNow) == dateOffsetFromNow) {
+        result.d_exp.d_value =
+            (k_DOUBLE_MASK | e_INTERNAL_DATETIME) &lt;&lt; k_TYPE_MASK_BITS
+            | (0xffff &amp; shortDateOffsetFromNow);
+        *reinterpret_cast&lt;bdlt::Time*&gt;(&amp;result.d_as.d_int) = value.time();
+    } else {
+        void *mem = new (*basicAllocator) bdlt::Datetime(value);
+        result = createExtendedDataObject(e_EXTENDED_INTERNAL_DATETIME_ALLOC,
+                                          mem);
+    }
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type = e_INTERNAL_DATETIME;
+    new (result.theInlineStorage()) bdlt::Datetime(value);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createDatetimeInterval(
+                                 const bdlt::DatetimeInterval&amp;  value,
+                                 bslma::Allocator              *basicAllocator)
+{
+    BSLS_ASSERT(basicAllocator);
+
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    bsls::Types::Int64 msValue = value.totalMilliseconds();
+
+    if (Datum_Helpers32::storeSmallInt64(msValue,
+                                         &amp;result.d_as.d_short,
+                                         &amp;result.d_as.d_int)) {
+        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_DATETIME_INTERVAL;
+    } else {
+        void *mem = new (*basicAllocator) bdlt::DatetimeInterval(value);
+        result = createExtendedDataObject(
+                                   e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC,
+                                   mem);
+    }
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type = e_INTERNAL_DATETIME_INTERVAL;
+    new (result.theInlineStorage()) bdlt::DatetimeInterval(value);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createDouble(double value)
+{
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    if (!(value == value)) {
+        return createExtendedDataObject(e_EXTENDED_INTERNAL_NAN2, 0); // RETURN
+    } else {
+        result.d_double = value;
+    }
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type   = e_INTERNAL_REAL;
+    result.d_as.d_double = value;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+    return result;
+}
+
+inline
+Datum Datum::createError(int code)
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_ERROR, code);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return createDatum(e_INTERNAL_ERROR, code);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum Datum::createInteger(int value)
+{
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_INTEGER)
+                            &lt;&lt; k_TYPE_MASK_BITS;
+    result.d_as.d_int    = value;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type   = e_INTERNAL_INTEGER;
+    result.d_as.d_int32  = value;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createInteger64(bsls::Types::Int64  value,
+                             bslma::Allocator   *basicAllocator)
+{
+    BSLS_ASSERT(basicAllocator);
+
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    if (Datum_Helpers32::storeSmallInt64(value,
+                                         &amp;result.d_as.d_short,
+                                         &amp;result.d_as.d_int)) {
+        result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_INTEGER64;
+    } else {
+        void *mem = new (*basicAllocator) bsls::Types::Int64(value);
+        result = createExtendedDataObject(e_EXTENDED_INTERNAL_INTEGER64_ALLOC,
+                                          mem);
+    }
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    (void)basicAllocator;
+
+    result.d_as.d_type  = e_INTERNAL_INTEGER64;
+    result.d_as.d_int64 = value;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createNull()
+{
+    Datum result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // Setting exponent using half-word is faster, maybe the compiler folds the
+    // two statements into one?
+
+    result.d_as.d_exponent = k_DOUBLE_MASK | Datum::e_INTERNAL_EXTENDED;
+    result.d_as.d_ushort   = e_EXTENDED_INTERNAL_NIL;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type     = e_INTERNAL_NIL;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::createStringRef(const char       *string,
+                             SizeType          length,
+                             bslma::Allocator *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(string || 0 == length);
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // If the length will fit in the &#39;k_SHORT_OFFSET&#39; area, store everything
+    // inline; otherwise allocate space.
+
+    if (bsl::numeric_limits&lt;unsigned short&gt;::max() &gt;= length) {
+        Datum result;
+        result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_STRING_REFERENCE)
+                                &lt;&lt; k_TYPE_MASK_BITS | length;
+        result.d_as.d_cvp = string;
+        return result;                                                // RETURN
+    }
+
+    void *mem = basicAllocator-&gt;allocate(sizeof(length) + sizeof(string));
+    *reinterpret_cast&lt;const char **&gt;(mem) = string;
+    *reinterpret_cast&lt;SizeType *&gt;(static_cast&lt;char *&gt;(mem) + sizeof(string))
+        = length;
+
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_SREF_ALLOC, mem);
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    (void)basicAllocator;
+
+    BSLS_ASSERT_SAFE(length &lt;= bsl::numeric_limits&lt;unsigned int&gt;::max());
+
+    Datum result;
+    result.d_as.d_type  = e_INTERNAL_STRING_REFERENCE;
+    result.d_as.d_int32 = static_cast&lt;int&gt;(length);
+    result.d_as.d_ptr   = const_cast&lt;char*&gt;(string);
+    return result;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum Datum::createStringRef(const char       *string,
+                             bslma::Allocator *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(string);
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    return createStringRef(string, bsl::strlen(string), basicAllocator);
+}
+
+inline
+Datum Datum::createStringRef(const bslstl::StringRef&amp;  value,
+                             bslma::Allocator         *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    return createStringRef(value.data(), value.length(), basicAllocator);
+}
+
+inline
+Datum Datum::createTime(const bdlt::Time&amp; value)
+{
+    Datum result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    BSLMF_ASSERT(bsl::is_trivially_copyable&lt;bdlt::Time&gt;::value);
+
+    result.d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_TIME)
+                            &lt;&lt; k_TYPE_MASK_BITS;
+    *reinterpret_cast&lt;bdlt::Time*&gt;(&amp;result.d_as.d_int) = value;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type = e_INTERNAL_TIME;
+    new (result.theInlineStorage()) bdlt::Time(value);
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+    return result;
+}
+
+inline
+Datum Datum::createUdt(void *data, int type)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= type &amp;&amp; type &lt;= 65535);
+
+    Datum result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_USERDEFINED;
+    result.d_as.d_ushort = static_cast&lt;unsigned short&gt;(type);
+    result.d_as.d_cvp = data;
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type  = e_INTERNAL_USERDEFINED;
+    result.d_as.d_int32 = type;
+    result.d_as.d_ptr   = data;
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+    return result;
+}
+
+inline
+Datum Datum::adoptArray(const DatumMutableArrayRef&amp; array)
+{
+    // Note that &#39;array.length&#39; contains the *address* of the &#39;length&#39;
+    // information for the array, which precedes the &#39;array&#39; data in a
+    // contiguously allocated block (see &#39;DatumMutableArrayRef&#39;).
+
+    Datum result;
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_exponent = k_DOUBLE_MASK | e_INTERNAL_ARRAY;
+    result.d_as.d_cvp = array.length();
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    result.d_as.d_type = e_INTERNAL_ARRAY;
+    result.d_as.d_ptr  = array.length();
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+
+    return result;
+}
+
+inline
+Datum Datum::adoptMap(const DatumMutableMapRef&amp; map)
+{
+    // Note that &#39;map.size&#39; contains the *address* of the &#39;size&#39; information
+    // for the map, which precedes the &#39;map&#39; data in a contiguously allocated
+    // block (see &#39;DatumMutableMapRef&#39;).
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_MAP, map.size());
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return createDatum(e_INTERNAL_MAP, map.size());
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum Datum::adoptMap(const DatumMutableMapOwningKeysRef&amp; map)
+{
+    // Note that &#39;map.size&#39; contains the *address* of the &#39;size&#39; information
+    // for the map, which precedes the &#39;map&#39; data in a contiguously allocated
+    // block (see &#39;DatumMutableMapOwningKeysRefRef&#39;).
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_OWNED_MAP,
+                                    map.size());
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return createDatum(e_INTERNAL_OWNED_MAP, map.size());
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum Datum::copyString(const bslstl::StringRef&amp;  value,
+                        bslma::Allocator         *basicAllocator)
+{
+    return copyString(value.data(), value.length(), basicAllocator);
+}
+
+inline
+void Datum::disposeUninitializedArray(
+                                   const DatumMutableArrayRef&amp;  array,
+                                   bslma::Allocator            *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    basicAllocator-&gt;deallocate(array.length());
+}
+
+inline
+void Datum::disposeUninitializedMap(const DatumMutableMapRef&amp;  map,
+                                    bslma::Allocator          *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    basicAllocator-&gt;deallocate(map.size());
+}
+
+inline
+void Datum::disposeUninitializedMap(
+                           const DatumMutableMapOwningKeysRef&amp;  map,
+                           bslma::Allocator                    *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    basicAllocator-&gt;deallocate(map.size());
+}
+
+// ACCESSORS
+inline
+bool Datum::isArray() const
+{
+    return (e_ARRAY == type());
+}
+
+inline
+bool Datum::isBinary() const
+{
+    return (e_BINARY == type());
+}
+
+inline
+bool Datum::isBoolean() const
+{
+    return (e_BOOLEAN == type());
+}
+
+inline
+bool Datum::isDate() const
+{
+    return (e_DATE == type());
+}
+
+inline
+bool Datum::isDatetime() const
+{
+    return (e_DATETIME == type());
+}
+
+inline
+bool Datum::isDatetimeInterval() const
+{
+    return (e_DATETIME_INTERVAL == type());
+}
+
+inline
+bool Datum::isDecimal64() const
+{
+    return (e_DECIMAL64 == type());
+}
+
+inline
+bool Datum::isDouble() const
+{
+    return (e_REAL == type());
+}
+
+inline
+bool Datum::isError() const
+{
+    return (e_ERROR == type());
+}
+
+inline
+bool Datum::isExternalReference() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    switch (internalType()) {
+      case e_INTERNAL_STRING_REFERENCE:
+      case e_INTERNAL_ARRAY_REFERENCE:
+      case e_INTERNAL_USERDEFINED:
+        return true;                                                  // RETURN
+      case e_INTERNAL_EXTENDED:
+        switch (extendedInternalType()) {
+          case e_EXTENDED_INTERNAL_SREF_ALLOC:
+          case e_EXTENDED_INTERNAL_AREF_ALLOC:
+            return true;                                              // RETURN
+          default:
+            break;
+        }
+      default:
+          break;
+    }
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    switch (internalType()) {
+      case e_INTERNAL_STRING_REFERENCE:
+      case e_INTERNAL_ARRAY_REFERENCE:
+      case e_INTERNAL_USERDEFINED:
+        return true;                                                  // RETURN
+      case e_INTERNAL_UNINITIALIZED:
+        BSLS_ASSERT(!&quot;Uninitialized Datum!!&quot;);
+        break;
+      default:
+        break;
+    }
+#endif // BSLS_PLATFORM_CPU_32_BIT
+    return false;
+}
+
+inline
+bool Datum::isInteger() const
+{
+    return (e_INTEGER == type());
+}
+
+inline
+bool Datum::isInteger64() const
+{
+    return (e_INTEGER64 == type());
+}
+
+inline
+bool Datum::isMap() const
+{
+    return (e_MAP == type());
+}
+
+inline
+bool Datum::isNull() const
+{
+    return (e_NIL == type());
+}
+
+inline
+bool Datum::isString() const
+{
+    return (e_STRING == type());
+}
+
+inline
+bool Datum::isTime() const
+{
+    return (e_TIME == type());
+}
+
+inline
+bool Datum::isUdt() const
+{
+    return (e_USERDEFINED == type());
+}
+
+inline
+DatumArrayRef Datum::theArray() const
+{
+    BSLS_ASSERT_SAFE(isArray());
+
+    const InternalDataType type = internalType();
+    if (e_INTERNAL_ARRAY == type) {
+        return theInternalArray();                                    // RETURN
+    }
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    if (e_INTERNAL_EXTENDED == type) {
+        return theLongArrayReference();                               // RETURN
+    }
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+    return theArrayReference();
+}
+
+inline
+DatumBinaryRef Datum::theBinary() const
+{
+    BSLS_ASSERT_SAFE(isBinary());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return DatumBinaryRef(static_cast&lt;const double *&gt;(d_as.d_cvp) + 1,// RETURN
+                          *static_cast&lt;const SizeType *&gt;(d_as.d_cvp));
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    const InternalDataType type = internalType();
+    switch(type) {
+      case e_INTERNAL_BINARY:
+        return DatumBinaryRef(d_data.buffer(),                        // RETURN
+                              d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET]);
+      case e_INTERNAL_BINARY_ALLOC:
+        return DatumBinaryRef(d_as.d_ptr, d_as.d_int32);              // RETURN
+      default:
+        BSLS_ASSERT_SAFE(!&quot;NOT A BINARY&quot;);
+    }
+    return DatumBinaryRef();
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+bool Datum::theBoolean() const
+{
+    BSLS_ASSERT_SAFE(isBoolean());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return static_cast&lt;bool&gt;(d_as.d_int);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return d_as.d_int32;
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+bdlt::Date Datum::theDate() const
+{
+    BSLS_ASSERT_SAFE(isDate());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::Date *&gt;(&amp;d_as.d_int);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::Date *&gt;(theInlineStorage());
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+bdlt::Datetime Datum::theDatetime() const
+{
+    BSLS_ASSERT_SAFE(isDatetime());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const InternalDataType type = internalType();
+
+    if (type == e_INTERNAL_DATETIME) {
+        return bdlt::Datetime(
+                  s_dateTimeBase + d_as.d_short,
+                  *reinterpret_cast&lt;const bdlt::Time*&gt;(&amp;d_as.d_int)); // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
+    BSLS_ASSERT_SAFE(
+            extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_ALLOC);
+    return *static_cast&lt;const bdlt::Datetime*&gt;(d_as.d_cvp);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::Datetime *&gt;(theInlineStorage());
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline // BDLD_DATUM_FORCE_INLINE
+bdlt::DatetimeInterval Datum::theDatetimeInterval() const
+{
+    BSLS_ASSERT_SAFE(isDatetimeInterval());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const InternalDataType type = internalType();
+
+    if (type == e_INTERNAL_DATETIME_INTERVAL) {
+        bdlt::DatetimeInterval result;
+        result.setTotalMilliseconds(
+            Datum_Helpers32::loadSmallInt64(d_as.d_short, d_as.d_int));
+        return result;                                                // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
+    BSLS_ASSERT_SAFE(
+        extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC);
+    return *static_cast&lt;const bdlt::DatetimeInterval *&gt;(d_as.d_cvp);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::DatetimeInterval *&gt;(
+                                                           theInlineStorage());
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+inline
+bdldfp::Decimal64 Datum::theDecimal64() const
+{
+    BSLS_ASSERT_SAFE(isDecimal64());
+    return *reinterpret_cast&lt;const bdldfp::Decimal64 *&gt;(theInlineStorage());
+}
+#endif // BSLS_PLATFORM_CPU_64_BIT
+
+inline
+double Datum::theDouble() const
+{
+    BSLS_ASSERT_SAFE(isDouble());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    if (0x7f != d_data[k_EXPONENT_MSB] ||           // exponent is not the
+        0xf0 != (d_data[k_EXPONENT_LSB] &amp; 0xf0) ||  // special &#39;7ff&#39; value
+        e_INTERNAL_INF == (d_data[k_EXPONENT_LSB] &amp; 0x0f)) { // or infinity
+        return d_double;                                              // RETURN
+    }
+    return bsl::numeric_limits&lt;double&gt;::quiet_NaN();
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return d_as.d_double;
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+DatumError Datum::theError() const
+{
+    BSLS_ASSERT_SAFE(isError());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    // If the extended type is &#39;e_EXTENDED_INTERNAL_ERROR&#39;, we are storing
+    // just a code, at the data offset.  Otherwise, we&#39;re storing an allocated
+    // object.
+
+    if (e_EXTENDED_INTERNAL_ERROR == extendedInternalType()) {
+        return DatumError(d_as.d_int);                                // RETURN
+    }
+
+    const char *data = static_cast&lt;const char *&gt;(d_as.d_cvp);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    if (e_INTERNAL_ERROR == internalType()) {
+        return DatumError(static_cast&lt;int&gt;(d_as.d_int64));            // RETURN
+    }
+
+    const char *data = reinterpret_cast&lt;const char*&gt;(d_as.d_ptr);
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+    return DatumError(
+                *reinterpret_cast&lt;const int *&gt;(data),
+                bslstl::StringRef(data + 2 * sizeof(int),
+                                  *(reinterpret_cast&lt;const int *&gt;(data) + 1)));
+}
+
+inline
+int Datum::theInteger() const
+{
+    BSLS_ASSERT_SAFE(isInteger());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return d_as.d_int;
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return d_as.d_int32;
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+bsls::Types::Int64 Datum::theInteger64() const
+{
+    BSLS_ASSERT_SAFE(isInteger64());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const InternalDataType type = internalType();
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(e_INTERNAL_INTEGER64 == type)) {
+        return theSmallInteger64();                                   // RETURN
+    }
+    BSLS_ASSERT_SAFE(e_INTERNAL_EXTENDED == type);
+    BSLS_ASSERT_SAFE(
+            e_EXTENDED_INTERNAL_INTEGER64_ALLOC == extendedInternalType());
+    return theLargeInteger64();                                       // RETURN
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return d_as.d_int64;
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+DatumMapRef Datum::theMap() const
+{
+    BSLS_ASSERT_SAFE(isMap());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const DatumMapEntry *map = static_cast&lt;const DatumMapEntry *&gt;(d_as.d_cvp);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    const DatumMapEntry *map = static_cast&lt;const DatumMapEntry *&gt;(d_as.d_ptr);
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+    if (map) {
+        // Map header takes first DatumMapEntry
+        const Datum_MapHeader *header =
+                                reinterpret_cast&lt;const Datum_MapHeader *&gt;(map);
+
+        return DatumMapRef(map + 1,
+                           header-&gt;d_size,
+                           header-&gt;d_sorted,
+                           header-&gt;d_ownsKeys);                       // RETURN
+    }
+    return DatumMapRef(0, 0, false, false);
+}
+
+inline
+bslstl::StringRef Datum::theString() const
+{
+    BSLS_ASSERT_SAFE(isString());
+
+    const InternalDataType type = internalType();
+    switch(type) {
+      case e_INTERNAL_SHORTSTRING:
+        return theShortString();                                      // RETURN
+      case e_INTERNAL_STRING:
+        return theInternalString();                                   // RETURN
+      case e_INTERNAL_STRING_REFERENCE:
+        return theStringReference();                                  // RETURN
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+      case e_INTERNAL_LONGEST_SHORTSTRING:
+        return theLongestShortString();                               // RETURN
+      default:
+        return theLongStringReference();                              // RETURN
+#else  // BSLS_PLATFORM_CPU_32_BIT
+      default: {
+        BSLS_ASSERT(false);
+        return bslstl::StringRef();                                   // RETURN
+      }
+#endif // BSLS_PLATFORM_CPU_32_BIT
+    }
+}
+
+inline
+bdlt::Time Datum::theTime() const
+{
+    BSLS_ASSERT_SAFE(isTime());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::Time *&gt;(&amp;d_as.d_int);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return *reinterpret_cast&lt;const bdlt::Time *&gt;(theInlineStorage());
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+DatumUdt Datum::theUdt() const
+{
+    BSLS_ASSERT_SAFE(isUdt());
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return DatumUdt(const_cast&lt;void*&gt;(d_as.d_cvp), d_as.d_ushort);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    return DatumUdt(d_as.d_ptr, d_as.d_int32);
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
+Datum::DataType Datum::type() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    static const DataType convert[] = {
+          e_REAL                        // e_INTERNAL_INF                = 0x00
+        , e_STRING                      // e_INTERNAL_LONGEST_SHORTSTR   = 0x01
+        , e_BOOLEAN                     // e_INTERNAL_BOOLEAN            = 0x02
+        , e_STRING                      // e_INTERNAL_SHORTSTRING        = 0x03
+        , e_STRING                      // e_INTERNAL_STRING             = 0x04
+        , e_DATE                        // e_INTERNAL_DATE               = 0x05
+        , e_TIME                        // e_INTERNAL_TIME               = 0x06
+        , e_DATETIME                    // e_INTERNAL_DATETIME           = 0x07
+        , e_DATETIME_INTERVAL           // e_INTERNAL_DATETIME_INTERVAL  = 0x08
+        , e_INTEGER                     // e_INTERNAL_INTEGER            = 0x09
+        , e_INTEGER64                   // e_INTERNAL_INTEGER64          = 0x0a
+        , e_USERDEFINED                 // e_INTERNAL_USERDEFINED        = 0x0b
+        , e_ARRAY                       // e_INTERNAL_ARRAY              = 0x0c
+        , e_STRING                      // e_INTERNAL_STRING_REFERENCE   = 0x0d
+        , e_ARRAY                       // e_INTERNAL_ARRAY_REFERENCE    = 0x0e
+        , k_NUM_TYPES                   // ----------------------------  = 0x0f
+        , e_REAL                        // e_INTERNAL_REAL               = 0x10
+    };
+
+    const InternalDataType type = internalType();
+    if (e_INTERNAL_EXTENDED == type) {
+        return typeFromExtendedInternalType();                        // RETURN
+    }
+    return convert[type];
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    static const DataType convert[] = {
+        e_ERROR                            // e_INTERNAL_UNINITIALIZED; invalid
+      , e_REAL                             // e_INTERNAL_INF               = 1
+      , e_NIL                              // e_INTERNAL_NIL               = 2
+      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3
+      , e_STRING                           // e_INTERNAL_SHORTSTRING       = 4
+      , e_STRING                           // e_INTERNAL_STRING            = 5
+      , e_DATE                             // e_INTERNAL_DATE              = 6
+      , e_TIME                             // e_INTERNAL_TIME              = 7
+      , e_DATETIME                         // e_INTERNAL_DATETIME          = 8
+      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL = 9
+      , e_INTEGER                          // e_INTERNAL_INTEGER           = 10
+      , e_INTEGER64                        // e_INTERNAL_INTEGER64         = 11
+      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED       = 12
+      , e_ARRAY                            // e_INTERNAL_ARRAY             = 13
+      , e_STRING                           // e_INTERNAL_STRING_REFERENCE  = 14
+      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE   = 15
+      , e_REAL                             // e_INTERNAL_REAL              = 16
+      , e_MAP                              // e_INTERNAL_MAP               = 17
+      , e_MAP                              // e_INTERNAL_OWNED_MAP         = 18
+      , e_ERROR                            // e_INTERNAL_ERROR             = 19
+      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC       = 20
+      , e_BINARY                           // e_INTERNAL_BINARY            = 21
+      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC      = 22
+      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 23
+    };
+
+    const InternalDataType type = internalType();
+
+    BSLS_ASSERT_SAFE(e_INTERNAL_UNINITIALIZED != type);
+
+    return convert[type];
+#endif // BSLS_PLATFORM_CPU_32_BIT
+}
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+template &lt;class BDLD_VISITOR&gt;
+void Datum::apply(BDLD_VISITOR&amp; visitor) const
+{
+    switch (internalType()) {
+      case e_INTERNAL_INF:
+        visitor(bsl::numeric_limits&lt;double&gt;::infinity());
+        break;
+      case e_INTERNAL_BOOLEAN:
+        visitor(theBoolean());
+        break;
+      case e_INTERNAL_SHORTSTRING:
+        visitor(theShortString());
+        break;
+      case e_INTERNAL_LONGEST_SHORTSTRING:
+        visitor(theLongestShortString());
+        break;
+      case e_INTERNAL_STRING:
+        visitor(theInternalString());
+        break;
+      case e_INTERNAL_DATE:
+        visitor(theDate());
+        break;
+      case e_INTERNAL_TIME:
+        visitor(theTime());
+        break;
+      case e_INTERNAL_DATETIME:
+        visitor(theDatetime());
+        break;
+      case e_INTERNAL_DATETIME_INTERVAL:
+        visitor(theDatetimeInterval());
+        break;
+      case e_INTERNAL_INTEGER:
+        visitor(theInteger());
+        break;
+      case e_INTERNAL_INTEGER64:
+        visitor(theInteger64());
+        break;
+      case e_INTERNAL_USERDEFINED:
+        visitor(theUdt());
+        break;
+      case e_INTERNAL_ARRAY:
+        visitor(theInternalArray());
+        break;
+      case e_INTERNAL_STRING_REFERENCE:
+        visitor(theStringReference());
+        break;
+      case e_INTERNAL_ARRAY_REFERENCE:
+        visitor(theArrayReference());
+        break;
+      case e_INTERNAL_EXTENDED:
+        switch (extendedInternalType()) {
+          case e_EXTENDED_INTERNAL_MAP:
+          case e_EXTENDED_INTERNAL_OWNED_MAP:  // fall through
+            visitor(theMap());
+            break;
+          case e_EXTENDED_INTERNAL_NAN2:
+            visitor(theDouble());
+            break;
+          case e_EXTENDED_INTERNAL_ERROR:
+          case e_EXTENDED_INTERNAL_ERROR_ALLOC: // fall through
+            visitor(theError());
+            break;
+          case e_EXTENDED_INTERNAL_SREF_ALLOC:
+            visitor(theLongStringReference());
+            break;
+          case e_EXTENDED_INTERNAL_AREF_ALLOC:
+            visitor(theLongArrayReference());
+            break;
+          case e_EXTENDED_INTERNAL_DATETIME_ALLOC:
+            visitor(theDatetime());
+            break;
+          case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC:
+            visitor(theDatetimeInterval());
+            break;
+          case e_EXTENDED_INTERNAL_INTEGER64_ALLOC:
+            visitor(theInteger64());
+            break;
+          case e_EXTENDED_INTERNAL_BINARY_ALLOC:
+            visitor(theBinary());
+            break;
+          case e_EXTENDED_INTERNAL_DECIMAL64:
+          case e_EXTENDED_INTERNAL_DECIMAL64_SPECIAL:
+          case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC:
+            visitor(theDecimal64());
+            break;
+          case e_EXTENDED_INTERNAL_NIL:
+            visitor(bslmf::Nil());
+            break;
+          default:
+            BSLS_ASSERT_SAFE(!&quot;UNKNOWN TYPE&quot;);
+        }
+        break;
+      case e_INTERNAL_REAL:
+        visitor(d_double);
+        break;
+      default:
+        BSLS_ASSERT_SAFE(!&quot;Unknown type!!&quot;);
+    }
+}
+
+#else  // BSLS_PLATFORM_CPU_32_BIT
+
+template &lt;class BDLD_VISITOR&gt;
+void Datum::apply(BDLD_VISITOR&amp; visitor) const
+{
+    switch (internalType()) {
+      case e_INTERNAL_INF:
+        visitor(bsl::numeric_limits&lt;double&gt;::infinity());
+        break;
+      case e_INTERNAL_NIL:
+        visitor(bslmf::Nil());
+        break;
+      case e_INTERNAL_BOOLEAN:
+        visitor(theBoolean());
+        break;
+      case e_INTERNAL_SHORTSTRING:
+        visitor(theShortString());
+        break;
+      case e_INTERNAL_STRING:
+        visitor(theInternalString());
+        break;
+      case e_INTERNAL_DATE:
+        visitor(theDate());
+        break;
+      case e_INTERNAL_TIME:
+        visitor(theTime());
+        break;
+      case e_INTERNAL_DATETIME:
+        visitor(theDatetime());
+        break;
+      case e_INTERNAL_DATETIME_INTERVAL:
+        visitor(theDatetimeInterval());
+        break;
+      case e_INTERNAL_INTEGER:
+        visitor(theInteger());
+        break;
+      case e_INTERNAL_INTEGER64:
+        visitor(theInteger64());
+        break;
+      case e_INTERNAL_USERDEFINED:
+        visitor(theUdt());
+        break;
+      case e_INTERNAL_ARRAY:
+        visitor(theInternalArray());
+        break;
+      case e_INTERNAL_STRING_REFERENCE:
+        visitor(theStringReference());
+        break;
+      case e_INTERNAL_ARRAY_REFERENCE:
+        visitor(theArrayReference());
+        break;
+      case e_INTERNAL_MAP:          // fall through
+      case e_INTERNAL_OWNED_MAP:
+        visitor(theMap());
+        break;
+      case e_INTERNAL_ERROR:        // fall through
+      case e_INTERNAL_ERROR_ALLOC:
+        visitor(theError());
+        break;
+      case e_INTERNAL_REAL:
+        visitor(d_as.d_double);
+        break;
+      case e_INTERNAL_BINARY:       // fall through
+      case e_INTERNAL_BINARY_ALLOC:
+        visitor(theBinary());
+        break;
+      case e_INTERNAL_DECIMAL64:
+        visitor(theDecimal64());
+        break;
+      case e_INTERNAL_UNINITIALIZED:
+        BSLS_ASSERT(!&quot;Uninitialized Datum!!&quot;);
+        break;
+      default:
+        BSLS_ASSERT_SAFE(!&quot;Unknown type!!&quot;);
+    }
+}
+
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+                         // -------------------
+                         // class DatumArrayRef
+                         // -------------------
+
+// CREATORS
+inline
+DatumArrayRef::DatumArrayRef()
+: d_data_p(0)
+, d_length(0)
+{
+}
+
+inline
+DatumArrayRef::DatumArrayRef(const Datum *data,
+                             SizeType     length)
+: d_data_p(data)
+, d_length(length)
+{
+    BSLS_ASSERT_SAFE(data || 0 == length);
+}
+
+// ACCESSORS
+inline
+const Datum&amp; DatumArrayRef::operator[](SizeType index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; d_length);
+    return d_data_p[index];
+}
+
+inline
+const Datum *DatumArrayRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+DatumArrayRef::SizeType DatumArrayRef::length() const
+{
+    return d_length;
+}
+
+                            // -------------------
+                            // class DatumMapEntry
+                            // -------------------
+// CREATORS
+inline
+DatumMapEntry::DatumMapEntry()
+{
+}
+
+inline
+DatumMapEntry::DatumMapEntry(const bslstl::StringRef&amp; key,
+                             const Datum&amp;             value)
+: d_key_p(key)
+, d_value(value)
+{
+}
+
+// MANIPULATORS
+inline
+void DatumMapEntry::setKey(const bslstl::StringRef&amp; key)
+{
+    d_key_p = key;
+}
+
+inline
+void DatumMapEntry::setValue(const Datum&amp; value)
+{
+    d_value = value;
+}
+
+// ACCESSORS
+inline
+const bslstl::StringRef&amp; DatumMapEntry::key() const
+{
+    return d_key_p;
+}
+
+inline
+const Datum&amp; DatumMapEntry::value() const
+{
+    return d_value;
+}
+
+                          // -----------------
+                          // class DatumMapRef
+                          // -----------------
+// CREATORS
+inline
+DatumMapRef::DatumMapRef(const DatumMapEntry *data,
+                         SizeType             size,
+                         bool                 sorted,
+                         bool                 ownsKeys)
+: d_data_p(data)
+, d_size(size)
+, d_sorted(sorted)
+, d_ownsKeys(ownsKeys)
+{
+    BSLS_ASSERT_SAFE((size &amp;&amp; data) || !size);
+    if (0 == size) {
+        d_ownsKeys = false;
+    }
+}
+
+// ACCESSORS
+inline
+const DatumMapEntry&amp; DatumMapRef::operator[](SizeType index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; d_size);
+    return d_data_p[index];
+}
+
+inline
+const DatumMapEntry *DatumMapRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+bool DatumMapRef::isSorted() const
+{
+    return d_sorted;
+}
+
+inline
+bool DatumMapRef::ownsKeys() const
+{
+    return d_ownsKeys;
+}
+
+inline
+DatumMapRef::SizeType DatumMapRef::size() const
+{
+    return d_size;
+}
+
+                         // --------------------------
+                         // class DatumMutableArrayRef
+                         // --------------------------
+
+// CREATORS
+inline
+DatumMutableArrayRef::DatumMutableArrayRef()
+: d_data_p(0)
+, d_length_p(0)
+{
+}
+
+inline
+DatumMutableArrayRef::DatumMutableArrayRef(Datum *data, SizeType *length)
+: d_data_p(data)
+, d_length_p(length)
+{
+}
+
+// ACCESSORS
+inline
+Datum *DatumMutableArrayRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+DatumMutableArrayRef::SizeType *DatumMutableArrayRef::length() const
+{
+    return d_length_p;
+}
+
+                          // ------------------------
+                          // class DatumMutableMapRef
+                          // ------------------------
+
+// CREATORS
+inline
+DatumMutableMapRef::DatumMutableMapRef()
+: d_data_p(0)
+, d_size_p(0)
+, d_sorted_p(0)
+{
+}
+
+inline
+DatumMutableMapRef::DatumMutableMapRef(DatumMapEntry *data,
+                                       SizeType      *size,
+                                       bool          *sorted)
+: d_data_p(data)
+, d_size_p(size)
+, d_sorted_p(sorted)
+{
+}
+
+// ACCESSORS
+inline
+DatumMapEntry *DatumMutableMapRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+DatumMutableMapRef::SizeType *DatumMutableMapRef::size() const
+{
+    return d_size_p;
+}
+
+inline
+bool *DatumMutableMapRef::sorted() const
+{
+    return d_sorted_p;
+}
+
+                     // ----------------------------------
+                     // class DatumMutableMapOwningKeysRef
+                     // ----------------------------------
+
+// CREATORS
+inline
+DatumMutableMapOwningKeysRef::DatumMutableMapOwningKeysRef()
+: d_data_p(0)
+, d_size_p(0)
+, d_keys_p(0)
+, d_sorted_p(0)
+{
+}
+
+inline
+DatumMutableMapOwningKeysRef::DatumMutableMapOwningKeysRef(
+                                                         DatumMapEntry *data,
+                                                         SizeType      *size,
+                                                         char          *keys,
+                                                         bool          *sorted)
+: d_data_p(data)
+, d_size_p(size)
+, d_keys_p(keys)
+, d_sorted_p(sorted)
+{
+}
+
+// ACCESSORS
+inline
+DatumMapEntry *DatumMutableMapOwningKeysRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+char *DatumMutableMapOwningKeysRef::keys() const
+{
+    return d_keys_p;
+}
+
+inline
+DatumMutableMapOwningKeysRef::SizeType *
+DatumMutableMapOwningKeysRef::size() const
+{
+    return d_size_p;
+}
+
+inline
+bool *DatumMutableMapOwningKeysRef::sorted() const
+{
+    return d_sorted_p;
+}
+
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdld::operator!=(const Datum&amp; lhs, const Datum&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator!=(const DatumArrayRef&amp; lhs, const DatumArrayRef&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator==(const DatumMapEntry&amp; lhs, const DatumMapEntry&amp; rhs)
+{
+    return (lhs.key() == rhs.key()) &amp;&amp; (lhs.value() == rhs.value());
+}
+
+inline
+bool bdld::operator!=(const DatumMapEntry&amp; lhs, const DatumMapEntry&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator!=(const DatumMapRef&amp; lhs, const DatumMapRef&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const Datum&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumArrayRef&amp; rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumMapEntry&amp; rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumMapRef&amp; rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

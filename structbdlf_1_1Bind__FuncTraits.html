@@ -78,7 +78,7 @@
 <h3>template&lt;class RET, class FUNC&gt;<br/>
  struct bdlf::Bind_FuncTraits&lt; RET, FUNC &gt;</h3>
 
-<p>This <code>struct</code> provides various traits of the functor type <code>FUNC</code> documented below. If <code>RET</code> is <code><a class="el" href="structbslmf_1_1Nil.html">bslmf::Nil</a></code>, then the return type is inferred by using either <code><a class="el" href="structbslmf_1_1FunctionPointerTraits.html">bslmf::FunctionPointerTraits</a></code>, <code><a class="el" href="structbslmf_1_1MemberFunctionPointerTraits.html">bslmf::MemberFunctionPointerTraits</a></code>, or <code>FUNC::result_type</code> as appropriate. <br/>
+<p>This <code>struct</code> provides various traits of the functor type <code>FUNC</code> documented below. If <code>RET</code> is <code><a class="el" href="structbslmf_1_1Nil.html">bslmf::Nil</a></code>, then the return type is inferred by using either <code><a class="el" href="structbslmf_1_1FunctionPointerTraits.html">bslmf::FunctionPointerTraits</a></code>, <code><a class="el" href="structbslmf_1_1MemberFunctionPointerTraits.html">bslmf::MemberFunctionPointerTraits</a></code>, or <code>typename FUNC::result_type</code> as appropriate. <br/>
 <br/>
 </p>
 <div class="fragment"><pre class="fragment"> ENUMERATIONS
@@ -109,7 +109,7 @@
 <li><a class="el" href="bdlf__bind_8h_source.html">bdlf_bind.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:43 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:28 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

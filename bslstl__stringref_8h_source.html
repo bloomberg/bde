@@ -19,10 +19,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      bslstl::StringRef: reference wrapper for a &#39;char&#39; string
 //  bslstl::StringRefWide: reference wrapper for a &#39;wchar_t&#39; string
 //
-//@DESCRIPTION: This component defines two classes, &#39;bsls::StringRef&#39; and
-// &#39;bsls::StringRefWide&#39;, each providing a reference to a non-modifiable string
-// value having an external representation.  The type of characters in the
-// string value can be either &#39;char&#39; (for &#39;bslstl::StringRef&#39;) or &#39;wchar_t&#39;
+//@DESCRIPTION: This component defines two classes, &#39;bslstl::StringRef&#39; and
+// &#39;bslstl::StringRefWide&#39;, each providing a reference to a non-modifiable
+// string value having an external representation.  The type of characters in
+// the string value can be either &#39;char&#39; (for &#39;bslstl::StringRef&#39;) or &#39;wchar_t&#39;
 // (for &#39;bslstl::StringRefWide&#39;).
 //
 // The invariant of &#39;bslstl::StringRef&#39; is that it always has a valid
@@ -261,6 +261,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_assert.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include &lt;bslstl_iterator.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLSTL_STRING
 #include &lt;bslstl_string.h&gt;
 #endif
@@ -331,13 +335,14 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
 
   public:
     // PUBLIC TYPES
-    typedef const CHAR_TYPE     value_type;
-    typedef const CHAR_TYPE&amp;    reference;
-    typedef const CHAR_TYPE&amp;    const_reference;
-    typedef const CHAR_TYPE    *iterator;
-    typedef const CHAR_TYPE    *const_iterator;
-    typedef std::ptrdiff_t      difference_type;
-    typedef std::size_t         size_type;
+    typedef const CHAR_TYPE                        value_type;
+    typedef const CHAR_TYPE&amp;                       reference;
+    typedef const CHAR_TYPE&amp;                       const_reference;
+    typedef const CHAR_TYPE                       *iterator;
+    typedef const CHAR_TYPE                       *const_iterator;
+    typedef bsl::reverse_iterator&lt;const_iterator&gt;  const_reverse_iterator;
+    typedef std::ptrdiff_t                         difference_type;
+    typedef std::size_t                            size_type;
         // Standard Library general container requirements.
 
   public:
@@ -387,11 +392,12 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // object.  The external representation must remain valid as long as it
         // is bound to this string reference.
 
-    StringRefImp(const StringRefImp&amp; original);
+    //! StringRefImp(const StringRefImp&amp; original) = default;
         // Create a string-reference object having a valid &#39;std::string&#39; value,
         // whose external representation is defined by the specified &#39;original&#39;
         // object.  The external representation must remain valid as long as it
-        // is bound to this string reference.
+        // is bound to this string reference.  Note that this trivial copy
+        // constructor&#39;s definition is compiler generated.
 
     StringRefImp(const StringRefImp&amp; original,
                  int                 startIndex,
@@ -407,7 +413,7 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // Note that if &#39;startIndex&#39; is &#39;original.length()&#39; an empty string
         // reference is returned.
 
-    // ~StringRefImp() = default;
+    //! ~StringRefImp() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -482,10 +488,23 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
         // object is valid and is bound to the same string.
 
     const_iterator end() const;
-        // Return an STL-compatible iterator one past the last character of the
+        // Return an STL-compatible iterator one-past-the-last character of the
         // string bound to this string reference or &#39;begin()&#39; if the string
         // reference is empty.  The iterator remains valid as long as this
         // object is valid and is bound to the same string.
+
+    const_reverse_iterator rbegin() const;
+        // Return an STL-compatible reverse iterator to the last character of
+        // the string bound to this string reference or &#39;rend()&#39; if the string
+        // reference is empty.  The iterator remains valid as long as this
+        // object is valid and is bound to the same string.
+
+    const_reverse_iterator rend() const;
+        // Return an STL-compatible reverse iterator to the
+        // prior-to-the-beginning character of the string bound to this string
+        // reference or &#39;rbegin()&#39; if the string reference is empty.  The
+        // iterator remains valid as long as this object is valid and is bound
+        // to the same string.
 
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
@@ -795,13 +814,6 @@ StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
 
 template &lt;class CHAR_TYPE&gt;
 inline
-StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(const StringRefImp&lt;CHAR_TYPE&gt;&amp; original)
-: Base(original.begin(), original.end())
-{
-}
-
-template &lt;class CHAR_TYPE&gt;
-inline
 StringRefImp&lt;CHAR_TYPE&gt;::StringRefImp(
                                   const StringRefImp&lt;CHAR_TYPE&gt;&amp; original,
                                   int                            startIndex,
@@ -921,6 +933,22 @@ typename StringRefImp&lt;CHAR_TYPE&gt;::const_iterator
 
 template &lt;class CHAR_TYPE&gt;
 inline
+typename StringRefImp&lt;CHAR_TYPE&gt;::const_reverse_iterator
+    StringRefImp&lt;CHAR_TYPE&gt;::rbegin() const
+{
+    return const_reverse_iterator(end());
+}
+
+template &lt;class CHAR_TYPE&gt;
+inline
+typename StringRefImp&lt;CHAR_TYPE&gt;::const_reverse_iterator
+    StringRefImp&lt;CHAR_TYPE&gt;::rend() const
+{
+    return const_reverse_iterator(begin());
+}
+
+template &lt;class CHAR_TYPE&gt;
+inline
 const CHAR_TYPE *StringRefImp&lt;CHAR_TYPE&gt;::data() const
 {
     return begin();
@@ -958,7 +986,8 @@ int StringRefImp&lt;CHAR_TYPE&gt;::compare(
                     other.data(),
                     native_std::min(this-&gt;length(), other.length()));
 
-    return result != 0 ? result : this-&gt;length() - other.length();
+    return result != 0 ? result
+                       : static_cast&lt;int&gt;(this-&gt;length() - other.length());
 }
 
 }  // close package namespace
@@ -1417,6 +1446,8 @@ void bslstl::hashAppend(HASHALG&amp; hashAlg,
 }
 
 }  // close enterprise namespace
+
+
 
 #endif
 

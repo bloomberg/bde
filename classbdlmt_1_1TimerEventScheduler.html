@@ -85,7 +85,7 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><b>ClockData</b></td></tr>
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a3fa1404788ae8acbdae06607b39c9370a74de58efaf4a23d94626ddfaaf5d87e5">e_INVALID_HANDLE</a> =  -1
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a778eb6bb1c2567fdc5d161a4ea0a0c58a74de58efaf4a23d94626ddfaaf5d87e5">e_INVALID_HANDLE</a> =  -1
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a04b1746361f1ab08e3b03c373e6d05de">Handle</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef bsl::function&lt; void(const <br class="typebreak"/>
@@ -117,6 +117,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a04b1746361f1ab08e3b03c373e6d05de">Handle</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a66dacc7808e906edd79f9087afc97d59">startClock</a> (const <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> &amp;interval, const bsl::function&lt; void()&gt; &amp;callback, const <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> &amp;startTime=<a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>(0))</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#adb0376a0b0123f54328339c9aea0ddc7">cancelClock</a> (<a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a04b1746361f1ab08e3b03c373e6d05de">Handle</a> handle, bool wait=false)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a3cfb6059b287f1ebc1b40aadd73220cb">cancelAllClocks</a> (bool wait=false)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbsls_1_1SystemClockType.html#a6e75b1e793b629b48e21b6cee448d56b">bsls::SystemClockType::Enum</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#a73034c40aeba79731184cdd1adaf07c7">clockType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#ad367132660443e360b392f8bc69b893f">numClocks</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlmt_1_1TimerEventScheduler.html#aba39879251646edfc5e692c5d1cabbbb">numEvents</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
@@ -169,7 +170,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="a3fa1404788ae8acbdae06607b39c9370"></a><!-- doxytag: member="bdlmt::TimerEventScheduler::@217" ref="a3fa1404788ae8acbdae06607b39c9370" args="" -->
+<a class="anchor" id="a778eb6bb1c2567fdc5d161a4ea0a0c58"></a><!-- doxytag: member="bdlmt::TimerEventScheduler::@209" ref="a778eb6bb1c2567fdc5d161a4ea0a0c58" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -180,7 +181,7 @@ Friends</h2></td></tr>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a3fa1404788ae8acbdae06607b39c9370a74de58efaf4a23d94626ddfaaf5d87e5"></a><!-- doxytag: member="e_INVALID_HANDLE" ref="a3fa1404788ae8acbdae06607b39c9370a74de58efaf4a23d94626ddfaaf5d87e5" args="" -->e_INVALID_HANDLE</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a778eb6bb1c2567fdc5d161a4ea0a0c58a74de58efaf4a23d94626ddfaaf5d87e5"></a><!-- doxytag: member="e_INVALID_HANDLE" ref="a778eb6bb1c2567fdc5d161a4ea0a0c58a74de58efaf4a23d94626ddfaaf5d87e5" args="" -->e_INVALID_HANDLE</em>&nbsp;</td><td>
 <p>value of an invalid event or clock handle </p>
 </td></tr>
 </table>
@@ -558,7 +559,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Stop dispatching events on this scheduler, but do not remove any pending event. Block until all pending jobs are finished, then terminate the dispatcher thread and return. If this scheduler is already stopped then this invocation has no effect. The behavior is undefined if this function is called by a job enqueued to the scheduler that is to be stopped. This scheduler can be restarted by invoking <code>start</code>. </p>
+<p>Stop dispatching events on this scheduler, but do not remove any pending event. If the dispatcher thread is in the middle of dispatching some events, block until those events are disptached. Then terminate the dispatcher thread and return. If this scheduler is already stopped then this invocation has no effect. The behavior is undefined if this function is called by a job enqueued to the scheduler that is to be stopped. This scheduler can be restarted by invoking <code>start</code>. </p>
 
 </div>
 </div>
@@ -829,6 +830,24 @@ Friends</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a73034c40aeba79731184cdd1adaf07c7"></a><!-- doxytag: member="bdlmt::TimerEventScheduler::clockType" ref="a73034c40aeba79731184cdd1adaf07c7" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structbsls_1_1SystemClockType.html#a6e75b1e793b629b48e21b6cee448d56b">bsls::SystemClockType::Enum</a> bdlmt::TimerEventScheduler::clockType </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the value of the clock type that this object was created with. </p>
+
+</div>
+</div>
 <a class="anchor" id="ad367132660443e360b392f8bc69b893f"></a><!-- doxytag: member="bdlmt::TimerEventScheduler::numClocks" ref="ad367132660443e360b392f8bc69b893f" args="() const " -->
 <div class="memitem">
 <div class="memproto">
@@ -883,7 +902,7 @@ Friends</h2></td></tr>
 <li><a class="el" href="bdlmt__timereventscheduler_8h_source.html">bdlmt_timereventscheduler.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:46 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:32 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

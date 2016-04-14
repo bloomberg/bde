@@ -493,7 +493,17 @@ class BufferedSequentialPool {
         // provided at construction, and makes the memory from the entire
         // external buffer supplied at construction available for subsequent
         // allocations, but has no effect on the contents of the buffer.  Note
-        // that this pool is reset to its initial state by this method.
+        // that this pool is reset to its initial state by this method. The
+        // effect of using a pointer after this call that was obtained from
+        // this object before this call is undefined.
+
+    void rewind();
+        // Release all memory allocated through this pool.  Return to the
+        // construction-time supplied allocator all but the last block obtained
+        // from it, if any, and satisfy subsequent allocations from that block,
+        // or from the buffer supplied upon construction, where possible. The
+        // effect of using a pointer after this call that was obtained from
+        // this object before this call is undefined.
 };
 
 }  // close package namespace
@@ -604,6 +614,13 @@ void BufferedSequentialPool::release()
 {
     d_buffer.replaceBuffer(d_initialBuffer_p, d_initialSize);
     d_blockList.release();
+}
+
+inline
+void BufferedSequentialPool::rewind()
+{
+    d_buffer.release();  // allocatefrom beginning of current block
+    d_blockList.rewind();  // free up previously allocated blocks
 }
 
 }  // close package namespace

@@ -85,13 +85,15 @@ Public Types</h2></td></tr>
 <a class="el" href="structbdls_1_1FilesystemUtil.html#a58bf107a8193356bdedef8cd4f113c58a205150e726a7864811d00d41b8a7aad9">e_SEEK_FROM_CURRENT</a> =  1, 
 <a class="el" href="structbdls_1_1FilesystemUtil.html#a58bf107a8193356bdedef8cd4f113c58a1ce8f2d753a1b90f618d33cd16faf79b">e_SEEK_FROM_END</a> =  2
  }</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbdls_1_1FilesystemUtil.html#aa022326552362820851c9e933a1ce16fa4c737ba4540e64b6f23c0a5e97b8b8b0">k_DEFAULT_FILE_GROWTH_INCREMENT</a> =  65536
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbdls_1_1FilesystemUtil.html#a7d5f214f2b8a0388b37e0f7fc96dac12a4c737ba4540e64b6f23c0a5e97b8b8b0">k_DEFAULT_FILE_GROWTH_INCREMENT</a> =  0x10000
  }</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbdls_1_1FilesystemUtil.html#a07d703e938149eaf211611a29994b9daa9caf9d8808fff857e210fb698a84164f">k_ERROR_LOCKING_CONFLICT</a> =  1, 
-<a class="el" href="structbdls_1_1FilesystemUtil.html#a07d703e938149eaf211611a29994b9daa2102f87be97d5f80fc942329c2eeaaa4">k_BAD_FILE_DESCRIPTOR</a> =  -1
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbdls_1_1FilesystemUtil.html#a0de0c4ea532b059fc0a04b291ebd4ab6a9caf9d8808fff857e210fb698a84164f">k_ERROR_LOCKING_CONFLICT</a> =  1, 
+<a class="el" href="structbdls_1_1FilesystemUtil.html#a0de0c4ea532b059fc0a04b291ebd4ab6ae1be6386de6f2a42d2f43691aaa5c98b">k_ERROR_LOCKING_INTERRUPTED</a> =  2, 
+<a class="el" href="structbdls_1_1FilesystemUtil.html#a0de0c4ea532b059fc0a04b291ebd4ab6a2102f87be97d5f80fc942329c2eeaaa4">k_BAD_FILE_DESCRIPTOR</a> =  -1
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#aaf288297e2a9b65fdcdd18c2aec66c3b">FileOpenPolicy</a> { <a class="el" href="structbdls_1_1FilesystemUtil.html#aaf288297e2a9b65fdcdd18c2aec66c3ba7114b36af4dfaace24aa27a575b1d7d1">e_OPEN</a>, 
 <a class="el" href="structbdls_1_1FilesystemUtil.html#aaf288297e2a9b65fdcdd18c2aec66c3ba5f3858914719d2049f7b07b7bd2933fb">e_CREATE</a>, 
+<a class="el" href="structbdls_1_1FilesystemUtil.html#aaf288297e2a9b65fdcdd18c2aec66c3ba23961f75d1abf61be4dae930303482a6">e_CREATE_PRIVATE</a>, 
 <a class="el" href="structbdls_1_1FilesystemUtil.html#aaf288297e2a9b65fdcdd18c2aec66c3baba2fe73a44186f61aff5f6c4fded38ba">e_OPEN_OR_CREATE</a>
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#ab79b11034df3e25311be375da986b908">FileIOPolicy</a> { <br/>
@@ -126,8 +128,14 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#ac3144f9ffdb5975a7c442345d8a33286">getLastModificationTime</a> (<a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> *time, const char *path)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">createDirectories</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;path, bool isLeafDirectoryFlag=false)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a20d68d8eb8c6b5cab43754d3d0606932">createDirectories</a> (const char *path, bool isLeafDirectoryFlag=false)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a17aa19c48b57f1b1df9a5ebf68f9c154">createPrivateDirectory</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;path)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdls_1_1FilesystemUtil.html#af177603b027970757c45b67984235d36">FileDescriptor</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#ae9a635878b67dc8d8cd3a10a029e76c3">createTemporaryFile</a> (<a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *outPath, const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;prefix)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a3b7129e9b10564eaf0576e336ed0558d">createTemporaryDirectory</a> (<a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *outPath, const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;prefix)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a7a2d9d6a74b4adbeb36697f142ae18d9">makeUnsafeTemporaryFilename</a> (<a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *outPath, const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;prefix)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#ac2624b29e9562de9b813e432d35ab1cc">visitPaths</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a68525ed232c20371319d1abd46a330d7">visitPaths</a> (const char *pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a117e54c713fa55a8b6eafe44f798ff8f">visitTree</a> (const char *root, const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor, bool sortFlag=false)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#ae51eb97e04d6aa084ac9986da4d660fc">visitTree</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;root, const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor, bool sortFlag=false)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#aeaff1fd7c247091e669bfdb6f0654c4f">findMatchingPaths</a> (<a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt; <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &gt; *result, const char *pattern)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a88bb46abc6dd65ed3d5bb42c997b614c">getAvailableSpace</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;path)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a8c6cfe997793e8dca74ead92307f72f9">getAvailableSpace</a> (const char *path)</td></tr>
@@ -153,8 +161,8 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#aec34a82f2a4824a17e0728450e6578e6">growFile</a> (<a class="el" href="structbdls_1_1FilesystemUtil.html#af177603b027970757c45b67984235d36">FileDescriptor</a> descriptor, <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a> size, bool reserveFlag=false, bsl::size_t increment=k_DEFAULT_FILE_GROWTH_INCREMENT)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a20f0a6a45e778c787ea12fb5f5b140c9">k_OFFSET_MAX</a> = (9223372036854775807LL)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a750eef508b438afee8674462c7612a29">k_OFFSET_MIN</a> = (-9223372036854775807LL-1)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a20f0a6a45e778c787ea12fb5f5b140c9">k_OFFSET_MAX</a> = (0x7FFFFFFFFFFFFFFFLL)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#a750eef508b438afee8674462c7612a29">k_OFFSET_MIN</a> = (-0x7FFFFFFFFFFFFFFFLL-1)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structbdls_1_1FilesystemUtil.html#af177603b027970757c45b67984235d36">FileDescriptor</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdls_1_1FilesystemUtil.html#af6eb8fae5d490a49997d7e4fc59ae467">k_INVALID_FD</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
@@ -214,7 +222,7 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa022326552362820851c9e933a1ce16f"></a><!-- doxytag: member="bdls::FilesystemUtil::@219" ref="aa022326552362820851c9e933a1ce16f" args="" -->
+<a class="anchor" id="a7d5f214f2b8a0388b37e0f7fc96dac12"></a><!-- doxytag: member="bdls::FilesystemUtil::@212" ref="a7d5f214f2b8a0388b37e0f7fc96dac12" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -225,8 +233,8 @@ Static Public Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="aa022326552362820851c9e933a1ce16fa4c737ba4540e64b6f23c0a5e97b8b8b0"></a><!-- doxytag: member="k_DEFAULT_FILE_GROWTH_INCREMENT" ref="aa022326552362820851c9e933a1ce16fa4c737ba4540e64b6f23c0a5e97b8b8b0" args="" -->k_DEFAULT_FILE_GROWTH_INCREMENT</em>&nbsp;</td><td>
-<p>default block size by which to grow files </p>
+<tr><td valign="top"><em><a class="anchor" id="a7d5f214f2b8a0388b37e0f7fc96dac12a4c737ba4540e64b6f23c0a5e97b8b8b0"></a><!-- doxytag: member="k_DEFAULT_FILE_GROWTH_INCREMENT" ref="a7d5f214f2b8a0388b37e0f7fc96dac12a4c737ba4540e64b6f23c0a5e97b8b8b0" args="" -->k_DEFAULT_FILE_GROWTH_INCREMENT</em>&nbsp;</td><td>
+<p>default block size to grow files by </p>
 </td></tr>
 </table>
 </dd>
@@ -234,7 +242,7 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a07d703e938149eaf211611a29994b9da"></a><!-- doxytag: member="bdls::FilesystemUtil::@220" ref="a07d703e938149eaf211611a29994b9da" args="" -->
+<a class="anchor" id="a0de0c4ea532b059fc0a04b291ebd4ab6"></a><!-- doxytag: member="bdls::FilesystemUtil::@213" ref="a0de0c4ea532b059fc0a04b291ebd4ab6" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -245,10 +253,13 @@ Static Public Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a07d703e938149eaf211611a29994b9daa9caf9d8808fff857e210fb698a84164f"></a><!-- doxytag: member="k_ERROR_LOCKING_CONFLICT" ref="a07d703e938149eaf211611a29994b9daa9caf9d8808fff857e210fb698a84164f" args="" -->k_ERROR_LOCKING_CONFLICT</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a0de0c4ea532b059fc0a04b291ebd4ab6a9caf9d8808fff857e210fb698a84164f"></a><!-- doxytag: member="k_ERROR_LOCKING_CONFLICT" ref="a0de0c4ea532b059fc0a04b291ebd4ab6a9caf9d8808fff857e210fb698a84164f" args="" -->k_ERROR_LOCKING_CONFLICT</em>&nbsp;</td><td>
 <p>value representing a failure to obtain a lock on a file </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a07d703e938149eaf211611a29994b9daa2102f87be97d5f80fc942329c2eeaaa4"></a><!-- doxytag: member="k_BAD_FILE_DESCRIPTOR" ref="a07d703e938149eaf211611a29994b9daa2102f87be97d5f80fc942329c2eeaaa4" args="" -->k_BAD_FILE_DESCRIPTOR</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a0de0c4ea532b059fc0a04b291ebd4ab6ae1be6386de6f2a42d2f43691aaa5c98b"></a><!-- doxytag: member="k_ERROR_LOCKING_INTERRUPTED" ref="a0de0c4ea532b059fc0a04b291ebd4ab6ae1be6386de6f2a42d2f43691aaa5c98b" args="" -->k_ERROR_LOCKING_INTERRUPTED</em>&nbsp;</td><td>
+<p>value representing a failure to obtain a lock on a file due to interruption by a signal </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a0de0c4ea532b059fc0a04b291ebd4ab6a2102f87be97d5f80fc942329c2eeaaa4"></a><!-- doxytag: member="k_BAD_FILE_DESCRIPTOR" ref="a0de0c4ea532b059fc0a04b291ebd4ab6a2102f87be97d5f80fc942329c2eeaaa4" args="" -->k_BAD_FILE_DESCRIPTOR</em>&nbsp;</td><td>
 <p>value indicating a bad file descriptor was supplied </p>
 </td></tr>
 </table>
@@ -274,6 +285,9 @@ Static Public Attributes</h2></td></tr>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="aaf288297e2a9b65fdcdd18c2aec66c3ba5f3858914719d2049f7b07b7bd2933fb"></a><!-- doxytag: member="e_CREATE" ref="aaf288297e2a9b65fdcdd18c2aec66c3ba5f3858914719d2049f7b07b7bd2933fb" args="" -->e_CREATE</em>&nbsp;</td><td>
 <p>Create a new file, and fail if the file already exists. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="aaf288297e2a9b65fdcdd18c2aec66c3ba23961f75d1abf61be4dae930303482a6"></a><!-- doxytag: member="e_CREATE_PRIVATE" ref="aaf288297e2a9b65fdcdd18c2aec66c3ba23961f75d1abf61be4dae930303482a6" args="" -->e_CREATE_PRIVATE</em>&nbsp;</td><td>
+<p>Create a new file with access restricted to the creating userid, where supported, and fail if the file already exists. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="aaf288297e2a9b65fdcdd18c2aec66c3baba2fe73a44186f61aff5f6c4fded38ba"></a><!-- doxytag: member="e_OPEN_OR_CREATE" ref="aaf288297e2a9b65fdcdd18c2aec66c3baba2fe73a44186f61aff5f6c4fded38ba" args="" -->e_OPEN_OR_CREATE</em>&nbsp;</td><td>
 <p>Open a file if it exists, and create a new file otherwise. </p>
@@ -417,10 +431,12 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Open the file at the specified <code>path</code>, using the specified <code>openPolicy</code> to determine whether to open an existing file or create a new file, and using the specified <code>ioPolicy</code> to determine whether the file will be opened for reading, writing, or both. Optionally specify a <code>truncatePolicy</code> to determine whether any contents of the file will be deleted before <code>open</code> returns. If <code>truncatePolicy</code> is not supplied, the value <code>e_KEEP</code> will be used. Return a valid <code>FileDescriptor</code> for the file on success, or <code>k_INVALID_FD</code> otherwise. If <code>openPolicy</code> is <code>e_OPEN</code>, the file will be opened if it exists, and <code>open</code> will fail otherwise. If <code>openPolicy</code> is <code>e_CREATE</code>, and no file exists at <code>path</code>, a new file will be created, and <code>open</code> will fail otherwise. If <code>openPolicy</code> is <code>e_OPEN_OR_CREATE</code>, the file will be opened if it exists, and a new file will be created otherwise. If <code>ioPolicy</code> is <code>e_READ_ONLY</code>, the returned <code>FileDescriptor</code> will allow only read operations on the file. If <code>ioPolicy</code> is <code>e_WRITE_ONLY</code> or <code>e_APPEND_ONLY</code>, the returned <code>FileDescriptor</code> will allow only write operations on the file. If <code>ioPolicy</code> is <code>e_READ_WRITE</code> or <code>e_READ_APPEND</code>, the returned <code>FileDescriptor</code> will allow both read and write operations on the file. Additionally, if <code>ioPolicy</code> is <code>e_APPEND_ONLY</code> or <code>e_READ_APPEND</code> all writes will be made to the end of the file ("append mode"). If <code>truncatePolicy</code> is <code>e_TRUNCATE</code>, the file will have zero length when <code>open</code> returns. If <code>truncatePolicy</code> is <code>e_KEEP</code>, the file will be opened with its existing contents, if any. Note that when a file is opened in <code>append</code> mode, all writes will go to the end of the file, even if there has been seeking on the file descriptor or another process has changed the length of the file, though append-mode writes are not guaranteed to be atomic. Note that <code>open</code> will fail to open a file with a <code>truncatePolicy</code> of <code>e_TRUNCATE</code> unless at least one of the following policies is specified for <code>openPolicy</code> or <code>ioPolicy</code>: </p>
+<p>Open the file at the specified <code>path</code>, using the specified <code>openPolicy</code> to determine whether to open an existing file or create a new file, and using the specified <code>ioPolicy</code> to determine whether the file will be opened for reading, writing, or both. Optionally specify a <code>truncatePolicy</code> to determine whether any contents of the file will be deleted before <code>open</code> returns. If <code>truncatePolicy</code> is not supplied, the value <code>e_KEEP</code> will be used. Return a valid <code>FileDescriptor</code> for the file on success, or <code>k_INVALID_FD</code> otherwise. If <code>openPolicy</code> is <code>e_OPEN</code>, the file will be opened if it exists, and <code>open</code> will fail otherwise. If <code>openPolicy</code> is <code>e_CREATE</code> or <code>e_CREATE_PRIVATE</code>, and no file exists at <code>path</code>, a new file will be created, and <code>open</code> will fail otherwise. If <code>openPolicy</code> is <code>e_CREATE_PRIVATE</code>, the file will be created with access restricted to the same userid as the caller in environments where that is supported (which does not necessarily include Windows) otherwise the system default access policy is used (e.g. '0777 &amp; ~umask'). If <code>openPolicy</code> is <code>e_OPEN_OR_CREATE</code>, the file will be opened if it exists, and a new file will be created otherwise. If <code>ioPolicy</code> is <code>e_READ_ONLY</code>, the returned <code>FileDescriptor</code> will allow only read operations on the file. If <code>ioPolicy</code> is <code>e_WRITE_ONLY</code> or <code>e_APPEND_ONLY</code>, the returned <code>FileDescriptor</code> will allow only write operations on the file. If <code>ioPolicy</code> is <code>e_READ_WRITE</code> or <code>e_READ_APPEND</code>, the returned <code>FileDescriptor</code> will allow both read and write operations on the file. Additionally, if <code>ioPolicy</code> is <code>e_APPEND_ONLY</code> or <code>e_READ_APPEND</code> all writes will be made to the end of the file ("append mode"). If <code>truncatePolicy</code> is <code>e_TRUNCATE</code>, the file will have zero length when <code>open</code> returns. If <code>truncatePolicy</code> is <code>e_KEEP</code>, the file will be opened with its existing contents, if any. Note that when a file is opened in <code>append</code> mode, all writes will go to the end of the file, even if there has been seeking on the file descriptor or another process has changed the length of the file. Append-mode writes are not atomic except in limited cases; another thread, or even another process, operating on the file may cause output not to be written, unbroken, to the end of the file. (Unix environments writing to local file systems may promise more.) Note that <code>open</code> will fail to open a file with a <code>truncatePolicy</code> of <code>e_TRUNCATE</code> unless at least one of the following policies is specified for <code>openPolicy</code> or <code>ioPolicy</code>: </p>
 <ul>
 <li>
 <code>e_CREATE</code>  </li>
+<li>
+<code>e_CREATE_PRIVATE</code>  </li>
 <li>
 <code>e_OPEN_OR_CREATE</code>  </li>
 <li>
@@ -759,7 +775,110 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create any directories in the specified <code>path</code> that do not exist. If the optionally specified <code>isLeafDirectoryFlag</code> is <code>true</code>, then treat the last filename in <code>path</code> as a directory and attempt to create it. Otherwise, treat the last filename as a regular file and ignore it. Return 0 on success, and a non-zero value if any needed directories in <code>path</code> could not be created. Note that this function may return an error status if another task attempts to create a directory in <code>path</code> concurrently to this function call. </p>
+<p>Create any directories in the specified <code>path</code> that do not exist. If the optionally specified <code>isLeafDirectoryFlag</code> is <code>true</code>, treat the final name component in <code>path</code> as a directory name, and create it. Otherwise, create only the directories leading up to the final name component. Return 0 on success, and a non-zero value if any needed directories in <code>path</code> could not be created. </p>
+
+</div>
+</div>
+<a class="anchor" id="a17aa19c48b57f1b1df9a5ebf68f9c154"></a><!-- doxytag: member="bdls::FilesystemUtil::createPrivateDirectory" ref="a17aa19c48b57f1b1df9a5ebf68f9c154" args="(const bslstl::StringRef &amp;path)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdls::FilesystemUtil::createPrivateDirectory </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>path</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a private directory with the specified <code>path</code>. Return 0 on success, and a non-zero value if the directory could not be created. The directory is created with permissions restricting access, as closely as possible, to the caller's userid only. If the directory already exists, the function reports success but the directory's permissions are not changed. Note that directories created on Microsoft Windows may receive default, not restricted permissions. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae9a635878b67dc8d8cd3a10a029e76c3"></a><!-- doxytag: member="bdls::FilesystemUtil::createTemporaryFile" ref="ae9a635878b67dc8d8cd3a10a029e76c3" args="(bsl::string *outPath, const bslstl::StringRef &amp;prefix)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="structbdls_1_1FilesystemUtil.html#af177603b027970757c45b67984235d36">FileDescriptor</a> bdls::FilesystemUtil::createTemporaryFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *&nbsp;</td>
+          <td class="paramname"> <em>outPath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>prefix</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create and open a new file with a name constructed by appending an automatically-generated suffix to the specified <code>prefix</code>, and return its file descriptor open for reading and writing. A return value of <code>k_INVALID_FD</code> indicates that no such file could be created; otherwise, the name of the file created is assigned to the specified <code>outPath</code>. The file is created with permissions restricted, as closely as possible, to the caller's userid only. If the prefix is a relative path, the file is created relative to the process current directory. Responsibility for deleting the file is left to the caller. Note that on Posix systems, if <code>outPath</code> is unlinked immediately, the file will remain usable until its descriptor is closed. Note that files created on Microsoft Windows may receive default, not restricted permissions. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3b7129e9b10564eaf0576e336ed0558d"></a><!-- doxytag: member="bdls::FilesystemUtil::createTemporaryDirectory" ref="a3b7129e9b10564eaf0576e336ed0558d" args="(bsl::string *outPath, const bslstl::StringRef &amp;prefix)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdls::FilesystemUtil::createTemporaryDirectory </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *&nbsp;</td>
+          <td class="paramname"> <em>outPath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>prefix</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a new directory with a name constructed by appending an automatically-generated suffix to the specified <code>prefix</code>. A non-zero return value indicates that no such directory could be created; otherwise the name of the directory created is assigned to the specified <code>outPath</code>. The directory is created with permissions restricted, as closely as possible, to the caller only. If the prefix is a relative path, the directory is created relative to the process current directory. Responsibility for deleting the directory (and any files subsequently created in it) is left to the caller. </p>
+
+</div>
+</div>
+<a class="anchor" id="a7a2d9d6a74b4adbeb36697f142ae18d9"></a><!-- doxytag: member="bdls::FilesystemUtil::makeUnsafeTemporaryFilename" ref="a7a2d9d6a74b4adbeb36697f142ae18d9" args="(bsl::string *outPath, const bslstl::StringRef &amp;prefix)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bdls::FilesystemUtil::makeUnsafeTemporaryFilename </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> *&nbsp;</td>
+          <td class="paramname"> <em>outPath</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>prefix</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Construct a file name by appending an automatically-generated suffix to the specified <code>prefix</code>. The file name constructed is assigned to the specified <code>outPath</code>. Note that this function is called "unsafe" because a file with the resulting name may be created by another program before the caller has opportunity to use the name, which could be a security vulnerability, and a file with the given name may already exist where you mean to put it. Note that the suffix is hashed from environmental details, including any pre-existing value of <code>outPath</code> so that if a resulting name is unsuitable (e.g. the file exists) this function may simply be called again, pointing to its previous result, to get a new, probably different name. </p>
 
 </div>
 </div>
@@ -814,7 +933,86 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Call the specified <code>visitor</code> functor for each path in the filesystem matching the specified <code>pattern</code>. If <code>visitor</code> deletes files or directories during the search, the behavior is implementation-dependent: <code>visitor</code> may subsequently be called with paths which have already been deleted, or it may not. Note that there is no stability risk in that case. See <code>findMatchingPaths</code> for a discussion of how <code>pattern</code> is interpreted. </p>
+<p>Call the specified <code>visitor</code> function object for each path in the filesystem matching the specified <code>pattern</code>. Note that if <code>visitor</code> deletes files or directories during the search, <code>visitor</code> may subsequently be called with paths which have already been deleted, so must be prepared for this event. See <code>findMatchingPaths</code> for a discussion of how <code>pattern</code> is interpreted. </p>
+
+</div>
+</div>
+<a class="anchor" id="a117e54c713fa55a8b6eafe44f798ff8f"></a><!-- doxytag: member="bdls::FilesystemUtil::visitTree" ref="a117e54c713fa55a8b6eafe44f798ff8f" args="(const char *root, const bsl::string &amp;pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor, bool sortFlag=false)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdls::FilesystemUtil::visitTree </td>
+          <td>(</td>
+          <td class="paramtype">const char *&nbsp;</td>
+          <td class="paramname"> <em>root</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>pattern</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bsl::function&lt; void(const char *path)&gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>visitor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&nbsp;</td>
+          <td class="paramname"> <em>sortFlag</em> = <code>false</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae51eb97e04d6aa084ac9986da4d660fc"></a><!-- doxytag: member="bdls::FilesystemUtil::visitTree" ref="ae51eb97e04d6aa084ac9986da4d660fc" args="(const bsl::string &amp;root, const bsl::string &amp;pattern, const bsl::function&lt; void(const char *path)&gt; &amp;visitor, bool sortFlag=false)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int bdls::FilesystemUtil::visitTree </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>root</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1basic__string.html">bsl::string</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>pattern</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bsl::function&lt; void(const char *path)&gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>visitor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&nbsp;</td>
+          <td class="paramname"> <em>sortFlag</em> = <code>false</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Recursively traverse the directory tree starting at the specified <code>root</code> for files whose leaf names match the specified <code>pattern</code>, and run the specified function <code>visitor</code>, passing it the full path starting with <code>root</code> to each pattern matching file. See <code>findMatchingPaths</code> for a discussion of how <code>pattern</code> is interpreted. If the specified <code>sortFlag</code> is <code>true</code>, traverse the files in the tree in sorted order, sorted by the full path name, otherwise the order in which the files will be visited is unspecified. UTF-8 paths will be sorted by <code>strcmp</code>, which sorts by <code>char</code>s, not unicode code points. Found <code>.</code> and <code>..</code> directories are ignored, except that <code>root</code> may be <code>.</code> or <code>..</code>. Return 0 on success, and a non-zero value otherwise. This function will fail if <code>root</code> does not specify a directory, of if <code>pattern</code> contains <code>/</code> on Unix or <code>\</code> on Windows. Note that both directories and plain files whose names match <code>pattern</code> will be visited, while other files such as symlinks will not be visited or followed. No file or directory that is not matched will be visited. All directories are traversed, regardless of whether they are matched. If a directory is matched and <code>sortFlag</code> is <code>true</code>, it is visited immediately before it is traversed. Also note that <code>root</code> is never visited, even if it matches <code>pattern</code>. Also note that no pattern matching is done on <code>root</code> -- if it contains wildcards, they are not interpreted as such and must exactly match the characters in the name of the directory. </p>
 
 </div>
 </div>
@@ -1465,7 +1663,7 @@ Static Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a> <a class="el" href="structbdls_1_1FilesystemUtil.html#a20f0a6a45e778c787ea12fb5f5b140c9">bdls::FilesystemUtil::k_OFFSET_MAX</a> = (9223372036854775807LL)<code> [static]</code></td>
+          <td class="memname">const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a> <a class="el" href="structbdls_1_1FilesystemUtil.html#a20f0a6a45e778c787ea12fb5f5b140c9">bdls::FilesystemUtil::k_OFFSET_MAX</a> = (0x7FFFFFFFFFFFFFFFLL)<code> [static]</code></td>
         </tr>
       </table>
 </div>
@@ -1479,7 +1677,7 @@ Static Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a> <a class="el" href="structbdls_1_1FilesystemUtil.html#a750eef508b438afee8674462c7612a29">bdls::FilesystemUtil::k_OFFSET_MIN</a> = (-9223372036854775807LL-1)<code> [static]</code></td>
+          <td class="memname">const <a class="el" href="structbdls_1_1FilesystemUtil.html#ab783252d8c9d7d97680f2a371e402acc">Offset</a> <a class="el" href="structbdls_1_1FilesystemUtil.html#a750eef508b438afee8674462c7612a29">bdls::FilesystemUtil::k_OFFSET_MIN</a> = (-0x7FFFFFFFFFFFFFFFLL-1)<code> [static]</code></td>
         </tr>
       </table>
 </div>
@@ -1506,7 +1704,7 @@ Static Public Attributes</h2></td></tr>
 <li><a class="el" href="bdls__filesystemutil_8h_source.html">bdls_filesystemutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:33 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

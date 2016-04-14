@@ -82,12 +82,11 @@
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dc">Enum</a> { <br/>
 &nbsp;&nbsp;<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dcacdeedf12c33ebdfdcdd00682df2c94cf">e_SUCCESS</a> =  0, 
-<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dcab6ee925fa141421aa09db3710f5c1ac5">e_CACHE_OVERFLOW</a> =  -1, 
-<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dcabb9f8e5dce449ec400b890e138ea0ef7">e_CACHE_HIGHWATER</a> =  -2, 
+<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca07f5c57d355d1dc64d06a9b75443db02">e_QUEUE_HIGHWATER</a> =  -2, 
 <a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca46aedaddd7d085d4fcd39a5de62a26f2">e_READ_CHANNEL_DOWN</a> =  -6, 
+<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca29abed5f79e90c32e10c8a3721fda0f3">e_WRITE_CHANNEL_DOWN</a> =  -3, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca29abed5f79e90c32e10c8a3721fda0f3">e_WRITE_CHANNEL_DOWN</a> =  -3, 
-<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca74d83c2ca9b3e7055d7cb3274ccc819d">e_ENQUEUE_HIGHWATER</a> =  -4, 
+&nbsp;&nbsp;<a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca74d83c2ca9b3e7055d7cb3274ccc819d">e_ENQUEUE_HIGHWATER</a> =  -4, 
 <a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca2ff5918f80bd3cae01889592327ca185">e_UNKNOWN_ID</a> =  -5
 <br/>
  }</td></tr>
@@ -127,23 +126,20 @@ is <code>const</code> <em>thread-safe</em>  </li>
 <tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dcacdeedf12c33ebdfdcdd00682df2c94cf"></a><!-- doxytag: member="e_SUCCESS" ref="a4352e4c5f1558a16a42bff85712fe3dcacdeedf12c33ebdfdcdd00682df2c94cf" args="" -->e_SUCCESS</em>&nbsp;</td><td>
 <p>The write request was successfully enqueued or has been successfully written synchronously. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dcab6ee925fa141421aa09db3710f5c1ac5"></a><!-- doxytag: member="e_CACHE_OVERFLOW" ref="a4352e4c5f1558a16a42bff85712fe3dcab6ee925fa141421aa09db3710f5c1ac5" args="" -->e_CACHE_OVERFLOW</em>&nbsp;</td><td>
-<p>The write request failed because the existing write cache size (not including the size of the message being written) is greater than the write cache high-water mark. Note that this status can only occur when the write cache high-water mark is modified after construction of the object managing the channels. </p>
-</td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dcabb9f8e5dce449ec400b890e138ea0ef7"></a><!-- doxytag: member="e_CACHE_HIGHWATER" ref="a4352e4c5f1558a16a42bff85712fe3dcabb9f8e5dce449ec400b890e138ea0ef7" args="" -->e_CACHE_HIGHWATER</em>&nbsp;</td><td>
-<p>The write request failed because the existing write cache size after the current message gets enqueued will be greater than the write cache high-water mark. </p>
+<tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dca07f5c57d355d1dc64d06a9b75443db02"></a><!-- doxytag: member="e_QUEUE_HIGHWATER" ref="a4352e4c5f1558a16a42bff85712fe3dca07f5c57d355d1dc64d06a9b75443db02" args="" -->e_QUEUE_HIGHWATER</em>&nbsp;</td><td>
+<p>The write request failed because the current write queue size (not including the size of the message being written) is greater than the configured write-queue size limit. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dca46aedaddd7d085d4fcd39a5de62a26f2"></a><!-- doxytag: member="e_READ_CHANNEL_DOWN" ref="a4352e4c5f1558a16a42bff85712fe3dca46aedaddd7d085d4fcd39a5de62a26f2" args="" -->e_READ_CHANNEL_DOWN</em>&nbsp;</td><td>
-<p>The read request falied because the read part of the channel had already been closed. </p>
+<p>The read request failed because the read part of the channel had already been closed. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dca29abed5f79e90c32e10c8a3721fda0f3"></a><!-- doxytag: member="e_WRITE_CHANNEL_DOWN" ref="a4352e4c5f1558a16a42bff85712fe3dca29abed5f79e90c32e10c8a3721fda0f3" args="" -->e_WRITE_CHANNEL_DOWN</em>&nbsp;</td><td>
 <p>The write request failed because the write part of the channel had already been closed. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dca74d83c2ca9b3e7055d7cb3274ccc819d"></a><!-- doxytag: member="e_ENQUEUE_HIGHWATER" ref="a4352e4c5f1558a16a42bff85712fe3dca74d83c2ca9b3e7055d7cb3274ccc819d" args="" -->e_ENQUEUE_HIGHWATER</em>&nbsp;</td><td>
-<p>The write request failed because the existing write cache size (not including the size of the message being written) is greater than the enqueued cache high-water mark provided as a function argument. </p>
+<p>The write request failed because the current write queue size (not including the size of the message being written) is greater than the write-queue size limit provided as a function argument. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a4352e4c5f1558a16a42bff85712fe3dca2ff5918f80bd3cae01889592327ca185"></a><!-- doxytag: member="e_UNKNOWN_ID" ref="a4352e4c5f1558a16a42bff85712fe3dca2ff5918f80bd3cae01889592327ca185" args="" -->e_UNKNOWN_ID</em>&nbsp;</td><td>
-<p>The write request failed because the channel identified by an specified id does not exist. </p>
+<p>The write request failed because the channel identified by a specified id does not exist. </p>
 </td></tr>
 </table>
 </dd>
@@ -227,7 +223,7 @@ is <code>const</code> <em>thread-safe</em>  </li>
 <li><a class="el" href="btlmt__channelstatus_8h_source.html">btlmt_channelstatus.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:14 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

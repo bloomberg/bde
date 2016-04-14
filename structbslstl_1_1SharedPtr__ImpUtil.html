@@ -79,30 +79,79 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static const TYPE &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#a9072b1967ed84a9b0ebe39ef44828f0f">forward</a> (const TYPE &amp;reference)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static <br class="typebreak"/>
+BloombergLP::bslmf::MovableRef<br class="typebreak"/>
+&lt; TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#a061ed85c3eb6cdb069347936ea1dafaa">forward</a> (const BloombergLP::bslmf::MovableRef&lt; TYPE &gt; &amp;reference)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class SHARED_TYPE , class ENABLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#af99d8c7c5726d5967ba55ec170d7abee">setEnableSharedFromThisSelfReference</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SHARED_TYPE &gt; *sp, const <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ENABLE_TYPE &gt; *shareable)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#a7cc63e341ee847788fbd1aeac465c812">setEnableSharedFromThisSelfReference</a> (const void *, const void *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#ae094eb0a1ce025f713f0d2dda65468ad">loadEnableSharedFromThis</a> (const <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ENABLE_TYPE &gt; *result, <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SHARED_TYPE &gt; *sharedPtr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#a560958e4449228ff96fc71fbbf2bbe5e">loadEnableSharedFromThis</a> (const void *, const void *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__ImpUtil.html#a4c3ac0bd70d38275fa86caabb71cb214">voidify</a> (TYPE *address)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This struct should be used by only <code>shared_ptr</code> constructors. Its purpose is to enable shared_ptr constructors to determine the if the templated type parameters <code>COMPATIBLE_TYPE</code> or <code>ELEMENT_TYPE</code> have an <code>enable_shared_from_this</code> base. </p>
+<p>This <code>struct</code> should be used by only <code>shared_ptr</code> constructors. Its purpose is to enable <code>shared_ptr</code> constructors to determine if the (template parameter) types <code>COMPATIBLE_TYPE</code> or <code>ELEMENT_TYPE</code> have a specialization of <code>enable_shared_from_this</code> as an unambiguous, publicly accessible, base class. </p>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="af99d8c7c5726d5967ba55ec170d7abee"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference" ref="af99d8c7c5726d5967ba55ec170d7abee" args="(bsl::shared_ptr&lt; SHARED_TYPE &gt; *sp, const bsl::enable_shared_from_this&lt; ENABLE_TYPE &gt; *shareable)" -->
+<a class="anchor" id="a9072b1967ed84a9b0ebe39ef44828f0f"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::forward" ref="a9072b1967ed84a9b0ebe39ef44828f0f" args="(const TYPE &amp;reference)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static const TYPE&amp; bslstl::SharedPtr_ImpUtil::forward </td>
+          <td>(</td>
+          <td class="paramtype">const TYPE &amp;&nbsp;</td>
+          <td class="paramname"> <em>reference</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a061ed85c3eb6cdb069347936ea1dafaa"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::forward" ref="a061ed85c3eb6cdb069347936ea1dafaa" args="(const BloombergLP::bslmf::MovableRef&lt; TYPE &gt; &amp;reference)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static BloombergLP::bslmf::MovableRef&lt;TYPE&gt; bslstl::SharedPtr_ImpUtil::forward </td>
+          <td>(</td>
+          <td class="paramtype">const BloombergLP::bslmf::MovableRef&lt; TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>reference</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the specified <code>reference</code>. Note that this pair of overloaded functions is necessary to correctly forward movable references when providing explicit move-semantics for C++03; otherwise the <code>MovableRef</code> is likely to be wrapped in multiple layers of reference wrappers, and not be recognized as the movable vocabulary type. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae094eb0a1ce025f713f0d2dda65468ad"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis" ref="ae094eb0a1ce025f713f0d2dda65468ad" args="(const bsl::enable_shared_from_this&lt; ENABLE_TYPE &gt; *result, bsl::shared_ptr&lt; SHARED_TYPE &gt; *sharedPtr)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class SHARED_TYPE , class ENABLE_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void bslstl::SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference </td>
+          <td class="memname">static void bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SHARED_TYPE &gt; *&nbsp;</td>
-          <td class="paramname"> <em>sp</em>, </td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ENABLE_TYPE &gt; *&nbsp;</td>
+          <td class="paramname"> <em>result</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ENABLE_TYPE &gt; *&nbsp;</td>
-          <td class="paramname"> <em>shareable</em></td><td>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SHARED_TYPE &gt; *&nbsp;</td>
+          <td class="paramname"> <em>sharedPtr</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -112,16 +161,16 @@ template&lt;class SHARED_TYPE , class ENABLE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the <code>d_weakThis</code> data member of the specified <code>*sharable</code> to the specified <code>*sp</code>. This function shall be called only by <code>shared_ptr</code> constructors that expect to construct shared pointers from classes that derive from <code>enabled_shared_from_this</code>. </p>
+<p>If the data member <code>d_weakThis</code> of the specified <code>result</code> has expired, then set it to refer to the object managed by the specified <code>sharedPtr</code>; otherwise (i.e., <code>d_weakThis</code> has not expired) this method has no effect. This function shall be called only by <code>shared_ptr</code> constructors creating shared pointers for classes that derive publicly and unambiguously from a specialization of <code>enabled_shared_from_this</code>. Note that overload resolution will select the overload below if a supplied type does not derive from a specialization of <code>enable_shared_from_this</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a7cc63e341ee847788fbd1aeac465c812"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference" ref="a7cc63e341ee847788fbd1aeac465c812" args="(const void *, const void *)" -->
+<a class="anchor" id="a560958e4449228ff96fc71fbbf2bbe5e"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis" ref="a560958e4449228ff96fc71fbbf2bbe5e" args="(const void *, const void *)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static void bslstl::SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference </td>
+          <td class="memname">static void bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis </td>
           <td>(</td>
           <td class="paramtype">const void *&nbsp;</td>
           <td class="paramname">, </td>
@@ -140,7 +189,28 @@ template&lt;class SHARED_TYPE , class ENABLE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Do nothing. This overload is selected when a the <code>SHARED_TYPE</code> template type parameter of <code>shared_ptr&lt;SHARED_TYPE&gt;</code> does not derive from <code>enable_shared_from_this</code>. </p>
+<p>Do nothing. This overload is selected, rather than the immediately preceding template, when the <code>SHARED_TYPE</code> template type parameter of <code>shared_ptr&lt;SHARED_TYPE&gt;</code> does not derive from a specialization of <code>enable_shared_from_this</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4c3ac0bd70d38275fa86caabb71cb214"></a><!-- doxytag: member="bslstl::SharedPtr_ImpUtil::voidify" ref="a4c3ac0bd70d38275fa86caabb71cb214" args="(TYPE *address)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void* bslstl::SharedPtr_ImpUtil::voidify </td>
+          <td>(</td>
+          <td class="paramtype">TYPE *&nbsp;</td>
+          <td class="paramname"> <em>address</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the specified <code>address</code> cast as a pointer to <code>void</code>, even if (the template parameter) <code>TYPE</code> is cv-qualified. </p>
 
 </div>
 </div>
@@ -148,7 +218,7 @@ template&lt;class SHARED_TYPE , class ENABLE_TYPE &gt; </div>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:12 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

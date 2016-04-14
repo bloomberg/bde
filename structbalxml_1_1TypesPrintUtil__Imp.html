@@ -107,6 +107,7 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesPrintUtil__Imp.html#afcca8909b7e1514b18a4c79cf5f79bea">printDecimal</a> (bsl::ostream &amp;stream, const <a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> &amp;object, const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *encoderOptions, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesPrintUtil__Imp.html#a1395b93a8d9c1fc03a33fbc0d9ff2e99">printDecimal</a> (bsl::ostream &amp;stream, const float &amp;object, const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *encoderOptions, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesPrintUtil__Imp.html#ac008a20fd82c3ea1f952494371a77c4e">printDecimal</a> (bsl::ostream &amp;stream, const double &amp;object, const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *encoderOptions, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesPrintUtil__Imp.html#a962caf1f20e4a177713476093216e694">printDefault</a> (bsl::ostream &amp;stream, const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">bdldfp::Decimal64</a> &amp;object, const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *encoderOptions, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static bsl::ostream &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesPrintUtil__Imp.html#a2d6f4529fbc48dab658647306028dfda">printDefault</a> (bsl::ostream &amp;stream, const TYPE &amp;object, const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *encoderOptions, <a class="el" href="structbdlat__TypeCategory_1_1Enumeration.html">bdlat_TypeCategory::Enumeration</a>)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
@@ -1043,6 +1044,47 @@ template&lt;class TYPE , class ANY_CATEGORY &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a962caf1f20e4a177713476093216e694"></a><!-- doxytag: member="balxml::TypesPrintUtil_Imp::printDefault" ref="a962caf1f20e4a177713476093216e694" args="(bsl::ostream &amp;stream, const bdldfp::Decimal64 &amp;object, const EncoderOptions *encoderOptions, bdlat_TypeCategory::Simple)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bsl::ostream&amp; balxml::TypesPrintUtil_Imp::printDefault </td>
+          <td>(</td>
+          <td class="paramtype">bsl::ostream &amp;&nbsp;</td>
+          <td class="paramname"> <em>stream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">bdldfp::Decimal64</a> &amp;&nbsp;</td>
+          <td class="paramname"> <em>object</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbalxml_1_1EncoderOptions.html">EncoderOptions</a> *&nbsp;</td>
+          <td class="paramname"> <em>encoderOptions</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Referenced by <a class="el" href="structbalxml_1_1TypesPrintUtil__Imp__printDefaultProxy.html#a3bfd54798dd2cb3cf472294a9de18023">balxml::TypesPrintUtil_Imp_printDefaultProxy::operator()()</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a2d6f4529fbc48dab658647306028dfda"></a><!-- doxytag: member="balxml::TypesPrintUtil_Imp::printDefault" ref="a2d6f4529fbc48dab658647306028dfda" args="(bsl::ostream &amp;stream, const TYPE &amp;object, const EncoderOptions *encoderOptions, bdlat_TypeCategory::Enumeration)" -->
 <div class="memitem">
 <div class="memproto">
@@ -1081,8 +1123,6 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-
-<p>Referenced by <a class="el" href="structbalxml_1_1TypesPrintUtil__Imp__printDefaultProxy.html#a3bfd54798dd2cb3cf472294a9de18023">balxml::TypesPrintUtil_Imp_printDefaultProxy::operator()()</a>.</p>
 
 </div>
 </div>
@@ -2836,7 +2876,7 @@ template&lt;class TYPE , class ANY_CATEGORY &gt; </div>
 <li><a class="el" href="balxml__typesprintutil_8h_source.html">balxml_typesprintutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:32 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

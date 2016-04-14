@@ -1,0 +1,249 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_aligningallocator.h                                          -*-C++-*-
+
+#ifndef INCLUDED_BDLMA_ALIGNINGALLOCATOR
+#define INCLUDED_BDLMA_ALIGNINGALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$&quot;)
+
+//@PURPOSE: Provide an allocator-wrapper to allocate with a minimum alignment.
+//
+//@CLASSES:
+//  bdlma::AligningAllocator: wrapper to align memory allocation
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component defines a concrete allocator implementation,
+// &#39;bdlma::AligningAllocator&#39;, providing the ability to allocate memory with a
+// minimum alignment specified at the construction of the allocator.  The
+// following inheritance diagram shows the classes involved and their methods:
+//..
+//   ,------------------------.
+//  ( bdlma::AligningAllocator )
+//   `------------------------&#39;
+//               |
+//               V
+//       ,----------------.
+//      ( bslma::Allocator )
+//       `----------------&#39;
+//                       allocate
+//                       deallocate
+//..
+// The &#39;AligningAllocator&#39; is supplied an allocator at contruction, and ensures
+// that memory returned by &#39;allocate&#39; meets a minimum alignment requirement.
+// This may be useful in situations where a user needs to adapt an allocator
+// supplying only natural alignment to software expecting an allocator with a
+// higher alignment guarantee.  The allocator supplied to an
+// &#39;AligningAllocator&#39; at construction is held, not owned.
+//
+// The allocator supplied to the aligning allocator must employ at least the
+// natural alignment strategy (see bsls_alignment).  Specifically, the aligning
+// allocator will fail to align the memory if the allocator passed to it
+// employs the 1-Byte alignment strategy.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using &#39;bdlma::AligningAllocator&#39;
+///- - - - - - - - - - - - - - - - - - - - - -
+// Suppose we are dealing with an externally supplied library function that
+// creates a linked list of null-terminated strings, and we want to use a
+// default-constructed buffered sequential allocator for memory allocation.
+//
+// First, the externally supplied library defines the &#39;struct&#39; describing a
+// node in the linked list:
+//..
+//  struct Node {
+//      // This &#39;struct&#39; describes one node in a linked list containing
+//      // strings.
+//
+//      Node *d_next;
+//      char  d_string[1];
+//
+//      // CLASS METHODS
+//      static
+//      bsl::size_t sizeNeededForString(const char *string)
+//          // Return the size in bytes needed to store a &#39;Node&#39; containing a
+//          // copy of the specified &#39;string&#39;.
+//      {
+//          Node node;
+//
+//          return sizeof(node.d_next) + bsl::strlen(string) + 1;
+//      }
+//  };
+//..
+// Then, the externally-supplied library defines the function that will create
+// the linked list of nodes from a null-terminated array of pointers to
+// C-strings:
+//..
+//  void externalPopulateStringList(Node             **head,
+//                                  const char       **stringArray,
+//                                  bslma::Allocator  *allocator)
+//  {
+//      *head = 0;
+//      const char *string;
+//      for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
+//          Node *newNode = static_cast&lt;Node *&gt;(allocator-&gt;allocate(
+//                                         Node::sizeNeededForString(string)));
+//          bsl::strcpy(newNode-&gt;d_string, string);
+//
+//          newNode-&gt;d_next = *head;
+//          *head = newNode;
+//      }
+//  }
+//..
+// Next, the externally-supplied buffered sequential allocator that we are to
+// use:
+//..
+//  enum { k_BUFFER_SIZE = 4 * 1024 };
+//  char                               buffer4k[k_BUFFER_SIZE];
+//  bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
+//..
+// There is a problem here, in that the nodes must be aligned by
+// &#39;sizeof(Node *)&#39;, but our buffered sequential allocator, like most BDE
+// allocators, has a &quot;natural alignment&quot; strategy (see bsls_alignment), meaning
+// that it infers the required alignment from the size of the allocation
+// requested.  This would normally give us properly aligned memory if we were
+// allocating by &#39;sizeof(struct)&#39;, but our &#39;Node&#39; objects are variable length,
+// which will mislead the allocator to sometimes align the new segments by less
+// than &#39;sizeof(Node *)&#39;.
+//
+// Then, we solve this problem by using an aligning allocator to wrap the
+// buffered sequential allocator, ensuring that the memory will still come from
+// the buffered sequential allocator, but nonetheless be aligned to the
+// alignment requirement of &#39;Node&#39;.
+//..
+//  enum { k_ALIGNMENT = bsls::AlignmentFromType&lt;Node&gt;::VALUE };
+//  bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &amp;bsAlloc);
+//..
+// Next, we define a null-terminated array of strings we would like to store in
+// the list:
+//..
+//  const char *strings[] = {
+//      &quot;A zinger is not a rebuttal.\n&quot;,
+//      &quot;Humor is mankind&#39;s greatest blessing.\n&quot;,
+//      &quot;As usual, the facts don&#39;t care about our feelings.\n&quot;,
+//      &quot;Criticism is the only antidote to error.\n&quot;,
+//      &quot;If you can&#39;t annoy somebody, there is little point in writing.\n&quot;,
+//      &quot;Maybe all one can do is hope to end up with the right regrets.\n&quot;,
+//      &quot;People may hear your words, but they feel your attitude.\n&quot;,
+//      &quot;Imagination is a poor substitute for experience.\n&quot;,
+//      &quot;We wanted a labor force, but human beings came.\n&quot;,
+//      &quot;The reward of a thing well done is to have done it.\n&quot;,
+//      &quot;Chance fights ever on the side of the prudent.\n&quot;,
+//      &quot;The best time to make friends is before you need them.\n&quot;,
+//      0  };
+//..
+// Now, we call the function to put the strings into a linked list, passing it
+// the aligning allocator:
+//..
+//  Node *head = 0;
+//  externalPopulateStringList(&amp;head, strings, &amp;aligningAllocator);
+//..
+// Finally, we traverse the list and print out the strings, verifying that the
+// nodes are properly aligned:
+//..
+//  for (const Node *node = head; node; node = node-&gt;d_next) {
+//      assert(0 == (reinterpret_cast&lt;bsl::size_t&gt;(node) &amp; (k_ALIGNMENT - 1)));
+//
+//      cout &lt;&lt; node-&gt;d_string;
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                          // ======================
+                          // class AlignedAllocator
+                          // ======================
+
+class AligningAllocator : public bslma::Allocator {
+    // This &#39;class&#39; provides a mechanism that serves as a wrapper around
+    // another allocator, passed at construction.  The mechanism guarantees
+    // that all allocations passed to the underlying allocator will be aligned
+    // by the alignment specified at construction.
+
+    // DATA
+    size_type         d_mask;                // alignment - 1
+    bslma::Allocator *d_heldAllocator_p;     // allocator passed at
+                                             // construction
+
+  public:
+    // CREATORS
+    explicit
+    AligningAllocator(size_type         alignment,
+                      bslma::Allocator *allocator = 0);
+        // Create an &#39;AligningAllocator&#39; object that guarantees alignment by
+        // the specified &#39;alignment&#39; of memory allocated.  Optionally specify
+        // &#39;allocator&#39;, the underlying allocator to be used for memory
+        // allocation.  If &#39;alignment&#39; is greater than max alignment
+        // (&#39;bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT&#39;), the alignment will be
+        // rounded down to max alignment.  The behavior is undefined unless
+        // &#39;alignment&#39; is greater than 0 and a power of 2, unless the alignment
+        // strategy of &#39;allocator&#39; is &#39;BSLS_MAXIMUM&#39; or &#39;BSLS_NATURAL&#39;.  If no
+        // &#39;allocator&#39; is passed, the currently installed default alloctor is
+        // used.
+
+    // MANIPULATORS
+    virtual void *allocate(size_type size);
+        // Return a newly allocated block of memory of (at least) the specified
+        // positive &#39;size&#39; (in bytes).  If &#39;size&#39; is 0, a null pointer is
+        // returned with no other effect.  If this allocator cannot return the
+        // requested number of bytes, then it will throw a &#39;std::bad_alloc&#39;
+        // exception in an exception-enabled build, or else will abort the
+        // program in a non-exception build.  The behavior is undefined unless
+        // &#39;0 &lt;= size&#39;.  Note that the alignment of the address returned
+        // conforms to the platform requirement for any object of size &#39;size&#39;
+        // and is also guaranteed to be at least the alignment passed to the
+        // constructor.
+
+    virtual void deallocate(void *address);
+        // Return the memory block at the specified &#39;address&#39; back to this
+        // allocator.  If &#39;address&#39; is 0, this function has no effect.  The
+        // behavior is undefined unless &#39;address&#39; was allocated using this
+        // allocator object and has not already been deallocated.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

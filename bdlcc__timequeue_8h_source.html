@@ -969,9 +969,11 @@ class TimeQueue {
         // allocator of the &#39;item&#39; instance is used to supply memory.
 
     void removeAll(bsl::vector&lt;TimeQueueItem&lt;DATA&gt; &gt; *buffer = 0);
-        // Optionally load all the items in this queue to the optionally
-        // specified &#39;buffer&#39;, and remove all the items in this queue.  Note
-        // that the allocator of the &#39;buffer&#39; vector is used to supply memory.
+        // Remove all the items from this queue.  Optionally specify a &#39;buffer&#39;
+        // in which to load the removed items.  The resultant items in the
+        // &#39;buffer&#39; are ordered by increasing time interval; items of
+        // equivalant time interval have arbitrary ordering.  Note that the
+        // allocator of the &#39;buffer&#39; vector is used to supply memory.
 
     int update(Handle                     handle,
                const bsls::TimeInterval&amp;  newTime,

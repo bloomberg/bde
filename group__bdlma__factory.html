@@ -128,7 +128,7 @@ Namespaces</h2></td></tr>
 <br/>
  Now the <code>handle</code> can be passed to another thread or enqueued efficiently. Once the reference count of <code>handle</code> goes to 0, <code>object</code> is automatically deleted via the <code>deleteObject</code> method of <code>factory</code>, which in turn will invoke the destructor of <code>object</code>. Note that since the type of the factory used to both create the object under management and to instantiate <code>handle</code> is <code><a class="el" href="classbdlma_1_1Factory.html">bdlma::Factory</a>&lt;my_Obj&gt;</code>, any kind of creator/deleter that implements this protocol can be passed. Also note, on the downside, that the lifetime of <code>factory</code> must be longer than the lifetime of all associated object instances. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:44 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

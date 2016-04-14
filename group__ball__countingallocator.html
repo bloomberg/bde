@@ -123,7 +123,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="byte_count"></a> <a class="anchor" id="description.byte_count"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Byte Count: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The byte count maintained by <code><a class="el" href="classball_1_1CountingAllocator.html">ball::CountingAllocator</a></code> is set to 0 upon construction and after each call to <code>resetNumBytesTotal</code>. Each call of <code>allocate(size)</code> increases the byte count by the sum of the least multiple of <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code> that is greater than or equal to <code>size</code> and <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code>. Each call of <code>deallocate</code> decrements the byte count by the same amount by which the byte count was incremented on matching <code>allocate</code> call. The current value of the byte count is returned by the <code>numBytesTotal</code> accessor. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The byte count maintained by <code><a class="el" href="classball_1_1CountingAllocator.html">ball::CountingAllocator</a></code> is set to 0 upon construction and after each call to <code>resetNumBytesTotal</code>. Each call of <code>allocate(size)</code> increases the byte count by the sum of the least multiple of <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a4c9252fd48f8c6f3fbdcc10e14cbda12a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code> that is greater than or equal to <code>size</code> and <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a4c9252fd48f8c6f3fbdcc10e14cbda12a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code>. Each call of <code>deallocate</code> decrements the byte count by the same amount by which the byte count was incremented on matching <code>allocate</code> call. The current value of the byte count is returned by the <code>numBytesTotal</code> accessor. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -144,7 +144,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:31 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:24 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

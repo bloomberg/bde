@@ -55,6 +55,7 @@
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -70,17 +71,23 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Size.html">bsl::Is_Empty_Size</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp&lt; TYPE, IS_CLASS &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Class__Imp_3_01TYPE_00_01true_01_4.html">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp&lt; TYPE, IS_CLASS &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4.html">bsl::Is_Empty_Imp&lt; TYPE, true &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty&lt; TYPE &gt;</a></td></tr>
+<tr><td colspan="2"><h2><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef integral_constant<br class="typebreak"/>
+&lt; bool, sizeof(Derived)==sizeof(int)&gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#gadf40809bc5adf7678779ec7f62889d32">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::type</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#gacb741e41e44f47a2bc50b64b08abea22">bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::Derived</a> (const Derived &amp;)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#gab3bca5466a3beab10892a2e2c5b124a2">bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::~Derived</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#ga29a28877c2e50494104607489a579a18">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::Derived</a> (const Derived &amp;)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#gad5596a41611638eb64f8d27c1305bf4e">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::~Derived</a> ()</td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#gaa719e3f922b16fbb1cdd1880e72b11be">bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::d_data</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#ga0aa6fdd1757441040a25f537130719fb">bsl::Is_Empty_Imp&lt; TYPE, true &gt;::VALUE</a> = (sizeof(Derived) == sizeof(int))</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#ga70e348a65b102b13483257a0438c5356">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::d_data</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -107,13 +114,17 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><table class="doxtable">
+<tr>
+<td><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty</a> </td><td>standard meta-function for detecting empty classes  </td></tr>
+</table>
+</dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="bslmf__isclass_8h.html" title="Provide a compile-time check for determining class types.">bslmf_isclass.h</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a metafunction, <code><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty</a></code>, which may be used to determine whether a type is a <code>class</code> or <code>struct</code> with no non-static data members other than bit-fields of length 0, no virtual member functions, no virtual base classes, and no base class <code>B</code> for which <code><a class="el" href="structbsl_1_1is__empty.html">is_empty</a>&lt;B&gt;value</code> is false. This metafunction conforms to the definition of the C++11 standard 'is_empty metafunction in section [meta.unary.prop]. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a metafunction, <code><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty</a></code>, which may be used to determine whether a type is a <code>class</code> or <code>struct</code> with no non-static data members other than bit-fields of length 0, no virtual member functions, no virtual base classes, and no base class <code>B</code> for which <code><a class="el" href="structbsl_1_1is__empty.html">is_empty</a>&lt;B&gt;value</code> is <code>false</code>. This metafunction conforms to the definition of the C++11 standard 'is_empty metafunction in section [meta.unary.prop]. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An empty class type type is <em>usually</em> stateless and, can be "stored" in a zero-length memory region. (Hypothetically, an empty object can hold state by means a global address-to-state map, but such a design is rare and is discouraged.) When a class inherits from an empty type, the compiler is expected to optimize away the storage requirements of the empty base class. This optimization is known as the "Empty Base Optimization" or "EBO". </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
@@ -122,7 +133,7 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_compute_storage_requirements_for_a_type"></a> <a class="anchor" id="usage.example_1~3A_compute_storage_requirements_for_a_type"></a> <a class="anchor" id="description.usage.example_1~3A_compute_storage_requirements_for_a_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Compute Storage Requirements for a Type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose we wish to create a generic function which will allocate a record comprising a value of specified <code>TYPE</code> and a description in the form of a null-terminated character string. First, we declare the function prototype: <br/>
+<dl class="user"><dt><b></b></dt><dd>Suppose we wish to create a generic function that will allocate a record comprising a value of specified <code>TYPE</code> and a description in the form of a null-terminated character string. First, we declare the function prototype: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keywordtype">void</span> *makeRecord(<span class="keyword">const</span> TYPE&amp; value, <span class="keyword">const</span> <span class="keywordtype">char</span>* description);
@@ -178,15 +189,32 @@ Variables</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<hr/><h2>Function Documentation</h2>
-<a class="anchor" id="gacb741e41e44f47a2bc50b64b08abea22"></a><!-- doxytag: member="bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::Derived" ref="gacb741e41e44f47a2bc50b64b08abea22" args="(const Derived &amp;)" -->
+<hr/><h2>Typedef Documentation</h2>
+<a class="anchor" id="gadf40809bc5adf7678779ec7f62889d32"></a><!-- doxytag: member="bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::type" ref="gadf40809bc5adf7678779ec7f62889d32" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp</a>&lt; TYPE, true &gt;::Derived::Derived </td>
+          <td class="memname">typedef integral_constant&lt;bool, sizeof(Derived) == sizeof(int)&gt; <a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp</a>&lt; TYPE, true &gt;::type<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p><code>true_type</code> if (the template parameter) <code>TYPE</code> is an empty class, and <code>false_type</code> otherwise. </p>
+
+</div>
+</div>
+<hr/><h2>Function Documentation</h2>
+<a class="anchor" id="ga29a28877c2e50494104607489a579a18"></a><!-- doxytag: member="bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::Derived" ref="ga29a28877c2e50494104607489a579a18" args="(const Derived &amp;)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp</a>&lt; TYPE, true &gt;::Derived::Derived </td>
           <td>(</td>
           <td class="paramtype">const Derived &amp;&nbsp;</td>
           <td class="paramname"></td>
@@ -200,14 +228,14 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gab3bca5466a3beab10892a2e2c5b124a2"></a><!-- doxytag: member="bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::~Derived" ref="gab3bca5466a3beab10892a2e2c5b124a2" args="()" -->
+<a class="anchor" id="gad5596a41611638eb64f8d27c1305bf4e"></a><!-- doxytag: member="bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::~Derived" ref="gad5596a41611638eb64f8d27c1305bf4e" args="()" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp</a>&lt; TYPE, true &gt;::Derived::~Derived </td>
+          <td class="memname"><a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp</a>&lt; TYPE, true &gt;::Derived::~Derived </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -220,39 +248,24 @@ template&lt;class TYPE &gt; </div>
 </div>
 </div>
 <hr/><h2>Variable Documentation</h2>
-<a class="anchor" id="gaa719e3f922b16fbb1cdd1880e72b11be"></a><!-- doxytag: member="bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived::d_data" ref="gaa719e3f922b16fbb1cdd1880e72b11be" args="" -->
+<a class="anchor" id="ga70e348a65b102b13483257a0438c5356"></a><!-- doxytag: member="bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;::Derived::d_data" ref="ga70e348a65b102b13483257a0438c5356" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">int <a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp</a>&lt; TYPE, true &gt;::Derived::d_data<code> [inherited]</code></td>
+          <td class="memname">int <a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp</a>&lt; TYPE, true &gt;::Derived::d_data<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p><code><a class="el" href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4_1_1Derived.html">Derived</a></code> is not empty </p>
-
-</div>
-</div>
-<a class="anchor" id="ga0aa6fdd1757441040a25f537130719fb"></a><!-- doxytag: member="bsl::Is_Empty_Imp&lt; TYPE, true &gt;::VALUE" ref="ga0aa6fdd1757441040a25f537130719fb" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">const bool <a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp</a>&lt; TYPE, true &gt;::VALUE = (sizeof(Derived) == sizeof(int))<code> [static, inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
+<p><code>Derived</code> is not empty </p>
 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

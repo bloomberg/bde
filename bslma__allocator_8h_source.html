@@ -29,7 +29,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // at construction) and use its &#39;allocate&#39; and &#39;deallocate&#39; methods instead of
 // &#39;new&#39; and &#39;delete&#39; directly.
 //
-// The use of (abstract) allocators provide at least three distinct advantages
+// The use of (abstract) allocators provides at least three distinct advantages
 // over direct (hard-coded) calls to global &#39;new&#39; and &#39;delete&#39; (see
 // &#39;bslma_newdeleteallocator&#39;):
 //
@@ -197,9 +197,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // with the STL use of the word, which differs slightly.)  If non-zero, the
 // stack holds a pointer to this allocator, but does not own it.  If no
 // allocator is supplied, the implementation itself must either conditionally
-// invoke global &#39;new&#39; and &#39;delete&#39; explicitly whenever memory dynamic memory
-// must be managed (BAD IDEA) or (GOOD IDEA) install a default allocator that
-// adapts use of these global operators to the &#39;bslma_allocator&#39; interface (see
+// invoke global &#39;new&#39; and &#39;delete&#39; explicitly whenever dynamic memory must be
+// managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts
+// use of these global operators to the &#39;bslma_allocator&#39; interface (see
 // &#39;bslma_newdeleteallocator&#39;).
 //..
 //  // my_doublestack.cpp
@@ -404,7 +404,7 @@ namespace bslma {
 class Allocator {
     // This protocol class provides a pure abstract interface and contract for
     // clients and suppliers of raw memory.  If the requested memory cannot be
-    // returned; the contract requires that an &#39;std::bad_alloc&#39; exception be
+    // returned, the contract requires that an &#39;std::bad_alloc&#39; exception be
     // thrown.  Note that memory is guaranteed to be sufficiently aligned for
     // any object of the requested size on the current platform, which may be
     // less than the maximal alignment guarantee afforded by global
@@ -520,11 +520,11 @@ void *operator new(std::size_t                    size,
     //  void deleteMyType(bslma::Allocator *basicAllocator, my_Type *address)
     //  {
     //      address-&gt;~my_Type();
-    //      basicAllocator-&gt;deallocate(object);
+    //      basicAllocator-&gt;deallocate(address);
     //  }
     //..
     // See also &#39;deleteObjectRaw&#39; for better performance when &#39;address&#39; is
-    // known not be a secondary base type of the object being deleted.
+    // known not to be a secondary base type of the object being deleted.
 
 inline
 void operator delete(void                           *address,

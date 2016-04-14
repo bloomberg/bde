@@ -89,6 +89,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class BDE_OTHER_TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#a18eea701625c7c1433ec0f97e5d47287">makeValue</a> (const BDE_OTHER_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#a23854b5f3f64dd3a480da2f22dfaa2f3">makeValue</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#ad89aefb423e5cb82c8c60839406cf869">makeValueInplace</a> (ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#a873eb1a18eceda2b116796e540ccd783">reset</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#a6defadafea1db1f1bf98a471b81204ae">value</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#ad2defa9c3a7ed87f70f896f99ef09216">isNull</a> () const </td></tr>
@@ -281,6 +283,29 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ad89aefb423e5cb82c8c60839406cf869"></a><!-- doxytag: member="bdlb::NullableValue_WithAllocator::makeValueInplace" ref="ad89aefb423e5cb82c8c60839406cf869" args="(ARGS &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+<div class="memtemplate">
+template&lt;class... ARGS&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html">bdlb::NullableValue_WithAllocator</a>&lt; TYPE &gt;::makeValueInplace </td>
+          <td>(</td>
+          <td class="paramtype">ARGS &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assign to this nullable object the value of the (template parameter) <code>TYPE</code> (which has the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait) created in place using the specified <code>args</code>. The object is also accessible via the <code>value</code> method. If this nullable object already contains a object (<code>false == <a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html#ad2defa9c3a7ed87f70f896f99ef09216">isNull()</a>)</code>, that object is destroyed before the new object is created. The allocator specified at the construction of this nullable object is used to supply memory to the value object. Attempts to explicitly specify via <code>args</code> another allocator to supply memory to the created (value) object are disallowed by the compiler. Note that if the constructor of <code>TYPE</code> throws an exception this object is left in the null state. </p>
+
+</div>
+</div>
 <a class="anchor" id="a873eb1a18eceda2b116796e540ccd783"></a><!-- doxytag: member="bdlb::NullableValue_WithAllocator::reset" ref="a873eb1a18eceda2b116796e540ccd783" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -381,7 +406,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlb__nullablevalue_8h_source.html">bdlb_nullablevalue.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:34 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

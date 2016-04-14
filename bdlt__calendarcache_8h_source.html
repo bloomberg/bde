@@ -259,6 +259,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bdlt_calendar.h&gt;
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include &lt;bdlt_datetimeinterval.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include &lt;bslalg_typetraits.h&gt;
 #endif
@@ -283,10 +291,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_timeinterval.h&gt;
 #endif
 
-#ifndef INCLUDED_BSL_CTIME
-#include &lt;bsl_ctime.h&gt;
-#endif
-
 #ifndef INCLUDED_BSL_MAP
 #include &lt;bsl_map.h&gt;
 #endif
@@ -305,18 +309,18 @@ namespace bdlt {
 class CalendarLoader;
 class CalendarCache_Entry;
 
-                        // ===================
-                        // class CalendarCache
-                        // ===================
+                           // ===================
+                           // class CalendarCache
+                           // ===================
 
 class CalendarCache {
-    // This class implements an efficient cache of *read-only*
-    // &#39;bdlt::Calendar&#39; objects that are loaded into the cache, using a
-    // calendar loader supplied at construction, as a side-effect of the
-    // &#39;getCalendar&#39; manipulator.  Calendars in the cache can be invalidated,
-    // and removed from the cache via the &#39;invalidate&#39; and &#39;invalidateAll&#39;
-    // methods.  In addition, calendars in the cache can be made to expire
-    // based on a timeout that may be optionally supplied at construction.  The
+    // This class implements an efficient cache of *read-only* &#39;bdlt::Calendar&#39;
+    // objects that are loaded into the cache, using a calendar loader supplied
+    // at construction, as a side-effect of the &#39;getCalendar&#39; manipulator.
+    // Calendars in the cache can be invalidated, and removed from the cache
+    // via the &#39;invalidate&#39; and &#39;invalidateAll&#39; methods.  In addition,
+    // calendars in the cache can be made to expire based on a timeout that may
+    // be optionally supplied at construction.  The
     // &#39;bsl::shared_ptr&lt;const bdlt::Calendar&gt;&#39; objects returned from the
     // &#39;getCalendar&#39; and &#39;lookupCalendar&#39; methods allow for the safe removal of
     // calendars from the cache that may still have outstanding references to
@@ -336,7 +340,7 @@ class CalendarCache {
     CalendarLoader         *d_loader_p;        // calendar loader (held, not
                                                // owned)
 
-    bsl::time_t             d_timeOut;         // timeout value; ignored unless
+    DatetimeInterval        d_timeOut;         // timeout value; ignored unless
                                                // &#39;d_hasTimeOutFlag&#39; is &#39;true&#39;
 
     bool                    d_hasTimeOutFlag;  // &#39;true&#39; if this cache has a
@@ -431,16 +435,24 @@ class CalendarCache {
         // If the calendar having &#39;calendarName&#39; is not found in the cache, or
         // if the calendar has expired (i.e., per a timeout optionally supplied
         // at construction), return an empty shared pointer.
+
+    Datetime lookupLoadTime(const char *calendarName) const;
+        // Return the datetime, in Coordinated Universal Time (UTC), at which
+        // the calendar having the specified &#39;calendarName&#39; was loaded into
+        // this calendar cache.  If the calendar having &#39;calendarName&#39; is not
+        // found in the cache, or if the calendar has expired (i.e., per a
+        // timeout optionally supplied at construction), return &#39;Datetime()&#39;.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // TRAITS
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -453,7 +465,7 @@ struct UsesBslmaAllocator&lt;bdlt::CalendarCache&gt; : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

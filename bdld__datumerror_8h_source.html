@@ -1,0 +1,364 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdld_datumerror.h                                                  -*-C++-*-
+
+#ifndef INCLUDED_BDLD_DATUMERROR
+#define INCLUDED_BDLD_DATUMERROR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide a type for an error code with an optional error message.
+//
+//@CLASSES:
+//  bdld::DatumError: type for an error code with an optional error message
+//
+//@SEE_ALSO: bdld_datum, bdld_datumudt
+//
+//@DESCRIPTION: This component defines a *complex-constrained* *value-semantic*
+// *attribute* class &#39;bdld::DatumError&#39; representing an error code with an
+// optional descriptive error message.  This component holds a reference to the
+// error message that was supplied at construction.  Accessors inside &#39;Datum&#39;
+// class that need to return an error value, return an instance of
+// &#39;DatumError&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic &#39;DatumError&#39; usage
+///- - - - - - - - - - - - - - - - - -
+// Suppose we need a function to verify if newly created password meets basic
+// security requirements.  Password must contain at least one uppercase letter,
+// one lowercase letter, one numeral and one special symbol.  The following
+// code illustrates how to use &#39;bdlb::DatumError&#39; to notify user about
+// password weaknesses.
+//
+// First, we need to write a verification function:
+//..
+//  bdld::DatumError verifyNewPassword(const char *password)
+//      // Verify if specified &#39;password&#39; meets basic security requirements.
+//  {
+//      bool uppercasePresence     = false;
+//      bool lowercasePresence     = false;
+//      bool numeralPresence       = false;
+//      bool specialSymbolPresence = false;
+//..
+// Passed string analysis:
+//..
+//      while (*password) {
+//          if (*password &gt;= &#39;A&#39; &amp;&amp; *password &lt;= &#39;Z&#39;) {
+//              uppercasePresence = true;
+//          }
+//          if (*password &gt;= &#39;a&#39; &amp;&amp; *password &lt;= &#39;z&#39;) {
+//              lowercasePresence = true;
+//          }
+//          if (*password &gt;= &#39;0&#39; &amp;&amp; *password &lt;= &#39;9&#39;) {
+//              numeralPresence = true;
+//          }
+//          if (*password &gt;= &#39;!&#39; &amp;&amp; *password &lt;= &#39;.&#39;) {
+//              specialSymbolPresence = true;
+//          }
+//          ++password;
+//      }
+//..
+// Result compilation:
+//..
+//      bdld::DatumError result;
+//
+//      if (!uppercasePresence) {
+//          result = bdld::DatumError(1, bslstl::StringRef(&quot;Uppercase&quot;));
+//      } else if (!lowercasePresence) {
+//          result = bdld::DatumError(2, bslstl::StringRef(&quot;Lowercase&quot;));
+//      } else if (!numeralPresence) {
+//          result = bdld::DatumError(3, bslstl::StringRef(&quot;Numeral&quot;));
+//      } else if (!specialSymbolPresence) {
+//          result = bdld::DatumError(4, bslstl::StringRef(&quot;Special&quot;));
+//      }
+//
+//      return result;
+//  }
+//..
+// Next, we need to create password for verification and call our function:
+//..
+//  bdld::DatumError error = verifyNewPassword(&quot;Test&quot;);
+//..
+// Then, check the results:
+//..
+//  assert(bdld::DatumError() != error);
+//  assert(3                  == error.code());
+//..
+// Finally, we can print the result to the output stream:
+//..
+//  ostringstream out;
+//  error.print(out);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdld {
+                               // ================
+                               // class DatumError
+                               // ================
+class DatumError {
+    // This component &#39;class&#39; provides a *complex constrained* attribute type,
+    // &#39;bdld::DatumError&#39;, that represents an error code with an optional
+    // descriptive error message.  Note that this class holds a reference to
+    // the error message and does not make a copy of it.
+
+  private:
+    // DATA
+    int               d_code;     // error code
+    bslstl::StringRef d_message;  // error message
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumError, bsl::is_trivially_copyable);
+
+    // CREATORS
+    DatumError();
+        // Create a &#39;DatumError&#39; object having the default error code of 0 and
+        // an empty error message.
+
+    explicit DatumError(int code);
+        // Create a &#39;DatumError&#39; object having the specified error &#39;code&#39; value
+        // and and empty error message.
+
+    DatumError(int code, const bslstl::StringRef&amp; message);
+        // Create a &#39;DatumError&#39; object having the specified error &#39;code&#39; value
+        // and the specified error &#39;message&#39; value.  Note that the &#39;message&#39; is
+        // held by the reference and not copied.
+
+    //! DatumError(const DatumError&amp; origin) = default;
+    //! ~DatumError() = default;
+
+    // MANIPULATORS
+    //! DatumError&amp; operator=(const DatumError&amp; rhs) = default;
+
+    // ACCESSORS
+    int code() const;
+        // Return the error code.
+
+    bslstl::StringRef message() const;
+        // Return a reference to the non-modifyable error message.  The
+        // returned reference remains valid as long as the underlying message
+        // is not modified or destroyed -- irrespective of the state (or
+        // existence) of this object.  The behavior is undefined unless the
+        // underlying error message has been modified or destroyed since this
+        // object was created.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to the modifyable
+        // &#39;stream&#39;.  Optionally specify an initial indentation &#39;level&#39;, whose
+        // absolute value is incremented recursively for nested objects.  If
+        // &#39;level&#39; is specified, optionally specify &#39;spacesPerLevel&#39;, whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+};
+
+// FREE OPERATORS
+bool operator==(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value and
+    // &#39;false&#39; otherwise.  Two &#39;DatumError&#39; objects have the same value if they
+    // have same error code and message values.
+
+bool operator!=(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; have different values and
+    // &#39;false&#39; otherwise.  Two &#39;DatumError&#39; objects have different values if
+    // they have different error code or message values.
+
+bool operator&lt;(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is less than value of the
+    // specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is less than
+    // value of &#39;rhs&#39; if error code value of &#39;lhs&#39; is less than error code
+    // value of &#39;rhs&#39;, or they have the same error code value and error message
+    // value of &#39;lhs&#39; is less than error message value of &#39;rhs&#39;.
+
+bool operator&lt;=(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is less than or equal to
+    // value of the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is
+    // less than or equal to value of &#39;rhs&#39; if error code value of &#39;lhs&#39; is
+    // less than or equal to error code value of &#39;rhs&#39;, or they have the same
+    // error code value and error message value of &#39;lhs&#39; is less than or equal
+    // to error message value of &#39;rhs&#39;.
+
+bool operator&gt;(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is greater than value of
+    // the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39; is greater
+    // than value of &#39;rhs&#39; if error code value of &#39;lhs&#39; is greater than error
+    // code value of &#39;rhs&#39;, or they have the same error code value and error
+    // message value of &#39;lhs&#39; is greater than error message value of &#39;rhs&#39;.
+
+bool operator&gt;=(const DatumError&amp; lhs, const DatumError&amp; rhs);
+    // Return &#39;true&#39; if value of the specified &#39;lhs&#39; is greater than or equal
+    // to value of the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  Value of &#39;lhs&#39;
+    // is greater than or equal to value of &#39;rhs&#39; if error code value of &#39;lhs&#39;
+    // is greater than or equal to error code value of &#39;rhs&#39;, or they have the
+    // same error code value and error message value of &#39;lhs&#39; is greater than
+    // or equal to error message value of &#39;rhs&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DatumError&amp; rhs);
+    // Write the value of the specified &#39;rhs&#39; object to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to the
+    // modifyable &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this operation
+    // has no effect.  Note that this human-readable format is not fully
+    // specified, can change without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+    // Single line output format for the &#39;DatumError&#39; object is shown below:
+    //..
+    //  error(n)
+    //  error(n,&#39;msg&#39;)
+    //..
+    // (where n is the integer error code value and &#39;msg&#39; is the error message
+    // value in single quotes).  Note that the first version will be output if
+    // there is no error message string.
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                                // ----------------
+                                // class DatumError
+                                // ----------------
+// CREATORS
+inline
+DatumError::DatumError()
+: d_code(0)
+{
+}
+
+inline
+DatumError::DatumError(int code)
+: d_code(code)
+{
+}
+
+inline
+DatumError::DatumError(int code, const bslstl::StringRef&amp; message)
+: d_code(code)
+, d_message(message)
+{
+}
+
+// ACCESSORS
+inline
+int DatumError::code() const
+{
+    return d_code;
+}
+
+inline
+bslstl::StringRef DatumError::message() const
+{
+    return d_message;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdld::operator==(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return (lhs.code() == rhs.code() &amp;&amp; lhs.message() == rhs.message());
+}
+
+inline
+bool bdld::operator!=(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator&lt;(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return (lhs.code() &lt; rhs.code() ||
+            (lhs.code() == rhs.code() &amp;&amp; lhs.message() &lt; rhs.message()));
+}
+
+inline
+bool bdld::operator&lt;=(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return (lhs == rhs || lhs &lt; rhs);
+}
+
+inline
+bool bdld::operator&gt;(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return !(lhs &lt;= rhs);
+}
+
+inline
+bool bdld::operator&gt;=(const DatumError&amp; lhs, const DatumError&amp; rhs)
+{
+    return !(lhs &lt; rhs);
+}
+
+inline
+bsl::ostream&amp; bdld::operator&lt;&lt;(bsl::ostream&amp; stream, const DatumError&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+
+</pre>
+</body>
+</html>

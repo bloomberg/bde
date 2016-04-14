@@ -9,8 +9,6 @@
 
 @MNEMONIC: Basic Development Library Time (bdlt)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: The &#39;bdlt&#39; (&quot;Basic Development Library Time&quot;) package provides
  vocabulary types for representing date, time, and datetime values, and
  utilities providing non-primitive functionality on the value types.
@@ -25,42 +23,47 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdlt&#39; package currently has 26 components having 7 levels of physical
+ The &#39;bdlt&#39; package currently has 29 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  9. bdlt_defaultcalendarcache
+
+  8. bdlt_calendarcache
+
   7. bdlt_currenttime
      bdlt_iso8601util
 
   6. bdlt_datetimetz
-     bdlt_defaultcalendarcache
      bdlt_localtimeoffset
 
-  5. bdlt_calendarcache
+  5. bdlt_calendar
+     bdlt_calendarloader
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
 
-  4. bdlt_calendar
-     bdlt_calendarloader
-     bdlt_datetime
-     bdlt_timetz
-
-  3. bdlt_dateutil
-     bdlt_intervalconversionutil
+  4. bdlt_datetime
+     bdlt_dateutil
      bdlt_packedcalendar
+     bdlt_timetz
+     bdlt_timeutil
+
+  3. bdlt_date
+     bdlt_intervalconversionutil
      bdlt_time
 
-  2. bdlt_date
-     bdlt_datetimeinterval
+  2. bdlt_datetimeinterval
      bdlt_dayofweekset
+     bdlt_serialdateimputil
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
      bdlt_iso8601utilconfiguration
      bdlt_monthofyear
-     bdlt_serialdateimputil
+     bdlt_posixdateimputil
+     bdlt_prolepticdateimputil
      bdlt_timeunitratio
 ..
 
@@ -132,6 +135,12 @@
 : &#39;bdlt_packedcalendar&#39;:
 :      Provide a compact repository for weekend/holiday information.
 :
+: &#39;bdlt_posixdateimputil&#39;:
+:      Provide low-level support functions for date-value manipulation.
+:
+: &#39;bdlt_prolepticdateimputil&#39;:
+:      Provide low-level support functions for date-value manipulation.
+:
 : &#39;bdlt_serialdateimputil&#39;:
 :      Provide low-level support functions for date-value manipulation.
 :
@@ -143,6 +152,9 @@
 :
 : &#39;bdlt_timeunitratio&#39;:
 :      Provide constants characterizing ratios between common time units.
+:
+: &#39;bdlt_timeutil&#39;:
+:      Provide common non-primitive operations on &#39;bdlt::Time&#39;.
 
 /Value Types
 /-----------
@@ -167,7 +179,7 @@
   Datetime [0001/01/01_00:00:00.000 ..  9999/12/31_23:59:59.999 ]
 ..
  Further note that:
-: o The date values follow the proleptic Gregorian calendar.
+: o The date values follow the Unix (POSIX) calendar (see {&#39;bdlt_date&#39;}.
 : o The definition of &#39;bdlt::Datetime&#39; does *not* allow for leap seconds.
 
  The above classes define values representing points on a timeline (e.g., dates

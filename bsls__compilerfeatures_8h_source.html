@@ -18,16 +18,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@MACROS
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for &#39;alignas&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: &#39;[[noreturn]]&#39; attribute
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: &#39;constexpr&#39; specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for &#39;decltype&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit &#39;= default&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: explicit &#39;= deleted&#39;
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for &#39;extern template&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_FINAL: flag for &#39;final&#39; keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
 //  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for &#39;include_next&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: &#39;noexcept&#39; operator
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for &#39;nullptr&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: &#39;explicit&#39; operator
+//  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: &#39;override&#39; keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for &#39;static_assert&#39;
+//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has &lt;type_traits&gt; header
+//  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for &#39;char(16|32)_t&#39;
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
-//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for &#39;alignas&#39;.
-//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for &#39;noexcept&#39; keyword
-//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has &lt;type_traits&gt; header
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type &#39;T&#39; to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument &#39;V&#39; of type &#39;T&#39;
 //
@@ -50,6 +59,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES&#39;:
 //:     This macro is defined if alias templates are supported by the current
 //:     compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS&#39;
+//:     This macro is defined if &#39;alignas&#39; alignment specifier is supported by
+//:     the current compiler settings for this platform.
 //:
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN&#39;:
 //:     This macro is defined if the &#39;[[noreturn]]&#39; attribute is supported by
@@ -112,23 +125,20 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:     This macro is defined if &#39;static_assert&#39; is supported by the current
 //:     compiler settings for this platform.
 //:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER&#39;
+//:     This macro is defined if the standard library for the current compiler
+//:     supports some form of the standard &lt;type_traits&gt; header.  Note that
+//:     many standard library implementations provided partial support for a
+//:     long time, and those libraries WILL be identified as providing the
+//:     &lt;type_traits&gt; header.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES&#39;
+//:     This macro is defined if the compiler suports the &#39;char16_t&#39; and
+//:     &#39;char32_t&#39; types.
+//
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES&#39;
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
-//:
-//: &#39;BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS&#39;
-//:     This macro is defined if &#39;alignas&#39; alignment specifier is supported by
-//:     the current compiler settings for this platform.
-//:
-//: &#39;BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT&#39;
-//:     This macro is defined if the &#39;noexcept&#39; keyword is supported by the
-//:     current compiler settings for this platform, both for designating a
-//:     function as not throwing and for testing if an expression may throw.
-//:
-//: &#39;BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER&#39;
-//:     This macro is defined if the &lt;type_traits&gt; header is provided by the
-//:     current compiler settings for this platform and supports traits like
-//:     &#39;is_trivially_copyable&#39; and &#39;is_nothrow_destructible&#39;
 //
 ///Usage
 ///-----
@@ -172,6 +182,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:   o clang 3.0
 //:   o MSVC 2013
 //:   o Oracle CC 12.4
+//
+///&#39;BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS&#39;
+///- - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the &#39;alignas&#39; alignment
+// specifier.
+//
+//: o Compiler support:
+//:   o gcc 4.8
+//:   o clang 3.0
+//
+// This feature is not yet supported in Visual Studio, xlc, CC.
 //
 ///&#39;BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN&#39;
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -370,16 +391,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Note that bugs in MSVC 2013 support for variadic templates preclude
 // enabling the feature for BSL.
 //
-///&#39;BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS&#39;
-///- - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports the &#39;alignas&#39; alignment
-// specifier.
-//
-//: o Compiler support:
-//:   o gcc 4.8
-//:   o clang 3.0
-//
-// This feature is not yet supported in Visual Studio, xlc, CC.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
@@ -402,6 +413,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #if BSLS_PLATFORM_CMP_VERSION &gt;= 40300
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 #if BSLS_PLATFORM_CMP_VERSION &gt;= 40400
@@ -511,6 +523,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+//#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// Disable native type traits while investigating a rescursion problem that
+// arises in the standard header include-graph in BSL_OVERRIDES_STD mode.
 #endif
 #if BSLS_PLATFORM_CMP_VERSION &gt;= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES

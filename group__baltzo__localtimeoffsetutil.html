@@ -129,7 +129,7 @@ Namespaces</h2></td></tr>
   <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> timezone;
 
   <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#a635f7b0f04e725c6a34574223964131b">baltzo::LocalTimeOffsetUtil::loadTimezone</a>(&amp;timezone);
-  assert(0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>()));
+  assert(0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>()));
 </pre></div><br/>
 <br/>
  Notice that the value returned by the <code>updateCount</code> method is increased by one after then time zone information has been set. </dd></dl>
@@ -153,7 +153,7 @@ Namespaces</h2></td></tr>
   assert(        1 == <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#aeac01503b9bfbe9e25b92ddc2a9db67a">baltzo::LocalTimeOffsetUtil::updateCount</a>());
 
   <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#a635f7b0f04e725c6a34574223964131b">baltzo::LocalTimeOffsetUtil::loadTimezone</a>(&amp;timezone);
-  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>()));
+  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>()));
 
   offsetInSeconds =
       <a class="code" href="structbdlt_1_1LocalTimeOffset.html#aa713a683be317c3b747f59920c380d86">bdlt::LocalTimeOffset::localTimeOffset</a>(<a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>(2013, 7, 4))
@@ -161,7 +161,7 @@ Namespaces</h2></td></tr>
   assert(-4 * 3600 == offsetInSeconds);
   assert(        2 == <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#aeac01503b9bfbe9e25b92ddc2a9db67a">baltzo::LocalTimeOffsetUtil::updateCount</a>());
   <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#a635f7b0f04e725c6a34574223964131b">baltzo::LocalTimeOffsetUtil::loadTimezone</a>(&amp;timezone);
-  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>()));
+  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>()));
 
   offsetInSeconds =
       <a class="code" href="structbdlt_1_1LocalTimeOffset.html#aa713a683be317c3b747f59920c380d86">bdlt::LocalTimeOffset::localTimeOffset</a>(<a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>(2013, 12, 21))
@@ -169,7 +169,7 @@ Namespaces</h2></td></tr>
   assert(-5 * 3600 == offsetInSeconds);
   assert(        3 == <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#aeac01503b9bfbe9e25b92ddc2a9db67a">baltzo::LocalTimeOffsetUtil::updateCount</a>());
   <a class="code" href="structbaltzo_1_1LocalTimeOffsetUtil.html#a635f7b0f04e725c6a34574223964131b">baltzo::LocalTimeOffsetUtil::loadTimezone</a>(&amp;timezone);
-  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>()));
+  assert(        0 == strcmp(<span class="stringliteral">&quot;America/New_York&quot;</span>, timezone.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>()));
 </pre></div><br/>
 <br/>
  Notice that the value returned by <code>updateCount()</code> is unchanged by our first request, but incremented by the second and third request, which transitions into and then out of daylight saving time. Also notice that the updates change the offset information but do not change the timezone. </dd></dl>
@@ -182,7 +182,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:35 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:30 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

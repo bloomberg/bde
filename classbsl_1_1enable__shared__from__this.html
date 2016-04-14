@@ -82,8 +82,10 @@
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1enable__shared__from__this.html#a659c4e64c76fd646acc1ec5637bcf542">shared_from_this</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1enable__shared__from__this.html#a2d29a4aae3b1325dcf9d769a1aa940a9">weak_from_this</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; const <br class="typebreak"/>
 ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1enable__shared__from__this.html#a6a5b08bc2d1f785f5f89b934a0328aa3">shared_from_this</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; const ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1enable__shared__from__this.html#aa1325ad8010c212ef338e755299bd93b">weak_from_this</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1enable__shared__from__this.html#a4f3c164b9eb3b6565ce9ebcc19851405">enable_shared_from_this</a> ()</td></tr>
@@ -98,8 +100,8 @@ Friends</h2></td></tr>
 <h3>template&lt;class ELEMENT_TYPE&gt;<br/>
  class bsl::enable_shared_from_this&lt; ELEMENT_TYPE &gt;</h3>
 
-<p>This class allows an object that is currently managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> to safely generate a copy of the managing <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. Inheriting from <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a>&lt;ELEMENT_TYPE&gt;</code> provides the (template parameter) <code>ELEMENT_TYPE</code> type with a member function <code>share_from_this</code>. If an object of type <code>ELEMENT_TYPE</code> is managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> then calling <code>shared_from_this</code> will return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt;</code> that shares ownership of that object. It is undefined behavior to call <code>shared_from_this</code> on an object unless that object is managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>.</p>
-<p>The intended use of <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> is that the templated type parameter <code>ELEMENT_TYPE</code> inherits directly from the <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> class. In the case of multiple inheritance, only one of the base classes should inherit from the <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> class. If multiple base classes inherit from <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code>, then there will be ambiguous calls to the <code>shared_from_this</code> function. </p>
+<p>This class allows an object that is currently managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> to safely generate a copy of the managing <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. Inheriting from <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a>&lt;ELEMENT_TYPE&gt;</code> provides the (template parameter) <code>ELEMENT_TYPE</code> type with a member function <code>shared_from_this</code>. If an object of type <code>ELEMENT_TYPE</code> is managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> then calling <code>shared_from_this</code> will return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt;</code> that shares ownership of that object. It is undefined behavior to call <code>shared_from_this</code> on an object unless that object is managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>.</p>
+<p>The intended use of <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> is that the (template parameter) type <code>ELEMENT_TYPE</code> inherits directly from the <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> class template. In the case of multiple inheritance, only one of the base classes should inherit from the <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> class template. If multiple base classes inherit from <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code>, then there will be ambiguous calls to the <code>shared_from_this</code> function. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a4f3c164b9eb3b6565ce9ebcc19851405"></a><!-- doxytag: member="bsl::enable_shared_from_this::enable_shared_from_this" ref="a4f3c164b9eb3b6565ce9ebcc19851405" args="()" -->
 <div class="memitem">
@@ -138,7 +140,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> object that is not owned by any <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. </p>
+<p>Create an <code><a class="el" href="classbsl_1_1enable__shared__from__this.html">enable_shared_from_this</a></code> object that is not owned by any <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. Note that the specified <code>unused</code> argument is not used by this constructor. </p>
 
 </div>
 </div>
@@ -180,7 +182,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>*this</code>. This object is unchanged. </p>
+<p>Return <code>*this</code>. This object is unchanged. Note that the specified <code>rhs</code> is not used. </p>
 
 </div>
 </div>
@@ -200,7 +202,27 @@ template&lt;class ELEMENT_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt;</code> that shares ownership with the <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object that owns <code>*this</code>. The behavior is undefined unless <code>*this</code> is currently managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. </p>
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt;</code> that shares ownership with an existing <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object that managed this object, and throw a <code>std::bad_weak_ptr</code> exception if there is no <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> currently managing this object. If multiple groups of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>s are managing this object, the returned <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> will share ownership with the group that first managed this object. </p>
+
+</div>
+</div>
+<a class="anchor" id="a2d29a4aae3b1325dcf9d769a1aa940a9"></a><!-- doxytag: member="bsl::enable_shared_from_this::weak_from_this" ref="a2d29a4aae3b1325dcf9d769a1aa940a9" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt;ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ELEMENT_TYPE &gt;::weak_from_this </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> holding a weak reference to this managed object if this object is currently managed by <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>, and return an expired <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> otherwise. If multiple groups of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>s are managing this object, the returned <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> will hold a weak reference to the group that first managed this object. </p>
 
 </div>
 </div>
@@ -220,7 +242,27 @@ template&lt;class ELEMENT_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;ELEMENT_TYPE&gt;</code> that shares ownership with the <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object that owns <code>*this</code>. The behavior is undefined unless <code>*this</code> is currently managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object. </p>
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;const ELEMENT_TYPE&gt;</code> that shares ownership with an existing <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object that managed this object, and throw a <code>std::bad_weak_ptr</code> exception if there is no <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> currently managing this object. If multiple groups of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>s are managing this object, the returned <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> will share ownership with the group that first managed this object. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa1325ad8010c212ef338e755299bd93b"></a><!-- doxytag: member="bsl::enable_shared_from_this::weak_from_this" ref="aa1325ad8010c212ef338e755299bd93b" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt;const ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1enable__shared__from__this.html">bsl::enable_shared_from_this</a>&lt; ELEMENT_TYPE &gt;::weak_from_this </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> holding a weak reference (with only <code>const</code> access) to this managed object if this object is currently managed by <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>, and return an expired <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> otherwise. If multiple groups of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>s are managing this object, the returned <code><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a></code> will hold a weak reference to the group that first managed this object. </p>
 
 </div>
 </div>
@@ -244,7 +286,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:55 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

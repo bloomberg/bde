@@ -1106,8 +1106,7 @@ inline
 int Encoder_DynamicTypeDispatcher::operator()(const TYPE&amp;  value,
                                               ANY_CATEGORY category)
 {
-    d_encoder_p-&gt;encodeImp(value, d_mode, category);
-    return 0;
+    return d_encoder_p-&gt;encodeImp(value, d_mode, category);
 }
 }  // close package namespace
 

@@ -503,9 +503,19 @@ class SequentialPool {
 
     void release();
         // Release all memory allocated through this pool.  The pool is reset
-        // to its default-constructed state, retaining the alignment and growth
-        // strategies, and the initial and maximum buffer sizes in effect
-        // following construction.
+        // to its default-constructed state, retaining the alignment and
+        // growth strategies, and the initial and maximum buffer sizes in
+        // effect following construction.  The effect of using a pointer after
+        // this call that was obtained before this call from this object is
+        // undefined.
+
+    void rewind();
+        // Release all memory allocated through this pool.  Return to the
+        // construction-time supplied allocator all but the last block obtained
+        // from it, if any, and satisfy subsequent allocations from the
+        // beginning of the remaining block, where possible. The effect of
+        // using a pointer after this call that was obtained from this object
+        // before this call is undefined.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
@@ -640,6 +650,13 @@ void SequentialPool::release()
     d_buffer.reset();
 
     d_blockList.release();
+}
+
+inline
+void SequentialPool::rewind()
+{
+    d_buffer.release();  // Reset the internal cursor in the current block.
+    d_blockList.rewind();  // Free up all the other blocks.
 }
 
 inline

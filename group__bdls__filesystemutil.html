@@ -142,6 +142,8 @@ Namespaces</h2></td></tr>
  Open an existing file.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>e_CREATE</code>: <br/>
  Create a new file.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>e_CREATE_PRIVATE</code>: <br/>
+ Create a new file, with limited permissions where that is supported (e.g. not necessarily Microsoft Windows).</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>e_OPEN_OR_CREATE</code>: <br/>
  Open a file if it exists, and create a new file otherwise.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
@@ -205,7 +207,7 @@ On at least some flavors of Unix, you can't lock a file for writing using a file
 <dl class="user"><dt><b></b></dt><dd>File-name encodings have the following caveats for the following operating systems: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">On Windows, methods of <code><a class="el" href="structbdls_1_1FilesystemUtil.html">bdls::FilesystemUtil</a></code> that take a file or directory name or pattern as a <code>char*</code> or <code>bsl::string</code> type assume that the name is encoded in UTF-8. The routines attempt to convert the name to a UTF-16 <code>wchar_t</code> string via <code><a class="el" href="structbdlde_1_1CharConvertUtf16.html#aed0c2c39a68a4ab14372b8285ca9019e">bdlde::CharConvertUtf16::utf8ToUtf16</a></code>, and if the conversion succeeds, call the Windows wide-character <code>W</code> APIs with the UTF-16 name. If the conversion fails, the method fails. Similarly, file searches returning file names call the Windows wide-character <code>W</code> APIs and convert the resulting UTF-16 names to UTF-8.</p>
+<p class="startli">On Windows, methods of <code><a class="el" href="structbdls_1_1FilesystemUtil.html">bdls::FilesystemUtil</a></code> that take a file or directory name or pattern as a <code>char*</code> or <code>bsl::string</code> type assume that the name is encoded in UTF-8. The routines attempt to convert the name to a UTF-16 <code>wchar_t</code> string via <code><a class="el" href="structbdlde_1_1CharConvertUtf16.html#af8825cc14b50735cfba6a9e20dc7a3e1">bdlde::CharConvertUtf16::utf8ToUtf16</a></code>, and if the conversion succeeds, call the Windows wide-character <code>W</code> APIs with the UTF-16 name. If the conversion fails, the method fails. Similarly, file searches returning file names call the Windows wide-character <code>W</code> APIs and convert the resulting UTF-16 names to UTF-8.</p>
 <ul>
 <li>
 Narrow-character file names in other encodings, containing characters with values in the range 128 - 255, will likely result in files being created with names that appear garbled if the conversion from UTF-8 to UTF-16 happens to succeed.  </li>
@@ -223,7 +225,7 @@ For compatibility with most modern Posix installs, and consistency with this com
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="file_truncation_caveats"></a> <a class="anchor" id="description.file_truncation_caveats"></a> <a class="anchor" id="3.6"></a> </dd></dl>
 <dl class="user"><dt><b>File Truncation Caveats: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In order to provide consistent behavior across both Posix and Windows platforms, when the <code>open</code> method is called file truncation is allowed only if the client requests an <code>openPolicy</code> containing the word <code>CREATE</code> and/or an <code>ioPolicy</code> containing the word <code>WRITE</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In order to provide consistent behavior across both Posix and Windows platforms, when the <code>open</code> method is called, file truncation is allowed only if the client requests an <code>openPolicy</code> containing the word <code>CREATE</code> and/or an <code>ioPolicy</code> containing the word <code>WRITE</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.7"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -245,9 +247,9 @@ For compatibility with most modern Posix installs, and consistency with this com
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a> oldPath(logPath), newPath(logPath);
   <a class="code" href="structbdls_1_1PathUtil.html#a7701bb16aec4cc526e657848447b6b83">bdls::PathUtil::appendRaw</a>(&amp;oldPath, <span class="stringliteral">&quot;old&quot;</span>);
   <a class="code" href="structbdls_1_1PathUtil.html#a7701bb16aec4cc526e657848447b6b83">bdls::PathUtil::appendRaw</a>(&amp;newPath, <span class="stringliteral">&quot;new&quot;</span>);
-  <span class="keywordtype">int</span> rc = <a class="code" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">bdls::FilesystemUtil::createDirectories</a>(oldPath.c_str(), <span class="keyword">true</span>);
+  <span class="keywordtype">int</span> rc = <a class="code" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">bdls::FilesystemUtil::createDirectories</a>(oldPath, <span class="keyword">true</span>);
   assert(0 == rc);
-  rc = <a class="code" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">bdls::FilesystemUtil::createDirectories</a>(newPath.c_str(), <span class="keyword">true</span>);
+  rc = <a class="code" href="structbdls_1_1FilesystemUtil.html#acee8e6117d6907d4fd6f2725e098f9ae">bdls::FilesystemUtil::createDirectories</a>(newPath, <span class="keyword">true</span>);
   assert(0 == rc);
 </pre></div><br/>
 <br/>
@@ -255,7 +257,7 @@ For compatibility with most modern Posix installs, and consistency with this com
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="structbdls_1_1PathUtil.html#a7701bb16aec4cc526e657848447b6b83">bdls::PathUtil::appendRaw</a>(&amp;logPath, <span class="stringliteral">&quot;*.log&quot;</span>);
   <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::string&gt;</a> logFiles;
-  <a class="code" href="structbdls_1_1FilesystemUtil.html#aeaff1fd7c247091e669bfdb6f0654c4f">bdls::FilesystemUtil::findMatchingPaths</a>(&amp;logFiles, logPath.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>());
+  <a class="code" href="structbdls_1_1FilesystemUtil.html#aeaff1fd7c247091e669bfdb6f0654c4f">bdls::FilesystemUtil::findMatchingPaths</a>(&amp;logFiles, logPath.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>());
 </pre></div><br/>
 <br/>
  Now for each of these files, we will get the modification time. Files that are older than 2 days will be moved to "old", and the rest will be moved to "new": <br/>
@@ -271,9 +273,9 @@ For compatibility with most modern Posix installs, and consistency with this com
                 2 &lt; (<a class="code" href="structbdlt_1_1CurrentTime.html#a42d082242c48b7445d21cabbaec1b50b">bdlt::CurrentTime::utc</a>() - modTime).totalDays()
                 ? &amp;oldPath
                 : &amp;newPath;
-    <a class="code" href="structbdls_1_1PathUtil.html#a7701bb16aec4cc526e657848447b6b83">bdls::PathUtil::appendRaw</a>(whichDirectory, fileName.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>());
+    <a class="code" href="structbdls_1_1PathUtil.html#a7701bb16aec4cc526e657848447b6b83">bdls::PathUtil::appendRaw</a>(whichDirectory, fileName.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>());
     assert(0 == <a class="code" href="structbdls_1_1FilesystemUtil.html#a67adb857280699a27c26153b9146e702">bdls::FilesystemUtil::move</a>(it-&gt;c_str(),
-                                         whichDirectory-&gt;<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>()));
+                                         whichDirectory-&gt;<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>()));
     <a class="code" href="structbdls_1_1PathUtil.html#ae80db28aaead0f4b571b6ed4e82d5c26">bdls::PathUtil::popLeaf</a>(whichDirectory);
   }
 </pre></div><br/>
@@ -282,7 +284,7 @@ For compatibility with most modern Posix installs, and consistency with this com
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_using_bdls~3A~3Afilesystemutil~3A~3Avisitpaths"></a> <a class="anchor" id="usage.example_2~3A_using_bdls~3A~3Afilesystemutil~3A~3Avisitpaths"></a> <a class="anchor" id="description.usage.example_2~3A_using_bdls~3A~3Afilesystemutil~3A~3Avisitpaths"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.7.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Using bdls::FilesystemUtil::visitPaths: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbdls_1_1FilesystemUtil.html#ac2624b29e9562de9b813e432d35ab1cc">bdls::FilesystemUtil::visitPaths</a></code> enables clients to define a functor to operate on file paths that match a specified pattern. In this example, we create a function that can be used to filter out files that have a last modified time within a particular time frame. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbdls_1_1FilesystemUtil.html#ac2624b29e9562de9b813e432d35ab1cc">bdls::FilesystemUtil::visitPaths</a></code> enables clients to define a function object to operate on file paths that match a specified pattern. In this example, we create a function that can be used to filter out files that have a last modified time within a particular time frame. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First we define our filtering function: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> getFilesWithinTimeframe(<a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::string&gt;</a> *vector,
@@ -326,7 +328,7 @@ For compatibility with most modern Posix installs, and consistency with this com
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:45 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

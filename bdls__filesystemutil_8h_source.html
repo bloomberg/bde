@@ -60,6 +60,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: &#39;e_CREATE&#39;:
 //:   Create a new file.
 //:
+//: &#39;e_CREATE_PRIVATE&#39;:
+//:   Create a new file, with limited permissions where that is supported (e.g.
+//:   not necessarily Microsoft Windows).
+//:
 //: &#39;e_OPEN_OR_CREATE&#39;:
 //:   Open a file if it exists, and create a new file otherwise.
 //
@@ -168,7 +172,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///File Truncation Caveats
 ///-----------------------
 // In order to provide consistent behavior across both Posix and Windows
-// platforms, when the &#39;open&#39; method is called file truncation is allowed only
+// platforms, when the &#39;open&#39; method is called, file truncation is allowed only
 // if the client requests an &#39;openPolicy&#39; containing the word &#39;CREATE&#39; and/or
 // an &#39;ioPolicy&#39; containing the word &#39;WRITE&#39;.
 //
@@ -194,9 +198,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  bsl::string oldPath(logPath), newPath(logPath);
 //  bdls::PathUtil::appendRaw(&amp;oldPath, &quot;old&quot;);
 //  bdls::PathUtil::appendRaw(&amp;newPath, &quot;new&quot;);
-//  int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+//  int rc = bdls::FilesystemUtil::createDirectories(oldPath, true);
 //  assert(0 == rc);
-//  rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
+//  rc = bdls::FilesystemUtil::createDirectories(newPath, true);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern &quot;*.log&quot;, so let&#39;s search
@@ -230,10 +234,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 2: Using &#39;bdls::FilesystemUtil::visitPaths&#39;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// &#39;bdls::FilesystemUtil::visitPaths&#39; enables clients to define a functor to
-// operate on file paths that match a specified pattern.  In this example, we
-// create a function that can be used to filter out files that have a last
-// modified time within a particular time frame.
+// &#39;bdls::FilesystemUtil::visitPaths&#39; enables clients to define a function
+// object to operate on file paths that match a specified pattern.  In this
+// example, we create a function that can be used to filter out files that have
+// a last modified time within a particular time frame.
 //
 // First we define our filtering function:
 //..
@@ -368,16 +372,16 @@ struct FilesystemUtil {
 #endif
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-    static const Offset k_OFFSET_MAX =  (9223372036854775807L);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807L-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #else
-    static const Offset k_OFFSET_MAX =  (9223372036854775807LL);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807LL-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #endif
 
@@ -393,16 +397,20 @@ struct FilesystemUtil {
     };
 
     enum {
-        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which
-                                                 // to grow files
+        k_DEFAULT_FILE_GROWTH_INCREMENT = 0x10000  // default block size to
+                                                   // grow files by
     };
 
     enum {
-        k_ERROR_LOCKING_CONFLICT =  1, // value representing a failure to
-                                       // obtain a lock on a file
+        k_ERROR_LOCKING_CONFLICT    =  1,  // value representing a failure to
+                                           // obtain a lock on a file
 
-        k_BAD_FILE_DESCRIPTOR    = -1  // value indicating a bad file
-                                       // descriptor was supplied
+        k_ERROR_LOCKING_INTERRUPTED =  2,  // value representing a failure to
+                                           // obtain a lock on a file due to
+                                           // interruption by a signal
+
+        k_BAD_FILE_DESCRIPTOR       = -1   // value indicating a bad file
+                                           // descriptor was supplied
     };
 
     enum FileOpenPolicy {
@@ -413,6 +421,10 @@ struct FilesystemUtil {
 
         e_CREATE,         // Create a new file, and fail if the file already
                           // exists.
+
+        e_CREATE_PRIVATE, // Create a new file with access restricted to the
+                          // creating userid, where supported, and fail if the
+                          // file already exists.
 
         e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
                           // otherwise.
@@ -463,28 +475,37 @@ struct FilesystemUtil {
         // &#39;FileDescriptor&#39; for the file on success, or &#39;k_INVALID_FD&#39;
         // otherwise.  If &#39;openPolicy&#39; is &#39;e_OPEN&#39;, the file will be opened if
         // it exists, and &#39;open&#39; will fail otherwise.  If &#39;openPolicy&#39; is
-        // &#39;e_CREATE&#39;, and no file exists at &#39;path&#39;, a new file will be
-        // created, and &#39;open&#39; will fail otherwise.  If &#39;openPolicy&#39; is
-        // &#39;e_OPEN_OR_CREATE&#39;, the file will be opened if it exists, and a new
-        // file will be created otherwise.  If &#39;ioPolicy&#39; is &#39;e_READ_ONLY&#39;, the
-        // returned &#39;FileDescriptor&#39; will allow only read operations on the
-        // file.  If &#39;ioPolicy&#39; is &#39;e_WRITE_ONLY&#39; or &#39;e_APPEND_ONLY&#39;, the
-        // returned &#39;FileDescriptor&#39; will allow only write operations on the
-        // file.  If &#39;ioPolicy&#39; is &#39;e_READ_WRITE&#39; or &#39;e_READ_APPEND&#39;, the
-        // returned &#39;FileDescriptor&#39; will allow both read and write operations
-        // on the file.  Additionally, if &#39;ioPolicy&#39; is &#39;e_APPEND_ONLY&#39; or
-        // &#39;e_READ_APPEND&#39; all writes will be made to the end of the file
-        // (&quot;append mode&quot;).  If &#39;truncatePolicy&#39; is &#39;e_TRUNCATE&#39;, the file will
-        // have zero length when &#39;open&#39; returns.  If &#39;truncatePolicy&#39; is
-        // &#39;e_KEEP&#39;, the file will be opened with its existing contents, if
-        // any.  Note that when a file is opened in &#39;append&#39; mode, all writes
-        // will go to the end of the file, even if there has been seeking on
-        // the file descriptor or another process has changed the length of the
-        // file, though append-mode writes are not guaranteed to be atomic.
-        // Note that &#39;open&#39; will fail to open a file with a &#39;truncatePolicy&#39; of
-        // &#39;e_TRUNCATE&#39; unless at least one of the following policies is
-        // specified for &#39;openPolicy&#39; or &#39;ioPolicy&#39;:
+        // &#39;e_CREATE&#39; or &#39;e_CREATE_PRIVATE&#39;, and no file exists at &#39;path&#39;, a
+        // new file will be created, and &#39;open&#39; will fail otherwise.  If
+        // &#39;openPolicy&#39; is &#39;e_CREATE_PRIVATE&#39;, the file will be created with
+        // access restricted to the same userid as the caller in environments
+        // where that is supported (which does not necessarily include Windows)
+        // otherwise the system default access policy is used (e.g. &#39;0777 &amp;
+        // ~umask&#39;).  If &#39;openPolicy&#39; is &#39;e_OPEN_OR_CREATE&#39;, the file will be
+        // opened if it exists, and a new file will be created otherwise.  If
+        // &#39;ioPolicy&#39; is &#39;e_READ_ONLY&#39;, the returned &#39;FileDescriptor&#39; will
+        // allow only read operations on the file.  If &#39;ioPolicy&#39; is
+        // &#39;e_WRITE_ONLY&#39; or &#39;e_APPEND_ONLY&#39;, the returned &#39;FileDescriptor&#39;
+        // will allow only write operations on the file.  If &#39;ioPolicy&#39; is
+        // &#39;e_READ_WRITE&#39; or &#39;e_READ_APPEND&#39;, the returned &#39;FileDescriptor&#39;
+        // will allow both read and write operations on the file.
+        // Additionally, if &#39;ioPolicy&#39; is &#39;e_APPEND_ONLY&#39; or &#39;e_READ_APPEND&#39;
+        // all writes will be made to the end of the file (&quot;append mode&quot;).  If
+        // &#39;truncatePolicy&#39; is &#39;e_TRUNCATE&#39;, the file will have zero length
+        // when &#39;open&#39; returns.  If &#39;truncatePolicy&#39; is &#39;e_KEEP&#39;, the file will
+        // be opened with its existing contents, if any.  Note that when a file
+        // is opened in &#39;append&#39; mode, all writes will go to the end of the
+        // file, even if there has been seeking on the file descriptor or
+        // another process has changed the length of the file.  Append-mode
+        // writes are not atomic except in limited cases; another thread, or
+        // even another process, operating on the file may cause output not to
+        // be written, unbroken, to the end of the file. (Unix environments
+        // writing to local file systems may promise more.) Note that &#39;open&#39;
+        // will fail to open a file with a &#39;truncatePolicy&#39; of &#39;e_TRUNCATE&#39;
+        // unless at least one of the following policies is specified for
+        // &#39;openPolicy&#39; or &#39;ioPolicy&#39;:
         //: o &#39;e_CREATE&#39;
+        //: o &#39;e_CREATE_PRIVATE&#39;
         //: o &#39;e_OPEN_OR_CREATE&#39;
         //: o &#39;e_WRITE_ONLY
         //: o &#39;e_READ_WRITE&#39;
@@ -547,19 +568,69 @@ struct FilesystemUtil {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(
-                              const bsl::string&amp;  path,
-                              bool                isLeafDirectoryFlag = false);
+                               const bsl::string&amp; path,
+                               bool               isLeafDirectoryFlag = false);
     static int createDirectories(
-                              const char         *path,
-                              bool                isLeafDirectoryFlag = false);
+                               const char        *path,
+                               bool               isLeafDirectoryFlag = false);
         // Create any directories in the specified &#39;path&#39; that do not exist.
-        // If the optionally specified &#39;isLeafDirectoryFlag&#39; is &#39;true&#39;, then
-        // treat the last filename in &#39;path&#39; as a directory and attempt to
-        // create it.  Otherwise, treat the last filename as a regular file and
-        // ignore it.  Return 0 on success, and a non-zero value if any needed
-        // directories in &#39;path&#39; could not be created.  Note that this
-        // function may return an error status if another task attempts to
-        // create a directory in &#39;path&#39; concurrently to this function call.
+        // If the optionally specified &#39;isLeafDirectoryFlag&#39; is &#39;true&#39;, treat
+        // the final name component in &#39;path&#39; as a directory name, and create
+        // it.  Otherwise, create only the directories leading up to the final
+        // name component.  Return 0 on success, and a non-zero value if any
+        // needed directories in &#39;path&#39; could not be created.
+
+    static int createPrivateDirectory(const bslstl::StringRef&amp; path);
+        // Create a private directory with the specified &#39;path&#39;.  Return 0 on
+        // success, and a non-zero value if the directory could not be created.
+        // The directory is created with permissions restricting access, as
+        // closely as possible, to the caller&#39;s userid only.  If the directory
+        // already exists, the function reports success but the directory&#39;s
+        // permissions are not changed.  Note that directories created on
+        // Microsoft Windows may receive default, not restricted permissions.
+
+    static FileDescriptor createTemporaryFile(bsl::string             *outPath,
+                                              const bslstl::StringRef&amp; prefix);
+        // Create and open a new file with a name constructed by appending an
+        // automatically-generated suffix to the specified &#39;prefix&#39;, and return
+        // its file descriptor open for reading and writing.  A return value of
+        // &#39;k_INVALID_FD&#39; indicates that no such file could be created;
+        // otherwise, the name of the file created is assigned to the specified
+        // &#39;outPath&#39;.  The file is created with permissions restricted, as
+        // closely as possible, to the caller&#39;s userid only.  If the prefix is
+        // a relative path, the file is created relative to the process current
+        // directory.  Responsibility for deleting the file is left to the
+        // caller.  Note that on Posix systems, if &#39;outPath&#39; is unlinked
+        // immediately, the file will remain usable until its descriptor is
+        // closed.  Note that files created on Microsoft Windows may receive
+        // default, not restricted permissions.
+
+    static int createTemporaryDirectory(bsl::string             *outPath,
+                                        const bslstl::StringRef&amp; prefix);
+        // Create a new directory with a name constructed by appending an
+        // automatically-generated suffix to the specified &#39;prefix&#39;.  A
+        // non-zero return value indicates that no such directory could be
+        // created; otherwise the name of the directory created is assigned to
+        // the specified &#39;outPath&#39;.  The directory is created with permissions
+        // restricted, as closely as possible, to the caller only.  If the
+        // prefix is a relative path, the directory is created relative to the
+        // process current directory.  Responsibility for deleting the
+        // directory (and any files subsequently created in it) is left to the
+        // caller.
+
+    static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
+                                            const bslstl::StringRef&amp; prefix);
+        // Construct a file name by appending an automatically-generated suffix
+        // to the specified &#39;prefix&#39;.  The file name constructed is assigned to
+        // the specified &#39;outPath&#39;.  Note that this function is called &quot;unsafe&quot;
+        // because a file with the resulting name may be created by another
+        // program before the caller has opportunity to use the name, which
+        // could be a security vulnerability, and a file with the given name
+        // may already exist where you mean to put it.  Note that the suffix is
+        // hashed from environmental details, including any pre-existing value
+        // of &#39;outPath&#39; so that if a resulting name is unsuitable (e.g. the
+        // file exists) this function may simply be called again, pointing to
+        // its previous result, to get a new, probably different name.
 
     static void visitPaths(
                          const bsl::string&amp;                           pattern,
@@ -567,13 +638,46 @@ struct FilesystemUtil {
     static void visitPaths(
                         const char                                   *pattern,
                         const bsl::function&lt;void(const char *path)&gt;&amp;  visitor);
-        // Call the specified &#39;visitor&#39; functor for each path in the filesystem
-        // matching the specified &#39;pattern&#39;.  If &#39;visitor&#39; deletes files or
-        // directories during the search, the behavior is
-        // implementation-dependent: &#39;visitor&#39; may subsequently be called with
-        // paths which have already been deleted, or it may not.  Note that
-        // there is no stability risk in that case.  See &#39;findMatchingPaths&#39;
-        // for a discussion of how &#39;pattern&#39; is interpreted.
+        // Call the specified &#39;visitor&#39; function object for each path in the
+        // filesystem matching the specified &#39;pattern&#39;.  Note that if &#39;visitor&#39;
+        // deletes files or directories during the search, &#39;visitor&#39; may
+        // subsequently be called with paths which have already been deleted,
+        // so must be prepared for this event.  See &#39;findMatchingPaths&#39; for a
+        // discussion of how &#39;pattern&#39; is interpreted.
+
+    static int visitTree(
+              const char                                    *root,
+              const bsl::string&amp;                             pattern,
+              const bsl::function&lt;void (const char *path)&gt;&amp;  visitor,
+              bool                                           sortFlag = false);
+    static int visitTree(
+               const bsl::string&amp;                            root,
+               const bsl::string&amp;                            pattern,
+               const bsl::function&lt;void (const char *path)&gt;&amp; visitor,
+               bool                                          sortFlag = false);
+        // Recursively traverse the directory tree starting at the specified
+        // &#39;root&#39; for files whose leaf names match the specified &#39;pattern&#39;, and
+        // run the specified function &#39;visitor&#39;, passing it the full path
+        // starting with &#39;root&#39; to each pattern matching file.  See
+        // &#39;findMatchingPaths&#39; for a discussion of how &#39;pattern&#39; is
+        // interpreted.  If the specified &#39;sortFlag&#39; is &#39;true&#39;, traverse the
+        // files in the tree in sorted order, sorted by the full path name,
+        // otherwise the order in which the files will be visited is
+        // unspecified.  UTF-8 paths will be sorted by &#39;strcmp&#39;, which sorts by
+        // &#39;char&#39;s, not unicode code points.  Found &#39;.&#39; and &#39;..&#39; directories
+        // are ignored, except that &#39;root&#39; may be &#39;.&#39; or &#39;..&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  This function will fail if
+        // &#39;root&#39; does not specify a directory, of if &#39;pattern&#39; contains &#39;/&#39; on
+        // Unix or &#39;\&#39; on Windows.  Note that both directories and plain files
+        // whose names match &#39;pattern&#39; will be visited, while other files such
+        // as symlinks will not be visited or followed.  No file or directory
+        // that is not matched will be visited.  All directories are traversed,
+        // regardless of whether they are matched.  If a directory is matched
+        // and &#39;sortFlag&#39; is &#39;true&#39;, it is visited immediately before it is
+        // traversed.  Also note that &#39;root&#39; is never visited, even if it
+        // matches &#39;pattern&#39;.  Also note that no pattern matching is done on
+        // &#39;root&#39; -- if it contains wildcards, they are not interpreted as such
+        // and must exactly match the characters in the name of the directory.
 
     static void findMatchingPaths(bsl::vector&lt;bsl::string&gt; *result,
                                   const char               *pattern);
@@ -776,6 +880,7 @@ struct FilesystemUtil {
                            // ---------------------
 
 // CLASS METHODS
+
 inline
 int FilesystemUtil::createDirectories(const bsl::string&amp; path,
                                       bool               isLeafDirectoryFlag)
@@ -789,6 +894,18 @@ void FilesystemUtil::visitPaths(
                           const bsl::function&lt;void(const char *path)&gt;&amp; visitor)
 {
     return visitPaths(pattern.c_str(), visitor);
+}
+
+inline
+int FilesystemUtil::visitTree(
+                       const char                                    *root,
+                       const bsl::string&amp;                             pattern,
+                       const bsl::function&lt;void (const char *path)&gt;&amp;  visitor,
+                       bool                                           sortFlag)
+{
+    BSLS_ASSERT_SAFE(0 != root);
+
+    return visitTree(bsl::string(root), pattern, visitor, sortFlag);
 }
 
 inline

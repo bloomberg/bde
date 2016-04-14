@@ -250,10 +250,10 @@ Namespaces</h2></td></tr>
           <span class="keywordtype">int</span> maxLen = <span class="keyword">sizeof</span> d_name - 1;  <span class="comment">// the valid name length</span>
           <span class="keywordtype">int</span> len    = temp1.<a class="code" href="group__bslstl__string.html#ga3c33f63f9d195be7499bd2f7cdb085ff">length</a>();
           <span class="keywordflow">if</span> (len &lt; maxLen) {
-              strcpy(d_name, temp1.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>());
+              strcpy(d_name, temp1.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>());
           }
           <span class="keywordflow">else</span> {
-              strncpy(d_name, temp1.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>(), len);
+              strncpy(d_name, temp1.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>(), len);
               d_name[len] = 0;
           }
           stream.getFloat64(d_bestBid);
@@ -628,7 +628,7 @@ Namespaces</h2></td></tr>
 <br/>
  Please remember that these example code snippets are intended to illustrate the use of <code><a class="el" href="classbtlsc_1_1TimedChannelAllocator.html">btlsc::TimedChannelAllocator</a></code> and do not represent production-quality software. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:14 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -70,7 +70,6 @@
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
 <h1>baltzo::Zoneinfo Class Reference</h1>  </div>
@@ -106,10 +105,6 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbaltzo_1_1Zoneinfo.html#a8dea54525e5ac399cbdb3800fb40aa54">TransitionConstIterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#a21063bd9ec84f083217aa2c11fae8536">beginTransitions</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbaltzo_1_1Zoneinfo.html#a8dea54525e5ac399cbdb3800fb40aa54">TransitionConstIterator</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#aa94f41fdb32ae386028b420dd6b731f2">endTransitions</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#addbfa8f3ca021975d0d5ba626a04b4f0">print</a> (bsl::ostream &amp;stream, int level=0, int spacesPerLevel=4) const </td></tr>
-<tr><td colspan="2"><h2><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#ae2f61cf31565ec0b8c1ee4a2008bc23d">convertToTimeT64</a> (const <a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> &amp;datetime)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#a5c19426953262f8a29b80e714f31e0f2">convertFromTimeT64</a> (<a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> *result, <a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a> time)</td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbaltzo_1_1Zoneinfo.html#a39219ad8f5f6001b5c14fc3c89bee4c2">operator==</a> (const <a class="el" href="classbaltzo_1_1Zoneinfo.html">Zoneinfo</a> &amp;, const <a class="el" href="classbaltzo_1_1Zoneinfo.html">Zoneinfo</a> &amp;)</td></tr>
@@ -204,55 +199,6 @@ is <code>const</code> <em>thread-safe</em>  </li>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ae2f61cf31565ec0b8c1ee4a2008bc23d"></a><!-- doxytag: member="baltzo::Zoneinfo::convertToTimeT64" ref="ae2f61cf31565ec0b8c1ee4a2008bc23d" args="(const bdlt::Datetime &amp;datetime)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static <a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a> baltzo::Zoneinfo::convertToTimeT64 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>datetime</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>[!DEPRECATED!]: Do not use. This method is provided in BDE 2.23 to allow the conversion to <code>TimeT64</code> without generating <code>bsls_log</code> output.</p>
-<p>Return the relative time computed as the difference between the specified absolute <code>datetime</code> and the epoch. </p>
-
-</div>
-</div>
-<a class="anchor" id="a5c19426953262f8a29b80e714f31e0f2"></a><!-- doxytag: member="baltzo::Zoneinfo::convertFromTimeT64" ref="a5c19426953262f8a29b80e714f31e0f2" args="(bdlt::Datetime *result, bdlt::EpochUtil::TimeT64 time)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int baltzo::Zoneinfo::convertFromTimeT64 </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> *&nbsp;</td>
-          <td class="paramname"> <em>result</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a>&nbsp;</td>
-          <td class="paramname"> <em>time</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>[!DEPRECATED!]: Do not use. This method is provided in BDE 2.23 to allow the conversion from <code>TimeT64</code> without generating <code>bsls_log</code> output.</p>
-<p>Load into the specified <code>result</code> the absolute datetime computed as the sum of the specified relative <code>time</code> and the epoch. Return 0 on success, and a non-zero value otherwise. </p>
-
-</div>
-</div>
 <a class="anchor" id="a2f8788573f469ed429eec65a46dd9aec"></a><!-- doxytag: member="baltzo::Zoneinfo::BSLALG_DECLARE_NESTED_TRAITS" ref="a2f8788573f469ed429eec65a46dd9aec" args="(Zoneinfo, bslalg::TypeTraitUsesBslmaAllocator)" -->
 <div class="memitem">
 <div class="memproto">
@@ -577,7 +523,7 @@ is <code>const</code> <em>thread-safe</em>  </li>
 <li><a class="el" href="baltzo__zoneinfo_8h_source.html">baltzo_zoneinfo.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:30 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:05 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -135,6 +135,7 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a9d4813d43e457fb13dceefdbca5a6661">managedPtrDeleter</a> (void *, void *rep)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a19c1e289bff97685fce335bee7ad23d1">managedPtrEmptyDeleter</a> (void *, void *rep)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class TYPE&gt;<br/>
@@ -1282,6 +1283,34 @@ template&lt;class TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a19c1e289bff97685fce335bee7ad23d1"></a><!-- doxytag: member="bslma::SharedPtrInplaceRep::managedPtrEmptyDeleter" ref="a19c1e289bff97685fce335bee7ad23d1" args="(void *, void *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslma::SharedPtrRep::managedPtrEmptyDeleter </td>
+          <td>(</td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>This function has no effect. The behavior is undefined unless <code>rep</code> is null. Note that this function serves as the managed ptr deleter when converting an empty or null <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
+
+</div>
+</div>
 <a class="anchor" id="afae38768206afcee65656679fe8b8fea"></a><!-- doxytag: member="bslma::SharedPtrInplaceRep::acquireRef" ref="afae38768206afcee65656679fe8b8fea" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -1458,7 +1487,7 @@ template&lt;class TYPE&gt; </div>
 <li><a class="el" href="bslma__sharedptrinplacerep_8h_source.html">bslma_sharedptrinplacerep.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

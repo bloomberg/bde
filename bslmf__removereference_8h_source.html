@@ -187,6 +187,17 @@ struct remove_reference&lt;T&amp;&gt; {
     typedef T type;
 };
 
+template &lt;class T&gt;
+struct remove_reference&lt;T[]&gt; {
+    // This specialization is needed for just VC 2010 as the delegation to
+    // &#39;RemoveReference_Rval&#39; would try to form a reference to an array of
+    // unknown bound, which the VC2010 compiler would (wrongly) reject as
+    // ill-forned.  It does no harm to retain this workaround for VC2012 as
+    // well.
+
+    typedef T type[];
+};
+
 template &lt;&gt;
 struct remove_reference&lt;void&gt; {
     typedef void type;

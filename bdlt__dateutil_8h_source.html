@@ -89,7 +89,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:     resulting date, then adjust the resulting date to be the last day of
 //:     the month.
 //
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -353,7 +352,7 @@ Date DateUtil::addYears(const Date&amp; original, int numYears, bool eomFlag)
 inline
 Date DateUtil::addYearsEom(const Date&amp; original, int numYears)
 {
-    BSLS_ASSERT_SAFE(1    &lt;= original.year() + numYears);
+    BSLS_ASSERT_SAFE(   1 &lt;= original.year() + numYears);
     BSLS_ASSERT_SAFE(9999 &gt;= original.year() + numYears);
 
     if (2 == original.month() &amp;&amp; 28 &lt;= original.day()) {
@@ -365,7 +364,7 @@ Date DateUtil::addYearsEom(const Date&amp; original, int numYears)
 inline
 Date DateUtil::addYearsNoEom(const Date&amp; original, int numYears)
 {
-    BSLS_ASSERT_SAFE(1    &lt;= original.year() + numYears);
+    BSLS_ASSERT_SAFE(   1 &lt;= original.year() + numYears);
     BSLS_ASSERT_SAFE(9999 &gt;= original.year() + numYears);
 
     const int newYear = original.year() + numYears;
@@ -375,6 +374,7 @@ Date DateUtil::addYearsNoEom(const Date&amp; original, int numYears)
                     original.month(),
                     SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
                                                                       // RETURN
+
     }
     return Date(newYear, original.month(), original.day());
 }

@@ -352,27 +352,6 @@ class ThreadAttributes {
     int              d_stackSize;           // size of the thread&#39;s stack
 
   public:
-    // CLASS METHODS
-    static int getMaxSchedPriority(SchedulingPolicy policy);
-        // Return the maximum available priority for the specified &#39;policy&#39;,
-        // where &#39;policy&#39; is of type &#39;ThreadAttributes::SchedulingPolicy&#39;.
-        // Note that for some platform / policy combinations,
-        // &#39;getMinSchedPriority(policy)&#39; and &#39;getMaxSchedPriority(policy)&#39;
-        // return the same value.  The behavior is undefined unless &#39;policy&#39; is
-        // a valid value of enum &#39;ThreadAttributes::SchedulingPolicy&#39;.
-        //
-        // DEPRECATED: use &#39;ThreadUtil::getMaxSchedulingPriority&#39; instead.
-
-    static int getMinSchedPriority(SchedulingPolicy policy);
-        // Return the minimum available priority for the specified &#39;policy&#39;,
-        // where &#39;policy&#39; is of type &#39;ThreadAttributes::SchedulingPolicy&#39;.
-        // Note that for some platform / policy combinations,
-        // &#39;getMinSchedPriority(policy)&#39; and &#39;getMaxSchedPriority(policy)&#39;
-        // return the same value.  The behavior is undefined unless &#39;policy&#39; is
-        // a valid value of enum &#39;ThreadAttributes::SchedulingPolicy&#39;.
-        //
-        // DEPRECATED: use &#39;ThreadUtil::getMinSchedulingPriority&#39; instead.
-
     // CREATORS
     ThreadAttributes();
         // Create a &#39;ThreadAttributes&#39; object having the (default) attribute

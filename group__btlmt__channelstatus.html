@@ -115,38 +115,30 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  Name                      Descriptions
   ---------------------     -------------------------------------------------
-  BTEMT_SUCCESS             If the request had been a write request, then the
+  e_SUCCESS                 If the request had been a write request, then the
                             request was successfully enqueued or has been
                             successfully written synchronously.  If the
                             request had been a read request, then the request
                             was successfully enqueued.
 
-  BTEMT_CACHE_OVERFLOW      The write request failed because the existing
-                            write cache <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> (not including the <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> of the
-                            message being written) is greater than the write
-                            cache high-water mark.  Note that <span class="keyword">this</span> status can
-                            only occur when the write cache high-water mark
-                            is modified after construction of the <span class="keywordtype">object</span>
-                            managing the channels.
+  e_QUEUE_HIGHWATER         The write request failed because the current
+                            write queue <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> (not including the <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> of the
+                            message being written) is greater than the
+                            configured write-queue <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> limit.
 
-  BTEMT_CACHE_HIGHWATER     The write request failed because the existing
-                            write cache <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> after the current message gets
-                            enqueued will be greater than the write cache
-                            high-water mark.
-
-  BTEMT_READ_CHANNEL_DOWN   The read request failed because the read part of
+  e_READ_CHANNEL_DOWN       The read request failed because the read part of
                             the channel had already been closed.
 
-  BTEMT_WRITE_CHANNEL_DOWN  The write request failed because the write part
+  e_WRITE_CHANNEL_DOWN      The write request failed because the write part
                             of the channel had already been closed.
 
-  BTEMT_ENQUEUE_HIGHWATER   The write request failed because the existing
-                            write cache <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> (not including the <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> of the
+  e_ENQUEUE_HIGHWATER       The write request failed because the existing
+                            write queue <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> (not including the <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> of the
                             message being written) is greater than the
-                            enqueued cache high-water mark provided as a
+                            enqueued queue high-water mark provided as a
                             function argument.
 
-  BTEMT_UNKNOWN_ID          The write request failed because the channel
+  e_UNKNOWN_ID              The write request failed because the channel
                             identified by an specified <span class="keywordtype">id</span> does not exist.
 </pre></div><br/>
 <br/>
@@ -185,7 +177,7 @@ Namespaces</h2></td></tr>
  Now, we compare the return code to the enumerators in <code><a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dc">btlmt::ChannelStatus::Enum</a></code> to handle the different return conditions: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span>(rc) {
-    <span class="keywordflow">case</span> btlmt::ChannelStatus::BTEMT_SUCCESS: { <span class="comment">// Success</span>
+    <span class="keywordflow">case</span> <a class="code" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dcacdeedf12c33ebdfdcdd00682df2c94cf">btlmt::ChannelStatus::e_SUCCESS</a>: { <span class="comment">// Success</span>
 
         <span class="comment">// ...</span>
 
@@ -193,17 +185,12 @@ Namespaces</h2></td></tr>
 
     <span class="comment">// We handle the different types of failures in the cases below.</span>
 
-    <span class="keywordflow">case</span> btlmt::ChannelStatus::BTEMT_CACHE_OVERFLOW: {
+    <span class="keywordflow">case</span> <a class="code" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca07f5c57d355d1dc64d06a9b75443db02">btlmt::ChannelStatus::e_QUEUE_HIGHWATER</a>: {
 
         <span class="comment">// ...</span>
 
     } <span class="keywordflow">break</span>;
-    <span class="keywordflow">case</span> btlmt::ChannelStatus::BTEMT_CACHE_HIGHWATER: {
-
-        <span class="comment">// ...</span>
-
-    } <span class="keywordflow">break</span>;
-    <span class="keywordflow">case</span> btlmt::ChannelStatus::BTEMT_WRITE_CHANNEL_DOWN: {
+    <span class="keywordflow">case</span> <a class="code" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dca29abed5f79e90c32e10c8a3721fda0f3">btlmt::ChannelStatus::e_WRITE_CHANNEL_DOWN</a>: {
 
         <span class="comment">// ...</span>
 
@@ -218,7 +205,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

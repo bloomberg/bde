@@ -341,6 +341,12 @@ class SharedPtrRep {
         // as the managed ptr deleter when converting a &#39;bsl::shared_ptr&#39; to a
         // &#39;bslma::ManagedPtr&#39;.
 
+    static void managedPtrEmptyDeleter(void *, void *rep);
+        // This function has no effect.  The behavior is undefined unless &#39;rep&#39;
+        // is null.  Note that this function serves as the managed ptr deleter
+        // when converting an empty or null &#39;bsl::shared_ptr&#39; to a
+        // &#39;bslma::ManagedPtr&#39;.
+
     // CREATORS
     SharedPtrRep();
         // Create a &#39;SharedPtrRep&#39; object having one shared reference and no
@@ -460,6 +466,13 @@ void SharedPtrRep::managedPtrDeleter(void *, void *rep)
     BSLS_ASSERT_SAFE(rep);
 
     static_cast&lt;SharedPtrRep *&gt;(rep)-&gt;releaseRef();
+}
+
+inline
+void SharedPtrRep::managedPtrEmptyDeleter(void *, void *rep)
+{
+    BSLS_ASSERT_SAFE(!rep);
+    (void)rep;    // Silence unused argument warning in non-SAFE builds.
 }
 
 // CREATORS

@@ -61,7 +61,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a utility to resolve xcoff symbols in a stack trace.  
+<p>Provide a mechanism to resolve xcoff symbols in a stack trace.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 </table>
@@ -73,7 +73,9 @@
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Inline Functions</a> </li>
+<li>
+<a href="#3.2">Usage</a> </li>
 </ul>
 </li>
 </ul>
@@ -81,7 +83,7 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a utility to resolve xcoff symbols in a stack trace. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a mechanism to resolve xcoff symbols in a stack trace. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -97,11 +99,15 @@
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a class, balst::StackTraceResolver&lt;Xcoff&gt;, that, given a vector of <code><a class="el" href="classbalst_1_1StackTraceFrame.html">balst::StackTraceFrame</a></code>s that have only their <code>address</code> fields set, resolves all other fields in those frames. Xcoff objects are used on AIX platforms. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="inline_functions"></a> <a class="anchor" id="description.inline_functions"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Inline Functions: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Inline functions and template functions that are, in fact, called out of line are handled properly. Functions that are inlined are not represented in the stack trace, and the stack frames of the functions that called them do not have their line number information populated. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component is an implementation detail of <code>balst</code> and is <em>not</em> intended for direct client use. It is subject to change without notice. As such, a usage example is not provided. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:35 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:29 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

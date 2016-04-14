@@ -136,15 +136,15 @@ Namespaces</h2></td></tr>
 
    <span class="keywordtype">int</span>     maxMessageSizeIn    input message strategy hint               1024
 
-   <span class="keywordtype">int</span>     writeCacheLowWat    High and low watermarks (in                  0
-   <span class="keywordtype">int</span>     writeCacheHiWat     bytes) <span class="keywordflow">for</span> a channel<span class="stringliteral">&#39;s write              1 MB</span>
-<span class="stringliteral">                               cache.  Once high watermark</span>
+   <span class="keywordtype">int</span>     writeQueueLowWater  High and low watermarks (in                  0
+   <span class="keywordtype">int</span>     writeQueueHighWater bytes) <span class="keywordflow">for</span> a channel<span class="stringliteral">&#39;s write              1 MB</span>
+<span class="stringliteral">                               queue.  Once high watermark</span>
 <span class="stringliteral">                               is reached, the channel pool</span>
 <span class="stringliteral">                               will no longer accept messages</span>
 <span class="stringliteral">                               for the channel until there</span>
 <span class="stringliteral">                               is write space available.</span>
 <span class="stringliteral">                               A channel state callback will</span>
-<span class="stringliteral">                               result once the cached data size</span>
+<span class="stringliteral">                               result once the queued data size</span>
 <span class="stringliteral">                               is lower than the low watermark</span>
 <span class="stringliteral">                               value.</span>
 <span class="stringliteral"></span>
@@ -169,8 +169,8 @@ Namespaces</h2></td></tr>
    +--------------------+---------------------------------------------+
    | maxThreads         | 0 &lt;= maxThreads                             |
    +--------------------+---------------------------------------------+
-   | writeCacheLowWat   | 0 &lt;= writeCacheLowWat                       |
-   | writeCacheHiWat    | writeCacheLowWat &lt;= writeCacheLowWat        |
+   | writeQueueLowWater | 0 &lt;= writeQueueLowWater                     |
+   | writeQueueHighWater| 0 &lt;= writeQueueHighWater                     |
    +--------------------+---------------------------------------------+
    | readTimeout        | 0 &lt;= readTimeout                            |
    +--------------------+---------------------------------------------+
@@ -223,9 +223,9 @@ Namespaces</h2></td></tr>
   assert(0   == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#afe115a2b613dd9e3e41a2b05b47172e3">setMaxThreads</a>(200));
   assert(200 == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#aae2e9de80ee2d1e321fc5b65128caeb3">maxThreads</a>());
 
-  assert(0    == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#a6a7654ebcf06e91911395160a6968281">setWriteCacheWatermarks</a>(0, 1024));
-  assert(0    == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#a3b1a852c0f418c72b399ed48cc15a623">writeCacheLowWatermark</a>());
-  assert(1024 == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#ac62d8d04a62700f64161e11a0fb83f04">writeCacheHiWatermark</a>());
+  assert(0    == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#a11e72d265b10ff8558fc7a5f50f649ad">setWriteQueueWatermarks</a>(0, 1024));
+  assert(0    == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#acca4bf247a242cc0e0f4bfbbce6196ef">writeQueueLowWatermark</a>());
+  assert(1024 == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#af1563ff97bfd5da921f00442d93e2e59">writeQueueHighWatermark</a>());
 
   assert(0   == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#a6e5b9cae25473ab939f1740fabde4e39">setReadTimeout</a>(3.5));
   assert(3.5 == cpc.<a class="code" href="classbtlmt_1_1ChannelPoolConfiguration.html#ae2e0793780518126bd2272ad9a146f4a">readTimeout</a>());
@@ -255,8 +255,8 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment"> [
          maxConnections         : 100
          maxThreads             : 200
-         writeCacheLowWat       : 0
-         writeCacheHiWat        : 1024
+         writeQueueLowWater     : 0
+         writeQueueHighWater    : 1024
          readTimeout            : (3, 500000000)
          metricsInterval        : (5, 250000000)
          minOutgoingMessageSize : 4
@@ -272,7 +272,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

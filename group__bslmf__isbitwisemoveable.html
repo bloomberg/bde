@@ -91,7 +91,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.2.2">Example 2: Associating a Trait with a Class Template</a> </li>
 <li>
-<a href="#3.2.3">Example 3: Avoiding False Positives on One-Byte Clases</a> </li>
+<a href="#3.2.3">Example 3: Avoiding False Positives on One-Byte Classes</a> </li>
 </ul>
 </li>
 </ul>
@@ -107,7 +107,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>bslmf::IsBitwiseMoveable&lt;TYPE&gt; </td><td>bitwise moveable trait metafunction  </td></tr>
+<td><a class="el" href="structbslmf_1_1IsBitwiseMoveable.html">bslmf::IsBitwiseMoveable</a> </td><td>bitwise moveable trait metafunction  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -115,7 +115,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a single trait metafunction, <code><a class="el" href="structbslmf_1_1IsBitwiseMoveable.html">bslmf::IsBitwiseMoveable</a>&lt;TYPE&gt;</code>, which allows generic code to determine whether <code>TYPE</code> can be destructively moved using <code>memcpy</code>. Given a pointer, <code>p1</code>, to an object of <code>TYPE</code>, and a pointer <code>p2</code> of the same type pointing to allocated but uninitialized storage, a destructive move from <code>p1</code> to <code>p2</code> comprises the following pair of operations: <br/>
+<dl class="user"><dt><b></b></dt><dd>This component provides a single trait metafunction, <code><a class="el" href="structbslmf_1_1IsBitwiseMoveable.html">bslmf::IsBitwiseMoveable</a></code>, which allows generic code to determine whether <code>TYPE</code> can be destructively moved using <code>memcpy</code>. Given a pointer, <code>p1</code>, to an object of <code>TYPE</code>, and a pointer <code>p2</code> of the same type pointing to allocated but uninitialized storage, a destructive move from <code>p1</code> to <code>p2</code> comprises the following pair of operations: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">new</span> ((<span class="keywordtype">void</span>*) p2) TYPE(*p1);  <span class="comment">// Or new ((void*) p2) TYPE(std::move(*p1));</span>
   p1-&gt;~TYPE();
@@ -128,7 +128,7 @@ Namespaces</h2></td></tr>
 <br/>
  If <code>IsBitwiseMoveable&lt;TYPE&gt;value</code> inherits from <code>true_type</code> for a given <code>TYPE</code>, then a generic algorithm can infer that <code>TYPE</code> is bitwise moveable. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This trait is used by various components for providing optimizations for types that can be bitwise moved. The major benefit of this trait is not for a single object but for an array of such types, as a loop of copy/destroy operations can be replaced by a single call to <code>memcpy</code>. This replacement is not only faster, but is guaranteed not to throw an exception. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>IsBitwiseMoveable&lt;TYPE&gt;</code> will inherit from <code>true_type</code> if <code>TYPE</code> is a fundamental type, enumeration type, or pointer type. Most user-defined classes are are bitwise moveable, but generic code must assume that an arbitrary <code>TYPE</code> is not bitwise-moveable, as bitwise moving a type that is not bitwise moveable is likely to result in a dangling pointer. Thus, it is necessary to explicitly associate the bitwise moveable trait with a class (via template specialization or by use of the <code>BSLMF_DECLARE_NESTED_TRAIT</code> macro) in order to generic algorithms to recognize that class as bitwise moveable. As a special case, one-byte objects are deduced as bitwise moveable unless explicitly annotated otherwise (see-below). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>IsBitwiseMoveable&lt;TYPE&gt;</code> will inherit from <code>true_type</code> if <code>TYPE</code> is a fundamental object type, enumeration type, or pointer type. Most user-defined classes are bitwise moveable, but generic code must assume that an arbitrary <code>TYPE</code> is not bitwise-moveable, as bitwise moving a type that is not bitwise moveable is likely to result in a dangling pointer. Thus, it is necessary to explicitly associate the bitwise moveable trait with a class (via template specialization or by use of the <code>BSLMF_DECLARE_NESTED_TRAIT</code> macro) in order for generic algorithms to recognize that class as bitwise moveable. As a special case, one-byte objects are deduced as bitwise moveable unless explicitly annotated otherwise (see-below). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="what_classes_are_not_bitwise_moveable~3F"></a> <a class="anchor" id="description.what_classes_are_not_bitwise_moveable~3F"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>What Classes are Not Bitwise Moveable?: </b></dt><dd></dd></dl>
@@ -141,7 +141,7 @@ It contains a pointer that might (directly or indirectly) point to itself or to 
 <li>
 Its constructor registers a pointer to itself in some static registry.  </li>
 <li>
-Its constructor or destructor have some side effect that, if omited during destructive move, would render the program incorrect.  </li>
+Its constructor or destructor have some side effect that, if omitted during destructive move, would render the program incorrect.  </li>
 <li>
 It contains a data member or base class that is not bitwise moveable.  </li>
 </ul>
@@ -150,7 +150,7 @@ It contains a data member or base class that is not bitwise moveable.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="one-byte_objects"></a> <a class="anchor" id="what_classes_are_not_bitwise_moveable~3F.one-byte_objects"></a> <a class="anchor" id="description.what_classes_are_not_bitwise_moveable~3F.one-byte_objects"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>One-Byte Objects: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An object whose size does not exceede one byte are deduced to be bitwise moveable. The validity of this heuristic can be deduced by examining the criteria for non-bitwise moveable classes above: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An object whose size does not exceed one byte are deduced to be bitwise moveable. The validity of this heuristic can be deduced by examining the criteria for non-bitwise moveable classes above: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
 Very few types have their own address as a salient attribute.  </li>
@@ -161,12 +161,12 @@ Static registries of objects of any size are rare and are almost never a good de
 <li>
 Constructors and destructors with side effects are also rare, and appear almost entirely within test code (i.e., counting constructions and destructions). Even in those cases, it is often acceptable or even preferable to skip the balanced side effects of the constructor and destructor during a destructive move.  </li>
 <li>
-Any data member or base class of a one-byte class must also be either an empty base class or a one-byte object, so the above rationalle applies recursively to them.  </li>
+Any data member or base class of a one-byte class must also be either an empty base class or a one-byte object, so the above rationale applies recursively to them.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The purpose of this heuristic is to deduce bitwise moveability for an important category of empty classes that are not explicitly annotated as being bitwise moveable: standard predicate classes such as <code>std::less&lt;T&gt;</code>. Being able to treat these classes as bitwise moveable means that <code><a class="el" href="classbsl_1_1set.html">bsl::set</a></code> and <code><a class="el" href="classbsl_1_1map.html">bsl::map</a></code> objects can be deduced as bitwise moveable and that <code>bsl::function</code> objects wrapping these classes can use the small-object optimization. It can be argued that any type with size less than the size of a pointer should be deduced as bitwise moveable by the logic above. However, is is primarily the common case of empty classes that we are trying to handle. By limiting ourselves to the smallest-possible type, we reduce the chance of false positives (see next paragraph). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that the word "rare" appears several times in the list above. Rare implies non-zero, so we must provide a way to annotate non-bitwise moveable one-byte classes so that the <code>IsBitwiseMoveable</code> trait is not deduced for them. This annotation is accomplished simply by specializing <code>IsBitwiseMoveable</code> to inherit from <code>false_type</code> for these rare classes. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In C++11 and later, it is possible to accurately deduce a class is bitwise moveable without relying on the one-byte heuristic. If the deduction with the one-byte heuristic yields true and the deduction without the one-byte heuristic yields false, then a static assert fires and the progam is ill-formed. This error can be corrected by specializing the trait to false for the type in question. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In C++11 and later, it is possible to accurately deduce a class is bitwise moveable without relying on the one-byte heuristic. If the deduction with the one-byte heuristic yields true and the deduction without the one-byte heuristic yields false, then a static assert fires and the program is ill-formed. This error can be corrected by specializing the trait to false for the type in question. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -174,7 +174,7 @@ Any data member or base class of a one-byte class must also be either an empty b
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_the_trait_to_implement_destructivemovearray"></a> <a class="anchor" id="usage.example_1~3A_using_the_trait_to_implement_destructivemovearray"></a> <a class="anchor" id="description.usage.example_1~3A_using_the_trait_to_implement_destructivemovearray"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using the Trait to Implement destructiveMoveArray: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Here, we use this trait in a simple algorithm called <code>destructiveMoveArray</code>, which moves elements from one array to another. The algorithm is implemented using two implementation functions, one for types that are known to be bit-wise moveable, and one for other types. THe first takes an extra function argument of type <code>true_type</code>, the second takes and extra function argument of type <code>false_type</code>: <br/>
+<dl class="user"><dt><b></b></dt><dd>Here, we use this trait in a simple algorithm called <code>destructiveMoveArray</code>, which moves elements from one array to another. The algorithm is implemented using two implementation functions, one for types that are known to be bit-wise moveable, and one for other types. The first takes an extra function argument of type <code>true_type</code>, the second takes and extra function argument of type <code>false_type</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>BloombergLP {
 
@@ -215,13 +215,13 @@ Any data member or base class of a one-byte class must also be either an empty b
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>NonMoveableClass
   {
-  <span class="keyword">private</span>:
+    <span class="keyword">private</span>:
       <span class="keywordtype">int</span> d_value;
 
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_ctorCount;
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_dtorCount;
 
-  <span class="keyword">public</span>:
+    <span class="keyword">public</span>:
       <span class="keyword">static</span> <span class="keywordtype">int</span> ctorCount() { <span class="keywordflow">return</span> d_ctorCount; }
       <span class="keyword">static</span> <span class="keywordtype">int</span> dtorCount() { <span class="keywordflow">return</span> d_dtorCount; }
 
@@ -241,13 +241,13 @@ Any data member or base class of a one-byte class must also be either an empty b
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MoveableClass1
   {
-  <span class="keyword">private</span>:
+    <span class="keyword">private</span>:
       <span class="keywordtype">int</span> d_value;
 
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_ctorCount;
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_dtorCount;
 
-  <span class="keyword">public</span>:
+    <span class="keyword">public</span>:
       <span class="keyword">static</span> <span class="keywordtype">int</span> ctorCount() { <span class="keywordflow">return</span> d_ctorCount; }
       <span class="keyword">static</span> <span class="keywordtype">int</span> dtorCount() { <span class="keywordflow">return</span> d_dtorCount; }
 
@@ -265,20 +265,20 @@ Any data member or base class of a one-byte class must also be either an empty b
   <span class="keyword">namespace </span>bslmf {
       <span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>IsBitwiseMoveable&lt;MoveableClass1&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
       };
-  }
+  }  <span class="comment">// close namespace bslmf</span>
 </pre></div><br/>
 <br/>
  The third class is also declared to be bitwise moveable, but this time we do it using the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MoveableClass2
   {
-  <span class="keyword">private</span>:
+    <span class="keyword">private</span>:
       <span class="keywordtype">int</span> d_value;
 
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_ctorCount;
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_dtorCount;
 
-  <span class="keyword">public</span>:
+    <span class="keyword">public</span>:
       <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(MoveableClass2,
                                      <a class="code" href="structbslmf_1_1IsBitwiseMoveable.html">bslmf::IsBitwiseMoveable</a>);
 
@@ -301,7 +301,7 @@ Any data member or base class of a one-byte class must also be either an empty b
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">enum</span> MoveableEnum { A_VALUE };
 
-  <span class="keywordtype">int</span> main()
+  <span class="keywordtype">int</span> usageExample1()
   {
       <span class="keyword">using namespace </span>bslmf;
 
@@ -324,9 +324,9 @@ Any data member or base class of a one-byte class must also be either an empty b
       <span class="keyword">const</span> <span class="keywordtype">int</span> nObj = 3;
 
       {
-          NonMoveableClass* p1 = (NonMoveableClass*)
+          NonMoveableClass *p1 = (NonMoveableClass*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(NonMoveableClass));
-          NonMoveableClass* p2 =  (NonMoveableClass*)
+          NonMoveableClass *p2 =  (NonMoveableClass*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(NonMoveableClass));
 
           <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; nObj; ++i) {
@@ -357,9 +357,9 @@ Any data member or base class of a one-byte class must also be either an empty b
       }
 
       {
-          MoveableClass1* p1 = (MoveableClass1*)
+          MoveableClass1 *p1 = (MoveableClass1*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(MoveableClass1));
-          MoveableClass1* p2 = (MoveableClass1*)
+          MoveableClass1 *p2 = (MoveableClass1*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(MoveableClass1));
 
           <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; nObj; ++i) {
@@ -391,9 +391,9 @@ Any data member or base class of a one-byte class must also be either an empty b
       }
 
       {
-          MoveableClass2* p1 = (MoveableClass2*)
+          MoveableClass2 *p1 = (MoveableClass2*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(MoveableClass2));
-          MoveableClass2* p2 = (MoveableClass2*)
+          MoveableClass2 *p2 = (MoveableClass2*)
               ::<span class="keyword">operator</span> <span class="keyword">new</span>(nObj * <span class="keyword">sizeof</span>(MoveableClass2));
 
           <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; nObj; ++i) {
@@ -427,7 +427,7 @@ Any data member or base class of a one-byte class must also be either an empty b
       <span class="keywordflow">return</span> 0;
   }
 
-  } <span class="comment">// Close enterprise namespace</span>
+  }  <span class="comment">// close enterprise namespace</span>
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -457,7 +457,7 @@ Any data member or base class of a one-byte class must also be either an empty b
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
       <span class="keyword">struct </span>IsBitwiseMoveable&lt;MoveableTemplate1&lt;TYPE&gt; &gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
       };
-  }
+  }  <span class="comment">// close namespace bslmf</span>
 </pre></div><br/>
 <br/>
  Third, we define <code>MoveableTemplate2</code>, which uses the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to associate the <code>IsBitwiseMoveable</code> trait with each instantiation: <br/>
@@ -484,12 +484,12 @@ Any data member or base class of a one-byte class must also be either an empty b
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
       <span class="keyword">struct </span>IsBitwiseMoveable&lt;MoveableTemplate3&lt;TYPE&gt; &gt; :
           IsBitwiseMoveable&lt;TYPE&gt;::type { };
-  }
+  }  <span class="comment">// close namespace bslmf</span>
 </pre></div><br/>
 <br/>
  Now, we check that the traits are correctly associated by instantiating each class with both bit-wise moveable and non-moveable types and verifying the value of <code>IsBitwiseMoveable&lt;T&gt;value</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> main()
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> usageExample2()
   {
       <span class="keyword">using namespace </span>bslmf;
 
@@ -516,17 +516,18 @@ Any data member or base class of a one-byte class must also be either an empty b
       <span class="keywordflow">return</span> 0;
   }
 
-  } <span class="comment">// Close enterprise namespace</span>
+  }  <span class="comment">// close enterprise namespace</span>
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_avoiding_false_positives_on_one-byte_clases"></a> <a class="anchor" id="usage.example_3~3A_avoiding_false_positives_on_one-byte_clases"></a> <a class="anchor" id="description.usage.example_3~3A_avoiding_false_positives_on_one-byte_clases"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3: Avoiding False Positives on One-Byte Clases: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_avoiding_false_positives_on_one-byte_classes"></a> <a class="anchor" id="usage.example_3~3A_avoiding_false_positives_on_one-byte_classes"></a> <a class="anchor" id="description.usage.example_3~3A_avoiding_false_positives_on_one-byte_classes"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Avoiding False Positives on One-Byte Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we define an empty class that has a non-trivial copy constructor that has a global side effect. The side effect should not be omitted, even in a destructive-move situation, so <code>IsBitwiseMoveable</code> should be false. However, the heuristic described above would deduce any one-byte class (including an empty class) as bitwise-moveable by default, so we must take specific action to set the trait to false in this (rare) case. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we declare a normal empty class which <em>is</em> bitwise moveable: <br/>
+<dl class="user"><dt><b></b></dt><dd>First, we declare a normal empty class that <em>is</em> bitwise moveable: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>BloombergLP {
+  <span class="keyword">namespace </span>xyza {
 
   <span class="keyword">class </span>MoveableEmptyClass
   {
@@ -535,22 +536,24 @@ Any data member or base class of a one-byte class must also be either an empty b
   };
 </pre></div><br/>
 <br/>
- .. The class above requires no special treatment. Next, we define an empty class that is not bitwise moveable: <br/>
+ The class above requires no special treatment. Next, we define an empty class that is not bitwise moveable: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>NonMoveableEmptyClass
   {
-      <span class="comment">// This class is empty, which normally would imply bitwise</span>
-      <span class="comment">// moveability.  However, because it has a non-trivial move/copy</span>
-      <span class="comment">// constructor, it should not be bitwise moved.</span>
+      <span class="comment">// This class is empty, which normally would imply bitwise moveability.</span>
+      <span class="comment">// However, because it has a non-trivial move/copy constructor, it</span>
+      <span class="comment">// should not be bitwise moved.</span>
 
       <span class="keyword">static</span> <span class="keywordtype">int</span> d_count;
 
-  <span class="keyword">public</span>:
+    <span class="keyword">public</span>:
       NonMoveableEmptyClass() { ++d_count; }
       NonMoveableEmptyClass(<span class="keyword">const</span> NonMoveableEmptyClass&amp;) { ++d_count; }
   };
 
   <span class="keywordtype">int</span> NonMoveableEmptyClass::d_count = 0;
+
+  }  <span class="comment">// close package namespace</span>
 </pre></div><br/>
 <br/>
  Next, we specialize the <code>IsBitwiseMoveable</code> trait so that <code>NonMoveableEmptyClass</code> is not incorrectly flagged by trait deduction as having the <code>IsBitwiseMoveable</code> trait: <br/>
@@ -558,11 +561,11 @@ Any data member or base class of a one-byte class must also be either an empty b
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>bslmf {
 
   <span class="keyword">template</span> &lt;&gt;
-  <span class="keyword">struct </span>IsBitwiseMoveable&lt;NonMoveableEmptyClass&gt; : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a>
+  <span class="keyword">struct </span>IsBitwiseMoveable&lt;xyza::NonMoveableEmptyClass&gt; : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a>
   {
   };
 
-  } <span class="comment">// close namespace bslmf</span>
+  }  <span class="comment">// close namespace bslmf</span>
 </pre></div><br/>
 <br/>
  Finally, we show that the first class has the <code>IsBitwiseMoveable</code> trait and the second class does not: <br/>
@@ -571,16 +574,16 @@ Any data member or base class of a one-byte class must also be either an empty b
   {
       <span class="keyword">using namespace </span>bslmf;
 
-      assert(  IsBitwiseMoveable&lt;MoveableEmptyClass&gt;::value);
-      assert(! IsBitwiseMoveable&lt;NonMoveableEmptyClass&gt;::value);
+      assert(  IsBitwiseMoveable&lt;xyza::MoveableEmptyClass&gt;::value);
+      assert(! IsBitwiseMoveable&lt;xyza::NonMoveableEmptyClass&gt;::value);
   }
 
-  } <span class="comment">// Close enterprise namespace</span>
+  }  <span class="comment">// close enterprise namespace</span>
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

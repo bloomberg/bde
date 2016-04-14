@@ -333,7 +333,7 @@ struct CharConvertUcs2 {
         // invalid input characters are ignored (i.e., produce no corresponding
         // output characters).  Return 0 on success and a bitwise-or of the
         // masks specified by &#39;CharConvertStatus::Enum&#39; otherwise, with
-        // &#39;CharConvertStatus::k_INVALID_CHARS_BIT&#39; set to indicate that at
+        // &#39;CharConvertStatus::k_INVALID_INPUT_BIT&#39; set to indicate that at
         // least one invalid input sequence was encountered, and
         // &#39;CharConvertStatus::k_OUT_OF_SPACE_BIT&#39; set to indicate that
         // &#39;dstCapacity&#39; was insufficient to accommodate the output.  If
@@ -356,13 +356,13 @@ struct CharConvertUcs2 {
         // for invalid (i.e., not convertible to UCS-2) input characters.  If
         // &#39;errorCharacter&#39; is 0, invalid input characters are ignored (i.e.,
         // produce no corresponding output characters).  Return 0 on success
-        // and &#39;CharConvertStatus::BDEDE_INVALILD_CHARS_BIT&#39; otherwise,
-        // meaning that at least one sequence of characters was encountered
-        // that could not be translated to UCS-2.  If &#39;result &amp; 1&#39; is non-zero,
-        // one or more input characters are invalid (in which case the
-        // conversion continues).  The behavior is undefined unless &#39;srcString&#39;
-        // is null-terminated.  Note that the null-terminating word counts
-        // towards &#39;result-&gt;size()&#39;.
+        // and &#39;CharConvertStatus::k_INVALILD_CHARS_BIT&#39; otherwise, meaning
+        // that at least one sequence of characters was encountered that could
+        // not be translated to UCS-2.  If &#39;result &amp; 1&#39; is non-zero, one or
+        // more input characters are invalid (in which case the conversion
+        // continues).  The behavior is undefined unless &#39;srcString&#39; is
+        // null-terminated.  Note that the null-terminating word counts towards
+        // &#39;result-&gt;size()&#39;.
 
     static int ucs2ToUtf8(char                 *dstBuffer,
                           bsl::size_t           dstCapacity,
@@ -379,7 +379,7 @@ struct CharConvertUcs2 {
         // into which the number of *bytes* written (including the null
         // terminator) is to be loaded.  Return 0 on success and a bitwise-or
         // of the masks specified by &#39;CharConvertStatus::Enum&#39; otherwise,
-        // with &#39;CharConvertStatus::k_INVALID_CHARS_BIT&#39; set to indicate that
+        // with &#39;CharConvertStatus::k_INVALID_INPUT_BIT&#39; set to indicate that
         // at least one invalid input sequence was encountered, and
         // &#39;CharConvertStatus::k_OUT_OF_SPACE_BIT&#39; set to indicate that
         // &#39;dstCapacity&#39; was insufficient to accommodate the output.  If
@@ -404,10 +404,10 @@ struct CharConvertUcs2 {
         // Optionally specify &#39;numCharsWritten&#39; which (if not 0) indicates the
         // modifiable integer into which the number of *characters* written
         // (including the null terminator) is to be loaded.  Return 0 on
-        // success and &#39;CharConvertStatus::BDEDE_INVALILD_CHARS_BIT&#39;
-        // otherwise, meaning that at least one sequence of characters was
-        // encountered that could not be translated to UTF-8.  The behavior is
-        // undefined unless &#39;srcString&#39; is null-terminated.  Note that the
+        // success and &#39;CharConvertStatus::k_INVALILD_CHARS_BIT&#39; otherwise,
+        // meaning that at least one sequence of characters was encountered
+        // that could not be translated to UTF-8.  The behavior is undefined
+        // unless &#39;srcString&#39; is null-terminated.  Note that the
         // null-terminating character is not counted in &#39;result-&gt;length()&#39;.
         // Also note that this function does not currently implement failure
         // modes; however, this could change if UTF-8 input validation is

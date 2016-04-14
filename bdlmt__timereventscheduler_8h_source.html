@@ -573,10 +573,11 @@ class TimerEventScheduler {
 
     void stop();
         // Stop dispatching events on this scheduler, but do not remove any
-        // pending event.  Block until all pending jobs are finished, then
-        // terminate the dispatcher thread and return.  If this scheduler is
-        // already stopped then this invocation has no effect.  The behavior is
-        // undefined if this function is called by a job enqueued to the
+        // pending event.  If the dispatcher thread is in the middle of
+        // dispatching some events, block until those events are disptached.
+        // Then terminate the dispatcher thread and return.  If this scheduler
+        // is already stopped then this invocation has no effect.  The behavior
+        // is undefined if this function is called by a job enqueued to the
         // scheduler that is to be stopped.  This scheduler can be restarted by
         // invoking &#39;start&#39;.
 
@@ -663,6 +664,10 @@ class TimerEventScheduler {
         // is ignored to avoid deadlock.
 
     // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the value of the clock type that this object was created
+        // with.
+
     int numClocks() const;
         // Return a *snapshot* of the number of registered clocks with this
         // scheduler.
@@ -697,6 +702,12 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
 }
 
 // ACCESSORS
+inline
+bsls::SystemClockType::Enum TimerEventScheduler::clockType() const
+{
+    return d_clockType;
+}
+
 inline
 int TimerEventScheduler::numClocks() const
 {

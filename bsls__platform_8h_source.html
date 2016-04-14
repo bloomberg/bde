@@ -213,6 +213,7 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_IBM 1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
+
     // which OS -- this compiler should only be used on AIX
     #define BSLS_PLATFORM_OS_UNIX 1
     #if defined(_AIX)                          // must be defined
@@ -696,6 +697,9 @@ struct bsls_Platform_Assert;
             #elif defined(__SunOS_5_10)
                 #define BSLS_PLATFORM_OS_VER_MAJOR 10
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
+            #elif defined(__SunOS_5_11)
+                #define BSLS_PLATFORM_OS_VER_MAJOR 11
+                #define BSLS_PLATFORM_OS_VER_MINOR 0
             #else
                 #define BSLS_PLATFORM_OS_VER_MAJOR 1
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
@@ -1113,6 +1117,7 @@ struct Platform {
 
 }  // close package namespace
 #endif  // __cplusplus
+
 
 #ifdef __cplusplus
 }  // close enterprise namespace

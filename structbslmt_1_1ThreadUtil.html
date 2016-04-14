@@ -247,7 +247,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return an integer scheduling priority appropriate for the specified <code>normalizedSchedulingPriority</code> and the specified <code>policy</code>. If either the minimum or maximum priority for this platform cannot be determined, return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a3e6593193667b1a7ede8f2a5def40c0fadc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code>. Higher values of <code>normalizedSchedulingPriority</code> are considered to represent more urgent priorities. The behavior is undefined unless <code>policy</code> is a valid <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code> and <code>normalizedSchedulingPriority</code> is in the range <code>[ 0.0, 1.0 ]</code>. </p>
+<p>Return an integer scheduling priority appropriate for the specified <code>normalizedSchedulingPriority</code> and the specified <code>policy</code>. If either the minimum or maximum priority for this platform cannot be determined, return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a21679b30c880e88cefb6e3310b675296adc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code>. Higher values of <code>normalizedSchedulingPriority</code> are considered to represent more urgent priorities. The behavior is undefined unless <code>policy</code> is a valid <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code> and <code>normalizedSchedulingPriority</code> is in the range <code>[ 0.0, 1.0 ]</code>. </p>
 
 </div>
 </div>
@@ -519,7 +519,7 @@ template&lt;class INVOKABLE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the minimum available priority for the specified <code>policy</code>, where <code>policy</code> is of type <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code>. Return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a3e6593193667b1a7ede8f2a5def40c0fadc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code> if the minimum scheduling priority cannot be determined. Note that, for some platform / policy combinations, <code>getMinSchedulingPriority(policy)</code> and <code>getMaxSchedulingPriority(policy)</code> return the same value. </p>
+<p>Return the minimum available priority for the specified <code>policy</code>, where <code>policy</code> is of type <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code>. Return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a21679b30c880e88cefb6e3310b675296adc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code> if the minimum scheduling priority cannot be determined. Note that, for some platform / policy combinations, <code>getMinSchedulingPriority(policy)</code> and <code>getMaxSchedulingPriority(policy)</code> return the same value. </p>
 
 </div>
 </div>
@@ -538,7 +538,7 @@ template&lt;class INVOKABLE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the maximum available priority for the specified <code>policy</code>, where <code>policy</code> is of type <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code>. Return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a3e6593193667b1a7ede8f2a5def40c0fadc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code> if the maximum scheduling priority cannot be determined. Note that, for some platform / policy combinations, <code>getMinSchedulingPriority(policy)</code> and <code>getMaxSchedulingPriority(policy)</code> return the same value. </p>
+<p>Return the maximum available priority for the specified <code>policy</code>, where <code>policy</code> is of type <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a236ea307f690b2a13d387cc90e287cf6">ThreadAttributes::SchedulingPolicy</a></code>. Return <code><a class="el" href="classbslmt_1_1ThreadAttributes.html#a21679b30c880e88cefb6e3310b675296adc3891e6c4c2610f4efe3d0d4ca3b96f">ThreadAttributes::e_UNSET_PRIORITY</a></code> if the maximum scheduling priority cannot be determined. Note that, for some platform / policy combinations, <code>getMinSchedulingPriority(policy)</code> and <code>getMaxSchedulingPriority(policy)</code> return the same value. </p>
 
 </div>
 </div>
@@ -1043,7 +1043,7 @@ template&lt;class INVOKABLE &gt; </div>
 <li><a class="el" href="bslmt__threadutil_8h_source.html">bslmt_threadutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:09 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:06 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

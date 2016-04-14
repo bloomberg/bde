@@ -144,7 +144,7 @@ the variable-width encoding format, which is a custom format that is similar to 
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
 <div class="fragment"><pre class="fragment"> |------|----------|----------|-----|----------|----------------|
- | size | S (bits) | E (bits) |   B | T (bits) | max signficant |
+ | size | S (bits) | E (bits) |   B | T (bits) | max signficand |
  |------|----------|----------|-----|----------|----------------|
  |   1* |        0 |        1 |  -2 |        7 |            127 |
  |   2  |        0 |        2 |  -3 |       14 |          16383 |
@@ -159,7 +159,7 @@ the variable-width encoding format, which is a custom format that is similar to 
 
  1 byte encoding will be supported by the decoder but not the encoder. This
    is done due to the relatively large performance impact of adding the 1
-   byte encoding to the encoder (10%). Perserving the encoding size in the
+   byte encoding to the encoder (10%). Preserving the encoding size in the
    decoder allows us to easily enable <span class="keyword">this</span> encoding size at a later time.
 
  If the value to be encoded can not fit in the 5-byte encoding or is -Inf,
@@ -255,7 +255,7 @@ the variable-width encoding format, which is a custom format that is similar to 
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:42 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

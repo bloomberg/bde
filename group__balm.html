@@ -477,7 +477,7 @@ A scheduling mechanism for configuring the periodic publication of metrics (see 
 <dl class="user"><dt><b>Disabling Metric Categories: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Users can disable (and re-enable) a category of metrics by calling <code>balm_MetricsManager::setCategoryEnabled</code> method. A disabled category will not be published by the metrics manager. In addition, the <code>balm_metric</code>, <code>balm_integermetric</code>, <code>balm_metrics</code>, and <code>balm_stopwatchscopedguard</code> components will not collect metrics for disabled categories (minimizing the performance cost of collecting metric for disabled categories). Note that when <code>balm_MetricsManager::publish()</code> is called on a disabled category, the metrics manager <em>will</em> invoke any user defined collection callbacks registered for the disable category, but <em>will</em> <em>not</em> publish the collected metrics. Users defining their own metrics collection mechanism (using a <code>balm_MetricsManager::MetricsCollectionCallback</code>) must (manually) test whether a category is disabled if they wish to avoid collecting metrics for a disabled category. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:33 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:26 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

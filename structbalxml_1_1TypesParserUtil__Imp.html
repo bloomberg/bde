@@ -104,6 +104,7 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesParserUtil__Imp.html#a839dcc1b72bd9bf27e4da26109783cdd">parseDecimal</a> (<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *result, const char *input, int inputLength, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesParserUtil__Imp.html#a9e2369aadaec5a376b4d45f57b6bfaa9">parseDecimal</a> (float *result, const char *input, int inputLength, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesParserUtil__Imp.html#a4efdde9467e127ccc4c0841d32335f08">parseDecimal</a> (double *result, const char *input, int inputLength, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesParserUtil__Imp.html#a1508f2b5299de4b09bf0483b16f2984f">parseDefault</a> (<a class="el" href="classbdldfp_1_1Decimal__Type64.html">bdldfp::Decimal64</a> *result, const char *input, int inputLength, <a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbalxml_1_1TypesParserUtil__Imp.html#ab760d2616de8ec9a726f25dcff167018">parseDefault</a> (TYPE *result, const char *input, int inputLength, <a class="el" href="structbdlat__TypeCategory_1_1Enumeration.html">bdlat_TypeCategory::Enumeration</a>)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
@@ -916,6 +917,47 @@ template&lt;class TYPE , class ANY_CATEGORY &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a1508f2b5299de4b09bf0483b16f2984f"></a><!-- doxytag: member="balxml::TypesParserUtil_Imp::parseDefault" ref="a1508f2b5299de4b09bf0483b16f2984f" args="(bdldfp::Decimal64 *result, const char *input, int inputLength, bdlat_TypeCategory::Simple)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int balxml::TypesParserUtil_Imp::parseDefault </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">bdldfp::Decimal64</a> *&nbsp;</td>
+          <td class="paramname"> <em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&nbsp;</td>
+          <td class="paramname"> <em>input</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>inputLength</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a>&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Referenced by <a class="el" href="structbalxml_1_1TypesParserUtil__Imp__parseDefaultProxy.html#ac8d60bf01194e3ff17346a7e3c5aca45">balxml::TypesParserUtil_Imp_parseDefaultProxy::operator()()</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="ab760d2616de8ec9a726f25dcff167018"></a><!-- doxytag: member="balxml::TypesParserUtil_Imp::parseDefault" ref="ab760d2616de8ec9a726f25dcff167018" args="(TYPE *result, const char *input, int inputLength, bdlat_TypeCategory::Enumeration)" -->
 <div class="memitem">
 <div class="memproto">
@@ -954,8 +996,6 @@ template&lt;class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-
-<p>Referenced by <a class="el" href="structbalxml_1_1TypesParserUtil__Imp__parseDefaultProxy.html#ac8d60bf01194e3ff17346a7e3c5aca45">balxml::TypesParserUtil_Imp_parseDefaultProxy::operator()()</a>.</p>
 
 </div>
 </div>
@@ -2436,7 +2476,7 @@ template&lt;class TYPE , class ANY_CATEGORY &gt; </div>
 <li><a class="el" href="balxml__typesparserutil_8h_source.html">balxml_typesparserutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:32 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

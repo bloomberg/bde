@@ -66,9 +66,6 @@
   </div>
 </div>
 <div class="header">
-  <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
-<a href="#pub-static-attribs">Static Public Attributes</a>  </div>
   <div class="headertitle">
 <h1>bsl::Is_Empty_Imp&lt; TYPE, true &gt; Struct Template Reference<br/>
 <small>
@@ -78,26 +75,18 @@
 <div class="contents">
 <!-- doxytag: class="bsl::Is_Empty_Imp&lt; TYPE, true &gt;" -->
 <p><code>#include &lt;<a class="el" href="bslmf__isempty_8h_source.html">bslmf_isempty.h</a>&gt;</code></p>
-
-<p><a href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4-members.html">List of all members.</a></p>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="nested-classes"></a>
-Classes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4_1_1Derived.html">Derived</a></td></tr>
-<tr><td colspan="2"><h2><a name="pub-static-attribs"></a>
-Static Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmf__isempty.html#ga0aa6fdd1757441040a25f537130719fb">VALUE</a> = (sizeof(Derived) == sizeof(int))</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class TYPE&gt;<br/>
  struct bsl::Is_Empty_Imp&lt; TYPE, true &gt;</h3>
 
-<p>Private class: do not use outside of <code>bslmf_isempty</code> component. Implementation of <code><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty</a></code>. </p>
+<p>Private class: do not use outside of <code>bslmf_isempty</code> component. Implementation of <code><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty</a></code>. This partial specialization derives from the nested <code>type</code> member of the <code><a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">Is_Empty_Class_Imp</a></code> metafunction, which must be <code>true_type</code> if (the template parameter) <code>TYPE</code> is an empty class, and <code>false_type</code> otherwise. </p>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="bslmf__isempty_8h_source.html">bslmf_isempty.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:52 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:40 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

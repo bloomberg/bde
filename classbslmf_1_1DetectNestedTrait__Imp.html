@@ -79,25 +79,25 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html#a621d32d846bdb732aaa5deae4b5270e3a9d5c20b4a9f124842292ba7f1b30fa6a">VALUE</a> =  CONVERTIBLE_TO_NESTED_TRAIT &amp;&amp; !CONVERTIBLE_TO_ANY_TYPE
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html#a198f8386771be2085412733162370e67ac2b28cd325e96050533c32f1e31aa6fa">k_VALUE</a> =  k_CONVERTIBLE_TO_NESTED_TRAIT &amp;&amp; !k_CONVERTIBLE_TO_ANY_TYPE
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a><br class="typebreak"/>
-&lt; bool, VALUE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html#accfbc3f9377c167b6e6baf2dfca0a169">Type</a></td></tr>
+&lt; bool, k_VALUE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html#a41d531a1574bece006884cf92a2ca87a">Type</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt;<br/>
+<h3>template&lt;class TYPE, template&lt; class &gt; class TRAIT&gt;<br/>
  class bslmf::DetectNestedTrait_Imp&lt; TYPE, TRAIT &gt;</h3>
 
-<p>Implementation of class to detect whether the specified <code>TRAIT</code> parameter is associated with the specified <code>TYPE</code> parameter using the nested type trait mechanism. The <code>VALUE</code> constant will be true iff <code>TYPE</code> is convertible to <code><a class="el" href="classbslmf_1_1NestedTraitDeclaration.html">NestedTraitDeclaration</a>&lt;TYPE, TRAIT&gt;</code>. </p>
+<p>Implementation of class to detect whether the specified <code>TRAIT</code> parameter is associated with the specified <code>TYPE</code> parameter using the nested type trait mechanism. The <code>k_VALUE</code> constant will be true iff <code>TYPE</code> is convertible to <code><a class="el" href="classbslmf_1_1NestedTraitDeclaration.html">NestedTraitDeclaration</a>&lt;TYPE, TRAIT&gt;</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
-<a class="anchor" id="accfbc3f9377c167b6e6baf2dfca0a169"></a><!-- doxytag: member="bslmf::DetectNestedTrait_Imp::Type" ref="accfbc3f9377c167b6e6baf2dfca0a169" args="" -->
+<a class="anchor" id="a41d531a1574bece006884cf92a2ca87a"></a><!-- doxytag: member="bslmf::DetectNestedTrait_Imp::Type" ref="a41d531a1574bece006884cf92a2ca87a" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt; </div>
+template&lt;class TYPE, template&lt; class &gt; class TRAIT&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt;bool, VALUE&gt; <a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html">bslmf::DetectNestedTrait_Imp</a>&lt; TYPE, TRAIT &gt;::<a class="el" href="structbsl_1_1integral__constant.html">Type</a></td>
+          <td class="memname">typedef <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt;bool, k_VALUE&gt; <a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html">bslmf::DetectNestedTrait_Imp</a>&lt; TYPE, TRAIT &gt;::<a class="el" href="structbsl_1_1integral__constant.html">Type</a></td>
         </tr>
       </table>
 </div>
@@ -106,11 +106,11 @@ template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt; </div>
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="a621d32d846bdb732aaa5deae4b5270e3"></a><!-- doxytag: member="bslmf::DetectNestedTrait_Imp::@253" ref="a621d32d846bdb732aaa5deae4b5270e3" args="" -->
+<a class="anchor" id="a198f8386771be2085412733162370e67"></a><!-- doxytag: member="bslmf::DetectNestedTrait_Imp::@247" ref="a198f8386771be2085412733162370e67" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt; </div>
+template&lt;class TYPE, template&lt; class &gt; class TRAIT&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">anonymous enum</td>
@@ -119,7 +119,7 @@ template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt; </div>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a621d32d846bdb732aaa5deae4b5270e3a9d5c20b4a9f124842292ba7f1b30fa6a"></a><!-- doxytag: member="VALUE" ref="a621d32d846bdb732aaa5deae4b5270e3a9d5c20b4a9f124842292ba7f1b30fa6a" args="" -->VALUE</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a198f8386771be2085412733162370e67ac2b28cd325e96050533c32f1e31aa6fa"></a><!-- doxytag: member="k_VALUE" ref="a198f8386771be2085412733162370e67ac2b28cd325e96050533c32f1e31aa6fa" args="" -->k_VALUE</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -131,7 +131,7 @@ template&lt;class TYPE, template&lt; class T &gt; class TRAIT&gt; </div>
 <li><a class="el" href="bslmf__detectnestedtrait_8h_source.html">bslmf_detectnestedtrait.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:02 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:54 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

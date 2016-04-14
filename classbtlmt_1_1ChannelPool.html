@@ -94,9 +94,9 @@ Public Types</h2></td></tr>
 &nbsp;&nbsp;<a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535a2d9cd75dfdec0db70424245fadfc077c">e_MESSAGE_DISCARDED</a> =  4, 
 <a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535af82082154c0d2b27ee63095ec65d5f86">e_AUTO_READ_ENABLED</a> =  5, 
 <a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535ad84ad4636d10c47e596dcc338a96487a">e_AUTO_READ_DISABLED</a> =  6, 
-<a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535a8748df50690c18d07747d500463e9678">e_WRITE_CACHE_LOWWAT</a> =  7, 
+<a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535a183534129dcca5f18aa2f8034ea9c757">e_WRITE_QUEUE_LOWWATER</a> =  7, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535acd0a126e23295657f0657ffde44d989a">e_WRITE_CACHE_HIWAT</a> =  e_WRITE_BUFFER_FULL, 
+&nbsp;&nbsp;<a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535ac7da0cd3550293ee96eeae5247adcc60">e_WRITE_QUEUE_HIGHWATER</a> =  e_WRITE_BUFFER_FULL, 
 <a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535ab0e630dca3239de13535216041709412">e_CHANNEL_DOWN_READ</a> =  8, 
 <a class="el" href="classbtlmt_1_1ChannelPool.html#ae1c721f4901568d3a6c77fe6b8700535ac2afdf1b80d09419b8abb7667bd37566">e_CHANNEL_DOWN_WRITE</a> =  9
 <br/>
@@ -155,10 +155,10 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a5052ef88897c4e40b912d4615ca0e018">shutdown</a> (int channelId, <a class="el" href="classbtlmt_1_1ChannelPool.html#ad1d8daee01e011918e8d2c51580fbff7">ShutdownMode</a> mode=e_IMMEDIATE)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#ac0c54fb7829e4366e0bcd98db81d3132">shutdown</a> (int channelId, <a class="el" href="structbtlso_1_1Flag.html#ac6f8bfd3aebacd2f0c5cf4f8aacb7f2c">btlso::Flag::ShutdownType</a> type, <a class="el" href="classbtlmt_1_1ChannelPool.html#ad1d8daee01e011918e8d2c51580fbff7">ShutdownMode</a> mode=e_IMMEDIATE)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a71778afeba4b6bb23b6437ec5c19c873">stopAndRemoveAllChannels</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a08e29b5e832cde4adf6e8e40546bebc1">setWriteCacheHiWatermark</a> (int channelId, int numBytes)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a2eee44e37cf26e0a4d634bb8728d8a37">setWriteCacheLowWatermark</a> (int channelId, int numBytes)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a4db092ba48ba2844cd46c25b04d1a045">setWriteCacheWatermarks</a> (int channelId, int lowWatermark, int hiWatermark)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a61cf6709146b16e6d97cffa2711f7e4e">resetRecordedMaxWriteCacheSize</a> (int channelId)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#aca17646aa57b4d5888e5768928b158ca">setWriteQueueHighWatermark</a> (int channelId, int numBytes)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a389eac2eac57881bda807f69ab872010">setWriteQueueLowWatermark</a> (int channelId, int numBytes)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#ac8bdc156831a2e330ab3006972a09fad">setWriteQueueWatermarks</a> (int channelId, int lowWatermark, int highWatermark)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#af0740e0b2089cec1617b86c94a972c1a">resetRecordedMaxWriteQueueSize</a> (int channelId)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a80cfe6abadc91ea84e9c7758f74f466c">start</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#ab07ccf514dbcca6830fbc041e80547ad">stop</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbtlb_1_1BlobBufferFactory.html">btlb::BlobBufferFactory</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#abbcc745eaa2f191205c34d48db809de7">incomingBlobBufferFactory</a> ()</td></tr>
@@ -183,7 +183,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a06966c1669bd289e6e2773090d421523">busyMetrics</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#af9a07d7b2587d0e7d7095f74aa4e6df9">channelContext</a> (int channelId) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a5932e38ce2eac477b70a68253b17f643">getChannelStatistics</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *numRead, <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *numRequestedToBeWritten, <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *numWritten, int channelId) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#aaa39e1e9af9bb279bbcf15ebe186490d">getChannelWriteCacheStatistics</a> (int *recordedMaxWriteCacheSize, int *currentWriteCacheSize, int channelId) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a8357fc0afeaefa31bb4a94e2f53972cb">getChannelWriteQueueStatistics</a> (int *recordedMaxWriteQueueSize, int *currentWriteQueueSize, int channelId) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a0e7d14a2feab639f3c48775859816a98">getHandleStatistics</a> (<a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt; <a class="el" href="structbtlmt_1_1ChannelPool_1_1HandleInfo.html">HandleInfo</a> &gt; *handleInfo) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a8396fbe29ba0a3991785561b2fb6d144">getServerAddress</a> (<a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> *result, int serverId) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtlmt_1_1ChannelPool.html#a8826b9c5b495596fa1ff4e00194eb61e">getLocalAddress</a> (<a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a> *result, int channelId) const </td></tr>
@@ -301,9 +301,9 @@ Friends</h2></td></tr>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535ad84ad4636d10c47e596dcc338a96487a"></a><!-- doxytag: member="e_AUTO_READ_DISABLED" ref="ae1c721f4901568d3a6c77fe6b8700535ad84ad4636d10c47e596dcc338a96487a" args="" -->e_AUTO_READ_DISABLED</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535a8748df50690c18d07747d500463e9678"></a><!-- doxytag: member="e_WRITE_CACHE_LOWWAT" ref="ae1c721f4901568d3a6c77fe6b8700535a8748df50690c18d07747d500463e9678" args="" -->e_WRITE_CACHE_LOWWAT</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535a183534129dcca5f18aa2f8034ea9c757"></a><!-- doxytag: member="e_WRITE_QUEUE_LOWWATER" ref="ae1c721f4901568d3a6c77fe6b8700535a183534129dcca5f18aa2f8034ea9c757" args="" -->e_WRITE_QUEUE_LOWWATER</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535acd0a126e23295657f0657ffde44d989a"></a><!-- doxytag: member="e_WRITE_CACHE_HIWAT" ref="ae1c721f4901568d3a6c77fe6b8700535acd0a126e23295657f0657ffde44d989a" args="" -->e_WRITE_CACHE_HIWAT</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535ac7da0cd3550293ee96eeae5247adcc60"></a><!-- doxytag: member="e_WRITE_QUEUE_HIGHWATER" ref="ae1c721f4901568d3a6c77fe6b8700535ac7da0cd3550293ee96eeae5247adcc60" args="" -->e_WRITE_QUEUE_HIGHWATER</em>&nbsp;</td><td>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ae1c721f4901568d3a6c77fe6b8700535ab0e630dca3239de13535216041709412"></a><!-- doxytag: member="e_CHANNEL_DOWN_READ" ref="ae1c721f4901568d3a6c77fe6b8700535ab0e630dca3239de13535216041709412" args="" -->e_CHANNEL_DOWN_READ</em>&nbsp;</td><td>
 </td></tr>
@@ -1272,12 +1272,12 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a08e29b5e832cde4adf6e8e40546bebc1"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteCacheHiWatermark" ref="a08e29b5e832cde4adf6e8e40546bebc1" args="(int channelId, int numBytes)" -->
+<a class="anchor" id="aca17646aa57b4d5888e5768928b158ca"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteQueueHighWatermark" ref="aca17646aa57b4d5888e5768928b158ca" args="(int channelId, int numBytes)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::ChannelPool::setWriteCacheHiWatermark </td>
+          <td class="memname">int btlmt::ChannelPool::setWriteQueueHighWatermark </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>channelId</em>, </td>
@@ -1296,16 +1296,16 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the write cache high-water mark for the specified <code>channelId</code> to the specified <code>numBytes</code>; return 0 on success, and a non-zero value if either <code>channelId</code> does not exist or <code>numBytes</code> is less than the low-water mark for the write cache. A <code>e_WRITE_CACHE_HIWAT</code> alert is provided (via the channel state callback) if <code>numBytes</code> is less than or equal to the current size of the write cache. (See the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_CACHE_HIWAT</code> and <code>e_WRITE_CACHE_LOWWAT</code> alerts.) The behavior is undefined unless <code>0 &lt;= numBytes</code>. Note that this method overrides the value configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
+<p>Set the write queue high-water mark for the specified <code>channelId</code> to the specified <code>numBytes</code>; return 0 on success, and a non-zero value if <code>channelId</code> does not exist. An <code>e_WRITE_QUEUE_HIGHWATER</code> alert is provided (via the channel state callback) if <code>numBytes</code> is less than or equal to the current size of the write queue. (See the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_QUEUE_HIGHWATER</code> and <code>e_WRITE_QUEUE_LOWWATER</code> alerts.) The behavior is undefined unless <code>0 &lt;= numBytes</code>. Note that this method overrides the value configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
 
 </div>
 </div>
-<a class="anchor" id="a2eee44e37cf26e0a4d634bb8728d8a37"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteCacheLowWatermark" ref="a2eee44e37cf26e0a4d634bb8728d8a37" args="(int channelId, int numBytes)" -->
+<a class="anchor" id="a389eac2eac57881bda807f69ab872010"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteQueueLowWatermark" ref="a389eac2eac57881bda807f69ab872010" args="(int channelId, int numBytes)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::ChannelPool::setWriteCacheLowWatermark </td>
+          <td class="memname">int btlmt::ChannelPool::setWriteQueueLowWatermark </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>channelId</em>, </td>
@@ -1324,16 +1324,16 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the write cache low-water mark for the specified <code>channelId</code> to the specified <code>numBytes</code>; return 0 on success, and a non-zero value if either <code>channelId</code> does not exist or <code>numBytes</code> is greater than the high-water mark for the write cache. A <code>e_WRITE_CACHE_LOWWAT</code> alert is provided (via the channel state callback) if <code>numBytes</code> is greater than or equal to the current size of the write cache. (See the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_CACHE_HIWAT</code> and <code>e_WRITE_CACHE_LOWWAT</code> alerts.) The behavior is undefined unless <code>0 &lt;= numBytes</code>. Note that this method overrides the value configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
+<p>Set the write queue low-water mark for the specified <code>channelId</code> to the specified <code>numBytes</code>; return 0 on success, and a non-zero value if either <code>channelId</code> does not exist. An <code>e_WRITE_QUEUE_LOWWATER</code> alert is provided (via the channel state callback) if <code>numBytes</code> is greater than or equal to the current size state of the write queue. (See // the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_QUEUE_HIGHWATER</code> and <code>e_WRITE_QUEUE_LOWWATER</code> alerts.) The behavior is undefined unless <code>0 &lt;= numBytes</code>. Note that this method overrides the value configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
 
 </div>
 </div>
-<a class="anchor" id="a4db092ba48ba2844cd46c25b04d1a045"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteCacheWatermarks" ref="a4db092ba48ba2844cd46c25b04d1a045" args="(int channelId, int lowWatermark, int hiWatermark)" -->
+<a class="anchor" id="ac8bdc156831a2e330ab3006972a09fad"></a><!-- doxytag: member="btlmt::ChannelPool::setWriteQueueWatermarks" ref="ac8bdc156831a2e330ab3006972a09fad" args="(int channelId, int lowWatermark, int highWatermark)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::ChannelPool::setWriteCacheWatermarks </td>
+          <td class="memname">int btlmt::ChannelPool::setWriteQueueWatermarks </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>channelId</em>, </td>
@@ -1348,7 +1348,7 @@ Friends</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&nbsp;</td>
-          <td class="paramname"> <em>hiWatermark</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>highWatermark</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1358,16 +1358,16 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the write cache low- and high-water marks for the specified <code>channelId</code> to the specified <code>lowWatermark</code> and <code>hiWatermark</code> values, respectively; return 0 on success, and a non-zero value if <code>channelId</code> does not exist. A <code>e_WRITE_CACHE_LOWWAT</code> alert is provided (via the channel state callback) if <code>lowWatermark</code> is greater than or equal to the current size of the write cache, and a <code>e_WRITE_CACHE_HIWAT</code> alert is provided if <code>hiWatermark</code> is less than or equal to the current size of the write cache. (See the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_CACHE_HIWAT</code> and <code>e_WRITE_CACHE_LOWWAT</code> alerts.) The behavior is undefined unless <code>0 &lt;= lowWatermark</code> and <code>lowWatermark &lt;= hiWatermark</code>. Note that this method overrides the values configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
+<p>Set the write queue low- and high-water marks for the specified <code>channelId</code> to the specified <code>lowWatermark</code> and <code>highWatermark</code> values, respectively; return 0 on success, and a non-zero value if <code>channelId</code> does not exist. A <code>e_WRITE_QUEUE_LOWWATER</code> alert is provided (via the channel state callback) if <code>lowWatermark</code> is greater than or equal to the current size of the write queue, and a <code>e_WRITE_QUEUE_HIGHWATER</code> alert is provided if <code>highWatermark</code> is less than or equal to the current size of the write queue. (See the "Invocation of High- and Low-Water Mark Callbacks" section under @DESCRIPTION in the component-level documentation for details on <code>e_WRITE_QUEUE_HIGHWATER</code> and <code>e_WRITE_QUEUE_LOWWATER</code> alerts.) The behavior is undefined unless <code>0 &lt;= lowWatermark</code> and <code>0 &lt;= highWatermark</code>. Note that this method overrides the values configured (for all channels) by the <code><a class="el" href="classbtlmt_1_1ChannelPoolConfiguration.html">ChannelPoolConfiguration</a></code> supplied at construction. </p>
 
 </div>
 </div>
-<a class="anchor" id="a61cf6709146b16e6d97cffa2711f7e4e"></a><!-- doxytag: member="btlmt::ChannelPool::resetRecordedMaxWriteCacheSize" ref="a61cf6709146b16e6d97cffa2711f7e4e" args="(int channelId)" -->
+<a class="anchor" id="af0740e0b2089cec1617b86c94a972c1a"></a><!-- doxytag: member="btlmt::ChannelPool::resetRecordedMaxWriteQueueSize" ref="af0740e0b2089cec1617b86c94a972c1a" args="(int channelId)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::ChannelPool::resetRecordedMaxWriteCacheSize </td>
+          <td class="memname">int btlmt::ChannelPool::resetRecordedMaxWriteQueueSize </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
           <td class="paramname"> <em>channelId</em></td>
@@ -1377,7 +1377,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Reset the recorded max write cache size for the specified <code>channelId</code> to the current write cache size. Return 0 on success, or a non-zero value if <code>channelId</code> does not exist. Note that this function resets the recorded max write cache size and does not change the write cache high-water mark for <code>channelId</code>. </p>
+<p>Reset the recorded max write queue size for the specified <code>channelId</code> to the current write queue size. Return 0 on success, or a non-zero value if <code>channelId</code> does not exist. Note that this function resets the recorded max write queue size and does not change the write queue high-water mark for <code>channelId</code>. </p>
 
 </div>
 </div>
@@ -1511,7 +1511,6 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Enqueue a request to write the specified <code>message</code> into the channel having the specified <code>channelId</code>. Optionally specify an <code>enqueueWaterMark</code> to limit the size of the enqueued portion of the message. Return 0 on success, and a non-zero value otherwise. On error, the return value <em>may</em> equal to one of the enumerators in <code><a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dc">ChannelStatus::Enum</a></code>. </p>
 
 </div>
 </div>
@@ -1578,7 +1577,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Enqueue a request to write the specified <code>vecs</code> into the channel having the specified <code>channelId</code>. Return 0 on success, and a non-zero value otherwise. On error, the return value <em>may</em> equal to one of the enumerators in <code><a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dc">ChannelStatus::Enum</a></code>. Note that you should prefer this method over the other <code><a class="el" href="classbtlmt_1_1ChannelPool.html#ab7df0ac56a8bda1281a1b2623528178b">write()</a></code> method <em>only</em> <em>if</em> you expect that this object will be able to write most of the data contained in the specified <code>vecs</code> atomically. If the <code>vecs</code> must be enqueued, an inefficient data copy will occur to allow to control the lifetime of the data. </p>
+<p>Enqueue a request to write the specified <code>message</code> or <code>vecs</code> into the channel having the specified <code>channelId</code>. Optionally specify an <code>enqueueWatermark</code> to fail if the write queue already has more than <code>enqueueWatermark</code> bytes. Return 0 on success, and a non-zero value otherwise. On error, the return value <em>may</em> equal to one of the enumerators in <code><a class="el" href="structbtlmt_1_1ChannelStatus.html#a4352e4c5f1558a16a42bff85712fe3dc">ChannelStatus::Enum</a></code>. If the error is a transient failure resulting from an overfull output queue, a high-water callback will be scheduled immediately, and a low-watermark callback will be scheduled to be called when the queue has drained enough to accept more data. These callbacks may be delivered to a different thread before this call returns. </p>
 
 </div>
 </div>
@@ -2054,21 +2053,21 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aaa39e1e9af9bb279bbcf15ebe186490d"></a><!-- doxytag: member="btlmt::ChannelPool::getChannelWriteCacheStatistics" ref="aaa39e1e9af9bb279bbcf15ebe186490d" args="(int *recordedMaxWriteCacheSize, int *currentWriteCacheSize, int channelId) const " -->
+<a class="anchor" id="a8357fc0afeaefa31bb4a94e2f53972cb"></a><!-- doxytag: member="btlmt::ChannelPool::getChannelWriteQueueStatistics" ref="a8357fc0afeaefa31bb4a94e2f53972cb" args="(int *recordedMaxWriteQueueSize, int *currentWriteQueueSize, int channelId) const " -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int btlmt::ChannelPool::getChannelWriteCacheStatistics </td>
+          <td class="memname">int btlmt::ChannelPool::getChannelWriteQueueStatistics </td>
           <td>(</td>
           <td class="paramtype">int *&nbsp;</td>
-          <td class="paramname"> <em>recordedMaxWriteCacheSize</em>, </td>
+          <td class="paramname"> <em>recordedMaxWriteQueueSize</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int *&nbsp;</td>
-          <td class="paramname"> <em>currentWriteCacheSize</em>, </td>
+          <td class="paramname"> <em>currentWriteQueueSize</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2084,7 +2083,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Load into the specified <code>recordedMaxWriteCacheSize</code> and <code>currentWriteCacheSize</code> the maximum and current size respectively of the write cache of the channel identified by the specified <code>channelId</code> and return 0 if the specified <code>channelId</code> is a valid channel id. Otherwise, return a non-zero value. Note that for performance reasons this <em>sequence</em> is not captured atomically: by the time one of the values is captured, another may already have changed. </p>
+<p>Load into the specified <code>recordedMaxWriteQueueSize</code> and <code>currentWriteQueueSize</code> the maximum and current size respectively of the write queue of the channel identified by the specified <code>channelId</code> and return 0 if the specified <code>channelId</code> is a valid channel id. Otherwise, return a non-zero value. Note that for performance reasons this <em>sequence</em> is not captured atomically: by the time one of the values is captured, another may already have changed. </p>
 
 </div>
 </div>
@@ -2450,7 +2449,7 @@ Friends</h2></td></tr>
 <li><a class="el" href="btlmt__channelpool_8h_source.html">btlmt_channelpool.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:14 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

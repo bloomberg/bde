@@ -259,7 +259,7 @@ The function should not modify its argument.  </li>
       <span class="keywordtype">size_t</span>            d_numValues;          <span class="comment">// Length of &#39;d_values&#39;.</span>
       <span class="keyword">const</span> TYPE      **d_bucketArray;        <span class="comment">// Contains ptrs into</span>
                                               <span class="comment">// &#39;d_values&#39;</span>
-      <span class="keywordtype">unsigned</span>          d_bucketArrayMask;    <span class="comment">// Will always be &#39;2^N - 1&#39;.</span>
+      <span class="keywordtype">size_t</span>            d_bucketArrayMask;    <span class="comment">// Will always be &#39;2^N - 1&#39;.</span>
       HASHER            d_hasher;
       <span class="keywordtype">bool</span>              d_valid;              <span class="comment">// Object was properly</span>
                                               <span class="comment">// initialized.</span>
@@ -1919,7 +1919,7 @@ The function should not modify its argument.  </li>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:55 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:04 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

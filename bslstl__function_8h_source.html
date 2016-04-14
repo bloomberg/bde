@@ -97,6 +97,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslmf_functionpointertraits.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_ISEMPTY
 #include &lt;bslmf_isempty.h&gt;
 #endif
@@ -163,6 +167,11 @@ BSL_OVERRIDES_STD mode&quot;
 
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include &lt;bsls_unspecifiedbool.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDLIB
+#include &lt;cstdlib&gt;
+#define INCLUDED_CSTDLIB
 #endif
 
 #ifndef INCLUDED_TYPEINFO
@@ -9529,8 +9538,8 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         // Compute the distance (in bytes) between the start of the source and
         // the start of the destination to see if they overlap.
         std::size_t dist = static_cast&lt;std::size_t&gt;(
-            abs(reinterpret_cast&lt;const char*&gt;(rep-&gt;d_allocator_p) -
-                reinterpret_cast&lt;const char*&gt;(&amp;other)));
+            std::abs(reinterpret_cast&lt;const char*&gt;(rep-&gt;d_allocator_p) -
+                     reinterpret_cast&lt;const char*&gt;(&amp;other)));
 
         if (dist &gt;= sizeof(Adaptor)) {
             // Input and output don&#39;t overlap.
@@ -23175,6 +23184,20 @@ void bsl::swap(bsl::function&lt;RET(ARGS...)&gt;&amp; a, bsl::function&lt;RET(AR
 
 // }}} END GENERATED CODE
 #endif
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;class FUNC&gt;
+struct IsBitwiseMoveable&lt;bsl::Function_NothrowWrapper&lt;FUNC&gt; &gt;
+   : IsBitwiseMoveable&lt;FUNC&gt;::type
+{
+};
+
+} // close namespace bslmf
+} // close namespace BloombergLP
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 

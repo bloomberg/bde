@@ -177,7 +177,7 @@ Namespaces</h2></td></tr>
           <span class="keyword">const</span> <span class="keywordtype">char</span>       *word,
           <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
   : d_word(basicAllocator)
-  , d_fileSet(bsl::less&lt;bsl::<a class="code" href="group__bslstl__string.html#gab67de1ebe0184939129507efe5c86bb1">string</a>&gt;(), basicAllocator)
+  , d_fileSet(bsl::less&lt;bsl::string&gt;(), basicAllocator)
   {
       assert(word);
 
@@ -299,7 +299,7 @@ Namespaces</h2></td></tr>
           <span class="keywordtype">int</span>                <span class="keywordtype">id</span> = pool.createQueue();
           LOOP_ASSERT(word, 0 != <span class="keywordtype">id</span>);
           my_SearchProfile *profile = <span class="keyword">new</span> (*allocator)
-                                               my_SearchProfile(word.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>(),
+                                               my_SearchProfile(word.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>(),
                                                                 allocator);
 
           <a class="code" href="classbslma_1_1RawDeleterProctor.html">bslma::RawDeleterProctor&lt;my_SearchProfile, bslma::Allocator&gt;</a>
@@ -322,7 +322,7 @@ Namespaces</h2></td></tr>
               <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp;        word = *jt;
               RegistryValue&amp;            rv   = profileRegistry[word];
               bsl::function&lt;void()&gt; job  =
-                 <a class="code" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a>(&amp;my_SearchCb, rv.second, file.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>());
+                 <a class="code" href="structbdlf_1_1BindUtil.html#abed946d413bfd0d0abbe7f87b3ed16e4">bdlf::BindUtil::bind</a>(&amp;my_SearchCb, rv.second, file.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>());
               <span class="keywordtype">int</span> rc = pool.enqueueJob(rv.first, job);
               LOOP_ASSERT(word, 0 == rc);
           }
@@ -353,7 +353,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:45 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:46 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

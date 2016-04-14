@@ -355,6 +355,8 @@ class ManagedAllocator : public bslma::Allocator {
     // MANIPULATORS
     virtual void release() = 0;
         // Release all memory currently allocated through this allocator.
+        // The effect of using a pointer after this call that was obtained
+        // from this allocator before this call is undefined.
 };
 
 }  // close package namespace

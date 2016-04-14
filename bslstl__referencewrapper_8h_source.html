@@ -106,6 +106,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslscm_version.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include &lt;bslmf_isbitwisemoveable.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include &lt;bsls_util.h&gt;  // for BloombergLP::bsls::Util::addressOf
 #endif
@@ -133,7 +137,7 @@ class reference_wrapper {
     typedef T type;
 
     // CREATORS
-    reference_wrapper(T&amp; object);    // IMPLICIT
+    reference_wrapper(T&amp; object);                                   // IMPLICIT
         // Create a reference wrapper representing the specified &#39;object&#39;.
 
     // reference_wrapper(const reference_wrapper&amp; original) = default;
@@ -237,6 +241,17 @@ bsl::reference_wrapper&lt;T&gt; bsl::ref(bsl::reference_wrapper&lt;T&gt; origina
 {
     return ref(original.get());
 }
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslmf {
+
+template &lt;class T&gt;
+struct IsBitwiseMoveable&lt;bsl::reference_wrapper&lt;T&gt; &gt; : bsl::true_type { };
+
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif
 

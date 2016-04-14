@@ -139,7 +139,7 @@ Friends</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Date.html#a3bbb23b2b9dadfa67a419b05343973c7">hashAppend</a> (HASHALG &amp;hashAlg, const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This class implements a complex-constrained, value-semantic type for representing dates according to the proleptic Gregorian calendar. Each object of this class <em>always</em> represents a <em>valid</em> date value in the range <code>[0001JAN01 .. 9999DEC31]</code> inclusive. The interface of this class supports <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> values expressed in terms of either year/month/day (the canonical representation) or year/day-of-year (an alternate representation). See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
+<p>This class implements a complex-constrained, value-semantic type for representing dates according to the Unix (POSIX) calendar. Each object of this class <em>always</em> represents a <em>valid</em> date value in the range <code>[0001JAN01 .. 9999DEC31]</code> inclusive. The interface of this class supports <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> values expressed in terms of either year/month/day (the canonical representation) or year/day-of-year (an alternate representation). See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a9004a83053a95ebf301a82cc9fc8d2e6"></a><!-- doxytag: member="bdlt::Date::Date" ref="a9004a83053a95ebf301a82cc9fc8d2e6" args="()" -->
 <div class="memitem">
@@ -283,7 +283,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>year</code> and <code>dayOfYear</code> represent a valid value for a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object, and <code>false</code> otherwise. <code>year</code> and <code>dayOfYear</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value if they correspond to a valid date as defined by the proleptic Gregorian calendar confined to the year range <code>[1 .. 9999]</code> inclusive. See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
+<p>Return <code>true</code> if the specified <code>year</code> and <code>dayOfYear</code> represent a valid value for a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object, and <code>false</code> otherwise. <code>year</code> and <code>dayOfYear</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value if they correspond to a valid date as defined by the Unix (POSIX) calendar confined to the year range <code>[1 .. 9999]</code> inclusive. See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
 
 </div>
 </div>
@@ -317,7 +317,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>year</code>, <code>month</code>, and <code>day</code> represent a valid value for a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object, and <code>false</code> otherwise. <code>year</code>, <code>month</code>, and <code>day</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value if they correspond to a valid date as defined by the proleptic Gregorian calendar confined to the year range <code>[1 .. 9999]</code> inclusive. See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
+<p>Return <code>true</code> if the specified <code>year</code>, <code>month</code>, and <code>day</code> represent a valid value for a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object, and <code>false</code> otherwise. <code>year</code>, <code>month</code>, and <code>day</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value if they correspond to a valid date as defined by the Unix (POSIX) calendar confined to the year range <code>[1 .. 9999]</code> inclusive. See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
 
 </div>
 </div>
@@ -1154,7 +1154,7 @@ template&lt;class HASHALG &gt; </div>
 <li><a class="el" href="bdlt__date_8h_source.html">bdlt_date.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:34 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

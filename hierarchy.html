@@ -68,6 +68,10 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbsl_1_1add__const.html">bsl::add_const&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1add__cv.html">bsl::add_cv&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1add__lvalue__reference.html">bsl::add_lvalue_reference&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1add__lvalue__reference.html">bsl::add_lvalue_reference&lt; bsl::add_const&lt; bsl::remove_cv&lt; TO_TYPE &gt;::type &gt;::type &gt;</a><ul>
+<li><a class="el" href="structbslmf_1_1IsConvertible__LazyTrait.html">bslmf::IsConvertible_LazyTrait&lt; TO_TYPE &gt;</a></li>
+</ul>
+</li>
 <li><a class="el" href="structbsl_1_1add__lvalue__reference_3_01TYPE_01_6_01_4.html">bsl::add_lvalue_reference&lt; TYPE &amp; &gt;</a></li>
 <li><a class="el" href="structbsl_1_1add__lvalue__reference_3_01void_01_4.html">bsl::add_lvalue_reference&lt; void &gt;</a></li>
 <li><a class="el" href="structbsl_1_1add__lvalue__reference_3_01void_01const_01_01_4.html">bsl::add_lvalue_reference&lt; void const &gt;</a></li>
@@ -113,6 +117,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 </li>
 <li><a class="el" href="classball_1_1CountingAllocator.html">ball::CountingAllocator</a></li>
 <li><a class="el" href="classbdlma_1_1AlignedAllocator.html">bdlma::AlignedAllocator</a></li>
+<li><a class="el" href="classbdlma_1_1AligningAllocator.html">bdlma::AligningAllocator</a></li>
 <li><a class="el" href="classbdlma_1_1ConcurrentAllocatorAdapter.html">bdlma::ConcurrentAllocatorAdapter</a></li>
 <li><a class="el" href="classbdlma_1_1ConcurrentPoolAllocator.html">bdlma::ConcurrentPoolAllocator</a></li>
 <li><a class="el" href="classbdlma_1_1CountingAllocator.html">bdlma::CountingAllocator</a></li>
@@ -145,7 +150,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classSimplePool__Type_1_1AllocatorType.html">AllocatorType</a></li>
 <li><a class="el" href="classbsltf_1_1AllocBitwiseMoveableTestType.html">bsltf::AllocBitwiseMoveableTestType</a></li>
 <li><a class="el" href="classBloombergLP_1_1bsltf_1_1AllocTestType.html">BloombergLP::bsltf::AllocTestType</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Rep_1_1ArenaType.html">bdlf::Function_Rep::ArenaType</a></li>
 <li><a class="el" href="structbdlat__TypeCategory_1_1Array.html">bdlat_TypeCategory::Array</a></li>
 <li><a class="el" href="structbslalg_1_1ArrayDestructionPrimitives.html">bslalg::ArrayDestructionPrimitives</a></li>
 <li><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></li>
@@ -216,85 +220,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbdlde_1_1Base64Decoder.html">bdlde::Base64Decoder</a></li>
 <li><a class="el" href="classbdlde_1_1Base64Encoder.html">bdlde::Base64Encoder</a></li>
 <li><a class="el" href="classbalxml_1_1Base64Parser.html">balxml::Base64Parser&lt; TYPE &gt;</a></li>
-<li><a class="el" href="classVariantImp__Traits_1_1BaseType.html">BaseType</a><ul>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList10&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant10.html">bdlb::Variant10&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList11&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant11.html">bdlb::Variant11&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList12&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant12.html">bdlb::Variant12&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList13&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant13.html">bdlb::Variant13&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList14&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant14.html">bdlb::Variant14&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList15&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant15.html">bdlb::Variant15&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList16&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant16.html">bdlb::Variant16&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList17&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant17.html">bdlb::Variant17&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList18&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant18.html">bdlb::Variant18&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList19&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant19.html">bdlb::Variant19&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList2&lt; A1, A2 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant2.html">bdlb::Variant2&lt; A1, A2 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList3&lt; A1, A2, A3 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant3.html">bdlb::Variant3&lt; A1, A2, A3 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList4&lt; A1, A2, A3, A4 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant4.html">bdlb::Variant4&lt; A1, A2, A3, A4 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList5&lt; A1, A2, A3, A4, A5 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant5.html">bdlb::Variant5&lt; A1, A2, A3, A4, A5 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList6&lt; A1, A2, A3, A4, A5, A6 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant6.html">bdlb::Variant6&lt; A1, A2, A3, A4, A5, A6 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList7&lt; A1, A2, A3, A4, A5, A6, A7 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant7.html">bdlb::Variant7&lt; A1, A2, A3, A4, A5, A6, A7 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList8&lt; A1, A2, A3, A4, A5, A6, A7, A8 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant8.html">bdlb::Variant8&lt; A1, A2, A3, A4, A5, A6, A7, A8 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList9&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant9.html">bdlb::Variant9&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9 &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20 &gt;::ListType &gt;</a><ul>
-<li><a class="el" href="classbdlb_1_1Variant.html">bdlb::Variant&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20 &gt;</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li><a class="el" href="structbdlat__CustomizedTypeFunctions_1_1BaseType.html">bdlat_CustomizedTypeFunctions::BaseType&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbsl_1_1basic__stringbuf.html">bsl::basic_stringbuf&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a></li>
 <li><a class="el" href="structbbldc_1_1BasicActual360.html">bbldc::BasicActual360</a></li>
@@ -572,6 +497,10 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslmt_1_1Condition.html">bslmt::Condition</a></li>
 <li><a class="el" href="structbsl_1_1conditional.html">bsl::conditional&lt; COND, TRUE_TYPE, FALSE_TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1conditional_3_01false_00_01TRUE__TYPE_00_01FALSE__TYPE_01_4.html">bsl::conditional&lt; false, TRUE_TYPE, FALSE_TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1conditional.html">bsl::conditional&lt; is_fundamental&lt; FROM_TYPE &gt;::value||is_pointer&lt; FROM_TYPE &gt;::value, remove_cv&lt; FROM_TYPE &gt;::type, FROM_TYPE &gt;</a><ul>
+<li><a class="el" href="structbsl_1_1EffectiveFromType.html">bsl::EffectiveFromType&lt; FROM_TYPE &gt;</a></li>
+</ul>
+</li>
 <li><a class="el" href="structbalxml_1_1ConfigSchema.html">balxml::ConfigSchema</a></li>
 <li><a class="el" href="structbslmt_1_1Configuration.html">bslmt::Configuration</a></li>
 <li><a class="el" href="structbalm_1_1ConfigurationUtil.html">balm::ConfigurationUtil</a></li>
@@ -624,6 +553,12 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbdlt_1_1DatetimeUtil.html">bdlt::DatetimeUtil</a></li>
 <li><a class="el" href="classbdlt_1_1DateTz.html">bdlt::DateTz</a></li>
 <li><a class="el" href="structbdlt_1_1DateUtil.html">bdlt::DateUtil</a></li>
+<li><a class="el" href="classbdld_1_1DatumArrayBuilder.html">bdld::DatumArrayBuilder</a></li>
+<li><a class="el" href="classbdld_1_1DatumBinaryRef.html">bdld::DatumBinaryRef</a></li>
+<li><a class="el" href="classbdld_1_1DatumError.html">bdld::DatumError</a></li>
+<li><a class="el" href="classbdld_1_1DatumMapBuilder.html">bdld::DatumMapBuilder</a></li>
+<li><a class="el" href="classbdld_1_1DatumMapOwningKeysBuilder.html">bdld::DatumMapOwningKeysBuilder</a></li>
+<li><a class="el" href="classbdld_1_1DatumUdt.html">bdld::DatumUdt</a></li>
 <li><a class="el" href="structbbldc_1_1DayCountConvention.html">bbldc::DayCountConvention</a></li>
 <li><a class="el" href="structbdlt_1_1DayOfWeek.html">bdlt::DayOfWeek</a></li>
 <li><a class="el" href="classbdlt_1_1DayOfWeekSet.html">bdlt::DayOfWeekSet</a></li>
@@ -722,10 +657,12 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslalg_1_1DequePrimitives__DequeElementGuard.html">bslalg::DequePrimitives_DequeElementGuard&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a></li>
 <li><a class="el" href="classbslalg_1_1DequePrimitives__DequeMoveGuard.html">bslalg::DequePrimitives_DequeMoveGuard&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a></li>
 <li><a class="el" href="classbslalg_1_1DequePrimitives__ExternalDequeElementGuard.html">bslalg::DequePrimitives_ExternalDequeElementGuard&lt; VALUE_TYPE, BLOCK_LENGTH &gt;</a></li>
-<li><a class="el" href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4_1_1Derived.html">bsl::Is_Empty_Imp&lt; TYPE, true &gt;::Derived</a></li>
 <li><a class="el" href="classbslma_1_1DestructorGuard.html">bslma::DestructorGuard&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbslma_1_1DestructorProctor.html">bslma::DestructorProctor&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbtls5_1_1DetailedStatus.html">btls5::DetailedStatus</a></li>
+<li><a class="el" href="structbslmf_1_1DetectNestedTrait_3_01const_01TYPE_00_01TRAIT_01_4.html">bslmf::DetectNestedTrait&lt; const TYPE, TRAIT &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1DetectNestedTrait_3_01const_01volatile_01TYPE_00_01TRAIT_01_4.html">bslmf::DetectNestedTrait&lt; const volatile TYPE, TRAIT &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1DetectNestedTrait_3_01volatile_01TYPE_00_01TRAIT_01_4.html">bslmf::DetectNestedTrait&lt; volatile TYPE, TRAIT &gt;</a></li>
 <li><a class="el" href="classbslmf_1_1DetectNestedTrait__Imp.html">bslmf::DetectNestedTrait_Imp&lt; TYPE, TRAIT &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1DetectNestedTrait__Imp_3_01void_00_01TRAIT_01_4.html">bslmf::DetectNestedTrait_Imp&lt; void, TRAIT &gt;</a></li>
 <li><a class="el" href="structbalst_1_1ObjectFileFormat_1_1Dladdr.html">balst::ObjectFileFormat::Dladdr</a></li>
@@ -789,10 +726,10 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbtlso_1_1EventType.html">btlso::EventType</a></li>
 <li><a class="el" href="structbsltf_1_1EvilBooleanType.html">bsltf::EvilBooleanType</a></li>
 <li><a class="el" href="classbslma_1_1ExceptionGuard.html">bslma::ExceptionGuard&lt; OBJECT &gt;</a></li>
-<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_00_01DUMMY_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal128, DUMMY &gt;</a></li>
-<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_00_01DUMMY_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal32, DUMMY &gt;</a></li>
-<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY &gt;</a></li>
-<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01Decimal__StandardNamespaceCanary_00_01DUMMY_01_4.html">bdldfp::faux_numeric_limits&lt; Decimal_StandardNamespaceCanary, DUMMY &gt;</a></li>
+<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_00_01DUMMY__TYPE_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal128, DUMMY_TYPE &gt;</a></li>
+<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_00_01DUMMY__TYPE_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal32, DUMMY_TYPE &gt;</a></li>
+<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY__TYPE_01_4.html">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY_TYPE &gt;</a></li>
+<li><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01Decimal__StandardNamespaceCanary_00_01DUMMY__TYPE_01_4.html">bdldfp::faux_numeric_limits&lt; Decimal_StandardNamespaceCanary, DUMMY_TYPE &gt;</a></li>
 <li><a class="el" href="classbdls_1_1FdStreamBuf.html">bdls::FdStreamBuf</a></li>
 <li><a class="el" href="classbdls_1_1FdStreamBuf__FileHandler.html">bdls::FdStreamBuf_FileHandler</a></li>
 <li><a class="el" href="classbalb_1_1FeatureTestMessage.html">balb::FeatureTestMessage</a></li>
@@ -824,47 +761,12 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 </li>
 </ul>
 </li>
-<li><a class="el" href="classbdlf_1_1Function.html">bdlf::Function&lt; PROTOTYPE &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_010_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 0, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_010_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 0, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_011_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 1, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_011_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 1, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0110_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 10, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0110_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 10, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0111_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 11, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0111_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 11, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0112_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 12, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0112_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 12, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0113_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 13, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0113_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 13, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0114_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 14, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_0114_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 14, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_012_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 2, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_012_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 2, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_013_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 3, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_013_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 3, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_014_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 4, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_014_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 4, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_015_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 5, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_015_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 5, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_016_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 6, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_016_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 6, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_017_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 7, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_017_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 7, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_018_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 8, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_018_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 8, void, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_019_00_01RET_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 9, RET, ARGS &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__Invoker_3_019_00_01void_00_01ARGS_01_4.html">bdlf::Function_Invoker&lt; 9, void, ARGS &gt;</a></li>
 <li><a class="el" href="classbsl_1_1Function__NothrowWrapper.html">bsl::Function_NothrowWrapper&lt; FUNC &gt;</a></li>
-<li><a class="el" href="classbdlf_1_1Function__Rep.html">bdlf::Function_Rep</a></li>
 <li><a class="el" href="classbsl_1_1Function__Rep.html">bsl::Function_Rep</a><ul>
 <li><a class="el" href="classbsl_1_1function_3_01RET_07ARGS_8_8_8_08_4.html">bsl::function&lt; RET(ARGS...)&gt;</a></li>
 </ul>
 </li>
-<li><a class="el" href="structbdlf_1_1Function__RepUtil.html">bdlf::Function_RepUtil</a></li>
 <li><a class="el" href="classbsl_1_1Function__SmallObjectOptimization.html">bsl::Function_SmallObjectOptimization</a></li>
-<li><a class="el" href="structbdlf_1_1Function__TypeList.html">bdlf::Function_TypeList&lt; PROTOTYPE &gt;</a></li>
-<li><a class="el" href="structbdlf_1_1Function__UnspecifiedBoolHelper.html">bdlf::Function_UnspecifiedBoolHelper</a></li>
 <li><a class="el" href="classbdlb_1_1FunctionOutputIterator.html">bdlb::FunctionOutputIterator&lt; FUNCTION &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1FunctionPointerCLinkage.html">bslmf::FunctionPointerCLinkage</a></li>
 <li><a class="el" href="structbslmf_1_1FunctionPointerCPlusPlusLinkage.html">bslmf::FunctionPointerCPlusPlusLinkage</a></li>
@@ -905,7 +807,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01PROTOTYPE_01_5volatile_01_4.html">bslmf::FunctionPointerTraits&lt; PROTOTYPE *volatile &gt;</a></li>
 </ul>
 </li>
-<li><a class="el" href="structbdlf_1_1FunctionUtil.html">bdlf::FunctionUtil</a></li>
 <li><a class="el" href="classbslalg_1_1FunctorAdapter.html">bslalg::FunctorAdapter&lt; CALLABLE_OBJECT &gt;</a></li>
 <li><a class="el" href="classbslalg_1_1FunctorAdapter_3_01FUNCTION_01_5_01_4.html">bslalg::FunctorAdapter&lt; FUNCTION * &gt;</a></li>
 <li><a class="el" href="classbslalg_1_1FunctorAdapter.html">bslalg::FunctorAdapter&lt; HashTable_ComparatorWrapper&lt; CallableVariable&lt; COMPARATOR &gt;::type &gt; &gt;</a><ul>
@@ -967,8 +868,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslalg_1_1HashTableImpUtil.html">bslalg::HashTableImpUtil</a></li>
 <li><a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult.html">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;</a></li>
 <li><a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a></li>
-<li><a class="el" href="structbdlb_1_1HashUtil.html">bdlb::HashUtil</a></li>
 <li><a class="el" href="structbslalg_1_1HashUtil.html">bslalg::HashUtil</a></li>
+<li><a class="el" href="structbdlb_1_1HashUtil.html">bdlb::HashUtil</a></li>
 <li><a class="el" href="structbslalg_1_1HasTrait.html">bslalg::HasTrait&lt; TYPE, TRAIT &gt;</a></li>
 <li><a class="el" href="classbalxml_1_1HexParser.html">balxml::HexParser&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbalxml_1_1HexParser__Helper.html">balxml::HexParser_Helper</a></li>
@@ -983,52 +884,57 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbdlc_1_1IndexClerkIter.html">bdlc::IndexClerkIter</a></li>
 <li><a class="el" href="classbtlso_1_1InetStreamSocketCloseGuard.html">btlso::InetStreamSocketCloseGuard</a></li>
 <li><a class="el" href="classbdlma_1_1InfrequentDeleteBlockList.html">bdlma::InfrequentDeleteBlockList</a></li>
-<li><a class="el" href="structbdlc_1_1Queue_1_1InitialCapacity.html">bdlc::Queue&lt; T &gt;::InitialCapacity</a></li>
 <li><a class="el" href="structbdlcc_1_1Queue_1_1InitialCapacity.html">bdlcc::Queue&lt; TYPE &gt;::InitialCapacity</a></li>
+<li><a class="el" href="structbdlc_1_1Queue_1_1InitialCapacity.html">bdlc::Queue&lt; T &gt;::InitialCapacity</a></li>
 <li><a class="el" href="unionbsl_1_1Function__SmallObjectOptimization_1_1InplaceBuffer.html">bsl::Function_SmallObjectOptimization::InplaceBuffer</a></li>
 <li><a class="el" href="classbalm_1_1IntegerCollector.html">balm::IntegerCollector</a></li>
 <li><a class="el" href="classbalm_1_1IntegerMetric.html">balm::IntegerMetric</a></li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; TYPE, VAL &gt;</a><ul>
 <li><a class="el" href="structbdlat__IsBasicEnumeration.html">bdlat_IsBasicEnumeration&lt; TYPE &gt;</a></li>
-<li><a class="el" href="structbdlat__TypeTraitBasicEnumeration_1_1Metafunction.html">bdlat_TypeTraitBasicEnumeration::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlb_1_1HasPrintMethod.html">bdlb::HasPrintMethod&lt; TYPE &gt;</a></li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; TYPES &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__array.html">bsl::is_array&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__array_3_01TYPE[]_4.html">bsl::is_array&lt; TYPE[]&gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__array_3_01TYPE[NUM__ELEMENTS]_4.html">bsl::is_array&lt; TYPE[NUM_ELEMENTS]&gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__const.html">bsl::is_const&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__const_3_01const_01TYPE_01_4.html">bsl::is_const&lt; const TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01const_01void_01_4.html">bsl::is_convertible&lt; const void, const void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01const_01volatile_01void_01_4.html">bsl::is_convertible&lt; const void, const volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; const void, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; const void, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01void_01_4.html">bsl::is_convertible&lt; const void, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01void_00_01volatile_01void_01_4.html">bsl::is_convertible&lt; const void, volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01const_01void_01_4.html">bsl::is_convertible&lt; const volatile void, const void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01const_01volatile_01void_01_4.html">bsl::is_convertible&lt; const volatile void, const volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; const volatile void, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; const volatile void, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01void_01_4.html">bsl::is_convertible&lt; const volatile void, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01const_01volatile_01void_00_01volatile_01void_01_4.html">bsl::is_convertible&lt; const volatile void, volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01FROM__TYPE_00_01const_01void_01_4.html">bsl::is_convertible&lt; FROM_TYPE, const void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01FROM__TYPE_00_01const_01volatile_01void_01_4.html">bsl::is_convertible&lt; FROM_TYPE, const volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01FROM__TYPE_00_01void_01_4.html">bsl::is_convertible&lt; FROM_TYPE, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01FROM__TYPE_00_01volatile_01void_01_4.html">bsl::is_convertible&lt; FROM_TYPE, volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01const_01void_01_4.html">bsl::is_convertible&lt; void, const void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01const_01volatile_01void_01_4.html">bsl::is_convertible&lt; void, const volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; void, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; void, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01void_01_4.html">bsl::is_convertible&lt; void, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01void_00_01volatile_01void_01_4.html">bsl::is_convertible&lt; void, volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_01_6_00_01void_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE &amp;, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_00_01void_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01const_01void_01_4.html">bsl::is_convertible&lt; volatile void, const void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01const_01volatile_01void_01_4.html">bsl::is_convertible&lt; volatile void, const volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; volatile void, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; volatile void, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01void_01_4.html">bsl::is_convertible&lt; volatile void, void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01void_00_01volatile_01void_01_4.html">bsl::is_convertible&lt; volatile void, volatile void &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__enum_3_01const_01TYPE_01_4.html">bsl::is_enum&lt; const TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__enum_3_01const_01volatile_01TYPE_01_4.html">bsl::is_enum&lt; const volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_01_6_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE &amp;, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_01_6_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE &amp;, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_01_6_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE &amp;, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_01_6_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE &amp;, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01TYPE_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const TYPE, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_01_6_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE &amp;, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_01_6_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE &amp;, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_01_6_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE &amp;, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_01_6_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE &amp;, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01const_01volatile_01TYPE_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; const volatile TYPE, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01FROM__TYPE_00_01const_01volatile_01TO__TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; FROM_TYPE, const volatile TO_TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01FROM__TYPE_00_01volatile_01TO__TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; FROM_TYPE, volatile TO_TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_01_6_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE &amp;, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_01_6_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE &amp;, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_01_6_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE &amp;, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_01_6_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE &amp;, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_01_6_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE &amp;, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_01_6_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE &amp;, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_01_6_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE &amp;, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_01_6_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE &amp;, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_00_01const_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE, const TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_00_01const_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE, const volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE, TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_00_01volatile_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE, volatile TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1Is__Empty__Class__Imp.html">bsl::Is_Empty_Class_Imp&lt; TYPE, IS_CLASS &gt;</a></li>
+<li><a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp&lt; TYPE, IS_CLASS &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__enum_3_01TYPE_01_5_01_4.html">bsl::is_enum&lt; TYPE * &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__enum_3_01void_01_4.html">bsl::is_enum&lt; void &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__lvalue__reference.html">bsl::is_lvalue_reference&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__lvalue__reference_3_01TYPE_01_6_01_4.html">bsl::is_lvalue_reference&lt; TYPE &amp; &gt;</a></li>
@@ -1055,7 +961,10 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait&lt; TYPE, TRAIT &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsArray.html">bslmf::IsArray&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01bslh_1_1SipHashAlgorithm_01_4.html">bslmf::IsBitwiseMoveable&lt; bslh::SipHashAlgorithm &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01void_01_4.html">bslmf::IsBitwiseMoveable&lt; void &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable__Imp.html">bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__FilterNeverConvertible.html">bslmf::IsConvertible_FilterNeverConvertible&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsEnum__TestConversions.html">bslmf::IsEnum_TestConversions&lt; COMPLETE_TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsFloatingPoint__Imp.html">bslmf::IsFloatingPoint_Imp&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsFloatingPoint__Imp_3_01double_01_4.html">bslmf::IsFloatingPoint_Imp&lt; double &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsFloatingPoint__Imp_3_01float_01_4.html">bslmf::IsFloatingPoint_Imp&lt; float &gt;</a></li>
@@ -1147,6 +1056,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1IsPointerToMemberData__Imp.html">bslmf::IsPointerToMemberData_Imp&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsPointerToMemberData__Imp_3_01TYPE_01CLASS_1_1_5_01_4.html">bslmf::IsPointerToMemberData_Imp&lt; TYPE CLASS::* &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsSame.html">bslmf::IsSame&lt; TYPE1, TYPE2 &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsTriviallyCopyable__Imp_3_01void_01_4.html">bslmf::IsTriviallyCopyable_Imp&lt; void &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsTriviallyDefaultConstructible__Imp_3_01void_01_4.html">bslmf::IsTriviallyDefaultConstructible_Imp&lt; void &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsVoid__Imp.html">bslmf::IsVoid_Imp&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsVoid__Imp_3_01void_01_4.html">bslmf::IsVoid_Imp&lt; void &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1MetaInt_3_010_01_4.html">bslmf::MetaInt&lt; 0 &gt;</a></li>
@@ -1156,6 +1067,82 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 </li>
 <li><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait&lt; TYPE, HasStlIterators &gt;</a><ul>
 <li><a class="el" href="structbslalg_1_1HasStlIterators.html">bslalg::HasStlIterators&lt; TYPE &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList10&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant10.html">bdlb::Variant10&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList11&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant11.html">bdlb::Variant11&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList12&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant12.html">bdlb::Variant12&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList13&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant13.html">bdlb::Variant13&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList14&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant14.html">bdlb::Variant14&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList15&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant15.html">bdlb::Variant15&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList16&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant16.html">bdlb::Variant16&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList17&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant17.html">bdlb::Variant17&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList18&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant18.html">bdlb::Variant18&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList19&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant19.html">bdlb::Variant19&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList2&lt; A1, A2 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant2.html">bdlb::Variant2&lt; A1, A2 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList3&lt; A1, A2, A3 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant3.html">bdlb::Variant3&lt; A1, A2, A3 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList4&lt; A1, A2, A3, A4 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant4.html">bdlb::Variant4&lt; A1, A2, A3, A4 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList5&lt; A1, A2, A3, A4, A5 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant5.html">bdlb::Variant5&lt; A1, A2, A3, A4, A5 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList6&lt; A1, A2, A3, A4, A5, A6 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant6.html">bdlb::Variant6&lt; A1, A2, A3, A4, A5, A6 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList7&lt; A1, A2, A3, A4, A5, A6, A7 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant7.html">bdlb::Variant7&lt; A1, A2, A3, A4, A5, A6, A7 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList8&lt; A1, A2, A3, A4, A5, A6, A7, A8 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant8.html">bdlb::Variant8&lt; A1, A2, A3, A4, A5, A6, A7, A8 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList9&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant9.html">bdlb::Variant9&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9 &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; bslmf::TypeList&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20 &gt;::ListType &gt;</a><ul>
+<li><a class="el" href="classbdlb_1_1Variant.html">bdlb::Variant&lt; A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20 &gt;</a></li>
 </ul>
 </li>
 </ul>
@@ -1188,16 +1175,16 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1HasPointerSemantics.html">bslmf::HasPointerSemantics&lt; TYPE &gt;</a></li>
 </ul>
 </li>
+<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, bsl::is_void&lt; FROM_TYPE &gt;::value||bsl::is_array&lt; TO_TYPE &gt;::value||bsl::is_function&lt; TO_TYPE &gt;::value &gt;</a><ul>
+<li><a class="el" href="structbslmf_1_1IsConvertible__IsNeverConvertible.html">bslmf::IsConvertible_IsNeverConvertible&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
+</ul>
+</li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, bslmf::IsBitwiseMoveable&lt; ALLOCATOR &gt;::value &gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01bslstl_1_1BidirectionalNodePool_3_01VALUE_00_01ALLOCATOR_01_4_01_4.html">bslmf::IsBitwiseMoveable&lt; bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt; &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_arithmetic&lt; TYPE &gt;::value||is_void&lt; TYPE &gt;::value &gt;</a><ul>
 <li><a class="el" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental&lt; TYPE &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, Is_Empty_Imp&lt; remove_cv&lt; TYPE &gt;::type &gt;::VALUE &gt;</a><ul>
-<li><a class="el" href="structbsl_1_1is__empty.html">bsl::is_empty&lt; TYPE &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_integral&lt; TYPE &gt;::value||is_floating_point&lt; TYPE &gt;::value &gt;</a><ul>
@@ -1212,19 +1199,23 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbsl_1_1is__member__pointer.html">bsl::is_member_pointer&lt; TYPE &gt;</a></li>
 </ul>
 </li>
+<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, is_reference&lt; TYPE &gt;::value||is_function&lt; TYPE &gt;::value||is_const&lt; TYPE &gt;::value &gt;</a><ul>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01TYPE_00_01TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; TYPE, TYPE &amp; &gt;</a></li>
+</ul>
+</li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool, MemberFunctionPointerTraits&lt; PROTOTYPE &gt;::IS_MEMBER_FUNCTION_PTR &gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsMemberFunctionPointer.html">bslmf::IsMemberFunctionPointer&lt; PROTOTYPE &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant_3_01bool_00_01VAL_01_4.html">bsl::integral_constant&lt; bool, VAL &gt;</a></li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!bsl::is_reference&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value &amp;&amp;(IsFundamental&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||IsEnum&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||bsl::is_pointer&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||bslmf::IsPointerToMember&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||DetectNestedTrait&lt; bsl::remove_cv&lt; TYPE &gt;::type, IsBitwiseEqualityComparable &gt;::value)&gt;</a><ul>
+<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!bsl::is_reference&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value &amp;&amp;(bsl::is_fundamental&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||bsl::is_enum&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||bsl::is_pointer&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||bsl::is_member_pointer&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;::value||DetectNestedTrait&lt; bsl::remove_cv&lt; TYPE &gt;::type, IsBitwiseEqualityComparable &gt;::value)&gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable__Imp.html">bslmf::IsBitwiseEqualityComparable_Imp&lt; bsl::remove_cv&lt; TYPE &gt;::type &gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable.html">bslmf::IsBitwiseEqualityComparable&lt; TYPE &gt;</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!bsl::is_reference&lt; TYPE &gt;::value &amp;&amp;(IsFundamental&lt; TYPE &gt;::value||IsEnum&lt; TYPE &gt;::value||bsl::is_pointer&lt; TYPE &gt;::value||bslmf::IsPointerToMember&lt; TYPE &gt;::value||DetectNestedTrait&lt; TYPE, IsBitwiseEqualityComparable &gt;::value)&gt;</a><ul>
+<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!bsl::is_reference&lt; TYPE &gt;::value &amp;&amp;(bsl::is_fundamental&lt; TYPE &gt;::value||bsl::is_enum&lt; TYPE &gt;::value||bsl::is_pointer&lt; TYPE &gt;::value||bsl::is_member_pointer&lt; TYPE &gt;::value||DetectNestedTrait&lt; TYPE, IsBitwiseEqualityComparable &gt;::value)&gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsBitwiseEqualityComparable__Imp.html">bslmf::IsBitwiseEqualityComparable_Imp&lt; TYPE &gt;</a></li>
 </ul>
 </li>
@@ -1234,10 +1225,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!bsl::is_reference&lt; TYPE &gt;::value &amp;&amp;(IsFundamental&lt; TYPE &gt;::value||IsEnum&lt; TYPE &gt;::value||bsl::is_pointer&lt; TYPE &gt;::value||IsPointerToMember&lt; TYPE &gt;::value||DetectNestedTrait&lt; TYPE, bsl::is_trivially_default_constructible &gt;::value)&gt;</a><ul>
 <li><a class="el" href="structbslmf_1_1IsTriviallyDefaultConstructible__Imp.html">bslmf::IsTriviallyDefaultConstructible_Imp&lt; TYPE &gt;</a></li>
-</ul>
-</li>
-<li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; bool,!is_fundamental&lt; TYPE &gt;::value &amp;&amp;!is_reference&lt; TYPE &gt;::value &amp;&amp;is_convertible&lt; TYPE, BloombergLP::bslmf::IsEnum_AnyArithmeticType &gt;::value &amp;&amp;!BloombergLP::bslmf::IsConvertibleToAny&lt; TYPE &gt;::value &gt;</a><ul>
-<li><a class="el" href="structbsl_1_1is__enum.html">bsl::is_enum&lt; TYPE &gt;</a></li>
 </ul>
 </li>
 <li><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant&lt; int, INT_VALUE &gt;</a><ul>
@@ -1252,33 +1239,71 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbtlso_1_1IpResolutionCache__Entry.html">btlso::IpResolutionCache_Entry</a></li>
 <li><a class="el" href="classbtlso_1_1IPv4Address.html">btlso::IPv4Address</a></li>
 <li><a class="el" href="structbsl_1_1is__convertible.html">bsl::is_convertible&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01FROM__TYPE_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; FROM_TYPE, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_01_6_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE &amp;, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_01_6_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE &amp;, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_00_01TO__TYPE_01_6_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE, TO_TYPE &amp; &gt;</a></li>
-<li><a class="el" href="structbsl_1_1is__convertible_3_01volatile_01FROM__TYPE_00_01TO__TYPE_01_4.html">bsl::is_convertible&lt; volatile FROM_TYPE, TO_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1Is__Empty__Imp.html">bsl::Is_Empty_Imp&lt; TYPE, IS_CLASS &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch.html">bsl::is_convertible_dispatch&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01FROM__TYPE_01_6_00_01const_01volatile_01TO__TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile FROM_TYPE &amp;, const volatile TO_TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01FROM__TYPE_01_6_00_01TO__TYPE_01_4.html">bsl::is_convertible_dispatch&lt; volatile FROM_TYPE &amp;, TO_TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01FROM__TYPE_01_6_00_01volatile_01TO__TYPE_01_6_01_4.html">bsl::is_convertible_dispatch&lt; volatile FROM_TYPE &amp;, volatile TO_TYPE &amp; &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__convertible__dispatch_3_01volatile_01TYPE_00_01TYPE_01_4.html">bsl::is_convertible_dispatch&lt; volatile TYPE, TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1Is__Empty__Class__Imp_3_01TYPE_00_01true_01_4.html">bsl::Is_Empty_Class_Imp&lt; TYPE, true &gt;</a></li>
 <li><a class="el" href="structbsl_1_1Is__Empty__Imp_3_01TYPE_00_01true_01_4.html">bsl::Is_Empty_Imp&lt; TYPE, true &gt;</a></li>
+<li><a class="el" href="structbsl_1_1Is__Empty__Size.html">bsl::Is_Empty_Size</a></li>
+<li><a class="el" href="structbsl_1_1is__enum.html">bsl::is_enum&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__enum_3_01const_01TYPE_01_4.html">bsl::is_enum&lt; const TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__enum_3_01const_01volatile_01TYPE_01_4.html">bsl::is_enum&lt; const volatile TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__enum_3_01volatile_01TYPE_01_4.html">bsl::is_enum&lt; volatile TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__floating__point.html">bsl::is_floating_point&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__integral.html">bsl::is_integral&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__pointer.html">bsl::is_pointer&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01TYPE_01_4.html">bsl::is_trivially_copyable&lt; const TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01TYPE[]_4.html">bsl::is_trivially_copyable&lt; const TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01TYPE[LEN]_4.html">bsl::is_trivially_copyable&lt; const TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01volatile_01TYPE_01_4.html">bsl::is_trivially_copyable&lt; const volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01volatile_01TYPE[]_4.html">bsl::is_trivially_copyable&lt; const volatile TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01const_01volatile_01TYPE[LEN]_4.html">bsl::is_trivially_copyable&lt; const volatile TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01TYPE[]_4.html">bsl::is_trivially_copyable&lt; TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01TYPE[LEN]_4.html">bsl::is_trivially_copyable&lt; TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01volatile_01TYPE_01_4.html">bsl::is_trivially_copyable&lt; volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01volatile_01TYPE[]_4.html">bsl::is_trivially_copyable&lt; volatile TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__copyable_3_01volatile_01TYPE[LEN]_4.html">bsl::is_trivially_copyable&lt; volatile TYPE[LEN]&gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__trivially__default__constructible.html">bsl::is_trivially_default_constructible&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01TYPE_01_4.html">bsl::is_trivially_default_constructible&lt; const TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01TYPE[]_4.html">bsl::is_trivially_default_constructible&lt; const TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01TYPE[LEN]_4.html">bsl::is_trivially_default_constructible&lt; const TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01volatile_01TYPE_01_4.html">bsl::is_trivially_default_constructible&lt; const volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01volatile_01TYPE[]_4.html">bsl::is_trivially_default_constructible&lt; const volatile TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01const_01volatile_01TYPE[LEN]_4.html">bsl::is_trivially_default_constructible&lt; const volatile TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01TYPE[]_4.html">bsl::is_trivially_default_constructible&lt; TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01TYPE[LEN]_4.html">bsl::is_trivially_default_constructible&lt; TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01volatile_01TYPE_01_4.html">bsl::is_trivially_default_constructible&lt; volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01volatile_01TYPE[]_4.html">bsl::is_trivially_default_constructible&lt; volatile TYPE[]&gt;</a></li>
+<li><a class="el" href="structbsl_1_1is__trivially__default__constructible_3_01volatile_01TYPE[LEN]_4.html">bsl::is_trivially_default_constructible&lt; volatile TYPE[LEN]&gt;</a></li>
 <li><a class="el" href="structbsl_1_1is__void.html">bsl::is_void&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlat__ArrayFunctions_1_1IsArray.html">bdlat_ArrayFunctions::IsArray&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable.html">bslmf::IsBitwiseMoveable&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01BloombergLP_1_1btlb_1_1Blob_01_4.html">bslmf::IsBitwiseMoveable&lt; BloombergLP::btlb::Blob &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01BloombergLP_1_1btlb_1_1BlobBuffer_01_4.html">bslmf::IsBitwiseMoveable&lt; BloombergLP::btlb::BlobBuffer &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01const_01TYPE_01_4.html">bslmf::IsBitwiseMoveable&lt; const TYPE &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01const_01TYPE[LEN]_4.html">bslmf::IsBitwiseMoveable&lt; const TYPE[LEN]&gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01const_01volatile_01TYPE_01_4.html">bslmf::IsBitwiseMoveable&lt; const volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01const_01volatile_01TYPE[LEN]_4.html">bslmf::IsBitwiseMoveable&lt; const volatile TYPE[LEN]&gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01TYPE[LEN]_4.html">bslmf::IsBitwiseMoveable&lt; TYPE[LEN]&gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01volatile_01TYPE_01_4.html">bslmf::IsBitwiseMoveable&lt; volatile TYPE &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsBitwiseMoveable_3_01volatile_01TYPE[LEN]_4.html">bslmf::IsBitwiseMoveable&lt; volatile TYPE[LEN]&gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable__Imp_3_01TYPE_00_01false_01_4.html">bslmf::IsBitwiseMoveable_Imp&lt; TYPE, false &gt;</a></li>
 <li><a class="el" href="structbdlat__ChoiceFunctions_1_1IsChoice.html">bdlat_ChoiceFunctions::IsChoice&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsClass.html">bslmf::IsClass&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsClass__Imp.html">bslmf::IsClass_Imp&lt; TYPE &gt;</a></li>
-<li><a class="el" href="structbdlat__ValueTypeFunctions__Imp_1_1IsConvertible.html">bdlat_ValueTypeFunctions_Imp::IsConvertible</a></li>
 <li><a class="el" href="structbslmf_1_1IsConvertible.html">bslmf::IsConvertible&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
+<li><a class="el" href="structbdlat__ValueTypeFunctions__Imp_1_1IsConvertible.html">bdlat_ValueTypeFunctions_Imp::IsConvertible</a></li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__CheckComplete.html">bslmf::IsConvertible_CheckComplete&lt; TYPE, bool &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__CheckComplete.html">bslmf::IsConvertible_CheckComplete&lt; TYPE &gt;</a><ul>
+<li><a class="el" href="structbslmf_1_1IsConvertible__CheckComplete_3_01TYPE_01_6_00_01false_01_4.html">bslmf::IsConvertible_CheckComplete&lt; TYPE &amp;, false &gt;</a></li>
+</ul>
+</li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__CheckComplete_3_01TYPE_00_01true_01_4.html">bslmf::IsConvertible_CheckComplete&lt; TYPE, true &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__CheckComplete_3_01TYPE[]_00_01false_01_4.html">bslmf::IsConvertible_CheckComplete&lt; TYPE[], false &gt;</a></li>
+<li><a class="el" href="structbslmf_1_1IsConvertible__Conditional.html">bslmf::IsConvertible_Conditional&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsConvertible__Imp.html">bslmf::IsConvertible_Imp&lt; FROM_TYPE, TO_TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsConvertible__Match.html">bslmf::IsConvertible_Match</a></li>
 <li><a class="el" href="structbslmf_1_1IsConvertibleToAny.html">bslmf::IsConvertibleToAny&lt; TYPE &gt;</a></li>
@@ -1289,7 +1314,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbdlat__EnumFunctions_1_1IsEnumeration.html">bdlat_EnumFunctions::IsEnumeration&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslx_1_1InStreamFunctions_1_1IsEnumType.html">bslx::InStreamFunctions::IsEnumType</a></li>
 <li><a class="el" href="structbslx_1_1OutStreamFunctions_1_1IsEnumType.html">bslx::OutStreamFunctions::IsEnumType</a></li>
-<li><a class="el" href="structbdlf_1_1FunctionUtil_1_1IsInplace.html">bdlf::FunctionUtil::IsInplace&lt; FUNC &gt;</a></li>
 <li><a class="el" href="structbdlat__ValueTypeFunctions__Imp_1_1IsNotConvertible.html">bdlat_ValueTypeFunctions_Imp::IsNotConvertible</a></li>
 <li><a class="el" href="structbslx_1_1InStreamFunctions_1_1IsNotEnumType.html">bslx::InStreamFunctions::IsNotEnumType</a></li>
 <li><a class="el" href="structbslx_1_1OutStreamFunctions_1_1IsNotEnumType.html">bslx::OutStreamFunctions::IsNotEnumType</a></li>
@@ -1310,6 +1334,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmf_1_1IsVoid.html">bslmf::IsVoid&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslstl_1_1IteratorUtil.html">bslstl::IteratorUtil</a></li>
 <li><a class="el" href="classbdlcc_1_1TimeQueue_1_1Key.html">bdlcc::TimeQueue&lt; DATA &gt;::Key</a></li>
+<li><a class="el" href="classbslmt_1_1Latch.html">bslmt::Latch</a></li>
 <li><a class="el" href="classbtls_1_1LeakyBucket.html">btls::LeakyBucket</a></li>
 <li><a class="el" href="classbtlso_1_1LingerOptions.html">btlso::LingerOptions</a></li>
 <li><a class="el" href="classbsl_1_1list.html">bsl::list&lt; VALUE, ALLOCATOR &gt;</a></li>
@@ -1347,6 +1372,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classball_1_1LoggerManagerConfiguration.html">ball::LoggerManagerConfiguration</a></li>
 <li><a class="el" href="classball_1_1LoggerManagerDefaults.html">ball::LoggerManagerDefaults</a></li>
 <li><a class="el" href="classball_1_1LoggerManagerScopedGuard.html">ball::LoggerManagerScopedGuard</a></li>
+<li><a class="el" href="classbdld_1_1ManagedDatum.html">bdld::ManagedDatum</a></li>
 <li><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a></li>
 <li><a class="el" href="structbslma_1_1ManagedPtr__DefaultDeleter.html">bslma::ManagedPtr_DefaultDeleter&lt; MANAGED_TYPE &gt;</a></li>
 <li><a class="el" href="structbslma_1_1ManagedPtr__FactoryDeleter.html">bslma::ManagedPtr_FactoryDeleter&lt; ELEMENT_TYPE, FACTORY &gt;</a></li>
@@ -1410,16 +1436,17 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">bdlma::MemoryBlockDescriptor</a></li>
 <li><a class="el" href="structbdls_1_1MemoryUtil.html">bdls::MemoryUtil</a></li>
 <li><a class="el" href="classbdlsb_1_1MemOutStreamBuf.html">bdlsb::MemOutStreamBuf</a></li>
-<li><a class="el" href="structbdlb_1_1TypeTraitHasPrintMethod_1_1Metafunction.html">bdlb::TypeTraitHasPrintMethod::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlat__TypeTraitBasicChoice_1_1Metafunction.html">bdlat_TypeTraitBasicChoice::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlat__TypeTraitBasicSequence_1_1Metafunction.html">bdlat_TypeTraitBasicSequence::Metafunction&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbdlat__TypeTraitBasicEnumeration_1_1Metafunction.html">bdlat_TypeTraitBasicEnumeration::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlat__TypeTraitBasicCustomizedType_1_1Metafunction.html">bdlat_TypeTraitBasicCustomizedType::Metafunction&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbdlb_1_1TypeTraitHasPrintMethod_1_1Metafunction.html">bdlb::TypeTraitHasPrintMethod::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitBitwiseCopyable_1_1Metafunction.html">bslalg::TypeTraitBitwiseCopyable::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitBitwiseEqualityComparable_1_1Metafunction.html">bslalg::TypeTraitBitwiseEqualityComparable::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitBitwiseMoveable_1_1Metafunction.html">bslalg::TypeTraitBitwiseMoveable::Metafunction&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbslalg_1_1TypeTraitHasPointerSemantics_1_1Metafunction.html">bslalg::TypeTraitHasPointerSemantics::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitHasStlIterators_1_1Metafunction.html">bslalg::TypeTraitHasStlIterators::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1TypeTraitHasTrivialDefaultConstructor_1_1Metafunction.html">bslalg::TypeTraitHasTrivialDefaultConstructor::Metafunction&lt; TYPE &gt;</a></li>
-<li><a class="el" href="structbslalg_1_1TypeTraitHasPointerSemantics_1_1Metafunction.html">bslalg::TypeTraitHasPointerSemantics::Metafunction&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbslmt_1_1MeteredMutex.html">bslmt::MeteredMutex</a></li>
 <li><a class="el" href="classbalm_1_1Metric.html">balm::Metric</a></li>
 <li><a class="el" href="classbalm_1_1MetricDescription.html">balm::MetricDescription</a></li>
@@ -1504,8 +1531,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbtls5_1_1NetworkConnector.html">btls5::NetworkConnector</a></li>
 <li><a class="el" href="classbtls5_1_1NetworkDescription.html">btls5::NetworkDescription</a></li>
 <li><a class="el" href="structbtls5_1_1NetworkDescriptionUtil.html">btls5::NetworkDescriptionUtil</a></li>
-<li><a class="el" href="classbdlcc_1_1ObjectPoolFunctors_1_1Nil.html">bdlcc::ObjectPoolFunctors::Nil&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1Nil.html">bslmf::Nil</a></li>
+<li><a class="el" href="classbdlcc_1_1ObjectPoolFunctors_1_1Nil.html">bdlcc::ObjectPoolFunctors::Nil&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslmf_1_1IsConvertible__Match_1_1no__type.html">bslmf::IsConvertible_Match::no_type</a></li>
 <li><a class="el" href="classbsltf_1_1NonAssignableTestType.html">bsltf::NonAssignableTestType</a></li>
 <li><a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult_1_1NonConstMatch.html">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;::NonConstMatch</a></li>
@@ -1523,7 +1550,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbdlb_1_1NullableValue.html">bdlb::NullableValue&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1NullableValue__WithAllocator.html">bdlb::NullableValue_WithAllocator&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html">bdlb::NullableValue_WithoutAllocator&lt; TYPE &gt;</a></li>
-<li><a class="el" href="classbdlb_1_1NullInputIterator.html">bdlb::NullInputIterator&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1NullOutputIterator.html">bdlb::NullOutputIterator&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1NullOutputIteratorAssignmentProxy.html">bdlb::NullOutputIteratorAssignmentProxy&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsls_1_1Nullptr__Impl.html">bsls::Nullptr_Impl</a></li>
@@ -1593,8 +1619,10 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbdlf_1_1PlaceHolder.html">bdlf::PlaceHolder&lt; I &gt;</a></li>
 <li><a class="el" href="structbtlso_1_1Platform.html">btlso::Platform</a></li>
 <li><a class="el" href="structbslmt_1_1Platform.html">bslmt::Platform</a></li>
+<li><a class="el" href="structbsls_1_1PointerCastUtil.html">bsls::PointerCastUtil</a></li>
 <li><a class="el" href="classbdlma_1_1Pool.html">bdlma::Pool</a></li>
 <li><a class="el" href="structbslmt_1_1Platform_1_1PosixAdvTimedSemaphore.html">bslmt::Platform::PosixAdvTimedSemaphore</a></li>
+<li><a class="el" href="structbdlt_1_1PosixDateImpUtil.html">bdlt::PosixDateImpUtil</a></li>
 <li><a class="el" href="structbslmt_1_1Platform_1_1PosixSemaphore.html">bslmt::Platform::PosixSemaphore</a></li>
 <li><a class="el" href="structbslmt_1_1Platform_1_1PosixThreads.html">bslmt::Platform::PosixThreads</a></li>
 <li><a class="el" href="classball_1_1Predicate.html">ball::Predicate</a></li>
@@ -1613,6 +1641,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbsl_1_1priority__queue.html">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a></li>
 <li><a class="el" href="structbslstl_1_1PriorityQueue__HasAllocatorType.html">bslstl::PriorityQueue_HasAllocatorType&lt; CONTAINER, ALLOCATOR &gt;</a></li>
 <li><a class="el" href="structbdls_1_1ProcessUtil.html">bdls::ProcessUtil</a></li>
+<li><a class="el" href="structbdlt_1_1ProlepticDateImpUtil.html">bdlt::ProlepticDateImpUtil</a></li>
 <li><a class="el" href="classbsls_1_1ProtocolTest.html">bsls::ProtocolTest&lt; BSLS_TESTIMP &gt;</a></li>
 <li><a class="el" href="structbsls_1_1ProtocolTest__Dtor.html">bsls::ProtocolTest_Dtor&lt; BSLS_TESTIMP &gt;</a></li>
 <li><a class="el" href="structbsls_1_1ProtocolTest__IsAbstract.html">bsls::ProtocolTest_IsAbstract&lt; T &gt;</a></li>
@@ -1632,9 +1661,9 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmt_1_1QLock.html">bslmt::QLock</a></li>
 <li><a class="el" href="classbslmt_1_1QLock__EventFlag.html">bslmt::QLock_EventFlag</a></li>
 <li><a class="el" href="classbslmt_1_1QLockGuard.html">bslmt::QLockGuard</a></li>
-<li><a class="el" href="classbsl_1_1queue.html">bsl::queue&lt; VALUE, CONTAINER &gt;</a></li>
 <li><a class="el" href="classbdlc_1_1Queue.html">bdlc::Queue&lt; T &gt;</a></li>
 <li><a class="el" href="classbdlcc_1_1Queue.html">bdlcc::Queue&lt; TYPE &gt;</a></li>
+<li><a class="el" href="classbsl_1_1queue.html">bsl::queue&lt; VALUE, CONTAINER &gt;</a></li>
 <li><a class="el" href="structbslstl_1_1Queue__HasAllocatorType.html">bslstl::Queue_HasAllocatorType&lt; CONTAINER, ALLOCATOR &gt;</a></li>
 <li><a class="el" href="classbdlde_1_1QuotedPrintableDecoder.html">bdlde::QuotedPrintableDecoder</a></li>
 <li><a class="el" href="classbdlde_1_1QuotedPrintableEncoder.html">bdlde::QuotedPrintableEncoder</a></li>
@@ -1665,11 +1694,11 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 </li>
 <li><a class="el" href="classbslmt_1_1ReadLockGuardTryLock.html">bslmt::ReadLockGuardTryLock&lt; T &gt;</a></li>
 <li><a class="el" href="classbslmt_1_1ReadLockGuardUnlock.html">bslmt::ReadLockGuardUnlock&lt; T &gt;</a></li>
-<li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; TYPE &gt;::rebind&lt; ANY_TYPE &gt;</a></li>
-<li><a class="el" href="structbsl_1_1allocator_3_01void_01_4_1_1rebind.html">bsl::allocator&lt; void &gt;::rebind&lt; ANY_TYPE &gt;</a></li>
+<li><a class="el" href="structbsltf_1_1StdTestAllocator_3_01void_01_4_1_1rebind.html">bsltf::StdTestAllocator&lt; void &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
 <li><a class="el" href="structbsltf_1_1StdStatefulAllocator_1_1rebind.html">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
 <li><a class="el" href="structbsltf_1_1StdTestAllocator_1_1rebind.html">bsltf::StdTestAllocator&lt; TYPE &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
-<li><a class="el" href="structbsltf_1_1StdTestAllocator_3_01void_01_4_1_1rebind.html">bsltf::StdTestAllocator&lt; void &gt;::rebind&lt; OTHER_TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; TYPE &gt;::rebind&lt; ANY_TYPE &gt;</a></li>
+<li><a class="el" href="structbsl_1_1allocator_3_01void_01_4_1_1rebind.html">bsl::allocator&lt; void &gt;::rebind&lt; ANY_TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1allocator__traits_1_1rebind__alloc.html">bsl::allocator_traits&lt; ALLOCATOR_TYPE &gt;::rebind_alloc&lt; ELEMENT_TYPE &gt;</a></li>
 <li><a class="el" href="classball_1_1Record.html">ball::Record</a></li>
 <li><a class="el" href="classball_1_1RecordAttributes.html">ball::RecordAttributes</a></li>
@@ -1682,6 +1711,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslmt_1_1RecursiveMutex.html">bslmt::RecursiveMutex</a></li>
 <li><a class="el" href="classbsl_1_1bitset_1_1reference.html">bsl::bitset&lt; N &gt;::reference</a></li>
 <li><a class="el" href="classbsl_1_1reference__wrapper.html">bsl::reference_wrapper&lt; T &gt;</a></li>
+<li><a class="el" href="classbdlpcre_1_1RegEx.html">bdlpcre::RegEx</a></li>
 <li><a class="el" href="structbsl_1_1remove__const.html">bsl::remove_const&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbsl_1_1remove__const_3_01TYPE_01const_01_01_4.html">bsl::remove_const&lt; TYPE const &gt;</a></li>
 <li><a class="el" href="structbsl_1_1remove__cv.html">bsl::remove_cv&lt; TYPE &gt;</a></li>
@@ -1716,8 +1746,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator&lt; RANDOM_NUM_GEN &gt;</a></li>
 <li><a class="el" href="structbdlat__TypeCategory_1_1Select.html">bdlat_TypeCategory::Select&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbtlso_1_1Platform_1_1SELECT.html">btlso::Platform::SELECT</a></li>
-<li><a class="el" href="structbdlcc_1_1ObjectPool__ProxyPicker_3_01ObjectPoolFunctors_1_1DefaultCreator_01_4_1_1Selector.html">bdlcc::ObjectPool_ProxyPicker&lt; ObjectPoolFunctors::DefaultCreator &gt;::Selector&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbdlcc_1_1ObjectPool__ProxyPicker_1_1Selector.html">bdlcc::ObjectPool_ProxyPicker&lt; CREATOR &gt;::Selector&lt; TYPE &gt;</a></li>
+<li><a class="el" href="structbdlcc_1_1ObjectPool__ProxyPicker_3_01ObjectPoolFunctors_1_1DefaultCreator_01_4_1_1Selector.html">bdlcc::ObjectPool_ProxyPicker&lt; ObjectPoolFunctors::DefaultCreator &gt;::Selector&lt; TYPE &gt;</a></li>
 <li><a class="el" href="structbslalg_1_1SelectTrait.html">bslalg::SelectTrait&lt; TYPE, TRAIT1, TRAIT2, TRAIT3, TRAIT4, TRAIT5 &gt;</a></li>
 <li><a class="el" href="classbslmt_1_1Semaphore.html">bslmt::Semaphore</a></li>
 <li><a class="el" href="structbdlat__TypeCategory_1_1Sequence.html">bdlat_TypeCategory::Sequence</a></li>
@@ -1732,7 +1762,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbalb_1_1SequenceWithAnonymityChoice1.html">balb::SequenceWithAnonymityChoice1</a></li>
 <li><a class="el" href="classbalb_1_1SequenceWithAnonymityChoice2.html">balb::SequenceWithAnonymityChoice2</a></li>
 <li><a class="el" href="classbdlma_1_1SequentialPool.html">bdlma::SequentialPool</a></li>
-<li><a class="el" href="structbdlt_1_1SerialDateImpUtil.html">bdlt::SerialDateImpUtil</a></li>
 <li><a class="el" href="classbtlmt_1_1Session.html">btlmt::Session</a></li>
 <li><a class="el" href="classbtlmt_1_1SessionFactory.html">btlmt::SessionFactory</a></li>
 <li><a class="el" href="classbtlmt_1_1SessionPool.html">btlmt::SessionPool</a></li>
@@ -1749,6 +1778,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslstl_1_1SharedPtrAllocateInplaceRep.html">bslstl::SharedPtrAllocateInplaceRep&lt; TYPE, ALLOCATOR &gt;</a></li>
 <li><a class="el" href="classbslstl_1_1SharedPtrAllocateOutofplaceRep.html">bslstl::SharedPtrAllocateOutofplaceRep&lt; TYPE, DELETER, ALLOCATOR &gt;</a></li>
 <li><a class="el" href="classbslstl_1_1SharedPtrAllocateOutofplaceRep__InitProctor.html">bslstl::SharedPtrAllocateOutofplaceRep_InitProctor&lt; TYPE, DELETER &gt;</a></li>
+<li><a class="el" href="structbslma_1_1SharedPtrInplaceRep__ImpUtil.html">bslma::SharedPtrInplaceRep_ImpUtil</a></li>
 <li><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></li>
 <li><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep__DeleterDiscriminator.html">bslma::SharedPtrOutofplaceRep_DeleterDiscriminator&lt; DELETER &gt;</a></li>
 <li><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep__DeleterDiscriminator__Imp.html">bslma::SharedPtrOutofplaceRep_DeleterDiscriminator_Imp&lt; DELETER, IS_ALLOC_PTR &gt;</a></li>
@@ -1762,6 +1792,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;</a></li>
 </ul>
 </li>
+<li><a class="el" href="structbslstl_1_1SharedPtrRepFromExistingSharedPtr.html">bslstl::SharedPtrRepFromExistingSharedPtr</a></li>
 <li><a class="el" href="structbslstl_1_1SharedPtrUtil.html">bslstl::SharedPtrUtil</a></li>
 <li><a class="el" href="structbdlat__TypeCategory_1_1Simple.html">bdlat_TypeCategory::Simple</a></li>
 <li><a class="el" href="classbslstl_1_1SimplePool.html">bslstl::SimplePool&lt; VALUE, ALLOCATOR &gt;</a></li>
@@ -1913,6 +1944,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="classbsltf_1_1TemplateTestFacility__StubClass.html">bsltf::TemplateTestFacility_StubClass</a></li>
 <li><a class="el" href="classbslma_1_1TestAllocatorException.html">bslma::TestAllocatorException</a></li>
 <li><a class="el" href="classbslma_1_1TestAllocatorMonitor.html">bslma::TestAllocatorMonitor</a></li>
+<li><a class="el" href="classbdlb_1_1TestInputIterator.html">bdlb::TestInputIterator&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbslx_1_1TestInStream.html">bslx::TestInStream</a></li>
 <li><a class="el" href="classbslx_1_1TestInStreamException.html">bslx::TestInStreamException</a></li>
 <li><a class="el" href="structbalb_1_1Testmessages.html">balb::Testmessages</a></li>
@@ -1955,6 +1987,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslmt_1_1SaturatedTimeConversionImpUtil_1_1TimeSpec.html">bslmt::SaturatedTimeConversionImpUtil::TimeSpec</a></li>
 <li><a class="el" href="classbdlt_1_1TimeTz.html">bdlt::TimeTz</a></li>
 <li><a class="el" href="structbdlt_1_1TimeUnitRatio.html">bdlt::TimeUnitRatio</a></li>
+<li><a class="el" href="structbdlt_1_1TimeUtil.html">bdlt::TimeUtil</a></li>
 <li><a class="el" href="structbsls_1_1TimeUtil.html">bsls::TimeUtil</a></li>
 <li><a class="el" href="structbaltzo_1_1TimeZoneUtil.html">baltzo::TimeZoneUtil</a></li>
 <li><a class="el" href="structbaltzo_1_1TimeZoneUtilImp.html">baltzo::TimeZoneUtilImp</a></li>
@@ -2179,8 +2212,8 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator__Imp.html">bslma::UsesBslmaAllocator_Imp&lt; TYPE, IS_NESTED &gt;</a></li>
 <li><a class="el" href="structbslma_1_1UsesBslmaAllocator__Imp_3_01TYPE_00_01false_01_4.html">bslma::UsesBslmaAllocator_Imp&lt; TYPE, false &gt;</a></li>
 <li><a class="el" href="structbdlde_1_1Utf8Util.html">bdlde::Utf8Util</a></li>
-<li><a class="el" href="structbalxml_1_1Util.html">balxml::Util</a></li>
 <li><a class="el" href="structbsls_1_1Util.html">bsls::Util</a></li>
+<li><a class="el" href="structbalxml_1_1Util.html">balxml::Util</a></li>
 <li><a class="el" href="structbsls_1_1Util__Identity.html">bsls::Util_Identity&lt; TYPE &gt;</a></li>
 <li><a class="el" href="classbsl_1_1multimap_1_1value__compare.html">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare</a></li>
 <li><a class="el" href="classbsl_1_1map_1_1value__compare.html">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare</a></li>
@@ -2198,7 +2231,6 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbdlb_1_1Variant__ReturnValueHelper__NoType.html">bdlb::Variant_ReturnValueHelper_NoType</a></li>
 <li><a class="el" href="structbdlb_1_1Variant__SwapVisitor.html">bdlb::Variant_SwapVisitor</a></li>
 <li><a class="el" href="structbdlb_1_1Variant__TypeIndex.html">bdlb::Variant_TypeIndex&lt; TYPES, TYPE &gt;</a></li>
-<li><a class="el" href="classbdlb_1_1VariantImp.html">bdlb::VariantImp&lt; TYPES &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1VariantImp__AllocatorBase.html">bdlb::VariantImp_AllocatorBase&lt; TYPES &gt;</a></li>
 <li><a class="el" href="classbdlb_1_1VariantImp__NonAllocatorBase.html">bdlb::VariantImp_NonAllocatorBase&lt; TYPES &gt;</a></li>
 <li><a class="el" href="structbdlb_1_1VariantImp__Traits.html">bdlb::VariantImp_Traits&lt; TYPES &gt;</a></li>
@@ -2222,11 +2254,11 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbsl_1_1Vector__IsRandomAccessIterator.html">bsl::Vector_IsRandomAccessIterator&lt; BSLSTL_ITERATOR &gt;</a></li>
 <li><a class="el" href="structbsl_1_1Vector__RangeCheck.html">bsl::Vector_RangeCheck</a></li>
 <li><a class="el" href="structbsl_1_1Vector__Util.html">bsl::Vector_Util</a></li>
-<li><a class="el" href="structbalscm_1_1Version.html">balscm::Version</a></li>
 <li><a class="el" href="structbslscm_1_1Version.html">bslscm::Version</a></li>
-<li><a class="el" href="structbtlscm_1_1Version.html">btlscm::Version</a></li>
-<li><a class="el" href="structbdlscm_1_1Version.html">bdlscm::Version</a></li>
 <li><a class="el" href="structbblscm_1_1Version.html">bblscm::Version</a></li>
+<li><a class="el" href="structbdlscm_1_1Version.html">bdlscm::Version</a></li>
+<li><a class="el" href="structbalscm_1_1Version.html">balscm::Version</a></li>
+<li><a class="el" href="structbtlscm_1_1Version.html">btlscm::Version</a></li>
 <li><a class="el" href="classbslx_1_1VersionFunctions__DoesNotHaveBdexVersion.html">bslx::VersionFunctions_DoesNotHaveBdexVersion</a></li>
 <li><a class="el" href="classbslx_1_1VersionFunctions__HasBdexVersion.html">bslx::VersionFunctions_HasBdexVersion</a></li>
 <li><a class="el" href="structbslx_1_1VersionFunctions__NonFundamentalImpl.html">bslx::VersionFunctions_NonFundamentalImpl&lt; TYPE &gt;</a></li>
@@ -2256,7 +2288,7 @@ This inheritance list is sorted roughly, but not completely, alphabetically:<ul>
 <li><a class="el" href="structbaltzo_1_1ZoneinfoUtil.html">baltzo::ZoneinfoUtil</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:03 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:17 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -100,11 +100,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;bdlf::Bind&#39; objects&quot; below details the whole mechanism and offers some
 // examples.
 //
-// The &#39;bdlf::Bind&#39; functors support &#39;bslma::Allocator *&#39; arguments and, when
-// constructed with an allocator via the &#39;bdlf::BindUtil::bindA&#39; factory
-// methods, allocate all the memory for holding copies of the bound functor and
-// arguments through that allocator.  See the section &quot;Binding with allocators&quot;
-// below for a more detailed discussion.
+// The &#39;bdlf::Bind&#39; functors support &#39;bslma::Allocator *&#39; arguments.  When
+// binders are constructed by the &#39;bdlf::BindUtil::bind&#39; (and &#39;bindR&#39;) factory
+// methods, the currently installed default allocator is used.  When binders
+// are constructed by the &#39;bdlf::BindUtil::bindS&#39; (and &#39;bindSR&#39;) factory
+// methods, the non-optional, user-supplied allocator is used both for the
+// creation of the bound functor arguments and for the reference counting
+// mechanism that manages those arguments.  See the section &quot;Binding with
+// allocators&quot; below for a more detailed discussion.
 //
 ///Elementary Construction and Usage of &#39;bdlf::Bind&#39; Objects
 ///---------------------------------------------------------
@@ -284,7 +287,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  void bindTest4(bslma::Allocator *allocator = 0) {
 //      marker = 0;
 //      callBinderWithSideEffects1(bdlf::BindUtil::bind(
-//                                                &amp;singleArgumentFunction, 2));
+//                                               &amp;singleArgumentFunction, _2));
 //..
 // In the above snippets of code, &#39;singleArgumentFunction&#39; will be called with
 // only the second argument (14) specified to the binder at invocation time in
@@ -385,13 +388,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the function object.  The difference between the two usages is that the
 // binder object holds a copy of the whole object or of its address only.  In
 // particular, when passing by value an object that takes an allocator, the
-// copy held by the binder uses the same allocator as the binder object (if
-// constructed by &#39;bdlf::BindUtil::bindA&#39;) or the default allocator (if
-// constructed by &#39;bdlf::BindUtil::bind&#39; or &#39;bdlf::BindUtil::bindR&#39;), but *not*
-// the allocator of the original object.  For keeping the same allocator, pass
-// the object by address to the binder instead.  See the section &quot;Binding with
-// allocators&quot; and the usage example sections &quot;Binding to Function Objects&quot; and
-// &quot;Binding to Function Objects by Reference&quot; below.
+// copy held by the binder uses the default allocator if constructed by
+// &#39;bdlf::BindUtil::bind&#39; or &#39;bdlf::BindUtil::bindR&#39;, *not* the allocator of
+// the original object.
+//
+// For keeping the same allocator, pass the object by address to the binder, or
+// call &#39;bindS&#39; or &#39;bindSR&#39; instead.  See the section &quot;Binding with allocators&quot;
+// and the usage example sections &quot;Binding to Function Objects&quot; and &quot;Binding to
+// Function Objects by Reference&quot; below.
 //
 // CAVEAT: When passing a function object by value, only the (non-modifiable)
 // copy held by the binder will be invoked.  Prior to this version, it was
@@ -458,9 +462,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // however one limitation: if *any* of the arguments in the signature of the
 // bound functor should be of a modifiable reference type, then *all* the
 // invocation arguments need to be modifiable references.  That is, it is not
-// possible to pass a literal (const) value to some argument of a bound functor
-// when another argument expects a modifiable reference.  Note that a direct
-// call to the bound functor (without the binder) would accept such an
+// possible to pass a literal (&#39;const&#39;) value to some argument of a bound
+// functor when another argument expects a modifiable reference.  Note that a
+// direct call to the bound functor (without the binder) would accept such an
 // argument.  This is not a severe limitation, and the workaround is to pass
 // instead a local modifiable variable initialized to the literal value.
 //
@@ -469,17 +473,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // The bound functor and bound arguments are created as members of the
 // &#39;bdlf::Bind&#39; object, so no memory is allocated for storing them.  However,
 // if the bound functor or bound argument&#39;s copy constructor requires memory
-// allocation, that memory is supplied by the default allocator unless
-// &#39;bdlf::BindUtil::bindA&#39; is used to specify the allocator to be passed to the
-// copy constructors of the bound functor and arguments.  Note that the
-// invocation arguments, passed to the binder at invocation time, are passed
-// &quot;as is&quot; to the bound functor, and are not copied if the bound functor takes
-// them by modifiable or non-modifiable reference.
+// allocation, that memory is supplied by the currently installed default
+// allocator unless &#39;bdlf::BindUtil::bindS&#39; (or &#39;bindSR&#39;) method is used.  In
+// the latter cases, the non-optional, user-supplied allocator is passed to the
+// copy constructors of the bound functor and arguments.
 //
-// In order to make clear where the allocation occurs, we will wrap &quot;p3&quot; (the
-// third parameter for the function object &#39;invocable&#39; into a type that takes
-// an allocator, e.g., a class &#39;MyString&#39; (kept minimal here for the purpose of
-// exposition), and automatically converts to &#39;const char *&#39;:
+// When invoking a bound functor object, the (unbound) arguments are passed &quot;as
+// is&quot; to the bound functor.  Those arguments are not copied if the bound
+// functor takes them by modifiable or non-modifiable reference.
+//
+// In order to make clear where the allocation occurs, we will wrap &quot;p3&quot; into a
+// type that takes an allocator, e.g., a class &#39;MyString&#39; (kept minimal here
+// for the purpose of exposition):
 //..
 //  class MyString {
 //      // PRIVATE INSTANCE DATA
@@ -488,8 +493,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(MyString,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyString, bslma::UsesBslmaAllocator);
 //
 //      //CREATORS
 //      MyString(const char *str, bslma::Allocator *allocator = 0)
@@ -517,46 +521,34 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // We will also use a &#39;bslma::TestAllocator&#39; to keep track of the memory
 // allocated:
 //..
-//  void bindTest6(bslma::Allocator *allocator = 0) {
+//  void bindTest6() {
 //      bslma::TestAllocator allocator;
 //      MyString myString((const char*)&quot;p3&quot;, &amp;allocator);
-//      const int NUM_ALLOCS = allocator.numAllocations();
+//      const Int64 NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
-// allocator guard, which will re-route any default allocation to the
+// allocator guard, which will re-route any default allocation to the local
 // &#39;defaultAllocator&#39;:
 //..
-//      bslma::TestAllocator defaultAllocator;
+//      bslma::TestAllocator defaultAllocator(&quot;Default&quot;, globalVerbose);
 //      bslma::DefaultAllocatorGuard defaultAllocatorGuard(&amp;defaultAllocator);
-//      assert(0 == defaultAllocator.numAllocations());
+//      const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
-// We now create a binder object with allocator using &#39;bindA&#39;.  If the bound
-// object were an instance of a class taking an allocator, then &#39;allocator&#39;
-// would be passed to its copy constructor; in this case, &#39;allocator&#39; will be
-// ignored.  But &#39;allocator&#39; *will* be used to make the copy of &#39;myString&#39; held
-// by the binder:
+// We now create a shared binder object with &#39;allocator&#39; using &#39;bindS&#39;:
 //..
-//      callBinder(bdlf::BindUtil::bindA(&amp;allocator, &amp;invocable,
-//                                      _1, _2, myString));
+//      callBinder(
+//            bdlf::BindUtil::bindS(&amp;allocator, &amp;invocable, _1, _2, myString));
 //..
+// When the bound object is an instance of a class taking an allocator, then
+// &#39;allocator&#39; is be passed to its copy constructor as occurs in this example.
+// Here &#39;allocator&#39; is used to make the copy of &#39;myString&#39; held by the binder.
+//
 // We now check that memory was allocated from the test allocator, and none
 // from the default allocator:
 //..
-//      assert(NUM_ALLOCS &lt; allocator.numAllocations());
-//      assert(0 == defaultAllocator.numAllocations());
-//..
-// Next, we repeat the same calls using &#39;bindS&#39; below:
-//..
-//       callBinder(bdlf::BindUtil::bindS(&amp;allocator,
-//                                        &amp;invocable,
-//                                        _1, _2, myString));
-//..
-// We now check that memory was allocated from the test allocator, and none
-// from the default allocator:
-//..
-//       assert(NUM_ALLOCS != allocator.numAllocations());
-//       assert(2 * NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
-//   }
+//      assert(NUM_ALLOCS         != allocator.numAllocations());
+//      assert(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+//  }
 //..
 //
 ///Usage
@@ -822,9 +814,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound functor (using
-// &#39;FUNC::ResultType&#39;), the binder needs an explicitly specification.  This is
-// done by using the &#39;bdlf::BindUtil::bindR&#39; function template as exemplified
-// below:
+// &#39;typename FUNC::ResultType&#39;), the binder needs an explicit specification.
+// This is done by using the &#39;bdlf::BindUtil::bindR&#39; function template as
+// exemplified below:
 //..
 //  typedef void GlobalResultType;
 //  struct MyCallbackObjectWithoutResultType {
@@ -1632,8 +1624,8 @@ class BindWrapper {
 
 struct BindUtil {
     // This &#39;struct&#39; provides a namespace for utility functions used to
-    // construct &#39;Bind&#39; and &#39;BindWrapper objects.  Five families of factory
-    // methods are provided: &#39;bind&#39;, &#39;bindA&#39;, &#39;bindR&#39;, &#39;bindS&#39;, and &#39;bindSR&#39;.
+    // construct &#39;Bind&#39; and &#39;BindWrapper&#39; objects.  Four families of factory
+    // methods are provided: &#39;bind&#39;, &#39;bindR&#39;, &#39;bindS&#39;, and &#39;bindSR&#39;.
     // All factory methods accept an invocable object, optionally followed by
     // up to fourteen additional arguments.  Each argument can be either a
     // literal value, a place-holder, or another &#39;Bind&#39; or &#39;BindWrapper&#39;
@@ -1643,16 +1635,15 @@ struct BindUtil {
     // object automatically, including the return type, and return a binder
     // object with the specified bound functor and bound arguments.  Memory for
     // copying the bound functor and bound arguments is supplied by the user
-    // specified allocator if &#39;bindA&#39;, &#39;bindS&#39;, or &#39;bindSR&#39; is used, or the
-    // currently installed default allocator.  The return type is inferred by
-    // using &#39;bslmf::FunctionPointerTraits&#39; for free functions references and
-    // pointers, &#39;bslmf::MemberFunctionPointerTraits&#39; for member function
-    // pointers, and &#39;FUNC::ResultType&#39; for a functor of type &#39;FUNC&#39;.
+    // specified allocator if &#39;bindS&#39;, or &#39;bindSR&#39; is used, or the currently
+    // installed default allocator, if &#39;bind&#39; or &#39;bindR&#39; is used.  The return
+    // type is inferred by using &#39;bslmf::FunctionPointerTraits&#39; for free
+    // function references and pointers, &#39;bslmf::MemberFunctionPointerTraits&#39;
+    // for member function pointers, and &#39;typenname FUNC::ResultType&#39; for a
+    // functor of type &#39;FUNC&#39;.
     //
-    // The &#39;bindA&#39; variations are used when a specified allocator must be used
-    // to supply memory for copying the bound functor and bound arguments.  The
-    // &#39;bindR&#39; and &#39;bindSR&#39; variations must be used when binding to an object
-    // for which a result type cannot be automatically determined.
+    // The &#39;bindR&#39; and &#39;bindSR&#39; variations must be used when binding to an
+    // object for which a result type cannot be automatically determined.
 
     // CLASS METHODS
 
@@ -2717,7 +2708,7 @@ struct Bind_Tuple1 : bslmf::TypeList1&lt;A1&gt;
     // This &#39;struct&#39; stores a list of one argument.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2740,8 +2731,8 @@ struct Bind_Tuple2 : bslmf::TypeList2&lt;A1,A2&gt;
     // This &#39;struct&#39; stores a list of two arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2767,9 +2758,9 @@ struct Bind_Tuple3 : bslmf::TypeList3&lt;A1,A2,A3&gt;
     // This &#39;struct&#39; stores a list of three arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2798,10 +2789,10 @@ struct Bind_Tuple4 : bslmf::TypeList4&lt;A1,A2,A3,A4&gt;
     // This &#39;struct&#39; stores a list of four arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2833,11 +2824,11 @@ struct Bind_Tuple5 : bslmf::TypeList5&lt;A1,A2,A3,A4,A5&gt;
     // This &#39;struct&#39; stores a list of five arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type FA5;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type FA5;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2872,12 +2863,12 @@ struct Bind_Tuple6 : bslmf::TypeList6&lt;A1,A2,A3,A4,A5,A6&gt;
     // This &#39;struct&#39; stores a list of six arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type FA6;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type FA6;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2915,13 +2906,13 @@ struct Bind_Tuple7 : bslmf::TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt;
     // This &#39;struct&#39; stores a list of seven arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type FA7;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type FA7;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -2964,14 +2955,14 @@ struct Bind_Tuple8 : bslmf::TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt;
     // This &#39;struct&#39; stores a list of eight arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type FA8;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type FA8;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -3018,15 +3009,15 @@ struct Bind_Tuple9 : bslmf::TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt;
     // This &#39;struct&#39; stores a list of nine arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type FA9;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type FA9;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt; d_a1;
@@ -3077,16 +3068,16 @@ struct Bind_Tuple10 : bslmf::TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This &#39;struct&#39; stores a list of ten arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type  FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type  FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type  FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type  FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type  FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type  FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type  FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type  FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type  FA9;
-    typedef typename bslmf::ConstForwardingType&lt;A10&gt;::Type FA10;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type  FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type  FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type  FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type  FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type  FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type  FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type  FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type  FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type  FA9;
+    typedef typename bslmf::ForwardingType&lt;A10&gt;::Type FA10;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt;  d_a1;
@@ -3139,17 +3130,17 @@ struct Bind_Tuple11 : bslmf::TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This &#39;struct&#39; stores a list of eleven arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type  FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type  FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type  FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type  FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type  FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type  FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type  FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type  FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type  FA9;
-    typedef typename bslmf::ConstForwardingType&lt;A10&gt;::Type FA10;
-    typedef typename bslmf::ConstForwardingType&lt;A11&gt;::Type FA11;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type  FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type  FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type  FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type  FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type  FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type  FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type  FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type  FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type  FA9;
+    typedef typename bslmf::ForwardingType&lt;A10&gt;::Type FA10;
+    typedef typename bslmf::ForwardingType&lt;A11&gt;::Type FA11;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt;  d_a1;
@@ -3205,18 +3196,18 @@ struct Bind_Tuple12 : bslmf::TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This &#39;struct&#39; stores a list of twelve arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type  FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type  FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type  FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type  FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type  FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type  FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type  FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type  FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type  FA9;
-    typedef typename bslmf::ConstForwardingType&lt;A10&gt;::Type FA10;
-    typedef typename bslmf::ConstForwardingType&lt;A11&gt;::Type FA11;
-    typedef typename bslmf::ConstForwardingType&lt;A12&gt;::Type FA12;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type  FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type  FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type  FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type  FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type  FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type  FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type  FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type  FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type  FA9;
+    typedef typename bslmf::ForwardingType&lt;A10&gt;::Type FA10;
+    typedef typename bslmf::ForwardingType&lt;A11&gt;::Type FA11;
+    typedef typename bslmf::ForwardingType&lt;A12&gt;::Type FA12;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt;  d_a1;
@@ -3276,19 +3267,19 @@ struct Bind_Tuple13 : bslmf::TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This &#39;struct&#39; stores a list of thirteen arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type  FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type  FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type  FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type  FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type  FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type  FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type  FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type  FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type  FA9;
-    typedef typename bslmf::ConstForwardingType&lt;A10&gt;::Type FA10;
-    typedef typename bslmf::ConstForwardingType&lt;A11&gt;::Type FA11;
-    typedef typename bslmf::ConstForwardingType&lt;A12&gt;::Type FA12;
-    typedef typename bslmf::ConstForwardingType&lt;A13&gt;::Type FA13;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type  FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type  FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type  FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type  FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type  FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type  FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type  FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type  FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type  FA9;
+    typedef typename bslmf::ForwardingType&lt;A10&gt;::Type FA10;
+    typedef typename bslmf::ForwardingType&lt;A11&gt;::Type FA11;
+    typedef typename bslmf::ForwardingType&lt;A12&gt;::Type FA12;
+    typedef typename bslmf::ForwardingType&lt;A13&gt;::Type FA13;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt;  d_a1;
@@ -3352,20 +3343,20 @@ struct Bind_Tuple14 : bslmf::TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // This &#39;struct&#39; stores a list of fourteen arguments.
 
     // TYPES
-    typedef typename bslmf::ConstForwardingType&lt;A1&gt;::Type  FA1;
-    typedef typename bslmf::ConstForwardingType&lt;A2&gt;::Type  FA2;
-    typedef typename bslmf::ConstForwardingType&lt;A3&gt;::Type  FA3;
-    typedef typename bslmf::ConstForwardingType&lt;A4&gt;::Type  FA4;
-    typedef typename bslmf::ConstForwardingType&lt;A5&gt;::Type  FA5;
-    typedef typename bslmf::ConstForwardingType&lt;A6&gt;::Type  FA6;
-    typedef typename bslmf::ConstForwardingType&lt;A7&gt;::Type  FA7;
-    typedef typename bslmf::ConstForwardingType&lt;A8&gt;::Type  FA8;
-    typedef typename bslmf::ConstForwardingType&lt;A9&gt;::Type  FA9;
-    typedef typename bslmf::ConstForwardingType&lt;A10&gt;::Type FA10;
-    typedef typename bslmf::ConstForwardingType&lt;A11&gt;::Type FA11;
-    typedef typename bslmf::ConstForwardingType&lt;A12&gt;::Type FA12;
-    typedef typename bslmf::ConstForwardingType&lt;A13&gt;::Type FA13;
-    typedef typename bslmf::ConstForwardingType&lt;A14&gt;::Type FA14;
+    typedef typename bslmf::ForwardingType&lt;A1&gt;::Type  FA1;
+    typedef typename bslmf::ForwardingType&lt;A2&gt;::Type  FA2;
+    typedef typename bslmf::ForwardingType&lt;A3&gt;::Type  FA3;
+    typedef typename bslmf::ForwardingType&lt;A4&gt;::Type  FA4;
+    typedef typename bslmf::ForwardingType&lt;A5&gt;::Type  FA5;
+    typedef typename bslmf::ForwardingType&lt;A6&gt;::Type  FA6;
+    typedef typename bslmf::ForwardingType&lt;A7&gt;::Type  FA7;
+    typedef typename bslmf::ForwardingType&lt;A8&gt;::Type  FA8;
+    typedef typename bslmf::ForwardingType&lt;A9&gt;::Type  FA9;
+    typedef typename bslmf::ForwardingType&lt;A10&gt;::Type FA10;
+    typedef typename bslmf::ForwardingType&lt;A11&gt;::Type FA11;
+    typedef typename bslmf::ForwardingType&lt;A12&gt;::Type FA12;
+    typedef typename bslmf::ForwardingType&lt;A13&gt;::Type FA13;
+    typedef typename bslmf::ForwardingType&lt;A14&gt;::Type FA14;
 
     // INSTANCE DATA
     Bind_TupleValue&lt;FA1&gt;  d_a1;
@@ -4639,7 +4630,7 @@ template &lt;class FUNC&gt;
 struct Bind_FuncTraitsImp&lt;bslmf::Nil,FUNC,0,0,0&gt; {
     // Function traits for function objects that are passed by value without
     // explicit result type specification.  The result type is determined to
-    // the &#39;FUNC::ResultType&#39;.
+    // the &#39;typename FUNC::ResultType&#39;.
 
     // ENUMERATIONS
     enum {
@@ -4719,7 +4710,7 @@ struct Bind_FuncTraits
     // This &#39;struct&#39; provides various traits of the functor type &#39;FUNC&#39;
     // documented below.  If &#39;RET&#39; is &#39;bslmf::Nil&#39;, then the return type is
     // inferred by using either &#39;bslmf::FunctionPointerTraits&#39;,
-    // &#39;bslmf::MemberFunctionPointerTraits&#39;, or &#39;FUNC::result_type&#39; as
+    // &#39;bslmf::MemberFunctionPointerTraits&#39;, or &#39;typename FUNC::result_type&#39; as
     // appropriate.
     //..
     // // ENUMERATIONS

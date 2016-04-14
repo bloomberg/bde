@@ -67,10 +67,10 @@ template &lt;class TYPE&gt;
 struct IsBitwiseEqualityComparable_Imp
     : bsl::integral_constant&lt;bool,
                              !bsl::is_reference&lt;TYPE&gt;::value
-                          &amp;&amp; (  IsFundamental&lt;TYPE&gt;::value
-                             || IsEnum&lt;TYPE&gt;::value
+                          &amp;&amp; (  bsl::is_fundamental&lt;TYPE&gt;::value
+                             || bsl::is_enum&lt;TYPE&gt;::value
                              || bsl::is_pointer&lt;TYPE&gt;::value
-                             || bslmf::IsPointerToMember&lt;TYPE&gt;::value
+                             || bsl::is_member_pointer&lt;TYPE&gt;::value
                              || DetectNestedTrait&lt;TYPE,
                                           IsBitwiseEqualityComparable&gt;::value)&gt;
 {};

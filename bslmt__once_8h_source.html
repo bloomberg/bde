@@ -143,41 +143,48 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Second Implementation
 ///- - - - - - - - - - -
 // The next singleton function implementation directly uses the &#39;doOnce&#39; method
-// of &#39;bslmt::Once&#39;.  We begin by declaring a simple function that does most of
+// of &#39;bslmt::Once&#39;.  We begin by declaring a functor type that does most of
 // the work of the singleton, i.e., constructing the string and setting a
 // (static) pointer to the string:
 //..
 //  static bsl::string *theSingletonPtr = 0;
 //
-//  void singletonImp(const char *s)
-//  {
-//      static bsl::string theSingleton(s);
-//      theSingletonPtr = &amp;theSingleton;
-//  }
-//..
-// The above function is *not* thread-safe.  Firstly, many threads might
-// attempt to simultaneously construct the &#39;theSingleton&#39; object.  Secondly,
-// once &#39;theSingletonPtr&#39; is set by one thread, other threads still might not
-// see the change (and try to initialize the singleton again).
+//  class SingletonInitializer {
+//      const char *d_initialValue;
 //
-// The &#39;singleton1&#39; function, below, calls &#39;singletonImp&#39; via the &#39;callOnce&#39;
-// method of &#39;bslmt::Once&#39; to ensure that &#39;singletonImp&#39; is called by only one
-// thread and that the result is visible to all threads.  We start by creating
-// and initializing a static object of type &#39;bslmt::Once&#39;:
-//..
-//  #include &lt;bdlf_bind.h&gt;
+//    public:
+//      SingletonInitializer(const char *initialValue)
+//      : d_initialValue(initialValue)
+//      {
+//      }
 //
+//      void operator()() const {
+//         static bsl::string theSingleton(d_initialValue);
+//         theSingletonPtr = &amp;theSingleton;
+//      }
+//  };
+//..
+// The function call operator of the type above is *not* thread-safe.  Firstly,
+// many threads might attempt to simultaneously construct the &#39;theSingleton&#39;
+// object.  Secondly, once &#39;theSingletonPtr&#39; is set by one thread, other
+// threads still might not see the change (and try to initialize the singleton
+// again).
+//
+// The &#39;singleton1&#39; function, below, invokes &#39;SingletonInitializer::operator()&#39;
+// via the &#39;callOnce&#39; method of &#39;bslmt::Once&#39; to ensure that &#39;operator()&#39; is
+// called by only one thread and that the result is visible to all threads.  We
+// start by creating and initializing a static object of type &#39;bslmt::Once&#39;:
+//..
 //  const bsl::string&amp; singleton1(const char *s)
 //  {
 //      static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
 //..
-// Since the &#39;callOnce&#39; method takes only a no-argument functor (or function),
-// to call &#39;callOnce&#39;, we must bind our argument &#39;s&#39; to our function,
-// &#39;singletonImp&#39; using a binder method and then pass that functor to
-// &#39;callOnce&#39;.  The first thread (and only the first thread) entering this
-// section of code we will set &#39;theSingleton&#39;.
+// We construct a &#39;SingletonInitializer&#39; instance, effectively &quot;binding&quot; the
+// argument &#39;s&#39; so that it may be used in a function invoked by &#39;callOnce&#39;,
+// which takes only a no-argument functor (or function).  The first thread (and
+// only the first thread) entering this section of code will set &#39;theSingleton&#39;.
 //..
-//      once.callOnce(bdlf::BindUtil::bind(singletonImp, s));
+//      once.callOnce(SingletonInitializer(s));
 //      return *theSingletonPtr;
 //  }
 //..
@@ -205,10 +212,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 /// - - - - - - - - - -
 // Our next implementation, &#39;singleton2&#39;, eliminates the need for the
 // &#39;singletonImp&#39; function and thereby does away with the use of the
-// &#39;bdlf::BindUtil&#39; method; however, it does require use of
-// &#39;bslmt::Once::OnceLock&#39;, created on each thread&#39;s stack and passed to the
-// methods of &#39;bslmt::Once&#39;.  First, we declare a static &#39;bslmt::Once&#39; object
-// as before, and also declare a static pointer to &#39;bsl::string&#39;:
+// a functor type to &quot;bind&quot; the initialization parameter; however, it does
+// require use of &#39;bslmt::Once::OnceLock&#39;, created on each thread&#39;s stack and
+// passed to the methods of &#39;bslmt::Once&#39;.  First, we declare a static
+// &#39;bslmt::Once&#39; object as before, and also declare a static pointer to
+// &#39;bsl::string&#39;:
 //..
 //  const bsl::string&amp; singleton2(const char *s)
 //  {

@@ -115,9 +115,9 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  Name                      Description
   -------------------   ---------------------------------------------
-  e_INVALID_CHARS_BIT   Invalid characters or sequences of characters
+  k_INVALID_INPUT_BIT   Invalid code points or sequences of bytes / words
                         were encountered in the input.
-  e_OUT_OF_SPACE_BIT    The space provided <span class="keywordflow">for</span> the output was
+  k_OUT_OF_SPACE_BIT    The space provided <span class="keywordflow">for</span> the output was
                         insufficient <span class="keywordflow">for</span> the translation.
 </pre></div><br/>
 <br/>
@@ -133,13 +133,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>First, we create a variable <code>value</code> of type <code><a class="el" href="structbdlde_1_1CharConvertStatus.html#a23816819b840656834c5e2423b125b2d">bdlde::CharConvertStatus::Enum</a></code> and initialize it with the value 3, which is not a valid value of the <code>enum</code>. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <a class="code" href="structbdlde_1_1CharConvertStatus.html#a23816819b840656834c5e2423b125b2d">bdlde::CharConvertStatus::Enum</a> value =
-                               bdlde::CharConvertStatus::e_INVALID_CHARS_BIT;
+                               bdlde::CharConvertStatus::k_INVALID_INPUT_BIT;
 </pre></div><br/>
 <br/>
  Next, we store a pointer to its ASCII representation in a variable <code>asciiValue</code> of type <code>const char *</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <span class="keyword">const</span> <span class="keywordtype">char</span> *asciiValue = <a class="code" href="structbdlde_1_1CharConvertStatus.html#ac8bcf712600b810474363796de41dcd6">bdlde::CharConvertStatus::toAscii</a>(value);
-      assert(0 == bsl::strcmp(asciiValue, <span class="stringliteral">&quot;INVALID_CHARS_BIT&quot;</span>));
+      assert(0 == bsl::strcmp(asciiValue, <span class="stringliteral">&quot;INVALID_INPUT_BIT&quot;</span>));
 </pre></div><br/>
 <br/>
  Finally, we print <code>value</code> to <code>bsl::cout</code>. <br/>
@@ -151,12 +151,12 @@ Namespaces</h2></td></tr>
 <br/>
  This statement produces the following output on <code>stdout</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"> INVALID_CHARS_BIT
+<div class="fragment"><pre class="fragment"> INVALID_INPUT_BIT
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:42 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

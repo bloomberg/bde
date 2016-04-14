@@ -149,7 +149,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a set of type traits, and a set of macros used to assign traits to user-defined class. Traits are used to enable certain optimizations or discriminations at compile-time. For instance, a class having the trait <code><a class="el" href="structbslalg_1_1TypeTraitBitwiseMoveable.html">bslalg::TypeTraitBitwiseMoveable</a></code> may allow resizing an array of objects by simply calling <code>std::memcpy</code> instead of invoking a copy-constructor on every objects. The usage example shows how to use the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> to propagate allocators to nested objects that may require them. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a set of type traits, and a set of macros used to assign traits to user-defined classes. Traits are used to enable certain optimizations or discriminations at compile-time. For instance, a class having the trait <code><a class="el" href="structbslalg_1_1TypeTraitBitwiseMoveable.html">bslalg::TypeTraitBitwiseMoveable</a></code> may allow resizing an array of objects by simply calling <code>std::memcpy</code> instead of invoking a copy-constructor on every object. The usage example shows how to use the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> to propagate allocators to nested objects that may require them. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component should be used in conjunction with other components from the package <code>bslalg</code>. See the package-level documentation for an overview. The most useful classes and macros defined in this component are: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  Entity                                    Description
@@ -215,13 +215,13 @@ Defines</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
   MyGenericContainer(<span class="keyword">const</span> TYPE&amp; <span class="keywordtype">object</span>, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator = 0);
-      <span class="comment">// Create an container containing the specified &#39;object&#39;, using the</span>
+      <span class="comment">// Create a container containing the specified &#39;object&#39;, using the</span>
       <span class="comment">// optionally specified &#39;allocator&#39; to allocate memory.  If</span>
       <span class="comment">// &#39;allocator&#39; is 0, the currently installed allocator is used.</span>
 
   MyGenericContainer(<span class="keyword">const</span> MyGenericContainer&amp;  container,
                      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>          *allocator = 0);
-      <span class="comment">// Create an container containing the same object as the specified</span>
+      <span class="comment">// Create a container containing the same object as the specified</span>
       <span class="comment">// &#39;container&#39;, using the optionally specified &#39;allocator&#39; to</span>
       <span class="comment">// allocate memory.  If &#39;allocator&#39; is 0, the currently installed</span>
       <span class="comment">// allocator is used.</span>
@@ -244,7 +244,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="using_the_type_traits"></a> <a class="anchor" id="usage.using_the_type_traits"></a> <a class="anchor" id="description.usage.using_the_type_traits"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
 <dl class="user"><dt><b>Using the Type Traits: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The challenge in the implementation lays in using the traits of the contained <code>TYPE</code> to determine whether to pass the allocator argument to its copy constructor. We rely here on a property of templates that templates are not compiled (and thus will not generate compilation errors) until they are instantiated. Hence, we can use two function templates, and let the overloading resolution (based on the nested traits) decide which to instantiate. The generic way to create an object, passing through all arguments (value and allocator) is as follows. For brevity and to avoid breaking the flow of this example, we have embedded the function definition into the class. <br/>
+<dl class="user"><dt><b></b></dt><dd>The challenge in the implementation lies in using the traits of the contained <code>TYPE</code> to determine whether to pass the allocator argument to its copy constructor. We rely here on a property of templates that templates are not compiled (and thus will not generate compilation errors) until they are instantiated. Hence, we can use two function templates, and let the overloading resolution (based on the nested traits) decide which to instantiate. The generic way to create an object, passing through all arguments (value and allocator) is as follows. For brevity and to avoid breaking the flow of this example, we have embedded the function definition into the class. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_genericcontainer.cpp          -*-C++-*-</span>
 
@@ -264,7 +264,7 @@ Defines</h2></td></tr>
       }
 </pre></div><br/>
 <br/>
- For types that don't use an allocator, we offer the following overload which will be selected if the type trait of <code>TYPE</code> cannot be converted to <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code>. In that case, note that the type traits always inherits from <code><a class="el" href="structbslalg_1_1TypeTraitNil.html">bslalg::TypeTraitNil</a></code>. <br/>
+ For types that don't use an allocator, we offer the following overload which will be selected if the type trait of <code>TYPE</code> cannot be converted to <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code>. In that case, note that the type traits always inherit from <code><a class="el" href="structbslalg_1_1TypeTraitNil.html">bslalg::TypeTraitNil</a></code>. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">static</span> <span class="keywordtype">void</span> copyConstruct(TYPE             *location,
@@ -356,7 +356,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_verification"></a> <a class="anchor" id="usage.usage_verification"></a> <a class="anchor" id="description.usage.usage_verification"></a> <a class="anchor" id="4.1.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage Verification: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>We can check that our container actually forwards the correct allocator to its contained objects with a very simple test apparatus, consisting of two classes which have exactly the same signature and implementation except that one has the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait and the other has not: <br/>
+<dl class="user"><dt><b></b></dt><dd>We can check that our container actually forwards the correct allocator to its contained objects with a very simple test apparatus, consisting of two classes which have exactly the same signature and implementation except that one has the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait and the other does not: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocSlot;
 
@@ -396,7 +396,7 @@ Defines</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Our verification program simply instantiate several <code>MyGenericContainer</code> templates with the two test types above, and checks that the allocator slot is as expected: <br/>
+ Our verification program simply instantiates several <code>MyGenericContainer</code> templates with the two test types above, and checks that the allocator slot is as expected: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> main()
   {
@@ -648,7 +648,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:48 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

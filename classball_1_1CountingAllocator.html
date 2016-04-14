@@ -97,7 +97,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classball_1_1CountingAllocator.html#a3627152a402b26e2aea4c6d539351381">allocate</a> (<a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a> size)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classball_1_1CountingAllocator.html#ae56172707bd4472c5a1a718f1a89b355">deallocate</a> (void *address)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classball_1_1CountingAllocator.html#adf8ee64dfa2a4e720a5838cf703a223d">resetNumBytesTotal</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classball_1_1CountingAllocator.html#af7747e1c3a02accbb23b26944ca2e83d">numBytesTotal</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classball_1_1CountingAllocator.html#ad4e820315e2b078b7f5dbac923b79b4c">numBytesTotal</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#ad4499967960770d979508ef9df5544b9">allocate</a> (<a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a> size)=0</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#a0e51fc2d107684523cc66bf65293dc37">deleteObject</a> (const TYPE *object)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
@@ -173,9 +174,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a newly allocated block of memory of (at least) the specified positive <code>size</code> (bytes) and increment the byte count maintained by this counting allocator by the sum of the least multiple of <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code> that is greater than or equal to <code>size</code> and <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code>. The behavior is undefined unless 0 &lt;= size. Note that the alignment of the address returned is the maximum alignment for any fundamental type defined for the calling platform, even if the supplied allocator guarantees only natural alignment. </p>
-
-<p>Implements <a class="el" href="classbslma_1_1Allocator.html#ad4499967960770d979508ef9df5544b9">bslma::Allocator</a>.</p>
+<p>Return a newly allocated block of memory of (at least) the specified positive <code>size</code> (bytes) and increment the byte count maintained by this counting allocator by the sum of the least multiple of <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a4c9252fd48f8c6f3fbdcc10e14cbda12a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code> that is greater than or equal to <code>size</code> and <code><a class="el" href="structbsls_1_1AlignmentUtil.html#a4c9252fd48f8c6f3fbdcc10e14cbda12a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a></code>. The behavior is undefined unless 0 &lt;= size. Note that the alignment of the address returned is the maximum alignment for any fundamental type defined for the calling platform, even if the supplied allocator guarantees only natural alignment. </p>
 
 </div>
 </div>
@@ -218,12 +217,12 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af7747e1c3a02accbb23b26944ca2e83d"></a><!-- doxytag: member="ball::CountingAllocator::numBytesTotal" ref="af7747e1c3a02accbb23b26944ca2e83d" args="() const " -->
+<a class="anchor" id="ad4e820315e2b078b7f5dbac923b79b4c"></a><!-- doxytag: member="ball::CountingAllocator::numBytesTotal" ref="ad4e820315e2b078b7f5dbac923b79b4c" args="() const " -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int ball::CountingAllocator::numBytesTotal </td>
+          <td class="memname"><a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a> ball::CountingAllocator::numBytesTotal </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -234,6 +233,27 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return the byte count maintained by this counting allocator. The precise definition of byte count is described in the "Byte
          Count" section of the component-level documentation. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad4499967960770d979508ef9df5544b9"></a><!-- doxytag: member="ball::CountingAllocator::allocate" ref="ad4499967960770d979508ef9df5544b9" args="(size_type size)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void* bslma::Allocator::allocate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>size</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [pure virtual, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a newly allocated block of memory of (at least) the specified positive <code>size</code> (in bytes). If <code>size</code> is 0, a null pointer is returned with no other effect. If this allocator cannot return the requested number of bytes, then it will throw a <code>std::bad_alloc</code> exception in an exception-enabled build, or else will abort the program in a non-exception build. The behavior is undefined unless <code>0 &lt;= size</code>. Note that the alignment of the address returned conforms to the platform requirement for any object of the specified <code>size</code>. </p>
+
+<p>Implemented in <a class="el" href="classbalst_1_1StackTraceTestAllocator.html#a1b7fc01c2c6c974fad944f1b995a34ad">balst::StackTraceTestAllocator</a>, <a class="el" href="classbdlma_1_1AligningAllocator.html#a8dd191abb9cdda91a65ed80b64a3b66e">bdlma::AligningAllocator</a>, <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a1e3f353cc3248132d18c8b7e5cef9376">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentAllocatorAdapter.html#a76c1a8aec720df614f84794c77461a3c">bdlma::ConcurrentAllocatorAdapter</a>, <a class="el" href="classbdlma_1_1ConcurrentMultipoolAllocator.html#a6ad193e12f7c6c6e8095c94dd713ccc4">bdlma::ConcurrentMultipoolAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentPoolAllocator.html#a4c5cc8b054ad8912b591e22a35d69ecb">bdlma::ConcurrentPoolAllocator</a>, <a class="el" href="classbdlma_1_1CountingAllocator.html#a6cf1e3a70ff483c2b9c4286b6b870420">bdlma::CountingAllocator</a>, <a class="el" href="classbdlma_1_1GuardingAllocator.html#a1b9eef0256af681e7de857367b73dcf4">bdlma::GuardingAllocator</a>, <a class="el" href="classbdlma_1_1HeapBypassAllocator.html#a8e53f4cfa691b434516e049f7c7d999d">bdlma::HeapBypassAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a6d6e04e2bfb4d48c06051a1f30f7488b">bdlma::MultipoolAllocator</a>, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a3696da7587a1c842d9430a960520af71">bdlma::SequentialAllocator</a>, <a class="el" href="group__bslma__allocatoradaptor.html#gad76053e58f117a25dd598f193390cc59">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC &gt;</a>, <a class="el" href="classbslma_1_1MallocFreeAllocator.html#a325c3f98b1e7586f0564d4884e4d8611">bslma::MallocFreeAllocator</a>, <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a4467a22d277e8c0454909d4aad3159af">bslma::NewDeleteAllocator</a>, <a class="el" href="classbslma_1_1TestAllocator.html#adadeba443e1ea37730a9cf936a600e56">bslma::TestAllocator</a>, and <a class="el" href="group__bslma__allocatoradaptor.html#gad76053e58f117a25dd598f193390cc59">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC::template rebind&lt; char &gt;::other &gt;</a>.</p>
 
 </div>
 </div>
@@ -283,7 +303,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="ball__countingallocator_8h_source.html">ball_countingallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:27 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

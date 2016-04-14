@@ -541,7 +541,7 @@ class ThreadPool {
         // milliseconds), and using the optionally specified &#39;basicAllocator&#39;.
 
     ~ThreadPool();
-        // Drain all pending jobs and destroy this thread pool.
+        // Call &#39;shutdown()&#39; and destroy this thread pool.
 
     // MANIPULATORS
     void drain();

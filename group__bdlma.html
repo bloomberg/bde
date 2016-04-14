@@ -73,6 +73,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol for memory allocators that support alignment. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__aligningallocator.html">Component bdlma_aligningallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an allocator-wrapper to allocate with a minimum alignment. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__autoreleaser.html">Component bdlma_autoreleaser</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Release memory to a managed allocator or pool at destruction. </p>
@@ -241,7 +246,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdlma</code> package currently has 28 components having 6 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlma</code> package currently has 29 components having 6 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  6. bdlma_multipoolallocator
 
@@ -265,6 +270,7 @@ Components</h2></td></tr>
      bdlma_pool
 
   1. bdlma_alignedallocator
+     bdlma_aligningallocator
      bdlma_autoreleaser
      bdlma_blocklist
      bdlma_bufferimputil
@@ -285,6 +291,8 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_alignedallocator</code>: <br/>
  Provide a protocol for memory allocators that support alignment.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_aligningallocator</code>: <br/>
+ Provide an allocator-wrapper to allocate with a minimum alignment.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_autoreleaser</code>: <br/>
  Release memory to a managed allocator or pool at destruction.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_blocklist</code>: <br/>
@@ -341,7 +349,7 @@ Components</h2></td></tr>
  Provide sequential memory using dynamically-allocated buffers.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:43 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:44 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

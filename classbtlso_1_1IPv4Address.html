@@ -81,8 +81,8 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbtlso_1_1IPv4Address.html#a605ecdb2894cdca65bc04b696ea8a592a76ca1e533bc07d0a9761a660f99cac6c">k_ANY_ADDRESS</a> =  0, 
-<a class="el" href="classbtlso_1_1IPv4Address.html#a605ecdb2894cdca65bc04b696ea8a592aa590fb94a19cb25943111d0e5f32fbde">k_ANY_PORT</a> =  0
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbtlso_1_1IPv4Address.html#aadc22ad52b735927e6ff72e0039c4afaa76ca1e533bc07d0a9761a660f99cac6c">k_ANY_ADDRESS</a> =  0, 
+<a class="el" href="classbtlso_1_1IPv4Address.html#aadc22ad52b735927e6ff72e0039c4afaaa590fb94a19cb25943111d0e5f32fbde">k_ANY_PORT</a> =  0
  }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -113,7 +113,7 @@ Static Public Member Functions</h2></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Each instance of this class represents an IPv4 address. A static method <code>isValidAddress</code> is provided to verify that an IP address in dotted decimal notation is valid before it is used to create or modify an IPv4 address object. More generally, this class supports a complete set of <em>value</em> <em>semantic</em> operations, including copy construction, assignment, equality comparison, <code>ostream</code> printing, and BDEX serialization. (A precise operational definition of when two instances have the same value can be found in the description of <code>operator==</code> for the class.) This class is <em>exception</em> <em>neutral</em> with no guarantee of rollback: if an exception is thrown during the invocation of a method on a pre-existing instance, the object is left in a valid state, but its value is undefined. In no event is memory leaked. Finally, <em>aliasing</em> (e.g., using all or part of an object as both source and destination) is supported in all cases. </p>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="a605ecdb2894cdca65bc04b696ea8a592"></a><!-- doxytag: member="btlso::IPv4Address::@414" ref="a605ecdb2894cdca65bc04b696ea8a592" args="" -->
+<a class="anchor" id="aadc22ad52b735927e6ff72e0039c4afa"></a><!-- doxytag: member="btlso::IPv4Address::@408" ref="aadc22ad52b735927e6ff72e0039c4afa" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -124,10 +124,10 @@ Static Public Member Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a605ecdb2894cdca65bc04b696ea8a592a76ca1e533bc07d0a9761a660f99cac6c"></a><!-- doxytag: member="k_ANY_ADDRESS" ref="a605ecdb2894cdca65bc04b696ea8a592a76ca1e533bc07d0a9761a660f99cac6c" args="" -->k_ANY_ADDRESS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aadc22ad52b735927e6ff72e0039c4afaa76ca1e533bc07d0a9761a660f99cac6c"></a><!-- doxytag: member="k_ANY_ADDRESS" ref="aadc22ad52b735927e6ff72e0039c4afaa76ca1e533bc07d0a9761a660f99cac6c" args="" -->k_ANY_ADDRESS</em>&nbsp;</td><td>
 <p>Indicate that it is up to the service provider to assign an appropriate IP. Note that a local platform usually defines <code>INADDR_ANY</code> to have value 0 for the same implication. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a605ecdb2894cdca65bc04b696ea8a592aa590fb94a19cb25943111d0e5f32fbde"></a><!-- doxytag: member="k_ANY_PORT" ref="a605ecdb2894cdca65bc04b696ea8a592aa590fb94a19cb25943111d0e5f32fbde" args="" -->k_ANY_PORT</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aadc22ad52b735927e6ff72e0039c4afaaa590fb94a19cb25943111d0e5f32fbde"></a><!-- doxytag: member="k_ANY_PORT" ref="aadc22ad52b735927e6ff72e0039c4afaaa590fb94a19cb25943111d0e5f32fbde" args="" -->k_ANY_PORT</em>&nbsp;</td><td>
 <p>Indicate that it is up to the service provider to assign an appropriate port. </p>
 </td></tr>
 </table>
@@ -548,7 +548,7 @@ template&lt;class STREAM &gt; </div>
 <li><a class="el" href="btlso__ipv4address_8h_source.html">btlso_ipv4address.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:16 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:15 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

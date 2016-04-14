@@ -263,7 +263,7 @@ bsl::size_t bdlb::CStringHash::operator()(const char *argument) const
     BSLS_ASSERT_SAFE(argument);
 
     bslh::SpookyHashAlgorithm hash;
-    hash(argument, strlen(argument));
+    hash(argument, bsl::strlen(argument));
     return static_cast&lt;bsl::size_t&gt;(hash.computeHash());
 }
 

@@ -422,7 +422,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package provides meta-function equivalents of certain useful coding constructs. A meta-function is a template-based, compile-time construct that behaves like a (runtime) function in that it "evaluates" arguments and does something different based on the input it is passed (in the case of templates, the input it is instantiated with). <code>bslmf</code> provides metafunctions to evaluate (at compile time) constructs such as the following: an <code>if</code>-statement equivalent, whether a (template) argument is a fundamental type, whether an argument is an <code>enum</code> type, whether two arguments have the same type, and more. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdemf</code> package provides meta-function equivalents of certain useful coding constructs. A meta-function is a template-based, compile-time construct that behaves like a (runtime) function in that it "evaluates" arguments and does something different based on the input it is passed (in the case of templates, the input it is instantiated with). <code>bslmf</code> provides metafunctions to evaluate (at compile time) constructs such as the following: an <code>if</code>-statement equivalent, whether a (template) argument is a fundamental type, whether an argument is an <code>enum</code> type, whether two arguments have the same type, and more. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The "return value" of that function is generally a compile-time constant under the form of a nested <code>enum</code> <code>VALUE</code>, or in some cases a nested <code>Type</code>, or both. For instance, in order to evaluate whether two types are the same, one could write a meta-function predicate (evaluating to 0 or 1) as follows: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> U, <span class="keyword">class</span> V&gt;
@@ -473,19 +473,20 @@ Components</h2></td></tr>
 
   11. bslmf_isconvertible
 
-  10. bslmf_enableif
+  10. bslmf_addcv
+      bslmf_enableif
       bslmf_ispointertomember
 
-   9. bslmf_addcv
+   9. bslmf_addvolatile
       bslmf_isfundamental
       bslmf_ismemberpointer
 
    8. bslmf_addconst
-      bslmf_addvolatile
       bslmf_isarithmetic
       bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
+      bslmf_isvolatile
       bslmf_removepointer
 
    7. bslmf_isclass
@@ -509,6 +510,7 @@ Components</h2></td></tr>
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_isconst
       bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
@@ -523,11 +525,9 @@ Components</h2></td></tr>
       bslmf_switch
 
    2. bslmf_isarray
-      bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
-      bslmf_isvolatile
       bslmf_nil
       bslmf_tag
 
@@ -674,7 +674,7 @@ Components</h2></td></tr>
  Provide a typelist component.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

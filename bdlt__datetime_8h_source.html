@@ -39,14 +39,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-------------------------------------------------------
 // The &quot;date&quot; part of a &#39;bdlt::Datetime&#39; value has a range of validity
 // identical to a &#39;bdlt::Date&#39; object -- i.e., valid dates (according to the
-// proleptic Gregorian calendar) having years in the range &#39;[1 .. 9999]&#39;.  The
-// set of valid &quot;time&quot; values for a &#39;bdlt::Datetime&#39; object is, similarly, the
-// same as the valid values for &#39;bdlt::Time&#39;, namely
-// &#39;[00:00:00.000 .. 23:59:59.999]&#39;, as well as 24:00:00.000 (the default
-// constructed value for &#39;bdlt::Time&#39;).  Note that the supported range of time
-// does *not* allow for the injection of leap seconds.  The (combined) value
-// &quot;0001/01/01_24:00:00.000&quot; is the default constructed value of
-// &#39;bdlt::Datetime&#39;.
+// Unix [POSIX] calendar) having years in the range &#39;[1 .. 9999]&#39;.  The set of
+// valid &quot;time&quot; values for a &#39;bdlt::Datetime&#39; object is, similarly, the same as
+// the valid values for &#39;bdlt::Time&#39;, namely &#39;[00:00:00.000 .. 23:59:59.999]&#39;,
+// as well as 24:00:00.000 (the default constructed value for &#39;bdlt::Time&#39;).
+// Note that the supported range of time does *not* allow for the injection of
+// leap seconds.  The (combined) value &quot;0001/01/01_24:00:00.000&quot; is the default
+// constructed value of &#39;bdlt::Datetime&#39;.
 //
 // Furthermore, consistent with the &#39;bdlt::Time&#39; type, a &#39;bdlt::Datetime&#39;
 // object whose &quot;time&quot; part has the default value (24:00:00.000) behaves the
@@ -810,8 +809,7 @@ inline
 Datetime&amp; Datetime::operator+=(const DatetimeInterval&amp; rhs)
 {
     BSLS_ASSERT_SAFE(rhs &lt;= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-//  BSLS_ASSERT_SAFE(rhs &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
-//  ProlepticGregorianMode assert squelched
+    BSLS_ASSERT_SAFE(rhs &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
     d_date += d_time.addInterval(rhs);
 
@@ -822,8 +820,7 @@ inline
 Datetime&amp; Datetime::operator-=(const DatetimeInterval&amp; rhs)
 {
     BSLS_ASSERT_SAFE(-rhs &lt;= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-//  BSLS_ASSERT_SAFE(-rhs &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
-//  ProlepticGregorianMode assert squelched
+    BSLS_ASSERT_SAFE(-rhs &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
     d_date += d_time.addInterval(-rhs);
 
@@ -970,8 +967,7 @@ void Datetime::addTime(bsls::Types::Int64 hours,
                                  milliseconds);
 
     BSLS_ASSERT_SAFE(delta &lt;= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-//  BSLS_ASSERT_SAFE(delta &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
-//  ProlepticGregorianMode assert squelched
+    BSLS_ASSERT_SAFE(delta &gt;= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
 
     d_date += d_time.addInterval(delta);
 }

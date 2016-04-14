@@ -59,6 +59,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                     DEC              e_BER_INT
 //  float                              DEFAULT          e_BER_REAL
 //  double                             DEFAULT          e_BER_REAL
+//  bdldfp::Decimal64                  DEFAULT          e_BER_OCTET_STRING
 //  bsl::string                        DEFAULT          e_BER_UTF8_STRING
 //                                     TEXT             e_BER_UTF8_STRING
 //                                     BASE64           e_BER_OCTET_STRING
@@ -141,6 +142,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include &lt;bdlat_typecategory.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLDFLP_DECIMAL
+#include &lt;bdldfp_decimal.h&gt;
 #endif
 
 #ifndef INCLUDED_BDLB_VARIANT
@@ -300,6 +305,7 @@ class BerUniversalTagNumber_Imp {
                                            object, bdlat_TypeCategory::Simple);
     TagVal select(const float&amp;             object, bdlat_TypeCategory::Simple);
     TagVal select(const double&amp;            object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdldfp::Decimal64&amp; object, bdlat_TypeCategory::Simple);
     TagVal select(const bsl::string&amp;       object, bdlat_TypeCategory::Simple);
     TagVal select(const bdlt::Date&amp;        object, bdlat_TypeCategory::Simple);
     TagVal select(const bdlt::DateTz&amp;      object, bdlat_TypeCategory::Simple);
@@ -664,6 +670,18 @@ BerUniversalTagNumber_Imp::select(const double&amp;              ,
        || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
 
     return BerUniversalTagNumber::e_BER_REAL;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdldfp::Decimal64&amp;,
+                                  bdlat_TypeCategory::Simple)
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
 
 inline

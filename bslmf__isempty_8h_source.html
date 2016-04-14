@@ -3,7 +3,7 @@
 <title>BDE 3.0</title>
 <html>
 <pre>
-// bslmf_isempty.h                  -*-C++-*-
+// bslmf_isempty.h                                                    -*-C++-*-
 #ifndef INCLUDED_BSLMF_ISEMPTY
 #define INCLUDED_BSLMF_ISEMPTY
 
@@ -14,24 +14,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 //@PURPOSE: Provide a compile-time check for detecting an empty class type.
 //
-//@CLASSES: bsl::is_empty: standard meta-function for detecting empty classes
+//@CLASSES:
+//   bsl::is_empty: standard meta-function for detecting empty classes
 //
 //@SEE_ALSO: bslmf_isclass.h
 //
 //@DESCRIPTION: This component defines a metafunction, &#39;bsl::is_empty&#39;, which
 // may be used to determine whether a type is a &#39;class&#39; or &#39;struct&#39; with no
-// non-static data members other than bit-fields of length 0, no virtual
-// member functions, no virtual base classes, and no base class &#39;B&#39; for which
-// &#39;is_empty&lt;B&gt;::value&#39; is false. This metafunction conforms to the definition
-// of the C++11 standard &#39;is_empty metafunction in section [meta.unary.prop].
+// non-static data members other than bit-fields of length 0, no virtual member
+// functions, no virtual base classes, and no base class &#39;B&#39; for which
+// &#39;is_empty&lt;B&gt;::value&#39; is &#39;false&#39;.  This metafunction conforms to the
+// definition of the C++11 standard &#39;is_empty metafunction in section
+// [meta.unary.prop].
 //
 // An empty class type type is *usually* stateless and, can be &quot;stored&quot; in a
-// zero-length memory region. (Hypothetically, an empty object can hold state
+// zero-length memory region.  (Hypothetically, an empty object can hold state
 // by means a global address-to-state map, but such a design is rare and is
 // discouraged.) When a class inherits from an empty type, the compiler is
-// expected to optimize away the storage requirements of the empty base
-// class.  This optimization is known as the &quot;Empty Base Optimization&quot; or
-// &quot;EBO&quot;.
+// expected to optimize away the storage requirements of the empty base class.
+// This optimization is known as the &quot;Empty Base Optimization&quot; or &quot;EBO&quot;.
 //
 ///Usage
 ///-----
@@ -39,10 +40,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Compute Storage Requirements for a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wish to create a generic function which will allocate a record
+// Suppose we wish to create a generic function that will allocate a record
 // comprising a value of specified &#39;TYPE&#39; and a description in the form of a
-// null-terminated character string.  First, we declare the function
-// prototype:
+// null-terminated character string.  First, we declare the function prototype:
 //..
 //  template &lt;class TYPE&gt;
 //  void *makeRecord(const TYPE&amp; value, const char* description);
@@ -115,26 +115,50 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 namespace bsl {
 
-                        // ===========================
-                        // class template Is_Empty_Imp
-                        // ===========================
+                        // ============================
+                        // class template Is_Empty_Size
+                        // ============================
 
-template &lt;class TYPE, bool IS_CLASS = bsl::is_class&lt;TYPE&gt;::value&gt;
-struct Is_Empty_Imp {
-    // Private class: do not use outside of &#39;bslmf_isempty&#39; component.
-    // Implementation of &#39;bsl::is_empty&#39;.
+struct Is_Empty_Size {
+    // Private class: do not use outside of &#39;bslmf_isempty&#39; component.  This
+    // component-private class is an example of an empty type, that can be used
+    // to calculate the likely size of an empty type on the current platform.
+    // As the inheritance-based technique used below disallows unions with a
+    // hard error, rather than a SFINAE-friendly failure, it is important to
+    // avoid instantiating the &#39;Imp&#39; test unless there is a real chance that
+    // the type might be empty.  While we cannot protect against testing small
+    // unions, we can rule out the more common cases where at least one union
+    // member has more than the smallest permissible size on the current ABI.
+};
 
-    // VALUE is false for non-class types.
-    static const bool VALUE = false;
+                // =================================
+                // class template Is_Empty_Class_Imp
+                // =================================
+
+template &lt;class TYPE,
+          bool  IS_CLASS = sizeof(TYPE) == sizeof(Is_Empty_Size)&gt;
+struct Is_Empty_Class_Imp : false_type {
+    // Private class: do not use outside of &#39;bslmf_isempty&#39; component.  This
+    // metafunction derives from &#39;false_type&#39; unless (the template parameter)
+    // &#39;TYPE&#39; is exactly the same size as a known empty type, in which case
+    // the following partial specialization is chosen.  This test filters out
+    // the majority of problems with &#39;union&#39; types that are classes, and would
+    // produce a hard, non-SFINAEable error trying to a create a derived class
+    // to compare size in the next test.
 };
 
 template &lt;class TYPE&gt;
-struct Is_Empty_Imp&lt;TYPE, true&gt; {
+struct Is_Empty_Class_Imp&lt;TYPE, true&gt; {
     // Private class: do not use outside of &#39;bslmf_isempty&#39; component.
-    // Implementation of &#39;bsl::is_empty&#39;.
+    // Implementation of &#39;bsl::is_empty&#39; for class types that are small enough
+    // that they might be an empty class.
 
-    struct Derived : TYPE
-    {
+  private:
+    struct Derived : TYPE {
+        // This &#39;struct&#39; derives from the template parameter &#39;TYPE&#39; from the
+        // enclosing class template, and will have the same size as an &#39;int&#39; if
+        // &#39;TYPE&#39; is an empty class, and a larger size otherwise.
+
         Derived();                // Declared but not defined
         Derived(const Derived&amp;);  // Declared but not defined
         ~Derived();               // Declared but not defined
@@ -142,8 +166,35 @@ struct Is_Empty_Imp&lt;TYPE, true&gt; {
         int d_data; // &#39;Derived&#39; is not empty
     };
 
-    // &#39;VALUE&#39; will be true if EBO has optimized away storage for &#39;TYPE&#39;.
-    static const bool VALUE = (sizeof(Derived) == sizeof(int));
+  public:
+    typedef integral_constant&lt;bool, sizeof(Derived) == sizeof(int)&gt; type;
+        // &#39;true_type&#39; if (the template parameter) &#39;TYPE&#39; is an empty class,
+        // and &#39;false_type&#39; otherwise.
+};
+
+                        // ===========================
+                        // class template Is_Empty_Imp
+                        // ===========================
+
+template &lt;class TYPE, bool IS_CLASS = bsl::is_class&lt;TYPE&gt;::value&gt;
+struct Is_Empty_Imp : false_type {
+    // Private class: do not use outside of &#39;bslmf_isempty&#39; component.  This
+    // metafunction provides an initial dispatch that always derives from
+    // &#39;false_type&#39; unless the template parameter &#39;TYPE&#39; is a class type, as
+    // only class types can be empty.  The following partial specialization
+    // forwards all class types to a final test.  This two-phase dispatch is
+    // necessary as some types, such as &#39;void&#39; and function types, cannot be
+    // passed to a &#39;sizeof&#39; operator that is used to implement the next stage
+    // of matching.
+};
+
+template &lt;class TYPE&gt;
+struct Is_Empty_Imp&lt;TYPE, true&gt; : Is_Empty_Class_Imp&lt;TYPE&gt;::type {
+    // Private class: do not use outside of &#39;bslmf_isempty&#39; component.
+    // Implementation of &#39;bsl::is_empty&#39;.  This partial specialization derives
+    // from the nested &#39;type&#39; member of the &#39;Is_Empty_Class_Imp&#39; metafunction,
+    // which must be &#39;true_type&#39; if (the template parameter) &#39;TYPE&#39; is an
+    // empty class, and &#39;false_type&#39; otherwise.
 };
 
                         // =======================
@@ -151,41 +202,36 @@ struct Is_Empty_Imp&lt;TYPE, true&gt; {
                         // =======================
 
 template &lt;class TYPE&gt;
-struct is_empty :
-        integral_constant&lt;bool,
-                          Is_Empty_Imp&lt;typename remove_cv&lt;TYPE&gt;::type&gt;::VALUE&gt;
+struct is_empty : Is_Empty_Imp&lt;typename remove_cv&lt;TYPE&gt;::type&gt;::type
 {
-    // Metafunction to determine whether &#39;TYPE&#39; is an empty class type.
-    // Inherits from &#39;true_type&#39; if &#39;TYPE&#39; is a &#39;class&#39; or &#39;struct&#39; with no
-    // non-static data members other than bit-fields of length 0, no virtual
-    // member functions, no virtual base classes, and no base class &#39;B&#39; for
-    // which &#39;is_empty&lt;B&gt;::value&#39; is false.
+    // This &#39;struct&#39; is a metafunction to determine whether the (template
+    // parameter) &#39;TYPE&#39; is an empty class type.  &#39;is_empty&#39; inherits from
+    // &#39;true_type&#39; if &#39;TYPE&#39; is a &#39;class&#39; or &#39;struct&#39; with no non-static data
+    // members other than bit-fields of length 0, no virtual member functions,
+    // no virtual base classes, and no base class &#39;B&#39; for which
+    // &#39;is_empty&lt;B&gt;::value&#39; is &#39;false&#39;; otherwise &#39;is_empty&#39; inherits from
+    // &#39;false_type&#39;.  Note that this metafunction will fail to compile for a
+    // union that is the same size as an empty class in C++03
 };
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 #endif // ! defined(INCLUDED_BSLMF_ISEMPTY)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

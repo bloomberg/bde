@@ -106,6 +106,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a1e3f353cc3248132d18c8b7e5cef9376">allocate</a> (<a class="el" href="classbslma_1_1Allocator.html#a07cd3ddf3fba145a0469a4e867047287">size_type</a> size)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a23ce15c3ede673b6c1da54850c6899b0">deallocate</a> (void *address)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a4669495cf776abdaee087303e07df7bb">release</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#aa71b3194d0d1d0136607b9cef72cae75">rewind</a> ()</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#a0e51fc2d107684523cc66bf65293dc37">deleteObject</a> (const TYPE *object)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
@@ -521,7 +522,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>This method has no effect on the memory block at the specified <code>address</code> as all memory allocated by this allocator is managed. The behavior is undefined unless <code>address</code> is 0, or was allocated by this allocator and has not already been deallocated. </p>
+<p>This method has no effect on the memory block at the specified <code>address</code> as all memory allocated by this allocator is managed. The behavior is undefined unless <code>address</code> is 0, or was allocated by this allocator and has not already been deallocated. The effect of using <code>address</code> after this call is undefined. </p>
 
 <p>Implements <a class="el" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">bslma::Allocator</a>.</p>
 
@@ -541,9 +542,27 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Release all memory currently allocated through this allocator. This method deallocates all memory (if any) allocated with the allocator provided at construction, and makes the memory from the entire external buffer supplied at construction available for subsequent allocations, but has no effect on the contents of the buffer. Note that this allocator is reset to its initial state by this method. </p>
+<p>Release all memory currently allocated through this allocator. This method deallocates all memory (if any) allocated with the allocator provided at construction, and makes the memory from the entire external buffer supplied at construction available for subsequent allocations, but has no effect on the contents of the buffer. Note that this allocator is reset to its initial state by this method. The effect of using a pointer after this call that was obtained from this object before this call is undefined. </p>
 
 <p>Implements <a class="el" href="classbdlma_1_1ManagedAllocator.html#ad86110a47aaf5e53356c86b5fd240bfb">bdlma::ManagedAllocator</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aa71b3194d0d1d0136607b9cef72cae75"></a><!-- doxytag: member="bdlma::BufferedSequentialAllocator::rewind" ref="aa71b3194d0d1d0136607b9cef72cae75" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void bdlma::BufferedSequentialAllocator::rewind </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Release all memory allocated through this pool. Return to the construction-time supplied allocator all but the last block obtained from it, if any, and satisfy subsequent allocations from that block, or from the buffer supplied upon construction, where possible. The effect of using a pointer after this call that was obtained from this object before this call is undefined. </p>
 
 </div>
 </div>
@@ -593,7 +612,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlma__bufferedsequentialallocator_8h_source.html">bdlma_bufferedsequentialallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:45 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:30 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

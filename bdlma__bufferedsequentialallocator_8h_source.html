@@ -333,7 +333,8 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // This method has no effect on the memory block at the specified
         // &#39;address&#39; as all memory allocated by this allocator is managed.  The
         // behavior is undefined unless &#39;address&#39; is 0, or was allocated by
-        // this allocator and has not already been deallocated.
+        // this allocator and has not already been deallocated. The effect of
+        // using &#39;address&#39; after this call is undefined.
 
     virtual void release();
         // Release all memory currently allocated through this allocator.  This
@@ -342,6 +343,16 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // external buffer supplied at construction available for subsequent
         // allocations, but has no effect on the contents of the buffer.  Note
         // that this allocator is reset to its initial state by this method.
+        // The effect of using a pointer after this call that was obtained from
+        // this object before this call is undefined.
+
+    virtual void rewind();
+        // Release all memory allocated through this pool.  Return to the
+        // construction-time supplied allocator all but the last block obtained
+        // from it, if any, and satisfy subsequent allocations from that block,
+        // or from the buffer supplied upon construction, where possible. The
+        // effect of using a pointer after this call that was obtained from
+        // this object before this call is undefined.
 };
 
 // ============================================================================
@@ -452,6 +463,12 @@ inline
 void BufferedSequentialAllocator::release()
 {
     d_pool.release();
+}
+
+inline
+void BufferedSequentialAllocator::rewind()
+{
+    d_pool.rewind();
 }
 
 }  // close package namespace

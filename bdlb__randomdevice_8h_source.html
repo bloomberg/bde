@@ -19,8 +19,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Mickey Sweatt (msweatt1)
-//
 //@DESCRIPTION: This component provides a namespace, &#39;bdlb::RandomDevice&#39;, for
 // a suite of functions used to generate random seeds from platform-dependent
 // random number generators.  Two variants are provided: one which may block,
@@ -30,7 +28,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // these calls is strongly dependent on the underlying system.  On UNIX-like
 // platforms &#39;genRandomBytes()&#39; reads from &#39;/dev/random&#39; and
 // &#39;genRandonBytesNonBlocking()&#39; reads from &#39;/dev/urandom&#39;.  On Windows both
-// methods use &#39;CrypGenRandom&#39;.
+// methods use &#39;CryptGenRandom&#39;.
 //
 // Note that it is not appropriate to use these functions to generate many
 // random numbers, because they are likely to exhaust available entropy and

@@ -494,7 +494,7 @@ Namespaces</h2></td></tr>
 <br/>
  Now releasing all shared references to the shared object (using the <code>reset</code> function) causes the object's destructor to be called, but the representation is not destroyed (and the object's footprint is not deallocated) until <code>wp</code> releases its weak reference: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  sp.<a class="code" href="classbsl_1_1shared__ptr.html#a37f640bcf2343ba65ee81e87a794e35f">reset</a>(); <span class="comment">// The object&#39;s footprint is not deallocated until all weak</span>
+<div class="fragment"><pre class="fragment">  sp.<a class="code" href="classbsl_1_1shared__ptr.html#aa0dde6ea9a060945e2920464a72e0703">reset</a>(); <span class="comment">// The object&#39;s footprint is not deallocated until all weak</span>
               <span class="comment">// references to it are released.</span>
 
   wp.reset(); <span class="comment">// The release of the *last* weak reference results in the</span>
@@ -506,7 +506,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="c++_standard_compliance"></a> <a class="anchor" id="description.c++_standard_compliance"></a> <a class="anchor" id="3.10"></a> </dd></dl>
 <dl class="user"><dt><b>C++ Standard Compliance: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a (subset of a) standard-compliant implementation of <code>std::shared_ptr</code> and <code>std::weak_ptr</code> (section 20.7.2, [util.smartptr], of the ISO C++11 standard)). Its interface is limited to the set of operations that can be implemented by an implementation of the C++03 language, e,g., there is no specific support for rvalue references. It does not support the atomic shared pointer interface, nor does it collaborate with types that derive from <code>std::enable_shared_this</code>: using <code>shared_ptr</code> with such types will result in (very destructive) undefined behavior. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a (subset of a) standard-compliant implementation of <code>std::shared_ptr</code> and <code>std::weak_ptr</code> (section 20.7.2, [util.smartptr], of the ISO C++11 standard)). Its interface is limited to the set of operations that can be implemented by an implementation of the C++03 language, e,g., there is no specific support for rvalue references. It does not support the atomic shared pointer interface. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component supports allocators following the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol in addition to the C++ Standard Allocators (section 17.6.3.5, [allocator.requirements]) and interoperation with <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code> smart pointers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.11"></a> </dd></dl>
@@ -692,8 +692,8 @@ Namespaces</h2></td></tr>
 <br/>
  Finally <code>reset</code> all shared references to the <code>int</code>, which will cause the weak pointer to become "expired"; any subsequent attempt to obtain a shared pointer from the weak pointer will return a shared pointer in the default constructed (empty) state: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  intPtr.<a class="code" href="classbsl_1_1shared__ptr.html#a37f640bcf2343ba65ee81e87a794e35f">reset</a>();
-  intPtr2.<a class="code" href="classbsl_1_1shared__ptr.html#a37f640bcf2343ba65ee81e87a794e35f">reset</a>();
+<div class="fragment"><pre class="fragment">  intPtr.<a class="code" href="classbsl_1_1shared__ptr.html#aa0dde6ea9a060945e2920464a72e0703">reset</a>();
+  intPtr2.<a class="code" href="classbsl_1_1shared__ptr.html#aa0dde6ea9a060945e2920464a72e0703">reset</a>();
   assert(intWeakPtr2.expired());
   assert(!intWeakPtr2.lock());
 </pre></div><br/>
@@ -932,7 +932,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:57 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:08 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

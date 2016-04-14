@@ -374,7 +374,16 @@ class SequentialAllocator : public ManagedAllocator {
         // Release all memory allocated through this allocator.  The allocator
         // is reset to its default constructed state, retaining the alignment
         // and growth strategy supplied at construction (if any) after this
-        // call.
+        // call.  The effect of using a pointer value after this call that was
+        // obtained from this object before this call is undefined.
+
+    virtual void rewind();
+        // Release all memory allocated through this allocator.  Return to the
+        // construction-time supplied allocator all but the last block obtained
+        // from it, if any, and satisfy subsequent allocations from the
+        // beginning of the remaining block, where possible. The effect of
+        // using a pointer after this call that was obtained from this object
+        // before this call is undefined.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
@@ -549,6 +558,12 @@ inline
 void SequentialAllocator::release()
 {
     d_sequentialPool.release();
+}
+
+inline
+void SequentialAllocator::rewind()
+{
+    d_sequentialPool.rewind();
 }
 
 inline

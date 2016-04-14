@@ -308,7 +308,7 @@ Namespaces</h2></td></tr>
 
       <a class="code" href="structbslx_1_1MarshallingUtil.html#a2679531dc11461725b20ebdee1772dac">bslx::MarshallingUtil::putInt32</a>(prologBuffer.<a class="code" href="classbtlb_1_1BlobBuffer.html#a681b9309cca692ba13f57dd68cf7521e">data</a>(), prologLength);
       bsl::memcpy(prologBuffer.<a class="code" href="classbtlb_1_1BlobBuffer.html#a681b9309cca692ba13f57dd68cf7521e">data</a>() + <span class="keyword">sizeof</span>(int),
-                  prolog.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>(),
+                  prolog.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>(),
                   prologLength);
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(prologBuffer.<a class="code" href="classbtlb_1_1BlobBuffer.html#a21755d29896a95e156208d82c5312324">size</a>() == prologLength + <span class="keyword">sizeof</span>(int));
 
@@ -389,7 +389,7 @@ Namespaces</h2></td></tr>
 <br/>
  Note that the call to <code>appendDataBuffer</code> also takes care of the possibility that the first buffer of <code>blob</code> may not be full to capacity (if the length of the blob was smaller than the buffer size, only the first <code>blob-&gt;length()</code> bytes would contain prolog data). In that case, that buffer is trimmed before appending the <code>timestampBuffer</code> so that the first byte of the <code>timestampBuffer</code> appears immediately next to the last prolog byte, and the blob length is automatically incremented by the size of the <code>timestampBuffer</code>. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

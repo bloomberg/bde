@@ -42,20 +42,20 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:   than necessary, are not tolerated; nor are &quot;surrogate values&quot;, which are
 //:   values in the range &#39;[U+d800 .. U+dfff]&#39;.
 //:
-//: o &#39;advanceIfValid&#39; and &#39;advanceRaw&#39;, which advance some number of UTF-8
-//:   characters, each of which may be encoded in multiple bytes in a UTF-8
+//: o &#39;advanceIfValid&#39; and &#39;advanceRaw&#39;, which advance some number of Unicode
+//:   code points, each of which may be encoded in multiple bytes in a UTF-8
 //:   string.  &#39;advanceRaw&#39; assumes the string is valid UTF-8, while
 //:   &#39;advanceIfValid&#39; checks the input for validity and stops advancing if a
 //:   sequence is encountered that is not valid UTF-8.
 //:
-//: o &#39;numCharactersIfValid&#39; and &#39;numCharactersRaw&#39;, which return the length of
-//:   a sequence of UTF-8 characters, each of which may be encoded in multiple
-//:   bytes.  Note that &#39;numCharactersIfValid&#39; both validates a (candidate)
-//:   UTF-8 string and counts the number of UTF-8 characters that it contains.
+//: o &#39;numCodePointsIfValid&#39; and &#39;numCodePointsRaw&#39;, which return the number of
+//:   Unicode code points in a UTF-8 string.  Note that &#39;numCodePointsIfValid&#39;
+//:   both validates a (candidate) UTF-8 string and counts the number of
+//:   Unicode code points that it contains.
 //
-// Embedded null characters are allowed in strings that are accompanied by an
+// Embedded null bytes are allowed in strings that are accompanied by an
 // explicit length argument.  Naturally, null-terminated C-style strings cannot
-// contain embedded null characters.
+// contain embedded null code points.
 //
 // The UTF-8 format is described in the RFC 3629 document at:
 //..
@@ -70,90 +70,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Validating Strings and Counting Unicode Characters
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// For our usage example we will define some functions that can encode UTF-8,
-// use them to build some strings, and observe how the functions defined in
-// this class perform on them.
-//..
-//  void utf8AppendOneByte(bsl::string *string, int value)
-//      // Append the specified 1-byte UTF-8-encoded &#39;value&#39; to the end of the
-//      // specified &#39;string&#39;.
-//  {
-//      assert(0 == (value &amp; ~0x7f));
-//
-//      *string += static_cast&lt;char&gt;(value);
-//  }
-//
-//  void utf8AppendTwoBytes(bsl::string *string, int value)
-//      // Append the specified 2-byte UTF-8-encoded &#39;value&#39; to the end of the
-//      // specified &#39;string&#39;.
-//  {
-//      assert(0 == (value &amp; ~0x7ff));
-//
-//      unsigned char buf[3];
-//      buf[0] = static_cast&lt;unsigned char&gt;(((value &amp; 0x7c0) &gt;&gt; 6) | 0xc0);
-//      buf[1] = static_cast&lt;unsigned char&gt;( (value &amp;  0x3f)       | 0x80);
-//      buf[2] = 0;
-//
-//      *string += reinterpret_cast&lt;char *&gt;(buf);
-//  }
-//
-//  void utf8AppendThreeBytes(bsl::string *string, int value)
-//      // Append the specified 3-byte UTF-8-encoded &#39;value&#39; to the end of the
-//      // specified &#39;string&#39;.
-//  {
-//      assert(0 == (value &amp; ~0xffff));
-//
-//      unsigned char buf[4];
-//      buf[0] = static_cast&lt;unsigned char&gt;(((value &amp; 0xf000) &gt;&gt; 12) | 0xe0);
-//      buf[1] = static_cast&lt;unsigned char&gt;(((value &amp;  0xfc0) &gt;&gt;  6) | 0x80);
-//      buf[2] = static_cast&lt;unsigned char&gt;( (value &amp;   0x3f)        | 0x80);
-//      buf[3] = 0;
-//
-//      *string += reinterpret_cast&lt;char *&gt;(buf);
-//  }
-//
-//  void utf8AppendFourBytes(bsl::string *string, int value)
-//      // Append the specified 4-byte UTF-8-encoded &#39;value&#39; to the end of the
-//      // specified &#39;string&#39;.
-//  {
-//      assert(static_cast&lt;unsigned&gt;(value) &lt;= 0x10ffff);
-//
-//      unsigned char buf[5];
-//      buf[0] = static_cast&lt;unsigned char&gt;(((value &amp; 0x1c0000) &gt;&gt; 18) | 0xf0);
-//      buf[1] = static_cast&lt;unsigned char&gt;(((value &amp;  0x3f000) &gt;&gt; 12) | 0x80);
-//      buf[2] = static_cast&lt;unsigned char&gt;(((value &amp;    0xfc0) &gt;&gt;  6) | 0x80);
-//      buf[3] = static_cast&lt;unsigned char&gt;( (value &amp;     0x3f)        | 0x80);
-//      buf[4] = 0;
-//
-//      *string += reinterpret_cast&lt;char *&gt;(buf);
-//  }
-//
-//  void utf8Append(bsl::string *string, int value)
-//      // Append the specified UTF-8-encoded &#39;value&#39; in the minimum number of
-//      // bytes to the end of the specified &#39;string&#39;.
-//  {
-//      assert(static_cast&lt;unsigned&gt;(value) &lt;= 0x10ffff);
-//
-//      if (value &lt;= 0x7f) {
-//          utf8AppendOneByte(string, value);
-//          return;                                                   // RETURN
-//      }
-//      if (value &lt;= 0x7ff) {
-//          utf8AppendTwoBytes(string, value);
-//          return;                                                   // RETURN
-//      }
-//      if (value &lt;= 0xffff) {
-//          utf8AppendThreeBytes(string, value);
-//          return;                                                   // RETURN
-//      }
-//
-//      utf8AppendFourBytes(string, value);
-//  }
-//..
-// In this usage example, we will encode some UTF-8 strings and demonstrate
-// which ones are valid and which ones are not.
+///Example 1: Validating Strings and Counting Unicode Code Points
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this usage example, we will encode some Unicode code points in UTF-8
+// strings and demonstrate which ones are valid and which ones are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
@@ -168,32 +88,32 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  utf8Append(&amp;string, &#39;.&#39;);
 //  utf8Append(&amp;string, &#39;\n&#39;);
 //..
-// Next we check its validity and measure its length:
+// Then, we check its validity and measure its length:
 //..
 //  assert(true == bdlde::Utf8Util::isValid(string.data(), string.length()));
 //  assert(true == bdlde::Utf8Util::isValid(string.c_str()));
 //
-//  assert(   9 == bdlde::Utf8Util::numCharactersRaw(string.data(),
-//                                                  string.length()));
-//  assert(   9 == bdlde::Utf8Util::numCharactersRaw(string.c_str()));
+//  assert(   9 == bdlde::Utf8Util::numCodePointsRaw(string.data(),
+//                                                   string.length()));
+//  assert(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next we encode a lone surrogate value, which is not allowed:
+// Next, we encode a lone surrogate value, which is not allowed:
 //..
 //  bsl::string stringWithSurrogate = string;
 //  utf8Append(&amp;stringWithSurrogate, 0xd8ab);
-//
+//..
 //  assert(false == bdlde::Utf8Util::isValid(stringWithSurrogate.data(),
-//                                          stringWithSurrogate.length()));
+//                                           stringWithSurrogate.length()));
 //  assert(false == bdlde::Utf8Util::isValid(stringWithSurrogate.c_str()));
 //..
-// We cannot use &#39;numCharactersRaw&#39; to count the characters in
+// Then, we cannot use &#39;numCodePointsRaw&#39; to count the code points in
 // &#39;stringWithSurrogate&#39;, since the behavior of that method is undefined unless
-// the string is valid.  Instead, the &#39;numCharactersIfValid&#39; method can be used
+// the string is valid.  Instead, the &#39;numCodePointsIfValid&#39; method can be used
 // on strings whose validity we are uncertain of:
 //..
 //  const char *invalidPosition = 0;
 //
-//  assert(-1 == bdlde::Utf8Util::numCharactersIfValid(
+//  assert(-1 == bdlde::Utf8Util::numCodePointsIfValid(
 //                                              &amp;invalidPosition,
 //                                              stringWithSurrogate.data(),
 //                                              stringWithSurrogate.length()));
@@ -201,22 +121,22 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  invalidPosition = 0;  // reset
 //
-//  assert(-1 == bdlde::Utf8Util::numCharactersIfValid(
+//  assert(-1 == bdlde::Utf8Util::numCodePointsIfValid(
 //                                              &amp;invalidPosition,
 //                                              stringWithSurrogate.c_str()));
 //  assert(invalidPosition == stringWithSurrogate.data() + string.length());
 //..
-// Next we encode 0, which is allowed.  However, note that we cannot use any
+// Now, we encode 0, which is allowed.  However, note that we cannot use any
 // interfaces that take a null-terminated string for this case:
 //..
 //  bsl::string stringWithNull = string;
 //  utf8AppendOneByte(&amp;stringWithNull, 0);
 //..
 //  assert(true == bdlde::Utf8Util::isValid(stringWithNull.data(),
-//                                         stringWithNull.length()));
+//                                          stringWithNull.length()));
 //
-//  assert(  10 == bdlde::Utf8Util::numCharactersRaw(stringWithNull.data(),
-//                                                  stringWithNull.length()));
+//  assert(  10 == bdlde::Utf8Util::numCodePointsRaw(stringWithNull.data(),
+//                                                   stringWithNull.length()));
 //..
 // Finally, we encode &#39;0x61&#39; (&#39;a&#39;) as an overlong value using 2 bytes, which is
 // not valid UTF-8 (since &#39;a&#39; can be &quot;encoded&quot; in 1 byte):
@@ -225,17 +145,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  utf8AppendTwoBytes(&amp;stringWithOverlong, &#39;a&#39;);
 //
 //  assert(false == bdlde::Utf8Util::isValid(stringWithOverlong.data(),
-//                                          stringWithOverlong.length()));
+//                                           stringWithOverlong.length()));
 //  assert(false == bdlde::Utf8Util::isValid(stringWithOverlong.c_str()));
 //..
 //
-///Example 2: Advancing Characters
-///- - - - - - - - - - - - - - - -
-// In this example, we will re-use the &#39;utf8Append&#39; function from Example 1 to
-// build a string.
+///Example 2: Advancing Code Points
+/// - - - - - - - - - - - - - - - -
+// In this example, we will use the various &#39;advance&#39; functions to advance
+// through a UTF-8 string.
 //
-// First, build the string, keeping track of how many bytes are in each Unicode
-// character:
+// First, build the string using &#39;utf8Append&#39;, keeping track of how many bytes
+// are in each Unicode code point:
 //..
 //  bsl::string string;
 //  utf8Append(&amp;string, 0xff00);        // 3 bytes
@@ -255,8 +175,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  const char *result;
 //  const char *const start = string.c_str();
 //..
-// Next, try advancing 2 characters, then 3, then 4, observing that the value
-// returned is the number of Unicode characters advanced.  Note that since
+// Next, try advancing 2 code points, then 3, then 4, observing that the value
+// returned is the number of Unicode code points advanced.  Note that since
 // we&#39;re only advancing over valid UTF-8, we can use either &#39;advanceRaw&#39; or
 // &#39;advanceIfValid&#39;:
 //..
@@ -288,12 +208,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(4 == rc);
 //  assert(3 + 2 + 1 + 4 == result - start);
 //..
-// Then, try advancing by more characters than are present using
+// Then, try advancing by more code points than are present using
 // &#39;advanceIfValid&#39;, and wind up stopping when we encounter invalid input.  The
 // behavior of &#39;advanceRaw&#39; is undefined if it is used on invalid input, so we
 // cannot use it here.  Also note that we will stop at the beginning of the
-// invalid Unicode character, and not at the first incorrect byte, which is two
-// bytes later:
+// invalid Unicode code point, and not at the first incorrect byte, which is
+// two bytes later:
 //..
 //  rc = bdlde::Utf8Util::advanceIfValid(&amp;status, &amp;result, start, INT_MAX);
 //  assert(0 != status);
@@ -301,12 +221,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(3 + 2 + 1 + 4 + 4                 == result - start);
 //  assert(static_cast&lt;int&gt;(string.length()) &gt;  result - start);
 //..
-// Now, doctor the string to replace the invalid character with a valid one, so
-// the string is entirely correct UTF-8:
-//.
+// Now, doctor the string to replace the invalid code point with a valid one,
+// so the string is entirely correct UTF-8:
+//..
 //  string[3 + 2 + 1 + 4 + 4 + 2] = static_cast&lt;char&gt;(0x8a);
 //..
-// Finally, advance using both functions by more characters than are in the
+// Finally, advance using both functions by more code points than are in the
 // string and in both cases wind up at the end of the string.  Note that
 // &#39;advanceIfValid&#39; does not return an error (non-zero) value to &#39;status&#39; when
 // it encounters the end of the string:
@@ -331,6 +251,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_assert.h&gt;
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
 namespace BloombergLP {
 
 namespace bdlde {
@@ -340,173 +264,213 @@ namespace bdlde {
 
 struct Utf8Util {
     // This struct provides a namespace for static methods used for validating
-    // UTF-8 strings, for counting the number of UTF-8 characters in them, and
-    // for advancing pointers through UTF-8 strings.
+    // UTF-8 strings, for counting the number of Unicode code points in them,
+    // and for advancing pointers through UTF-8 strings by a specified number
+    // of Unicode code points.
 
     // CLASS METHODS
     static int advanceIfValid(int         *status,
                               const char **result,
                               const char  *string,
-                              int          numCharacters);
-        // Advance past 0 or more consecutive *valid* UTF-8 characters at the
-        // beginning of the specified &#39;string&#39;, until either the specified
-        // &#39;numCharacters&#39; have been traversed, or the terminating null
-        // character or invalid UTF-8 is encountered (whichever occurs first),
-        // and return the number of UTF-8 characters traversed.  Set the
-        // specified &#39;*status&#39; to 0 if no invalid UTF-8 is encountered, and to
-        // a non-zero value otherwise.  Set the specified &#39;*result&#39; to the
-        // address of the byte immediately following the last character
-        // traversed, or to &#39;string&#39; if &#39;string&#39; is empty or &#39;numCharacters&#39; is
-        // 0.  &#39;string&#39; is necessarily null-terminated, so it cannot contain
-        // embedded null characters.  The behavior is undefined unless
-        // &#39;0 &lt;= numCharacters&#39;.  Note that the value returned will be in the
-        // range &#39;[0 .. numCharacters]&#39;.  Also note that &#39;string&#39; may contain
-        // less than &#39;bsl::strlen(string)&#39; UTF-8 characters.
+                              int          numCodePoints);
+        // Advance past 0 or more consecutive *valid* Unicode code points at
+        // the beginning of the specified &#39;string&#39;, until either the specified
+        // &#39;numCodePoints&#39; have been traversed, or the terminating null byte or
+        // invalid UTF-8 is encountered (whichever occurs first), and return
+        // the number of Unicode code points traversed.  Set the specified
+        // &#39;*status&#39; to 0 if no invalid UTF-8 is encountered, and to a non-zero
+        // value otherwise.  Set the specified &#39;*result&#39; to the address of the
+        // byte immediately following the last valid code point traversed, or
+        // to &#39;string&#39; if &#39;string&#39; is empty or &#39;numCodePoints&#39; is 0.  &#39;string&#39;
+        // is necessarily null-terminated, so it cannot contain embedded null
+        // bytes.  The behavior is undefined unless &#39;0 &lt;= numCodePoints&#39;.  Note
+        // that the value returned will be in the range &#39;[0 .. numCodePoints]&#39;.
+        // Also note that &#39;string&#39; may contain less than &#39;bsl::strlen(string)&#39;
+        // Unicode code points.
 
     static int advanceIfValid(int         *status,
                               const char **result,
                               const char  *string,
-                              int          length,
-                              int          numCharacters);
-        // Advance past 0 or more consecutive *valid* UTF-8 characters at the
-        // beginning of the specified &#39;string&#39; having the specified &#39;length&#39;
-        // (in bytes), until either the specified &#39;numCharacters&#39; or &#39;length&#39;
-        // bytes have been traversed, or invalid UTF-8 is encountered
-        // (whichever occurs first), and return the number of UTF-8 characters
-        // traversed.  Set the specified &#39;*status&#39; to 0 if no invalid UTF-8 is
-        // encountered, and to a non-zero value otherwise.  Set the specified
-        // &#39;*result&#39; to the address of the byte immediately following the last
-        // character traversed, or to &#39;string&#39; if &#39;length&#39; or &#39;numCharacters&#39;
-        // is 0.  &#39;string&#39; need not be null-terminated and can contain embedded
-        // null characters.  The behavior is undefined unless &#39;0 &lt;= length&#39; and
-        // &#39;0 &lt;= numCharacters&#39;.  Note that the value returned will be in the
-        // range &#39;[0 .. numCharacters]&#39;.  Also note that &#39;string&#39; may contain
-        // less than &#39;length&#39; UTF-8 characters.
+                              bsl::size_t  length,
+                              int          numCodePoints);
+        // Advance past 0 or more consecutive *valid* Unicode code points at
+        // the beginning of the specified &#39;string&#39; having the specified
+        // &#39;length&#39; (in bytes), until either the specified &#39;numCodePoints&#39; or
+        // &#39;length&#39; bytes have been traversed, or invalid UTF-8 is encountered
+        // (whichever occurs first), and return the number of Unicode code
+        // points traversed.  Set the specified &#39;*status&#39; to 0 if no invalid
+        // UTF-8 is encountered, and to a non-zero value otherwise.  Set the
+        // specified &#39;*result&#39; to the address of the byte immediately following
+        // the last valid code point traversed, or to &#39;string&#39; if &#39;length&#39; or
+        // &#39;numCodePoints&#39; is 0.  &#39;string&#39; need not be null-terminated and can
+        // contain embedded null bytes.  The behavior is undefined unless
+        // &#39;0 &lt;= numCodePoints&#39;.  Note that the value returned will be in the
+        // range &#39;[0 .. numCodePoints]&#39;.  Also note that &#39;string&#39; may contain
+        // less than &#39;length&#39; Unicode code points.
 
-    static int advanceRaw(const char **result,
-                          const char  *string,
-                          int          numCharacters);
-        // Advance past 0 or more consecutive UTF-8 characters at the beginning
-        // of the specified &#39;string&#39;, until either the specified
-        // &#39;numCharacters&#39; have been traversed or the terminating null
-        // character is encountered (whichever occurs first), and return the
-        // number of UTF-8 characters traversed.  Set the specified &#39;*result&#39;
-        // to the address of the byte immediately following the last character
-        // traversed, or to &#39;string&#39; if &#39;string&#39; is empty or &#39;numCharacters&#39; is
+    static int
+    advanceRaw(const char **result, const char *string, int numCodePoints);
+        // Advance past 0 or more consecutive Unicode code points at the
+        // beginning of the specified &#39;string&#39;, until either the specified
+        // &#39;numCodePoints&#39; have been traversed or the terminating null byte is
+        // encountered (whichever occurs first), and return the number of
+        // Unicode code points traversed.  Set the specified &#39;*result&#39; to the
+        // address of the byte immediately following the last code point
+        // traversed, or to &#39;string&#39; if &#39;string&#39; is empty or &#39;numCodePoints&#39; is
         // 0.  &#39;string&#39; is necessarily null-terminated, so it cannot contain
-        // embedded null characters.  The behavior is undefined unless &#39;string&#39;
-        // contains valid UTF-8 and &#39;0 &lt;= numCharacters&#39;.  Note that the value
-        // returned will be in the range &#39;[0 .. numCharacters]&#39;.  Also note
-        // that &#39;string&#39; may contain less than &#39;bsl::strlen(string)&#39; UTF-8
-        // characters.
+        // embedded null bytes.  The behavior is undefined unless &#39;string&#39;
+        // contains valid UTF-8 and &#39;0 &lt;= numCodePoints&#39;.  Note that the value
+        // returned will be in the range &#39;[0 .. numCodePoints]&#39;.  Also note
+        // that &#39;string&#39; may contain less than &#39;bsl::strlen(string)&#39; Unicode
+        // code points.
 
-    static int advanceRaw(const char **result,
-                          const char  *string,
-                          int          length,
-                          int          numCharacters);
-        // Advance past 0 or more consecutive UTF-8 characters at the beginning
-        // of the specified &#39;string&#39; having the specified &#39;length&#39; (in bytes),
-        // until either the specified &#39;numCharacters&#39; or &#39;length&#39; bytes have
-        // been traversed (whichever occurs first), and return the number of
-        // UTF-8 characters traversed.  Set the specified &#39;*result&#39; to the
-        // address of the byte immediately following the last character
-        // traversed, or to &#39;string&#39; if &#39;length&#39; or &#39;numCharacters&#39; is 0.
-        // &#39;string&#39; need not be null-terminated and can contain embedded null
-        // characters.  The behavior is undefined unless &#39;0 &lt;= length&#39;, the
-        // initial &#39;length&#39; bytes of &#39;string&#39; contain valid UTF-8, and
-        // &#39;0 &lt;= numCharacters&#39;.  Note that the value returned will be in the
-        // range &#39;[0 .. numCharacters]&#39;.  Also note that &#39;string&#39; may contain
-        // less than &#39;length&#39; UTF-8 characters.
+    static int advanceRaw(const char  **result,
+                          const char   *string,
+                          bsl::size_t   length,
+                          int           numCodePoints);
+        // Advance past 0 or more consecutive Unicode code points at the
+        // beginning of the specified &#39;string&#39; having the specified &#39;length&#39;
+        // (in bytes), until either the specified &#39;numCodePoints&#39; or &#39;length&#39;
+        // bytes have been traversed (whichever occurs first), and return the
+        // number of Unicode code points traversed.  Set the specified
+        // &#39;*result&#39; to the address of the byte immediately following the last
+        // code point traversed, or to &#39;string&#39; if &#39;length&#39; or &#39;numCodePoints&#39;
+        // is 0.  &#39;string&#39; need not be null-terminated and can contain embedded
+        // null bytes.  The behavior is undefined unless the initial &#39;length&#39;
+        // bytes of &#39;string&#39; contain valid UTF-8 and &#39;0 &lt;= numCodePoints&#39;.
+        // Note that the value returned will be in the range
+        // &#39;[0 .. numCodePoints]&#39;.  Also note that &#39;string&#39; may contain less
+        // than &#39;length&#39; Unicode code points.
 
     static bool isValid(const char *string);
         // Return &#39;true&#39; if the specified &#39;string&#39; contains valid UTF-8, and
         // &#39;false&#39; otherwise.  &#39;string&#39; is necessarily null-terminated, so it
-        // cannot contain embedded null characters.
+        // cannot contain embedded null bytes.
 
-    static bool isValid(const char *string, int length);
+    static bool isValid(const char *string, bsl::size_t length);
         // Return &#39;true&#39; if the specified &#39;string&#39; having the specified
         // &#39;length&#39; (in bytes) contains valid UTF-8, and &#39;false&#39; otherwise.
         // &#39;string&#39; need not be null-terminated and can contain embedded null
-        // characters.  The behavior is undefined unless &#39;0 &lt;= length&#39;.
+        // bytes.
 
     static bool isValid(const char **invalidString, const char *string);
         // Return &#39;true&#39; if the specified &#39;string&#39; contains valid UTF-8, and
         // &#39;false&#39; otherwise.  If &#39;string&#39; contains invalid UTF-8, load into
-        // the specified &#39;invalidString&#39; the address of the first character in
-        // &#39;string&#39; that does not constitute the start of a valid UTF-8
-        // character encoding; &#39;invalidString&#39; is uneffected if &#39;string&#39;
-        // contains valid UTF-8.  &#39;string&#39; is necessarily null-terminated, so
-        // it cannot contain embedded null characters.
+        // the specified &#39;invalidString&#39; the address of the beginning of the
+        // first invalid UTF-8 sequence encountered; &#39;invalidString&#39; is
+        // uneffected if &#39;string&#39; contains only valid UTF-8.  &#39;string&#39; is
+        // necessarily null-terminated, so it cannot contain embedded null
+        // bytes.
 
-    static bool isValid(const char **invalidString,
-                        const char  *string,
-                        int          length);
+    static bool
+    isValid(const char  **invalidString,
+            const char   *string,
+            bsl::size_t   length);
         // Return &#39;true&#39; if the specified &#39;string&#39; having the specified
-        // &#39;length&#39; (in bytes) contains valid UTF-8, and &#39;false&#39; otherwise.
-        // If &#39;string&#39; contains invalid UTF-8, load into the specified
-        // &#39;invalidString&#39; the address of the first character in &#39;string&#39; that
-        // does not constitute the start of a valid UTF-8 character encoding;
-        // &#39;invalidString&#39; is uneffected if &#39;string&#39; contains valid UTF-8.
-        // &#39;string&#39; need not be null-terminated and can contain embedded null
-        // characters.  The behavior is undefined unless &#39;0 &lt;= length&#39;.
+        // &#39;length&#39; (in bytes) contains valid UTF-8, and &#39;false&#39; otherwise.  If
+        // &#39;string&#39; contains invalid UTF-8, load into the specified
+        // &#39;invalidString&#39; the address of the byte after the last valid code
+        // point traversed; &#39;invalidString&#39; is uneffected if &#39;string&#39; contains
+        // only valid UTF-8.  &#39;string&#39; need not be null-terminated and can
+        // contain embedded null bytes.
 
     static int numCharactersIfValid(const char **invalidString,
                                     const char  *string);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39; if
-        // it contains valid UTF-8, with no effect on the specified
+        // Return the number of Unicode code points in the specified &#39;string&#39;
+        // if it contains valid UTF-8, with no effect on the specified
         // &#39;invalidString&#39;.  Otherwise, return a negative value and load into
-        // &#39;invalidString&#39; the address of the first character in &#39;string&#39; that
-        // does not constitute the start of a valid UTF-8 character encoding.
-        // &#39;string&#39; is necessarily null-terminated, so it cannot contain
-        // embedded null characters.  Note that &#39;string&#39; may contain less than
-        // &#39;bsl::strlen(string)&#39; UTF-8 characters.
+        // &#39;invalidString&#39; the address of the byte after the last valid Unicode
+        // code point traversed.  &#39;string&#39; is necessarily null-terminated, so
+        // it cannot contain embedded null bytes.  Note that &#39;string&#39; may
+        // contain less than &#39;bsl::strlen(string)&#39; Unicode code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsIfValid&#39; instead.
 
-    static int numCharactersIfValid(const char **invalidString,
-                                    const char  *string,
-                                    int          length);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39;
+    static int numCharactersIfValid(const char  **invalidString,
+                                    const char   *string,
+                                    bsl::size_t   length);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
+        // having the specified &#39;length&#39; (in bytes) if &#39;string&#39; contains valid
+        // UTF-8, with no effect on the specified &#39;invalidString&#39;.  Otherwise,
+        // return a negative value and load into &#39;invalidString&#39; the address
+        // of the byte after the last valid Unicode code point traversed.
+        // &#39;string&#39; need not be null-terminated and may contain embedded null
+        // bytes.  Note that &#39;string&#39; may contain less than &#39;length&#39; Unicode
+        // code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsIfValid&#39; instead.
+
+    static int numCharactersRaw(const char *string);
+        // Return the number of Unicode code points in the specified &#39;string&#39;.
+        // &#39;string&#39; is necessarily null-terminated, so it cannot contain
+        // embedded null bytes.  The behavior is undefined unless &#39;string&#39;
+        // contains valid UTF-8.  Note that &#39;string&#39; may contain less than
+        // &#39;bsl::strlen(string)&#39; Unicode code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsRaw&#39; instead.
+
+    static int numCharactersRaw(const char *string, bsl::size_t length);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
+        // having the specified &#39;length&#39; (in bytes).  &#39;string&#39; need not be
+        // null-terminated and can contain embedded null bytes.  The behavior
+        // is undefined &#39;string&#39; contains valid UTF-8.  Note that &#39;string&#39; may
+        // contain less than &#39;length&#39; Unicode code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsRaw&#39; instead.
+
+    static int numCharacters(const char *string);
+        // Return the number of Unicode code points in the specified &#39;string&#39;.
+        // &#39;string&#39; is necessarily null-terminated, so it cannot contain
+        // embedded null bytes.  The behavior is undefined unless &#39;string&#39;
+        // contains valid UTF-8.  Note that &#39;string&#39; may contain less than
+        // &#39;bsl::strlen(string)&#39; Unicode code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsRaw&#39; instead.
+
+    static int numCharacters(const char *string, bsl::size_t length);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
+        // having the specified &#39;length&#39; (in bytes).  &#39;string&#39; need not be
+        // null-terminated and can contain embedded null bytes.  The behavior
+        // is undefined unless &#39;string&#39; contains valid UTF-8.  Note that
+        // &#39;string&#39; may contain less than &#39;length&#39; Unicode code points.
+        //
+        // DEPRECATED: Use &#39;numCodePointsRaw&#39; instead.
+
+    static int numCodePointsIfValid(const char **invalidString,
+                                    const char  *string);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
+        // if it contains valid UTF-8, with no effect on the specified
+        // &#39;invalidString&#39;.  Otherwise, return a negative value and load into
+        // &#39;invalidString&#39; the address of the byte after the last valid Unicode
+        // code point traversed.  &#39;string&#39; is necessarily null-terminated, so
+        // it cannot contain embedded null bytes.  Note that &#39;string&#39; may
+        // contain less than &#39;bsl::strlen(string)&#39; Unicode code points.
+
+    static int numCodePointsIfValid(const char  **invalidString,
+                                    const char   *string,
+                                    bsl::size_t   length);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
         // having the specified &#39;length&#39; (in bytes) if &#39;string&#39; contains valid
         // UTF-8, with no effect on the specified &#39;invalidString&#39;.  Otherwise,
         // return a negative value and load into &#39;invalidString&#39; the address of
-        // the first character in &#39;string&#39; that does not constitute the start
-        // of a valid UTF-8 character encoding.  &#39;string&#39; need not be
-        // null-terminated and can contain embedded null characters.  The
-        // behavior is undefined unless &#39;0 &lt;= length&#39;.  Note that &#39;string&#39; may
-        // contain less than &#39;length&#39; UTF-8 characters.
+        // the byte after the last valid Unicode code point traversed.
+        // &#39;string&#39; need not be null-terminated and may contain embedded null
+        // bytes.  Note that &#39;string&#39; may contain less than &#39;length&#39; Unicode
+        // code points.
 
-    static int numCharactersRaw(const char *string);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39;.
+    static int numCodePointsRaw(const char *string);
+        // Return the number of Unicode code points in the specified &#39;string&#39;.
         // &#39;string&#39; is necessarily null-terminated, so it cannot contain
-        // embedded null characters.  The behavior is undefined unless &#39;string&#39;
+        // embedded null bytes.  The behavior is undefined unless &#39;string&#39;
         // contains valid UTF-8.  Note that &#39;string&#39; may contain less than
-        // &#39;bsl::strlen(string)&#39; UTF-8 characters.
+        // &#39;bsl::strlen(string)&#39; Unicode code points.
 
-    static int numCharactersRaw(const char *string, int length);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39;
+    static int numCodePointsRaw(const char *string, bsl::size_t length);
+        // Return the number of Unicode code points in the specified &#39;string&#39;
         // having the specified &#39;length&#39; (in bytes).  &#39;string&#39; need not be
-        // null-terminated and can contain embedded null characters.  The
-        // behavior is undefined unless &#39;0 &lt;= length&#39;, and &#39;string&#39; contains
-        // valid UTF-8.  Note that &#39;string&#39; may contain less than &#39;length&#39;
-        // UTF-8 characters.
-
-    static int numCharacters(const char *string);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39;.
-        // &#39;string&#39; is necessarily null-terminated, so it cannot contain
-        // embedded null characters.  The behavior is undefined unless &#39;string&#39;
-        // contains valid UTF-8.  Note that &#39;string&#39; may contain less than
-        // &#39;bsl::strlen(string)&#39; UTF-8 characters.
-        //
-        // DEPRECATED: Use &#39;numCharactersRaw&#39; instead.
-
-    static int numCharacters(const char *string, int length);
-        // Return the number of UTF-8 characters in the specified &#39;string&#39;
-        // having the specified &#39;length&#39; (in bytes).  &#39;string&#39; need not be
-        // null-terminated and can contain embedded null characters.  The
-        // behavior is undefined unless &#39;0 &lt;= length&#39;, and &#39;string&#39; contains
-        // valid UTF-8.  Note that &#39;string&#39; may contain less than &#39;length&#39;
-        // UTF-8 characters.
-        //
-        // DEPRECATED: Use &#39;numCharactersRaw&#39; instead.
+        // null-terminated and can contain embedded null bytes.  The behavior
+        // is undefined unless &#39;string&#39; contains valid UTF-8.  Note that
+        // &#39;string&#39; may contain less than &#39;length&#39; Unicode code points.
 };
 
 // ============================================================================
@@ -529,15 +493,54 @@ bool Utf8Util::isValid(const char *string)
 }
 
 inline
-bool Utf8Util::isValid(const char *string, int length)
+bool Utf8Util::isValid(const char *string, bsl::size_t length)
 {
     BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(0 &lt;= length);
 
     const char *dummy = 0;
 
     return isValid(&amp;dummy, string, length);
 }
+
+inline
+int Utf8Util::numCharactersIfValid(const char **invalidString,
+                                   const char  *string)
+{
+    return numCodePointsIfValid(invalidString, string);
+}
+
+inline
+int Utf8Util::numCharactersIfValid(const char  **invalidString,
+                                   const char   *string,
+                                   bsl::size_t   length)
+{
+    return numCodePointsIfValid(invalidString, string, length);
+}
+
+inline
+int Utf8Util::numCharacters(const char *string)
+{
+    return numCodePointsRaw(string);
+}
+
+inline
+int Utf8Util::numCharacters(const char *string, bsl::size_t length)
+{
+    return numCodePointsRaw(string, length);
+}
+
+inline
+int Utf8Util::numCharactersRaw(const char *string)
+{
+    return numCodePointsRaw(string);
+}
+
+inline
+int Utf8Util::numCharactersRaw(const char *string, bsl::size_t length)
+{
+    return numCodePointsRaw(string, length);
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

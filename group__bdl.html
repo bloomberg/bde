@@ -85,6 +85,11 @@ Packages</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide containers that support concurrent (multi-thread) access. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdld.html">Package bdld</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a variant type (<code>Datum</code>) and supporting utilities. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlde.html">Package bdlde</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Mechanisms for standard encodings and hashings, e.g., base64, md5. </p>
@@ -108,6 +113,11 @@ Packages</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlmt.html">Package bdlmt</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provides thread pools and event schedulers. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlpcre.html">Package bdlpcre</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a mechanism to process Perl-compatible regular expressions. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdls.html">Package bdls</a></td></tr>
@@ -163,13 +173,16 @@ Packages</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdl</code> package group currently has 13 packages having 8 levels of physical dependency. The list below shows the hierarchical ordering of the packages. The order of packages within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdl</code> package group currently has 15 packages having 9 levels of physical dependency. The list below shows the hierarchical ordering of the packages. The order of packages within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  8. bdldfp
-     bdlmt
+<div class="fragment"><pre class="fragment">  9. bdlat
+     bdld
 
-  7. bdlat
-     bdlcc
+  8. bdldfp
+     bdlmt
+     bdlpcre
+
+  7. bdlcc
      bdls
 
   6. bdlt
@@ -200,6 +213,8 @@ Packages</h2></td></tr>
  Provide container vocabulary types.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlcc</code>: <br/>
  Provide containers that support concurrent (multi-thread) access.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdld</code>: <br/>
+ Provide a variant type (<code>Datum</code>) and supporting utilities.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlde</code>: <br/>
  Mechanisms for standard encodings and hashings, e.g., base64, md5.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdldfp</code>: <br/>
@@ -210,6 +225,8 @@ Packages</h2></td></tr>
  Provide allocators, pools, and other memory-management tools.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlmt</code>: <br/>
  Provides thread pools and event schedulers.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlpcre</code>: <br/>
+ Provide a mechanism to process Perl-compatible regular expressions.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls</code>: <br/>
  Provide platform-independent system-level utilities.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlsb</code>: <br/>
@@ -220,7 +237,7 @@ Packages</h2></td></tr>
  Provide date and time vocabulary types, and related utilities.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:36 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:32 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -101,8 +101,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
 namespace bslmf {
 
                         // ==================
@@ -128,6 +135,18 @@ struct MatchAnyType {
                         // class TypeRep
                         // =============
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template &lt;class TYPE&gt;
+struct TypeRep {
+    // Generate a reference to &#39;TYPE&#39; for use in meta-functions.
+
+    static TYPE&amp;&amp; rep();
+        // Provide a reference to a &#39;TYPE&#39; object.  This function has no body
+        // and must never be called at run time.  Thus, it does not matter if
+        // &#39;TYPE&#39; has a default constructor or not.
+};
+
+#else
 template &lt;class TYPE&gt;
 struct TypeRep {
     // Generate a reference to &#39;TYPE&#39; for use in meta-functions.
@@ -148,6 +167,39 @@ struct TypeRep&lt;TYPE&amp;&gt; {
         // and must never be called at run time.  Thus, it does not matter if
         // &#39;TYPE&#39; has a default constructor or not.
 };
+
+# if defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VERSION == 1600
+// Note that while MSVC2010 has support for rvalue-references, the BDE feature
+// detection trait additionally requires support for alias-templates, not
+// supported in VC2010, due to many interactions in our code that require both
+// features to be available.
+
+template &lt;class TYPE&gt;
+struct TypeRep&lt;TYPE[]&gt; {
+    // MSVC 2010, and only the 2010 version, returns a compile-time error when
+    // attempting to return a reference to an array of unknown bound.  Instead,
+    // return a type that can implicitly convert to a pointer to the element
+    // type, emulating array-to-pointer decay.  This will often be good-enough
+    // for the template metaprogramming where this facility is needed.
+
+    struct ResultType {
+        // This &#39;struct&#39; emulates an array that can decay to a pointer.
+        // Further operations may be added in the future, as additional use of
+        // this facility in template metaprograms requires a type that more
+        // faithfully emulates an array.
+
+        operator TYPE *();
+            // Return a pointer, emulating array-to-pointer decay for an array
+            // of objects of (template parameter) &#39;TYPE&#39;.  This function has no
+            // body and must never be called at run time.
+    };
+
+    static ResultType rep();
+        // Provide an emulation for a reference to a &#39;TYPE&#39; object.  This
+        // function has no body and must never be called at run time.
+};
+# endif
+#endif
 
 }  // close package namespace
 

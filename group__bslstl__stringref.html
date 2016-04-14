@@ -111,7 +111,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines two classes, <code>bsls::StringRef</code> and <code>bsls::StringRefWide</code>, each providing a reference to a non-modifiable string value having an external representation. The type of characters in the string value can be either <code>char</code> (for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>) or <code>wchar_t</code> (for <code><a class="el" href="namespacebslstl.html#adb41ff59615d4ad2799e48a19ed5c1b1">bslstl::StringRefWide</a></code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines two classes, <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> and <code><a class="el" href="namespacebslstl.html#adb41ff59615d4ad2799e48a19ed5c1b1">bslstl::StringRefWide</a></code>, each providing a reference to a non-modifiable string value having an external representation. The type of characters in the string value can be either <code>char</code> (for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>) or <code>wchar_t</code> (for <code><a class="el" href="namespacebslstl.html#adb41ff59615d4ad2799e48a19ed5c1b1">bslstl::StringRefWide</a></code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The invariant of <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> is that it always has a valid non-modifiable <code>std::string</code> value, where non-empty string values have an external representation. Empty string values do not need to have an external representation. Most operations on <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects have reference semantics and apply to the string value: e.g., <code>operator==</code> compares string values, not whether <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects reference the same string object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The only operations that do not apply to the string value (i.e., that have pointer semantics) are copy construction and assignment. These operations produce a <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object with the same external representation as the original <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object, which is a stronger post-condition than having <code>operator==</code> return <code>true</code> for two <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects that have the same value. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The standard notion of substitutability defined by the <code>operator==</code> does not necessarily apply to <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> since <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> is not a value-semantic type (because of the external representation). Therefore there can be a plausible sequence of operations applied to two "equal" <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects that result in objects that don't compare equal. </dd></dl>
@@ -228,7 +228,7 @@ Namespaces</h2></td></tr>
 
   assert( 5 == numBlanks);
   assert(29 == line.<a class="code" href="group__bslstl__string.html#ga3c33f63f9d195be7499bd2f7cdb085ff">length</a>());
-  assert( 0 == std::strncmp(poem, line.<a class="code" href="group__bslstl__string.html#ga18243cc2ae7fe91eee167259e0a98d0a">data</a>(), line.<a class="code" href="group__bslstl__string.html#ga3c33f63f9d195be7499bd2f7cdb085ff">length</a>()));
+  assert( 0 == std::strncmp(poem, line.<a class="code" href="group__bslstl__string.html#gae34ea0881e46716098b4a684ed41e136">data</a>(), line.<a class="code" href="group__bslstl__string.html#ga3c33f63f9d195be7499bd2f7cdb085ff">length</a>()));
 </pre></div><br/>
 <br/>
  Next, we use the <code>assign</code> method to make <code>line</code> refer to the second line of the <code>poem</code>: <br/>
@@ -273,7 +273,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:58 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:09 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -310,7 +310,7 @@ template&lt;class MANAGED_TYPE , class FACTORY_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a managed pointer having a target object referenced by the specified <code>ptr</code>, owning the managed object <code>*ptr</code>, and having a deleter that will call <code>factory-&gt;deleteObject(ptr)</code> to destroy the managed object when invoked (e.g., when this managed pointer object is destroyed), unless <code>0 == ptr</code>, in which case create an empty managed pointer. The deleter will invoke the destructor of <code>MANAGED_TYPE</code> rather than the destructor of <code>TARGET_TYPE</code>. This constructor will not compile unless <code>MANAGED_TYPE *</code> is convertible to <code>TARGET_TYPE *</code>. The behavior is undefined unless the managed object (if any) can be destroyed by the specified <code>factory</code>, or if the the lifetime of the managed object is already managed by another object. Note that <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, and any class publicly and unambiguously derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, meets the requirements for <code>FACTORY_TYPE</code>. </p>
+<p>Create a managed pointer having a target object referenced by the specified <code>ptr</code>, owning the managed object <code>*ptr</code>, and having a deleter that will call <code>factory-&gt;deleteObject(ptr)</code> to destroy the managed object when invoked (e.g., when this managed pointer object is destroyed), unless <code>0 == ptr</code>, in which case create an empty managed pointer. The deleter will invoke the destructor of <code>MANAGED_TYPE</code> rather than the destructor of <code>TARGET_TYPE</code>. This constructor will not compile unless <code>MANAGED_TYPE *</code> is convertible to <code>TARGET_TYPE *</code>. The behavior is undefined unless the managed object (if any) can be destroyed by the specified <code>factory</code>, or if <code>0 == factory &amp;&amp; 0 != ptr</code>, or if the the lifetime of the managed object is already managed by another object. Note that <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, and any class publicly and unambiguously derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, meets the requirements for <code>FACTORY_TYPE</code>. </p>
 
 </div>
 </div>
@@ -932,7 +932,7 @@ template&lt;class TARGET_TYPE&gt; </div>
 <li><a class="el" href="bslma__managedptr_8h_source.html">bslma_managedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

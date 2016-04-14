@@ -1,0 +1,417 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_latch.h                                                      -*-C++-*-
+#ifndef INCLUDED_BSLMT_LATCH
+#define INCLUDED_BSLMT_LATCH
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a single-use mechanism for synchronizing on an event count.
+//
+//@CLASSES:
+//  bslmt::Latch: single-use synchronization mechanism on a count of events
+//
+//@SEE_ALSO: bslmt_barrier
+//
+//@DESCRIPTION: This component defines a mechanism, &#39;bslmt::Latch&#39;, that allows
+// one or more threads to wait until a certain number of operations have been
+// performed by other threads.
+//
+// A latch maintains a &#39;currentCount&#39; of operations that must be performed
+// before threads waiting on the latch are released.  The initial operation
+// count for the latch is supplied at construction, and is decremented by calls
+// to either &#39;arrive&#39;, &#39;arriveAndWait&#39;, or &#39;countDown&#39;.  Threads may wait on a
+// latch to be released by calling either &#39;wait&#39; or &#39;arriveAndWait&#39;, and
+// threads calling those methods will block until the &#39;currentCount&#39; is 0.
+//
+// *WARNING*: &#39;bslmt::Latch&#39; is *not* a reusable synchronization mechanism.
+// The behavior is undefined when calling &#39;countDown&#39;, &#39;arrive&#39;, and
+// &#39;arriveAndWait&#39; after the &#39;currentCount&#39; becomes 0 (the latch has been
+// released).
+//
+///Comparison to &#39;bslmt::Barrier&#39;
+///------------------------------
+// A latch provides a basic synchronization tool, similar to a barrier.  A
+// latch is distinct from a barrier in that:
+//
+//: o A latch is single-use only, whereas a barrier can be used multiple times.
+//:
+//: o Threads waiting on a barrier are blocked, whereas threads that &#39;arrive&#39;
+//:   at a latch are not blocked (only waiting threads are blocked).
+//:
+//: o &#39;wait&#39; on a barrier always decrements the count of waiting threads by 1,
+//:   whereas &#39;countDown&#39; on a latch can indicate multiple events.
+//
+// An example use of a barrier is to coordinate a set of threads working in
+// lock-step to complete a multi-step operation.  An example use of a latch is
+// for one thread to coordinate the completion of a multi-step operation being
+// performed by a set of &quot;child&quot; threads.
+//
+///Comparison to &#39;bslmt::Semaphore&#39;
+///--------------------------------
+// A latch is conceptually similar to a semaphore with a negative count.
+// However, typically semaphore implementations (including &#39;bslmt::Semaphore&#39;
+// and POSIX) do not allow for negative counts.  Waiting on a latch configured
+// for &#39;N&#39; events is cleaner than one thread calling &#39;wait&#39; on a semaphore &#39;N&#39;
+// times in a loop.  Furthermore, if the use case involves multiple threads
+// waiting on a set of events, using a latch is cleaner than each thread
+// waiting on a semaphore and then immediately calling &#39;post&#39; (to release the
+// next waiting thread).
+//
+///Undefined Behavior When Decrementing the Event Count
+///----------------------------------------------------
+// The methods &#39;arrive&#39;, &#39;arriveAndWait&#39;, and &#39;countDown&#39; all document that it
+// is undefined behavior to decrement the event count below 0.  Note that it
+// isn&#39;t possible to use a latch&#39;s visible state to determine whether it is
+// safe (i.e., not undefined behavior) to call &#39;arrive&#39;, &#39;arriveAndWait&#39;, or
+// &#39;countDown&#39;.  A limit on the number of times the event count is decremented
+// must be imposed by the logic of the program.  For example, in the usage
+// example below a latch is created with an event count that matches the number
+// of threads that will call &#39;arrive&#39; on that latch.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Parallelizable Algorithm
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we use a &#39;bslmt::Latch&#39; object to help implement an
+// operation that can be parallelized across a series of sub-tasks (or &quot;jobs&quot;).
+// The &quot;parent&quot; operation enqueue&#39;s the jobs and blocks on a thread pool, and
+// uses the latch as a signaling mechanism to indicate when all of the jobs
+// have been completed and return to the caller.
+//
+// The use of a &#39;bslmt::Latch&#39;, rather than a &#39;bslmt::Barrier&#39;, is important to
+// ensure that jobs in the thread pool do not block until the entire task is
+// completed (preventing the thread pool from processing additional work).
+//
+// Suppose, for example, we want to provide a C++ type for computing a vector
+// sum (vector in the mathematical sense).  That is, for two input vectors, &#39;A&#39;
+// and &#39;B&#39;, each of length &#39;N&#39;, the result is a vector, &#39;R&#39;, of length &#39;N&#39;,
+// where each element at index &#39;i&#39; has the value:
+//..
+//  R[i] = A[i] + B[i];
+//..
+// This function can easily be computed in parallel because the value for each
+// result index only depends on the input vectors.
+//
+// First, assume we have a class, &#39;FixedThreadPool&#39;, providing the following
+// public interface (for brevity, the details have been elided; see
+// &#39;bdlmt_fixedthreadpool&#39; or &#39;bdlmt_threadpool&#39; for examples of thread pools):
+//..
+//  class FixedThreadPool {
+//
+//    public:
+//      // ...
+//
+//      void enqueueJob(const bsl::function&lt;void()&gt;&amp; job);
+//          // Enqueue the specified &#39;job&#39; to be executed by the next available
+//          // thread.
+//  };
+//..
+// Next, we declare the signature for our vector sum function,
+// &#39;parallelVectorSum&#39;:
+//..
+//  void parallelVectorSum(double          *result,
+//                         const double    *inputA,
+//                         const double    *inputB,
+//                         int              numElements,
+//                         FixedThreadPool *threadPool,
+//                         int              numJobs);
+//      // Load the specified &#39;result&#39; array with the vector sum of the
+//      // specified &#39;inputA&#39; and &#39;inputB&#39;, each having at least the specified
+//      // &#39;numElements&#39;, using the specified &#39;threadPool&#39; to perform the
+//      // operation in parallel using the specified &#39;numJobs&#39; parallel jobs.
+//      // The behavior is undefined unless &#39;numElements &gt; 0&#39;, &#39;numJobs &gt; 0&#39;,
+//      // and &#39;result&#39;, &#39;inputA&#39;, and &#39;inputB&#39; each contain at least
+//      // &#39;numElements&#39;.
+//..
+// Now, we declare a helper function, &#39;vectorSumJob&#39;, that will be used as a
+// sub-task by &#39;parallelVectorSum&#39;.  &#39;vectorSumJob&#39; computes a single-threaded
+// vector sum and uses a &#39;bslmt::Latch&#39; object, &#39;completionSignal&#39;, to indicate
+// to the parent task that the computation has been completed:
+//..
+//  void vectorSumJob(double       *result,
+//                    bslmt::Latch *completionSignal,
+//                    const double *inputA,
+//                    const double *inputB,
+//                    int           numElements)
+//      // Load the specified &#39;result&#39; array with the vector sum of the
+//      // specified &#39;inputA&#39; and &#39;inputB&#39;, each having at least the specified
+//      // &#39;numElements&#39;, and when the operation is complete signal the
+//      // specified &#39;completionSignal&#39;.  The behavior is undefined unless
+//      // &#39;numElements &gt; 0&#39; and &#39;result&#39;, &#39;inputA&#39;, and &#39;inputB&#39; each contain
+//      // at least &#39;numElements&#39;.
+//  {
+//      for (int i = 0; i &lt; numElements; ++i) {
+//          result[i] = inputA[i] + inputB[i];
+//      }
+//
+//      completionSignal-&gt;arrive();
+//  }
+//..
+// Note that &#39;bslmt::Latch::arrive&#39; does not block the current thread (unlike
+// &#39;bslmt::Barrier::wait&#39;), and within the context of a thread pool, this job
+// will complete and the thread will be returned to the pool to accept more
+// work.
+//
+// Next, we provide a rudimentary function argument binder (specific to this
+// usage example) in view of the fact that such a facility is not available at
+// this level in the BDE hierarchy:
+//..
+//  class UsageBinder {
+//      // This class provides an invokable that is tailored to bind the
+//      // &#39;vectorSumJob&#39; (defined above) to its requisite five arguments.
+//
+//    public:
+//      // TYPES
+//      typedef void FREE_FUNCTION(double       *,
+//                                 bslmt::Latch *,
+//                                 const double *,
+//                                 const double *,
+//                                 int           );
+//
+//    private:
+//      // DATA
+//      FREE_FUNCTION *d_func_p;
+//      double        *d_arg1_p;
+//      bslmt::Latch  *d_arg2_p;
+//      const double  *d_arg3_p;
+//      const double  *d_arg4_p;
+//      int            d_arg5;
+//
+//    public:
+//      // CREATORS
+//      UsageBinder(FREE_FUNCTION *functionPtr,
+//                  double        *arg1Ptr,
+//                  bslmt::Latch  *arg2Ptr,
+//                  const double  *arg3Ptr,
+//                  const double  *arg4Ptr,
+//                  int            arg5)
+//          // Create a &#39;UsageBinder&#39; object that binds the specified
+//          // &#39;functionPtr&#39; to the specified &#39;arg1Ptr&#39;, &#39;arg2Ptr&#39;, &#39;arg3Ptr&#39;,
+//          // &#39;arg4Ptr&#39;, and &#39;arg5&#39; arguments.
+//      : d_func_p(functionPtr)
+//      , d_arg1_p(arg1Ptr)
+//      , d_arg2_p(arg2Ptr)
+//      , d_arg3_p(arg3Ptr)
+//      , d_arg4_p(arg4Ptr)
+//      , d_arg5(arg5)
+//      {
+//      }
+//
+//      // MANIPULATORS
+//      void operator()()
+//          // Invoke the function that was supplied at construction on the
+//          // arguments that were supplied at construction.
+//      {
+//          (*d_func_p)(d_arg1_p, d_arg2_p, d_arg3_p, d_arg4_p, d_arg5);
+//      }
+//  };
+//..
+// Then, we define &#39;parallelVectorSum&#39;:
+//..
+//  void parallelVectorSum(double          *result,
+//                         const double    *inputA,
+//                         const double    *inputB,
+//                         int              numElements,
+//                         FixedThreadPool *threadPool,
+//                         int              numJobs)
+//  {
+//      // Ensure that there is at least 1 element per job.
+//
+//      if (numElements &lt; numJobs) {
+//          numJobs = numElements;
+//      }
+//
+//      const int jobSize = numElements / numJobs;
+//..
+// Now, we define a &#39;bslmt::Latch&#39; object, &#39;completionSignal&#39;, that we will
+// use to track the completion of this work:
+//..
+//      bslmt::Latch completionSignal(numJobs);
+//
+//      for (int i = 0; i &lt; numJobs; ++i) {
+//          // If &#39;numJobs&#39; doesn&#39;t evenly divide &#39;numElements&#39;, the last job
+//          // will process the remaining elements.  For simplicity, we have
+//          // chosen not distribute the elements between jobs as evenly as is
+//          // possible.
+//
+//          int offset = i * jobSize;
+//          int size   = (i == numJobs - 1) ? jobSize + numElements % numJobs
+//                                          : jobSize;
+//          assert(0 != size);
+//
+//          threadPool-&gt;enqueueJob(UsageBinder(vectorSumJob,
+//                                             result + offset,
+//                                             &amp;completionSignal,
+//                                             inputA + offset,
+//                                             inputB + offset,
+//                                             size));
+//      }
+//..
+// Finally, calling &#39;wait&#39; on the latch will block this function from returning
+// until all the queued jobs computing the vector sum have been completed:
+//..
+//      completionSignal.wait();
+//  }
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_CONDITION
+#include &lt;bslmt_condition.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                             // ===========
+                             // class Latch
+                             // ===========
+
+class Latch {
+    // This class defines a thread synchronization mechanism that allows one or
+    // more threads to wait until a certain number of operations have been
+    // performed by other threads.
+
+    // DATA
+    Mutex           d_mutex;     // mutex used to synchronize threads waiting
+                                 // for the latch to release
+
+    Condition       d_cond;      // condition variable used for signaling
+                                 // waiting threads
+
+    bsls::AtomicInt d_sigCount;  // count of number of times this latch has
+                                 // been &quot;signaled&quot;
+
+  private:
+    // NOT IMPLEMENTED
+    Latch(const Latch&amp;);
+    Latch&amp; operator=(const Latch&amp;);
+
+  public:
+    // CREATORS
+    explicit Latch(int count);
+        // Create a latch that will synchronize on the specified &#39;count&#39; of
+        // events, and when &#39;count&#39; events have been recorded will release any
+        // waiting threads.  The behavior is undefined unless &#39;0 &lt;= count&#39;.
+
+    ~Latch();
+        // Destroy this latch.  The behavior is undefined if any threads are
+        // waiting on this latch.
+
+    // MANIPULATORS
+    void arrive();
+        // Decrement the number of events that this latch is waiting for by 1,
+        // and if the resulting number of events is 0 release any waiting
+        // threads.  The behavior is undefined unless the sum of all events
+        // that have arrived at this latch does not exceed the count with which
+        // it was initialized.  Note that the initial count of events is
+        // supplied at construction.
+
+    void arriveAndWait();
+        // Decrement the number of events that this latch is waiting for by 1,
+        // and if the resulting number of events is 0 release any waiting
+        // threads; otherwise, block until the required number of events has
+        // been reached.  The behavior is undefined unless the sum of all
+        // events that have arrived at this latch does not exceed the count
+        // with which it was initialized.  Note that the initial count of
+        // events is supplied at construction.  Also note that this method is
+        // equivalent to the following sequence:
+        //..
+        //  arrive();
+        //  wait();
+        //..
+
+    void countDown(int numEvents);
+        // Decrement the number of events that this latch is waiting for by the
+        // specified &#39;numEvents&#39;, and if the resulting number of events is 0
+        // release any waiting threads.  The behavior is undefined unless
+        // &#39;numEvents &gt; 0&#39; and the sum of all events that have arrived at this
+        // latch does not exceed the count with which it was initialized.  Note
+        // that the initial count of events is supplied at construction.
+
+    void wait();
+        // Block until the number of events that this latch is waiting for
+        // reaches 0.
+
+    // ACCESSORS
+    int currentCount() const;
+        // Return the current number of events for which this latch is waiting.
+        // Note that this method is provided primarily for debugging purposes
+        // (i.e., its intended use is not as a synchronization mechanism), and
+        // can be used only as an upper bound for the current count without
+        // other external state information.
+
+    bool tryWait() const;
+        // Return &#39;true&#39; if this latch has already been released (i.e., the
+        // number of events the latch is waiting on is 0), and &#39;false&#39;
+        // otherwise.  This method does not block.  Note that a return value
+        // of &#39;true&#39; indicates a permanent state change (the latch has released
+        // and will never be un-released), but a return value of &#39;false&#39; is
+        // ephemeral and cannot typically be acted upon without additional
+        // external state information.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                             // -----------
+                             // class Latch
+                             // -----------
+
+// CREATORS
+inline
+Latch::Latch(int count)
+: d_mutex()
+, d_cond()
+, d_sigCount(count)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= count);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

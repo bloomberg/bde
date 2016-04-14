@@ -235,7 +235,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment"> PRIVATE MANIPULATORS
   <span class="keywordtype">void</span> ShipsCrew::addSailor(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; name)
   {
-      <span class="keywordflow">if</span> (!d_sailors.count(name.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>())) {
+      <span class="keywordflow">if</span> (!d_sailors.count(name.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>())) {
           d_sailors.insert(copy(name));
       }
   }
@@ -243,7 +243,7 @@ Namespaces</h2></td></tr>
   <span class="keyword">const</span> <span class="keywordtype">char</span> *ShipsCrew::copy(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; str)
   {
       <span class="keywordtype">char</span> *result = (<span class="keywordtype">char</span> *) d_allocator_p-&gt;allocate(str.<a class="code" href="group__bslstl__string.html#ga3c33f63f9d195be7499bd2f7cdb085ff">length</a>() + 1);
-      bsl::strcpy(result, str.<a class="code" href="group__bslstl__string.html#gae8d40a93bd2ebc7ae696c6f63b3995c9">c_str</a>());
+      bsl::strcpy(result, str.<a class="code" href="group__bslstl__string.html#gacef38ff51dcfc556fa13dda42a2665df">c_str</a>());
       <span class="keywordflow">return</span> result;
   }
 
@@ -498,7 +498,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, Inspection shows that frame (3) of the stack trace from the allocation of the leaked segment was from <code>ShipsCrew::setCook</code>. Inspection of the code shows that we neglected to free <code>d_cook</code> in the destructor and we can now easily fix our leak. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:35 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:29 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

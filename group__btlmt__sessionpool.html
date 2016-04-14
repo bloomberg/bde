@@ -114,7 +114,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="message_management_and_delivery"></a> <a class="anchor" id="description.message_management_and_delivery"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Message Management and Delivery: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The session pool provides an efficient mechanism for the full-duplex delivery of messages trying to achieve fully parallel communication on a socket whenever possible. If a particular socket's system buffers are full, the messages are cached up to a certain (user-defined) limit, at which point an alert is generated and the user has the ability to explicitly clear the session's outgoing buffer or, by default, continue the transmission. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The session pool provides an efficient mechanism for the full-duplex delivery of messages trying to achieve fully parallel communication on a socket whenever possible. If a particular socket's system buffers are full, the messages are queued up to a certain (user-defined) limit, at which point an alert is generated and the user has the ability to explicitly clear the session's outgoing buffer or, by default, continue the transmission. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The session pool tries to achieve optimal performance by enabling zero-copy semantics whenever appropriate. On the read side, the message is either read into a local buffer (and subsequently copied by the user) or into a buffer that is subsequently handed to the user for accessing and subsequent deallocation. On the write side, if caching is needed, ownership of the message buffer is assumed and either the message is copied into the local buffer of the session or the address of the buffer is retained. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
@@ -442,7 +442,7 @@ Namespaces</h2></td></tr>
       d_config.setMaxThreads(4);                  <span class="comment">// 4 I/O threads</span>
       d_config.setMaxConnections(numConnections);
       d_config.setMetricsInterval(10.0);          <span class="comment">// seconds</span>
-      d_config.setWriteCacheWatermarks(0, 1&lt;&lt;10); <span class="comment">// 1Mb</span>
+      d_config.setWriteQueueWatermarks(0, 1&lt;&lt;10); <span class="comment">// 1Mb</span>
       d_config.setIncomingMessageSizes(1, 100, 1024);
 
       <span class="keyword">typedef</span> <a class="code" href="classbtlmt_1_1SessionPool.html#a99f7e1aac1e835c18b1ad25682c6ec75">btlmt::SessionPool::SessionPoolStateCallback</a> SessionStateCb;
@@ -520,7 +520,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

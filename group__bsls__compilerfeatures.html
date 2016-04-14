@@ -99,39 +99,39 @@ Defines</h2></td></tr>
 <li>
 <a href="#4.3.1"><code>BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES</code></a> </li>
 <li>
-<a href="#4.3.2"><code>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN</code></a> </li>
+<a href="#4.3.2"><code>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</code></a> </li>
 <li>
-<a href="#4.3.3"><code>BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR</code></a> </li>
+<a href="#4.3.3"><code>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN</code></a> </li>
 <li>
-<a href="#4.3.4"><code>BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE</code></a> </li>
+<a href="#4.3.4"><code>BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR</code></a> </li>
 <li>
-<a href="#4.3.5"><code>BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS</code></a> </li>
+<a href="#4.3.5"><code>BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE</code></a> </li>
 <li>
-<a href="#4.3.6"><code>BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS</code></a> </li>
+<a href="#4.3.6"><code>BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS</code></a> </li>
 <li>
-<a href="#4.3.7"><code>BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE</code></a> </li>
+<a href="#4.3.7"><code>BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS</code></a> </li>
 <li>
-<a href="#4.3.8"><code>BSLS_COMPILERFEATURES_SUPPORT_FINAL</code></a> </li>
+<a href="#4.3.8"><code>BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE</code></a> </li>
 <li>
-<a href="#4.3.9"><code>BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS</code></a> </li>
+<a href="#4.3.9"><code>BSLS_COMPILERFEATURES_SUPPORT_FINAL</code></a> </li>
 <li>
-<a href="#4.3.10"><code>BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT</code></a> </li>
+<a href="#4.3.10"><code>BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS</code></a> </li>
 <li>
-<a href="#4.3.11"><code>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT</code></a> </li>
+<a href="#4.3.11"><code>BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT</code></a> </li>
 <li>
-<a href="#4.3.12"><code>BSLS_COMPILERFEATURES_SUPPORT_NULLPTR</code></a> </li>
+<a href="#4.3.12"><code>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT</code></a> </li>
 <li>
-<a href="#4.3.13"><code>BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT</code></a> </li>
+<a href="#4.3.13"><code>BSLS_COMPILERFEATURES_SUPPORT_NULLPTR</code></a> </li>
 <li>
-<a href="#4.3.14"><code>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE</code></a> </li>
+<a href="#4.3.14"><code>BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT</code></a> </li>
 <li>
-<a href="#4.3.15"><code>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES</code></a> </li>
+<a href="#4.3.15"><code>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE</code></a> </li>
 <li>
-<a href="#4.3.16"><code>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT</code></a> </li>
+<a href="#4.3.16"><code>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES</code></a> </li>
 <li>
-<a href="#4.3.17"><code>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES</code></a> </li>
+<a href="#4.3.17"><code>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT</code></a> </li>
 <li>
-<a href="#4.3.18"><code>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</code></a> </li>
+<a href="#4.3.18"><code>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES</code></a> </li>
 </ul>
 </li>
 </ul>
@@ -153,25 +153,43 @@ Defines</h2></td></tr>
 <tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES </td><td>flag for alias templates  </td></tr>
 <tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS </td><td>flag for <code>alignas</code>  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN </td><td><code>[[noreturn]]</code> attribute  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR </td><td><code>constexpr</code> specifier  </td></tr>
+<tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE </td><td>flag for <code>decltype</code>  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS </td><td>explicit <code>= default</code>  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS </td><td>explicit <code>= deleted</code>  </td></tr>
 <tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE </td><td>flag for <code>extern template</code>  </td></tr>
 <tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_FINAL </td><td>flag for <code>final</code> keyword  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS </td><td>init-list syntax  </td></tr>
+<tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT </td><td>flag for <code>include_next</code>  </td></tr>
 <tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT </td><td><code>noexcept</code> operator  </td></tr>
+<tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_NULLPTR </td><td>flag for <code>nullptr</code>  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT </td><td><code>explicit</code> operator  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE </td><td><code>override</code> keyword  </td></tr>
 <tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES </td><td>flag for rvalue references  </td></tr>
 <tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT </td><td>flag for <code>static_assert</code>  </td></tr>
 <tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER </td><td>has &lt;type_traits&gt; header  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES </td><td>flag for <code>char(16|32)_t</code>  </td></tr>
+<tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES </td><td>flag for variadic params  </td></tr>
-<tr>
-<td>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS </td><td>flag for <code>alignas</code>.  </td></tr>
-<tr>
-<td>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT </td><td>flag for <code>noexcept</code> keyword  </td></tr>
-<tr>
-<td>BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER </td><td>Has &lt;type_traits&gt; header  </td></tr>
 <tr>
 <td><a class="el" href="group__bsls__compilerfeatures.html#ga29f7427f9b0ee92d6357d3aa0176ab2d">BSLS_COMPILERFEATURES_FORWARD_REF(T)</a> </td><td>argument of type <code>T</code> to be forwarded  </td></tr>
 <tr>
@@ -191,6 +209,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES</code>: <br/>
  This macro is defined if alias templates are supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</code> This macro is defined if <code>alignas</code> alignment specifier is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN</code>: <br/>
  This macro is defined if the <code>[[noreturn]]</code> attribute is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR</code>: <br/>
@@ -219,10 +238,11 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE</code> This macro is defined if the <code>override</code> keyword is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES</code> This macro is defined if rvalue references are supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT</code> This macro is defined if <code>static_assert</code> is supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER</code> This macro is defined if the standard library for the current compiler supports some form of the standard &lt;type_traits&gt; header. Note that many standard library implementations provided partial support for a long time, and those libraries WILL be identified as providing the &lt;type_traits&gt; header.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES</code> This macro is defined if the compiler suports the <code>char16_t</code> and <code>char32_t</code> types.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES</code> This macro is defined if variadic template parameters are supported by the current compiler settings for this platform.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</code> This macro is defined if <code>alignas</code> alignment specifier is supported by the current compiler settings for this platform.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT</code> This macro is defined if the <code>noexcept</code> keyword is supported by the current compiler settings for this platform, both for designating a function as not throwing and for testing if an expression may throw.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER</code> This macro is defined if the &lt;type_traits&gt; header is provided by the current compiler settings for this platform and supports traits like <code>is_trivially_copyable</code> and <code>is_nothrow_destructible</code></div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.2"></a> </dd></dl>
@@ -278,7 +298,26 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
+<dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>alignas</code> alignment specifier. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+<p class="startli">Compiler support: <br/>
+</p>
+<ul>
+<li>
+gcc 4.8  </li>
+<li>
+clang 3.0  </li>
+</ul>
+<p class="endli"></p>
+</li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This feature is not yet supported in Visual Studio, xlc, CC. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_attribute_noreturn"></a> <a class="anchor" id="4.3.3"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports <code>[[noreturn]]</code> C++11 attribute syntax. MSVC supports the attribute with alternative syntax __declspec(noreturn), and earlier versions of gcc and clang support the alternative syntax <code>__attribute__((noreturn))</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -300,7 +339,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="4.3.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_constexpr"></a> <a class="anchor" id="4.3.4"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined in the compilier supports the <code>constexpr</code> reserved keyword. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -322,7 +361,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="4.3.4"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_decltype"></a> <a class="anchor" id="4.3.5"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>decltype</code> reserved word. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -346,7 +385,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="4.3.5"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_defaulted_functions"></a> <a class="anchor" id="4.3.6"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports syntax to introduce defaulted functions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -370,7 +409,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="4.3.6"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_deleted_functions"></a> <a class="anchor" id="4.3.7"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports syntax to introduce deleted functions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -394,7 +433,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="4.3.7"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_extern_template"></a> <a class="anchor" id="4.3.8"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports allowing supression of implicit instantiation of templates by prefixing an explicit instantiation directive with the <code>extern</code> keyword. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -418,7 +457,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_final"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_final"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_final"></a> <a class="anchor" id="4.3.8"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_final"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_final"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_final"></a> <a class="anchor" id="4.3.9"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_FINAL: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports both finalizing a class using the <code>final</code> keyword after the class name as well as preventing further derived classes from overriding a <code>virtual</code> function by using <code>final</code> after its signature. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -442,7 +481,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="4.3.9"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_generalized_initializers"></a> <a class="anchor" id="4.3.10"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports generalized initializers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -466,7 +505,7 @@ Oracle CC 13  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="4.3.10"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_include_next"></a> <a class="anchor" id="4.3.11"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports #include_next semantics expected by the deprecated and internal include code wrapped by BSL_OVERRIDES_STD macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -488,7 +527,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="4.3.11"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_noexcept"></a> <a class="anchor" id="4.3.12"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>noexcept</code> reserved keyword. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -506,7 +545,7 @@ clang 3.0  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="4.3.12"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_nullptr"></a> <a class="anchor" id="4.3.13"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>nullptr</code> reserved word. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -530,7 +569,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="4.3.13"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_operator_explicit"></a> <a class="anchor" id="4.3.14"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports use of the <code>explicit</code> keyword to indicate that a conversion operator only available for explicit conversions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -554,7 +593,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_override"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_override"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_override"></a> <a class="anchor" id="4.3.14"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_override"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_override"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_override"></a> <a class="anchor" id="4.3.15"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports use of the <code>override</code> keyword to indicate that a member function is meant to override a <code>virtual</code> function (and cause a failure if that is not the case). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -578,7 +617,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="4.3.15"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_rvalue_references"></a> <a class="anchor" id="4.3.16"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports rvalue references and move semantics compatible with the final C++11 specification. (Semantics have changed since early draft proposals.) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -602,7 +641,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="4.3.16"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_static_assert"></a> <a class="anchor" id="4.3.17"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>static_assert</code> reserved word. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -626,7 +665,7 @@ Oracle CC 12.4  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="4.3.17"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_variadic_templates"></a> <a class="anchor" id="4.3.18"></a> </dd></dl>
 <dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the ability to express a template that accepts an arbitrary number of parameters in a type-safe manner. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
@@ -651,24 +690,6 @@ Oracle CC 12.4  </li>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that bugs in MSVC 2013 support for variadic templates preclude enabling the feature for BSL. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="feature_support_in_compilers.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="description.feature_support_in_compilers.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="4.3.18"></a> </dd></dl>
-<dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>alignas</code> alignment specifier. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><ul>
-<li>
-<p class="startli">Compiler support: <br/>
-</p>
-<ul>
-<li>
-gcc 4.8  </li>
-<li>
-clang 3.0  </li>
-</ul>
-<p class="endli"></p>
-</li>
-</ul>
-</dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This feature is not yet supported in Visual Studio, xlc, CC. </dd></dl>
 <hr/><h2>Define Documentation</h2>
 <a class="anchor" id="gaa494c0633148628aed37c619042b50a4"></a><!-- doxytag: member="bsls_compilerfeatures.h::BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND" ref="gaa494c0633148628aed37c619042b50a4" args="" -->
 <div class="memitem">
@@ -729,7 +750,7 @@ clang 3.0  </li>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:54 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:02 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

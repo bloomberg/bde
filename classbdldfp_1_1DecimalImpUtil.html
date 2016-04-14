@@ -2096,7 +2096,7 @@ Otherwise return a <code>Decimal128</code> object representing <code>value</code
       </table>
 </div>
 <div class="memdoc">
-<p>Parse the specified <code>input</code> string as a 32 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod32</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. The behavior is undefined unless <code>input</code> represents a valid 32 bit decimal floating-point number in scientific or fixed notation, and no unrelated characters precede (not even whitespace) that textual representation and a terminating nul character immediately follows it. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
+<p>Parse the specified <code>input</code> string as a 32 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod32</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. If <code>input</code> does not represent a valid 32 bit decimal floating-point number, then return NaN. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
 
 </div>
 </div>
@@ -2115,7 +2115,7 @@ Otherwise return a <code>Decimal128</code> object representing <code>value</code
       </table>
 </div>
 <div class="memdoc">
-<p>Parse the specified <code>input</code> string as a 64 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod64</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. The behavior is undefined unless <code>input</code> represents a valid 64 bit decimal floating-point number in scientific or fixed notation, and no unrelated characters precede (not even whitespace) that textual representation and a terminating nul character immediately follows it. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
+<p>Parse the specified <code>input</code> string as a 64 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod64</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. If <code>input</code> does not represent a valid 64 bit decimal floating-point number, then return NaN. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
 
 </div>
 </div>
@@ -2134,7 +2134,7 @@ Otherwise return a <code>Decimal128</code> object representing <code>value</code
       </table>
 </div>
 <div class="memdoc">
-<p>Parse the specified <code>input</code> string as a 128 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod128</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. The behavior is undefined unless <code>input</code> represents a valid 128 bit decimal floating-point number in scientific or fixed notation, and no unrelated characters precede (not even whitespace) that textual representation and a terminating nul character immediately follows it. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
+<p>Parse the specified <code>input</code> string as a 128 bit decimal floating- point value and return the result. The parsing is as specified for the <code>strtod128</code> function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point Technical Report, except that it is unspecified whether the NaNs returned are quiet or signaling. If <code>input</code> does not represent a valid 128 bit decimal floating-point number, then return NaN. Note that this method does not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX compiler intrinsics return a signaling NaN. </p>
 
 </div>
 </div>
@@ -2444,7 +2444,7 @@ Otherwise return a <code>Decimal128</code> object representing <code>value</code
 <li><a class="el" href="bdldfp__decimalimputil_8h_source.html">bdldfp_decimalimputil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:41 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:23 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

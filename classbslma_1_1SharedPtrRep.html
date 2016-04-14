@@ -109,6 +109,7 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a9d4813d43e457fb13dceefdbca5a6661">managedPtrDeleter</a> (void *, void *rep)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a19c1e289bff97685fce335bee7ad23d1">managedPtrEmptyDeleter</a> (void *, void *rep)</td></tr>
 <tr><td colspan="2"><h2><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#abb39d67b23b66532694a2be46de9609e">~SharedPtrRep</a> ()</td></tr>
@@ -178,6 +179,34 @@ Protected Member Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Release the shared reference to an object held by the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">SharedPtrRep</a></code> object which is pointed to be by specified <code>rep</code>. The behavior is undefined unless <code>rep</code> points to an object whose complete type publicly and unambiguously derives from <code><a class="el" href="classbslma_1_1SharedPtrRep.html">SharedPtrRep</a></code>. Note that the first argument is ignored. Also note that this function serves as the managed ptr deleter when converting a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a19c1e289bff97685fce335bee7ad23d1"></a><!-- doxytag: member="bslma::SharedPtrRep::managedPtrEmptyDeleter" ref="a19c1e289bff97685fce335bee7ad23d1" args="(void *, void *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslma::SharedPtrRep::managedPtrEmptyDeleter </td>
+          <td>(</td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname">, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>This function has no effect. The behavior is undefined unless <code>rep</code> is null. Note that this function serves as the managed ptr deleter when converting an empty or null <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
 
 </div>
 </div>
@@ -438,7 +467,7 @@ Protected Member Functions</h2></td></tr>
 <li><a class="el" href="bslma__sharedptrrep_8h_source.html">bslma_sharedptrrep.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

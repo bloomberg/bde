@@ -173,7 +173,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that if any of the initial (numbered) subroutines returns a non-zero status value, the top-level <code>evaluatePassword</code> routine returns immediately with a predetermined score. Moreover, each of these routines may encounter a <code>bad_alloc</code> exception should the supplied allocator fail to return the requested memory. Even if all of these subroutines evaluates successfully, the score calculated using <code>finalEval</code> is returned directly by <code>evaluatePassword</code>, yet we still need to deallocate <code>buffer</code>. By guarding buffer with a <code><a class="el" href="classbslma_1_1DeallocatorGuard.html">bslma::DeallocatorGuard</a></code> as shown above, all of these issues are fully addressed, and the top-level routine is also <em>exception</em> <em>neutral</em> as desired. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:56 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

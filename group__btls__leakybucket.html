@@ -206,7 +206,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="checking_for_overflow"></a> <a class="anchor" id="monitoring_resource_usage.checking_for_overflow"></a> <a class="anchor" id="description.monitoring_resource_usage.checking_for_overflow"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Checking for Overflow: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A leaky bucket can be queried whether submitting a 1 more unit would cause it to overflow via the <code>wouldOverflow</code> method. This method facilitates the recommended usage of a leak bucket: check whether 1 more unit can be added without causing the leaky bucket to overflow, and if so, consume the desired amount of the resource (which may be more than 1). Compared to the alternative -- checking whether the desired amount can be submitted without overflow -- this recommended usage may allow a limited spike in the rate of actual consumption when the leaky bucket is empty (which is often acceptable) but is able to sustain a long term average that is actually closer to the drain rate. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A leaky bucket can be queried whether submitting a 1 more unit would cause it to overflow via the <code>wouldOverflow</code> method. This method facilitates the recommended usage of a leaky bucket: check whether 1 more unit can be added without causing the leaky bucket to overflow, and if so, consume the desired amount of the resource (which may be more than 1). Compared to the alternative -- checking whether the desired amount can be submitted without overflow -- this recommended usage may allow a limited spike in the rate of actual consumption when the leaky bucket is empty (which is often acceptable) but is able to sustain a long term average that is actually closer to the drain rate. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="modeling_a_network_connection"></a> <a class="anchor" id="description.modeling_a_network_connection"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Modeling a Network Connection: </b></dt><dd></dd></dl>
@@ -304,7 +304,7 @@ Leaky bucket simulates the consumption of a resource with a specified fixed drai
 <br/>
  Notice that we wait by putting the thread into a sleep state instead of using busy-waiting to better optimize for multi-threaded applications. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

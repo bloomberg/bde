@@ -146,20 +146,19 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdls</code> package currently has 9 components having 5 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdls</code> package currently has 9 components having 4 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  5. bdls_osutil
-
-  4. bdls_pipeutil
-     bdls_processutil
+<div class="fragment"><pre class="fragment">  4. bdls_pipeutil
 
   3. bdls_fdstreambuf
      bdls_filedescriptorguard
 
   2. bdls_filesystemutil
+     bdls_osutil
 
   1. bdls_memoryutil
      bdls_pathutil
+     bdls_processutil
      bdls_testutil                                       !DEPRECATED!
 </pre></div><br/>
 <br/>
@@ -188,7 +187,7 @@ Components</h2></td></tr>
  Provide test utilities for components in <code>bdl</code> and above.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:45 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:48:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

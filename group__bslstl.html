@@ -372,41 +372,43 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 54 components having 8 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslstl</code> package currently has 54 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  8. bslstl_ownerless
+<div class="fragment"><pre class="fragment">  9. bslstl_ownerless
 
-  7. bslstl_queue
-     bslstl_sharedptr
+  8. bslstl_sharedptr
+
+  7. bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_queue
+     bslstl_set
      bslstl_stack
 
   6. bslstl_deque
-     bslstl_map
-     bslstl_multimap
-     bslstl_multiset
-     bslstl_set
+     bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  5. bslstl_hashtable
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
+  5. bslstl_bitset
+     bslstl_hashtable
      bslstl_priorityqueue
      bslstl_randomaccessiterator
-     bslstl_setcomparator
-     bslstl_stringstream
-     bslstl_treenodepool
-
-  4. bslstl_bidirectionaliterator
-     bslstl_bitset
-     bslstl_hashtablebucketiterator
-     bslstl_hashtableiterator
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+
+  4. bslstl_bidirectionaliterator
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_string
      bslstl_vector
 
   3. bslstl_algorithmworkaround
@@ -415,7 +417,6 @@ Components</h2></td></tr>
      bslstl_function
      bslstl_iteratorutil
      bslstl_list
-     bslstl_string
      bslstl_treeiterator
 
   2. bslstl_iterator
@@ -552,7 +553,7 @@ Components</h2></td></tr>
  Provide an STL-compliant vector class.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:54 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:03 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

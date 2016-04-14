@@ -9,7 +9,7 @@
 
 @MNEMONIC: Basic Standard Library Meta-Functions (bslmf)
 
-@DESCRIPTION: The &#39;bslmf&#39; package provides meta-function equivalents of certain
+@DESCRIPTION: The &#39;bdemf&#39; package provides meta-function equivalents of certain
  useful coding constructs.  A meta-function is a template-based, compile-time
  construct that behaves like a (runtime) function in that it &quot;evaluates&quot;
  arguments and does something different based on the input it is passed (in the
@@ -79,19 +79,20 @@
 
   11. bslmf_isconvertible
 
-  10. bslmf_enableif
+  10. bslmf_addcv
+      bslmf_enableif
       bslmf_ispointertomember
 
-   9. bslmf_addcv
+   9. bslmf_addvolatile
       bslmf_isfundamental
       bslmf_ismemberpointer
 
    8. bslmf_addconst
-      bslmf_addvolatile
       bslmf_isarithmetic
       bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
+      bslmf_isvolatile
       bslmf_removepointer
 
    7. bslmf_isclass
@@ -115,6 +116,7 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_isconst
       bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
@@ -129,11 +131,9 @@
       bslmf_switch
 
    2. bslmf_isarray
-      bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
-      bslmf_isvolatile
       bslmf_nil
       bslmf_tag
 

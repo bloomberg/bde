@@ -265,7 +265,11 @@ int DatetimeUtil::convertFromTm(Datetime       *result,
 inline
 bsl::tm DatetimeUtil::convertToTm(const Datetime&amp; datetime)
 {
-    bsl::tm    result;
+
+    // &#39;struct tm&#39; may contain non POSIX standard fields (e.g., on Linux/OSX),
+    // which we want to 0 initialize.
+
+    bsl::tm result = bsl::tm();
 
     result.tm_sec   = datetime.second();
     result.tm_min   = datetime.minute();

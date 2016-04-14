@@ -41,8 +41,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  typedef int        MyType;
 //  typedef const int  MyConstType;
 //..
-// Now, we instantiate the &#39;bsl::is_const&#39; template for each of the
-// &#39;typedef&#39;s and assert the &#39;value&#39; static data member of each instantiation:
+// Now, we instantiate the &#39;bsl::is_const&#39; template for each of the &#39;typedef&#39;s
+// and assert the &#39;value&#39; static data member of each instantiation:
 //..
 //  assert(false == bsl::is_const&lt;MyType&gt;::value);
 //  assert(true  == bsl::is_const&lt;MyConstType&gt;::value);
@@ -63,6 +63,20 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #ifndef INCLUDED_STDDEF_H
 #include &lt;stddef.h&gt;
 #define INCLUDED_STDDEF_H
+#endif
+
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+// The Microsoft and Sun compilers do not recognize array-types as cv-qualified
+// (when the element type is cv-qualified) when performing matching for partial
+// template specialization, but do get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depeoning on how the trait might be used.  This also
+// corresponds to how Microsft itself implements the trait in VC2010 and later.
+// Last tested against VC 2015 (Release Candidate).
+# define BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
 #endif
 
 namespace bsl {
@@ -93,7 +107,7 @@ struct is_const&lt;const TYPE&gt; : true_type {
 };
 
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT)
 // The Microsoft compiler does not recognize array-types as cv-qualified when
 // the element type is cv-qualified when performing matching for partial
 // template specialization, but does get the correct result when performing
@@ -119,7 +133,6 @@ struct is_const&lt;const TYPE[LENGTH]&gt; : true_type {
      // Note that this single specialization is sufficient to work around the
      // MSVC issue, even for multidimensional arrays.
 };
-
 #endif
 
 }  // close namespace bsl

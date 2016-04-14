@@ -106,7 +106,7 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbtls_1_1LeakyBucket.html#aa7c07b150a20ea6a92a2e6ed3f54826d">calculateCapacity</a> (<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> drainRate, const <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> &amp;timeWindow)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This mechanism implements a leaky bucket that allows clients to monitor whether a resource is being consumed at a particular rate. The behavior of a leak bucket is determined by two properties: the drain rate (in units/s) and capacity (in units), both of which can be specified at construction or using the <code>setRateAndCapacity</code> method.</p>
+<p>This mechanism implements a leaky bucket that allows clients to monitor whether a resource is being consumed at a particular rate. The behavior of a leaky bucket is determined by two properties: the drain rate (in units/s) and capacity (in units), both of which can be specified at construction or using the <code>setRateAndCapacity</code> method.</p>
 <p>Units can be added to a leaky bucket by either submitting them using the <code>submit</code> method or reserving them using the <code>reserve</code> method. Submitted units are removed from a leaky bucket at the drain rate, while reserved units stays unaffected in a leaky bucket until they are either cancelled (removed from the leaky bucket) using the <code>cancelReserved</code> method or submitted using the <code>submitReserved</code> method.</p>
 <p>Adding units to a leaky bucket will cause it to overflow if after the units are added, the total number of units in the leaky bucket (including both submitted and reserved units) exceeds its capacity. A leaky bucket can be queried whether adding a specified number of units would cause it to overflow via the <code>wouldOverflow</code> method. If submitting units to a leaky bucket will cause it to overflow, the estimated amount of time to wait before 1 more units can be submitted without causing the leaky bucket to overflow can be determined using the <code>calculateTimeToSubmit</code> method.</p>
 <p>The state of a leaky bucket must be updated manually using the <code>updateState</code> method supplying the current time interval. The time intervals supplied should all refer to the same time origin.</p>
@@ -608,7 +608,7 @@ is <em>const</em> <em>thread-safe</em>  </li>
 <li><a class="el" href="btls__leakybucket_8h_source.html">btls_leakybucket.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:15 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:51:14 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

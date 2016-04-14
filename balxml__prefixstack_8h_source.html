@@ -133,16 +133,22 @@ class PrefixStack {
     int                       d_numPrefixes;  // number of prefixes
 
     // NOT IMPLEMENTED
-    PrefixStack(const PrefixStack&amp;);             // = delete
     PrefixStack&amp; operator=(const PrefixStack&amp;);  // = delete
 
   public:
     // CREATORS
     PrefixStack(NamespaceRegistry *namespaceRegistry,
                 bslma::Allocator  *basicAllocator = 0);
-        // Construct an empty registry.  Optionally specify a &#39;basicAllocator&#39;
-        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
-        // installed default allocator is used.
+        // Create an empty registry.  Optionally specify a &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    PrefixStack(const PrefixStack&amp;  original,
+                bslma::Allocator   *basicAllocator = 0);
+        // Create a registry object having the same value as the specified
+        // &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
 
     ~PrefixStack();
         // Destroy this object.

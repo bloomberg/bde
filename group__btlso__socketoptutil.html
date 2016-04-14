@@ -123,8 +123,8 @@ Namespaces</h2></td></tr>
   <span class="keywordtype">int</span> addropt = 1;
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#aecf2f8e5936abbecb7093707c1b1fd18">btlso::SocketOptUtil::setOption</a>(
                                         sockethandle,
-                                        <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
-                                        <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3b7b05dbc2da31bd17c278ebcd6d0295a99ac2f4190ea847b084d6f2a3b772cf0" title="enable/disable local address reuse">btlso::SocketOptUtil::k_REUSEADDRESS</a>,
+                                        <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
+                                        <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3134417992f0fab8ca89a1480b2e410da99ac2f4190ea847b084d6f2a3b772cf0" title="enable/disable local address reuse">btlso::SocketOptUtil::k_REUSEADDRESS</a>,
                                         addropt);
 
   assert(0 == result);
@@ -136,8 +136,8 @@ Namespaces</h2></td></tr>
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#a1749da237501cea31a8d55bd42ed6c0f">btlso::SocketOptUtil::getOption</a>(
                                        &amp;addropt,
                                        sockethandle,
-                                       <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
-                                       <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3b7b05dbc2da31bd17c278ebcd6d0295a99ac2f4190ea847b084d6f2a3b772cf0" title="enable/disable local address reuse">btlso::SocketOptUtil::k_REUSEADDRESS</a>);
+                                       <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
+                                       <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3134417992f0fab8ca89a1480b2e410da99ac2f4190ea847b084d6f2a3b772cf0" title="enable/disable local address reuse">btlso::SocketOptUtil::k_REUSEADDRESS</a>);
 
   assert(0 == result);
   assert(0 != addropt);
@@ -149,8 +149,8 @@ Namespaces</h2></td></tr>
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#a1749da237501cea31a8d55bd42ed6c0f">btlso::SocketOptUtil::getOption</a>(
                                          &amp;sockettype,
                                          sockethandle,
-                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
-                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3b7b05dbc2da31bd17c278ebcd6d0295acc4605851e9e5a2759b50ec324b97c9e">btlso::SocketOptUtil::k_TYPE</a>);
+                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
+                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3134417992f0fab8ca89a1480b2e410dacc4605851e9e5a2759b50ec324b97c9e">btlso::SocketOptUtil::k_TYPE</a>);
 
   assert(0 == result);
   assert(SOCK_STREAM == sockettype);
@@ -170,8 +170,8 @@ Namespaces</h2></td></tr>
 
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#aecf2f8e5936abbecb7093707c1b1fd18">btlso::SocketOptUtil::setOption</a>(
                                           sockethandle,
-                                          <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>
-                                          <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3b7b05dbc2da31bd17c278ebcd6d0295a97de2ee51f5a998359a8b3f01aa43b92" title="linger on close if data is present">btlso::SocketOptUtil::k_LINGER</a>,
+                                          <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>
+                                          <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3134417992f0fab8ca89a1480b2e410da97de2ee51f5a998359a8b3f01aa43b92" title="linger on close if data is present">btlso::SocketOptUtil::k_LINGER</a>,
                                           ld,
                                           &amp;errorcode);
   assert(0 == result);
@@ -184,8 +184,8 @@ Namespaces</h2></td></tr>
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#a1749da237501cea31a8d55bd42ed6c0f">btlso::SocketOptUtil::getOption</a>(
                                          &amp;ld2,
                                          sockethandle,
-                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
-                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3b7b05dbc2da31bd17c278ebcd6d0295a97de2ee51f5a998359a8b3f01aa43b92" title="linger on close if data is present">btlso::SocketOptUtil::k_LINGER</a>,
+                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
+                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a3134417992f0fab8ca89a1480b2e410da97de2ee51f5a998359a8b3f01aa43b92" title="linger on close if data is present">btlso::SocketOptUtil::k_LINGER</a>,
                                          &amp;errorcode);
 
   assert(0 == result);
@@ -205,7 +205,7 @@ Namespaces</h2></td></tr>
   result = <a class="code" href="structbtlso_1_1SocketOptUtil.html#a1749da237501cea31a8d55bd42ed6c0f">btlso::SocketOptUtil::getOption</a>(
                                          &amp;protoInfo,
                                          sockethandle,
-                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#ab56e6ed3276b78ec289c034f8e5bfd12a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
+                                         <a class="code" href="structbtlso_1_1SocketOptUtil.html#a4ed4579b98bf97bb0f7dcaed4dd72c28a30cdb6b13d24538f164fd37921fe733e" title="System socket level.">btlso::SocketOptUtil::k_SOCKETLEVEL</a>,
                                          SO_PROTOCOL_INFO,
                                          &amp;errorcode);
 
@@ -221,7 +221,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:03 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:16 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

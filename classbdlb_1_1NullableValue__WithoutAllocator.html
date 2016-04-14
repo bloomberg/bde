@@ -89,6 +89,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class BDE_OTHER_TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a5752fb02fb5cdd350900edda31332fdd">makeValue</a> (const BDE_OTHER_TYPE &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a88229d4b526e87c11987daf7b7b5f36c">makeValue</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class... ARGS&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a589adb1795efb0905f86aa1dc5a844dd">makeValueInplace</a> (ARGS &amp;&amp;...args)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#aabcb4bde252e3ef18a031d56f23232b0">reset</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a0c564d22114d13a4dc39957116d2d26a">value</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a07e5c78aeeab18095001fb24882d5a3c">isNull</a> () const </td></tr>
@@ -271,6 +273,29 @@ template&lt;class TYPE &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a589adb1795efb0905f86aa1dc5a844dd"></a><!-- doxytag: member="bdlb::NullableValue_WithoutAllocator::makeValueInplace" ref="a589adb1795efb0905f86aa1dc5a844dd" args="(ARGS &amp;&amp;...args)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE &gt; </div>
+<div class="memtemplate">
+template&lt;class... ARGS&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html">bdlb::NullableValue_WithoutAllocator</a>&lt; TYPE &gt;::makeValueInplace </td>
+          <td>(</td>
+          <td class="paramtype">ARGS &amp;&amp;...&nbsp;</td>
+          <td class="paramname"> <em>args</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Assign to this nullable object the value of the (template parameter) <code>TYPE</code> (which does not have the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait) created in place using the specified <code>args</code>. (The object is also accessible via the <code>value</code> method). If this nullable object already contains an object (<code>false == <a class="el" href="classbdlb_1_1NullableValue__WithoutAllocator.html#a07e5c78aeeab18095001fb24882d5a3c">isNull()</a>)</code>, that object is destroyed before the new object is created. Note that if the constructor of <code>TYPE</code> throws an exception this object is left in the null state. </p>
+
+</div>
+</div>
 <a class="anchor" id="aabcb4bde252e3ef18a031d56f23232b0"></a><!-- doxytag: member="bdlb::NullableValue_WithoutAllocator::reset" ref="aabcb4bde252e3ef18a031d56f23232b0" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -371,7 +396,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlb__nullablevalue_8h_source.html">bdlb_nullablevalue.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:34 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -144,8 +144,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_isreference.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include &lt;bslmf_removecv.h&gt;
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include &lt;stddef.h&gt;
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace bsl {
@@ -178,6 +183,13 @@ struct IsTriviallyDefaultConstructible_Imp
     // default-constructible.
 };
 
+template &lt;&gt;
+struct IsTriviallyDefaultConstructible_Imp&lt;void&gt; : bsl::false_type {
+    // This explicit specialization reports that &#39;void&#39; is not a trivially
+    // default constructible type, despite being a fundamental type.
+};
+
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -206,6 +218,88 @@ struct is_trivially_default_constructible
     // default-constructible types, this template must be specialized to
     // inherit from &#39;bsl::true_type&#39; for them.
 };
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;const TYPE&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-qualified types have the
+    // same result as their element type.
+};
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;volatile TYPE&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that volatile-qualified types have
+    // the same result as their element type.
+};
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;const volatile TYPE&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-volatile-qualified types
+    // have the same result as their element type.
+};
+
+template &lt;class TYPE, size_t LEN&gt;
+struct is_trivially_default_constructible&lt;TYPE[LEN]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that array types have the same
+    // result as their element type.
+};
+
+template &lt;class TYPE, size_t LEN&gt;
+struct is_trivially_default_constructible&lt;const TYPE[LEN]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-qualified array types
+    // have the same result as their element type.
+};
+
+template &lt;class TYPE, size_t LEN&gt;
+struct is_trivially_default_constructible&lt;volatile TYPE[LEN]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that volatile-qualified array types
+    // have the same result as their element type.
+};
+
+template &lt;class TYPE, size_t LEN&gt;
+struct is_trivially_default_constructible&lt;const volatile TYPE[LEN]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-volatile-qualified array
+    // types have the same result as their element type.
+};
+
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
+// correctly handling arrays of unknown bound as template parameters.
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;TYPE[]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that array-of-unknown-bound types
+    // have the same result as their element type.
+};
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;const TYPE[]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-qualified
+    // array-of-unknown-bound types have the same result as their element type.
+};
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;volatile TYPE[]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that volatile-qualified
+    // array-of-unknown-bound types have the same result as their element type.
+};
+
+template &lt;class TYPE&gt;
+struct is_trivially_default_constructible&lt;const volatile TYPE[]&gt;
+    :  is_trivially_default_constructible&lt;TYPE&gt;::type {
+    // This partial specialization ensures that const-volatile-qualified
+    // array-of-unknown-bound types have the same result as their element type.
+};
+#endif
 
 }  // close namespace bsl
 

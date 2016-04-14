@@ -98,6 +98,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide types and utilities to simplify thread creation. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmt__latch.html">Component bslmt_latch</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a single-use mechanism for synchronizing on an event count. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslmt__lockguard.html">Component bslmt_lockguard</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a generic proctor for synchronization objects. </p>
@@ -274,7 +279,7 @@ Components</h2></td></tr>
 <li>
 <a href="#1">Purpose</a> </li>
 <li>
-<a href="#2">MNEMONIC: Basic Concurrency Environment Multi-Threading (bcemt)</a> </li>
+<a href="#2">MNEMONIC: Basic Standard Library Multi-Threading (bslmt)</a> </li>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
@@ -286,19 +291,19 @@ Components</h2></td></tr>
 <li>
 <a href="#3.4">Thread Synchronization</a> <ul>
 <li>
-<a href="#3.4.1">Basic Mutexes: <code>bcemt_Mutex</code> and <code>bcemt_RecursiveMutex</code></a> </li>
+<a href="#3.4.1">Basic Mutexes: <code>bslmt::Mutex</code> and <code>bslmt::RecursiveMutex</code></a> </li>
 <li>
-<a href="#3.4.2">Inter-thread Condition Variables: <code>bcemt_Condition</code></a> </li>
+<a href="#3.4.2">Inter-thread Condition Variables: <code>bslmt::Condition</code></a> </li>
 <li>
-<a href="#3.4.3">Locking/Unlocking critical code</a> </li>
+<a href="#3.4.3">Locking/Unlocking Critical Code</a> </li>
 <li>
-<a href="#3.4.4">Thread-Specific storage</a> </li>
+<a href="#3.4.4">Thread-Specific Storage</a> </li>
 <li>
-<a href="#3.4.5">Synchronization of Multiple, Parallel Threads: <code>bcemt_Barrier</code></a> </li>
+<a href="#3.4.5">Synchronization of Multiple, Parallel Threads: <code>bslmt::Barrier</code></a> </li>
 <li>
-<a href="#3.4.6">One Writer/Multiple Readers: <code>bcemt_ReaderWriterLock</code></a> </li>
+<a href="#3.4.6">One Writer/Multiple Readers: <code>bslmt::ReaderWriterLock</code></a> </li>
 <li>
-<a href="#3.4.7">Recursive Write Locks: <code>bcemt_RecursiveRWLock</code></a> </li>
+<a href="#3.4.7">Recursive Write Locks: <code>bslmt::RecursiveRWLock</code></a> </li>
 <li>
 <a href="#3.4.8">Static Initialization</a> </li>
 </ul>
@@ -314,24 +319,25 @@ Components</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Support for multi-threading and thread-safe processes. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_concurrency_environment_multi-threading_(bcemt)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
-<dl class="user"><dt><b>MNEMONIC: Basic Concurrency Environment Multi-Threading (bcemt): </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="mnemonic~3A_basic_standard_library_multi-threading_(bslmt)"></a> <a class="anchor" id="mnemonic"></a> <a class="anchor" id="2"></a> </dd></dl>
+<dl class="user"><dt><b>MNEMONIC: Basic Standard Library Multi-Threading (bslmt): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bcemt</code> package supports primitives that allow creation and management of operating system threads. Using the components in <code>bcemt</code>, clients can write efficient, thread-safe code. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmt</code> package supports primitives that allow creation and management of operating system threads. Using the components in <code>bslmt</code>, clients can write efficient, thread-safe code. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Thread creation and management of mutually exclusive locks (mutexes) are supported in a way that should be familiar to developers with experience programming in threads on any common computing platform. In addition, individual components such as <code>bslmt_lockguard</code> and <code>bslmt_barrier</code> manage synchronization concerns through simple, idiomatic object interfaces that make client code easy to read and understand. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslmt</code> package currently has 40 components having 16 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmt</code> package currently has 41 components having 16 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  16. bslmt_once
       bslmt_rwmutex
 
-  15. bslmt_meteredmutex
+  15. bslmt_latch
+      bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
       bslmt_turnstile
@@ -402,6 +408,8 @@ Components</h2></td></tr>
  Provide utilities to allow configuration of values for BCE.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmt_entrypointfunctoradapter</code>: <br/>
  Provide types and utilities to simplify thread creation.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmt_latch</code>: <br/>
+ Provide a single-use mechanism for synchronizing on an event count.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmt_lockguard</code>: <br/>
  Provide a generic proctor for synchronization objects.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmt_meteredmutex</code>: <br/>
@@ -474,85 +482,83 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_management"></a> <a class="anchor" id="description.thread_management"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Thread Management: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Thread management is done via the utility class <code>bcemt_ThreadUtil</code> in the <code>bcemt_thread</code> component. This component presents a platform-independent protocol whose operations nonetheless correspond closely to native operations on platform-specific threads. <code>bcemt_ThreadUtil</code> presents a procedural interface -- that is, clients do not instantiate <code>bcemt_ThreadUtil</code> objects, and all methods of <code>bcemt_ThreadUtil</code> are declared <code>static</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Clients create threads with the functions <code>bcemt_ThreadUtil::create(Handle*, ...)</code>. On success, these functions yield a <code>bcemt_ThreadUtil::Handle</code> object that provides a lightweight handle for an operating systems thread. Similarly, clients destroy threads for which they have a current <code>Handle</code> with <code>bcemt_ThreadUtil::terminate(Handle*)</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bcemt_ThreadUtil</code> supports two <code>create()</code> functions. The first function simply takes a pointer to a <code>bcemt_ThreadUtil::Handle</code>; the second function takes a <code>bcemt_Attribute</code> object that defines component-specific and platform-specific attributes of the created thread. Platform-specific attributes include scheduling policy and priority, and thread stack size. See the <a href="group__bcemt__thread.html" class="el"><code>bcemt_thread</code></a> component documentation for details. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Thread management is done via the utility class <code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code> in the <code>bslmt_threadutil</code> component. This component presents a platform-independent protocol whose operations nonetheless correspond closely to native operations on platform-specific threads. <code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code> presents a procedural interface -- that is, clients do not instantiate <code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code> objects, and all methods of <code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code> are declared <code>static</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Clients create threads with the functions <code><a class="el" href="structbslmt_1_1ThreadUtil.html#a3948c1f54b2420a8e6b3d9a0821c8190">bslmt::ThreadUtil::create</a>(Handle*, ...)</code>. On success, these functions yield a <code><a class="el" href="structbslmt_1_1ThreadUtil.html#a3ed7de89fef3498278c0b4f8225217b9">bslmt::ThreadUtil::Handle</a></code> object that provides a lightweight handle for an operating systems thread. Similarly, clients destroy threads for which they have a current <code>Handle</code> with <code>bslmt::ThreadUtil::terminate(Handle*)</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code> supports two <code>create()</code> functions. The first function simply takes a pointer to a <code><a class="el" href="structbslmt_1_1ThreadUtil.html#a3ed7de89fef3498278c0b4f8225217b9">bslmt::ThreadUtil::Handle</a></code>; the second function takes a <code><a class="el" href="classbslmt_1_1ThreadAttributes.html">bslmt::ThreadAttributes</a></code> object that defines component-specific and platform-specific attributes of the created thread. Platform-specific attributes include scheduling policy and priority, and thread stack size. See the <code>bslmt_threadattributes</code> component documentation for details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_synchronization"></a> <a class="anchor" id="description.thread_synchronization"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Thread Synchronization: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bcemt</code> package contains several components and classes that support thread synchronization in a number of ways. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmt</code> package contains several components and classes that support thread synchronization in a number of ways. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="basic_mutexes~3A_bcemt_mutex_and_bcemt_recursivemutex"></a> <a class="anchor" id="thread_synchronization.basic_mutexes~3A_bcemt_mutex_and_bcemt_recursivemutex"></a> <a class="anchor" id="description.thread_synchronization.basic_mutexes~3A_bcemt_mutex_and_bcemt_recursivemutex"></a> <a class="anchor" id="basic_mutexes"></a> <a class="anchor" id="thread_synchronization.basic_mutexes"></a> <a class="anchor" id="description.thread_synchronization.basic_mutexes"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
-<dl class="user"><dt><b>Basic Mutexes: bcemt_Mutex and bcemt_RecursiveMutex: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>At the lowest level, synchronization between threads is done with <code>bcemt_Mutex</code>, a type defined in component <code>bcemt_thread</code>. Locks are acquired with <code>bcemt_Mutex::lock()</code> or <code>bcemt_Mutex::tryLock()</code>, and released with <code>bcemt_Mutex::unlock()</code>. The <code>bcemt</code> package provides several other mechanisms for synchronization and communication, which suit specific synchronization problems and allow more idiomatic C++ coding. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bcemt_RecursiveMutex</code> is similar to <code>bcemt_Mutex</code>, except that it can be <code>lock</code>ed multiple times <em>in</em> <em>a</em> <em>single</em> <em>thread</em>. A corresponding number of calls to <code>unlock()</code> are required to unlock the mutex. <code>bcemt_RecursiveMutex</code> is also defined in component <code>bcemt_thread</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="basic_mutexes~3A_bslmt~3A~3Amutex_and_bslmt~3A~3Arecursivemutex"></a> <a class="anchor" id="thread_synchronization.basic_mutexes~3A_bslmt~3A~3Amutex_and_bslmt~3A~3Arecursivemutex"></a> <a class="anchor" id="description.thread_synchronization.basic_mutexes~3A_bslmt~3A~3Amutex_and_bslmt~3A~3Arecursivemutex"></a> <a class="anchor" id="basic_mutexes"></a> <a class="anchor" id="thread_synchronization.basic_mutexes"></a> <a class="anchor" id="description.thread_synchronization.basic_mutexes"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>Basic Mutexes: bslmt::Mutex and bslmt::RecursiveMutex: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>At the lowest level, synchronization between threads is done with <code><a class="el" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a></code>, a type defined in component <code>bslmt_mutex</code>. Locks are acquired with <code><a class="el" href="classbslmt_1_1Mutex.html#a3451960cdbb0ab49bd3c70e8702c2a4f">bslmt::Mutex::lock()</a></code> or <code><a class="el" href="classbslmt_1_1Mutex.html#a76edf56cca5c792053ff38a1c73ee02f">bslmt::Mutex::tryLock()</a></code>, and released with <code><a class="el" href="classbslmt_1_1Mutex.html#ac02d8e714a5dc0330e56d4ef66638d76">bslmt::Mutex::unlock()</a></code>. The <code>bslmt</code> package provides several other mechanisms for synchronization and communication, which suit specific synchronization problems and allow more idiomatic C++ coding. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslmt_1_1RecursiveMutex.html">bslmt::RecursiveMutex</a></code> is similar to <code><a class="el" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a></code>, except that it can be <code>lock</code>ed multiple times <em>in</em> <em>a</em> <em>single</em> <em>thread</em>. A corresponding number of calls to <code>unlock()</code> are required to unlock the mutex. <code><a class="el" href="classbslmt_1_1RecursiveMutex.html">bslmt::RecursiveMutex</a></code> is defined in component <code>bslmt_recursivemutex</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="inter-thread_condition_variables~3A_bcemt_condition"></a> <a class="anchor" id="thread_synchronization.inter-thread_condition_variables~3A_bcemt_condition"></a> <a class="anchor" id="description.thread_synchronization.inter-thread_condition_variables~3A_bcemt_condition"></a> <a class="anchor" id="inter-thread_condition_variables"></a> <a class="anchor" id="thread_synchronization.inter-thread_condition_variables"></a> <a class="anchor" id="description.thread_synchronization.inter-thread_condition_variables"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
-<dl class="user"><dt><b>Inter-thread Condition Variables: bcemt_Condition: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bcemt_Condition</code> class, defined in component <code>bcemt_thread</code>, implements a "condition variable" that can be used by multiple threads to communicate changes in the condition. Multiple threads wait on the condition by calling <code>myCondition-&gt;wait(bcemt_Mutex*)</code>, suspending their execution and waiting. An individual thread then signals when the condition is met by calling either <code>myCondition-&gt;signal()</code> (waking up a single waiting thread) or <code>myCondition-&gt;broadcast()</code> (waking up all waiting threads). Waits with timeouts are supported through <code>bcemt_Condition::timedWait()</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="inter-thread_condition_variables~3A_bslmt~3A~3Acondition"></a> <a class="anchor" id="thread_synchronization.inter-thread_condition_variables~3A_bslmt~3A~3Acondition"></a> <a class="anchor" id="description.thread_synchronization.inter-thread_condition_variables~3A_bslmt~3A~3Acondition"></a> <a class="anchor" id="inter-thread_condition_variables"></a> <a class="anchor" id="thread_synchronization.inter-thread_condition_variables"></a> <a class="anchor" id="description.thread_synchronization.inter-thread_condition_variables"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
+<dl class="user"><dt><b>Inter-thread Condition Variables: bslmt::Condition: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbslmt_1_1Condition.html">bslmt::Condition</a></code> class, defined in component <code>bslmt_condition</code>, implements a "condition variable" that can be used by multiple threads to communicate changes in the condition. Multiple threads wait on the condition by calling <code>myCondition-&gt;wait(bslmt::Mutex*)</code>, suspending their execution and waiting. An individual thread then signals when the condition is met by calling either <code>myCondition-&gt;signal()</code> (waking up a single waiting thread) or <code>myCondition-&gt;broadcast()</code> (waking up all waiting threads). Waits with timeouts are supported through <code><a class="el" href="classbslmt_1_1Condition.html#a84ad228f7f596a9bb0b80e1b2cbc02a8">bslmt::Condition::timedWait()</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="locking~2Funlocking_critical_code"></a> <a class="anchor" id="thread_synchronization.locking~2Funlocking_critical_code"></a> <a class="anchor" id="description.thread_synchronization.locking~2Funlocking_critical_code"></a> <a class="anchor" id="3.4.3"></a> </dd></dl>
-<dl class="user"><dt><b>Locking/Unlocking critical code: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Code in multiple threads can create a <code>bcemt_Mutex</code> and call <code>mutex-&gt;lock()</code> and <code>mutex-&gt;unlock()</code> to guarantee exclusive access to critical sections of code. A more idiomatic usage is provided by <code>bcemt_LockGuard</code> and <code>bcemt_UnLockGuard</code>; objects of these types themselves lock and unlock a <code>bcemt_Mutex</code> when they are created or destroyed, allowing clients to manage mutex locks in a way more transparent, safer way, and also making sure the lock is released when an exception is thrown within the critical section. <br/>
+<dl class="user"><dt><b>Locking/Unlocking Critical Code: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Code in multiple threads can create a <code><a class="el" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a></code> and call <code>mutex-&gt;lock()</code> and <code>mutex-&gt;unlock()</code> to guarantee exclusive access to critical sections of code. A more idiomatic usage is provided by <code><a class="el" href="classbslmt_1_1LockGuard.html">bslmt::LockGuard</a></code> and <code><a class="el" href="classbslmt_1_1UnLockGuard.html">bslmt::UnLockGuard</a></code>; objects of these types themselves lock and unlock a <code><a class="el" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a></code> when they are created or destroyed, allowing clients to manage mutex locks in a way more transparent, safer way, and also making sure the lock is released when an exception is thrown within the critical section. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">void</span> myThreadsafeFunction(myObject *obj, bcemt_Mutex *mutex)
+<div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">void</span> myThreadsafeFunction(myObject *obj, <a class="code" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a> *mutex)
   {
-      <span class="comment">// creating the LockGuard calls mutex-&gt;lock()</span>
-      bcemt_LockGuard&lt;bcemt_Mutext&gt; guard(mutex);
+      <span class="comment">// creating the &#39;LockGuard&#39;, &#39;guard&#39;, calls &#39;mutex-&gt;lock()&#39;</span>
+      <a class="code" href="classbslmt_1_1LockGuard.html">bslmt::LockGuard&lt;bslmt::Mutex&gt;</a> guard(mutex);
       <span class="keywordflow">if</span> (someCondition) {
           obj-&gt;someMethod();
           <span class="keywordflow">return</span>;
-          <span class="comment">// LockGuard is destroyed; this calls mutex-&gt;unlock()</span>
+          <span class="comment">// &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;</span>
       } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (someOtherCondition) {
           obj-&gt;someOtherMethod();
           <span class="keywordflow">return</span>;
-          <span class="comment">// LockGuard is destroyed; this calls mutex-&gt;unlock()</span>
+          <span class="comment">// &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;</span>
       }
       obj-&gt;defaultMethod();
       <span class="keywordflow">return</span>;
-      <span class="comment">// LockGuard is destroyed; this calls mutex-&gt;unlock()</span>
+      <span class="comment">// &#39;guard&#39; is destroyed; this calls &#39;mutex-&gt;unlock()&#39;</span>
   }
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-specific_storage"></a> <a class="anchor" id="thread_synchronization.thread-specific_storage"></a> <a class="anchor" id="description.thread_synchronization.thread-specific_storage"></a> <a class="anchor" id="3.4.4"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Specific storage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Thread-specific storage (also known as thread-local storage, or TLS) is a mechanism for referring to a single variable (identified by its <code>Key</code> in <code>bcemt_ThreadUtil</code>, provided by the <code>bcemt_thread</code> component) whose content varies according to the thread it is obslrved in. This is useful for status variables such as <code>errno</code>, which is implemented by the system as a TLS, since otherwise it would be impossible to use <code>errno</code> values in a thread, not knowing if another thread had modified it after the last system call in this thread. </dd></dl>
+<dl class="user"><dt><b>Thread-Specific Storage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Thread-specific storage (also known as thread-local storage, or TLS) is a mechanism for referring to a single variable (identified by its <code>Key</code> in <code><a class="el" href="structbslmt_1_1ThreadUtil.html">bslmt::ThreadUtil</a></code>, provided by the <code>bslmt_threadutil</code> component) whose content varies according to the thread it is observed in. This is useful for status variables such as <code>errno</code>, which is implemented by the system as a TLS, since otherwise it would be impossible to use <code>errno</code> values in a thread, not knowing if another thread had modified it after the last system call in this thread. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="synchronization_of_multiple,_parallel_threads~3A_bcemt_barrier"></a> <a class="anchor" id="thread_synchronization.synchronization_of_multiple,_parallel_threads~3A_bcemt_barrier"></a> <a class="anchor" id="description.thread_synchronization.synchronization_of_multiple,_parallel_threads~3A_bcemt_barrier"></a> <a class="anchor" id="synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="thread_synchronization.synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="description.thread_synchronization.synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="3.4.5"></a> </dd></dl>
-<dl class="user"><dt><b>Synchronization of Multiple, Parallel Threads: bcemt_Barrier: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bcemt_barrier</code> component provides a single class, <code>bcemt_Barrier</code>, that can be used to synchronize processing among multiple threads. The <code>bcemt_Barrier</code> is created with a single argument specifying the number of threads to synchronize. Each individual thread then calls <code>myBarrier-&gt;wait()</code> when it reaches its synchronization point. All waiting threads are blocked until the required number of threads have called <code>myBarrier-&gt;wait()</code>; once the required number is reached, the threads are released and can continue processing. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="synchronization_of_multiple,_parallel_threads~3A_bslmt~3A~3Abarrier"></a> <a class="anchor" id="thread_synchronization.synchronization_of_multiple,_parallel_threads~3A_bslmt~3A~3Abarrier"></a> <a class="anchor" id="description.thread_synchronization.synchronization_of_multiple,_parallel_threads~3A_bslmt~3A~3Abarrier"></a> <a class="anchor" id="synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="thread_synchronization.synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="description.thread_synchronization.synchronization_of_multiple,_parallel_threads"></a> <a class="anchor" id="3.4.5"></a> </dd></dl>
+<dl class="user"><dt><b>Synchronization of Multiple, Parallel Threads: bslmt::Barrier: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmt_barrier</code> component provides a single class, <code><a class="el" href="classbslmt_1_1Barrier.html">bslmt::Barrier</a></code>, that can be used to synchronize processing among multiple threads. The <code><a class="el" href="classbslmt_1_1Barrier.html">bslmt::Barrier</a></code> is created with a single argument specifying the number of threads to synchronize. Each individual thread then calls <code>myBarrier-&gt;wait()</code> when it reaches its synchronization point. All waiting threads are blocked until the required number of threads have called <code>myBarrier-&gt;wait()</code>; once the required number is reached, the threads are released and can continue processing. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="one_writer~2Fmultiple_readers~3A_bcemt_readerwriterlock"></a> <a class="anchor" id="thread_synchronization.one_writer~2Fmultiple_readers~3A_bcemt_readerwriterlock"></a> <a class="anchor" id="description.thread_synchronization.one_writer~2Fmultiple_readers~3A_bcemt_readerwriterlock"></a> <a class="anchor" id="one_writer~2Fmultiple_readers"></a> <a class="anchor" id="thread_synchronization.one_writer~2Fmultiple_readers"></a> <a class="anchor" id="description.thread_synchronization.one_writer~2Fmultiple_readers"></a> <a class="anchor" id="3.4.6"></a> </dd></dl>
-<dl class="user"><dt><b>One Writer/Multiple Readers: bcemt_ReaderWriterLock: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Component <code>bcemt_readerwriterlock</code> provides a single class, <code>bcemt_ReaderWriterLock</code>, that supports multi-reader, single-writer locks. Applications can use <code>bcemt_ReaderWriterLock</code> to allow concurrent read access from multiple threads to data that changes infrequently. By calling <code>bcemt_ReaderWriterLock::lockRead()</code>, reading threads are not blocked until a writing thread requests a write lock (for instance, by calling <code>bcemt_ReaderWriterLock::lockWrite()</code>). While the write lock is in effect, access is serialized and all threads that have called <code>lockRead()</code> will wait until the write lock is released with <code>bcemt_ReaderWriterLock::unlockWrite()</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that reader/writer locks also have their own guards, provided by <code>bcemt_readlockguard</code> and <code>bcemt_writelockguard</code> components. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="one_writer~2Fmultiple_readers~3A_bslmt~3A~3Areaderwriterlock"></a> <a class="anchor" id="thread_synchronization.one_writer~2Fmultiple_readers~3A_bslmt~3A~3Areaderwriterlock"></a> <a class="anchor" id="description.thread_synchronization.one_writer~2Fmultiple_readers~3A_bslmt~3A~3Areaderwriterlock"></a> <a class="anchor" id="one_writer~2Fmultiple_readers"></a> <a class="anchor" id="thread_synchronization.one_writer~2Fmultiple_readers"></a> <a class="anchor" id="description.thread_synchronization.one_writer~2Fmultiple_readers"></a> <a class="anchor" id="3.4.6"></a> </dd></dl>
+<dl class="user"><dt><b>One Writer/Multiple Readers: bslmt::ReaderWriterLock: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Component <code>bslmt_readerwriterlock</code> provides a single class, <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html">bslmt::ReaderWriterLock</a></code>, that supports multi-reader, single-writer locks. Applications can use <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html">bslmt::ReaderWriterLock</a></code> to allow concurrent read access from multiple threads to data that changes infrequently. By calling <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html#a425f1c8f68d04064f35dcd51323b2d6c">bslmt::ReaderWriterLock::lockRead()</a></code>, reading threads are not blocked until a writing thread requests a write lock (for instance, by calling <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html#a25159f311e68dc59dfa2d8a64010c5cb">bslmt::ReaderWriterLock::lockWrite()</a></code>). While the write lock is in effect, access is serialized and all threads that have called <code>lockRead()</code> will wait until the write lock is released with <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html#ae8030f24a279d5afab0f244f8494e20f">bslmt::ReaderWriterLock::unlockWrite()</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that reader/writer locks also have their own guards, provided by <code>bslmt_readlockguard</code> and <code>bslmt_writelockguard</code> components. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="recursive_write_locks~3A_bcemt_recursiverwlock"></a> <a class="anchor" id="thread_synchronization.recursive_write_locks~3A_bcemt_recursiverwlock"></a> <a class="anchor" id="description.thread_synchronization.recursive_write_locks~3A_bcemt_recursiverwlock"></a> <a class="anchor" id="recursive_write_locks"></a> <a class="anchor" id="thread_synchronization.recursive_write_locks"></a> <a class="anchor" id="description.thread_synchronization.recursive_write_locks"></a> <a class="anchor" id="3.4.7"></a> </dd></dl>
-<dl class="user"><dt><b>Recursive Write Locks: bcemt_RecursiveRWLock: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component is <em>DEPRECATED</em>. It can be emulated by a wrapper on a <code>bcemt_ReaderWriterLock</code> along with a thread-specific counter used to store the number of recursive locks acquired by the current thread. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="recursive_write_locks~3A_bslmt~3A~3Arecursiverwlock"></a> <a class="anchor" id="thread_synchronization.recursive_write_locks~3A_bslmt~3A~3Arecursiverwlock"></a> <a class="anchor" id="description.thread_synchronization.recursive_write_locks~3A_bslmt~3A~3Arecursiverwlock"></a> <a class="anchor" id="recursive_write_locks"></a> <a class="anchor" id="thread_synchronization.recursive_write_locks"></a> <a class="anchor" id="description.thread_synchronization.recursive_write_locks"></a> <a class="anchor" id="3.4.7"></a> </dd></dl>
+<dl class="user"><dt><b>Recursive Write Locks: bslmt::RecursiveRWLock: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component is <em>DEPRECATED</em>. It can be emulated by a wrapper on a <code><a class="el" href="classbslmt_1_1ReaderWriterLock.html">bslmt::ReaderWriterLock</a></code> along with a thread-specific counter used to store the number of recursive locks acquired by the current thread. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="static_initialization"></a> <a class="anchor" id="thread_synchronization.static_initialization"></a> <a class="anchor" id="description.thread_synchronization.static_initialization"></a> <a class="anchor" id="3.4.8"></a> </dd></dl>
 <dl class="user"><dt><b>Static Initialization: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Initialization of a thread-specific static variable (such as a thread-local singleton) can be achieved by using the <code>bcemt_once</code> component. The <code>bcemt_qlock</code> component ensures thread-safe static initialization of shared resources by providing a light-weight, statically initializable lock. Note that the classic <code>bcemt_Mutex</code> provided by the <code>bcemt_thread</code> component cannot safely be used in static initializations because some platforms (e.g., Windows XP) do not have a native statically-initializable mutex type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Initialization of a thread-specific static variable (such as a thread-local singleton) can be achieved by using the <code>bslmt_once</code> component. The <code>bslmt_qlock</code> component ensures thread-safe static initialization of shared resources by providing a light-weight, statically initializable lock. Note that the classic <code><a class="el" href="classbslmt_1_1Mutex.html">bslmt::Mutex</a></code> provided by the <code>bslmt_mutex</code> component cannot safely be used in static initializations because some platforms (e.g., Windows XP) do not have a native statically-initializable mutex type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implementation_classes_and_components"></a> <a class="anchor" id="description.implementation_classes_and_components"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Implementation Classes and Components: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bcemt</code> package is supported on all Bloomberg platforms. In order to accomplish this, <code>bcemt</code> provides platform-specific implementations of thread primitives. The following components provide platform-specific implementations: <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmt</code> package is supported on all Bloomberg platforms. In order to accomplish this, <code>bslmt</code> provides platform-specific implementations of thread primitives. The following components provide platform-specific implementations: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">            Package          |  Purpose
-  +==========================+===========================================+
-  |         bcemt_threadimpl | Template declarations used by             |
-  |                          | component <span class="stringliteral">&#39;bcemt_thread&#39;</span>                  |
-  | bcemt_threadimpl_pthread | Template specialization <span class="keywordflow">for</span> POSIX threads |
-  |   bcemt_threadimpl_win32 | Template specialization <span class="keywordflow">for</span> MS-Windows    |
-  +--------------------------+-------------------------------------------+
+<div class="fragment"><pre class="fragment">             Component           |                 Purpose
+  +==============================+===========================================+
+  | bslmt_threadutilimpl_pthread | Template specialization <span class="keywordflow">for</span> POSIX threads |
+  | bslmt_threadutilimpl_win32   | Template specialization <span class="keywordflow">for</span> MS-Windows    |
+  +------------------------------+-------------------------------------------+
 </pre></div><br/>
 <br/>
- These components are visible and documented. However, their intended use is to support component <code>bcemt_thread</code>. Clients should not expect to use them directly. </dd></dl>
+ These components are visible and documented. However, their intended use is to support component <code>bslmt_threadutil</code>. Clients should not expect to use them directly. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -80,10 +80,10 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1DecimalNumGet.html">DecimalNumGet</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1DecimalNumPut.html">DecimalNumPut</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__StandardNamespaceCanary.html">Decimal_StandardNamespaceCanary</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01Decimal__StandardNamespaceCanary_00_01DUMMY_01_4.html">faux_numeric_limits&lt; Decimal_StandardNamespaceCanary, DUMMY &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_00_01DUMMY_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal32, DUMMY &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_00_01DUMMY_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal128, DUMMY &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01Decimal__StandardNamespaceCanary_00_01DUMMY__TYPE_01_4.html">faux_numeric_limits&lt; Decimal_StandardNamespaceCanary, DUMMY_TYPE &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_00_01DUMMY__TYPE_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal32, DUMMY_TYPE &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY__TYPE_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY_TYPE &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_00_01DUMMY__TYPE_01_4.html">faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal128, DUMMY_TYPE &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdldfp_1_1DecimalConvertUtil.html">DecimalConvertUtil</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdldfp_1_1DecimalConvertUtil__DecNumber.html">DecimalConvertUtil_DecNumber</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1DecimalImpUtil.html">DecimalImpUtil</a></td></tr>
@@ -5437,7 +5437,7 @@ If <code>rhs</code> is NaN, raise the "invalid" floating-point exception and ret
 <li>
 Otherwise if <code>rhs</code> is infinity (positive or negative), and <code>lhs</code> is zero, raise the "invalid" floating-point exception and return a NaN.  </li>
 <li>
-Otherwise if <code>rhs</code> is zero (positive or negative), raise the "overflow" floating-pointexception return zero with the sign of <code>lhs</code>.  </li>
+Otherwise if <code>rhs</code> is zero (positive or negative), raise the "overflow" floating-point exception return zero with the sign of <code>lhs</code>.  </li>
 <li>
 Otherwise if the quotient of <code>rhs</code> and the value of <code>rhs</code> results in an absolute value that is larger than <code>std::numeric_limits&lt;Decimal128&gt;max()</code> then raise the "overflow" floating-point exception and return infinity with the same sign as that result.  </li>
 <li>
@@ -6303,7 +6303,7 @@ neither <code>lhs</code> nor <code>rhs</code> are NaN, or  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> has a value greater than or equal to the value of the specified <code>rhs</code> and <code>false</code> otherwise. The value of a <code>Decimal128</code> object <code>lhs</code> is greater or equal to a <code>Decimal128</code> object <code>rhs</code> if the <code>compareQuietGreaterEqual</code> operation (IEEE-754 defined, non-total ordering comparison ) considers the underlying IEEE representation of <code>lhs</code> to be greater or equal to that of <code>rhs</code>. In otherwords, <code>lhs</code> is greater than or equal to <code>rhs</code> if:</p>
+<p>Return <code>true</code> if the specified <code>lhs</code> has a value greater than or equal to the value of the specified <code>rhs</code> and <code>false</code> otherwise. The value of a <code>Decimal128</code> object <code>lhs</code> is greater or equal to a <code>Decimal128</code> object <code>rhs</code> if the <code>compareQuietGreaterEqual</code> operation (IEEE-754 defined, non-total ordering comparison ) considers the underlying IEEE representation of <code>lhs</code> to be greater or equal to that of <code>rhs</code>. In other words, <code>lhs</code> is greater than or equal to <code>rhs</code> if:</p>
 <ul>
 <li>
 neither <code>lhs</code> nor <code>rhs</code> are NaN, or  </li>
@@ -6720,7 +6720,7 @@ template&lt;class CHARTYPE , class TRAITS &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:40 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:50:22 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

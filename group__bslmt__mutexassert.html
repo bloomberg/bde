@@ -221,7 +221,7 @@ Namespaces</h2></td></tr>
   {
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(result);
 
-      <span class="keyword">const</span> <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a> = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(d_deque.size());
+      <span class="keyword">const</span> <span class="keywordtype">int</span> size = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(d_deque.size());
       result-&gt;<a class="code" href="group__bslstl__vector.html#gac5203d4410a4c7c3d1d2014d5542e0d9">resize</a>(size);
       <span class="keywordtype">int</span> *begin = result-&gt;<a class="code" href="group__bslstl__vector.html#ga5b7f9c7b9b0be302ee1b7533b9764ef1">begin</a>();
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> index = 0; index &lt; size; ++index) {
@@ -301,7 +301,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, note that the message printed above and the subsequent aborting of the program were the result of a call to <code><a class="el" href="classbsls_1_1Assert.html#ac809c4c1ef9ec0e5616a2923f216957f">bsls::Assert::invokeHandler</a></code>, which in this case was configured (by default) to call <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code>. Other handlers may be installed that produce different results, but in all cases should prevent the program from proceeding normally. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Apr 1 2016 16:49:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

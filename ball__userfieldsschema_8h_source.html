@@ -291,8 +291,7 @@ UserFieldsSchema::UserFieldsSchema(const UserFieldsSchema&amp;  original,
     d_names.resize(d_types.size());
     NameToIndex::const_iterator it = d_nameToIndex.begin();
     for (; it != d_nameToIndex.end(); ++it) {
-        d_names[it-&gt;second] = bslstl::StringRef(it-&gt;first.data(),
-                                                it-&gt;first.size());
+        d_names[it-&gt;second] = bslstl::StringRef(it-&gt;first);
     }
 }
 
@@ -313,12 +312,13 @@ int UserFieldsSchema::appendFieldDescription(bslstl::StringRef         name,
         return -1;                                                    // RETURN
     }
     bsl::pair&lt;NameToIndex::iterator, bool&gt; result =
-        d_nameToIndex.insert(NameToIndex::value_type(name, d_names.size()));
+        d_nameToIndex.insert(NameToIndex::value_type(
+                                            name,
+                                            static_cast&lt;int&gt;(d_names.size())));
 
     BSLS_ASSERT(true == result.second);
 
-    d_names.push_back(bslstl::StringRef(result.first-&gt;first.data(),
-                                        result.first-&gt;first.size()));
+    d_names.push_back(bslstl::StringRef(result.first-&gt;first));
     d_types.push_back(type);
 
     return 0;
@@ -374,7 +374,7 @@ ball::UserFieldType::Enum UserFieldsSchema::type(int index) const
 inline
 int UserFieldsSchema::length() const
 {
-    return d_names.size();
+    return static_cast&lt;int&gt;(d_names.size());
 }
 
 }  // close package namespace

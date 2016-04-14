@@ -191,6 +191,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsl_cstddef.h&gt;
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
 #ifndef INCLUDED_BSL_CSTRING
 #include &lt;bsl_cstring.h&gt;
 #endif
@@ -201,10 +205,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSL_IOSFWD
 #include &lt;bsl_iosfwd.h&gt;
-#endif
-
-#ifndef INCLUDED_BSL_CSTDINT
-#include &lt;bsl_cstdint.h&gt;
 #endif
 
 
@@ -263,7 +263,7 @@ struct PackedIntArrayImp_Signed {
     // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  bsl::int8_t OneByteStorageType;
+    typedef bsl::int8_t  OneByteStorageType;
     typedef bsl::int16_t TwoByteStorageType;
     typedef bsl::int32_t FourByteStorageType;
     typedef bsl::int64_t EightByteStorageType;
@@ -326,7 +326,7 @@ struct PackedIntArrayImp_Unsigned {
     // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  bsl::uint8_t OneByteStorageType;
+    typedef bsl::uint8_t  OneByteStorageType;
     typedef bsl::uint16_t TwoByteStorageType;
     typedef bsl::uint32_t FourByteStorageType;
     typedef bsl::uint64_t EightByteStorageType;
