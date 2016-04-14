@@ -1790,7 +1790,7 @@ const Date& Calendar::lastDate() const
 inline
 int Calendar::length() const
 {
-    return d_nonBusinessDays.length();
+    return static_cast<int>(d_nonBusinessDays.length());
 }
 
 inline

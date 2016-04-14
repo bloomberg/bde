@@ -1495,7 +1495,6 @@ int main(int argc, char *argv[])
         // Testing 'getNextBusinessDay(const Date&)'.
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE = DATA[i].d_line;
             const char *SPEC = DATA[i].d_spec;
 
             Obj mX;  const Obj& X = gg(&mX, SPEC);
@@ -1525,8 +1524,8 @@ int main(int argc, char *argv[])
                 // Finding the next business day.
 
                 ++result;
-                while (   X.isInRange(result)  && X.isNonBusinessDay(result)
-                       || !X.isInRange(result) && X.isWeekendDay(result)) {
+                while (   ( X.isInRange(result) && X.isNonBusinessDay(result))
+                       || (!X.isInRange(result) && X.isWeekendDay(result))) {
                     ++result;
                 }
 
@@ -1538,7 +1537,6 @@ int main(int argc, char *argv[])
         // Testing 'getNextBusinessDay(const Date&, int)'.
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE   = DATA[i].d_line;
             const char *SPEC = DATA[i].d_spec;
 
             Obj mX;  const Obj& X = gg(&mX, SPEC);
