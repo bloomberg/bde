@@ -2639,12 +2639,12 @@ if (veryVerbose)
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int LINE  = DATA[ti].d_line;
-            const int DAYS  = DATA[ti].d_days;
-            const int HOURS = DATA[ti].d_hours;
-            const int MINS  = DATA[ti].d_mins;
-            const int SECS  = DATA[ti].d_secs;
-            const int MSECS = DATA[ti].d_msecs;
+            const int   LINE  = DATA[ti].d_line;
+            const int   DAYS  = DATA[ti].d_days;
+            const Int64 HOURS = DATA[ti].d_hours;
+            const Int64 MINS  = DATA[ti].d_mins;
+            const Int64 SECS  = DATA[ti].d_secs;
+            const Int64 MSECS = DATA[ti].d_msecs;
 
             const Obj X(DAYS, HOURS, MINS, SECS, MSECS);
 
@@ -4147,11 +4147,11 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int         d_lineNum;       // source line number
-                int         d_milliseconds;  // specification milliseconds
-                int         d_version;       // version to stream with
-                int         d_length;        // expect output length
-                const char *d_fmt_p;         // expected output format
+                int          d_lineNum;       // source line number
+                int          d_milliseconds;  // specification milliseconds
+                int          d_version;       // version to stream with
+                bsl::size_t  d_length;        // expect output length
+                const char  *d_fmt_p;         // expected output format
             } DATA[] = {
                 //LINE  MS      VER  LEN  FORMAT
                 //----  ------  ---  ---  -------------------
@@ -4166,7 +4166,7 @@ if (veryVerbose)
                 const int         LINE         = DATA[i].d_lineNum;
                 const int         MILLISECONDS = DATA[i].d_milliseconds;
                 const int         VERSION      = DATA[i].d_version;
-                const int         LEN          = DATA[i].d_length;
+                const bsl::size_t LEN          = DATA[i].d_length;
                 const char *const FMT          = DATA[i].d_fmt_p;
 
                 // Test using class methods.
@@ -4185,7 +4185,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -4223,7 +4223,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -5146,12 +5146,12 @@ if (veryVerbose)
                 "\nVerify all basic accessors report expected values." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int LINE  = DATA[ti].d_line;
-            const int DAYS  = DATA[ti].d_days;
-            const int HOURS = DATA[ti].d_hours;
-            const int MINS  = DATA[ti].d_mins;
-            const int SECS  = DATA[ti].d_secs;
-            const int MSECS = DATA[ti].d_msecs;
+            const int   LINE  = DATA[ti].d_line;
+            const int   DAYS  = DATA[ti].d_days;
+            const Int64 HOURS = DATA[ti].d_hours;
+            const Int64 MINS  = DATA[ti].d_mins;
+            const Int64 SECS  = DATA[ti].d_secs;
+            const Int64 MSECS = DATA[ti].d_msecs;
 
             const Int64 TOTAL_MSECS =
                                     flds2Msecs(DAYS, HOURS, MINS, SECS, MSECS);
