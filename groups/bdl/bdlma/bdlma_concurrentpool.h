@@ -577,7 +577,7 @@ void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentPool& pool)
 
     typedef BloombergLP::bsls::AlignmentUtil Util;
 
-    BSLS_ASSERT_SAFE(static_cast<int>(size) <= pool.blockSize()
+    BSLS_ASSERT_SAFE(size <= pool.blockSize()
                   && Util::calculateAlignmentFromSize(size)
                        <= Util::calculateAlignmentFromSize(pool.blockSize()));
 #endif
