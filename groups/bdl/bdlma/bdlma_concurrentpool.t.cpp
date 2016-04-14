@@ -1639,27 +1639,30 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
                              "object sizes." << endl;
 
-        const int DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-        const int NUM_OBJECTS = 3;
-        bslma::TestAllocator testAllocator;
+        const bsls::Types::size_type DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
+        const int                    NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int                    NUM_OBJECTS = 3;
+        bslma::TestAllocator         testAllocator;
 
         for (int di = 0; di < NUM_DATA; ++di) {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const int OBJECT_SIZE = DATA[di];
+                const bsls::Types::size_type OBJECT_SIZE = DATA[di];
+
                 Obj mX(OBJECT_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT,
                        NUM_OBJECTS,
                        &testAllocator);
+
                 LOOP_ASSERT(di, OBJECT_SIZE == mX.blockSize());
+
                 char *lastP = 0;
                 for (int oi = 0; oi < NUM_OBJECTS; ++oi) {
                     char *p = static_cast<char *>(mX.allocate());
-                    scribble(p, OBJECT_SIZE);
+                    scribble(p, static_cast<int>(OBJECT_SIZE));
                     if (oi) {
-                        bsl::size_t size = p - lastP;
-                        const bsls::Types::Uint64 EXP =
-                                                   poolObjectSize(OBJECT_SIZE);
+                        bsls::Types::Int64       size = p - lastP;
+                        const bsls::Types::Int64 EXP  =
+                                 poolObjectSize(static_cast<int>(OBJECT_SIZE));
                         if (veryVerbose) { T_; P_(size); T_; P(EXP); }
                         LOOP2_ASSERT(di, oi, EXP == size);
                     }
@@ -1712,20 +1715,26 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "\nTesting 'poolObjectSize'." << endl;
         {
-            const int DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const bsls::Types::size_type DATA[]   = { 1, 2, 5, 6, 12, 24, 32 };
+            const int                    NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int di = 0; di < NUM_DATA; ++di) {
-                const int SIZE = DATA[di];
+                const bsls::Types::size_type SIZE = DATA[di];
+
                 Obj mX(SIZE, bsls::BlockGrowth::BSLS_CONSTANT, 2);
+
                 LOOP_ASSERT(di, SIZE == mX.blockSize());
+
                 char *p = static_cast<char *>(mX.allocate());
                 char *q = static_cast<char *>(mX.allocate());
 
                 bsl::size_t EXP = q - p;
 
-                bsls::Types::Uint64 objectSize = poolObjectSize(SIZE);
+                bsls::Types::Uint64 objectSize =
+                                        poolObjectSize(static_cast<int>(SIZE));
+
                 if (veryVerbose) { T_; P_(SIZE); P_(objectSize); P(EXP); }
+
                 LOOP3_ASSERT(di, EXP, objectSize, EXP == objectSize);
             }
         }
