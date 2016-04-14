@@ -105,10 +105,14 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
 
                 if (0 == (d_allocated & allocatedSize)) {
                     bin = reinterpret_cast<char *>(
-                                       d_allocator_p->allocate(allocatedSize));
+                                       d_allocator_p->allocate(
+                                           static_cast<bsls::Types::size_type>(
+                                                              allocatedSize)));
                     d_allocated |= allocatedSize;
                 }
-                d_bufferManager.replaceBuffer(bin, allocatedSize);
+                d_bufferManager.replaceBuffer(
+                           bin,
+                           static_cast<bsls::Types::size_type>(allocatedSize));
 
                 d_unavailable |= (static_cast<uint64_t>(1) << index);
             }
@@ -543,7 +547,9 @@ void SequentialPool::reserveCapacity(bsls::Types::size_type numBytes)
 
             if (0 == (d_allocated & allocatedSize)) {
                 bin = reinterpret_cast<char *>(
-                                       d_allocator_p->allocate(allocatedSize));
+                                       d_allocator_p->allocate(
+                                           static_cast<bsls::Types::size_type>(
+                                                              allocatedSize)));
                 d_allocated |= allocatedSize;
             }
         }
