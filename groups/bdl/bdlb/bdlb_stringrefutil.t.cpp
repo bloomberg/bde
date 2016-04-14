@@ -319,7 +319,6 @@ static void testLocalFunctions()
     }
 }
 
-
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -348,6 +347,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Incorporate usage example from header into test driver, remove
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -406,6 +406,7 @@ int main(int argc, char *argv[])
 // Notice that, as expected, the 'textOfInterest' object refers to the "Hello,
 // world!" sub-sequence within the 'rawInput' byte array while the data at
 // 'rawInput' remains *unchanged*.
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -414,21 +415,38 @@ int main(int argc, char *argv[])
         //   and the plans for addressing those concerns.
         //
         // Concerns:
-        //: 1 The specified sub-string is correctly located in the given
-        //:   string if and only if the sub-string is entirely contained
-        //:   in string.
+        //: 1 The specified sub-string is correctly located in the given string
+        //:   if and only if the sub-string is entirely contained in string.
         //:
-        //: 2 When a string contains multiple instances of a specified
-        //:   substring, the correct occurrence (first/last) of the
-        //:   substring is reported.
+        //: 2 In the "caseless" methods, characters from 'string' and 'substr'
+        //:   are *both* converted to a common case before comparison.
+        //:
+        //: 3 When a string contains multiple instances of a specified
+        //:   substring, the correct occurrence (first/last) of the substring
+        //:   is reported.
         //
         // Plan:
-        //: 1 Construct a series of input string/sub-string pairs in which
-        //:   the sub-string "slides" through the string.  The substring
-        //:   should be found only when it entirely overlaps the string.
+        //: 1 Construct a series of input string/sub-string pairs in which the
+        //:   sub-string "slides" through the string.  The substring should be
+        //:   found only when it entirely overlaps the string.  (C-1)
         //:
-        //: 2 Construct a series of input string/sub-string pairs in which
-        //:   there are multiple occurrences of the substring.
+        //: 2 Repeat step P-1 for four configurations: (C-2)
+        //:   1 Both 'string' and 'substr' are lowercase (as initialized in the
+        //:     'DATA' array).
+        //:   2 'string' is lowercase and 'substr' is uppercase.
+        //:   3 'string' is uppercase and 'substr' is lowercase.
+        //:   4 Both 'string' and 'substr' are uppercase.
+        //:
+        //: 3 Note that P-2 uses strings that are homogeneously upper or lower
+        //:   case; nevertheless, we are confident that results would be
+        //:   correct for input having different cases within each input
+        //:   because the "caseless" methods are implemented using
+        //:   'lowerCaseCmp', a method that was tested (in case 2) with strings
+        //:   containing different cases.  Still, we add an several ad hoc
+        //:   cases to be doubly sure.
+        //
+        //: 3 Construct a series of input string/sub-string pairs in which
+        //:   there are multiple occurrences of the substring.  (C-3)
         //
         // Testing:
         //  strstr         (const bslstl::StringRef& string, subString);
@@ -866,8 +884,8 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TRIM
-        //   See the Overview for global concerns that apply to these functions
-        //   and the plans for addressing those concerns.
+        //   See the "Overview" for global concerns that apply to these
+        //   functions and the plans for addressing those concerns.
         //
         // Concerns:
         //: 1 The implementation defines the same whitespace character set as
@@ -879,10 +897,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Assemble a set of whitespace characters by running 'bsl::isspace'
         //:   on all character possible values, '[0 .. 255]'.  Use this
-        //:   computed character set in the generation of input values.
+        //:   computed character set in the generation of input values.  (C-1)
         //:
         //: 2 Define input sequences having interior whitespace sequences,
-        //:   and not.
+        //:   and not.  (C-2)
         //
         // Testing:
         //   ltrim(const bslstl::StringRef& string);
@@ -1149,7 +1167,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Compute expected results using 'bsl::toupper' and 'bsl::tolower'
-        //:   as oracles.
+        //:   as oracles.  (C-1)
         //
         // Testing:
         //   areEqualCaseless(const bslstl::StringRef& lhs, rhs);
@@ -1453,7 +1471,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'whitespaceLabel', 'Local::toLower', and 'Local::toUpper'
-        //    helper function can be used with confidence in subsequent tests.
+        //:   helper function can be used with confidence in subsequent tests.
         //:
         //: 2 The 'isEqual' helper function can be used with confidence in
         //:   subsequent tests.  Specifically, the 'isEqual' function
@@ -1464,13 +1482,14 @@ int main(int argc, char *argv[])
         //: 1 Comprehensive testing: for every possible input value,
         //:   '[0 .. 255]', compare the return values of 'whitespaceLabel'
         //:   'Local::toLower', and 'Local::toUpper' to their corresponding
-        //:   expected values.
+        //:   expected values.  (C-1)
         //:
         //: 2 Create a table of object data (one per row) in which each unique
         //:   row has a minimal change in a single attribute (i.e., 'data' and
         //:   'length') sufficient to introduce an inequality relative the
-        //:   other rows.  Confirm that 'true' is returned only when comparing
-        //:   identical rows having the same index in the table.
+        //:   other rows.  Confirm that 'isEqual' returns 'true' only when
+        //:   comparing objects constructed from values having the same index
+        //:   in the table.
         //
         // Testing:
         //   HELPER FUNCTION: 'whitespaceLabel'
