@@ -2032,7 +2032,8 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
 #if defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
     defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
     defined(BSLS_PLATFORM_OS_AIX)
-    if (reserveFlag && 0 == posix_fallocate(descriptor, 0, size)) {
+    if (   reserveFlag
+        && 0 == posix_fallocate(descriptor, 0, static_cast<off_t>(size))) {
         reserveFlag = false;  //  File space has been allocated
     }
 #endif
