@@ -233,6 +233,7 @@ static void testIsEqual()
                    : "non-null pointer";
         }
     };
+
     static const struct {
         int          d_line;
         const char  *d_data_p;
@@ -595,9 +596,8 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (veryVerbose) cout << "\n"
-                                 "Test ASCII strings (including \"caseless\")"
-                                 "\n";
+        if (veryVerbose) cout <<
+                       "\n" "Test ASCII strings (including \"caseless\")" "\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE     = DATA[ti].d_line;
@@ -689,32 +689,42 @@ int main(int argc, char *argv[])
                 }
 
     //----------^
-    const SR expected         = 0 <= POSITION  && lenCSUBSTR == OVERLAP
-                                ? SR(string.data() + POSITION, lenCSUBSTR)
-                                : SR();
+    const SR expected          = 0 <= POSITION  && OVERLAP == lenCSUBSTR
+                                 ? SR(string.data() + POSITION, lenCSUBSTR)
+                                 : SR();
 
-    const SR expectedCasefull = bothHaveLetters && ! areSameCaseStrSubstr
+    const SR expectedR         = 0 == lenCSUBSTR
+                                 ? SR(string.end(), 0)
+                                 : 0 <= POSITION  && OVERLAP == lenCSUBSTR
+                                 ? SR(string.data() + POSITION, lenCSUBSTR)
+                                 : SR();
+
+    const SR expectedCasefull  = bothHaveLetters && ! areSameCaseStrSubstr
+                                 ? SR()
+                                 : expected;
+    const SR expectedCaseless  = expected;
+
+    const SR expectedCasefullR = bothHaveLetters && ! areSameCaseStrSubstr
                                 ? SR()
-                                : expected;
-
-    const SR expectedCaseless = expected;
+                                : expectedR;
+    const SR expectedCaselessR = expectedR;
 
     const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
     const SR resultCasefullR  = Util::strrstr        (SR(string), SR(substr));
     const SR resultCaseless   = Util::strstrCaseless (SR(string), SR(substr));
     const SR resultCaselessR  = Util::strrstrCaseless(SR(string), SR(substr));
 
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefull));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaseless));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull, resultCasefullR));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless, resultCaselessR));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull,  resultCasefull));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless,  resultCaseless));
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefullR, resultCasefullR));
+    //^^^^^^^^^^^^^
+    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaselessR, resultCaselessR));
+    //^^^^^^^^^^^^^
     //----------V
             }
         }
 
-        if (veryVerbose) cout << "\n"
-                                 "Test non-ASCII strings"
-                                 "\n";
+        if (veryVerbose) cout << "\n" "Test non-ASCII strings" "\n";
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE     = DATA[ti].d_line;
             const char * const CSTRING  = DATA[ti].d_string_p;
@@ -755,21 +765,355 @@ int main(int argc, char *argv[])
                            substr.begin(),   // output
                            Local::setMsb);
 
-            const SR expected  = 0 <= POSITION  && lenCSUBSTR == OVERLAP
+            const SR expected  = 0 <= POSITION && OVERLAP == lenCSUBSTR
                                  ? SR(string.data() + POSITION, lenCSUBSTR)
                                  : SR();
 
-            const SR result    = Util::strstr (SR(string), SR(substr));
-            const SR resultR   = Util::strrstr(SR(string), SR(substr));
+            const SR expectedR = 0 == lenCSUBSTR
+                                 ? SR(string.end(), 0)
+                                 : 0 <= POSITION && OVERLAP == lenCSUBSTR
+                                 ? SR(string.data() + POSITION, lenCSUBSTR)
+                                 : SR();
 
-            LOOP_ASSERT(LINE, isEqual(expected, result ));
-            LOOP_ASSERT(LINE, isEqual(expected, resultR));
+            const SR SR_STRING(string);
+            const SR SR_SUBSTR(substr);
+
+            const SR resultCasefull  = Util::strstr         (SR_STRING,
+                                                             SR_SUBSTR);
+            const SR resultCaseless  = Util::strstrCaseless (SR_STRING,
+                                                             SR_SUBSTR);
+            const SR resultCasefullR = Util::strrstr        (SR_STRING,
+                                                             SR_SUBSTR);
+            const SR resultCaselessR = Util::strrstrCaseless(SR_STRING,
+                                                             SR_SUBSTR);
+
+            LOOP_ASSERT(LINE, isEqual(expected,  resultCasefull ));
+            LOOP_ASSERT(LINE, isEqual(expected,  resultCaseless ));
+            LOOP_ASSERT(LINE, isEqual(expectedR, resultCasefullR));
+            LOOP_ASSERT(LINE, isEqual(expectedR, resultCaselessR));
+            //^^^^^^^^^^^^^
+        }
+
+        if (verbose) cout << "\n" "Check strings containing mixed cases" "\n";
+        {
+            static const struct {
+                const int   d_lineNumber;
+                const char *d_string;
+                const int   d_stringLen;
+                const char *d_subString;
+                const int   d_subStringLen;
+
+                const int   d_result;         
+                const int   d_resultCaseless; 
+                const int   d_resultReverse; 
+                const int   d_resultReverseCaseless;
+                    // Index of substring in string or -1 if not found.
+    
+            } DATA_MIXEDCASE[] = {
+                // In the table below, R1-4 correspond to the results from the
+                // the four methods under test.  The mapping is:
+                //: 1 Results from 'strstr',
+                //: 2 Results from 'strstrCaseless',
+                //: 3 Results from 'strrstr',
+                //: 4 Results from 'strrstrCaseless'.
+                
+                //LI  STRING       SUBSTRING    R1  R2  R3  R4
+                //--  ----------   ---------    --  --  --  --
+
+                //Substring length 0, caseless
+            //  { L_, ""   ,  -1,  0    ,  0,    0,  0,  0,  0 }
+            //  { L_, ""   ,   0,  0    ,  0,    0,  0,  0,  0 }
+            //, { L_, "a"  ,   1,  0    ,  0,    0,  0,  1,  1 }
+            //, { L_, "ab" ,   2,  0    ,  0,    0,  0,  2,  2 }
+            //, { L_, "abc",   3,  0    ,  0,    0,  0,  3,  3 }
+    
+                //Substring length 0, case sensitive
+            //, { L_, "A"   ,  1,  ""   , -1,    0,  0,  1,  1 }
+            //, { L_, "Ab"  ,  2,  ""   , -1,    0,  0,  2,  2 }
+            //, { L_, "aB"  ,  2,  ""   , -1,    0,  0,  2,  2 }
+            //, { L_, "AB"  ,  2,  ""   , -1,    0,  0,  2,  2 }
+            //, { L_, "Abc" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "aBc" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "abC" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "ABc" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "aBC" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "AbC" ,  3,  ""   , -1,    0,  0,  3,  3 }
+            //, { L_, "ABC" ,  3,  ""   , -1,    0,  0,  3,  3 }
+   
+                { L_, "A"   ,  1,  ""   ,  0,    0,  0,  1,  1 }
+              , { L_, "Ab"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
+              , { L_, "aB"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
+              , { L_, "AB"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
+              , { L_, "Abc" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "aBc" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "abC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "ABc" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "aBC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "AbC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+              , { L_, "ABC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
+    
+                //Substring length 1, caseless
+              , { L_, ""    ,  0,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, " "   ,  1,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "a"   ,  1,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "b"   ,  1,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "  "  ,  2,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "aa"  ,  2,  "a"  ,  1,    0,  0,  1,  1 }
+              , { L_, "ab"  ,  2,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "ba"  ,  2,  "a"  ,  1,    1,  1,  1,  1 }
+              , { L_, "bb"  ,  2,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "   " ,  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "aaa" ,  3,  "a"  ,  1,    0,  0,  2,  2 }
+              , { L_, "aab" ,  3,  "a"  ,  1,    0,  0,  1,  1 }
+              , { L_, "abb" ,  3,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "aba" ,  3,  "a"  ,  1,    0,  0,  2,  2 }
+              , { L_, "baa" ,  3,  "a"  ,  1,    1,  1,  2,  2 }
+              , { L_, "bba" ,  3,  "a"  ,  1,    2,  2,  2,  2 }
+              , { L_, "bbb" ,  3,  "a"  ,  1,   -1, -1, -1, -1 }
+    
+                //String embedded nulls 
+              , { L_, "\0  ",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "\0aa",  3,  "a"  ,  1,    1,  1,  2,  2 }
+              , { L_, "\0ab",  3,  "a"  ,  1,    1,  1,  1,  1 }
+              , { L_, "\0ba",  3,  "a"  ,  1,    2,  2,  2,  2 }
+              , { L_, "\0bb",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "  \0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "aa\0",  3,  "a"  ,  1,    0,  0,  1,  1 }
+              , { L_, "ab\0",  3,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "ba\0",  3,  "a"  ,  1,    1,  1,  1,  1 }
+              , { L_, "bb\0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+    
+                //Substring length 1, case sensitive
+              , { L_, "A"   ,  1,  "a"  ,  1,   -1,  0, -1,  0 }
+              , { L_, "Aa"  ,  2,  "a"  ,  1,    1,  0,  1,  1 }
+              , { L_, "aA"  ,  2,  "a"  ,  1,    0,  0,  0,  1 }
+              , { L_, "AA"  ,  2,  "a"  ,  1,   -1,  0, -1,  1 }
+              , { L_, "bA"  ,  2,  "a"  ,  1,   -1,  1, -1,  1 }
+              , { L_, "Aaa" ,  3,  "a"  ,  1,    1,  0,  2,  2 }
+              , { L_, "aAa" ,  3,  "a"  ,  1,    0,  0,  2,  2 }
+              , { L_, "aaA" ,  3,  "a"  ,  1,    0,  0,  1,  2 }
+              , { L_, "AAa" ,  3,  "a"  ,  1,    2,  0,  2,  2 }
+              , { L_, "aAA" ,  3,  "a"  ,  1,    0,  0,  0,  2 }
+              , { L_, "AaA" ,  3,  "a"  ,  1,    1,  0,  1,  2 }
+              , { L_, "AAA" ,  3,  "a"  ,  1,   -1,  0, -1,  2 }
+              , { L_, "Aab" ,  3,  "a"  ,  1,    1,  0,  1,  1 }
+              , { L_, "aAb" ,  3,  "a"  ,  1,    0,  0,  0,  1 }
+              , { L_, "AAb" ,  3,  "a"  ,  1,   -1,  0, -1,  1 }
+              , { L_, "Aba" ,  3,  "a"  ,  1,    2,  0,  2,  2 }
+              , { L_, "abA" ,  3,  "a"  ,  1,    0,  0,  0,  2 }
+              , { L_, "AbA" ,  3,  "a"  ,  1,   -1,  0, -1,  2 }
+              , { L_, "bAa" ,  3,  "a"  ,  1,    2,  1,  2,  2 }
+              , { L_, "baA" ,  3,  "a"  ,  1,    1,  1,  1,  2 }
+              , { L_, "bAA" ,  3,  "a"  ,  1,   -1,  1, -1,  2 }
+              , { L_, "bbA" ,  3,  "a"  ,  1,   -1,  2, -1,  2 }
+              , { L_, "A"   ,  1,  "A"  ,  1,    0,  0,  0,  0 }
+              , { L_, "Aa"  ,  2,  "A"  ,  1,    0,  0,  0,  1 }
+              , { L_, "aA"  ,  2,  "A"  ,  1,    1,  0,  1,  1 }
+              , { L_, "AA"  ,  2,  "A"  ,  1,    0,  0,  1,  1 }
+              , { L_, "bA"  ,  2,  "A"  ,  1,    1,  1,  1,  1 }
+              , { L_, "Aaa" ,  3,  "A"  ,  1,    0,  0,  0,  2 }
+              , { L_, "aAa" ,  3,  "A"  ,  1,    1,  0,  1,  2 }
+              , { L_, "aaA" ,  3,  "A"  ,  1,    2,  0,  2,  2 }
+              , { L_, "AAa" ,  3,  "A"  ,  1,    0,  0,  1,  2 }
+              , { L_, "aAA" ,  3,  "A"  ,  1,    1,  0,  2,  2 }
+              , { L_, "AaA" ,  3,  "A"  ,  1,    0,  0,  2,  2 }
+              , { L_, "AAA" ,  3,  "A"  ,  1,    0,  0,  2,  2 }
+              , { L_, "Aab" ,  3,  "A"  ,  1,    0,  0,  0,  1 }
+              , { L_, "aAb" ,  3,  "A"  ,  1,    1,  0,  1,  1 }
+              , { L_, "AAb" ,  3,  "A"  ,  1,    0,  0,  1,  1 }
+              , { L_, "Aba" ,  3,  "A"  ,  1,    0,  0,  0,  2 }
+              , { L_, "abA" ,  3,  "A"  ,  1,    2,  0,  2,  2 }
+              , { L_, "AbA" ,  3,  "A"  ,  1,    0,  0,  2,  2 }
+              , { L_, "bAa" ,  3,  "A"  ,  1,    1,  1,  1,  2 }
+              , { L_, "baA" ,  3,  "A"  ,  1,    2,  1,  2,  2 }
+              , { L_, "bAA" ,  3,  "A"  ,  1,    1,  1,  2,  2 }
+              , { L_, "bbA" ,  3,  "A"  ,  1,    2,  2,  2,  2 }
+    
+                //Substring length 2, caseless
+              , { L_, ""    ,  0,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, " "   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "a"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "b"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "  "  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aa"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "ab"  ,  2,  "ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "ba"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bb"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "   " ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aaa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aab" ,  3,  "ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "aba" ,  3,  "ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "baa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bba" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bbb" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "    ",  4,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aaab",  4,  "ab" ,  2,    2,  2,  2,  2 }
+              , { L_, "aaba",  4,  "ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "abaa",  4,  "ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "abab",  4,  "ab" ,  2,    0,  0,  2,  2 }
+    
+                //Substring length 2, case sensitive
+              , { L_, "A"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aa"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aA"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AA"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bA"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aaa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aAa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aaA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AAa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aAA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AaA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AAA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aab" ,  3,  "ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "aAb" ,  3,  "ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "AAb" ,  3,  "ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "Aba" ,  3,  "ab" ,  2,   -1,  0, -1,  0 }
+              , { L_, "abA" ,  3,  "ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "AbA" ,  3,  "ab" ,  2,   -1,  0, -1,  0 }
+              , { L_, "bAa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "baA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bAA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bbA" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aaab",  4,  "ab" ,  2,    2,  2,  2,  2 }
+              , { L_, "aAab",  4,  "ab" ,  2,    2,  2,  2,  2 }
+              , { L_, "aaAb",  4,  "ab" ,  2,   -1,  2, -1,  2 }
+              , { L_, "Aaba",  4,  "ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "aAba",  4,  "ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "aabA",  4,  "ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "abAb",  4,  "ab" ,  2,    0,  0,  0,  2 }
+              , { L_, "AbAb",  4,  "ab" ,  2,   -1,  0, -1,  2 }
+              , { L_, "A"   ,  1,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aa"  ,  2,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aA"  ,  2,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AA"  ,  2,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bA"  ,  2,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Ab"  ,  2,  "Ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "Aaa" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aAa" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "aaA" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AAa" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "AAA" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aab" ,  3,  "Ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "aAb" ,  3,  "Ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "AAb" ,  3,  "Ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "Aba" ,  3,  "Ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "abA" ,  3,  "Ab" ,  2,   -1,  0, -1,  0 }
+              , { L_, "AbA" ,  3,  "Ab" ,  2,    0,  0,  0,  0 }
+              , { L_, "bAa" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "baA" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bAA" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "bbA" ,  3,  "Ab" ,  2,   -1, -1, -1, -1 }
+              , { L_, "Aaab",  4,  "Ab" ,  2,   -1,  2, -1,  2 }
+              , { L_, "aAab",  4,  "Ab" ,  2,   -1,  2, -1,  2 }
+              , { L_, "aaAb",  4,  "Ab" ,  2,    2,  2,  2,  2 }
+              , { L_, "Aaba",  4,  "Ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "aAba",  4,  "Ab" ,  2,    1,  1,  1,  1 }
+              , { L_, "aabA",  4,  "Ab" ,  2,   -1,  1, -1,  1 }
+              , { L_, "Abab",  4,  "Ab" ,  2,    0,  0,  0,  2 }
+              , { L_, "abAb",  4,  "Ab" ,  2,    2,  0,  2,  2 }
+              , { L_, "AbAb",  4,  "Ab" ,  2,    0,  0,  2,  2 }
+            };
+            const int NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
+                                         / sizeof *DATA_MIXEDCASE;
+
+            struct Local {
+                static const char *print(const char *string)
+                    // Return "null pointer" if the specified 'string' is 0,
+                    // and 'string' otherwise.
+                {
+                    return 0 == string
+                           ? "null pointer"
+                           : string;
+                }
+            };
+    
+            for (int ti = 0; ti < NUM_DATA_MIXEDCASE; ++ti) {
+
+                if (veryVerbose) { T_ P(ti) }
+
+                const int   LINE    = DATA_MIXEDCASE[ti].d_lineNumber;
+                const char *CSTR    = DATA_MIXEDCASE[ti].d_string;
+                const int   CSTRLEN = DATA_MIXEDCASE[ti].d_stringLen;
+                const char *CSUB    = DATA_MIXEDCASE[ti].d_subString;
+                const int   CSUBLEN = DATA_MIXEDCASE[ti].d_subStringLen;
+
+                const int   RES          = DATA_MIXEDCASE[ti].d_result;
+                const int   RES_CASELESS = DATA_MIXEDCASE[ti].d_resultCaseless;
+                const int   RES_REVERSE  = DATA_MIXEDCASE[ti].d_resultReverse;
+                const int   RES_REVERSECASELESS
+                                         = DATA_MIXEDCASE[ti].
+                                                       d_resultReverseCaseless;
+    
+                if (veryVeryVerbose) {
+                    T_ T_ P(Local::print(CSTR))
+                    T_ T_ P(CSTRLEN)
+                    T_ T_ P(Local::print(CSUB))
+                    T_ T_ P(CSUBLEN)
+                    T_ T_ P(RES)
+                    T_ T_ P(RES_CASELESS)
+                    T_ T_ P(RES_REVERSE)
+                    T_ T_ P(RES_REVERSECASELESS)
+                }
+
+    //----------^
+    const SR expectedCasefull   = -1 == RES
+                                  ? SR()
+                                  : SR(CSTR + RES,                CSUBLEN);
+
+    const SR expectedCaseless  = -1 == RES_CASELESS
+                                 ? SR()
+                                 : SR(CSTR + RES_CASELESS,        CSUBLEN);
+             
+    const SR expectedCasefullR = -1 == RES_REVERSE
+                                 ? SR()
+                                 : SR(CSTR + RES_REVERSE,         CSUBLEN);
+
+    const SR expectedCaselessR = -1 == RES_REVERSECASELESS
+                                 ? SR()
+                                 : SR(CSTR + RES_REVERSECASELESS, CSUBLEN);
+
+    const SR SR_STR(CSTR, CSTRLEN);
+    const SR SR_SUB(CSUB, CSUBLEN);
+
+    const SR resultCasefull   = Util::strstr         (SR_STR, SR_SUB);
+    const SR resultCasefullR  = Util::strrstr        (SR_STR, SR_SUB);
+    const SR resultCaseless   = Util::strstrCaseless (SR_STR, SR_SUB);
+    const SR resultCaselessR  = Util::strrstrCaseless(SR_STR, SR_SUB);
+
+    LOOP_ASSERT(LINE, isEqual(expectedCasefull, resultCasefull));
+
+    LOOP_ASSERT(LINE, isEqual(expectedCaseless, resultCaseless));
+
+    if (!isEqual(expectedCasefullR, resultCasefullR)) {
+        static int count = 0;
+        ++count;
+        P_(expectedCasefullR.data())
+        P_(expectedCasefullR.length())
+        P_(resultCasefullR.data())
+         P(resultCasefullR.length())
+    }
+    LOOP_ASSERT(LINE, isEqual(expectedCasefullR, resultCasefullR));
+
+    if (!isEqual(expectedCaselessR, resultCaselessR)) {
+        static int count = 0;
+        ++count;
+        P_(expectedCaselessR.data())
+        P_(expectedCaselessR.length())
+        P_(resultCaselessR.data())
+         P(resultCaselessR.length())
+    }
+    LOOP_ASSERT(LINE, isEqual(expectedCaselessR, resultCaselessR));
+    //----------v
+            }
         }
 
         if (verbose) cout << "\n" "Check default contructed input"  << "\n";
         {
            const char    *empty = "";   const SR     EMPTY(   empty);
            const char *nonEmpty = "a";  const SR NON_EMPTY(nonEmpty);
+
+           ASSERT(1 == bsl::strlen(nonEmpty));
 
            const SR DEFAULT;
 
@@ -790,7 +1134,8 @@ int main(int argc, char *argv[])
  ASSERT(isEqual(SR(       0, 0), Util::strrstr        (  DEFAULT,   DEFAULT)));
 
  ASSERT(isEqual(SR(nonEmpty, 1), Util::strrstr        (NON_EMPTY, NON_EMPTY)));
- ASSERT(isEqual(SR(nonEmpty, 0), Util::strrstr        (NON_EMPTY,   DEFAULT)));
+ ASSERT(isEqual(SR(nonEmpty + 1,
+                   0),           Util::strrstr        (NON_EMPTY,   DEFAULT)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstr        (  DEFAULT, NON_EMPTY)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstr        (  DEFAULT,   DEFAULT)));
 
@@ -810,7 +1155,8 @@ int main(int argc, char *argv[])
  ASSERT(isEqual(SR(       0, 0), Util::strrstrCaseless(  DEFAULT,   DEFAULT)));
 
  ASSERT(isEqual(SR(nonEmpty, 1), Util::strrstrCaseless(NON_EMPTY, NON_EMPTY)));
- ASSERT(isEqual(SR(nonEmpty, 0), Util::strrstrCaseless(NON_EMPTY,   DEFAULT)));
+ ASSERT(isEqual(SR(nonEmpty + 1,
+                   0)          , Util::strrstrCaseless(NON_EMPTY,   DEFAULT)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstrCaseless(  DEFAULT, NON_EMPTY)));
  ASSERT(isEqual(SR(       0, 0), Util::strrstrCaseless(  DEFAULT,   DEFAULT)));
  //--------V

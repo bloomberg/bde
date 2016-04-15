@@ -184,7 +184,7 @@ bslstl::StringRef StringRefUtil::strrstr(const bslstl::StringRef& string,
     const bsl::size_t subStrLength = subStr.length();
 
     if (0 == subStrLength) {
-        return bslstl::StringRef(string.data(), 0);                   // RETURN
+        return bslstl::StringRef(string.end(), 0);                    // RETURN
     }
 
     if (string.length() < subStrLength) {
@@ -210,7 +210,7 @@ bslstl::StringRef StringRefUtil::strrstrCaseless(
     const bsl::size_t subStrLength = subStr.length();
 
     if (0 == subStrLength) {
-        return bslstl::StringRef(string.data(), 0);                   // RETURN
+        return bslstl::StringRef(string.end(), 0);                    // RETURN
     }
 
     if (string.length() < subStrLength) {
