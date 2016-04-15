@@ -80,7 +80,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
     bsl::vector<PendingClockItem> pendingClockItems;
 
     while (1) {
-        int clockLen;
+        bsl::size_t clockLen;
 
         // This scope limits the life of several variables, including mutex
         // lock.
@@ -117,7 +117,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                               &newLengthEvent,
                                               &minTimeEvent);
 
-            clockLen = static_cast<int>(pendingClockItems.size());
+            clockLen = pendingClockItems.size();
             if (0 == clockLen && 0 == scheduler->d_pendingEventItems.size()) {
                 // There are no pending items.  Wait appropriately.
 
@@ -147,7 +147,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
 
         // We just unlocked the mutex.
 
-        int clockIdx = 0;
+        bsl::size_t clockIdx = 0;
         int *eventIdxPtr = &scheduler->d_currentEventIndex;
         *eventIdxPtr = 0;
 
