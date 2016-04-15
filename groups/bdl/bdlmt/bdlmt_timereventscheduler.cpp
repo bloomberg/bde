@@ -46,8 +46,9 @@ int numBitsRequired(int value)
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.
 
-    return (sizeof(value) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
-                                            static_cast<bsl::uint32_t>(value));
+    return static_cast<int>(  (sizeof(value) * CHAR_BIT)
+                            - bdlb::BitUtil::numLeadingUnsetBits(
+                                           static_cast<bsl::uint32_t>(value)));
 }
 
 }  // close unnamed namespace
@@ -116,7 +117,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                               &newLengthEvent,
                                               &minTimeEvent);
 
-            clockLen = pendingClockItems.size();
+            clockLen = static_cast<int>(pendingClockItems.size());
             if (0 == clockLen && 0 == scheduler->d_pendingEventItems.size()) {
                 // There are no pending items.  Wait appropriately.
 
@@ -581,7 +582,7 @@ void TimerEventScheduler::cancelAllEvents(bool wait)
     bsl::vector<EventItem> buffer;
 
     d_eventTimeQueue.removeAll(&buffer);
-    d_numEvents -= buffer.size();
+    d_numEvents -= static_cast<int>(buffer.size());
 
     // wait for a cycle if needed
 
@@ -652,9 +653,9 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
     bsl::vector<ClockDataPtr> buffer;
     d_clocks.removeAll(&buffer);
 
-    d_numClocks -= buffer.size();
+    d_numClocks -= static_cast<int>(buffer.size());
 
-    const int length = buffer.size();
+    const int length = static_cast<int>(buffer.size());
 
     // mark them all canceled ASAP
     for (int i = 0; i < length; ++i) {

@@ -56,6 +56,7 @@ void getPipeDir(bsl::string *dir)
     }
     else {
         int rc = bdls::FilesystemUtil::getWorkingDirectory(dir);
+        (void)rc;
         BSLS_ASSERT(0 == rc);
     }
 }
@@ -159,7 +160,10 @@ int PipeUtil::send(const bslstl::StringRef& pipeName,
         return -1;                                                    // RETURN
     }
 
-    int rc = write(pipe, message.data(), message.length());
+    int rc = static_cast<int>(write(pipe,
+                                    message.data(),
+                                    message.length()));
+    (void)rc;
     close(pipe);
     return !(rc > 0);
 }

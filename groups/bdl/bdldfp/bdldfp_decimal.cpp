@@ -170,7 +170,7 @@ doPutCommon(ITER_TYPE       out,
     // formatting flags of justification, width, uppercase, and showpos are
     // supported.
 {
-    const int size = bsl::strlen(buffer);
+    const int size = static_cast<int>(bsl::strlen(buffer));
     char *end = buffer + size;
 
     // Widen the buffer.
@@ -179,7 +179,7 @@ doPutCommon(ITER_TYPE       out,
     bsl::use_facet<std::ctype<CHAR_TYPE> >(
                                   format.getloc()).widen(buffer, end, wbuffer);
 
-    const int  width   = format.width();
+    const int  width   = static_cast<int>(format.width());
     const bool showPos = format.flags() & bsl::ios_base::showpos;
     const bool hasSign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
                                                  format.getloc()).widen('-') ||

@@ -60,6 +60,8 @@ static int nativeDefaultThreadStackSizeImp()
         BSLS_ASSERT(0 == rc);
         rc = pthread_attr_destroy(&attr);
         BSLS_ASSERT(0 == rc);
+
+        (void)rc;
     }
 
     BSLS_ASSERT(1 <= threadStackSize);
@@ -159,6 +161,8 @@ int bslmt::Configuration::nativeDefaultThreadGuardSize()
 
         bsls::AtomicOperations::setIntRelaxed(&ret,
                                               static_cast<int>(guardSizeT));
+
+        (void)rc;
     }
 
     return bsls::AtomicOperations::getIntRelaxed(&ret);
