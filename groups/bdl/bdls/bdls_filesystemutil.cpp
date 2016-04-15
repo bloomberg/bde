@@ -900,7 +900,7 @@ void FilesystemUtil::visitPaths(
         }
 
         handle = FindFirstFileExW(widePattern.c_str(),
-                                  FindExInfoBasic,
+                                  FindExInfoStandard,
                                   &findDataW,
                                   FindExSearchNameMatch,
                                   NULL,
@@ -985,7 +985,7 @@ int FilesystemUtil::visitTree(
                                                 0,
                                                 '-');
     FileDescriptor handle = FindFirstFileExW(widePattern.c_str(),
-                                             FindExInfoBasic,
+                                             FindExInfoStandard,
                                              &foundData,
                                              FindExSearchNameMatch,
                                              NULL,
@@ -1018,7 +1018,7 @@ int FilesystemUtil::visitTree(
                                                 0,
                                                 '-');
     handle = FindFirstFileExW(widePattern.c_str(),
-                              FindExInfoBasic,
+                              FindExInfoStandard,
                               &foundData,
                               FindExSearchLimitToDirectories,
                               NULL,

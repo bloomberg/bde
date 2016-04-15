@@ -546,7 +546,9 @@ int main(int argc, char *argv[])
         int numInvalid = 0;
 
         for (Uint64 i = 0; static_cast<double>(i) < numTrials; ++i) {
-            if (veryVerbose) { loopMeter(i, numTrials); }
+            if (veryVerbose) {
+                loopMeter(static_cast<unsigned int>(i), numTrials);
+            }
 
             // Ensure that there is no premature repetition; ok first time.
 
@@ -596,7 +598,7 @@ int main(int argc, char *argv[])
                                                static_cast<int>(s));
 
             tm tmp;
-            memset(&tmp, i, sizeof tmp);    // junk
+            memset(&tmp, static_cast<int>(i), sizeof tmp);    // junk
   //v-----------^
     tmp = Util::convertToTm(INITIAL_VALUE);
 
