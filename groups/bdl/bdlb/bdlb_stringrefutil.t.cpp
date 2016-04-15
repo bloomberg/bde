@@ -717,9 +717,7 @@ int main(int argc, char *argv[])
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull,  resultCasefull));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless,  resultCaseless));
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefullR, resultCasefullR));
-    //^^^^^^^^^^^^^
     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaselessR, resultCaselessR));
-    //^^^^^^^^^^^^^
     //----------V
             }
         }
@@ -791,7 +789,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, isEqual(expected,  resultCaseless ));
             LOOP_ASSERT(LINE, isEqual(expectedR, resultCasefullR));
             LOOP_ASSERT(LINE, isEqual(expectedR, resultCaselessR));
-            //^^^^^^^^^^^^^
         }
 
         if (verbose) cout << "\n" "Check strings containing mixed cases" "\n";
@@ -819,27 +816,8 @@ int main(int argc, char *argv[])
                 
                 //LI  STRING       SUBSTRING    R1  R2  R3  R4
                 //--  ----------   ---------    --  --  --  --
-
-                //Substring length 0, caseless
-            //  { L_, ""   ,  -1,  0    ,  0,    0,  0,  0,  0 }
-            //  { L_, ""   ,   0,  0    ,  0,    0,  0,  0,  0 }
-            //, { L_, "a"  ,   1,  0    ,  0,    0,  0,  1,  1 }
-            //, { L_, "ab" ,   2,  0    ,  0,    0,  0,  2,  2 }
-            //, { L_, "abc",   3,  0    ,  0,    0,  0,  3,  3 }
-    
-                //Substring length 0, case sensitive
-            //, { L_, "A"   ,  1,  ""   , -1,    0,  0,  1,  1 }
-            //, { L_, "Ab"  ,  2,  ""   , -1,    0,  0,  2,  2 }
-            //, { L_, "aB"  ,  2,  ""   , -1,    0,  0,  2,  2 }
-            //, { L_, "AB"  ,  2,  ""   , -1,    0,  0,  2,  2 }
-            //, { L_, "Abc" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "aBc" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "abC" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "ABc" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "aBC" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "AbC" ,  3,  ""   , -1,    0,  0,  3,  3 }
-            //, { L_, "ABC" ,  3,  ""   , -1,    0,  0,  3,  3 }
    
+                //Substring length 0
                 { L_, "A"   ,  1,  ""   ,  0,    0,  0,  1,  1 }
               , { L_, "Ab"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
               , { L_, "aB"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
@@ -852,38 +830,7 @@ int main(int argc, char *argv[])
               , { L_, "AbC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
               , { L_, "ABC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
     
-                //Substring length 1, caseless
-              , { L_, ""    ,  0,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, " "   ,  1,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "a"   ,  1,  "a"  ,  1,    0,  0,  0,  0 }
-              , { L_, "b"   ,  1,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "  "  ,  2,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "aa"  ,  2,  "a"  ,  1,    0,  0,  1,  1 }
-              , { L_, "ab"  ,  2,  "a"  ,  1,    0,  0,  0,  0 }
-              , { L_, "ba"  ,  2,  "a"  ,  1,    1,  1,  1,  1 }
-              , { L_, "bb"  ,  2,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "   " ,  3,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "aaa" ,  3,  "a"  ,  1,    0,  0,  2,  2 }
-              , { L_, "aab" ,  3,  "a"  ,  1,    0,  0,  1,  1 }
-              , { L_, "abb" ,  3,  "a"  ,  1,    0,  0,  0,  0 }
-              , { L_, "aba" ,  3,  "a"  ,  1,    0,  0,  2,  2 }
-              , { L_, "baa" ,  3,  "a"  ,  1,    1,  1,  2,  2 }
-              , { L_, "bba" ,  3,  "a"  ,  1,    2,  2,  2,  2 }
-              , { L_, "bbb" ,  3,  "a"  ,  1,   -1, -1, -1, -1 }
-    
-                //String embedded nulls 
-              , { L_, "\0  ",  3,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "\0aa",  3,  "a"  ,  1,    1,  1,  2,  2 }
-              , { L_, "\0ab",  3,  "a"  ,  1,    1,  1,  1,  1 }
-              , { L_, "\0ba",  3,  "a"  ,  1,    2,  2,  2,  2 }
-              , { L_, "\0bb",  3,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "  \0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "aa\0",  3,  "a"  ,  1,    0,  0,  1,  1 }
-              , { L_, "ab\0",  3,  "a"  ,  1,    0,  0,  0,  0 }
-              , { L_, "ba\0",  3,  "a"  ,  1,    1,  1,  1,  1 }
-              , { L_, "bb\0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
-    
-                //Substring length 1, case sensitive
+                //Substring length 1
               , { L_, "A"   ,  1,  "a"  ,  1,   -1,  0, -1,  0 }
               , { L_, "Aa"  ,  2,  "a"  ,  1,    1,  0,  1,  1 }
               , { L_, "aA"  ,  2,  "a"  ,  1,    0,  0,  0,  1 }
@@ -929,30 +876,7 @@ int main(int argc, char *argv[])
               , { L_, "bAA" ,  3,  "A"  ,  1,    1,  1,  2,  2 }
               , { L_, "bbA" ,  3,  "A"  ,  1,    2,  2,  2,  2 }
     
-                //Substring length 2, caseless
-              , { L_, ""    ,  0,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, " "   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "a"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "b"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "  "  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "aa"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "ab"  ,  2,  "ab" ,  2,    0,  0,  0,  0 }
-              , { L_, "ba"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "bb"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "   " ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "aaa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "aab" ,  3,  "ab" ,  2,    1,  1,  1,  1 }
-              , { L_, "aba" ,  3,  "ab" ,  2,    0,  0,  0,  0 }
-              , { L_, "baa" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "bba" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "bbb" ,  3,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "    ",  4,  "ab" ,  2,   -1, -1, -1, -1 }
-              , { L_, "aaab",  4,  "ab" ,  2,    2,  2,  2,  2 }
-              , { L_, "aaba",  4,  "ab" ,  2,    1,  1,  1,  1 }
-              , { L_, "abaa",  4,  "ab" ,  2,    0,  0,  0,  0 }
-              , { L_, "abab",  4,  "ab" ,  2,    0,  0,  2,  2 }
-    
-                //Substring length 2, case sensitive
+                //Substring length 2
               , { L_, "A"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
               , { L_, "Aa"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
               , { L_, "aA"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
@@ -1013,6 +937,18 @@ int main(int argc, char *argv[])
               , { L_, "Abab",  4,  "Ab" ,  2,    0,  0,  0,  2 }
               , { L_, "abAb",  4,  "Ab" ,  2,    2,  0,  2,  2 }
               , { L_, "AbAb",  4,  "Ab" ,  2,    0,  0,  2,  2 }
+
+                //String embedded nulls 
+              , { L_, "\0  ",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "\0aa",  3,  "a"  ,  1,    1,  1,  2,  2 }
+              , { L_, "\0ab",  3,  "a"  ,  1,    1,  1,  1,  1 }
+              , { L_, "\0ba",  3,  "a"  ,  1,    2,  2,  2,  2 }
+              , { L_, "\0bb",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "  \0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "aa\0",  3,  "a"  ,  1,    0,  0,  1,  1 }
+              , { L_, "ab\0",  3,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "ba\0",  3,  "a"  ,  1,    1,  1,  1,  1 }
+              , { L_, "bb\0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
             };
             const int NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
                                          / sizeof *DATA_MIXEDCASE;
