@@ -218,7 +218,9 @@ TimeInterval getNowTime(clockid_t clockId)
     int      rc = clock_gettime(clockId, &tp);
     (void)rc; BSLS_ASSERT(0 == rc);
 
-    return TimeInterval(tp.tv_sec, tp.tv_nsec);
+    // The 'static_cast' is required as on some platforms 'tv_nsec' is a 64 bit
+    // field for 64 bit builds.
+    return TimeInterval(tp.tv_sec, static_cast<int>(tp.tv_nsec));
 }
 
 

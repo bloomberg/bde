@@ -803,9 +803,9 @@ int main(int argc, char *argv[])
                       << "===========================================" << endl;
 
         static const struct {
-            int d_lineNum;       // line number
-            int d_numPools;      // number of pools
-            int d_maxBlockSize;  // maximum block size
+            int                    d_lineNum;       // line number
+            int                    d_numPools;      // number of pools
+            bsls::Types::size_type d_maxBlockSize;  // maximum block size
         } DATA[] = {
             //LINE  # POOLS     MAXIMUM BLOCK SIZE
             //----  -------     ------------------
@@ -818,9 +818,9 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE         = DATA[i].d_lineNum;
-            const int NUMPOOLS     = DATA[i].d_numPools;
-            const int MAXBLOCKSIZE = DATA[i].d_maxBlockSize;
+            const int                    LINE         = DATA[i].d_lineNum;
+            const int                    NUMPOOLS     = DATA[i].d_numPools;
+            const bsls::Types::size_type MAXBLOCKSIZE = DATA[i].d_maxBlockSize;
 
             if (veryVerbose) {
                 P_(LINE) P_(NUMPOOLS) P(MAXBLOCKSIZE)
