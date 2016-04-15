@@ -44,7 +44,9 @@ FixedMemInStreamBuf::seekoff(off_type                offset,
         return pos_type(-1);                                          // RETURN
     }
 
-    setg(d_buffer_p, d_buffer_p + int(newPos), d_buffer_p + d_bufferSize);
+    setg(d_buffer_p,
+         d_buffer_p + static_cast<int>(newPos),
+         d_buffer_p + d_bufferSize);
 
     return newPos;
 }
