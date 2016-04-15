@@ -1941,6 +1941,7 @@ int FilesystemUtil::createDirectories(const char *path,
     while (PathUtil::hasLeaf(workingPath)) {
         directoryStack.push_back(bsl::string());
         int rc = PathUtil::getLeaf(&directoryStack.back(), workingPath);
+        (void)rc;
         BSLS_ASSERT(0 == rc);
         PathUtil::popLeaf(&workingPath);
     }

@@ -25,6 +25,7 @@ static DatumArrayBuilder::SizeType getNewCapacity(
                        bsl::numeric_limits<DatumArrayBuilder::SizeType>::max();
 
     BSLS_ASSERT(length < MAX_BYTES/2);
+    (void)MAX_BYTES;
 
     capacity = capacity ? capacity : 1;
     while (capacity < length) {

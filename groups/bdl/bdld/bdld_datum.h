@@ -2701,7 +2701,8 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
                             bslma::Allocator      *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
-
+    (void)basicAllocator;
+    
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -2734,7 +2735,8 @@ Datum Datum::createDatetimeInterval(
                                  bslma::Allocator              *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
-
+    (void)basicAllocator;
+    
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT

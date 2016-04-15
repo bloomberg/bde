@@ -64,6 +64,7 @@ public:
             clockId = CLOCK_MONOTONIC;
           } break;
           default:
+            clockId = CLOCK_MONOTONIC;
             BSLS_ASSERT_OPT("Invalid ClockType parameter value" && 0);
         }
 

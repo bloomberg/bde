@@ -32,6 +32,8 @@ BSLMF_ASSERT(
 bslmt::MutexImpl<bslmt::Platform::PosixThreads>::~MutexImpl()
 {
     const int status = pthread_mutex_destroy(&d_lock);
+    (void)status;
+
     BSLS_ASSERT(0 == status);
 
 #ifdef BDE_BUILD_TARGET_SAFE
