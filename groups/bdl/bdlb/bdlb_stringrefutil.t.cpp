@@ -60,7 +60,7 @@ using bsl::flush;
 //:
 //: 2 The functions handle all possible byte values in arbitrary order such as:
 //:   o ASCII values with embedded '\0' values.
-//;   o ASCII values corresonding to upper and lower case letters.
+//;   o ASCII values corresponding to upper and lower case letters.
 //:   o Extended ASCII values (which have the 8th bit [msb] set).
 //:
 //: 3 The functions operate on the intended sequence of bytes and no other.
@@ -197,15 +197,15 @@ static void testWhitespaceLabel()
 {
     for (int ch = 0; ch <= 255; ++ch) {
         switch(ch) {
-      //--^
-      case ' ' : ASSERT(0 == bsl::strcmp("SP", whitespaceLabel( ' '))); break;
-      case '\t': ASSERT(0 == bsl::strcmp("HT", whitespaceLabel('\t'))); break;
-      case '\n': ASSERT(0 == bsl::strcmp("NL", whitespaceLabel('\n'))); break;
-      case '\v': ASSERT(0 == bsl::strcmp("VT", whitespaceLabel('\v'))); break;
-      case '\f': ASSERT(0 == bsl::strcmp("FF", whitespaceLabel('\f'))); break;
-      case '\r': ASSERT(0 == bsl::strcmp("CR", whitespaceLabel('\r'))); break;
-      default  : ASSERT(0 == bsl::strcmp("XX", whitespaceLabel(  ch))); break;
-      //--V
+       //-^
+       case ' ' : ASSERT(0 == bsl::strcmp("SP", whitespaceLabel( ' '))); break;
+       case '\t': ASSERT(0 == bsl::strcmp("HT", whitespaceLabel('\t'))); break;
+       case '\n': ASSERT(0 == bsl::strcmp("NL", whitespaceLabel('\n'))); break;
+       case '\v': ASSERT(0 == bsl::strcmp("VT", whitespaceLabel('\v'))); break;
+       case '\f': ASSERT(0 == bsl::strcmp("FF", whitespaceLabel('\f'))); break;
+       case '\r': ASSERT(0 == bsl::strcmp("CR", whitespaceLabel('\r'))); break;
+       default  : ASSERT(0 == bsl::strcmp("XX", whitespaceLabel(  ch))); break;
+       //-V
         }
     }
 }
@@ -225,8 +225,8 @@ static void testIsEqual()
 {
     struct Local {
         static const char *dataLabel(const char *dataPtr)
-            // Return "null pointer" if the specified 'dataPtr' is 0,
-            // and "non-null pointer" otherwise.
+            // Return "null pointer" if the specified 'dataPtr' is 0, and
+            // "non-null pointer" otherwise.
         {
             return 0 == dataPtr
                    ? "null pointer"
@@ -438,15 +438,12 @@ int main(int argc, char *argv[])
         //:   3 'string' is uppercase and 'substr' is lowercase.
         //:   4 Both 'string' and 'substr' are uppercase.
         //:
-        //: 3 Note that P-2 uses strings that are homogeneously upper or lower
-        //:   case; nevertheless, we are confident that results would be
-        //:   correct for input having different cases within each input
-        //:   because the "caseless" methods are implemented using
-        //:   'lowerCaseCmp', a method that was tested (in case 2) with strings
-        //:   containing different cases.  Still, we add an several ad hoc
-        //:   cases to be doubly sure.
+        //: 3 Create input data having mixed characters cases in
+        //:   both the string and the substring.  Compare the result
+        //:   from each of the four search methods with the calculated
+        //:   expected value.  (C-2)
         //
-        //: 3 Construct a series of input string/sub-string pairs in which
+        //: 4 Construct a series of input string/sub-string pairs in which
         //:   there are multiple occurrences of the substring.  (C-3)
         //
         // Testing:
@@ -617,15 +614,15 @@ int main(int argc, char *argv[])
 
             const char * const lettersInData = "abcde";
 
-            bool stringHasLetters =    bsl::strcspn(CSTRING, lettersInData)
+            bool stringHasLetters  =    bsl::strcspn(CSTRING, lettersInData)
                                     == bsl::strlen (CSTRING)
                                     ?  false
                                     :  true;
-            bool substrHasLetters =    bsl::strcspn(CSUBSTR, lettersInData)
+            bool substrHasLetters  =    bsl::strcspn(CSUBSTR, lettersInData)
                                     == bsl::strlen (CSUBSTR)
                                     ?  false
                                     :  true;
-            bool   bothHaveLetters  = stringHasLetters && substrHasLetters;
+            bool   bothHaveLetters = stringHasLetters && substrHasLetters;
 
             if (veryVeryVerbose) {
                 P_(CSTRING)
@@ -688,37 +685,37 @@ int main(int argc, char *argv[])
                     P(areSameCaseStrSubstr)
                 }
 
-    //----------^
-    const SR expected          = 0 <= POSITION  && OVERLAP == lenCSUBSTR
-                                 ? SR(string.data() + POSITION, lenCSUBSTR)
-                                 : SR();
-
-    const SR expectedR         = 0 == lenCSUBSTR
-                                 ? SR(string.end(), 0)
-                                 : 0 <= POSITION  && OVERLAP == lenCSUBSTR
-                                 ? SR(string.data() + POSITION, lenCSUBSTR)
-                                 : SR();
-
-    const SR expectedCasefull  = bothHaveLetters && ! areSameCaseStrSubstr
+     //---------^
+     const SR expected          = 0 <= POSITION  && OVERLAP == lenCSUBSTR
+                                  ? SR(string.data() + POSITION, lenCSUBSTR)
+                                  : SR();
+ 
+     const SR expectedR         = 0 == lenCSUBSTR
+                                  ? SR(string.end(), 0)
+                                  : 0 <= POSITION  && OVERLAP == lenCSUBSTR
+                                  ? SR(string.data() + POSITION, lenCSUBSTR)
+                                  : SR();
+ 
+     const SR expectedCasefull  = bothHaveLetters && ! areSameCaseStrSubstr
+                                  ? SR()
+                                  : expected;
+     const SR expectedCaseless  = expected;
+ 
+     const SR expectedCasefullR = bothHaveLetters && ! areSameCaseStrSubstr
                                  ? SR()
-                                 : expected;
-    const SR expectedCaseless  = expected;
-
-    const SR expectedCasefullR = bothHaveLetters && ! areSameCaseStrSubstr
-                                ? SR()
-                                : expectedR;
-    const SR expectedCaselessR = expectedR;
-
-    const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
-    const SR resultCasefullR  = Util::strrstr        (SR(string), SR(substr));
-    const SR resultCaseless   = Util::strstrCaseless (SR(string), SR(substr));
-    const SR resultCaselessR  = Util::strrstrCaseless(SR(string), SR(substr));
-
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull,  resultCasefull));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless,  resultCaseless));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefullR, resultCasefullR));
-    LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaselessR, resultCaselessR));
-    //----------V
+                                 : expectedR;
+     const SR expectedCaselessR = expectedR;
+ 
+     const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
+     const SR resultCasefullR  = Util::strrstr        (SR(string), SR(substr));
+     const SR resultCaseless   = Util::strstrCaseless (SR(string), SR(substr));
+     const SR resultCaselessR  = Util::strrstrCaseless(SR(string), SR(substr));
+ 
+     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull,  resultCasefull));
+     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless,  resultCaseless));
+     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefullR, resultCasefullR));
+     LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaselessR, resultCaselessR));
+     //---------V
             }
         }
 
@@ -795,17 +792,17 @@ int main(int argc, char *argv[])
         {
             static const struct {
                 const int   d_lineNumber;
-                const char *d_string;
+                const char *d_string_p;
                 const int   d_stringLen;
-                const char *d_subString;
+                const char *d_subString_p;
                 const int   d_subStringLen;
 
-                const int   d_result;         
-                const int   d_resultCaseless; 
-                const int   d_resultReverse; 
+                const int   d_result;
+                const int   d_resultCaseless;
+                const int   d_resultReverse;
                 const int   d_resultReverseCaseless;
                     // Index of substring in string or -1 if not found.
-    
+
             } DATA_MIXEDCASE[] = {
                 // In the table below, R1-4 correspond to the results from the
                 // the four methods under test.  The mapping is:
@@ -813,10 +810,10 @@ int main(int argc, char *argv[])
                 //: 2 Results from 'strstrCaseless',
                 //: 3 Results from 'strrstr',
                 //: 4 Results from 'strrstrCaseless'.
-                
+
                 //LI  STRING       SUBSTRING    R1  R2  R3  R4
                 //--  ----------   ---------    --  --  --  --
-   
+
                 //Substring length 0
                 { L_, "A"   ,  1,  ""   ,  0,    0,  0,  1,  1 }
               , { L_, "Ab"  ,  2,  ""   ,  0,    0,  0,  2,  2 }
@@ -829,7 +826,7 @@ int main(int argc, char *argv[])
               , { L_, "aBC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
               , { L_, "AbC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
               , { L_, "ABC" ,  3,  ""   ,  0,    0,  0,  3,  3 }
-    
+
                 //Substring length 1
               , { L_, "A"   ,  1,  "a"  ,  1,   -1,  0, -1,  0 }
               , { L_, "Aa"  ,  2,  "a"  ,  1,    1,  0,  1,  1 }
@@ -875,7 +872,7 @@ int main(int argc, char *argv[])
               , { L_, "baA" ,  3,  "A"  ,  1,    2,  1,  2,  2 }
               , { L_, "bAA" ,  3,  "A"  ,  1,    1,  1,  2,  2 }
               , { L_, "bbA" ,  3,  "A"  ,  1,    2,  2,  2,  2 }
-    
+
                 //Substring length 2
               , { L_, "A"   ,  1,  "ab" ,  2,   -1, -1, -1, -1 }
               , { L_, "Aa"  ,  2,  "ab" ,  2,   -1, -1, -1, -1 }
@@ -938,17 +935,21 @@ int main(int argc, char *argv[])
               , { L_, "abAb",  4,  "Ab" ,  2,    2,  0,  2,  2 }
               , { L_, "AbAb",  4,  "Ab" ,  2,    0,  0,  2,  2 }
 
-                //String embedded nulls 
+                //String embedded nulls
               , { L_, "\0  ",  3,  "a"  ,  1,   -1, -1, -1, -1 }
-              , { L_, "\0aa",  3,  "a"  ,  1,    1,  1,  2,  2 }
-              , { L_, "\0ab",  3,  "a"  ,  1,    1,  1,  1,  1 }
-              , { L_, "\0ba",  3,  "a"  ,  1,    2,  2,  2,  2 }
+              , { L_, "\0Aa",  3,  "a"  ,  1,    2,  1,  2,  2 }
+              , { L_, "\0Ab",  3,  "a"  ,  1,   -1,  1, -1,  1 }
+              , { L_, "\0Ba",  3,  "a"  ,  1,    2,  2,  2,  2 }
               , { L_, "\0bb",  3,  "a"  ,  1,   -1, -1, -1, -1 }
               , { L_, "  \0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
               , { L_, "aa\0",  3,  "a"  ,  1,    0,  0,  1,  1 }
-              , { L_, "ab\0",  3,  "a"  ,  1,    0,  0,  0,  0 }
-              , { L_, "ba\0",  3,  "a"  ,  1,    1,  1,  1,  1 }
-              , { L_, "bb\0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "Ab\0",  3,  "a"  ,  1,   -1,  0, -1,  0 }
+              , { L_, "bA\0",  3,  "a"  ,  1,   -1,  1, -1,  1 }
+              , { L_, "bB\0",  3,  "a"  ,  1,   -1, -1, -1, -1 }
+              , { L_, "A\0a",  3,  "a"  ,  1,    2,  0,  2,  2 }
+              , { L_, "a\0b",  3,  "a"  ,  1,    0,  0,  0,  0 }
+              , { L_, "B\0a",  3,  "a"  ,  1,    2,  2,  2,  2 }
+              , { L_, "B\0b",  3,  "a"  ,  1,   -1, -1, -1, -1 }
             };
             const int NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
                                          / sizeof *DATA_MIXEDCASE;
@@ -963,15 +964,15 @@ int main(int argc, char *argv[])
                            : string;
                 }
             };
-    
+
             for (int ti = 0; ti < NUM_DATA_MIXEDCASE; ++ti) {
 
                 if (veryVerbose) { T_ P(ti) }
 
                 const int   LINE    = DATA_MIXEDCASE[ti].d_lineNumber;
-                const char *CSTR    = DATA_MIXEDCASE[ti].d_string;
+                const char *CSTR    = DATA_MIXEDCASE[ti].d_string_p;
                 const int   CSTRLEN = DATA_MIXEDCASE[ti].d_stringLen;
-                const char *CSUB    = DATA_MIXEDCASE[ti].d_subString;
+                const char *CSUB    = DATA_MIXEDCASE[ti].d_subString_p;
                 const int   CSUBLEN = DATA_MIXEDCASE[ti].d_subStringLen;
 
                 const int   RES          = DATA_MIXEDCASE[ti].d_result;
@@ -980,7 +981,7 @@ int main(int argc, char *argv[])
                 const int   RES_REVERSECASELESS
                                          = DATA_MIXEDCASE[ti].
                                                        d_resultReverseCaseless;
-    
+
                 if (veryVeryVerbose) {
                     T_ T_ P(Local::print(CSTR))
                     T_ T_ P(CSTRLEN)
@@ -1000,7 +1001,7 @@ int main(int argc, char *argv[])
     const SR expectedCaseless  = -1 == RES_CASELESS
                                  ? SR()
                                  : SR(CSTR + RES_CASELESS,        CSUBLEN);
-             
+
     const SR expectedCasefullR = -1 == RES_REVERSE
                                  ? SR()
                                  : SR(CSTR + RES_REVERSE,         CSUBLEN);
@@ -1018,27 +1019,8 @@ int main(int argc, char *argv[])
     const SR resultCaselessR  = Util::strrstrCaseless(SR_STR, SR_SUB);
 
     LOOP_ASSERT(LINE, isEqual(expectedCasefull, resultCasefull));
-
     LOOP_ASSERT(LINE, isEqual(expectedCaseless, resultCaseless));
-
-    if (!isEqual(expectedCasefullR, resultCasefullR)) {
-        static int count = 0;
-        ++count;
-        P_(expectedCasefullR.data())
-        P_(expectedCasefullR.length())
-        P_(resultCasefullR.data())
-         P(resultCasefullR.length())
-    }
     LOOP_ASSERT(LINE, isEqual(expectedCasefullR, resultCasefullR));
-
-    if (!isEqual(expectedCaselessR, resultCaselessR)) {
-        static int count = 0;
-        ++count;
-        P_(expectedCaselessR.data())
-        P_(expectedCaselessR.length())
-        P_(resultCaselessR.data())
-         P(resultCaselessR.length())
-    }
     LOOP_ASSERT(LINE, isEqual(expectedCaselessR, resultCaselessR));
     //----------v
             }
