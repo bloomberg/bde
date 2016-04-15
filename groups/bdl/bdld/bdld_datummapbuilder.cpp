@@ -29,6 +29,7 @@ static DatumMapBuilder::SizeType getNewCapacity(
                          bsl::numeric_limits<DatumMapBuilder::SizeType>::max();
 
     BSLS_ASSERT(size < MAX_BYTES/2);
+    (void)MAX_BYTES;
 
     capacity = capacity ? capacity : 1;
     while (capacity < size ) {

@@ -65,7 +65,7 @@ int vaildateGuidString(bslstl::StringRef guidString)
     const unsigned char *front_p = reinterpret_cast<const unsigned char *>(
                                                       &guidString[0]);
     const unsigned char *back_p = reinterpret_cast<const unsigned char *>(
-                                                      &guidString[length - 1]);
+                                    &guidString[static_cast<int>(length) - 1]);
 
     // check for braces
     if (('[' == *front_p && ']' == *back_p) ||
