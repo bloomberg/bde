@@ -164,7 +164,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
     // Now change the specified individual elements.
 
     if (extraCharsToEncode) {
-        len = bsl::strlen(extraCharsToEncode);
+        len = static_cast<int>(bsl::strlen(extraCharsToEncode));
         for (int i = 0; i < len; ++i) {
             d_equivClass_p[(unsigned char) (extraCharsToEncode[i])] = CC;
         }
@@ -380,7 +380,7 @@ int QuotedPrintableEncoder::convert(char       *out,
     }
 
     *numOut = d_outputLength - originalOutputLength;
-    *numIn = begin - originalBegin;
+    *numIn = static_cast<int>(begin - originalBegin);
     return d_bufferLength;
 }
 

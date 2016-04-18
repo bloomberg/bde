@@ -14,6 +14,10 @@ BSLS_IDENT_RCSID(bdlt_calendar_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
+// The implementation requires that return value for an unseccessful
+// 'bdlc::BitArray::find*', when cast to an 'int', is -1.
+BSLMF_ASSERT(-1 == static_cast<int>(bdlc::BitArray::k_INVALID_INDEX));
+
                               // --------------
                               // class Calendar
                               // --------------
@@ -104,13 +108,14 @@ bool Calendar::isCacheSynchronized() const
     PackedCalendar::BusinessDayConstIterator endIter =
                                             d_packedCalendar.endBusinessDays();
 
-    int offset = d_nonBusinessDays.find0AtMinIndex(0);
+    int offset = static_cast<int>(d_nonBusinessDays.find0AtMinIndex(0));
     while (iter != endIter) {
         if (offset != *iter - d_packedCalendar.firstDate()) {
             return false;                                             // RETURN
         }
         ++iter;
-        offset = d_nonBusinessDays.find0AtMinIndex(offset + 1);
+        offset = static_cast<int>(
+                                d_nonBusinessDays.find0AtMinIndex(offset + 1));
     }
 
     return 0 > offset;
@@ -314,7 +319,8 @@ int Calendar::getNextBusinessDay(Date        *nextBusinessDay,
 
     int offset = date - firstDate();
     while (nth) {
-        offset = d_nonBusinessDays.find0AtMinIndex(offset + 1);
+        offset = static_cast<int>(
+                                d_nonBusinessDays.find0AtMinIndex(offset + 1));
         if (0 > offset) {
             return e_FAILURE;                                         // RETURN
         }
@@ -359,8 +365,8 @@ Date Calendar::getNextBusinessDay(const Date& initialDate) const
     // in this calendar's cache.
 
     if (isInRange(currentDate)) {
-        int offset = d_nonBusinessDays.find0AtMinIndex(
-                                              currentDate - calendarFirstDate);
+        int offset = static_cast<int>(d_nonBusinessDays.find0AtMinIndex(
+                                             currentDate - calendarFirstDate));
         if (offset != -1) {
             // Found the next business day within the valid range of this
             // calendar.
@@ -441,7 +447,7 @@ Date Calendar::getNextBusinessDay(const Date& initialDate, int nth) const
     // in this calendar's cache.
 
     while (isInRange(calendarFirstDate + offset)) {
-        offset = d_nonBusinessDays.find0AtMinIndex(offset);
+        offset = static_cast<int>(d_nonBusinessDays.find0AtMinIndex(offset));
         if (offset != -1) {
             // Found the next business day within the valid range of this
             // calendar, so decrement 'nth'.
@@ -530,7 +536,8 @@ Calendar_BusinessDayConstIter::Calendar_BusinessDayConstIter(
         ++d_currentOffset;
     }
 
-    d_currentOffset = d_nonBusinessDays_p->find0AtMinIndex(d_currentOffset);
+    d_currentOffset = static_cast<int>(
+                        d_nonBusinessDays_p->find0AtMinIndex(d_currentOffset));
     if (0 > d_currentOffset) {
         d_currentOffset = -1;
     }
@@ -540,7 +547,7 @@ Calendar_BusinessDayConstIter::Calendar_BusinessDayConstIter(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -93,7 +93,7 @@ namespace bdls {
 
 int MemoryUtil::pageSize()
 {
-    return ::sysconf(_SC_PAGESIZE);
+    return static_cast<int>(::sysconf(_SC_PAGESIZE));
 }
 
 int MemoryUtil::protect(void *address, int numBytes, int mode)

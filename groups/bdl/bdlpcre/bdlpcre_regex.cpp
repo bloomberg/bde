@@ -245,6 +245,7 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
     unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
 
     BSLS_ASSERT(1 <= ovectorCount);
+    (void)ovectorCount;
 
     size_t offset = ovector[0];
     size_t length = ovector[1] - offset;
@@ -270,6 +271,7 @@ int RegEx::match(bslstl::StringRef *result,
 
     // Number of pairs in the output vector
     unsigned int ovectorCount = pcre2_get_ovector_count(d_matchData_p);
+    (void)ovectorCount;
 
     BSLS_ASSERT(1 <= ovectorCount);
 

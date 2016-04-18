@@ -89,6 +89,7 @@ OverflowMemOutStreamBuf::seekoff(off_type                offset,
     privateSync();
 
     bsl::size_t length = static_cast<bsl::size_t>(pptr() - pbase());
+    (void)length;
 
     BSLS_ASSERT(length ==
             d_inOverflowBufferFlag ? (d_dataLength - d_initialBufferSize)

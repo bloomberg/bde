@@ -259,6 +259,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       default: {
+        pPolicy = SCHED_OTHER;
         BSLS_ASSERT_OPT(0);
       }
     }
@@ -353,6 +354,7 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::
         pPolicy = SCHED_OTHER;
       }  break;
       default: {
+        pPolicy = SCHED_OTHER;
         BSLS_ASSERT_OPT(0);
       }
     }
