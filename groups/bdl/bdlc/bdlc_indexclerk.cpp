@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdlc_indexclerk_cpp,"$Id$ $CSID$")
 #include <bslma_testallocator.h>  // for testing only
 #include <bsls_performancehint.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
 
@@ -31,15 +32,15 @@ bool
 bdlc::IndexClerk::areInvariantsPreserved(const bsl::vector<int>& unusedStack,
                                          int                     nextNewIndex)
 {
-    int indicesInvalid   = 0;
-    int indicesNotUnique = 0;
-    int size             = unusedStack.size();
+    int         indicesInvalid   = 0;
+    int         indicesNotUnique = 0;
+    bsl::size_t size             = unusedStack.size();
 
     bsl::vector<char> bin(nextNewIndex, 0);
 
     // Optimizing for the valid case.
 
-    for (int i = 0; i < size; ++i) {
+    for (bsl::size_t i = 0; i < size; ++i) {
         indicesInvalid |= ((unsigned int) unusedStack[i] >=
                                                   (unsigned int) nextNewIndex);
 

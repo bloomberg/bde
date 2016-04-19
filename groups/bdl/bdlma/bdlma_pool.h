@@ -589,8 +589,7 @@ void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool& pool)
 {
     using namespace BloombergLP;
 
-    BSLS_ASSERT_SAFE(
-        static_cast<int>(size) <= pool.blockSize() &&
+    BSLS_ASSERT_SAFE(size <= pool.blockSize() &&
         bsls::AlignmentUtil::calculateAlignmentFromSize(size)
          <= bsls::AlignmentUtil::calculateAlignmentFromSize(pool.blockSize()));
 

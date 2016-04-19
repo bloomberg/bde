@@ -46,8 +46,9 @@ int numBitsRequired(int value)
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.
 
-    return (sizeof(value) * CHAR_BIT) - bdlb::BitUtil::numLeadingUnsetBits(
-                                            static_cast<bsl::uint32_t>(value));
+    return static_cast<int>(  (sizeof(value) * CHAR_BIT)
+                            - bdlb::BitUtil::numLeadingUnsetBits(
+                                           static_cast<bsl::uint32_t>(value)));
 }
 
 }  // close unnamed namespace
@@ -79,7 +80,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
     bsl::vector<PendingClockItem> pendingClockItems;
 
     while (1) {
-        int clockLen;
+        bsl::size_t clockLen;
 
         // This scope limits the life of several variables, including mutex
         // lock.
@@ -146,7 +147,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
 
         // We just unlocked the mutex.
 
-        int clockIdx = 0;
+        bsl::size_t clockIdx = 0;
         int *eventIdxPtr = &scheduler->d_currentEventIndex;
         *eventIdxPtr = 0;
 
@@ -581,7 +582,7 @@ void TimerEventScheduler::cancelAllEvents(bool wait)
     bsl::vector<EventItem> buffer;
 
     d_eventTimeQueue.removeAll(&buffer);
-    d_numEvents -= buffer.size();
+    d_numEvents -= static_cast<int>(buffer.size());
 
     // wait for a cycle if needed
 
@@ -652,9 +653,9 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
     bsl::vector<ClockDataPtr> buffer;
     d_clocks.removeAll(&buffer);
 
-    d_numClocks -= buffer.size();
+    d_numClocks -= static_cast<int>(buffer.size());
 
-    const int length = buffer.size();
+    const int length = static_cast<int>(buffer.size());
 
     // mark them all canceled ASAP
     for (int i = 0; i < length; ++i) {

@@ -2102,6 +2102,13 @@ int main(int argc, char *argv[])
 
         TestLoader loader;
 
+        {
+            bdlt::Calendar mX;  const bdlt::Calendar& X = mX;
+
+            ASSERT(false == providesNonModifiableAccessOnly(&mX));
+            ASSERT(true  == providesNonModifiableAccessOnly(&X));
+        }
+
         bslma::TestAllocator da("default",  veryVeryVeryVerbose);
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 

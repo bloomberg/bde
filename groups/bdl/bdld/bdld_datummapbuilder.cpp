@@ -29,6 +29,7 @@ static DatumMapBuilder::SizeType getNewCapacity(
                          bsl::numeric_limits<DatumMapBuilder::SizeType>::max();
 
     BSLS_ASSERT(size < MAX_BYTES/2);
+    (void)MAX_BYTES;
 
     capacity = capacity ? capacity : 1;
     while (capacity < size ) {
@@ -78,6 +79,13 @@ static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapBuilder>::value);
 
 // CREATORS
+DatumMapBuilder::DatumMapBuilder(bslma::Allocator *basicAllocator)
+: d_capacity(0)
+, d_sorted(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 DatumMapBuilder::DatumMapBuilder(SizeType          initialCapacity,
                                  bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)

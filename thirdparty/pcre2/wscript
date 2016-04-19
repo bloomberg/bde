@@ -85,7 +85,7 @@ def build(bld):
         idx=1,
         target=config['lib_target'],
         source=source_files,
-        export_includes='.',
+        export_includes='..',
         features=['c', 'cstlib'],
         cflags=config['cflags'] + cflags,
         install_path=config['lib_install_path'],

@@ -48,7 +48,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
     BSLS_ASSERT(path);
 
     if (0 > length) {
-        length = bsl::strlen(path);
+        length = static_cast<int>(bsl::strlen(path));
     }
     *resultOffset = 0;
 
@@ -161,7 +161,7 @@ void findFirstNonSeparatorChar(int *result, const char *path, int length = -1)
     size_t resultOffset;
     findFirstNonSeparatorChar(&resultOffset, path, length);
     BSLS_ASSERT(INT_MAX > resultOffset);
-    *result = resultOffset;
+    *result = static_cast<int>(resultOffset);
 }
 
 static
@@ -176,7 +176,7 @@ const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
     BSLS_ASSERT(path);
 
     if (0 > length) {
-        length = bsl::strlen(path);
+        length = static_cast<int>(bsl::strlen(path));
     }
 
     while (0 < length && SEPARATOR == path[length - 1]) {
@@ -194,7 +194,9 @@ const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
 static inline
 const char *leafDelimiter(const bsl::string &path, int rootEnd)
 {
-    return leafDelimiter(path.c_str(), rootEnd, path.length());
+    return leafDelimiter(path.c_str(),
+                         rootEnd,
+                         static_cast<int>(path.length()));
 }
 
 namespace bdls {
@@ -222,7 +224,7 @@ int PathUtil::appendIfValid(bsl::string              *path,
     size_t nonSeparatorOffset;
     findFirstNonSeparatorChar(&nonSeparatorOffset,
                               filename.data(),
-                              filename.length());
+                              static_cast<int>(filename.length()));
     if (0 != nonSeparatorOffset) { // absolute path
         return -1;                                                    // RETURN
     }
@@ -230,7 +232,7 @@ int PathUtil::appendIfValid(bsl::string              *path,
     // Create an 'adjustedFilenameLength' that suppresses trailing separators
     // in 'filename'.
 
-    bsl::size_t adjustedFilenameLength = filename.length();
+    int adjustedFilenameLength = static_cast<int>(filename.length());
     for (; adjustedFilenameLength > 0; --adjustedFilenameLength) {
         if (SEPARATOR != filename[adjustedFilenameLength - 1]) {
             break;
@@ -264,12 +266,14 @@ void PathUtil::appendRaw(bsl::string *path,
     BSLS_ASSERT(filename);
 
     if (0 > length) {
-        length = bsl::strlen(filename);
+        length = static_cast<int>(bsl::strlen(filename));
     }
 
     if (0 < length) {
         if (0 > rootEnd) {
-            findFirstNonSeparatorChar(&rootEnd, path->c_str(), path->length());
+            findFirstNonSeparatorChar(&rootEnd,
+                                      path->c_str(),
+                                      static_cast<int>(path->length()));
         }
         if (hasLeaf(path->c_str(), rootEnd)
          || (rootEnd > 0 && (*path)[rootEnd-1] != SEPARATOR)) {
@@ -284,7 +288,9 @@ int PathUtil::popLeaf(bsl::string *path, int rootEnd)
     BSLS_ASSERT(path);
 
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path->c_str(), path->length());
+        findFirstNonSeparatorChar(&rootEnd,
+                                  path->c_str(),
+                                  static_cast<int>(path->length()));
     }
 
     if (!hasLeaf(path->c_str(), rootEnd)) {
@@ -301,7 +307,7 @@ int PathUtil::getLeaf(bsl::string              *leaf,
 {
     BSLS_ASSERT(leaf);
 
-    int length = path.length();
+    int length = static_cast<int>(path.length());
 
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd, path.data(), length);
@@ -331,7 +337,9 @@ int PathUtil::getDirname(bsl::string              *dirname,
     BSLS_ASSERT(dirname);
 
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd,
+                                  path.data(),
+                                  static_cast<int>(path.length()));
     }
 
     if (!hasLeaf(path, rootEnd)) {
@@ -341,7 +349,7 @@ int PathUtil::getDirname(bsl::string              *dirname,
     dirname->clear();
     const char *lastSeparator = leafDelimiter(path.data(),
                                               rootEnd,
-                                              path.length());
+                                              static_cast<int>(path.length()));
     if (lastSeparator == path.data()) {
         //nothing to do
 
@@ -358,7 +366,9 @@ int PathUtil::getRoot(bsl::string              *root,
     BSLS_ASSERT(root);
 
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd,
+                                  path.data(),
+                                  static_cast<int>(path.length()));
     }
 
     if (isRelative(path, rootEnd)) {
@@ -373,7 +383,9 @@ int PathUtil::getRoot(bsl::string              *root,
 bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd,
+                                  path.data(),
+                                  static_cast<int>(path.length()));
     }
 
     return rootEnd > 0;
@@ -382,7 +394,9 @@ bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
 bool PathUtil::isRelative(const bslstl::StringRef& path, int rootEnd)
 {
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), path.length());
+        findFirstNonSeparatorChar(&rootEnd,
+                                  path.data(),
+                                  static_cast<int>(path.length()));
     }
 
     return 0 == rootEnd;
@@ -391,13 +405,15 @@ bool PathUtil::isRelative(const bslstl::StringRef& path, int rootEnd)
 int PathUtil::getRootEnd(const bslstl::StringRef& path)
 {
     int result;
-    findFirstNonSeparatorChar(&result, path.data(), path.length());
+    findFirstNonSeparatorChar(&result,
+                              path.data(),
+                              static_cast<int>(path.length()));
     return result;
 }
 
 bool PathUtil::hasLeaf(const bslstl::StringRef& path, int rootEnd)
 {
-    int length = path.length();
+    int length = static_cast<int>(path.length());
     if (0 > rootEnd) {
         findFirstNonSeparatorChar(&rootEnd, path.data(), length);
     }

@@ -20,7 +20,7 @@ BSLS_IDENT("$Id$")
 // Even in hardware and intel modes, we need decNumber functions.
 
 extern "C" {
-#include <decSingle.h>
+#include <decnumber/decSingle.h>
 }
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -336,12 +336,13 @@ static typename Properties<Size>::StorageType makeCombinationField(
     unsigned long expo(exponent + Properties<Size>::bias);
 
     typename Properties<Size>::StorageType exp(expo & clear);
-    exp |= digit < 8u
+    exp |= static_cast<typename Properties<Size>::StorageType>
+           (digit < 8u
         ? (((expo & (0x3ul << shift)) << 3u)
            | (digit << shift))
         : ((0x18ul << shift)
            | ((expo & (0x3ul << shift)) << 1u)
-           | (digit & 0x1u) << shift);
+           | (digit & 0x1u) << shift));
 
     return exp <<= (Size - size - 1);
 }
@@ -469,7 +470,7 @@ unsigned DenselyPackedDecimalImpUtil::decodeDeclet(unsigned declet)
 
     BSLS_ASSERT(loc != declets + 1000);
 
-    return loc - declets;
+    return static_cast<unsigned>(loc - declets);
 }
 
 DenselyPackedDecimalImpUtil::StorageType32

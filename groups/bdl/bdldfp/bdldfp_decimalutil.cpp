@@ -17,7 +17,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 
 #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 extern "C" {
-#include <decSingle.h>
+#include <decnumber/decSingle.h>
 }
 #endif
 
@@ -53,7 +53,7 @@ bool isNanString(const char *str) {
     // character [a-zA-Z] in ASCII encoding can be bit-wise 'or'ed with '_'
     // (0x20) to get the corresponding lower case character.
 
-    int len = bsl::strlen(str);
+    bsl::size_t len = bsl::strlen(str);
     if (len < 3) {
         return false;
     }

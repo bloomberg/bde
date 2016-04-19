@@ -157,13 +157,6 @@ static Datum copyArray(const DatumArrayRef&  array,
     // allocated memory inside the 'Datum' objects within 'array' is also deep-
     // copied.
 
-static Datum copyMap(const DatumMapRef&  map,
-                     bslma::Allocator   *basicAllocator);
-    // Clone the elements in the specified 'map'.  Use the specified
-    // 'basicAllocator' to allocate memory (if needed).  Any dynamically
-    // allocated memory inside the 'Datum' objects within 'map' is also
-    // deep-copied.
-
 static Datum copyMapOwningKeys(const DatumMapRef&  map,
                                bslma::Allocator   *basicAllocator);
     // Clone the elements in the specified 'map'.  Use the specified
@@ -653,35 +646,6 @@ Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
     return Datum::adoptArray(ref);
 }
 
-static Datum copyMap(const DatumMapRef&  map,
-                     bslma::Allocator   *basicAllocator)
-{
-    DatumMutableMapRef ref;
-
-    if (map.size()) {
-        Datum::createUninitializedMap(&ref, map.size(), basicAllocator);
-
-        // Track the allocated memory and destroy it if any of the allocations
-        // inside the for loop throws.
-        Datum_ArrayProctor<DatumMapEntry> proctor(ref.size(),
-                                                  ref.data(),
-                                                  ref.data(),
-                                                  basicAllocator);
-
-        // Copy the new elements.
-        for (DatumMapRef::SizeType i = 0; i < map.size(); ++i) {
-            ref.data()[i] =
-                DatumMapEntry(map[i].key(),
-                              map[i].value().clone(basicAllocator));
-            proctor.moveEnd();
-        }
-        *ref.size() = map.size();
-        proctor.release();
-    }
-
-    return Datum::adoptMap(ref);                                  // RETURN
-}
-
 Datum copyMapOwningKeys(const DatumMapRef&  map,
                         bslma::Allocator   *basicAllocator)
 {
@@ -769,7 +733,6 @@ BSLMF_ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 // Sanity checks.
 BSLMF_ASSERT(sizeof(Datum) == sizeof(double));
-bdlt::Date Datum::s_dateTimeBase(bdlt::CurrentTime::utc().date());
 #else   // BSLS_PLATFORM_CPU_32_BIT
 BSLMF_ASSERT(sizeof(Datum) == 2 * sizeof(void *));
 BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));

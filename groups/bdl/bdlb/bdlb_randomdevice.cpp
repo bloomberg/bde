@@ -163,9 +163,9 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
         size_t fileDataLen = 0;
         do
         {
-            count = read(fileData,
-                         buffer + fileDataLen,
-                         numBytes - fileDataLen);
+            count = static_cast<int>(read(fileData,
+                                          buffer + fileDataLen,
+                                          numBytes - fileDataLen));
             if (count < 0)
             {
                 rval = -2;

@@ -469,7 +469,7 @@ int ThreadPool::numWaitingThreads() const
 int ThreadPool::numPendingJobs() const
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    return d_queue.size();
+    return static_cast<int>(d_queue.size());
 }
 
 double ThreadPool::percentBusy() const

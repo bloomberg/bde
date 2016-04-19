@@ -602,7 +602,7 @@ int main(int argc, char *argv[]) {
 
                 ASSERT(0 == da.numAllocations());
 
-                Obj        mB(0);
+                Obj        mB(0, 0);
                 const Obj& B = mB;
 
                 ASSERT(0 == B.capacity());
@@ -708,7 +708,7 @@ int main(int argc, char *argv[]) {
                     bdld::Datum value;
                     ASSERT(0 == da.numAllocations());
 
-                    Obj        mB(0);
+                    Obj        mB(0, 0);
                     const Obj& B = mB;
 
                     ASSERT(0 == B.capacity());
@@ -747,7 +747,7 @@ int main(int argc, char *argv[]) {
                     bdld::Datum value;
                     ASSERT(0 == da.numAllocations());
 
-                    Obj        mB(0);
+                    Obj        mB(0, 0);
                     const Obj& B = mB;
 
                     ASSERT(0 == B.capacity());
@@ -789,7 +789,7 @@ int main(int argc, char *argv[]) {
             const bsl::size_t numValues = sizeof(values)/sizeof(values[0]);
 
             {
-                Obj        mB(0);
+                Obj        mB(0, 0);
                 const Obj& B = mB;
 
                 ASSERT(0 == B.capacity());
@@ -847,7 +847,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            Obj        mB(0);
+            Obj        mB(0, 0);
             const Obj& B = mB;
 
             ASSERT(0 == B.capacity());

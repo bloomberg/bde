@@ -56,7 +56,6 @@ LoggerManagerConfiguration::areValidDefaultThresholdLevels(int recordLevel,
 LoggerManagerConfiguration::LoggerManagerConfiguration(
                                               bslma::Allocator *basicAllocator)
 : d_defaults()
-, d_userFieldsSchema(basicAllocator)
 , d_userPopulator(bsl::allocator_arg_t(),
                   bsl::allocator<UserFieldsPopulatorCallback>(basicAllocator))
 , d_categoryNameFilter(
@@ -75,7 +74,6 @@ LoggerManagerConfiguration::LoggerManagerConfiguration(
                              const LoggerManagerConfiguration&  original,
                              bslma::Allocator                  *basicAllocator)
 : d_defaults(original.d_defaults)
-, d_userFieldsSchema(original.d_userFieldsSchema, basicAllocator)
 , d_userPopulator(bsl::allocator_arg_t(),
                   bsl::allocator<UserFieldsPopulatorCallback>(basicAllocator),
                   original.d_userPopulator)
@@ -102,7 +100,6 @@ LoggerManagerConfiguration&
 LoggerManagerConfiguration::operator=(const LoggerManagerConfiguration& rhs)
 {
     d_defaults            = rhs.d_defaults;
-    d_userFieldsSchema    = rhs.d_userFieldsSchema;
     d_userPopulator       = rhs.d_userPopulator;
     d_categoryNameFilter  = rhs.d_categoryNameFilter;
     d_defaultThresholdsCb = rhs.d_defaultThresholdsCb;
@@ -146,13 +143,11 @@ int LoggerManagerConfiguration::setDefaultThresholdLevelsIfValid(
                                                        triggerAllLevel);
 }
 
-void LoggerManagerConfiguration::setUserFieldsSchema(
-                          const ball::UserFieldsSchema       fieldDescriptions,
+void LoggerManagerConfiguration::setUserFieldsPopulatorCallback(
                           const UserFieldsPopulatorCallback& populatorCallback)
 
 {
-    d_userFieldsSchema = fieldDescriptions;
-    d_userPopulator        = populatorCallback;
+    d_userPopulator = populatorCallback;
 }
 
 void LoggerManagerConfiguration::setCategoryNameFilterCallback(
@@ -214,12 +209,6 @@ int LoggerManagerConfiguration::defaultTriggerAllLevel() const
     return d_defaults.defaultTriggerAllLevel();
 }
 
-const ball::UserFieldsSchema&
-LoggerManagerConfiguration::userFieldsSchema() const
-{
-    return d_userFieldsSchema;
-}
-
 const LoggerManagerConfiguration::UserFieldsPopulatorCallback&
 LoggerManagerConfiguration::userFieldsPopulatorCallback() const
 {
@@ -276,10 +265,6 @@ LoggerManagerConfiguration::print(bsl::ostream& stream,
     d_defaults.print(stream, level + 1, spacesPerLevel);
 
     bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-    stream << "User Fields Schema:" << NL;
-    d_userFieldsSchema.print(stream, level + 1, spacesPerLevel);
-
-    bdlb::Print::indent(stream, level + 1, spacesPerLevel);
     const char *nullPop = d_userPopulator ? "not null" : "null";
     stream << "User Fields Populator functor is " << nullPop << NL;
 
@@ -320,7 +305,6 @@ bool ball::operator==(const ball::LoggerManagerConfiguration& lhs,
     // this is truly the desired behavior, and if so remove this note, or
     // correct it otherwise.
     return lhs.d_defaults                  == rhs.d_defaults
-        && lhs.d_userFieldsSchema          == rhs.d_userFieldsSchema
         && (bool)lhs.d_userPopulator       == (bool)rhs.d_userPopulator
         && (bool)lhs.d_categoryNameFilter  == (bool)rhs.d_categoryNameFilter
         && (bool)lhs.d_defaultThresholdsCb == (bool)rhs.d_defaultThresholdsCb

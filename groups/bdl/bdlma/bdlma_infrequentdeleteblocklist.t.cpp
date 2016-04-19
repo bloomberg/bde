@@ -736,10 +736,16 @@ int main(int argc, char *argv[])
             { L_,    5 * HDRSZ - 14  },
             { L_,    5 * HDRSZ - 15  },
             { L_,    5 * HDRSZ - 16  },
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            { L_,    INT_MAX         }, // DRQS 78107275
+
+            // For DRQS 78107275, we wish to attempt large allocations.
+            // Unfortunately, this causes intermittant failures in the nightly
+            // builds.  As such, we will "push the envelope" on 64-bit Linux
+            // but perform a more moderate test elsewhere.
+
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_LINUX)
+            { L_,    INT_MAX         },
 #endif
-            { L_,    INT_MAX / 4     }  // DRQS 78107275
+            { L_,    INT_MAX / 4     }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

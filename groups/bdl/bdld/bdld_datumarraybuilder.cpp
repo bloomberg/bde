@@ -25,6 +25,7 @@ static DatumArrayBuilder::SizeType getNewCapacity(
                        bsl::numeric_limits<DatumArrayBuilder::SizeType>::max();
 
     BSLS_ASSERT(length < MAX_BYTES/2);
+    (void)MAX_BYTES;
 
     capacity = capacity ? capacity : 1;
     while (capacity < length) {
@@ -56,6 +57,12 @@ static void createArrayStorage(DatumMutableArrayRef        *array,
                           // -----------------------
 
 // CREATORS
+DatumArrayBuilder::DatumArrayBuilder(bslma::Allocator *basicAllocator)
+: d_capacity(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 DatumArrayBuilder::DatumArrayBuilder(SizeType          initialCapacity,
                                      bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)

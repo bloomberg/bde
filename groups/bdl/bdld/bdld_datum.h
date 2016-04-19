@@ -101,7 +101,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Datum objects containing certain types *may* (or *may*-*not*!) require
 // memory allocation, so their creation functions *require* an allocator:
 //..
-//  bslma::Allocator *allocator = bslma::Default(0);
+//  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //  Datum int64    = Datum::createInteger64(1LL, allocator);
 //..
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // The contents of a 'Datum' object are destroyed using the static method
 // 'destroy'.  For example:
 //..
-//  bslma::Allocator *allocator = bslma::Default(0);
+//  bslma::Allocator *allocator = bslma::Default::defaultAllocator();
 //  Datum datetime = Datum::createDatetime(bdlt::Datetime(), allocator);
 //
 //  Datume::destroy(datetime, allocator);
@@ -511,6 +511,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_date.h>
 #endif
 
+#ifndef INCLUDED_BDLT_EPOCHUTIL
+#include <bdlt_epochutil.h>
+#endif
+
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -675,6 +679,27 @@ class Datum {
         , e_BINARY               = 14  // pointer to the binary data
         , e_DECIMAL64            = 15  // Decimal64
         , k_NUM_TYPES            = 16  // number of distinct enumerated types
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , e_ERROR_VALUE          = e_ERROR
+        , DLCT_NIL               = e_NIL
+        , DLCT_INTEGER           = e_INTEGER
+        , DLCT_REAL              = e_REAL
+        , DLCT_STRING            = e_STRING
+        , DLCT_BOOLEAN           = e_BOOLEAN
+        , DLCT_ERROR_VALUE       = e_ERROR_VALUE
+        , DLCT_DATE              = e_DATE
+        , DLCT_TIME              = e_TIME
+        , DLCT_DATETIME          = e_DATETIME
+        , DLCT_DATETIME_INTERVAL = e_DATETIME_INTERVAL
+        , DLCT_INTEGER64         = e_INTEGER64
+        , DLCT_USERDEFINED       = e_USERDEFINED
+        , DLCT_ARRAY             = e_ARRAY
+        , DLCT_MAP               = e_MAP
+        , DLCT_BINARY            = e_BINARY
+        , DLCT_DECIMAL64         = e_DECIMAL64
+        , DLCT_NUM_TYPES         = k_NUM_TYPES
+#endif
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -769,6 +794,19 @@ class Datum {
                                               // data type needs to be shifted
                                               // into place
 
+    static const short k_DATETIME_OFFSET_FROM_EPOCH = 18262;
+        // Number of days offset from 1970 Jan 1 used to create the epoch used
+        // to determine if 'Datum' stores a date-time value using dynamic
+        // memory allocation or withing the 'Datum' itself.  This offset, added
+        // to the 1970 Jan 1 date, creates an (mid) epoch of 2020 Jan 1.
+        // Given that 'Datum' uses a signed 16 bits day-offset when storing
+        // date-time internally, the 2020 Jan 1 epoch enables of storing
+        // date-times internally the range of 1930 Apr 15 to 2109 Sept 18.
+        // Note that the time part of date-time can be stored internally
+        // without data loss, so that makes the no-allocation range to be
+        // 1930 Apr 15 00:00:00.000 to 2109 Sept 18 24:00:00.000. See
+        // 'createDatetime' and 'theDatetime' methods for the implementation.
+
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     // Check if platform is little endian.
     static const int k_EXPONENT_OFFSET  = 6;  // offset of the exponent part in
@@ -841,8 +879,6 @@ class Datum {
         e_DECIMAL64_SPECIAL_INFINITY,
         e_DECIMAL64_SPECIAL_NEGATIVE_INFINITY
     };
-
-    static bdlt::Date s_dateTimeBase;
 
     // DATA
     // 32-bit variation
@@ -1706,6 +1742,25 @@ class Datum {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // DEPRECATED
+    static void createUninitializedMapOwningKeys(
+                                 DatumMutableMapOwningKeysRef *result,
+                                 SizeType                      capacity,
+                                 SizeType                      keysCapacity,
+                                 bslma::Allocator             *basicAllocator);
+        // [!DEPRECATED!] Use 'createUninitializedMap' instead.
+
+    static Datum adoptMapOwningKeys(
+                                  const DatumMutableMapOwningKeysRef& mapping);
+        // [!DEPRECATED!] Use 'adoptMap' instead.
+
+    static void disposeUninitializedMapOwningKeys(
+                          const DatumMutableMapOwningKeysRef&  mapping,
+                          bslma::Allocator                    *basicAllocator);
+        // [!DEPRECATED!] Use 'disposeUninitializedMap' instead.
+#endif
 };
 
 // FREE OPERATORS
@@ -2701,19 +2756,21 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
                             bslma::Allocator      *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
+    (void)basicAllocator;
 
     Datum result;
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // Check if number of days from now fits in two bytes.
 
-    int dateOffsetFromNow = value.date() - s_dateTimeBase;
-    short shortDateOffsetFromNow = static_cast<short>(dateOffsetFromNow);
+    int dateOffsetFromEpoch = (value.date() - bdlt::EpochUtil::epoch().date())
+                                                - k_DATETIME_OFFSET_FROM_EPOCH;
+    short shortDateOffsetFromEpoch = static_cast<short>(dateOffsetFromEpoch);
 
-    if (static_cast<int>(shortDateOffsetFromNow) == dateOffsetFromNow) {
+    if (static_cast<int>(shortDateOffsetFromEpoch) == dateOffsetFromEpoch) {
         result.d_exp.d_value =
             (k_DOUBLE_MASK | e_INTERNAL_DATETIME) << k_TYPE_MASK_BITS
-            | (0xffff & shortDateOffsetFromNow);
+            | (0xffff & dateOffsetFromEpoch);
         *reinterpret_cast<bdlt::Time*>(&result.d_as.d_int) = value.time();
     } else {
         void *mem = new (*basicAllocator) bdlt::Datetime(value);
@@ -2734,6 +2791,7 @@ Datum Datum::createDatetimeInterval(
                                  bslma::Allocator              *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
+    (void)basicAllocator;
 
     Datum result;
 
@@ -3232,8 +3290,9 @@ bdlt::Datetime Datum::theDatetime() const
 
     if (type == e_INTERNAL_DATETIME) {
         return bdlt::Datetime(
-                  s_dateTimeBase + d_as.d_short,
-                  *reinterpret_cast<const bdlt::Time*>(&d_as.d_int)); // RETURN
+               bdlt::EpochUtil::epoch().date() + k_DATETIME_OFFSET_FROM_EPOCH +
+                                                                  d_as.d_short,
+               *reinterpret_cast<const bdlt::Time*>(&d_as.d_int));    // RETURN
     }
 
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
@@ -3675,6 +3734,32 @@ void Datum::apply(BDLD_VISITOR& visitor) const
 }
 
 #endif // BSLS_PLATFORM_CPU_32_BIT
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+void Datum::createUninitializedMapOwningKeys(
+                                 DatumMutableMapOwningKeysRef *result,
+                                 SizeType                      capacity,
+                                 SizeType                      keysCapacity,
+                                 bslma::Allocator             *basicAllocator)
+{
+    createUninitializedMap(result, capacity, keysCapacity, basicAllocator);
+}
+
+inline
+Datum Datum::adoptMapOwningKeys(const DatumMutableMapOwningKeysRef& mapping)
+{
+    return adoptMap(mapping);
+}
+
+inline
+void Datum::disposeUninitializedMapOwningKeys(
+                           const DatumMutableMapOwningKeysRef&  mapping,
+                           bslma::Allocator                    *basicAllocator)
+{
+    return disposeUninitializedMap(mapping, basicAllocator);
+}
+#endif
 
                          // -------------------
                          // class DatumArrayRef
