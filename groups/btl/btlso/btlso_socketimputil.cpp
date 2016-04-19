@@ -667,7 +667,7 @@ int btlso::SocketImpUtil::read(void                               *buffer,
                                int                                 numBytes,
                                int                                *errorCode)
 {
-    int rc;
+    ssize_t rc;
 
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(numBytes >= 0);
@@ -677,7 +677,8 @@ int btlso::SocketImpUtil::read(void                               *buffer,
     if (errorNumber && errorCode) {
         *errorCode = errorNumber;
     }
-    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) :
+                         static_cast<int>(rc);
 }
 
                         // --------------------
@@ -689,12 +690,12 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
                                 int                                 size,
                                 int                                *errorCode)
 {
-    int rc;
-
     BSLS_ASSERT(iovecPtr);
     BSLS_ASSERT(size > 0);
 
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
+    int rc;
+
     DWORD bytesReceived;
     DWORD lpFlags = 0;
     rc = ::WSARecv(
@@ -712,6 +713,8 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
         rc = -1;
     }
 #else
+    ssize_t rc;
+
     rc = ::readv(socket, reinterpret_cast<const ::iovec *>(iovecPtr), size);
 #endif
 
@@ -719,7 +722,8 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
     if (errorNumber && errorCode) {
         *errorCode = errorNumber;
     }
-    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) :
+                         static_cast<int>(rc);
 }
 
 int btlso::SocketImpUtil::write(const btlso::SocketHandle::Handle&  socket,
@@ -739,7 +743,7 @@ int btlso::SocketImpUtil::write(const btlso::SocketHandle::Handle&  socket,
     // made regarding the number of bytes that will be written with a single
     // call.
 
-    int rc;
+    ssize_t rc;
 
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(numBytes >= 0);
@@ -750,7 +754,8 @@ int btlso::SocketImpUtil::write(const btlso::SocketHandle::Handle&  socket,
     if (errorNumber && errorCode) {
         *errorCode = errorNumber;
     }
-    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) :
+                         static_cast<int>(rc);
 }
 
 int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
@@ -758,12 +763,12 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
                                  int                                 size,
                                  int                                *errorCode)
 {
-    int rc;
-
     BSLS_ASSERT(ovec);
     BSLS_ASSERT(size > 0);
 
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
+    int rc;
+
     DWORD bytesSent;
     rc = ::WSASend(socket,
                    reinterpret_cast<WSABUF *>(const_cast<btls::Ovec *>(ovec)),
@@ -779,6 +784,8 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
         rc = 0;
     }
 #else
+    ssize_t rc;
+
     rc = ::writev(socket, reinterpret_cast<const ::iovec *>(ovec), size);
 #endif
 
@@ -786,7 +793,8 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
     if (errorNumber && errorCode) {
         *errorCode = errorNumber;
     }
-    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) :
+                         static_cast<int>(rc);
 }
 
 int btlso::SocketImpUtil::shutDown(

@@ -74,8 +74,8 @@ int validateTimeZoneId(const char *timeZoneId)
                              "abcdefghijklmnopqrstuvwxyz"
                              "1234567890/_+-";
 
-    const int length = bsl::strlen(timeZoneId);
-    for (int i = 0; i < length; ++i) {
+    const bsl::size_t length = bsl::strlen(timeZoneId);
+    for (bsl::size_t i = 0; i < length; ++i) {
         const char *c = VALID_CHAR;
         while (*c != '\0') {
             if (*c == timeZoneId[i]) {

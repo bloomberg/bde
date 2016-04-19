@@ -324,8 +324,8 @@ int getValueUsingIso8601(bsl::streambuf *streamBuf,
         buf = &vecBuf[0];  // First byte of contiguous string
     }
 
-    const int bytesConsumed = streamBuf->sgetn(buf, length);
-    if (bytesConsumed != length) {
+    const bsl::streamsize bytesConsumed = streamBuf->sgetn(buf, length);
+    if (static_cast<int>(bytesConsumed) != length) {
         return FAILURE;                                               // RETURN
     }
 
@@ -1108,7 +1108,8 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 
     BSLS_ASSERT(&value[length-1] == &value[0] + length - 1);
 
-    const int bytesConsumed = streamBuf->sgetn(&(*value)[0], length);
+    const bsl::streamsize bytesConsumed =
+                                        streamBuf->sgetn(&(*value)[0], length);
 
     return length == bytesConsumed ? SUCCESS : FAILURE;
 }
@@ -1178,8 +1179,8 @@ int BerUtil_Imp::getValue(bsl::streambuf     *streamBuf,
         return FAILURE;
     }
 
-    const int bytesConsumed = streamBuf->sgetn(reinterpret_cast<char*>(buf),
-                                               length);
+    const bsl::streamsize bytesConsumed =
+                        streamBuf->sgetn(reinterpret_cast<char*>(buf), length);
 
     if (bytesConsumed != length) {
         return FAILURE;                                               // RETURN
@@ -1308,7 +1309,7 @@ int BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
     unsigned char buf[8];
     bsls::Types::size_type length =
         bdldfp::DecimalConvertUtil::decimal64ToMultiWidthEncoding(buf, value);
-    putLength(streamBuf, length);
+    putLength(streamBuf, static_cast<int>(length));
 
     if (static_cast<bsl::streamsize>(length) ==
         streamBuf->sputn(reinterpret_cast<char*>(buf), length)) {

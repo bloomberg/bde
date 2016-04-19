@@ -32,7 +32,7 @@ int Attribute::hash(const Attribute& attribute, int size)
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
 
         unsigned int hash = bdlb::HashUtil::hash1(attribute.d_name,
-                                                bsl::strlen(attribute.d_name));
+                              static_cast<int>(bsl::strlen(attribute.d_name)));
 
         if (attribute.d_value.is<int>()) {
             hash += bdlb::HashUtil::hash1(attribute.d_value.the<int>());
@@ -43,7 +43,8 @@ int Attribute::hash(const Attribute& attribute, int size)
         else {
             hash += bdlb::HashUtil::hash1(
                 attribute.d_value.the<bsl::string>().c_str(),
-                attribute.d_value.the<bsl::string>().length());
+                static_cast<int>(
+                               attribute.d_value.the<bsl::string>().length()));
         }
 
         attribute.d_hashValue = hash % size;

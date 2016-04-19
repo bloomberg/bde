@@ -294,7 +294,9 @@ int PipeControlChannel::readNamedPipe()
             BALL_LOG_TRACE << "Polled POLLIN from file descriptor of pipe '"
                            << d_pipeName << "'" << BALL_LOG_END;
 
-            int bytesRead = read(d_impl.d_unix.d_readFd, buffer, BUFFER_SIZE);
+            bsl::size_t bytesRead = read(d_impl.d_unix.d_readFd,
+                                         buffer,
+                                         BUFFER_SIZE);
 
             savedErrno    = errno;
 
@@ -302,13 +304,6 @@ int PipeControlChannel::readNamedPipe()
                 BALL_LOG_TRACE << "Zero bytes read from the pipe"
                                << BALL_LOG_END;
                 continue;
-            }
-            else if (0 > bytesRead) {
-                BALL_LOG_ERROR << "Failed to read from pipe '"
-                               << d_pipeName
-                               << "', errno = " << savedErrno << ": "
-                               << bsl::strerror(savedErrno) << BALL_LOG_END;
-                return -1;                                            // RETURN
             }
             else {
                BALL_LOG_TRACE << "Read data from pipe: '";
@@ -550,7 +545,7 @@ void PipeControlChannel::dispatchMessageUpTo(
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
     bslstl::StringRef stringRef(&(*d_buffer.begin()),
-                              iter - d_buffer.begin());
+                                static_cast<int>(iter - d_buffer.begin()));
     BALL_LOG_TRACE << "Assembled complete message '"
                    << (bsl::string)stringRef << "'"
                    << BALL_LOG_END;

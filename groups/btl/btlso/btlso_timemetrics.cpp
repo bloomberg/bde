@@ -70,8 +70,10 @@ void TimeMetrics::resetAll()
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
-    int numCategories = d_categoryTimes.size();
-    for (int i = 0; i < numCategories; ++i) {
+    typedef bsl::vector<int>::size_type size_type;
+
+    size_type numCategories = d_categoryTimes.size();
+    for (size_type i = 0; i < numCategories; ++i) {
         d_categoryTimes[i] = 0;
     }
     d_currentTotal = 0;
@@ -81,10 +83,12 @@ void TimeMetrics::resetStartTimes()
 {
     bslmt::LockGuard<bslmt::Mutex> lock(&d_dataLock);
 
-    int                numCategories = d_categoryStartTimes.size();
+    typedef bsl::vector<bsls::TimeInterval>::size_type size_type;
+
+    size_type          numCategories = d_categoryStartTimes.size();
     bsls::TimeInterval now           = bdlt::CurrentTime::now();
 
-    for (int i = 0; i < numCategories; ++i) {
+    for (size_type i = 0; i < numCategories; ++i) {
         d_categoryStartTimes[i] = now;
     }
 }

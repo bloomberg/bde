@@ -117,7 +117,7 @@ void Formatter::doAddAttribute(const bslstl::StringRef& name,
     BSLS_ASSERT(e_IN_TAG == d_state);
     BSLS_ASSERT(0 != name.length());
 
-    int attrLen = name.length() + value.length() + 4;
+    int attrLen = static_cast<int>(name.length() + value.length()) + 4;
         // 4 accounts for ' ', '=', '"', '"'
     if (d_column + attrLen + 2 >= d_wrapColumn) {
                           // 2 accounts for possible "/>"
@@ -137,7 +137,7 @@ void Formatter::doAddData(const bslstl::StringRef& value, bool addSpace)
 {
     BSLS_ASSERT(e_BETWEEN_TAGS == d_state);
 
-    int valueLen = value.length();
+    int valueLen = static_cast<int>(value.length());
     if (d_wrapColumn >= 0) {
         if (d_isFirstData && d_column > 0 &&
             e_NEWLINE_INDENT == d_elementNesting.back().ws()) {
@@ -195,7 +195,7 @@ void Formatter::openElement(const bslstl::StringRef& name,
 
     indent();
     d_outputStream << '<' << name;
-    d_column += 1 + name.length();
+    d_column += 1 + static_cast<int>(name.length());
 
     if (d_wrapColumn >= 0) {
         d_elementNesting.push_back(ElemContext(name, ws));
@@ -229,7 +229,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
             indent();
         }
         d_outputStream << "</" << name << '>';
-        d_column += 3 + name.length();
+        d_column += 3 + static_cast<int>(name.length());
     }
 
     d_isFirstData = false;
@@ -268,8 +268,10 @@ void Formatter::addHeader(const bslstl::StringRef& encoding)
         d_column = 0;
     }
     else {
-        d_column += (sizeof(startHeader) + sizeof(endHeader) - 2 +
-                     encoding.length());
+        d_column += static_cast<int>(  sizeof(startHeader)
+                                     + sizeof(endHeader)
+                                     - 2
+                                     + encoding.length());
     }
     d_state = e_AFTER_START_NO_TAG;
 }
@@ -298,7 +300,7 @@ void Formatter::addComment(const bslstl::StringRef& comment,
         d_column = 0;
     }
     else {
-        d_column += comment.length() + 9;
+        d_column += static_cast<int>(comment.length()) + 9;
     }
 }
 
@@ -307,7 +309,7 @@ void Formatter::reset()
     d_outputStream.clear(); // Clear error condition(s)
     d_column = 0;
     d_state = e_AT_START;
-    d_indentLevel -= d_elementNesting.size();
+    d_indentLevel -= static_cast<int>(d_elementNesting.size());
     d_elementNesting.clear();
 
     d_isFirstData = true;

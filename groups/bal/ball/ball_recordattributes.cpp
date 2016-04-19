@@ -108,7 +108,7 @@ RecordAttributes& RecordAttributes::operator=(
 // ACCESSORS
 const char *RecordAttributes::message() const
 {
-    const int length = d_messageStreamBuf.length();
+    const bsl::size_t length = d_messageStreamBuf.length();
     if (0 == length || '\0' != *(d_messageStreamBuf.data() + length - 1)) {
         // Null terminate the string.
 
@@ -123,12 +123,12 @@ const char *RecordAttributes::message() const
 
 bslstl::StringRef RecordAttributes::messageRef() const
 {
-    int length = d_messageStreamBuf.length();
+    const bsl::size_t length = d_messageStreamBuf.length();
     const char *str = d_messageStreamBuf.data();
-    return bslstl::StringRef(str,
-                             (!length || '\0' != str[length - 1])
-                             ? length
-                             : length - 1);
+    const bsl::size_t effectiveLength = (!length || '\0' != str[length - 1])
+                                        ? length
+                                        : length - 1;
+    return bslstl::StringRef(str, static_cast<int>(effectiveLength));
 }
 
 bsl::ostream& RecordAttributes::print(bsl::ostream& stream,

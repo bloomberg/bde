@@ -598,8 +598,8 @@ void MetricsManager_PublicationHelper::publish(
         // Append the collected records to the buffer of records.
         recordBuffer.push_back(records);
         MetricSampleGroup sampleGroup(records->data(),
-                                           records->size(),
-                                           elapsedTime);
+                                      static_cast<int>(records->size()),
+                                      elapsedTime);
 
         // Add 'sampleGroup' to all the general publishers and specific
         // publishers for 'category'.
@@ -838,7 +838,7 @@ MetricsManager_PublisherRegistry::upperBound(
 int MetricsManager_PublisherRegistry::findGeneralPublishers(
                                bsl::vector<Publisher *> *publishers) const
 {
-    int count = d_generalPublishers.size();
+    int count = static_cast<int>(d_generalPublishers.size());
     if (0 == count) {
         return -0;                                                    // RETURN
     }
@@ -854,7 +854,7 @@ int MetricsManager_PublisherRegistry::findSpecificPublishers(
                                bsl::vector<Publisher *> *publishers,
                                const Category           *category) const
 {
-    int count = d_specificPublishers.count(category);
+    int count = static_cast<int>(d_specificPublishers.count(category));
     if (0 == count) {
         return count;                                                 // RETURN
     }
@@ -951,7 +951,7 @@ int MetricsManager_CallbackRegistry::findCallbacks(
                bsl::vector<const RecordsCollectionCallback *> *callbacks,
                const Category                                 *category) const
 {
-    int count = d_callbacks.count(category);
+    int count = static_cast<int>(d_callbacks.count(category));
     if (0 == count) {
         return 0;                                                     // RETURN
     }
@@ -1002,8 +1002,11 @@ void MetricsManager::collectSample(MetricSample              *sample,
 {
     bsl::vector<const Category *> allCategories;
     d_metricRegistry.getAllCategories(&allCategories);
-    collectSample(sample, records, allCategories.data(), allCategories.size(),
-                                                                    resetFlag);
+    collectSample(sample,
+                  records,
+                  allCategories.data(),
+                  static_cast<int>(allCategories.size()),
+                  resetFlag);
 }
 
 void MetricsManager::collectSample(MetricSample              *sample,
@@ -1035,13 +1038,13 @@ void MetricsManager::collectSample(MetricSample              *sample,
         // Hold the elapsed time over which these metrics were collected.
         bsls::TimeInterval elapsedTime;
 
-        int beginIndex = records->size();
+        int beginIndex = static_cast<int>(records->size());
 
         // Collect the metrics.
         MetricsManager_PublicationHelper::collect(
                      records, &elapsedTime, this, *category, now, resetFlag);
 
-        int size = records->size() - beginIndex;
+        int size = static_cast<int>(records->size()) - beginIndex;
 
         // If their are no collected records then this category can be ignored.
         if (0 < size) {
@@ -1085,7 +1088,9 @@ void MetricsManager::publishAll(bool resetFlag)
 {
     bsl::vector<const Category *> allCategories;
     d_metricRegistry.getAllCategories(&allCategories);
-    publish(allCategories.data(), allCategories.size(), resetFlag);
+    publish(allCategories.data(),
+            static_cast<int>(allCategories.size()),
+            resetFlag);
 }
 
 void MetricsManager::publishAll(
@@ -1112,7 +1117,7 @@ void MetricsManager::publishAll(
 
     if (includedCategories.size() > 0) {
         publish(includedCategories.data(),
-                includedCategories.size(),
+                static_cast<int>(includedCategories.size()),
                 resetFlag);
     }
 }

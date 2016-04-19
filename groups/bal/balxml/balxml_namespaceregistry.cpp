@@ -65,7 +65,7 @@ NamespaceRegistry::lookupOrRegister(const bslstl::StringRef& namespaceUri)
     }
 
     d_namespaces.push_back(namespaceUri);
-    return d_namespaces.size() - 1;
+    return static_cast<int>(d_namespaces.size()) - 1;
 }
 
 int
@@ -84,7 +84,7 @@ NamespaceRegistry::lookup(const bslstl::StringRef& namespaceUri) const
         if (namespaceUri == *iter) {
             // ID of namespace is equal to its index within the 'd_namespaces'
             // vector.
-            return (iter - d_namespaces.begin());                     // RETURN
+            return static_cast<int>(iter - d_namespaces.begin());     // RETURN
         }
     }
 

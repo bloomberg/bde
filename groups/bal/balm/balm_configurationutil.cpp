@@ -128,7 +128,7 @@ void ConfigurationUtil::setUserData(
     }
     MetricRegistry& registry = manager->metricRegistry();
 
-    const int length = bsl::strlen(categoryName) - 1;
+    const int length = static_cast<int>(bsl::strlen(categoryName)) - 1;
     if (length >= 0 && '*' == categoryName[length]) {
         bsl::string prefix(categoryName, length);
 
