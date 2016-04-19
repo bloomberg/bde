@@ -78,6 +78,13 @@ static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<DatumMapBuilder>::value);
 
 // CREATORS
+DatumMapBuilder::DatumMapBuilder(bslma::Allocator *basicAllocator)
+: d_capacity(0)
+, d_sorted(false)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 DatumMapBuilder::DatumMapBuilder(SizeType          initialCapacity,
                                  bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)

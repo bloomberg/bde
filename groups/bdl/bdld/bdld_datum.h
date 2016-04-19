@@ -675,6 +675,27 @@ class Datum {
         , e_BINARY               = 14  // pointer to the binary data
         , e_DECIMAL64            = 15  // Decimal64
         , k_NUM_TYPES            = 16  // number of distinct enumerated types
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        , e_ERROR_VALUE          = e_ERROR
+        , DLCT_NIL               = e_NIL
+        , DLCT_INTEGER           = e_INTEGER
+        , DLCT_REAL              = e_REAL
+        , DLCT_STRING            = e_STRING
+        , DLCT_BOOLEAN           = e_BOOLEAN
+        , DLCT_ERROR_VALUE       = e_ERROR_VALUE
+        , DLCT_DATE              = e_DATE
+        , DLCT_TIME              = e_TIME
+        , DLCT_DATETIME          = e_DATETIME
+        , DLCT_DATETIME_INTERVAL = e_DATETIME_INTERVAL
+        , DLCT_INTEGER64         = e_INTEGER64
+        , DLCT_USERDEFINED       = e_USERDEFINED
+        , DLCT_ARRAY             = e_ARRAY
+        , DLCT_MAP               = e_MAP
+        , DLCT_BINARY            = e_BINARY
+        , DLCT_DECIMAL64         = e_DECIMAL64
+        , DLCT_NUM_TYPES         = k_NUM_TYPES
+#endif
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -1703,6 +1724,25 @@ class Datum {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // DEPRECATED
+    static void createUninitializedMapOwningKeys(
+                                 DatumMutableMapOwningKeysRef *result,
+                                 SizeType                      capacity,
+                                 SizeType                      keysCapacity,
+                                 bslma::Allocator             *basicAllocator);
+        // [!DEPRECATED!] Use 'createUninitializedMap' instead.
+
+    static Datum adoptMapOwningKeys(
+                                  const DatumMutableMapOwningKeysRef& mapping);
+        // [!DEPRECATED!] Use 'adoptMap' instead.
+
+    static void disposeUninitializedMapOwningKeys(
+                          const DatumMutableMapOwningKeysRef&  mapping,
+                          bslma::Allocator                    *basicAllocator);
+        // [!DEPRECATED!] Use 'disposeUninitializedMap' instead.
+#endif
 };
 
 // FREE OPERATORS
@@ -3672,6 +3712,32 @@ void Datum::apply(BDLD_VISITOR& visitor) const
 }
 
 #endif // BSLS_PLATFORM_CPU_32_BIT
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+inline
+void Datum::createUninitializedMapOwningKeys(
+                                 DatumMutableMapOwningKeysRef *result,
+                                 SizeType                      capacity,
+                                 SizeType                      keysCapacity,
+                                 bslma::Allocator             *basicAllocator)
+{
+    createUninitializedMap(result, capacity, keysCapacity, basicAllocator);
+}
+
+inline
+Datum Datum::adoptMapOwningKeys(const DatumMutableMapOwningKeysRef& mapping)
+{
+    return adoptMap(mapping);
+}
+
+inline
+void Datum::disposeUninitializedMapOwningKeys(
+                           const DatumMutableMapOwningKeysRef&  mapping,
+                           bslma::Allocator                    *basicAllocator)
+{
+    return disposeUninitializedMap(mapping, basicAllocator);
+}
+#endif
 
                          // -------------------
                          // class DatumArrayRef
