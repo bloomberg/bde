@@ -2753,6 +2753,7 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
                             bslma::Allocator      *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
+    (void)basicAllocator;
 
     Datum result;
 
@@ -2763,7 +2764,7 @@ Datum Datum::createDatetime(const bdlt::Datetime&  value,
                                                 - k_DATETIME_OFFSET_FROM_EPOCH;
     short shortDateOffsetFromEpoch = static_cast<short>(dateOffsetFromEpoch);
 
-    if (static_cast<int>(shortDateOffsetFromEpoch) == dateOffsetFromEpoch)
+    if (static_cast<int>(shortDateOffsetFromEpoch) == dateOffsetFromEpoch) {
         result.d_exp.d_value =
             (k_DOUBLE_MASK | e_INTERNAL_DATETIME) << k_TYPE_MASK_BITS
             | (0xffff & dateOffsetFromEpoch);
@@ -2787,6 +2788,7 @@ Datum Datum::createDatetimeInterval(
                                  bslma::Allocator              *basicAllocator)
 {
     BSLS_ASSERT(basicAllocator);
+    (void)basicAllocator;
 
     Datum result;
 

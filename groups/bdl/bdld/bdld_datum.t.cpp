@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[])
         d = Datum::createDatetime(lowAllocThreshold, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
         LOOP_ASSERT(d, d.isDatetime() && d.theDatetime() == lowAllocThreshold);
-        dlct::Datum::destroy(d, &qa);
+        Datum::destroy(d, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
 
         const bdlt::Datetime highAllocThreshold =
@@ -1871,7 +1871,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
         LOOP_ASSERT(d, d.isDatetime() &&
                     d.theDatetime() == highAllocThreshold);
-        dlct::Datum::destroy(d, &qa);
+        Datum::destroy(d, &qa);
         LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
 #else
         if (verbose) cout << endl
@@ -1900,7 +1900,7 @@ int main(int argc, char *argv[])
         //   MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
         // --------------------------------------------------------------------
 
-+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
         if (verbose) cout << endl
                          << "MISALIGNED MEMORY ACCESS TEST" << endl
                          << "=============================" << endl;
@@ -1920,7 +1920,7 @@ int main(int argc, char *argv[])
                           << "DATETIME ALLOCATION TESTS ARE 32 BIT ONLY\n "
                           << "========================================="
                           << endl;
-+#endif        
+#endif
       } break;
       case 29: {
         // --------------------------------------------------------------------
