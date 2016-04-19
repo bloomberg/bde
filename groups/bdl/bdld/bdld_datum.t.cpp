@@ -1899,6 +1899,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
         // --------------------------------------------------------------------
+
++#if defined(BSLS_PLATFORM_CPU_32_BIT)
         if (verbose) cout << endl
                          << "MISALIGNED MEMORY ACCESS TEST" << endl
                          << "=============================" << endl;
@@ -1913,6 +1915,12 @@ int main(int argc, char *argv[])
         Datum::destroy(obj1, &bufAlloc);
         Datum::destroy(obj2, &bufAlloc);
         ASSERT(0 == ta.status());
+#else
+        if (verbose) cout << endl
+                          << "DATETIME ALLOCATION TESTS ARE 32 BIT ONLY\n "
+                          << "========================================="
+                          << endl;
++#endif        
       } break;
       case 29: {
         // --------------------------------------------------------------------
