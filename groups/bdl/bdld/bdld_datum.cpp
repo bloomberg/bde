@@ -733,7 +733,6 @@ BSLMF_ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 // Sanity checks.
 BSLMF_ASSERT(sizeof(Datum) == sizeof(double));
-bdlt::Date Datum::s_dateTimeBase(bdlt::CurrentTime::utc().date());
 #else   // BSLS_PLATFORM_CPU_32_BIT
 BSLMF_ASSERT(sizeof(Datum) == 2 * sizeof(void *));
 BSLMF_ASSERT(sizeof(bdlt::Datetime) <= sizeof(void*));

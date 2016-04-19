@@ -1520,7 +1520,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1811,6 +1811,76 @@ int main(int argc, char *argv[])
 //..
 // Note, that the bytes have been copied.
       } break;
+
+      case 31: {
+        // --------------------------------------------------------------------
+        // DATETIME ALLOCATION TESTS
+        //
+        // Concerns:
+        //: 1 Creating 'Datum' objects that store 'bdlt::Datetime' objects
+        //    allocate memory only when outside of the date-time range between
+        //    1930 Apr 15 00:00:00.000 and 2109 Sept 18 24:00:00.000.
+        //
+        // Plan:
+        //    A manual, brute-force test creating values on both side on the
+        //    boundary and check if allocation has occurred or not.  Note that
+        //    we expect allocation to occur if the (day) difference between the
+        //    stored date-time does not fit into a 'signed short' integer.
+        //
+        // Testing:
+        //   Datum createDatetime(const bdlt::Datetime&, bslma::Allocator *);
+        //   bdlt::Datetime theDatetime();
+        // --------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+        if (verbose) cout << endl
+                          << "DATETIME ALLOCATION TESTS" << endl
+                          << "=========================" << endl;
+
+        bslma::TestAllocator qa("qa", veryVeryVeryVerbose);
+
+        const bdlt::Date threshold(2020, 1, 1);
+
+        const bdlt::Datetime lowNoAllocThreshold =
+                                 threshold + bsl::numeric_limits<short>::min();
+        Datum d = Datum::createDatetime(lowNoAllocThreshold, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+        LOOP_ASSERT(d,
+                    d.isDatetime() && d.theDatetime() == lowNoAllocThreshold);
+
+
+        const bdlt::Datetime highNoAllocThreshold =
+                                 threshold + bsl::numeric_limits<short>::max();
+        d = Datum::createDatetime(highNoAllocThreshold, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+        LOOP_ASSERT(d,
+                    d.isDatetime() && d.theDatetime() == highNoAllocThreshold);
+
+
+        const bdlt::Datetime lowAllocThreshold =
+                               lowNoAllocThreshold - bdlt::DatetimeInterval(1);
+        d = Datum::createDatetime(lowAllocThreshold, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
+        LOOP_ASSERT(d, d.isDatetime() && d.theDatetime() == lowAllocThreshold);
+        dlct::Datum::destroy(d, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+
+        const bdlt::Datetime highAllocThreshold =
+                              highNoAllocThreshold + bdlt::DatetimeInterval(1);
+        d = Datum::createDatetime(highAllocThreshold, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 1);
+        LOOP_ASSERT(d, d.isDatetime() &&
+                    d.theDatetime() == highAllocThreshold);
+        dlct::Datum::destroy(d, &qa);
+        LOOP_ASSERT(qa.numBlocksInUse(), qa.numBlocksInUse() == 0);
+#else
+        if (verbose) cout << endl
+                          << "DATETIME ALLOCATION TESTS ARE 32 BIT ONLY\n "
+                          << "========================================="
+                          << endl;
+#endif
+      } break;
+
       case 30: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
