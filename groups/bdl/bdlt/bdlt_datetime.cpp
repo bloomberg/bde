@@ -29,11 +29,11 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
 
 // CLASS VALUES
 #ifdef BDE_USE_PROLEPTIC_DATES
-const bsls::Types::Uint64 Datetime::k_MAX_MS_FROM_EPOCH =
+const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
                                     3652059ULL * TimeUnitRatio::k_US_PER_D - 1;
                // 3652059 is 9999/12/31 - 0001/01/01 + 1 in Proleptic Gregorian
 #else
-const bsls::Types::Uint64 Datetime::k_MAX_MS_FROM_EPOCH =
+const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
                                     3652061ULL * TimeUnitRatio::k_US_PER_D - 1;
                              // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
 #endif
