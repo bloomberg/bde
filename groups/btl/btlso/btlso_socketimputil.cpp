@@ -744,7 +744,7 @@ int btlso::SocketImpUtil::write(const btlso::SocketHandle::Handle&  socket,
     // made regarding the number of bytes that will be written with a single
     // call.
 
-    ssize_t rc;
+    bsls::Types::Int64 rc;
 
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(numBytes >= 0);
