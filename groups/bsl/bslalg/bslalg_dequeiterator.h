@@ -403,7 +403,10 @@ DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator(BlockPtr   *blockPtrPtr,
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(valuePtr)
 {
-    BSLS_ASSERT_SAFE(blockPtrPtr[0]->d_data <= valuePtr);
+    // Trivially true, or undefined behavior, without the cast.
+    BSLS_ASSERT_SAFE(
+          reinterpret_cast<bsls::Types::UintPtr>((void*)blockPtrPtr[0]->d_data)
+       <= reinterpret_cast<bsls::Types::UintPtr>((void*)valuePtr));
     BSLS_ASSERT_SAFE(valuePtr - blockPtrPtr[0]->d_data < BLOCK_LENGTH);
 }
 
