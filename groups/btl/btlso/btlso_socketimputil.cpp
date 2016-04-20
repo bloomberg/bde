@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(btlso_socketimputil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
 
@@ -667,7 +668,7 @@ int btlso::SocketImpUtil::read(void                               *buffer,
                                int                                 numBytes,
                                int                                *errorCode)
 {
-    ssize_t rc;
+    bsls::Types::Int64 rc;
 
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(numBytes >= 0);

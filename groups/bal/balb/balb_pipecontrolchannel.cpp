@@ -23,6 +23,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_algorithm.h>
@@ -294,9 +295,9 @@ int PipeControlChannel::readNamedPipe()
             BALL_LOG_TRACE << "Polled POLLIN from file descriptor of pipe '"
                            << d_pipeName << "'" << BALL_LOG_END;
 
-            bsl::size_t bytesRead = read(d_impl.d_unix.d_readFd,
-                                         buffer,
-                                         BUFFER_SIZE);
+            bsls::Types::Int64 bytesRead = read(d_impl.d_unix.d_readFd,
+                                                buffer,
+                                                BUFFER_SIZE);
 
             savedErrno    = errno;
 
@@ -304,6 +305,13 @@ int PipeControlChannel::readNamedPipe()
                 BALL_LOG_TRACE << "Zero bytes read from the pipe"
                                << BALL_LOG_END;
                 continue;
+            }
+            else if (0 > bytesRead) {
+                BALL_LOG_ERROR << "Failed to read from pipe '"
+                               << d_pipeName
+                               << "', errno = " << savedErrno << ": "
+                               << bsl::strerror(savedErrno) << BALL_LOG_END;
+                return -1;                                            // RETURN
             }
             else {
                BALL_LOG_TRACE << "Read data from pipe: '";
