@@ -44,6 +44,7 @@ const char *DayCountConvention::toAscii(Enum convention)
       CASE(SIA_30_360_NEOM);                                          // RETURN
       CASE(PERIOD_ICMA_ACTUAL_ACTUAL);                                // RETURN
       CASE(CALENDAR_BUS_252);                                         // RETURN
+      CASE(NL_365);                                                   // RETURN
       default: {
         return "(* Unknown Enumerator *)";                            // RETURN
       } break;
@@ -56,7 +57,7 @@ const char *DayCountConvention::toAscii(Enum convention)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
