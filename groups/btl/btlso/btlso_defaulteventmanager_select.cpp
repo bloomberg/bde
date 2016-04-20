@@ -174,10 +174,12 @@ int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
         }
     }
 
-    int numDispatched = 0;
-    int numReads      = d_signaledReads.size();
+    typedef bsl::vector<Event>::size_type size_type;
 
-    for (int i = 0; i < numReads; ++i) {
+    int numDispatched = 0;
+    size_type numReads      = d_signaledReads.size();
+
+    for (size_type i = 0; i < numReads; ++i) {
         EventMap::const_iterator callbackIt =
                                              d_events.find(d_signaledReads[i]);
         if (d_events.end() != callbackIt) {
@@ -186,9 +188,9 @@ int DefaultEventManager<Platform::SELECT>::dispatchCallbacks(
         }
     }
 
-    int numWrites = d_signaledWrites.size();
+    size_type numWrites = d_signaledWrites.size();
 
-    for (int i = 0; i < numWrites; ++i) {
+    for (size_type i = 0; i < numWrites; ++i) {
         EventMap::const_iterator callbackIt =
                                             d_events.find(d_signaledWrites[i]);
         if (d_events.end() != callbackIt) {

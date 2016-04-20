@@ -66,7 +66,7 @@ static void isLongerPrefixCategory(const Category **result,
     // of 'categoryName' longer than the supplied 'minPrefixLength'.
 
 {
-    int length = bsl::strlen(category->categoryName());
+    int length = static_cast<int>(bsl::strlen(category->categoryName()));
     if (*minPrefixLength < length &&
         0 == bsl::strncmp(category->categoryName(), categoryName, length)) {
         *result          = category;
@@ -191,7 +191,6 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
 
     bsl::string truncated(regularExpression, &regularExpression[len - 1]);
 
-    int matchCount = 0;
     return setThresholdLevelsHierarchically(loggerManager,
                                             truncated.c_str(),
                                             recordLevel,
