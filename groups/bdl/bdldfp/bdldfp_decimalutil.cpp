@@ -140,6 +140,49 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
     return parseDecimal128(out, str.c_str());
 }
 
+                                // Formatting functions
+
+void DecimalUtil::format(Decimal32 value, bsl::string *out)
+{
+    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+    DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType32 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+    out->assign(buffer);
+}
+
+void DecimalUtil::format(Decimal64 value, bsl::string *out)
+{
+    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+    DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType64 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+    out->assign(buffer);
+}
+
+void DecimalUtil::format(Decimal128 value, bsl::string *out)
+{
+    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+    DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType128 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+    out->assign(buffer);
+}
+
                                 // Math functions
 
 Decimal64 DecimalUtil::fma(Decimal64 x, Decimal64 y, Decimal64 z)
