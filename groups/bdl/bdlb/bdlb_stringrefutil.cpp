@@ -64,11 +64,13 @@ int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhs,
                                 ? lhsLength : rhsLength;
 
     for (bsl::size_t i = 0; i < min; ++i) {
-        int lhsChar = u_upperToLower((static_cast<unsigned char>(lhs[i])))
-        int rhsChar = u_upperToLower((static_cast<unsigned char>(rhs[i])));
+        char lhsChar  = *(lhs.data() + i);
+        char rhsChar  = *(rhs.data() + i);
+        int  lhsUpper = u_upperToLower(static_cast<unsigned char>(lhsChar));
+        int  rhsUpper = u_upperToLower(static_cast<unsigned char>(rhsChar));
 
-        if (lhsChar != rhsChar) {
-            return lhsChar < rhsChar ? -1 : 1;                        // RETURN
+        if (lhsUpper != rhsUpper) {
+            return lhsUpper < rhsUpper ? -1 : 1;                      // RETURN
         }
     }
     return lhsLength <  rhsLength ? -1:
@@ -84,12 +86,14 @@ int StringRefUtil::upperCaseCmp(const bslstl::StringRef& lhs,
     const bsl::size_t min       = lhsLength < rhsLength
                                 ? lhsLength : rhsLength;
 
-    for (bsl::size_t i = 0;  i < min; ++i) {
-        int lhsChar = u_lowerToUpper((static_cast<unsigned char>(lhs[i])));
-        int rhsChar = u_lowerToUpper((static_cast<unsigned char>(rhs[i])));
+    for (bsl::size_t i = 0; i < min; ++i) {
+        char lhsChar  = *(lhs.data() + i);
+        char rhsChar  = *(rhs.data() + i);
+        int  lhsUpper = u_lowerToUpper(static_cast<unsigned char>(lhsChar));
+        int  rhsUpper = u_lowerToUpper(static_cast<unsigned char>(rhsChar));
 
-        if (lhsChar != rhsChar) {
-            return lhsChar < rhsChar ? -1 : 1;                        // RETURN
+        if (lhsUpper != rhsUpper) {
+            return lhsUpper < rhsUpper ? -1 : 1;                      // RETURN
         }
     }
 
