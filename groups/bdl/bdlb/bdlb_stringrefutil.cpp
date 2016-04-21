@@ -60,7 +60,7 @@ int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhs,
 {
     const bsl::size_t lhsLength = lhs.length();
     const bsl::size_t rhsLength = rhs.length();
-    const int         min       = lhsLength < rhsLength
+    const bsl::size_t min       = lhsLength < rhsLength
                                 ? lhsLength : rhsLength;
 
     for (int i = 0; i < min; ++i) {
@@ -144,7 +144,7 @@ bslstl::StringRef StringRefUtil::strstr(const bslstl::StringRef& string,
 
     for (const char *cur = string.data(); cur < end; ++cur) {
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
-            return bslstl::StringRef(cur, subStrLength);              // RETURN
+            return bslstl::StringRef(cur, cur + subStrLength);        // RETURN
         }
     }
 
@@ -169,9 +169,9 @@ bslstl::StringRef StringRefUtil::strstrCaseless(
 
     for (const char *cur = string.data(); cur < end; ++cur) {
          if (0 == lowerCaseCmp(
-                             bslstl::StringRef(cur,           subStrLength),
-                             bslstl::StringRef(subStr.data(), subStrLength))) {
-            return bslstl::StringRef(cur, subStrLength);              // RETURN
+             bslstl::StringRef(cur,           cur           + subStrLength),
+             bslstl::StringRef(subStr.data(), subStr.data() + subStrLength))) {
+            return bslstl::StringRef(cur, cur + subStrLength);        // RETURN
         }
     }
 
@@ -196,7 +196,7 @@ bslstl::StringRef StringRefUtil::strrstr(const bslstl::StringRef& string,
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
         if (0 == bsl::memcmp(cur, subStr.data(), subStrLength)) {
-            return bslstl::StringRef(cur, subStrLength);              // RETURN
+            return bslstl::StringRef(cur, cur + subStrLength);        // RETURN
         }
     }
 
@@ -222,8 +222,8 @@ bslstl::StringRef StringRefUtil::strrstrCaseless(
 
     for (bsl::size_t i = 0; i < count; ++i, --cur) {
         if (0 == lowerCaseCmp(
-                             bslstl::StringRef(cur,           subStrLength),
-                             bslstl::StringRef(subStr.data(), subStrLength))) {
+             bslstl::StringRef(cur,           cur           + subStrLength),
+             bslstl::StringRef(subStr.data(), subStr.data() + subStrLength))) {
             return bslstl::StringRef(cur, subStrLength);              // RETURN
         }
     }
