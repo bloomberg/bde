@@ -14,10 +14,12 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using bsl::cout;
 using bsl::cerr;
+using bsl::cout;
+using bsl::dec;
 using bsl::endl;
 using bsl::flush;
+using bsl::hex;
 
 // ============================================================================
 //                                   TEST PLAN
@@ -158,7 +160,7 @@ typedef int(*Disambiguate)(int);
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
-const char *whitespaceLabel(unsigned char ch)
+const char *whitespaceLabel(int ch)
     // Return the address of a static string containing a two letter sequence
     // representing the specified ASCII whitespace character 'ch'.  If 'ch' is
     // not an ASCII whitespace character, the address of a "XX" string literal
@@ -260,7 +262,7 @@ static void testIsEqual()
             P(LENGTH1)
         }
 
-        const SR mX1(DATA1, LENGTH1); const SR& X1 = mX1;
+        const SR mX1(DATA1, DATA1 + LENGTH1); const SR& X1 = mX1;
 
         LOOP2_ASSERT(ti, LINE1, isEqual(X1, X1))
 
@@ -276,7 +278,7 @@ static void testIsEqual()
                 P(LENGTH2)
             }
 
-            const SR mX2(DATA2, LENGTH2); const SR& X2 = mX2;
+            const SR mX2(DATA2, DATA2 + LENGTH2); const SR& X2 = mX2;
 
             bool expect = ti == tj
                           ? true
@@ -591,12 +593,12 @@ int main(int argc, char *argv[])
          , { L_,  "---a", "abcde",       3,      1 }
          , { L_,  "----", "abcde",       4,      0 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (veryVerbose) cout <<
                        "\n" "Test ASCII strings (including \"caseless\")" "\n";
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE     = DATA[ti].d_line;
             const char * const CSTRING  = DATA[ti].d_string_p;
             const char * const CSUBSTR  = DATA[ti].d_substr_p;
@@ -687,30 +689,32 @@ int main(int argc, char *argv[])
 
      //---------^
      const SR expected          = 0 <= POSITION  && OVERLAP == lenCSUBSTR
-                                  ? SR(string.data() + POSITION, lenCSUBSTR)
+                                  ? SR(string.data() + POSITION,
+                                       string.data() + POSITION + lenCSUBSTR)
                                   : SR();
- 
+
      const SR expectedR         = 0 == lenCSUBSTR
                                   ? SR(string.end(), 0)
                                   : 0 <= POSITION  && OVERLAP == lenCSUBSTR
-                                  ? SR(string.data() + POSITION, lenCSUBSTR)
+                                  ? SR(string.data() + POSITION,
+                                       string.data() + POSITION + lenCSUBSTR)
                                   : SR();
- 
+
      const SR expectedCasefull  = bothHaveLetters && ! areSameCaseStrSubstr
                                   ? SR()
                                   : expected;
      const SR expectedCaseless  = expected;
- 
+
      const SR expectedCasefullR = bothHaveLetters && ! areSameCaseStrSubstr
                                  ? SR()
                                  : expectedR;
      const SR expectedCaselessR = expectedR;
- 
+
      const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
      const SR resultCasefullR  = Util::strrstr        (SR(string), SR(substr));
      const SR resultCaseless   = Util::strstrCaseless (SR(string), SR(substr));
      const SR resultCaselessR  = Util::strrstrCaseless(SR(string), SR(substr));
- 
+
      LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefull,  resultCasefull));
      LOOP2_ASSERT(LINE, cfg, isEqual(expectedCaseless,  resultCaseless));
      LOOP2_ASSERT(LINE, cfg, isEqual(expectedCasefullR, resultCasefullR));
@@ -720,7 +724,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout << "\n" "Test non-ASCII strings" "\n";
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE     = DATA[ti].d_line;
             const char * const CSTRING  = DATA[ti].d_string_p;
             const char * const CSUBSTR  = DATA[ti].d_substr_p;
@@ -761,13 +765,15 @@ int main(int argc, char *argv[])
                            Local::setMsb);
 
             const SR expected  = 0 <= POSITION && OVERLAP == lenCSUBSTR
-                                 ? SR(string.data() + POSITION, lenCSUBSTR)
+                                 ? SR(string.data() + POSITION,
+                                      string.data() + POSITION + lenCSUBSTR)
                                  : SR();
 
             const SR expectedR = 0 == lenCSUBSTR
                                  ? SR(string.end(), 0)
                                  : 0 <= POSITION && OVERLAP == lenCSUBSTR
-                                 ? SR(string.data() + POSITION, lenCSUBSTR)
+                                 ? SR(string.data() + POSITION,
+                                      string.data() + POSITION + lenCSUBSTR)
                                  : SR();
 
             const SR SR_STRING(string);
@@ -951,8 +957,8 @@ int main(int argc, char *argv[])
               , { L_, "B\0a",  3,  "a"  ,  1,    2,  2,  2,  2 }
               , { L_, "B\0b",  3,  "a"  ,  1,   -1, -1, -1, -1 }
             };
-            const int NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
-                                         / sizeof *DATA_MIXEDCASE;
+            const bsl::size_t NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
+                                                 / sizeof *DATA_MIXEDCASE;
 
             struct Local {
                 static const char *print(const char *string)
@@ -965,7 +971,7 @@ int main(int argc, char *argv[])
                 }
             };
 
-            for (int ti = 0; ti < NUM_DATA_MIXEDCASE; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_DATA_MIXEDCASE; ++ti) {
 
                 if (veryVerbose) { T_ P(ti) }
 
@@ -1115,9 +1121,9 @@ int main(int argc, char *argv[])
               , { L_,  "ababab"     , "ab",   0,   4 }
               , { L_,  "-ab-ab-ab-" , "ab",   1,   7 }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE    = DATA[ti].d_line;
                 const char *CSTRING = DATA[ti].d_string_p;
                 const char *CSUBSTR = DATA[ti].d_substr_p;
@@ -1134,8 +1140,8 @@ int main(int argc, char *argv[])
 
                 const bsl::size_t lenCSUBSTR = bsl::strlen(CSUBSTR);
 
-                const SR expected (CSTRING + POS,  lenCSUBSTR);
-                const SR expectedR(CSTRING + POSR, lenCSUBSTR);
+                const SR expected (CSTRING+POS,  CSTRING+POS +lenCSUBSTR);
+                const SR expectedR(CSTRING+POSR, CSTRING+POSR+lenCSUBSTR);
 
                 const SR result  = Util::strstr (SR(CSTRING), SR(CSUBSTR));
                 const SR resultR = Util::strrstr(SR(CSTRING), SR(CSUBSTR));
@@ -1186,7 +1192,7 @@ int main(int argc, char *argv[])
             }
         }
         const unsigned char * const WHITESPACE_CHARS = whiteSpaceChars.data();
-        const int               NUM_WHITESPACE_CHARS = whiteSpaceChars.size();
+        const bsl::size_t       NUM_WHITESPACE_CHARS = whiteSpaceChars.size();
         const int                   PAD_LIMIT        = 3;
 
         const char * const CSTRINGS[] = { ""
@@ -1227,7 +1233,7 @@ int main(int argc, char *argv[])
                                         , "a   b   c"
                                         , "a   b   c   d"
                                         };
-        const int          NUM_CSTRINGS = sizeof CSTRINGS / sizeof *CSTRINGS;
+        const bsl::size_t  NUM_CSTRINGS = sizeof CSTRINGS / sizeof *CSTRINGS;
 
         const bsl::string  LEFT_SENTINEL("[");
         const bsl::string RIGHT_SENTINEL("]");
@@ -1242,16 +1248,19 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "\n" << "main loop" << "\n"; }
 
-        for (int i = 0; i < NUM_WHITESPACE_CHARS; ++i) {
+        for (bsl::size_t i = 0; i < NUM_WHITESPACE_CHARS; ++i) {
             const char PAD_CHAR = WHITESPACE_CHARS[i];
 
             if (veryVerbose) {
                 T_ P_(i)
-                P_((void *)PAD_CHAR) // show in hex
+                cout << hex
+                     << "PAD_CHAR:" << " "
+                     <<  PAD_CHAR   << " "
+                     << dec;
                 P(whitespaceLabel(PAD_CHAR))
             }
 
-            for (int j = 0; j < NUM_CSTRINGS; ++j) {
+            for (bsl::size_t j = 0; j < NUM_CSTRINGS; ++j) {
                 const char * const CSTRING = CSTRINGS[j];
 
                 if (veryVerbose) { T_ T_ P_(j) P(CSTRING) }
@@ -1291,27 +1300,28 @@ int main(int argc, char *argv[])
                         const char  *content        = INPUT.data()
                                                     + LEFT_SENTINEL.length();
 
-                        SR mX(content, adjustedLength); const SR& X = mX;
-
+                              SR  mX(content, content + adjustedLength);
+                        const SR&  X = mX;
 
                         const SR expLTrim = "" == TEXT
-                                         ? SR(X.data()      + PREFIX.length()
-                                                            + SUFFIX.length(),
-                                              0)
-                                         : SR(X.data()      + PREFIX.length(),
-                                              TEXT.length() + SUFFIX.length());
+                                          ? SR(X.data() + PREFIX.length()
+                                                        + SUFFIX.length(), 0)
+                                          : SR(X.data() + PREFIX.length(),
+                                               X.data() + PREFIX.length()
+                                                        +   TEXT.length()
+                                                        + SUFFIX.length());
 
                         const SR expRTrim = "" == TEXT
-                                         ? SR(X.data(),
-                                              0)
-                                         : SR(X.data(),
-                                              PREFIX.length() + TEXT.length());
+                                          ? SR(X.data(), 0)
+                                          : SR(X.data(),
+                                               X.data() + PREFIX.length()
+                                                        +   TEXT.length());
 
                         const SR expTTrim  = "" == TEXT
-                                           ?  SR(X.data(),
-                                                 0)
+                                           ?  SR(X.data(), 0)
                                            :  SR(X.data() + PREFIX.length(),
-                                                 TEXT.length());
+                                                 X.data() + PREFIX.length()
+                                                          +   TEXT.length());
 
                         SR calcLTrim = Util::ltrim(X);
                         SR calcRTrim = Util::rtrim(X);
@@ -1327,15 +1337,24 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "ltrim: whitespace char set" << endl; }
         {
-            for (int  i = 0; i  < NUM_WHITESPACE_CHARS; ++i) {
-                const char PAD_CHAR = WHITESPACE_CHARS[i];
+            for (bsl::size_t  i = 0; i  < NUM_WHITESPACE_CHARS; ++i) {
+                const char PAD_CHAR =         WHITESPACE_CHARS[i];
 
-                if (veryVeryVerbose) { T_ P_((void *)PAD_CHAR)
-                                      P(whitespaceLabel(PAD_CHAR)) }
+                if (veryVeryVerbose) { T_
+                                       cout << hex
+                                            << "PAD_CHAR:" << " "
+                                            <<  PAD_CHAR   << " "
+                                            << dec;
+                                       P(whitespaceLabel(PAD_CHAR)) }
 
                 for (int ch = 0; ch < 256; ++ch) {
 
-                    if (veryVeryVerbose) { T_ T_ P_((void *)PAD_CHAR) P(ch) }
+                    if (veryVeryVerbose) { T_ T_
+                                           cout << hex
+                                                << "PAD_CHAR:" << " "
+                                                <<  PAD_CHAR   << " "
+                                                << dec;
+                                           P(ch) }
 
                     bsl::string mX;   const bsl::string& X = mX;
                     mX.append(1, PAD_CHAR);
@@ -1353,15 +1372,24 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "rtrim: whitespace char set" << endl; }
         {
-            for (int  i = 0; i  < NUM_WHITESPACE_CHARS; ++i) {
-                const char PAD_CHAR = WHITESPACE_CHARS[i];
+            for (bsl::size_t  i = 0; i  < NUM_WHITESPACE_CHARS; ++i) {
+                const char PAD_CHAR =         WHITESPACE_CHARS[i];
 
-                if (veryVeryVerbose) { T_ P_((void *)PAD_CHAR)
-                                      P(whitespaceLabel(PAD_CHAR)) }
+                if (veryVeryVerbose) { T_
+                                       cout << hex
+                                            << "PAD_CHAR:" << " "
+                                            <<  PAD_CHAR   << " "
+                                            << dec;
+                                       P(whitespaceLabel(PAD_CHAR)) }
 
                 for (int ch = 0; ch < 256; ++ch) {
 
-                    if (veryVeryVerbose) { T_ T_ P_((void *)PAD_CHAR) P(ch) }
+                    if (veryVeryVerbose) { T_ T_
+                                           cout << hex
+                                                << "PAD_CHAR:" << " "
+                                                <<  PAD_CHAR   << " "
+                                                << dec;
+                                                P(ch) }
 
                     bsl::string mY;   const bsl::string& Y = mY;
                     mY.append(1, ch);
@@ -1379,21 +1407,31 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "trim: whitespace char set" << endl; }
         {
-            for (int  i = 0;  i  < NUM_WHITESPACE_CHARS; ++i) {
-                const char LPAD_CHAR = WHITESPACE_CHARS[i];
-            for (int  j = 0;  j  < NUM_WHITESPACE_CHARS; ++j) {
-                const char RPAD_CHAR = WHITESPACE_CHARS[j];
+            for (bsl::size_t  i = 0;  i  < NUM_WHITESPACE_CHARS; ++i) {
+                const char LPAD_CHAR =         WHITESPACE_CHARS[i];
+            for (bsl::size_t  j = 0;  j  < NUM_WHITESPACE_CHARS; ++j) {
+                const char RPAD_CHAR =         WHITESPACE_CHARS[j];
 
-                if (veryVeryVerbose) { T_ P_((void *)LPAD_CHAR)
-                                          P_((void *)RPAD_CHAR)
-                                          P_(whitespaceLabel(LPAD_CHAR))
-                                           P(whitespaceLabel(RPAD_CHAR)) }
+                if (veryVeryVerbose) { T_
+                                       cout << hex
+                                            << "LPAD_CHAR:"  << " "
+                                            <<  LPAD_CHAR    << " "
+                                            << "RPAD_CHAR:"  << " "
+                                            <<  RPAD_CHAR    << " "
+                                            << dec;
+                                            P_(whitespaceLabel(LPAD_CHAR))
+                                             P(whitespaceLabel(RPAD_CHAR)) }
 
                 for (int ch = 0; ch < 256; ++ch) {
 
-                    if (veryVeryVerbose) { T_ T_ P_((void *)LPAD_CHAR)
-                                                 P_((void *)RPAD_CHAR)
-                                                 P(ch) }
+                    if (veryVeryVerbose) { T_ T_
+                                           cout << hex
+                                                << "LPAD_CHAR:" << " "
+                                                <<  LPAD_CHAR   << " "
+                                                << "RPAD_CHAR:" << " "
+                                                <<  RPAD_CHAR   << " "
+                                                << dec;
+                                          P(ch) }
 
                     bsl::string mZ;   const bsl::string& Z = mZ;
                     mZ.append(1, LPAD_CHAR);
@@ -1452,7 +1490,7 @@ int main(int argc, char *argv[])
 
             char msbSetChars[26];
             for (bsl::size_t i = 0; i < sizeof msbSetChars; ++i) {
-                msbSetChars[i] = aTOz[i] | 0x80;
+                msbSetChars[i] = static_cast<char>(aTOz[i] | 0x80);
             }
 
             static const struct {
@@ -1571,9 +1609,9 @@ int main(int argc, char *argv[])
                 , { L_, msbSetChars    , 26     }
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
                     const int          LINE1    = DATA[i].d_line;
                     const char * const CSTRING1 = DATA[i].d_input_p;
                     const bsl::size_t  LENGTH1  = DATA[i].d_length == STRLEN
@@ -1583,7 +1621,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(i) P_(LINE1) P(CSTRING1) }
 
-                for (int j = 0; j < NUM_DATA; ++j) {
+                for (bsl::size_t j = 0; j < NUM_DATA; ++j) {
                     const int          LINE2    = DATA[j].d_line;
                     const char * const CSTRING2 = DATA[j].d_input_p;
                     const bsl::size_t  LENGTH2  = DATA[j].d_length == STRLEN
@@ -1658,8 +1696,8 @@ int main(int argc, char *argv[])
 
                     // Calculate actual values.
 
-                    SR s1(CSTRING1, LENGTH1); const SR& S1 = s1;
-                    SR s2(CSTRING2, LENGTH2); const SR& S2 = s2;
+                    SR s1(CSTRING1, CSTRING1 + LENGTH1); const SR& S1 = s1;
+                    SR s2(CSTRING2, CSTRING2 + LENGTH2); const SR& S2 = s2;
 
                     bool actualEquality = Util::areEqualCaseless(S1, S2);
                     int  actualLowerCmp = Util::lowerCaseCmp    (S1, S2);
@@ -1700,8 +1738,8 @@ int main(int argc, char *argv[])
                         const char * const ADDR2 = string2.data() + 1;
 
                         bool RESULT = Util::areEqualCaseless(
-                                                           SR(ADDR1, LENGTH1),
-                                                           SR(ADDR2, LENGTH2));
+                                                   SR(ADDR1, ADDR1 + LENGTH1),
+                                                   SR(ADDR2, ADDR2 + LENGTH2));
 
                         LOOP2_ASSERT(LINE1, LINE2, true == RESULT);
                    }
