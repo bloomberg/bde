@@ -692,22 +692,19 @@ int main(int argc, char *argv[])
                                   ? SR(string.data() + POSITION,
                                        string.data() + POSITION + lenCSUBSTR)
                                   : SR();
-
      const SR expectedR         = 0 == lenCSUBSTR
                                   ? SR(string.end(), 0)
                                   : 0 <= POSITION  && OVERLAP == lenCSUBSTR
                                   ? SR(string.data() + POSITION,
                                        string.data() + POSITION + lenCSUBSTR)
                                   : SR();
-
      const SR expectedCasefull  = bothHaveLetters && ! areSameCaseStrSubstr
                                   ? SR()
                                   : expected;
      const SR expectedCaseless  = expected;
-
      const SR expectedCasefullR = bothHaveLetters && ! areSameCaseStrSubstr
-                                 ? SR()
-                                 : expectedR;
+                                  ? SR()
+                                  : expectedR;
      const SR expectedCaselessR = expectedR;
 
      const SR resultCasefull   = Util::strstr         (SR(string), SR(substr));
