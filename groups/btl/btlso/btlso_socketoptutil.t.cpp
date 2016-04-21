@@ -666,8 +666,11 @@ int main(int argc, char *argv[])
                   {   L_,   "JN",         0, 0 },
                   {   L_,   "JY",         0, 0 },
 #endif
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "KN",         0, 0 },
                   {   L_,   "KY",         0, 0 },
+#endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)                           \
  || defined(BSLS_PLATFORM_OS_HPUX)                              \

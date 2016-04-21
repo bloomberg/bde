@@ -6915,7 +6915,6 @@ static void caseErrorPoolStateCb(int              poolState,
                                  bsls::AtomicInt *isInvokedFlag)
 {
     ASSERT(expectedSourceId == sourceId);
-    ASSERT(expectedPlatformError == platformError);
     ASSERT(PoolState::e_ERROR_CONNECTING == poolState);
     if (veryVerbose) {
         PT(bdlt::CurrentTime::now());
@@ -8055,6 +8054,7 @@ void TestDriver::testCase37()
         // Listening on an invalid port number through various 'listen'
         // overloads.
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         {
             int error = 0;
 
@@ -8172,6 +8172,7 @@ void TestDriver::testCase37()
             ASSERT(0 != rc);
             ASSERT(0 != error);
         }
+#endif
 
         // 'connect' synchronous error
 
@@ -8201,7 +8202,9 @@ void TestDriver::testCase37()
 
             int rc = mX.listen(0, B, SID, RA, REF, OPTS, &error);
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 == rc);
+#endif
             ASSERT(0 == error);
 
             IPAddress A;
@@ -8236,8 +8239,9 @@ void TestDriver::testCase37()
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
-
+#endif
             rc = mY.connect("localhost", P, 1, T, SID,
                             CRM, REF, OM, &SO, LA, &error);
 
@@ -8246,7 +8250,9 @@ void TestDriver::testCase37()
 
             poolBarrier.wait();
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 != platformError);
+#endif
         }
 
         // 'connect' asynchronous error -- using an unreachable peer address
@@ -8284,7 +8290,9 @@ void TestDriver::testCase37()
 
             poolBarrier.wait();
 
-//             ASSERT(0 != platformError);
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            ASSERT(0 != platformError);
+#endif
 
             rc = mX.connect(ADDR, 1, T, SID, (SSPtr *) 0, REF, OM, &error);
 
@@ -8293,7 +8301,9 @@ void TestDriver::testCase37()
 
             poolBarrier.wait();
 
-//             ASSERT(0 != platformError);
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            ASSERT(0 != platformError);
+#endif
         }
 
         // 'connect' asynchronous error -- using a bound local address
@@ -10650,8 +10660,8 @@ void TestDriver::testCase25()
                                         btlmt::ChannelPool::e_CHANNEL_UP,
                                         bsls::TimeInterval(1.0)));
 
-#if  defined(BSLS_PLATFORM_OS_LINUX)           \
- &&  defined(BDE_BUILD_TARGET_OPT)              \
+#if  defined(BSLS_PLATFORM_OS_LINUX)          \
+ &&  defined(BDE_BUILD_TARGET_OPT)            \
  &&  defined(BSLS_PLATFORM_CPU_64_BIT)
             // 64-bit opt builds on Linux this check that the latest imported
             // socket is assigned to the lastClientSocketThreadId fails.  The
@@ -10659,7 +10669,7 @@ void TestDriver::testCase25()
             // per se.  It happens only in one specific build mode and where
             // the allocation to event managers is based on the cpu
             // utilization of the process.
-#else
+#elif !defined(BSLS_PLATFORM_OS_WINDOWS)
             // Verify that the newly imported socket was assigned to the
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
@@ -12262,7 +12272,10 @@ void TestDriver::testCase17()
                         factory.deallocate(socket);
                         channelBarrier.wait();
                     }
-                    ASSERT(0  == X.numChannels());
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+                    LOOP_ASSERT(X.numChannels(),
+                                0  == X.numChannels());
+#endif
                     LOOP_ASSERT(poolEvent, -1 == poolEvent);
                     sockets.clear();
                 }
@@ -12334,7 +12347,10 @@ void TestDriver::testCase17()
                     channelBarrier.wait();
                 }
                 bslmt::ThreadUtil::yield();
-                ASSERT(0  == X.numChannels());
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+                LOOP_ASSERT(X.numChannels(),
+                            0  == X.numChannels());
+#endif
                 ASSERT(-1 == poolEvent);
             }
             if (veryVerbose) { P(ta); }
@@ -13434,7 +13450,9 @@ void TestDriver::testCase12()
             bsl::vector<Socket*> sockets(&ta);
             sockets.reserve(MAX_THREADS);
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             ASSERT(0 == mX.reportWeightedAverageReset());
+#endif
             for (int i = 0; i < MAX_THREADS; ++i) {
                 Socket  *socket = factory.allocate();
                 Channel  channel(socket, &ta);
