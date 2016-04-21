@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 //  e_SIA_30_360_NEOM            Convention is SIA 30/360 no-end-of-month.
 //  e_PERIOD_ICMA_ACTUAL_ACTUAL  Convention is period-based ICMA Actual/Actual.
 //  e_CALENDAR_BUS_252           Convention is calendar-based BUS-252.
+//  e_ISDA_30_360_EOM            Convention is ISDA 30/360 end-of-month.
 //  e_NL_365                     Convention is NL/365.
 //..
 //
@@ -104,7 +105,8 @@ struct DayCountConvention {
         e_SIA_30_360_NEOM           =  8,
         e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
         e_CALENDAR_BUS_252          = 10,
-        e_NL_365                    = 11
+        e_ISDA_30_360_EOM           = 11,
+        e_NL_365                    = 12
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BBEDC_ACTUAL_360         = e_ACTUAL_360,

@@ -768,7 +768,8 @@ int main(int argc, char *argv[])
                 { L_,   Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
                                                          1,   1,  "\x09" },
                 { L_,   Obj::e_CALENDAR_BUS_252,         1,   1,  "\x0A" },
-                { L_,   Obj::e_NL_365,                   1,   1,  "\x0B" },
+                { L_,   Obj::e_ISDA_30_360_EOM,          1,   1,  "\x0B" },
+                { L_,   Obj::e_NL_365,                   1,   1,  "\x0C" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -923,6 +924,7 @@ int main(int argc, char *argv[])
             { L_,     Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
                                            "PERIOD_ICMA_ACTUAL_ACTUAL" },
             { L_,     Obj::e_CALENDAR_BUS_252,    "CALENDAR_BUS_252"   },
+            { L_,     Obj::e_ISDA_30_360_EOM,     "ISDA_30_360_EOM"    },
             { L_,     Obj::e_NL_365,              "NL_365"             },
 
             { L_,     k_ABOVE_ENUM_RANGE,         UNKNOWN_FORMAT       },
@@ -1047,6 +1049,7 @@ int main(int argc, char *argv[])
             { L_,  0,  4, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
                                            "PERIOD_ICMA_ACTUAL_ACTUAL" NL    },
             { L_,  0,  4, Obj::e_CALENDAR_BUS_252,   "CALENDAR_BUS_252" NL   },
+            { L_,  0,  4, Obj::e_ISDA_30_360_EOM,    "ISDA_30_360_EOM" NL    },
             { L_,  0,  4, Obj::e_NL_365,             "NL_365" NL             },
 
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
@@ -1210,6 +1213,7 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,   1,
                                                  "PERIOD_ICMA_ACTUAL_ACTUAL" },
             {  L_, Obj::e_CALENDAR_BUS_252,            1, "CALENDAR_BUS_252" },
+            {  L_, Obj::e_ISDA_30_360_EOM,             1, "ISDA_30_360_EOM"  },
             {  L_, Obj::e_NL_365,                      1, "NL_365"           },
             {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },

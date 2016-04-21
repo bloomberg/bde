@@ -37,6 +37,7 @@ const char *DayCountConvention::toAscii(Enum convention)
     switch (convention) {
       CASE(ACTUAL_360);                                               // RETURN
       CASE(ACTUAL_365_FIXED);                                         // RETURN
+      CASE(ISDA_30_360_EOM);                                          // RETURN
       CASE(ISDA_ACTUAL_ACTUAL);                                       // RETURN
       CASE(ISMA_30_360);                                              // RETURN
       CASE(PSA_30_360_EOM);                                           // RETURN
