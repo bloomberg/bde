@@ -208,7 +208,7 @@ int parseInt(int *result, const char *input, int inputLength)
         errno = 0;
         char *end = 0;
         *result = (int) bsl::strtol(buffer, &end, 10);
-        consumed = end - buffer;
+        consumed = static_cast<int>(end - buffer);
     }
     else {
         // Use a string for dynamic allocation.
@@ -218,7 +218,7 @@ int parseInt(int *result, const char *input, int inputLength)
         errno = 0;
         char *end = 0;
         *result = (int) bsl::strtol(begin, &end, 10);
-        consumed = end - begin;
+        consumed = static_cast<int>(end - begin);
     }
 
     if (errno != 0 || consumed != inputLength) {
@@ -248,7 +248,7 @@ int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
         errno = 0;
         char *end = 0;
         *result = (int) bsl::strtoul(buffer, &end, 10);
-        consumed = end - buffer;
+        consumed = static_cast<int>(end - buffer);
     }
     else {
         // Use a string for dynamic allocation.
@@ -258,7 +258,7 @@ int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
         errno = 0;
         char *end = 0;
         *result = (unsigned int) bsl::strtoul(begin, &end, 10);
-        consumed = end - begin;
+        consumed = static_cast<int>(end - begin);
     }
 
     if (errno != 0 || consumed != inputLength) {

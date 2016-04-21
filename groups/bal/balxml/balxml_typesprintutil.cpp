@@ -624,21 +624,21 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
     const char *ptr = bsl::strchr(buffer, '.');
     BSLS_ASSERT(ptr != 0);
 
-    int integralLen = ptr - buffer;
+    int integralLen = static_cast<int>(ptr - buffer);
 
     if (buffer[0] == '-') {
         --integralLen;
     }
 
     // TBD the significance of "3" is not clear
-    int maxFractionLen = precision + 3 - integralLen;
+    int maxFractionLen = static_cast<int>(precision + 3 - integralLen);
     if (maxFractionLen <= 0) {
         maxFractionLen = 1;
     }
 
     ++ptr;  // move ptr to the first fraction digit
 
-    int fractionLen = bsl::strlen(ptr);
+    int fractionLen = static_cast<int>(bsl::strlen(ptr));
 
     if (fractionLen > maxFractionLen) {
         fractionLen = maxFractionLen;
@@ -707,7 +707,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
     const char *ptr = bsl::strchr(buffer, '.');
     BSLS_ASSERT(ptr != 0);
 
-    int integralLen = ptr - buffer;
+    int integralLen = static_cast<int>(ptr - buffer);
     if (object < 0) {
         --integralLen;
     }
@@ -833,7 +833,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream,
                                  object.data(),
-                                 object.length(),
+                                 static_cast<int>(object.length()),
                                  encoderOptions);
     return stream;
 }
@@ -847,7 +847,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&               stream,
     // Calls a function in the unnamed namespace.  Cannot be inlined.
     printTextReplacingXMLEscapes(stream,
                                  object.data(),
-                                 object.length(),
+                                 static_cast<int>(object.length()),
                                  encoderOptions);
     return stream;
 }
@@ -865,7 +865,7 @@ TypesPrintUtil_Imp::printText(bsl::ostream&              stream,
     if (! object.empty()) {
         printTextReplacingXMLEscapes(stream,
                                      &object[0],
-                                     object.size(),
+                                     static_cast<int>(object.size()),
                                      encoderOptions);
     }
     return stream;

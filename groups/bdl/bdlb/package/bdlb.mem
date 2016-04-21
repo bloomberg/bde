@@ -21,6 +21,7 @@ bdlb_printmethods
 bdlb_random
 bdlb_randomdevice
 bdlb_string
+bdlb_stringrefutil
 bdlb_testinputiterator
 bdlb_tokenizer
 bdlb_variant

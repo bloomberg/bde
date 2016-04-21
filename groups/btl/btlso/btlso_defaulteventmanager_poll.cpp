@@ -80,8 +80,10 @@ static inline int dispatchCallbacks(bsl::vector<struct ::pollfd>  *tmp,
     // array thereby corrupting the iteration order.  In the worst case, a
     // full copy of 'pollFds' is made.
 
-    int numSockets = pollFds.size();
-    for (int i = 0; i < numSockets; ++i) {
+    typedef bsl::vector<struct ::pollfd>::size_type size_type;
+
+    size_type numSockets = pollFds.size();
+    for (size_type i = 0; i < numSockets; ++i) {
         const struct ::pollfd& data = pollFds[i];
         if (0 != data.revents) {
             tmp->push_back(data);
@@ -89,7 +91,7 @@ static inline int dispatchCallbacks(bsl::vector<struct ::pollfd>  *tmp,
     }
 
     numSockets = tmp->size();
-    for (int i = 0; i < numSockets; ++i) {
+    for (size_type i = 0; i < numSockets; ++i) {
         const struct ::pollfd& currData = (*tmp)[i];
 
         // READ/ACCEPT.
@@ -174,11 +176,15 @@ int DefaultEventManager<Platform::POLL>::dispatch(
 
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(TimeMetrics::e_IO_BOUND);
-                bslmt::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
+                bslmt::ThreadUtil::microSleep(
+                                           static_cast<int>(ts.tv_nsec / 1000),
+                                           static_cast<int>(ts.tv_sec));
                 d_timeMetric_p->switchTo(TimeMetrics::e_CPU_BOUND);
             }
             else {
-                bslmt::ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
+                bslmt::ThreadUtil::microSleep(
+                                           static_cast<int>(ts.tv_nsec / 1000),
+                                           static_cast<int>(ts.tv_sec));
             }
 
             now = bdlt::CurrentTime::now();
@@ -383,7 +389,7 @@ int DefaultEventManager<Platform::POLL>::registerSocketEvent(
         d_pollFds[indexIt->second].events = eventmask;
     }
     else {
-        int index(d_pollFds.size());
+        int index(static_cast<int>(d_pollFds.size()));
 
         struct ::pollfd currfd;
         bsl::memset(&currfd, 0, sizeof(currfd)); // make purify/ZeroFault happy
@@ -453,14 +459,16 @@ void DefaultEventManager<Platform::POLL>::deregisterSocketEvent(
 
     eventmask &= static_cast<short>(~pollevent);
 
-    int rc;
+    typedef bsl::unordered_map<int,int>::size_type size_type;
+
+    size_type rc;
     if (eventmask) {
         currfd.events = eventmask;
     }
     else {
         // Remove this fd from d_pollFds.
 
-        int lastIndex = d_pollFds.size() - 1;
+        int lastIndex = static_cast<int>(d_pollFds.size()) - 1;
         if (lastIndex != index) {
 
             // Retrieve index information for this last entry.
@@ -544,7 +552,7 @@ int DefaultEventManager<Platform::POLL>::numSocketEvents(
 
 int DefaultEventManager<Platform::POLL>::numEvents() const
 {
-    return d_callbacks.size();
+    return static_cast<int>(d_callbacks.size());
 }
 
 int DefaultEventManager<Platform::POLL>::isRegistered(

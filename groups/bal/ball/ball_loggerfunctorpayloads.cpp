@@ -47,9 +47,8 @@ void LoggerFunctorPayloads::loadParentCategoryThresholdValues(
     bsl::string parentName(categoryName);
     const LoggerManager& manager = LoggerManager::singleton();
 
-    int delimIdx;
-    while ((int)bsl::string::npos != (delimIdx = parentName.rfind(delimiter)))
-                                                                              {
+    bsl::size_t delimIdx;
+    while (bsl::string::npos != (delimIdx = parentName.rfind(delimiter))) {
         parentName.erase(delimIdx);  // candidate for "proximate parent" name
 
         const Category *parent = manager.lookupCategory(parentName.c_str());

@@ -657,7 +657,7 @@ int PublicationScheduler::getCategorySchedule(
     for (; catIt != d_categories.end(); ++catIt) {
         result->push_back(bsl::make_pair(catIt->first, catIt->second));
     }
-    return d_categories.size();
+    return static_cast<int>(d_categories.size());
 }
 
 bsl::ostream&

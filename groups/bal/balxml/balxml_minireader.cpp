@@ -167,7 +167,7 @@ int unicodeToUtf8(char *output, unsigned val)
         return 0;  // out of Unicode range                            // RETURN
     }
 
-    return output - start;
+    return static_cast<int>(output - start);
 }
 
 // Perform an in-place replacement of XML character references with the
@@ -231,10 +231,12 @@ void replaceCharReferences(char *text)
               char *endptr = 0;
               unsigned c;
               if ('x' == input[2]) {
-                  c = bsl::strtoul(input + 3, &endptr, 16);
+                  c = static_cast<unsigned>(
+                                         bsl::strtoul(input + 3, &endptr, 16));
               }
               else {
-                  c = bsl::strtoul(input + 2, &endptr, 10);
+                  c = static_cast<unsigned>(
+                                         bsl::strtoul(input + 2, &endptr, 10));
               }
 
               // TBD, if c is 0 or is out of unicode range, how can we report
@@ -269,7 +271,7 @@ void replaceCharReferences(char *text)
 
         // Copy input to output up to (but not including) the next ampersand.
         const char *ampersand = bsl::strchr(input, '&');
-        int len = ampersand ? ampersand - input : bsl::strlen(input);
+        bsl::size_t len = ampersand ? ampersand - input : bsl::strlen(input);
         bsl::memmove(output, input, len);
         output += len;
         input = ampersand;
@@ -666,7 +668,7 @@ MiniReader::getLineNumber() const
 int
 MiniReader::getColumnNumber() const
 {
-    return (d_scanPtr - d_linePtr) + 1;
+    return static_cast<int>(d_scanPtr - d_linePtr) + 1;
 }
 
 Reader::NodeType
@@ -746,7 +748,7 @@ MiniReader::documentEncoding() const
 int
 MiniReader::nodeDepth() const
 {
-    int rc = d_activeNodesCount;
+    int rc = static_cast<int>(d_activeNodesCount);
     switch (nodeType()) {
       case e_NODE_TYPE_END_ELEMENT:
       case e_NODE_TYPE_NONE: {
@@ -762,7 +764,7 @@ MiniReader::nodeDepth() const
 int
 MiniReader::numAttributes() const
 {
-    return currentNode().d_attrCount;
+    return static_cast<int>(currentNode().d_attrCount);
 }
 
 bool
@@ -1072,7 +1074,8 @@ MiniReader::preAdvance()
       } break;
       case e_NODE_TYPE_ELEMENT: {
         if (isEmptyElement()) {
-            d_prefixes->popPrefixes(currentNode().d_namespaceCount);
+            d_prefixes->popPrefixes(
+                             static_cast<int>(currentNode().d_namespaceCount));
             if (0 == d_activeNodesCount) {
                 d_flags |= FLG_ROOT_CLOSED;
             }
@@ -1083,7 +1086,7 @@ MiniReader::preAdvance()
             }
             Element& elem = d_activeNodes[d_activeNodesCount];
             elem.first = currentNode().d_qualifiedName;
-            elem.second = currentNode().d_namespaceCount;
+            elem.second = static_cast<int>(currentNode().d_namespaceCount);
             ++d_activeNodesCount;
         }
       } break;
@@ -1801,7 +1804,7 @@ MiniReader::readInput()
     size_t numLeft = d_endPtr - d_markPtr;
 
     // adjust the position of buffer in input stream
-    d_streamOffset += numConsumed;
+    d_streamOffset += static_cast<int>(numConsumed);
 
     // shift left unprocessed bytes
     if (numLeft != 0 && d_startPtr != d_markPtr) {
@@ -1841,7 +1844,7 @@ MiniReader::readInput()
     if (numRead == 0) {
         d_flags |= FLG_READ_EOF;
     }
-    return numRead;
+    return static_cast<int>(numRead);
 }
 }  // close package namespace
 

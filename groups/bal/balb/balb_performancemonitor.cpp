@@ -374,7 +374,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
         }
     }
 
-    int jiffiesPerSec = sysconf(_SC_CLK_TCK);
+    long jiffiesPerSec = sysconf(_SC_CLK_TCK);
     bsls::Types::Int64 procStartTime =
                               bootTime + procStats.d_starttime / jiffiesPerSec;
                                                       // seconds since 1970 UTC
@@ -408,7 +408,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
     // Discover the duration of a jiffy.
 
-    static const int clockTicksPerSec = sysconf(_SC_CLK_TCK);
+    static const long clockTicksPerSec = sysconf(_SC_CLK_TCK);
 
     // Discover the number of threads by enumerating the directories in the
     // /proc/<pid>/task directory.
@@ -428,19 +428,20 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
     stats->d_lstData[e_NUM_THREADS] = numThreads;
 
-    static const int pageSize = sysconf(_SC_PAGESIZE);
+    static const long pageSize = sysconf(_SC_PAGESIZE);
 
     stats->d_lstData[e_RESIDENT_SIZE] =
-                        static_cast<double>(procStats.d_rss) * pageSize /
-                        (1024 * 1024);
+                          static_cast<double>(procStats.d_rss)
+                        * static_cast<double>(pageSize)
+                        / (1024 * 1024);
 
     stats->d_lstData[e_VIRTUAL_SIZE] =
                         static_cast<double>(procStats.d_vsize) / (1024 * 1024);
 
     double cpuTimeU = static_cast<double>(procStats.d_utime) /
-                      clockTicksPerSec;
+                      static_cast<double>(clockTicksPerSec);
     double cpuTimeS = static_cast<double>(procStats.d_stime) /
-                      clockTicksPerSec;
+                      static_cast<double>(clockTicksPerSec);
 
     // Calculate CPU utilization
 
