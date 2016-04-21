@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // NL/365 day-count convention.  In this day-count convention, we simply
 // measure the number of non-leap days occurring in a time period, and to
 // calculate years, divide that by 365.  Note that this means the number of
-// years between January 1, 2004 and January 1, 2005 is 1.0. No end-of-month
+// years between January 1, 2004 and January 1, 2005 is 1.0.  No end-of-month
 // rule adjustments are made.
 //
 ///Usage

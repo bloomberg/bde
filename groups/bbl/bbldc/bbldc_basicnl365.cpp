@@ -16,7 +16,7 @@ int BasicNl365::daysDiff(const bdlt::Date& beginDate,
                          const bdlt::Date& endDate)
 {
     static int s_daysInMonthCorrection[13] =
-        { 0, 0, 0, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7 };
+                                     { 0, 0, 0, 3, 3, 4, 4, 5, 5, 5, 6, 6, 7 };
 
     int y1, m1, d1, y2, m2, d2;
 
