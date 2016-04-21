@@ -64,7 +64,7 @@ int StringRefUtil::lowerCaseCmp(const bslstl::StringRef& lhs,
                                 ? lhsLength : rhsLength;
 
     for (bsl::size_t i = 0; i < min; ++i) {
-        int lhsChar = u_upperToLower((static_cast<unsigned char>(lhs[i])));
+        int lhsChar = u_upperToLower((static_cast<unsigned char>(lhs[i])))
         int rhsChar = u_upperToLower((static_cast<unsigned char>(rhs[i])));
 
         if (lhsChar != rhsChar) {
