@@ -94,6 +94,8 @@
 //                                     // with '$'
 //..
 
+#undef BDE_OMIT_INTERNAL_DEPRECATED
+
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
  * of including an ident string for every file that includes this header
