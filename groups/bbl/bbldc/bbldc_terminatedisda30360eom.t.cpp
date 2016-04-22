@@ -1,5 +1,5 @@
-// bbldc_basicisda30360eom.t.cpp                                      -*-C++-*-
-#include <bbldc_basicisda30360eom.h>
+// bbldc_terminatedisda30360eom.t.cpp                                 -*-C++-*-
+#include <bbldc_terminatedisda30360eom.h>
 
 #include <bdlt_date.h>
 
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicIsda30360Eom Util;
+typedef bbldc::TerminatedIsda30360Eom Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicIsda30360Eom' methods.  First, create two 'bdlt::Date'
+// 'bbldc::TerminatedIsda30360Eom' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
@@ -127,12 +127,12 @@ int main(int argc, char *argv[])
 //..
 // Then, compute the day count between the two dates:
 //..
-    const int daysDiff = bbldc::BasicIsda30360Eom::daysDiff(d1, d2);
+    const int daysDiff = bbldc::TerminatedIsda30360Eom::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates:
 //..
-    const double yearsDiff = bbldc::BasicIsda30360Eom::yearsDiff(d1, d2);
+    const double yearsDiff = bbldc::TerminatedIsda30360Eom::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);
 //..
       } break;

@@ -1,8 +1,8 @@
-// bbldc_basicisda30360eom.cpp                                        -*-C++-*-
-#include <bbldc_basicisda30360eom.h>
+// bbldc_terminatedisda30360eom.cpp                                   -*-C++-*-
+#include <bbldc_terminatedisda30360eom.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_basicisda30360eom_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_terminatedisda30360eom_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 #include <bdlt_serialdateimputil.h>
@@ -10,14 +10,14 @@ BSLS_IDENT_RCSID(bbldc_basicisda30360eom_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // ------------------------
-                         // struct BasicIsda30360Eom
-                         // ------------------------
+                      // -----------------------------
+                      // struct TerminatedIsda30360Eom
+                      // -----------------------------
 
 // CLASS METHODS
-int BasicIsda30360Eom::daysDiff(const bdlt::Date& beginDate,
-                                const bdlt::Date& endDate,
-                                const bdlt::Date& terminationDate)
+int TerminatedIsda30360Eom::daysDiff(const bdlt::Date& beginDate,
+                                     const bdlt::Date& endDate,
+                                     const bdlt::Date& terminationDate)
 {
     int y1, m1, d1, y2, m2, d2;
 

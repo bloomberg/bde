@@ -4,7 +4,6 @@ bbldc_basicbasicdaycountadapter
 bbldc_basicdaterangedaycountadapter
 bbldc_basicdaycount
 bbldc_basicdaycountutil
-bbldc_basicisda30360eom
 bbldc_basicisdaactualactual
 bbldc_basicisma30360
 bbldc_basicnl365
@@ -19,3 +18,4 @@ bbldc_daycountconvention
 bbldc_perioddaterangedaycountadapter
 bbldc_perioddaycountutil
 bbldc_periodicmaactualactual
+bbldc_terminatedisda30360eom

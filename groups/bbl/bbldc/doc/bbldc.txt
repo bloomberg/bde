@@ -27,7 +27,6 @@
   1. bbldc_basicactual360
      bbldc_basicactual365fixed
      bbldc_basicdaycount
-     bbldc_basicisda30360eom
      bbldc_basicisdaactualactual
      bbldc_basicisma30360
      bbldc_basicnl365
@@ -38,6 +37,7 @@
      bbldc_daterangedaycount
      bbldc_daycountconvention
      bbldc_periodicmaactualactual
+     bbldc_terminatedisda30360eom
 ..
 
 /Component Synopsis
@@ -59,9 +59,6 @@
 :
 : 'bbldc_basicdaycountutil':
 :      Support for day-count calculations of 'enum'-specified conventions.
-:
-: 'bbldc_basicisda30360eom':
-:      Provide stateless functions for ISDA 30/360 eom convention.
 :
 : 'bbldc_basicisdaactualactual':
 :      Provide stateless functions for the ISDA Actual/Actual convention.
@@ -104,3 +101,6 @@
 :
 : 'bbldc_periodicmaactualactual':
 :      Provide stateless functions for period-based ICMA Actual/Actual.
+:
+: 'bbldc_terminatedisda30360eom':
+:      Provide stateless functions for ISDA 30/360 eom convention.
