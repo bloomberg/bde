@@ -7,8 +7,6 @@ BSLS_IDENT_RCSID(bbldc_basicisda30360eom_cpp,"$Id$ $CSID$")
 #include <bdlt_date.h>
 #include <bdlt_serialdateimputil.h>
 
-#include <bsls_assert.h>
-
 namespace BloombergLP {
 namespace bbldc {
 
@@ -21,9 +19,6 @@ int BasicIsda30360Eom::daysDiff(const bdlt::Date& beginDate,
                                 const bdlt::Date& endDate,
                                 const bdlt::Date& terminationDate)
 {
-    BSLS_ASSERT(beginDate <= terminationDate);
-    BSLS_ASSERT(endDate   <= terminationDate);
-
     int y1, m1, d1, y2, m2, d2;
 
     bool negationFlag;

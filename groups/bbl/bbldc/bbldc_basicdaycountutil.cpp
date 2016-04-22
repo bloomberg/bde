@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(bbldc_basicdaycountutil_cpp,"$Id$ $CSID$")
 
 #include <bbldc_basicactual360.h>
 #include <bbldc_basicactual365fixed.h>
+#include <bbldc_basicisda30360eom.h>
 #include <bbldc_basicisdaactualactual.h>
 #include <bbldc_basicisma30360.h>
 #include <bbldc_basicnl365.h>
@@ -37,6 +38,9 @@ int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
       } break;
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numDays = bbldc::BasicActual365Fixed::daysDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_ISDA_30_360_EOM: {
+        numDays = bbldc::BasicIsda30360Eom::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL: {
         numDays = bbldc::BasicIsdaActualActual::daysDiff(beginDate, endDate);
@@ -72,6 +76,7 @@ bool BasicDayCountUtil::isSupported(DayCountConvention::Enum convention)
     switch (convention) {
       case DayCountConvention::e_ACTUAL_360:
       case DayCountConvention::e_ACTUAL_365_FIXED:
+      case DayCountConvention::e_ISDA_30_360_EOM:
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL:
       case DayCountConvention::e_ISMA_30_360:
       case DayCountConvention::e_NL_365:
@@ -99,6 +104,9 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
       } break;
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numYears = bbldc::BasicActual365Fixed::yearsDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_ISDA_30_360_EOM: {
+        numYears = bbldc::BasicIsda30360Eom::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL: {
         numYears = bbldc::BasicIsdaActualActual::yearsDiff(beginDate, endDate);

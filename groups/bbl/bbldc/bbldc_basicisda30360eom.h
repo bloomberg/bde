@@ -89,15 +89,14 @@ struct BasicIsda30360Eom {
     // CLASS METHODS
     static int daysDiff(const bdlt::Date& beginDate,
                         const bdlt::Date& endDate,
-                        const bdlt::Date& terminationDate
-                                                   = bdlt::Date(9999, 12, 31));
+                        const bdlt::Date& terminationDate = bdlt::Date());
         // Return the (signed) number of days between the specified 'beginDate'
         // and 'endDate', with the specified 'terminationDate', according to
         // the ISDA 30/360 end-of-month day-count convention.  If
-        // 'beginDate <= endDate', then the result is non-negative.  The
-        // behavior is undefined unless 'beginDate <= terminationDate' and
-        // 'endDate <= terminationDate'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result.
+        // 'beginDate <= endDate', then the result is non-negative.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result.
+        // Also note that, in accordance with the convention definition, there
+        // are no constraints upon the supplied dates.
 
     static double yearsDiff(const bdlt::Date& beginDate,
                             const bdlt::Date& endDate,
@@ -106,12 +105,12 @@ struct BasicIsda30360Eom {
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate', with the specified 'terminationDate',
         // according to the ISDA 30/360 end-of-month day-count convention.  If
-        // 'beginDate <= endDate', then the result is non-negative.  The
-        // behavior is undefined unless 'beginDate <= terminationDate' and
-        // 'endDate <= terminationDate'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically,
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
+        // 'beginDate <= endDate', then the result is non-negative.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result;
+        // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
+        // all dates 'b' and 'e'.  Also note that, in accordance with the
+        // convention definition, there are no constraints upon the supplied
+        // dates.
 };
 
 // ============================================================================

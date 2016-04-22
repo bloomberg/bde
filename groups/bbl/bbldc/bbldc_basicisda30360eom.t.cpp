@@ -1,6 +1,8 @@
 // bbldc_basicisda30360eom.t.cpp                                      -*-C++-*-
 #include <bbldc_basicisda30360eom.h>
 
+#include <bdlt_date.h>
+
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -269,6 +271,72 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, -1.0e-15 <= sum && sum <= 1.0e-15);
             }
         }
+
+        {
+            static const struct {
+                int    d_lineNum;   // source line number
+                int    d_year1;     // date1 year
+                int    d_month1;    // date1 month
+                int    d_day1;      // date1 day
+                int    d_year2;     // date2 year
+                int    d_month2;    // date2 month
+                int    d_day2;      // date2 day
+                int    d_yearT;     // termination year
+                int    d_monthT;    // termination month
+                int    d_dayT;      // termination day
+                double d_numYears;  // result number of years
+            } DATA[] = {
+//       - - -first - -  - - second - -  - termination-
+//line   year  mon  day  year  mon  day  year  mon  day  numYears
+//----   ----  ---  ---  ----  ---  ---  ----  ---  ---  --------
+{ L_,    2008,   2,  20, 2008,   8,  20, 2008,   8,  20, 0.5      },
+{ L_,    2008,   8,  20, 2009,   2,  20, 2009,   8,  20, 0.5      },
+{ L_,    2009,   2,  20, 2009,   8,  20, 2009,   8,  20, 0.5      },
+
+{ L_,    2010,   8,  31, 2011,   2,  28, 2012,   2,  29, 0.5      },
+{ L_,    2011,   2,  28, 2011,   8,  31, 2012,   2,  29, 0.5      },
+{ L_,    2011,   8,  31, 2012,   2,  29, 2012,   2,  29, 0.497222 },
+{ L_,    2012,   2,  29, 2012,   8,  31, 2012,   2,  29, 0.5      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            if (verbose) {
+                cout <<
+                  "\nTesting: 'yearsDiff(beginDate, endDate, terminationDate)'"
+                     << endl;
+            }
+
+            for (int di = 0; di < NUM_DATA ; ++di) {
+                const int    LINE      = DATA[di].d_lineNum;
+                const double NUM_YEARS = DATA[di].d_numYears;
+
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
+                const bdlt::Date Z(DATA[di].d_yearT,
+                                   DATA[di].d_monthT,
+                                   DATA[di].d_dayT);
+
+                if (veryVerbose) {
+                    T_  P_(X)  P_(Y)  P(Z);
+                    T_  T_  P_(NUM_YEARS);
+                }
+                const double RESULT = Util::yearsDiff(X, Y, Z);
+
+                if (veryVerbose) { P(RESULT); }
+                const double diff = NUM_YEARS - RESULT;
+                LOOP_ASSERT(LINE, -0.00005 <= diff && diff <= 0.00005);
+
+                // Verify the result is negated when the dates are reversed.
+
+                const double NRESULT = Util::yearsDiff(Y, X, Z);
+                const double sum     = RESULT + NRESULT;
+                LOOP_ASSERT(LINE, -1.0e-15 <= sum && sum <= 1.0e-15);
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -456,6 +524,67 @@ int main(int argc, char *argv[])
                 // Verify the result is negated when the dates are reversed.
 
                 const int NRESULT = Util::daysDiff(Y, X);
+                LOOP_ASSERT(LINE, NRESULT == -RESULT);
+            }
+        }
+
+        {
+            static const struct {
+                int d_lineNum;   // source line number
+                int d_year1;     // date1 year
+                int d_month1;    // date1 month
+                int d_day1;      // date1 day
+                int d_year2;     // date2 year
+                int d_month2;    // date2 month
+                int d_day2;      // date2 day
+                int d_yearT;     // termination year
+                int d_monthT;    // termination month
+                int d_dayT;      // termination day
+                int d_numDays;   // result number of days
+            } DATA[] = {
+//       - - -first - -  - - second - -  - termination-
+//line   year  mon  day  year  mon  day  year  mon  day  numDays
+//----   ----  ---  ---  ----  ---  ---  ----  ---  ---  -------
+{ L_,    2008,   2,  20, 2008,   8,  20, 2008,   8,  20,     180 },
+{ L_,    2008,   8,  20, 2009,   2,  20, 2009,   8,  20,     180 },
+{ L_,    2009,   2,  20, 2009,   8,  20, 2009,   8,  20,     180 },
+
+{ L_,    2010,   8,  31, 2011,   2,  28, 2012,   2,  29,     180 },
+{ L_,    2011,   2,  28, 2011,   8,  31, 2012,   2,  29,     180 },
+{ L_,    2011,   8,  31, 2012,   2,  29, 2012,   2,  29,     179 },
+{ L_,    2012,   2,  29, 2012,   8,  31, 2012,   2,  29,     180 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            if (verbose) {
+                cout <<
+                   "\nTesting: 'daysDiff(beginDate, endDate, terminationDate)'"
+                     << endl;
+            }
+
+            for (int di = 0; di < NUM_DATA ; ++di) {
+                const int    LINE     = DATA[di].d_lineNum;
+                const double NUM_DAYS = DATA[di].d_numDays;
+
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
+                const bdlt::Date Z(DATA[di].d_yearT,
+                                   DATA[di].d_monthT,
+                                   DATA[di].d_dayT);
+
+                if (veryVerbose) { T_ P_(X) P_(Y) P_(Z) P_(NUM_DAYS); }
+                const int RESULT = Util::daysDiff(X, Y, Z);
+
+                if (veryVerbose) { P(RESULT); }
+                LOOP_ASSERT(LINE, NUM_DAYS == RESULT);
+
+                // Verify the result is negated when the dates are reversed.
+
+                const int NRESULT = Util::daysDiff(Y, X, Z);
                 LOOP_ASSERT(LINE, NRESULT == -RESULT);
             }
         }
