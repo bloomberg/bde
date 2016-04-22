@@ -18,4 +18,6 @@ bbldc_daycountconvention
 bbldc_perioddaterangedaycountadapter
 bbldc_perioddaycountutil
 bbldc_periodicmaactualactual
+bbldc_terminatedbasicdaycountadapter
+bbldc_terminateddaterangedaycountadapter
 bbldc_terminatedisda30360eom

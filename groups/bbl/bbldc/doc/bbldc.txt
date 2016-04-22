@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bbldc' package currently has 21 components having 2 levels of physical
+ The 'bbldc' package currently has 23 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -23,6 +23,8 @@
      bbldc_calendardaycountutil
      bbldc_perioddaterangedaycountadapter
      bbldc_perioddaycountutil
+     bbldc_terminatedbasicdaycountadapter
+     bbldc_terminateddaterangedaycountadapter
 
   1. bbldc_basicactual360
      bbldc_basicactual365fixed
@@ -101,6 +103,12 @@
 :
 : 'bbldc_periodicmaactualactual':
 :      Provide stateless functions for period-based ICMA Actual/Actual.
+:
+: 'bbldc_terminatedbasicdaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_terminateddaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
 :
 : 'bbldc_terminatedisda30360eom':
 :      Provide stateless functions for ISDA 30/360 eom convention.
