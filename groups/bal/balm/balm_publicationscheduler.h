@@ -237,20 +237,21 @@ class PublicationScheduler {
     // DATA
     bdlmt::TimerEventScheduler *d_scheduler_p;  // event scheduler (held)
 
-    MetricsManager      *d_manager_p;    // metrics manager (held)
+    MetricsManager             *d_manager_p;    // metrics manager (held)
 
-    Categories                d_categories;   // map of category => schedule
+    Categories                  d_categories;   // map of category => schedule
 
-    Clocks                    d_clocks;       // map of interval => clock info
+    Clocks                      d_clocks;       // map of interval => clock 
+                                                // info
 
-    bsls::TimeInterval         d_defaultInterval;
-                                              // default publication interval
+    bsls::TimeInterval          d_defaultInterval;
+                                                // default publication interval
 
-    mutable bslmt::Mutex       d_mutex;        // synchronize access to data
-                                              // ('d_categories', 'd_clocks',
-                                              // and 'd_defaultInterval')
+    mutable bslmt::Mutex        d_mutex;        // synchronize access to data
+                                                // ('d_categories', 'd_clocks',
+                                                // and 'd_defaultInterval')
 
-    bslma::Allocator         *d_allocator_p;  // allocator (held, not owned)
+    bslma::Allocator           *d_allocator_p;  // allocator (held, not owned)
 
 
     // NOT IMPLEMENTED
@@ -294,7 +295,7 @@ class PublicationScheduler {
     // CREATORS
     PublicationScheduler(MetricsManager             *metricsManager,
                          bdlmt::TimerEventScheduler *eventScheduler,
-                              bslma::Allocator      *basicAllocator = 0);
+                         bslma::Allocator           *basicAllocator = 0);
         // Create a publication scheduler that will use the specified
         // 'metricsManager' to publish metrics, and the specified
         // 'eventScheduler' to supply timer events.  Optionally specify a
