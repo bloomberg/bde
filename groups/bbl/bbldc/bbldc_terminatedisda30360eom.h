@@ -92,8 +92,8 @@ struct TerminatedIsda30360Eom {
                         const bdlt::Date& endDate,
                         const bdlt::Date& terminationDate = bdlt::Date());
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate', with the specified 'terminationDate', according to
-        // the ISDA 30/360 end-of-month day-count convention.  If
+        // and 'endDate', with the optionally specified 'terminationDate',
+        // according to the ISDA 30/360 end-of-month day-count convention.  If
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
         // Also note that, in accordance with the convention definition, there
@@ -104,14 +104,14 @@ struct TerminatedIsda30360Eom {
                             const bdlt::Date& terminationDate
                                                    = bdlt::Date(9999, 12, 31));
         // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate', with the specified 'terminationDate',
-        // according to the ISDA 30/360 end-of-month day-count convention.  If
-        // 'beginDate <= endDate', then the result is non-negative.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result;
-        // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
-        // all dates 'b' and 'e'.  Also note that, in accordance with the
-        // convention definition, there are no constraints upon the supplied
-        // dates.
+        // 'beginDate' and 'endDate', with the optionally specified
+        // 'terminationDate', according to the ISDA 30/360 end-of-month
+        // day-count convention.  If 'beginDate <= endDate', then the result is
+        // non-negative.  Note that reversing the order of 'beginDate' and
+        // 'endDate' negates the result; specifically,
+        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
+        // and 'e'.  Also note that, in accordance with the convention
+        // definition, there are no constraints upon the supplied dates.
 };
 
 // ============================================================================

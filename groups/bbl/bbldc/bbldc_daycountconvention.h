@@ -118,7 +118,7 @@ struct DayCountConvention {
         BBEDC_PSA_30_360_EOM     = e_PSA_30_360_EOM,
         BBEDC_SIA_30_360_EOM     = e_SIA_30_360_EOM,
         BBEDC_SIA_30_360_NEOM    = e_SIA_30_360_NEOM,
-        
+
         ACTUAL_360         = BBEDC_ACTUAL_360,
         ACTUAL_365_FIXED   = BBEDC_ACTUAL_365_FIXED,
         ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
@@ -193,9 +193,9 @@ struct DayCountConvention {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  The behavior is
         // undefined unless 'value' is in the range
-        // '[e_ACTUAL_360 .. e_NL_365]'.  See 'toAscii' for what
-        // constitutes the string representation of a
-        // 'bbldc::DayCountConvention::Enum' value.
+        // '[e_ACTUAL_360 .. e_NL_365]'.  See 'toAscii' for what constitutes
+        // the string representation of a 'bbldc::DayCountConvention::Enum'
+        // value.
 
     static const char *toAscii(Enum convention);
         // Return the abbreviated character-string representation of the

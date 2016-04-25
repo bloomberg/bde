@@ -159,7 +159,7 @@ class TerminatedDateRangeDayCountAdapter : public DateRangeDayCount {
                  // class TerminatedDateRangeDayCountAdapter
                  // ----------------------------------------
 
-// CREATTORS
+// CREATORS
 template <class CONVENTION>
 inline
 TerminatedDateRangeDayCountAdapter<CONVENTION>::
