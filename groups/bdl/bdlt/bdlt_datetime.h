@@ -1582,25 +1582,27 @@ void Datetime::getTime(int *hour,
 {
     bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
 
-    *hour = static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
+    if (hour) {
+        *hour = static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
+    }
     if (minute) {
         *minute = static_cast<int>(  microseconds
                                    / TimeUnitRatio::k_US_PER_M
                                    % TimeUnitRatio::k_M_PER_H);
-        if (second) {
-            *second = static_cast<int>(  microseconds
-                                       / TimeUnitRatio::k_US_PER_S
-                                       % TimeUnitRatio::k_S_PER_M);
-            if (millisecond) {
-                *millisecond = static_cast<int>(  microseconds
-                                                / TimeUnitRatio::k_US_PER_MS
-                                                % TimeUnitRatio::k_MS_PER_S);
-                if (microsecond) {
-                    *microsecond = static_cast<int>(
+    }
+    if (second) {
+        *second = static_cast<int>(  microseconds
+                                   / TimeUnitRatio::k_US_PER_S
+                                   % TimeUnitRatio::k_S_PER_M);
+    }
+    if (millisecond) {
+        *millisecond = static_cast<int>(  microseconds
+                                        / TimeUnitRatio::k_US_PER_MS
+                                        % TimeUnitRatio::k_MS_PER_S);
+    }
+    if (microsecond) {
+        *microsecond = static_cast<int>(
                                     microseconds % TimeUnitRatio::k_US_PER_MS);
-                }
-            }
-        }
     }
 }
 

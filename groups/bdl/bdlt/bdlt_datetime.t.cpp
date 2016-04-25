@@ -120,6 +120,7 @@ using namespace bsl;
 // [ 4] int day() const;
 // [ 4] int dayOfYear() const;
 // [ 4] DayOfWeek::Day dayOfWeek() const;
+// [ 4] void getTime(int *h, int *m, int *s, int *ms, int *us);
 // [ 4] int hour() const;
 // [ 4] int minute() const;
 // [ 4] int second() const;
@@ -5266,6 +5267,8 @@ if (veryVerbose)
         //:
         //: 3 The the nine accessors to the fields of the "date" and "time"
         //:   parts are forwarded to the the accessors of those parts.
+        //:
+        //: 4 The 'getTime' accessor works as expected.
         //
         // Plan:
         //: 1 Invoke each ACCESSOR via a reference providing non-modifiable
@@ -5285,7 +5288,11 @@ if (veryVerbose)
         //:
         //:   3 Confirm that the nine field accessors return values that match
         //:     the corresponding fields of the "date" and "time" parts of the
-        //:     object.
+        //:     object.  (C-3)
+        //:
+        //:   4 Confirm that the 'getTime' accessor return values that match
+        //:     the corresponding fields of the "time" part of the object.
+        //:     (C-4)
         //
         // Testing:
         //   Date date() const;
@@ -5295,6 +5302,7 @@ if (veryVerbose)
         //   int day() const;
         //   int dayOfYear() const;
         //   DayOfWeek::Day dayOfWeek() const;
+        //   void getTime(int *h, int *m, int *s, int *ms, int *us);
         //   int hour() const;
         //   int minute() const;
         //   int second() const;
@@ -5374,6 +5382,37 @@ if (veryVerbose)
                 LOOP_ASSERT(i, X.time().millisecond()  == X.millisecond());
 
                 LOOP_ASSERT(i, USEC == X.microsecond());
+
+                {
+                    int v;
+
+                    X.getTime(&v);
+                    LOOP_ASSERT(i, HOUR == v);
+                }
+                {
+                    int v;
+
+                    X.getTime(0, &v);
+                    LOOP_ASSERT(i, MINUTE == v);
+                }
+                {
+                    int v;
+
+                    X.getTime(0, 0, &v);
+                    LOOP_ASSERT(i, SECOND == v);
+                }
+                {
+                    int v;
+
+                    X.getTime(0, 0, 0, &v);
+                    LOOP_ASSERT(i, MSEC == v);
+                }
+                {
+                    int v;
+
+                    X.getTime(0, 0, 0, 0, &v);
+                    LOOP_ASSERT(i, USEC == v);
+                }
             }
         }
 
