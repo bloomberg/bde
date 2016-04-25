@@ -157,7 +157,7 @@ int readRawArray(bsl::vector<TYPE> *result,
     BSLS_ASSERT(result);
 
     if (0 != numValues) {
-        int numBytes = sizeof(TYPE) * numValues;
+        int numBytes = static_cast<int>(sizeof(TYPE)) * numValues;
         result->resize(numValues);
         if (!stream.read((char *)&result->front(), numBytes)) {
             return -1;                                                // RETURN
@@ -343,9 +343,9 @@ int loadLocalTimeDescriptors(
 
         // Check if 'description' is null-terminated.
 
-        const int maxLength = abbreviationBuffer.size()
+        const int maxLength = static_cast<int>(abbreviationBuffer.size()
                               - localTimeDescriptors[i].d_abbreviationIndex
-                              - 1;
+                              - 1);
         if (maxLength < bdlb::String::strnlen(description, maxLength + 1)) {
             BALL_LOG_ERROR << "Abbreviation string is not null-terminated."
                            << BALL_LOG_END;

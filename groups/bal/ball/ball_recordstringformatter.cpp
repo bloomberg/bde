@@ -205,7 +205,7 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
 
     if (k_ENABLE_PUBLISH_IN_LOCALTIME ==
                                        d_timestampOffset.totalMilliseconds()) {
-        int localTimeOffsetInSeconds =
+        bsls::Types::Int64 localTimeOffsetInSeconds =
             bdlt::LocalTimeOffset::localTimeOffset(timestamp).totalSeconds();
         timestamp.addSeconds(localTimeOffsetInSeconds);
     } else if(k_DISABLE_PUBLISH_IN_LOCALTIME ==
@@ -324,7 +324,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               } break;
               case 'x': {
                 bsl::stringstream ss;
-                int length = fixedFields.messageStreamBuf().length();
+                int length = static_cast<int>(
+                                      fixedFields.messageStreamBuf().length());
                 bdlb::Print::printString(ss,
                                         fixedFields.message(),
                                         length,
@@ -333,7 +334,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               } break;
               case 'X': {
                 bsl::stringstream ss;
-                int length = fixedFields.messageStreamBuf().length();
+                int length = static_cast<int>(
+                                      fixedFields.messageStreamBuf().length());
                 bdlb::Print::singleLineHexDump(ss,
                                               fixedFields.message(),
                                               length);

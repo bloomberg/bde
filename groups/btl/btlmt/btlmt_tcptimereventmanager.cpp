@@ -1015,8 +1015,9 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
             swap(d_executeQueue_p, requestsPtr);
         }
 
-        int numCallbacks = requestsPtr->size();
-        for (int i = 0; i < numCallbacks; ++i) {
+        typedef bsl::vector<bsl::function<void()> >::size_type size_type;
+        size_type numCallbacks = requestsPtr->size();
+        for (size_type i = 0; i < numCallbacks; ++i) {
             (*requestsPtr)[i]();
         }
         requestsPtr->clear();
@@ -1030,11 +1031,13 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
             char BUFFER[SIZE];
             bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
 
-            bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
-                                                    requests(&bufferAllocator);
+            typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
+                    RequestList;
+
+            RequestList requests(&bufferAllocator);
             d_timerQueue.popLE(bdlt::CurrentTime::now(), &requests);
-            int numTimers = requests.size();
-            for (int i = 0; i < numTimers; ++i) {
+            RequestList::size_type numTimers = requests.size();
+            for (RequestList::size_type i = 0; i < numTimers; ++i) {
                 requests[i].data()();
             }
         }
@@ -1296,7 +1299,7 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
             return -1;                                                // RETURN
         }
 
-        
+
         // Register the server fd of 'd_controlChannel_p' for READs.
         btlso::EventManager::Callback cb(
                bsl::allocator_arg_t(),

@@ -239,7 +239,7 @@ CollectorRepository_Collectors<COLLECTOR>::getAddedCollectors(
     for (; it != d_addedCollectors.end(); ++it) {
         collectors->push_back(*it);
     }
-    return d_addedCollectors.size();
+    return static_cast<int>(d_addedCollectors.size());
 }
 
 template <class COLLECTOR>

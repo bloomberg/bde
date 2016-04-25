@@ -144,7 +144,7 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&  value,
       }
     }
 
-    const int size = value.size();
+    const int size = static_cast<int>(value.size());
 
     int status = BerUtil::putIdentifierOctets(d_streamBuf,
                                               tagClass,

@@ -18,8 +18,8 @@ namespace ball {
 
 // ACCESSORS
 bsl::ostream& UserFieldValue::print(bsl::ostream& stream,
-                                    int           level,
-                                    int           spacesPerLevel) const
+                                    int           /* level */,
+                                    int           /* spacesPerLevel */) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN

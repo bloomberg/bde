@@ -240,7 +240,7 @@ int EventManagerName::dispatchImp(int                       flags,
 
                 numReady = epoll_wait(d_epollFd,
                                       &d_signaled.front(),
-                                      d_signaled.size(),
+                                      static_cast<int>(d_signaled.size()),
                                       epollTimeout);
 
                 BSLS_ASSERT(-1 != numReady || EINTR == errno);

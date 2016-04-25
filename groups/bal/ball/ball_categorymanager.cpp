@@ -164,7 +164,8 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
     d_categories.push_back(category);
     proctor.setCategories(&d_categories);
 
-    d_registry[category->categoryName()] = d_categories.size() - 1;
+    d_registry[category->categoryName()] =
+                                     static_cast<int>(d_categories.size() - 1);
     proctor.release();
 
     return category;
