@@ -1,5 +1,6 @@
-bsl-internal (2.27.0.0) unstable; urgency=low
+bsl-internal (2.27.0.1) unstable; urgency=low
 
+  * 45591c0 Changelog for version 2.27.0.0
   * c098d75 Set version to 2.27.0
   * d62857a Merge pull request #341 from sbreitst/stringref_stringutils-drqs-69340099.2_2.x
   * 350c431 drqs-69340099: 'bdlb_stringrefutil': Add to 'releases/2.x' from 'master'.
@@ -22,7 +23,7 @@ bsl-internal (2.27.0.0) unstable; urgency=low
   * ab66209 Merge pull request #219 from hversche/enable-bsls-ident-buildid-drqs-77787475
   * 3b74215 Merge pull request #283 from jmendelsohn4/bbl_debian_changes_2.x-drqs-80375198
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 25 Apr 2016 12:51:00 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 25 Apr 2016 13:00:17 -0400
 
 bsl-internal (2.26.1.0) git; urgency=low
 
