@@ -1,20 +1,53 @@
-bsl-internal (2.26.1.0) unstable; urgency=low
+bsl-internal (2.27.0.0) unstable; urgency=low
 
+  * c098d75 Set version to 2.27.0
+  * d62857a Merge pull request #341 from sbreitst/stringref_stringutils-drqs-69340099.2_2.x
+  * 350c431 drqs-69340099: 'bdlb_stringrefutil': Add to 'releases/2.x' from 'master'.
+  * 7c8df49 Merge pull request #336 from hversche/pr/334-rebased
+  * ee9fa9c Merge pull request #333 from hversche/pr/317-rebased
+  * e2cfd8c Merge pull request #332 from hversche/pr/327-rebased
+  * ee27095 Merge pull request #330 from hversche/pr/311-rebased
+  * dceab98 Merge pull request #316 from bde/migrate-dlct-datum-to-bdld-drqs-80947230
+  * 044181a Merge pull request #329 from hversche/shared-ptr-gcc-5-warning-rebased-drqs-78502366
+  * 9e1d832 Merge pull request #328 from bde/releases/2.26.x
+  * d7a52ff Merge pull request #324 from mgiroux/review/fix-compile-warning-in-bsls_systemtime.cpp
+  * 3412ce3 Merge pull request #322 from jmendelsohn4/bdlt_build_warnings_2.x-drqs-81062345
+  * e99bfa1 Merge pull request #319 from jmendelsohn4/bdlma_build_warnings_2.x-drqs-81021810
+  * 2e2e1ad Merge pull request #309 from mgiroux/review/add-pcre2-to-debian-control-release-2.x
+  * 406b474 Merge remote-tracking branch 'upstream/releases/2.x' into add-pcre2-to-debian-control-release-2.x
+  * 17535b6 Merge pull request #307 from hversche/pr/306-rebased
+  * 5e76cba Merge pull request #210 from che2/third-party-use-relatively-include-paths-drqs-69714826
+  * f19121f Merge pull request #301 from cwilson/release-bsl-function-pre-bde30
+  * 1a041e0 Merge pull request #300 from bde/enable-bsls-ident-buildid-drqs-77787475-rebase-2.x
+  * ab66209 Merge pull request #219 from hversche/enable-bsls-ident-buildid-drqs-77787475
+  * 3b74215 Merge pull request #283 from jmendelsohn4/bbl_debian_changes_2.x-drqs-80375198
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 25 Apr 2016 12:51:00 -0400
+
+bsl-internal (2.26.1.0) git; urgency=low
+
+  * 3d0567e Changelog for version 2.26.1.0
   * e602cf2 Merge pull request #297 from hversche/backout-sharedptr-back-to-2.25
   * e050001 Merge pull request #298 from mgiroux/review/bump-version-to-2.26.1.0
   * 64904a9 Bump patchversion for 2.26.1
   * 529dccf Revert shared pointer to BDE 2.25.x version
+  * 59810e6 Merge pull request #296 from hversche/correct-bdlt_date-comment-typo-drqs-80595394-rebase-2.x
   * af367f8 Merge pull request #295 from hversche/pr/correct-bdlt_date-comment-typo-drqs-80595394-rebase
+  * d05151f Merge pull request #272 from jmendelsohn4/bsls_stopwatch-copy-constructor-2.x-drqs-80248078
+  * 993f5aa Merge pull request #273 from jmendelsohn4/fix-makeerror-alignment-crash-2.x
+  * f429281 Merge pull request #270 from jmendelsohn4/bdlma-2.x-drqs-78633855
   * 9583960 Merge pull request #264 from eschaefer3/correct-bdlpcre-de-file
   * b0744e5 Merge pull request #263 from eschaefer3/remove-unknown-bdlmt-from-bdl.mem
+  * 47b7da8 Merge pull request #260 from hversche/pr/257-rebased-2.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 6 Apr 2016 07:40:19 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 Apr 2016 07:48:02 -0400
 
 bsl-internal (2.26.0.5) git; urgency=low
 
   * 8743d05 Changelog for version 2.26.0.5
   * d1053f8 Merge pull request #237 from sbreitst/add_bdld.txt_2.26.x-bde-1004
   * 2c4d3ff Merge pull request #230 from hversche/fix-tuple-clang-drqs-79683576-2.26
+  * 4923bfd Merge pull request #229 from hversche/fix-tuple-clang-drqs-79683576
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Mar 2016 11:02:00 -0400
 
@@ -36,6 +69,7 @@ bsl-internal (2.26.0.3) git; urgency=low
 bsl-internal (2.26.0.2) git; urgency=low
 
   * 4d4c25a Changelog for version 2.26.0.2
+  * 6cbd768 Merge pull request #213 from mgiroux/review/pcre_to_releases_2.x
   * e9edae2 Merge pull request #214 from mgiroux/review/pcre_to_releases_2.x
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 15:29:27 -0500
@@ -43,7 +77,9 @@ bsl-internal (2.26.0.2) git; urgency=low
 bsl-internal (2.26.0.1) git; urgency=low
 
   * a3fbd05 Changelog for version 2.26.0.1
+  * 7e46f79 Merge pull request #211 from mgiroux/review/pcre_to_releases_2.x
   * 97477c4 Merge pull request #212 from mgiroux/review/pcre_to_releases_2.x
+  * a178d0d Merge pull request #209 from che2/fix-pcre2-pc-file
   * 1787bd3 Merge pull request #208 from che2/fix-pcre2-pc-file
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Mar 2016 14:54:49 -0500
@@ -61,6 +97,7 @@ bsl-internal (2.26.0.0) git; urgency=low
   * 39aba07 Merge pull request #150 from ameredit/for_2.26/allocate_shared_patch
   * 6537c50 Merge pull request #180 from hversche/pointer-cast-util-retry-drqs-78040055-rebase-2.x
   * 85298b3 Merge pull request #178 from hversche/fix-stlport4-build-drqs-78626169-rebase-2.x
+  * cb6ac75 Merge pull request #173 from mgiroux/review/fix-bdld_datum-streamout-declaration
   * 410b4ff Merge pull request #1 from mgiroux/review/fix-bdld_datum-streamout-declaration
   * f0343d9 Merge remote-tracking branch 'upstream/releases/2.25.x' into trial-merging-2.25.x-to-2.x
   * 143559b Merge pull request #168 from mgiroux/review/add-bdlt_serialdateimputil-DelegatingDateImpUtil-typedef-to-releases-2.x
