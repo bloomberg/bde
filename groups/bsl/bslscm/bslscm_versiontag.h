@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MAJOR    2
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    26
+#define BSL_VERSION_MINOR    27
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
