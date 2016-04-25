@@ -623,7 +623,8 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
         *consumed = sizeof(*data) + sizeof(Socks5ConnectBody1);
 
         const Socks5ConnectBody1& body1 =
-                       *reinterpret_cast<const Socks5ConnectBody1 *>(data + 1);
+            *static_cast<const Socks5ConnectBody1 *>(
+                static_cast<const void *>(data + 1));
         connectAddr.setIpAddress(body1.d_ip);
         connectAddr.setPortNumber(body1.d_port);
 

@@ -1270,8 +1270,8 @@ int local::StackTraceResolver::resolve(
         }
 
         local::ElfProgramHeader *programHeaders =
-                 reinterpret_cast<local::ElfProgramHeader *>(
-                     reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff);
+            static_cast<local::ElfProgramHeader *>(static_cast<void *>(
+                reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff));
         int numProgramHeaders = elfHeader->e_phnum;
 
         resolver.d_seg_p->d_isMainExecutable = (0 == i);

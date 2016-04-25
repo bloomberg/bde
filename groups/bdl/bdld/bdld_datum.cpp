@@ -773,7 +773,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64  value,
             decimal64ToVariableWidthEncoding(buffer, value);
         if (end - buffer <= static_cast<int>(sizeof(int))) {
             result.d_as.d_ushort = e_EXTENDED_INTERNAL_DECIMAL64;
-            result.d_as.d_int = *reinterpret_cast<const int *>(buffer);
+            result.d_as.d_int = Datum_Helpers::load<int>(buffer, 0);
             return result;                                            // RETURN
         }
         else {
@@ -1039,12 +1039,11 @@ char *Datum::createUninitializedString(Datum            *result,
     // allocate extra bytes for storing length of the string before the string
     // itself
 
-    char *mem = static_cast<char *>(basicAllocator->allocate(length +
-                                                             sizeof(length)));
-    *reinterpret_cast<SizeType *>(mem) = length;
+    void *mem = basicAllocator->allocate(length + sizeof(length));
+    Datum_Helpers::store(mem, 0, length);
     result->d_as.d_cvp = mem;
 
-    return mem + sizeof(length);                                      // RETURN
+    return static_cast<char *>(mem) + sizeof(length);                 // RETURN
 #else   // BSLS_PLATFORM_CPU_32_BIT
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *str = reinterpret_cast<char *>(result->theInlineStorage());

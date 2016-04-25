@@ -160,17 +160,18 @@ void Pool::reserveCapacity(int numBlocks)
 
         // Allocate memory and add its blocks to the free list.
 
-        char *begin = static_cast<char *>(
-                        d_blockList.allocate(numBlocks * d_internalBlockSize));
-        char *end   = begin + (numBlocks - 1) * d_internalBlockSize;
-
-        for (char *p = begin; p < end; p += d_internalBlockSize) {
-            reinterpret_cast<Link *>(p)->d_next_p =
-                             reinterpret_cast<Link *>(p + d_internalBlockSize);
+        void *blocks = d_blockList.allocate(numBlocks * d_internalBlockSize);
+        char *p = static_cast<char *>(blocks);
+        for (int i = 1; i < numBlocks; ++i) {
+            Link *plink = static_cast<Link *>(static_cast<void *>(p));
+            p += d_internalBlockSize;
+            Link *pnext = static_cast<Link *>(static_cast<void *>(p));
+            plink->d_next_p = pnext;
         }
 
-        reinterpret_cast<Link *>(end)->d_next_p = d_freeList_p;
-        d_freeList_p = reinterpret_cast<Link *>(begin);
+        Link *pend = static_cast<Link *>(static_cast<void *>(p));
+        pend->d_next_p = d_freeList_p;
+        d_freeList_p = static_cast<Link *>(blocks);
     }
 }
 
