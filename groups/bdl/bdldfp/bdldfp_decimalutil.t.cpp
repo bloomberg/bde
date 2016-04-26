@@ -74,13 +74,6 @@ void aSsErT(bool condition, const char *message, int line)
     }
 }
 
-int                test;
-int             verbose;
-int         veryVerbose;
-int     veryVeryVerbose;
-int veryVeryVeryVerbose;
-static bslma::TestAllocator *pa;
-
 }  // close unnamed namespace
 
 // ============================================================================
@@ -434,11 +427,34 @@ struct NulBuf : bsl::streambuf {
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-
-static void testCase13()
+int main(int argc, char* argv[])
 {
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;  // always the last
 
-    // ------------------------------------------------------------------------
+    using bsls::AssertFailureHandlerGuard;
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    bslma::TestAllocator  ta(veryVeryVeryVerbose);
+    bslma::TestAllocator *pa = &ta;
+
+    typedef BDEC::DecimalUtil Util;
+
+    cout.precision(35);
+
+
+    switch (test) { case 0:
+    case 13: {
+        // ------------------------------------------------------------------------
     // TESTING format
     // Concerns: The format functions output human readable strings which
     //           can be round-tripped using the parse functions.
@@ -466,7 +482,6 @@ static void testCase13()
         Type INF_P =  bsl::numeric_limits<Type>::infinity();
         Type INF_N = -bsl::numeric_limits<Type>::infinity();
         Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
-        Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
         Type MAX   = DEC(9.999999e+96);
         Type MIN   = DEC(-1e-95);
 
@@ -488,8 +503,7 @@ static void testCase13()
             {  L_,          MIN,          "-1E-95" },
             {  L_,        INF_P,        "Infinity" },
             {  L_,        INF_N,       "-Infinity" },
-            {  L_,        NAN_Q,             "NaN" },
-            //{  L_,        NAN_S,            "sNaN" },
+            {  L_,        NAN_Q,             "NaN" }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -552,7 +566,6 @@ static void testCase13()
         Type INF_P =  bsl::numeric_limits<Type>::infinity();
         Type INF_N = -bsl::numeric_limits<Type>::infinity();
         Type NAN_Q =  bsl::numeric_limits<Type>::quiet_NaN();
-        Type NAN_S =  bsl::numeric_limits<Type>::signaling_NaN();
         Type MAX   =  bdldfp::DecimalImpUtil::parse64(
                                                      "9.999999999999999e+384");
         Type MIN   = DEC(1e-383);
@@ -575,8 +588,7 @@ static void testCase13()
             {  L_,          MIN,                   "1E-383" },
             {  L_,        INF_P,                  "Infinity" },
             {  L_,        INF_N,                 "-Infinity" },
-            {  L_,        NAN_Q,                       "NaN" },
-            //{  L_,        NAN_S,                      "sNaN" }
+            {  L_,        NAN_Q,                       "NaN" }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -686,36 +698,6 @@ static void testCase13()
         }
     }
 #undef DEC
-}
-
-int main(int argc, char* argv[])
-{
-                   test = argc > 1 ? atoi(argv[1]) : 0;
-                verbose = argc > 2;
-             veryVerbose = argc > 3;
-         veryVeryVerbose = argc > 4;
-     veryVeryVeryVerbose = argc > 5;  // always the last
-
-    using bsls::AssertFailureHandlerGuard;
-
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    pa = &ta;
-
-    typedef BDEC::DecimalUtil Util;
-
-    cout.precision(35);
-
-
-    switch (test) { case 0:
-    case 13: {
-        testCase13();
     }
     case 12: {
         // --------------------------------------------------------------------
