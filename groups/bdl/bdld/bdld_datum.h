@@ -2414,7 +2414,7 @@ Type Datum_Helpers::load(const void *source, int offset)
     // pointer of stricter alignment.
     return *static_cast<const Type *>(
             static_cast<const void *>(
-            static_cast<const unsigned char *>(source) + offset));
+            static_cast<const char *>(source) + offset));
 }
 
 template <class Type>
@@ -2425,7 +2425,7 @@ Type Datum_Helpers::store(void *destination, int offset, Type value)
     // pointer of stricter alignment.
     return *static_cast<Type *>(
             static_cast<void *>(
-            static_cast<unsigned char *>(destination) + offset)) = value;
+            static_cast<char *>(destination) + offset)) = value;
 }
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
