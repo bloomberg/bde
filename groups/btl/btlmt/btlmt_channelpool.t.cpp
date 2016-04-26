@@ -8039,7 +8039,6 @@ void TestDriver::testCase37()
         const int            SID  = 101;                        // ServerId
         const int            RA   =   1;                        // ReuseAddr
         const bool           REF  = true;                       // ReadEnabled
-        const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
         const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
         const int            BP   = 80;                         // Bad PortNum
         const TimeInterval   T;                                 // TimeInterval
@@ -8054,7 +8053,9 @@ void TestDriver::testCase37()
         // Listening on an invalid port number through various 'listen'
         // overloads.
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+        SocketOptions opts; const SocketOptions *OPTS = &opts;
+        opts.setReuseAddress(false);
+
         {
             int error = 0;
 
@@ -8172,7 +8173,6 @@ void TestDriver::testCase37()
             ASSERT(0 != rc);
             ASSERT(0 != error);
         }
-#endif
 
         // 'connect' synchronous error
 
