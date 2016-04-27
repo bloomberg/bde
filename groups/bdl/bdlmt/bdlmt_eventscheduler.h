@@ -355,10 +355,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BSL_FUNCTION
-#include <bsl_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
@@ -428,10 +424,12 @@ class EventScheduler {
     typedef bdlcc::SkipList<bsls::Types::Int64,
                             bsl::function<void()> >        EventQueue;
 
+    typedef bsl::function<bsls::TimeInterval()>          CurrentTimeFunctor;
+
     // FRIENDS
     friend class EventSchedulerEventHandle;
     friend class EventSchedulerRecurringEventHandle;
-    friend class bdlmt::EventSchedulerTestTimeSource;
+    friend class EventSchedulerTestTimeSource;
 
   public:
     // PUBLIC TYPES
@@ -906,16 +904,16 @@ class EventSchedulerTestTimeSource {
     bsls::TimeInterval    d_currentTime;      // the current time to return
                                              // from 'now'
 
-    Mutex          d_currentTimeMutex; // mutex used to synchronize
+    bslmt::Mutex          d_currentTimeMutex; // mutex used to synchronize
                                              // access to the variable
                                              // 'd_currentTimeMutex'
 
-    bdlmt::EventScheduler *d_scheduler_p;      // pointer to the scheduler
+    EventScheduler *d_scheduler_p;      // pointer to the scheduler
                                              // that we are augmenting
 
   public:
     // CREATORS
-    EventSchedulerTestTimeSource(bdlmt::EventScheduler *scheduler);
+    EventSchedulerTestTimeSource(EventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
         // 'now' to be an arbitrary time value.  The behavior is undefined
