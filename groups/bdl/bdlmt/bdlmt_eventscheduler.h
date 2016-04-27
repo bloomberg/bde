@@ -286,6 +286,62 @@ BSLS_IDENT("$Id: $")
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
+//
+///Event Clock Substitution
+///------------------------
+// For testing purposes, the class 'bdlmt::EventSchedulerTestTimeSource' is
+// provided to allow a test to manipulate the system-time observed by a
+// 'bdlmt::EventScheduler' in order to control when events are triggered. After a
+// scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource' object can
+// be created atop the scheduler.  A test can then use the test time-source to
+// advance the scheduler's observed system-time in order to dispatch events in
+// a manner coordinated by the test.  Note that a
+// 'bdlmt::EventSchedulerTestTimeSource' *must* be created on an event-scheduler
+// before any events are scheduled, or the event-scheduler is started.
+//
+// This example shows how the clock may be altered:
+//
+// ..
+// void myCallbackFunction() {
+//     puts("Event triggered!");
+// }
+//
+// void testCase() {
+//     // Construct the scheduler
+//     bdlmt::EventScheduler scheduler;
+//
+//     // Construct the time-source.
+//     // Install the time-source in the scheduler.
+//     bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+//
+//     // Retrieve the initial time held in the time-source.
+//     bsls::TimeInterval initialAbsoluteTime = timeSource.now();
+//
+//     // Schedule a single-run event at a 35s offset.
+//     scheduler.scheduleEvent(initialAbsoluteTime + 35,
+//                             bsl::function<void(*)()>(&myCallbackFunction));
+//
+//     // Schedule a 30s recurring event.
+//     scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
+//                                      bsl::function<void(*)()>(
+//                                                       &myCallbackFunction));
+//
+//     // Start the dispatcher thread.
+//     scheduler.start();
+//
+//     // Advance the time by 40 seconds so that each
+//     // event will run once.
+//     timeSource.advanceTime(bsls::TimeInterval(40));
+//
+//     // The line "Event triggered!" should now have
+//     // been printed to the console twice.
+//
+//     scheduler.stop();
+// }
+// ..
+//
+// Note that this feature should be used only for testing purposes, never in
+// production code.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -297,6 +353,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTION
+#include <bsl_function.h>
 #endif
 
 #ifndef INCLUDED_BSLMT_MUTEX
@@ -371,6 +431,7 @@ class EventScheduler {
     // FRIENDS
     friend class EventSchedulerEventHandle;
     friend class EventSchedulerRecurringEventHandle;
+    friend class bdlmt::EventSchedulerTestTimeSource;
 
   public:
     // PUBLIC TYPES
@@ -394,8 +455,10 @@ class EventScheduler {
 
   private:
     // PRIVATE DATA
-    bsls::SystemClockType::Enum
-                          d_clockType;          // clock type used
+    CurrentTimeFunctor    d_currentTimeFunctor; // when called, returns the
+                                                // current time the scheduler
+                                                // should use for the event
+                                                // timeline
 
     EventQueue            d_eventQueue;         // events
 
@@ -437,6 +500,9 @@ class EventScheduler {
                                                 // Raw reference to the
                                                 // scheduled recurring event
                                                 // being executed
+
+    bsls::SystemClockType::Enum
+                          d_clockType;          // clock type used
 
     // PRIVATE MANIPULATORS
     bsls::Types::Int64 chooseNextEvent(bsls::Types::Int64 *now);
@@ -815,6 +881,59 @@ class EventSchedulerRecurringEventHandle
         // Return a "raw" pointer to the recurring event managed by this
         // handle, or 0 if this handle does not manage a reference.
 
+};
+
+                 // =======================================
+                 // class EventSchedulerTestTimeSource
+                 // =======================================
+
+class EventSchedulerTestTimeSource {
+    // This class provides a means to change the clock that is used by a given
+    // event-scheduler to determine when events should be triggered.
+    // Constructing a 'EventSchedulerTestTimeSource' alters the behavior
+    // of the supplied event-scheduler.  After a test time-source is created,
+    // the underlying scheduler will run events according to a discrete
+    // timeline, whose successive values are determined by calls to
+    // 'advanceTime' on the test time-source, and can be retrieved by calling
+    // 'now' on that test time-source.  Note that the "system-time" held by a
+    // test time-source *does* *not* correspond to the current system time.
+    // Test writers must use caution when scheduling absolute-time events so
+    // that they are scheduled relative to the test time-source's value for
+    // 'now'.
+
+  private:
+    // DATA
+    bsls::TimeInterval    d_currentTime;      // the current time to return
+                                             // from 'now'
+
+    Mutex          d_currentTimeMutex; // mutex used to synchronize
+                                             // access to the variable
+                                             // 'd_currentTimeMutex'
+
+    bdlmt::EventScheduler *d_scheduler_p;      // pointer to the scheduler
+                                             // that we are augmenting
+
+  public:
+    // CREATORS
+    EventSchedulerTestTimeSource(bdlmt::EventScheduler *scheduler);
+        // Construct a test time-source object that will control the
+        // "system-time" observed by the specified 'scheduler'.  Initialize
+        // 'now' to be an arbitrary time value.  The behavior is undefined
+        // if any methods have previously been called on 'scheduler'.
+
+    // MANIPULATORS
+    bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
+        // Advance this object's current-time value by the specified 'amount'
+        // of time, and notify the scheduler that the time has changed.  Return
+        // the updated current-time value.  The behavior is undefined unless
+        // 'amount' represents a positive time interval, and 'now + amount' is
+        // within the range that can be represented with a 'bsls::TimeInterval'.
+
+    // ACCESSORS
+    bsls::TimeInterval now();
+        // Return this object's current-time value.  Upon construction, this
+        // method will return an arbitrary value.  Subsequent calls to
+        // 'advanceTime' will adjust the arbitrary value forward.
 };
 
 // ============================================================================

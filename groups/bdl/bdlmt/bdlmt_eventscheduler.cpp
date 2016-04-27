@@ -36,6 +36,18 @@ void defaultDispatcherFunction(const bsl::function<void()>& callback)
     callback();
 }
 
+static inline
+bsl::function<bsls::TimeInterval(*)()> createDefaultCurrentTimeFunctor(
+                                        bsls::SystemClockType::Enum clockType)
+{
+    // Must cast the pointer to 'now' to the correct signature so that the
+    // correct now function is passed to the bind template.
+    return bdlf::BindUtil::bind(
+               static_cast<bsls::TimeInterval (*)(bsls::SystemClockType::Enum)>(
+                                                       &bsls::SystemTime::now),
+               clockType);
+}
+
 namespace bdlmt {
                             // --------------------
                             // class EventScheduler
@@ -162,7 +174,9 @@ void EventScheduler::releaseCurrentEvents()
 
 // CREATORS
 EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
-: d_clockType(bsls::SystemClockType::e_REALTIME)
+: d_currentTimeFunctor(createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME),
+                       basicAllocator)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(&defaultDispatcherFunction)
@@ -171,12 +185,14 @@ EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
 
 EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
                                bslma::Allocator            *basicAllocator)
-: d_clockType(clockType)
+: d_currentTimeFunctor(createDefaultCurrentTimeFunctor(clockType),
+                       basicAllocator)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(&defaultDispatcherFunction)
@@ -186,13 +202,16 @@ EventScheduler::EventScheduler(bsls::SystemClockType::Enum  clockType,
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_clockType(clockType)
 {
 }
 
 EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bslma::Allocator                  *basicAllocator)
-: d_clockType(bsls::SystemClockType::e_REALTIME)
+: d_currentTimeFunctor(createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME),
+                       basicAllocator)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(dispatcherFunctor)
@@ -201,6 +220,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
 
@@ -208,7 +228,8 @@ EventScheduler::EventScheduler(
                           const EventScheduler::Dispatcher&  dispatcherFunctor,
                           bsls::SystemClockType::Enum        clockType,
                           bslma::Allocator                  *basicAllocator)
-: d_clockType(clockType)
+: d_currentTimeFunctor(createDefaultCurrentTimeFunctor(clockType),
+                       basicAllocator)
 , d_eventQueue(basicAllocator)
 , d_recurringQueue(basicAllocator)
 , d_dispatcherFunctor(dispatcherFunctor)
@@ -218,6 +239,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherAwaited(false)
 , d_currentRecurringEvent(0)
 , d_currentEvent(0)
+, d_clockType(clockType)
 {
 }
 
@@ -564,6 +586,68 @@ void EventScheduler::cancelAllEventsAndWait()
         }
     }
 }
+
+                 // ---------------------------------------
+                 // class EventSchedulerTestTimeSource
+                 // ---------------------------------------
+
+// CREATORS
+EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
+                                                bdlmt::EventScheduler *scheduler)
+: d_currentTime(bsls::SystemTime::now()
+                + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
+, d_scheduler_p(scheduler)
+{
+    BSLS_ASSERT(0 != scheduler);
+
+    // Bind the member function 'now' to 'this', and let the scheduler call
+    // this binder as its current time callback.
+    d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
+                                       &EventSchedulerTestTimeSource::now,
+                                       this);
+}
+
+// MANIPULATORS
+bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
+                                                      bsls::TimeInterval amount)
+{
+    BSLS_ASSERT(amount > 0);
+    bsls::TimeInterval ret;
+
+    {
+        // This scope limits how long we lock 'd_currentTimeMutex'
+
+        bslmt::LockGuard<Mutex> lock(&d_currentTimeMutex);
+
+        d_currentTime += amount;
+
+        // Returning the new time allows an atomic 'advance' + 'now' operation.
+        // This feature may not be necessary.
+        ret = d_currentTime;
+    }
+
+
+    {
+        // This scope limits how long we lock the scheduler's mutex
+
+        bslmt::LockGuard<Mutex> lock(&d_scheduler_p->d_mutex);
+
+        // Now that the time has changed, signal the scheduler's condition
+        // variable so that the event dispatcher thread can be alerted to the
+        // change.
+        d_scheduler_p->d_queueCondition.signal();
+    }
+
+    return ret;
+}
+
+// ACCESSORS
+bsls::TimeInterval EventSchedulerTestTimeSource::now()
+{
+    bslmt::LockGuard<Mutex> lock(&d_currentTimeMutex);
+    return d_currentTime;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
