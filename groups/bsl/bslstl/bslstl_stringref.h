@@ -949,7 +949,15 @@ int StringRefImp<CHAR_TYPE>::compare(
                     other.data(),
                     native_std::min(this->length(), other.length()));
 
-    return result != 0 ? result : this->length() - other.length();
+    if (result) {
+        return result;                                                // RETURN
+    }
+    else if (this->length() == other.length()) {
+        return 0;                                                     // RETURN
+    }
+    else {
+        return this->length() > other.length() ? 1 : -1;              // RETURN
+    }
 }
 
 }  // close package namespace
