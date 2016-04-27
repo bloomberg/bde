@@ -44,6 +44,8 @@ enum {
                                 // to ioctl(fd, DP_POLL, ...)
 };
 
+const int k_POLLFD_SIZE = static_cast<int>(sizeof(struct ::pollfd));
+
 typedef bsl::unordered_map<Event, EventManager::Callback, EventHash>
                                                                   CallbackMap;
 typedef bsl::unordered_map<int, int>                              EventmaskMap;
@@ -190,17 +192,16 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
         int rfds;                    // number of returned sockets
         int savedErrno = 0;          // saved errno value set by poll
         do {
-            int oldlength = d_signaled.size();
+            bsl::size_t oldlength = d_signaled.size();
             d_signaled.resize(d_eventmasks.size());
 
             // This was added to fix a (very frequent) Purify UMR.  The cost is
             // insignificant.
 
-            if (oldlength < (int) d_eventmasks.size()) {
-                bsl::memset(
-                    &d_signaled[oldlength],
-                    0,
-                    sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
+            if (oldlength < d_eventmasks.size()) {
+                bsl::memset(&d_signaled[oldlength],
+                            0,
+                            k_POLLFD_SIZE * (d_eventmasks.size() - oldlength));
             }
 
             struct dvpoll dopoll;
@@ -271,17 +272,16 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(int flags)
         int rfds;                    // number of returned fds
         int savedErrno = 0;          // saved errno value set by 'poll'
 
-        int oldlength = d_signaled.size();
+        bsl::size_t oldlength = d_signaled.size();
         d_signaled.resize(d_eventmasks.size());
 
         // This was added to fix a (very frequent) Purify UMR.  The cost is
         // insignificant.
 
-        if (oldlength < static_cast<int>(d_eventmasks.size())) {
-            bsl::memset(
-                    &d_signaled[oldlength],
-                    0,
-                    sizeof(struct ::pollfd)*(d_eventmasks.size() - oldlength));
+        if (oldlength < d_eventmasks.size()) {
+            bsl::memset(&d_signaled[oldlength],
+                        0,
+                        k_POLLFD_SIZE * (d_eventmasks.size() - oldlength));
         }
 
         struct dvpoll dopoll;
@@ -386,8 +386,8 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
 
     // Write the new event mask for this fd to /dev/poll.
 
-    int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
-    if (rc != sizeof(struct ::pollfd)) {
+    ssize_t rc = write(d_dpFd, &pfd, k_POLLFD_SIZE);
+    if (k_POLLFD_SIZE != rc) {
         return errno;                                                 // RETURN
     }
 
@@ -465,15 +465,15 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
     pfd.events  = POLLREMOVE;
     pfd.revents = 0;      // just to satisfy purify
 
-    int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
-    BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
+    ssize_t rc = write(d_dpFd, &pfd, k_POLLFD_SIZE);
+    BSLS_ASSERT(k_POLLFD_SIZE == rc);
 
     if (eventmask) {
         // Write the new event mask for this fd to /dev/poll.
 
         pfd.events = static_cast<short>(eventmask);
-        int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
-        BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
+        ssize_t rc = write(d_dpFd, &pfd, k_POLLFD_SIZE);
+        BSLS_ASSERT(k_POLLFD_SIZE == rc);
     }
 
     // Remove entry from d_callbacks.  Update event mask in 'd_eventmask'.
@@ -505,10 +505,10 @@ int DefaultEventManager<Platform::DEVPOLL>::deregisterSocket(
     req.events  = POLLREMOVE;
     req.revents = 0;
 
-    int rc = ::write(d_dpFd, &req, sizeof(struct ::pollfd));
-    BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
+    ssize_t rc = ::write(d_dpFd, &req, k_POLLFD_SIZE);
+    BSLS_ASSERT(k_POLLFD_SIZE == rc);
 
-    int result = 0;
+    bsl::size_t result = 0;
     if (eventmaskIt->second & POLLIN) {
         if (eventmaskIt->second & POLLOUT) {
             result += d_callbacks.erase(Event(handle, EventType::e_READ));
@@ -532,7 +532,7 @@ int DefaultEventManager<Platform::DEVPOLL>::deregisterSocket(
     BSLS_ASSERT(0 < result);
     BSLS_ASSERT(2 >= result);
     d_eventmasks.erase(eventmaskIt);
-    return result;
+    return static_cast<int>(result);
 }
 
 void DefaultEventManager<Platform::DEVPOLL>::deregisterAll()
@@ -549,12 +549,9 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterAll()
     }
 
     if (!d_signaled.empty()) {
+        ssize_t rc = write(d_dpFd, &d_signaled.front(), i * k_POLLFD_SIZE);
 
-        int rc = write(d_dpFd,
-                       &d_signaled.front(),
-                       i * sizeof(struct ::pollfd));
-
-        BSLS_ASSERT(static_cast<int>((sizeof(struct ::pollfd) * i)) == rc);
+        BSLS_ASSERT(i * k_POLLFD_SIZE == rc);
     }
 
     d_callbacks.clear();
@@ -575,7 +572,7 @@ int DefaultEventManager<Platform::DEVPOLL>::numSocketEvents(
 
 int DefaultEventManager<Platform::DEVPOLL>::numEvents() const
 {
-    return d_callbacks.size();
+    return static_cast<int>(d_callbacks.size());
 }
 
 int DefaultEventManager<Platform::DEVPOLL>::isRegistered(
