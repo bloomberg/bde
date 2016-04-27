@@ -42,6 +42,112 @@ template class bsl::basic_string<wchar_t>;
 #endif
 
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_CLANG)
+# define BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS 1
+#endif
+
+namespace {
+// "0x" should return '0' for bases 0 and 16, but some C runtime libraries
+// disagree.  Intercept a possible error, and check for this special condition,
+// including leading whitespace and (optionaly) an immediately preceding '+' or
+// '-'.
+#if defined(BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS)
+static
+bool isAwkwardZero(const bsl::string& str, int base)
+    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
+    // zero in the specified 'base', and 'false' otherwise.
+{
+    if (0 != base && 16 != base) {
+        return false;                                                 // RETURN
+    }
+
+    size_t index = str.size();
+    if (str.size() < 2) { // || (0 != base && 16 != base)) {
+        return false;                                                 // RETURN
+    }
+
+    --index;
+    if ('x' != str[index] && 'X' != str[index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (str[--index] != '0') {
+        return false;                                                 // RETURN
+    }
+
+    if (!index) {
+        return true;                                                  // RETURN
+    }
+
+    --index;
+    if ('+' == str[index] || '-' == str[index]) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    while (isspace(str[index])) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+    return false;                                                     // RETURN
+}
+
+static
+bool isAwkwardZero(const bsl::wstring& str, int base)
+    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
+    // zero in the specified 'base', and 'false' otherwise.
+{
+    if (0 != base && 16 != base) {
+        return false;                                                 // RETURN
+    }
+
+    size_t index = str.size();
+    if (str.size() < 2) { // || (0 != base && 16 != base)) {
+        return false;                                                 // RETURN
+    }
+
+    --index;
+    if (L'x' != str[index] && L'X' != str[index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (L'0' != str[--index]) {
+        return false;                                                 // RETURN
+    }
+
+    if (!index) {
+        return true;                                                  // RETURN
+    }
+
+    --index;
+    if (L'+' == str[index] || L'-' == str[index]) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    while (isspace(str[index])) {
+        if (!index) {
+            return true;                                              // RETURN
+        }
+        --index;
+    }
+
+    return false;                                                     // RETURN
+}
+#else
+# define isAwkwardZero(A, B) false
+#endif
+
+}  // close unnamed namespace
+
+//-----------------------------------------------------------------------------
+
 std::size_t bsl::hashBasicString(const string& str)
 {
     return hashBasicString<char, char_traits<char>, allocator<char> >(str);
@@ -55,6 +161,17 @@ std::size_t bsl::hashBasicString(const wstring& str)
 
 int bsl::stoi(const string& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     char *ptr;
     int   original_errno = errno;
 
@@ -64,20 +181,39 @@ int bsl::stoi(const string& str, std::size_t *pos, int base)
     if (errno == ERANGE) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
+    else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
+         && (value > native_std::numeric_limits<int>::max() ||
+             value < native_std::numeric_limits<int>::min() ) ) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
 
-    if (pos){
+    if (pos) {
         *pos = static_cast<size_t>(ptr - str.c_str());
     }
 
     errno = original_errno;
-    return value;
+    return static_cast<int>(value);
 }
 
 int bsl::stoi(const wstring& str, std::size_t *pos, int base)
 {
+    BSLS_ASSERT( 0 <= base);
+    BSLS_ASSERT( 1 != base);
+    BSLS_ASSERT(36 >= base);
+
+    if (isAwkwardZero(str, base)) {
+        if (pos) {
+            *pos = str.size();
+        }
+        return 0;                                                     // RETURN
+    }
+
     wchar_t *ptr;
     int      original_errno = errno;
 
@@ -87,8 +223,16 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
+    else if (0 != errno) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+    else if (sizeof(int) < sizeof(long) // proxy for 'long' has a wider range
+         && (value > native_std::numeric_limits<int>::max() ||
+             value < native_std::numeric_limits<int>::min() ) ) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
 
     if (pos) {
@@ -96,7 +240,7 @@ int bsl::stoi(const wstring& str, std::size_t *pos, int base)
     }
 
     errno = original_errno;
-    return value;
+    return static_cast<int>(value);
 }
 
 long bsl::stol(const string& str, std::size_t* pos, int base)
