@@ -12,17 +12,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
-#include <bslmt_lockguard.h>
-#include <bsls_atomic.h>  // for testing only
-
 #include <bdlf_bind.h>
 #include <bdlt_timeunitratio.h>
+#include <bslmt_lockguard.h>
+#include <bsls_assert.h>
 #include <bsls_systemtime.h>
 
-#include <bsls_assert.h>
-
 #include <bsl_algorithm.h>
-#include <bsl_functional.h>
 #include <bsl_vector.h>
 
 // Implementation note: When casting, we often cast through 'void *' or
@@ -44,9 +40,9 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
     // Must cast the pointer to 'now' to the correct signature so that the
     // correct now function is passed to the bind template.
     return bdlf::BindUtil::bind(
-               static_cast<bsls::TimeInterval (*)(bsls::SystemClockType::Enum)>(
-                                                       &bsls::SystemTime::now),
-               clockType);
+              static_cast<bsls::TimeInterval (*)(bsls::SystemClockType::Enum)>(
+                                                      &bsls::SystemTime::now),
+              clockType);
 }
 
 namespace bdlmt {
@@ -63,12 +59,12 @@ bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
 
     if (0 == d_currentRecurringEvent) {
         if (*now <= (t = d_currentEvent->key())) {
-            *now = bsls::SystemTime::now(d_clockType).totalMicroseconds();
+            *now = d_currentTimeFunctor().totalMicroseconds();
         }
     }
     else if (0 == d_currentEvent) {
         if (*now <= (t = d_currentRecurringEvent->key())) {
-            *now = bsls::SystemTime::now(d_clockType).totalMicroseconds();
+            *now = d_currentTimeFunctor().totalMicroseconds();
         }
     }
     else {
@@ -77,7 +73,7 @@ bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
 
         // Prefer overdue events over overdue clocks if running behind.
 
-        *now = bsls::SystemTime::now(d_clockType).totalMicroseconds();
+        *now = d_currentTimeFunctor().totalMicroseconds();
         if (eventTime < recurringEventTime || eventTime < *now) {
             d_recurringQueue.releaseReferenceRaw(d_currentRecurringEvent);
             d_currentRecurringEvent = 0;
@@ -95,8 +91,7 @@ bsls::Types::Int64 EventScheduler::chooseNextEvent(bsls::Types::Int64 *now)
 
 void EventScheduler::dispatchEvents()
 {
-    bsls::Types::Int64 now =
-                        bsls::SystemTime::now(d_clockType).totalMicroseconds();
+    bsls::Types::Int64 now = d_currentTimeFunctor().totalMicroseconds();
 
     while (1) {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -347,8 +342,7 @@ EventScheduler::scheduleRecurringEvent(RecurringEventHandle         *event,
 
     bsls::Types::Int64 stime(startTime.totalMicroseconds());
     if (0 == stime) {
-        stime = (bsls::SystemTime::now(d_clockType)
-                                               + interval).totalMicroseconds();
+        stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
     }
 
     RecurringEventData recurringEventData(callback, interval);
@@ -377,8 +371,7 @@ EventScheduler::scheduleRecurringEventRaw(
 
     bsls::Types::Int64 stime(startTime.totalMicroseconds());
     if (0 == stime) {
-        stime = (bsls::SystemTime::now(d_clockType)
-                                               + interval).totalMicroseconds();
+        stime = (d_currentTimeFunctor() + interval).totalMicroseconds();
     }
 
     RecurringEventData recurringEventData(callback, interval);
@@ -598,7 +591,7 @@ void EventScheduler::cancelAllEventsAndWait()
 
 // CREATORS
 EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
-                                                bdlmt::EventScheduler *scheduler)
+                                              bdlmt::EventScheduler *scheduler)
 : d_currentTime(bsls::SystemTime::now(scheduler->d_clockType)
                 + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
 , d_scheduler_p(scheduler)
@@ -607,14 +600,21 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
 
     // Bind the member function 'now' to 'this', and let the scheduler call
     // this binder as its current time callback.
+
     d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
                                        &EventSchedulerTestTimeSource::now,
                                        this);
+
+    // Why use 'bind' instead of 'memFn'?  I.e.:
+    //
+    // d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::memFn(
+    //                                      &EventSchedulerTestTimeSource::now,
+    //                                      this);
 }
 
 // MANIPULATORS
 bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
-                                                      bsls::TimeInterval amount)
+                                                     bsls::TimeInterval amount)
 {
     BSLS_ASSERT(amount > 0);
     bsls::TimeInterval ret;

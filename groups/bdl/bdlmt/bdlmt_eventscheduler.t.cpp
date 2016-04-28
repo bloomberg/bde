@@ -9,21 +9,19 @@
 
 #include <bdlmt_eventscheduler.h>
 
-#include <bslim_testutil.h>
+#include <bdlb_bitutil.h>
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
 
+#include <bslim_testutil.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bsls_atomic.h>
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
-#include <bdlb_bitutil.h>
-#include <bdlt_datetime.h>
-#include <bdlt_currenttime.h>
-
-#include <bslma_defaultallocatorguard.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
@@ -2176,14 +2174,14 @@ int main(int argc, char *argv[])
         //: 1 The clock replacement mechanism exhibits a basic ability to
         //:   alter the clock used for scheduling and dispatching events.
         //
-        // Plan:
+        //:Plan:
         //: 1 Default-construct a scheduler.
         //:
-        //: 2 Create a 'bdlmt::EventSchedulerTestTimeSource' object, passing the
-        //:   constructor a pointer to the scheduler.
+        //: 2 Create a 'bdlmt::EventSchedulerTestTimeSource' object, passing
+        //:   the constructor a pointer to the scheduler.
         //:
-        //: 3 Call 'now' on the 'bdlmt::EventSchedulerTestTimeSource' object, and
-        //:   store the result in a variable 'basisTime'.
+        //: 3 Call 'now' on the 'bdlmt::EventSchedulerTestTimeSource' object,
+        //:   and store the result in a variable 'basisTime'.
         //:
         //: 4 Schedule a one-time event in the scheduler, using the retrieved
         //:   basis time.
@@ -2244,21 +2242,21 @@ int main(int argc, char *argv[])
         makeSureTestObjectIsExecuted(event1, mT, 100);
 
         // Confirm that only the expected event has run.
-        ASSERT(1 == event1.numExecuted());
-        ASSERT(0 == event2.numExecuted());
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 0 == event2.numExecuted());
 
         // Advance the time by another 30 seconds, so we will be at an offset
         // of 65 seconds, meaning the recurring event will run once.
         timeSource.advanceTime(bsls::TimeInterval(30));
         makeSureTestObjectIsExecuted(event2, mT, 100);
-        ASSERT(1 == event1.numExecuted());
-        ASSERT(1 == event2.numExecuted());
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 1 == event2.numExecuted());
 
         // Now let the recurring event run exactly once more
         timeSource.advanceTime(bsls::TimeInterval(60));
         makeSureTestObjectIsExecuted(event2, mT, 100, 1);
-        ASSERT(1 == event1.numExecuted());
-        ASSERT(2 == event2.numExecuted());
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 2 == event2.numExecuted());
 
         // Stop the scheduler and finish the test
         scheduler.stop();

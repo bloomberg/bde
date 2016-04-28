@@ -291,13 +291,14 @@ BSLS_IDENT("$Id: $")
 ///------------------------
 // For testing purposes, the class 'bdlmt::EventSchedulerTestTimeSource' is
 // provided to allow a test to manipulate the system-time observed by a
-// 'bdlmt::EventScheduler' in order to control when events are triggered. After a
-// scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource' object can
-// be created atop the scheduler.  A test can then use the test time-source to
-// advance the scheduler's observed system-time in order to dispatch events in
-// a manner coordinated by the test.  Note that a
-// 'bdlmt::EventSchedulerTestTimeSource' *must* be created on an event-scheduler
-// before any events are scheduled, or the event-scheduler is started.
+// 'bdlmt::EventScheduler' in order to control when events are triggered. After
+// a scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource' object
+// can be created atop the scheduler.  A test can then use the test time-source
+// to advance the scheduler's observed system-time in order to dispatch events
+// in a manner coordinated by the test.  Note that a
+// 'bdlmt::EventSchedulerTestTimeSource' *must* be created on an
+// event-scheduler before any events are scheduled, or the event-scheduler is
+// started.
 //
 // This example shows how the clock may be altered:
 //
@@ -319,7 +320,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // Schedule a single-run event at a 35s offset.
 //     scheduler.scheduleEvent(initialAbsoluteTime + 35,
-//                             bsl::function<void(*)()>(&myCallbackFunction));
+//                              bsl::function<void(*)()>(&myCallbackFunction));
 //
 //     // Schedule a 30s recurring event.
 //     scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
@@ -424,7 +425,7 @@ class EventScheduler {
     typedef bdlcc::SkipList<bsls::Types::Int64,
                             bsl::function<void()> >        EventQueue;
 
-    typedef bsl::function<bsls::TimeInterval()>          CurrentTimeFunctor;
+    typedef bsl::function<bsls::TimeInterval()>            CurrentTimeFunctor;
 
     // FRIENDS
     friend class EventSchedulerEventHandle;
@@ -881,9 +882,9 @@ class EventSchedulerRecurringEventHandle
 
 };
 
-                 // =======================================
-                 // class EventSchedulerTestTimeSource
-                 // =======================================
+                     // ==================================
+                     // class EventSchedulerTestTimeSource
+                     // ==================================
 
 class EventSchedulerTestTimeSource {
     // This class provides a means to change the clock that is used by a given
@@ -901,15 +902,15 @@ class EventSchedulerTestTimeSource {
 
   private:
     // DATA
-    bsls::TimeInterval    d_currentTime;      // the current time to return
-                                             // from 'now'
+    bsls::TimeInterval    d_currentTime;       // the current time to return
+                                               // from 'now'
 
-    bslmt::Mutex          d_currentTimeMutex; // mutex used to synchronize
-                                             // access to the variable
-                                             // 'd_currentTimeMutex'
+    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
+                                               // access to the variable
+                                               // 'd_currentTimeMutex'
 
-    EventScheduler *d_scheduler_p;      // pointer to the scheduler
-                                             // that we are augmenting
+    EventScheduler *d_scheduler_p;             // pointer to the scheduler
+                                               // that we are augmenting
 
   public:
     // CREATORS
@@ -925,7 +926,8 @@ class EventSchedulerTestTimeSource {
         // of time, and notify the scheduler that the time has changed.  Return
         // the updated current-time value.  The behavior is undefined unless
         // 'amount' represents a positive time interval, and 'now + amount' is
-        // within the range that can be represented with a 'bsls::TimeInterval'.
+        // within the range that can be represented with a
+        // 'bsls::TimeInterval'.
 
     // ACCESSORS
     bsls::TimeInterval now();
@@ -1006,8 +1008,7 @@ EventSchedulerRecurringEventHandle::EventSchedulerRecurringEventHandle(
 }
 
 inline
-EventSchedulerRecurringEventHandle::
-                                     ~EventSchedulerRecurringEventHandle()
+EventSchedulerRecurringEventHandle::~EventSchedulerRecurringEventHandle()
 {
 }
 
