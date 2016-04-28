@@ -216,6 +216,66 @@ BSLS_IDENT("$Id: $")
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
+//
+///Event Clock Substitution
+///------------------------
+// For testing purposes, the class 'bcep_TimerEventSchedulerTestTimeSource' is
+// provided to allow a test to manipulate the system-time observed by a
+// 'bcep_TimeEventScheduler' in order to control when events are triggered.
+// After a scheduler is constructed, a 'bcep_TimerEventSchedulerTestTimeSource'
+// object can be created atop the scheduler.  A test can then use the test
+// time-source to advance the scheduler's observed system-time in order to
+// dispatch events in a manner coordinated by the test.  Note that a
+// 'bcep_TimerEventSchedulerTestTimeSource' *must* be created on an
+// event-scheduler before any events are scheduled, or the event-scheduler is
+// started.
+//
+// This example shows how the clock may be altered:
+//
+//..
+// void myCallbackFunction() {
+//     puts("Event triggered!");
+// }
+//
+// void testCase() {
+//     // Construct the scheduler
+//     bcep_TimerEventScheduler scheduler;
+//
+//     // Construct the time-source.
+//     // Install the time-source in the scheduler.
+//     bcep_TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+//
+//     // Retrieve the initial time held in the time-source.
+//     bdet_TimeInterval initialAbsoluteTime = timeSource.now();
+//
+//     // Schedule a single-run event at a 35s offset.
+//     scheduler.scheduleEvent(initialAbsoluteTime + 35,
+//                             bdef_Function<void(*)()>(&myCallbackFunction));
+//
+//     // Schedule a 30s recurring event.
+//     scheduler.startClock(bdet_TimeInterval(30),
+//                          bdef_Function<void(*)()>(&myCallbackFunction));
+//
+//     // Start the dispatcher thread.
+//     scheduler.start();
+//
+//     // Advance the time by 40 seconds so that each
+//     // event will run once.
+//     timeSource.advanceTime(bdet_TimeInterval(40));
+//
+//     // The line "Event triggered!" should now have
+//     // been printed to the console twice.
+//
+//     scheduler.stop();
+// }
+//..
+//
+// Note that this feature should be used only for testing purposes, never in
+// production code.
+
+#ifndef INCLUDED_BCESCM_VERSION
+#include <bcescm_version.h>
+#endif
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -433,7 +493,8 @@ class TimerEventScheduler {
     TimerEventScheduler& operator=(const TimerEventScheduler& rhs);
 
     // FRIENDS
-    friend struct TimerEventSchedulerDispatcher;
+    friend struct bcep_TimerEventSchedulerDispatcher;
+    friend class  bcep_TimerEventSchedulerTestTimeSource;
 
   private:
     // PRIVATE MANIPULATORS
@@ -676,6 +737,59 @@ class TimerEventScheduler {
     int numEvents() const;
         // Return a *snapshot* of the number of pending events and events being
         // dispatched in this scheduler.
+};
+
+                 // ============================================
+                 // class bcep_TimerEventSchedulerTestTimeSource
+                 // ============================================
+
+class bcep_TimerEventSchedulerTestTimeSource {
+    // This class provides a means to change the clock that is used by a given
+    // event-scheduler to determine when events should be triggered.
+    // Constructing a 'bcep_TimerEventSchedulerTestTimeSource' alters the
+    // behavior of the supplied event-scheduler.  After a test time-source is
+    // created, the underlying scheduler will run events according to a
+    // discrete timeline, whose successive values are determined by calls to
+    // 'advanceTime' on the test time-source, and can be retrieved by calling
+    // 'now' on that test time-source.  Note that the "system-time" held by a
+    // test time-source *does* *not* correspond to the current system time.
+    // Test writers must use caution when scheduling absolute-time events so
+    // that they are scheduled relative to the test time-source's value for
+    // 'now'.
+
+  private:
+    // DATA
+    bdet_TimeInterval         d_currentTime;      // the current time to return
+                                                  // from 'now'
+
+    bcemt_Mutex               d_currentTimeMutex; // mutex used to synchronize
+                                                  // access to the variable
+                                                  // 'd_currentTimeMutex'
+
+    bcep_TimerEventScheduler *d_scheduler_p;      // pointer to the scheduler
+                                                  // that we are augmenting
+  public:
+    // CREATORS
+    bcep_TimerEventSchedulerTestTimeSource(
+                                          bcep_TimerEventScheduler *scheduler);
+        // Construct a test time-source object that will control the
+        // "system-time" observed by the specified 'scheduler'.  Initialize
+        // 'now' to be an arbitrary time value.  The behavior is undefined
+        // if any methods have previously been called on 'scheduler'.
+
+    // MANIPULATORS
+    bdet_TimeInterval advanceTime(bdet_TimeInterval amount);
+        // Advance this object's current-time value by the specified 'amount'
+        // of time, and notify the scheduler that the time has changed.  Return
+        // the updated current-time value.  The behavior is undefined unless
+        // 'amount' represents a positive time interval, and 'now + amount' is
+        // within the range that can be represented with a 'bdet_TimeInterval'.
+
+    // ACCESSORS
+    bdet_TimeInterval now();
+        // Return this object's current-time value.  Upon construction, this
+        // method will return an arbitrary value.  Subsequent calls to
+        // 'advanceTime' will adjust the arbitrary value forward.
 };
 
 // ============================================================================
