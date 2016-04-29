@@ -2678,10 +2678,10 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Default-construct a scheduler.
         //:
-        //: 2 Create a 'bcep_TimerEventSchedulerTestTimeSource' object, passing
-        //:   the constructor a pointer to the scheduler.
+        //: 2 Create a 'bdlmt::TimerEventSchedulerTestTimeSource' object,
+        //:   passing the constructor a pointer to the scheduler.
         //:
-        //: 3 Call 'now' on the 'bcep_TimerEventSchedulerTestTimeSource'
+        //: 3 Call 'now' on the 'bdlmt::TimerEventSchedulerTestTimeSource'
         //:   object, and store the result in a variable 'basisTime'.
         //:
         //: 4 Schedule a one-time event in the scheduler, using the retrieved
@@ -2713,30 +2713,30 @@ int main(int argc, char *argv[])
         TestClass1 event2;
 
         // Construct the scheduler
-        bcep_TimerEventScheduler scheduler;
+        bdlmt::TimerEventScheduler scheduler;
 
         // Construct the time-source.
         // Install the time-source in the scheduler.
-        bcep_TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+        bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
 
         // Retrieve the initial time held in the time-source.
-        bdet_TimeInterval initialAbsoluteTime = timeSource.now();
+        bsls::TimeInterval initialAbsoluteTime = timeSource.now();
 
         // Schedule a single-run event at a 30 second offset.
         scheduler.scheduleEvent(initialAbsoluteTime + 30,
-                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                       &event1));
 
         // Schedule a 60s recurring event.
-        scheduler.startClock(bdet_TimeInterval(60),
-                             bdef_MemFnUtil::memFn(&TestClass1::callback,
+        scheduler.startClock(bsls::TimeInterval(60),
+                             bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                    &event2));
 
         // Start the dispatcher thread.
         scheduler.start();
 
         // Advance the time by 35 seconds so that the first event will run.
-        timeSource.advanceTime(bdet_TimeInterval(35));
+        timeSource.advanceTime(bsls::TimeInterval(35));
 
         // Wait while verifying:
         makeSureTestObjectIsExecuted(event1, mT, 100);
@@ -2747,13 +2747,13 @@ int main(int argc, char *argv[])
 
         // Advance the time by another 30 seconds, so we will be at an offset
         // of 65 seconds, meaning the recurring event will run once.
-        timeSource.advanceTime(bdet_TimeInterval(30));
+        timeSource.advanceTime(bsls::TimeInterval(30));
         makeSureTestObjectIsExecuted(event2, mT, 100);
         ASSERT(1 == event1.numExecuted());
         ASSERT(1 == event2.numExecuted());
 
         // Now let the recurring event run exactly once more
-        timeSource.advanceTime(bdet_TimeInterval(60));
+        timeSource.advanceTime(bsls::TimeInterval(60));
         makeSureTestObjectIsExecuted(event2, mT, 100, 1);
         ASSERT(1 == event1.numExecuted());
         ASSERT(2 == event2.numExecuted());

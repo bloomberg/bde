@@ -219,14 +219,15 @@ BSLS_IDENT("$Id: $")
 //
 ///Event Clock Substitution
 ///------------------------
-// For testing purposes, the class 'bcep_TimerEventSchedulerTestTimeSource' is
-// provided to allow a test to manipulate the system-time observed by a
-// 'bcep_TimeEventScheduler' in order to control when events are triggered.
-// After a scheduler is constructed, a 'bcep_TimerEventSchedulerTestTimeSource'
-// object can be created atop the scheduler.  A test can then use the test
-// time-source to advance the scheduler's observed system-time in order to
-// dispatch events in a manner coordinated by the test.  Note that a
-// 'bcep_TimerEventSchedulerTestTimeSource' *must* be created on an
+// For testing purposes, the class 'bdlmt::TimerEventSchedulerTestTimeSource'
+// is provided to allow a test to manipulate the system-time observed by a
+// 'bdlmt::TimeEventScheduler' in order to control when events are triggered.
+// After a scheduler is constructed, a
+// 'bdlmt::TimerEventSchedulerTestTimeSource' object can be created atop the
+// scheduler.  A test can then use the test time-source to advance the
+// scheduler's observed system-time in order to dispatch events in a manner
+// coordinated by the test.  Note that a
+// 'bdlmt::TimerEventSchedulerTestTimeSource' *must* be created on an
 // event-scheduler before any events are scheduled, or the event-scheduler is
 // started.
 //
@@ -239,29 +240,29 @@ BSLS_IDENT("$Id: $")
 //
 // void testCase() {
 //     // Construct the scheduler
-//     bcep_TimerEventScheduler scheduler;
+//     bdlmt::TimerEventScheduler scheduler;
 //
 //     // Construct the time-source.
 //     // Install the time-source in the scheduler.
-//     bcep_TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+//     bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
 //
 //     // Retrieve the initial time held in the time-source.
-//     bdet_TimeInterval initialAbsoluteTime = timeSource.now();
+//     bsls::TimeInterval initialAbsoluteTime = timeSource.now();
 //
 //     // Schedule a single-run event at a 35s offset.
 //     scheduler.scheduleEvent(initialAbsoluteTime + 35,
-//                             bdef_Function<void(*)()>(&myCallbackFunction));
+//                             bsl::function<void()()>(&myCallbackFunction));
 //
 //     // Schedule a 30s recurring event.
-//     scheduler.startClock(bdet_TimeInterval(30),
-//                          bdef_Function<void(*)()>(&myCallbackFunction));
+//     scheduler.startClock(bsls::TimeInterval(30),
+//                          bsl::function<void()()>(&myCallbackFunction));
 //
 //     // Start the dispatcher thread.
 //     scheduler.start();
 //
 //     // Advance the time by 40 seconds so that each
 //     // event will run once.
-//     timeSource.advanceTime(bdet_TimeInterval(40));
+//     timeSource.advanceTime(bsls::TimeInterval(40));
 //
 //     // The line "Event triggered!" should now have
 //     // been printed to the console twice.
@@ -272,10 +273,6 @@ BSLS_IDENT("$Id: $")
 //
 // Note that this feature should be used only for testing purposes, never in
 // production code.
-
-#ifndef INCLUDED_BCESCM_VERSION
-#include <bcescm_version.h>
-#endif
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -414,6 +411,7 @@ class TimerEventScheduler {
     typedef bdlcc::TimeQueue<ClockDataPtr>               ClockTimeQueue;
     typedef bdlcc::TimeQueueItem<bsl::function<void()> > EventItem;
     typedef bdlcc::TimeQueue<bsl::function<void()> >     EventTimeQueue;
+    typedef bsl::function<bsls::TimeInterval()>          CurrentTimeFunctor;
 
   public:
     // TYPES
@@ -440,8 +438,10 @@ class TimerEventScheduler {
     // DATA
     bslma::Allocator *d_allocator_p;        // memory allocator (held)
 
-    bsls::SystemClockType::Enum
-                      d_clockType;          // clock type used
+    CurrentTimeFunctor
+                      d_currentTimeFunctor; // when called, returns the current
+                                            // time the scheduler should use
+                                            // for the event timeline
 
     bdlma::ConcurrentPool
                       d_clockDataAllocator; // pool for 'ClockData' objects
@@ -488,13 +488,16 @@ class TimerEventScheduler {
     bsls::AtomicInt   d_numClocks;          // number of clocks currently
                                             // registered
 
+    bsls::SystemClockType::Enum
+                      d_clockType;          // clock type used
+
     // NOT IMPLEMENTED
     TimerEventScheduler(const TimerEventScheduler& original);
     TimerEventScheduler& operator=(const TimerEventScheduler& rhs);
 
     // FRIENDS
-    friend struct bcep_TimerEventSchedulerDispatcher;
-    friend class  bcep_TimerEventSchedulerTestTimeSource;
+    friend struct TimerEventSchedulerDispatcher;
+    friend class  TimerEventSchedulerTestTimeSource;
 
   private:
     // PRIVATE MANIPULATORS
@@ -739,14 +742,14 @@ class TimerEventScheduler {
         // dispatched in this scheduler.
 };
 
-                 // ============================================
-                 // class bcep_TimerEventSchedulerTestTimeSource
-                 // ============================================
+                  // =======================================
+                  // class TimerEventSchedulerTestTimeSource
+                  // =======================================
 
-class bcep_TimerEventSchedulerTestTimeSource {
+class TimerEventSchedulerTestTimeSource {
     // This class provides a means to change the clock that is used by a given
     // event-scheduler to determine when events should be triggered.
-    // Constructing a 'bcep_TimerEventSchedulerTestTimeSource' alters the
+    // Constructing a 'TimerEventSchedulerTestTimeSource' alters the
     // behavior of the supplied event-scheduler.  After a test time-source is
     // created, the underlying scheduler will run events according to a
     // discrete timeline, whose successive values are determined by calls to
@@ -759,34 +762,34 @@ class bcep_TimerEventSchedulerTestTimeSource {
 
   private:
     // DATA
-    bdet_TimeInterval         d_currentTime;      // the current time to return
-                                                  // from 'now'
+    bsls::TimeInterval         d_currentTime;      // the current time to return
+                                                   // from 'now'
 
-    bcemt_Mutex               d_currentTimeMutex; // mutex used to synchronize
-                                                  // access to the variable
-                                                  // 'd_currentTimeMutex'
+    bslmt::Mutex               d_currentTimeMutex; // mutex used to synchronize
+                                                   // access to the variable
+                                                   // 'd_currentTimeMutex'
 
-    bcep_TimerEventScheduler *d_scheduler_p;      // pointer to the scheduler
-                                                  // that we are augmenting
+    TimerEventScheduler *d_scheduler_p;            // pointer to the scheduler
+                                                   // that we are augmenting
+
   public:
     // CREATORS
-    bcep_TimerEventSchedulerTestTimeSource(
-                                          bcep_TimerEventScheduler *scheduler);
+    TimerEventSchedulerTestTimeSource(TimerEventScheduler *scheduler);
         // Construct a test time-source object that will control the
         // "system-time" observed by the specified 'scheduler'.  Initialize
         // 'now' to be an arbitrary time value.  The behavior is undefined
         // if any methods have previously been called on 'scheduler'.
 
     // MANIPULATORS
-    bdet_TimeInterval advanceTime(bdet_TimeInterval amount);
+    bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
         // Advance this object's current-time value by the specified 'amount'
         // of time, and notify the scheduler that the time has changed.  Return
         // the updated current-time value.  The behavior is undefined unless
         // 'amount' represents a positive time interval, and 'now + amount' is
-        // within the range that can be represented with a 'bdet_TimeInterval'.
+        // within the range that can be represented with a 'bsls::TimeInterval'.
 
     // ACCESSORS
-    bdet_TimeInterval now();
+    bsls::TimeInterval now();
         // Return this object's current-time value.  Upon construction, this
         // method will return an arbitrary value.  Subsequent calls to
         // 'advanceTime' will adjust the arbitrary value forward.
