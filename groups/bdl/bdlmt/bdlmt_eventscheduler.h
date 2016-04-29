@@ -313,18 +313,18 @@ BSLS_IDENT("$Id: $")
 //
 //     // Construct the time-source.
 //     // Install the time-source in the scheduler.
-//     bdlmt::TimerEventSchedulerTestTimeSource timeSource(&scheduler);
+//     bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
 //
 //     // Retrieve the initial time held in the time-source.
 //     bsls::TimeInterval initialAbsoluteTime = timeSource.now();
 //
 //     // Schedule a single-run event at a 35s offset.
 //     scheduler.scheduleEvent(initialAbsoluteTime + 35,
-//                              bsl::function<void(*)()>(&myCallbackFunction));
+//                              bsl::function<void()()>(&myCallbackFunction));
 //
 //     // Schedule a 30s recurring event.
 //     scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
-//                                      bsl::function<void(*)()>(
+//                                      bsl::function<void()()>(
 //                                                       &myCallbackFunction));
 //
 //     // Start the dispatcher thread.

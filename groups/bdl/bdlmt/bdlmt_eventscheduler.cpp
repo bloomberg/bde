@@ -585,13 +585,13 @@ void EventScheduler::cancelAllEventsAndWait()
     }
 }
 
-                 // ---------------------------------------
-                 // class EventSchedulerTestTimeSource
-                 // ---------------------------------------
+                     // ----------------------------------
+                     // class EventSchedulerTestTimeSource
+                     // ----------------------------------
 
 // CREATORS
 EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
-                                              bdlmt::EventScheduler *scheduler)
+                                                     EventScheduler *scheduler)
 : d_currentTime(bsls::SystemTime::now(scheduler->d_clockType)
                 + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
 , d_scheduler_p(scheduler)
