@@ -728,6 +728,18 @@ TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
                 + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
 , d_scheduler_p(scheduler)
 {
+    // The event scheduler is constructed with a "now" that is 1000 days in the
+    // future.  This point in time is arbitrary, but is chosen to ensure that
+    // in any reasonable test driver, the system clock (which controls the the
+    // scheduler's condition variable) will always lag behind the test time
+    // source.
+    //
+    // If the system clock were ever to catch up with the test time source, the
+    // 'TimerEventScheduler::dispatchEvents' could go into a tight loop waiting
+    // for the next event instead of sleeping until the next call to
+    // 'TimerEventSchedulerTestTimeSource::advanceTime'.  See the call to
+    // 'timedWait' in 'TimerEventScheduler::dispatchEvents'.
+
     BSLS_ASSERT(0 != scheduler);
 
     // Bind the member function 'now' to 'this', and let the scheduler call
