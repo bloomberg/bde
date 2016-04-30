@@ -14,6 +14,7 @@
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
 #include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
@@ -248,8 +249,27 @@ static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
     barrier->wait();
 }
 
-static
-void waitOnBarrier(bslmt::Barrier *barrier, int numIterations)
+static void waitThenAppend(bslmt::Semaphore *semaphore,
+                           bsl::string      *value,
+                           char              letter)
+{
+    // Wait on the specified 'semaphore', then append the specified 'letter'
+    // to the specified 'value'.
+    semaphore->wait();
+    value->push_back(letter);
+}
+
+static void addAppendJobAtFront(Obj            *pool,
+                                int             queue,
+                                bsl::string    *value,
+                                char            letter)
+{
+    pool->addJobAtFront(queue,
+                        bdlf::BindUtil::bind(&bsl::string::push_back,
+                                             value, letter));
+}
+
+static void waitOnBarrier(bslmt::Barrier *barrier, int numIterations)
 {
     // Wait on the specified 'barrier' for 'numIterations' iterations.
 
@@ -807,7 +827,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -885,6 +905,135 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // FRONT
+        // 
+        // Concerns:
+        //   * 'addAtFront' positions a job at the front of the queue.
+        //   * 'addAtFront' fails if the queue is disabled.
+        //   * 'addAtFront' succeeds if the queue is paused.
+        //   * 'addAtFront' can be invoked from a worker thread.
+        //
+        // Plan:
+        //   Enqueue a job that waits on a synchronization mechanism in order
+        //   to ensure that jobs are queued (effectively "stuck") when
+        //   addAtFront is invoked. Check the order of the jobs by inspecting
+        //   a string the jobs modify.
+        // --------------------------------------------------------------------
+        if (verbose) {
+            cout << "Testing Front\n"
+                    "=============\n";
+        }
+
+        bslmt::ThreadAttributes   defaultAttrs;
+        
+        Obj mX(defaultAttrs, 1, 1, INT_MAX);
+        const Obj& X = mX;
+        int rc = mX.start();
+        ASSERT(0 == rc);
+
+        int id1;
+        {
+            bslmt::Semaphore sema;
+            if (veryVerbose) {
+                cout << "\taddAtFront positions at front of queue" << endl;
+            }
+
+            bsl::string value;
+
+            id1 = mX.createQueue();
+            // The first job we enqueue may or may not be dequeued before
+            // 'addJobAtFront' executes.  Thus, the two possible values of
+            // 'value' are "abc" and "bac".  
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&waitThenAppend,
+                                               &sema, &value, 'b'));
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&waitThenAppend,
+                                               &sema, &value, 'c'));
+            mX.addJobAtFront(id1,
+                             bdlf::BindUtil::bind(&waitThenAppend,
+                                                  &sema, &value, 'a'));
+            sema.post(3);
+            mX.drainQueue(id1);
+
+            if (veryVeryVerbose) {
+                cout << "checking result: " << value << endl;
+            }
+
+            ASSERT("abc" == value || "bac" == value);
+        }
+        {
+            if (veryVerbose) {
+                cout << "\taddAtFront fails when queue is disabled" << endl;
+            }
+
+            bsl::string value;
+
+            mX.disableQueue(id1);
+            int rc = mX.enqueueJob(id1,
+                                   bdlf::BindUtil::bind(&bsl::string::push_back,
+                                                        &value, 'b'));
+            ASSERT(0 != rc);
+
+            mX.enableQueue(id1);
+            mX.drainQueue(id1);
+            ASSERT("" == value);
+        }
+        {
+            bslmt::Semaphore sema;
+            if (veryVerbose) {
+                cout << "\taddAtFront succeeds if queue is paused" << endl;
+            }
+
+            bsl::string value;
+            mX.pauseQueue(id1);
+            
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&waitThenAppend,
+                                               &sema, &value, 'c'));
+            mX.addJobAtFront(id1,
+                             bdlf::BindUtil::bind(&waitThenAppend,
+                                                  &sema, &value, 'b'));
+            mX.addJobAtFront(id1,
+                             bdlf::BindUtil::bind(&waitThenAppend,
+                                                  &sema, &value, 'a'));
+
+            mX.resumeQueue(id1);
+
+            sema.post(3);
+            mX.drainQueue(id1);
+
+            LOOP_ASSERT(value, "abc" == value);
+        }
+        {
+            if (veryVerbose) {
+                cout << "\taddAtFront can be invoked from worker thread"
+                     << endl;
+            }
+
+            bsl::string value;
+            bslmt::Semaphore sema;
+            
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&waitThenAppend,
+                                               &sema, &value, 'a'));
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&addAppendJobAtFront,
+                                               &mX, id1, &value, 'b'));
+
+            mX.enqueueJob(id1,
+                          bdlf::BindUtil::bind(&waitThenAppend,
+                                               &sema, &value, 'c'));
+
+            sema.post(2);
+            mX.drainQueue(id1);
+
+            LOOP_ASSERT(value, "abc" == value);
+        }
+      } break;            
+
       case 18: {
         // --------------------------------------------------------------------
         // PAUSE/RESUME

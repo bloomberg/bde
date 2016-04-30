@@ -394,13 +394,18 @@ class MultiQueueThreadPool_Queue {
     };
 
   private:
-    bsl::deque<Job> d_list;
+    bsl::deque<Job> d_list;           // queue of jobs to be executed
+
     bsls::AtomicInt d_numPendingJobs; // number of unprocessed jobs
+
     bsls::AtomicInt d_state;          // maintains enqueue state
+
     bool            d_paused;         // whether job processing is disabled
+
     bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
                                       // queue since creation or the last time
                                       // it was reset.
+
     bsls::AtomicInt d_numDequeued;    // the number of items dequeued from this
                                       // queue since creation or the last time
                                       // it was reset.
@@ -671,27 +676,24 @@ class MultiQueueThreadPool {
         // Create a queue with unlimited capacity and a default number of
         // initial elements.  Return a non-zero queue ID on success, and 0
         // otherwise.  The queue ID can be used to enqueue jobs to the queue,
-        // or to delete the queue.
+        // or to control or delete the queue.
 
     int deleteQueue(int id, const CleanupFunctor& cleanupFunctor);
         // Disable enqueuing to the queue associated with the specified 'id',
         // and enqueue the specified 'cleanupFunctor' to the *front* of the
         // queue.  The 'cleanupFunctor' is guaranteed to be the last queue
-        // element processed, after which the queue is destroyed and removed
-        // from all internal registries.  The caller will NOT be blocked until
-        // 'cleanupFunctor' executes to completion.  Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined if this
-        // function is called simultaneously with 'disableQueue', 'drainQueue',
-        // 'start', 'drain', 'stop', or 'shutdown'.  Note that passing an
-        // unbound 'cleanupFunctor' is equivalent to passing a 'cleanupFunctor'
-        // bound with 'makeNull'.  Also note that this function will fail if
-        // called on a stopped multi queue thread pool.
+        // element processed, after which the queue is destroyed.  The caller
+        // will NOT be blocked until 'cleanupFunctor' executes to completion.
+        // Return 0 on success, and a non-zero value otherwise.  Note that
+        // this function will fail if called on a stopped multi queue thread
+        // pool.
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
         // and block the calling thread until a currently-active callback, if
-        // any, is completed.  Return 0 on success, and a non-zero value
-        // otherwise.
+        // any, is completed; then destroy the queue.  Note that the queue
+        // may be destroyed after this method returns.  Return 0 on success,
+        // and a non-zero value otherwise.
 
     int disableQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id'.
@@ -810,6 +812,13 @@ class MultiQueueThreadPool {
                          // --------------------------
 
 // MANIPULATORS
+inline
+int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
+{
+    ++d_numEnqueued;
+    return enqueueJobImpl(id, functor, e_FRONT);
+}
+
 inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
