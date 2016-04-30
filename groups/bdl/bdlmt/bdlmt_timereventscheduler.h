@@ -104,6 +104,36 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+///Event Clock Substitution
+///------------------------
+// For testing purposes, a class 'bdlmt::TimerEventSchedulerTestTimeSource' is
+// provided to allow manual manipulation of the system-time observed by a
+// 'bdlmt::TimerEventScheduler'.  A test driver that interacts with a
+// 'bdlmt::TimerEventScheduler' can use a
+// 'bdlmt::TimerEventSchedulerTestTimeSource' object to control when scheduled
+// events are triggered, allowing more reliable tests.
+//
+// A 'bdlmt::TimerEventSchedulerTestTimeSource' can be constructed for any
+// existing 'bdlmt::TimerEventScheduler' object that has not been started and
+// has not had any events scheduled.  When the
+// 'bdlmt::TimerEventSchedulerTestTimeSource' is constructed, it will replace
+// the clock of the 'bdlmt::TimerEventScheduler' to which it is attached.  The
+// internal clock of the 'bdlmt::TimerEventSchedulerTestTimeSource' will be
+// initialized with an arbitrary value on construction, and will advance only
+// when explicitly instructed to do so by a call to
+// 'bdlt::TimerEventSchedulerTestTimeSource::advanceTime'.  The current value
+// of the internal clock can be accessed by calling
+// 'bdlt::TimerEventSchedulerTestTimeSource::now'.
+//
+// Note that the initial value of
+// 'bdlt::TimerEventSchedulerTestTimeSource::now' is intentionally not
+// synchronized with 'bdlt::CurrentTime::now'.  All test events scheduled for a
+// 'bdlmt::TimerEventScheduler' that is instrumented with a
+// 'bdlt::TimerEventSchedulerTestTimeSource' should be scheduled in terms of an
+// offset from whatever arbitrary time is reported by
+// 'bdlt::TimerEventSchedulerTestTimeSource'.  See Example 3 below for an
+// illustration of how this is done.
+//
 ///Usage
 ///-----
 // The following example shows how to use a 'bdlmt::TimerEventScheduler' to
@@ -217,8 +247,8 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 //
-///Event Clock Substitution
-///------------------------
+///Example 3: Using the Test Time Source
+///- - - - - - - - - - - - - - - - - - -
 // For testing purposes, the class 'bdlmt::TimerEventSchedulerTestTimeSource'
 // is provided to allow a test to manipulate the system-time observed by a
 // 'bdlmt::TimeEventScheduler' in order to control when events are triggered.
@@ -762,15 +792,15 @@ class TimerEventSchedulerTestTimeSource {
 
   private:
     // DATA
-    bsls::TimeInterval         d_currentTime;      // the current time to return
-                                                   // from 'now'
+    bsls::TimeInterval    d_currentTime;       // the current time to return
+                                               // from 'now'
 
-    bslmt::Mutex               d_currentTimeMutex; // mutex used to synchronize
-                                                   // access to the variable
-                                                   // 'd_currentTimeMutex'
+    bslmt::Mutex          d_currentTimeMutex;  // mutex used to synchronize
+                                               // access to the variable
+                                               // 'd_currentTimeMutex'
 
-    TimerEventScheduler *d_scheduler_p;            // pointer to the scheduler
-                                                   // that we are augmenting
+    TimerEventScheduler  *d_scheduler_p;       // pointer to the scheduler
+                                               // that we are augmenting
 
   public:
     // CREATORS
@@ -786,7 +816,8 @@ class TimerEventSchedulerTestTimeSource {
         // of time, and notify the scheduler that the time has changed.  Return
         // the updated current-time value.  The behavior is undefined unless
         // 'amount' represents a positive time interval, and 'now + amount' is
-        // within the range that can be represented with a 'bsls::TimeInterval'.
+        // within the range that can be represented with a
+        // 'bsls::TimeInterval'.
 
     // ACCESSORS
     bsls::TimeInterval now();

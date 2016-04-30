@@ -125,6 +125,34 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+///Event Clock Substitution
+///------------------------
+// For testing purposes, a class 'bdlmt::EventSchedulerTestTimeSource' is
+// provided to allow manual manipulation of the system-time observed by a
+// 'bdlmt::EventScheduler'.  A test driver that interacts with a
+// 'bdlmt::EventScheduler' can use a
+// 'bdlmt::EventSchedulerTestTimeSource' object to control when scheduled
+// events are triggered, allowing more reliable tests.
+//
+// A 'bdlmt::EventSchedulerTestTimeSource' can be constructed for any existing
+// 'bdlmt::EventScheduler' object that has not been started and has not had any
+// events scheduled.  When the 'bdlmt::EventSchedulerTestTimeSource' is
+// constructed, it will replace the clock of the 'bdlmt::EventScheduler' to
+// which it is attached.  The internal clock of the
+// 'bdlmt::EventSchedulerTestTimeSource' will be initialized with an arbitrary
+// value on construction, and will advance only when explicitly instructed to
+// do so by a call to 'bdlt::EventSchedulerTestTimeSource::advanceTime'.  The
+// current value of the internal clock can be accessed by calling
+// 'bdlt::EventSchedulerTestTimeSource::now'.
+//
+// Note that the initial value of 'bdlt::EventSchedulerTestTimeSource::now' is
+// intentionally not synchronized with 'bdlt::CurrentTime::now'.  All test
+// events scheduled for a 'bdlmt::EventScheduler' that is instrumented with a
+// 'bdlt::EventSchedulerTestTimeSource' should be scheduled in terms of an
+// offset from whatever arbitrary time is reported by
+// 'bdlt::EventSchedulerTestTimeSource'.  See Example 3 below for an
+// illustration of how this is done.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -287,8 +315,8 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 //
-///Event Clock Substitution
-///------------------------
+///Example 3: Using the Test Time Source
+///- - - - - - - - - - - - - - - - - - -
 // For testing purposes, the class 'bdlmt::EventSchedulerTestTimeSource' is
 // provided to allow a test to manipulate the system-time observed by a
 // 'bdlmt::EventScheduler' in order to control when events are triggered. After
@@ -909,7 +937,7 @@ class EventSchedulerTestTimeSource {
                                                // access to the variable
                                                // 'd_currentTimeMutex'
 
-    EventScheduler *d_scheduler_p;             // pointer to the scheduler
+    EventScheduler       *d_scheduler_p;       // pointer to the scheduler
                                                // that we are augmenting
 
   public:
