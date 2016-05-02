@@ -1,5 +1,6 @@
 bsl-internal (2.27.10.0) unstable; urgency=low
 
+  * be8fa0a Changelog for version 2.27.10.0
   * 6efaa97 Merge pull request #380 from mgiroux/review/bump-patchversion-to-2.27.10
   * b35ae69 Bump patchversion to 2.27.10
   * 9865c44 Merge pull request #379 from hversche/pr/378-rebased
@@ -8,7 +9,7 @@ bsl-internal (2.27.10.0) unstable; urgency=low
   * 73ff8d2 Merge pull request #363 from sbreitst/releases/2.27.x
   * 85520c4 Merge pull request #361 from hversche/pr/359-rebased
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 2 May 2016 17:47:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 2 May 2016 17:48:12 -0400
 
 bsl-internal (2.27.0.2) git; urgency=low
 
