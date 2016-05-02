@@ -2,6 +2,7 @@
 
 #include <baltzo_dstpolicy.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
@@ -9,7 +10,6 @@
 #include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -294,7 +294,8 @@ if (veryVerbose)
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             Obj::print(out, VALUE, LEVEL, SPL) << ends;
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
@@ -314,7 +315,8 @@ if (veryVerbose)
                 memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
                                           // values.
 
-                ostrstream out(buf, sizeof buf);
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream out(&obuf);
                 Obj::print(out, VALUE) << ends;
 
                 if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
@@ -340,7 +342,9 @@ if (veryVerbose)
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out.setstate(ios::badbit);
             Obj::print(out, VALUE, LEVEL, SPL);
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
@@ -426,7 +430,8 @@ if (veryVerbose)
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             out << VALUE << ends;
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
@@ -451,7 +456,9 @@ if (veryVerbose)
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out.setstate(ios::badbit);
             out << VALUE;
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));

@@ -10,11 +10,11 @@
 
 #include <ball_transmission.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bsl_cstdlib.h>                       // atoi()
 #include <bsl_cstring.h>                       // strcmp(), memcmp(), memcpy()
 
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -160,7 +160,8 @@ int main(int argc, char *argv[])
                           << "\n======================" << endl;
 
         char buf[1024];  memset(buf, 0xff, sizeof buf);  // Scribble on buf.
-        ostrstream out(buf, sizeof buf);
+        bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+        bsl::ostream out(&obuf);
 
         if (verbose) cout << "\nUsage example 1" << endl;
 
@@ -287,7 +288,9 @@ int main(int argc, char *argv[])
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
-            ostrstream out(buf, sizeof buf); out << Enum(i) << ends;
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out << Enum(i) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
             const int SZ = strlen(FMT) + 1;

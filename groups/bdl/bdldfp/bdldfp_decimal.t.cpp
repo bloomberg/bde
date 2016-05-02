@@ -1,6 +1,7 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -8,7 +9,6 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_strstream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_climits.h> // CHAR_BIT
@@ -1017,7 +1017,8 @@ void TestDriver::testCase4()
     {
         {
             char buffer[4];
-            bsl::ostrstream out(buffer, 4);
+            bdlsb::FixedMemOutStreamBuf obuf(buffer, 4);
+            bsl::ostream out(&obuf);
             BDEC::Decimal64 value = DFP(-1.0);
             out << value;
             ASSERTV(out.fail(), !out.fail());
@@ -1025,7 +1026,8 @@ void TestDriver::testCase4()
         }
         {
             char buffer[4];
-            bsl::ostrstream out(buffer, 3);
+            bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
+            bsl::ostream out(&obuf);
             BDEC::Decimal32 value = DFP(-1.0);
             out << value;
             ASSERTV(out.fail(), out.fail());
@@ -1033,7 +1035,8 @@ void TestDriver::testCase4()
         }
         {
             char buffer[4];
-            bsl::ostrstream out(buffer, 3);
+            bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
+            bsl::ostream out(&obuf);
             BDEC::Decimal64 value = DFP(-1.0);
             out << value;
             ASSERTV(out.fail(), out.fail());
@@ -1041,7 +1044,8 @@ void TestDriver::testCase4()
         }
         {
             char buffer[4];
-            bsl::ostrstream out(buffer, 3);
+            bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
+            bsl::ostream out(&obuf);
             BDEC::Decimal128 value = DFP(-1.0);
             out << value;
             ASSERTV(out.fail(), out.fail());

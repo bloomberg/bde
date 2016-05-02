@@ -11,6 +11,7 @@
 #include <ball_recordattributes.h>
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlt_datetimeutil.h>                     // for testing only
 #include <bdlt_epochutil.h>                        // for testing only
 
@@ -27,7 +28,6 @@
 
 #include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -362,7 +362,8 @@ int main(int argc, char *argv[])
 
         {
             char buf[2048];
-            ostrstream out(buf, sizeof(buf));
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
 
             enum Severity { INFO, WARN, BUY, SELL };
             const char *Category[] = { "Bonds", "Equities", "Futures" };
@@ -966,7 +967,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Testing output operator (<<)." << endl;
         {
             char buf[1024];
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
 
             Obj mX;  const Obj& X = mX;
             mX.setCategory("category");
@@ -1145,8 +1147,12 @@ int main(int argc, char *argv[])
                 memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
 
                 if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
-                ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
-                ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
+                bdlsb::FixedMemOutStreamBuf obuf1(buf1, SIZE);
+                bsl::ostream out1(&obuf1);
+                X.print(out1, IND, SPL) << ends;
+                bdlsb::FixedMemOutStreamBuf obuf2(buf2, SIZE);
+                bsl::ostream out2(&obuf2);
+                X.print(out2, IND, SPL) << ends;
                 if (veryVerbose) cout << "ACTUAL FORMAT:  "<< endl<<buf1<<endl;
 
                 const int SZ = strlen(FMT) + 3;  // Count in the two '\0'.

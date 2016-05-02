@@ -23,7 +23,7 @@
 
 #include <bsl_new.h>          // placement 'new' syntax
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         {
-            bsl::ostrstream cout;
+            bsl::ostringstream cout;
 
 ///USAGE
 ///-----
