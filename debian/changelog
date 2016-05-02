@@ -1,5 +1,18 @@
-bsl-internal (2.27.0.2) unstable; urgency=low
+bsl-internal (2.27.10.0) unstable; urgency=low
 
+  * 6efaa97 Merge pull request #380 from mgiroux/review/bump-patchversion-to-2.27.10
+  * b35ae69 Bump patchversion to 2.27.10
+  * 9865c44 Merge pull request #379 from hversche/pr/378-rebased
+  * 4117c33 Merge pull request #369 from abeels/fix-64-bit-warnings-jira-1135-2.27.x
+  * 681ec44 Fix 64-bit warnings on release branch.
+  * 73ff8d2 Merge pull request #363 from sbreitst/releases/2.27.x
+  * 85520c4 Merge pull request #361 from hversche/pr/359-rebased
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 2 May 2016 17:47:01 -0400
+
+bsl-internal (2.27.0.2) git; urgency=low
+
+  * 4976874 Changelog for version 2.27.0.2
   * 7997066 Changelog for version 2.27.0.1
   * 45591c0 Changelog for version 2.27.0.0
   * c098d75 Set version to 2.27.0
@@ -24,7 +37,7 @@ bsl-internal (2.27.0.2) unstable; urgency=low
   * ab66209 Merge pull request #219 from hversche/enable-bsls-ident-buildid-drqs-77787475
   * 3b74215 Merge pull request #283 from jmendelsohn4/bbl_debian_changes_2.x-drqs-80375198
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 25 Apr 2016 13:02:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 25 Apr 2016 13:03:49 -0400
 
 bsl-internal (2.26.1.0) git; urgency=low
 
