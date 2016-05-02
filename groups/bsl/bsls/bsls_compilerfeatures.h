@@ -600,6 +600,8 @@ BSLS_IDENT("$Id: $")
 #   endif
 
 #   if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#       ifdef __cplusplus
+
 namespace BloombergLP {
 namespace bsls {
 
@@ -619,6 +621,7 @@ namespace bsls {
 }  // close package namespace
 }  // close enterprise namespace
 
+#       endif // __cplusplus
 #   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
