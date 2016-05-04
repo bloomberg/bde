@@ -42,52 +42,72 @@ using namespace BloombergLP;
 //: o Setting, retrieving, and invoking the log message handler is thread-safe.
 // ----------------------------------------------------------------------------
 // MACROS
-// [10] BSLS_LOG(format, ...)
-// [ 9] BSLS_LOG_SIMPLE(message)
+// [10] BSLS_LOG(severity, format, ...)
+// [ 9] BSLS_LOG_SIMPLE(severity, message)
+// [12] BSLS_LOG_FATAL(format, ...)
+// [12] BSLS_LOG_ERROR(format, ...)
+// [12] BSLS_LOG_WARN(format, ...)
+// [12] BSLS_LOG_INFO(format, ...)
+// [12] BSLS_LOG_DEBUG(format, ...)
+// [12] BSLS_LOG_TRACE(format, ...)
 //
 // TYPES
-// [ 4] typedef void (*LogMessageHandler)(file, line, message);
+// [ 4] typedef void (*LogMessageHandler)(severity, file, line, message);
 //
 // CLASS METHODS
 // [ 7] static bsls::Log::LogMessageHandler logMessageHandler();
 // [ 7] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
-// [10] static void logFormattedMessage(file, line, format, ...);
-// [ 9] static void logMessage(file, line, message);
-// [ 6] static void platformDefaultMessageHandler(file, line, message);
-// [ 4] static void stdoutMessageHandler(file, line, message);
-// [ 4] static void stderrMessageHandler(file, line, message);
+// [11] static void setSeverityThreshold(bsls::LogSeverity::Enum );
+// [11] static bsls::LogSeverity::Enum severityThreshold();
+// [10] static void logFormattedMessage(severity, file, line, format, ...);
+// [ 9] static void logMessage(severity, file, line, message);
+// [ 6] static void platformDefaultMessageHandler(severity,file,line,message);
+// [ 4] static void stdoutMessageHandler(severity, file, line, message);
+// [ 4] static void stderrMessageHandler(severity, file, line, message);
 // ----------------------------------------------------------------------------
 // [ 5] Test Driver: static void fillBuffer(buffer, size);
 // [ 3] WINDOWS DEBUG MESSAGE SINK
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER
 // [ 1] STREAM REDIRECTION APPARATUS
-// [11] USAGE EXAMPLES
+// [13] USAGE EXAMPLES
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: Exceptions thrown in a log message handler are propagated.
 // [ *] CONCERN: Precondition violations are detected when enabled.
 // [ 8] CONCERN: By default, the 'platformDefaultMessageHandler' is used.
 
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
+}  // close unnamed namespace
+
+
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -96,13 +116,12 @@ static void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 
 // ============================================================================
@@ -115,6 +134,8 @@ static void aSsErT(bool b, const char *s, int i)
 // ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+typedef bsls::LogSeverity Severity;
 
 #ifndef SIZE_MAX
 #define SIZE_MAX (static_cast<size_t>(-1))
@@ -176,11 +197,12 @@ static bool veryVeryVeryVerbose;
 // ----------------------------------------------------------------------------
 
 struct DefaultDataRow {
-    int         d_sourceLine;
-    const char *d_file;
-    int         d_line;
-    const char *d_message;
-    const char *d_expected;
+    int             d_sourceLine;
+    Severity::Enum  d_severity;
+    const char     *d_file;
+    int             d_line;
+    const char     *d_message;
+    const char     *d_expected;
 };
 
 static
@@ -193,59 +215,67 @@ const DefaultDataRow DEFAULT_DATA[] = {
     //
     // All normal values:
     {L_,
+     Severity::e_WARN,
      "Very VaLidF1%d%dLeN@me",
      408743,
      "Valid \n %fMessage String",
-     "Very VaLidF1%d%dLeN@me:408743 Valid \n %fMessage String\n"},
+     "WARN Very VaLidF1%d%dLeN@me:408743 Valid \n %fMessage String\n"},
 
     // Empty message string:
     {L_,
+     Severity::e_ERROR,
      "Good File Name!%s.cpp",
      2147483000,
      "",
-     "Good File Name!%s.cpp:2147483000 \n"},
+     "ERROR Good File Name!%s.cpp:2147483000 \n"},
 
     // Zero line number:
     {L_,
+     Severity::e_FATAL,
      "%filename.cpp",
      0,
      "Message String!",
-     "%filename.cpp:0 Message String!\n"},
+     "FATAL %filename.cpp:0 Message String!\n"},
 
     // Zero line number, empty message:
     {L_,
+     Severity::e_WARN,
      "fi%ldename.cpp",
      0,
      "",
-     "fi%ldename.cpp:0 \n"},
+     "WARN fi%ldename.cpp:0 \n"},
 
     // Empty file name:
     {L_,
+     Severity::e_WARN,
      "",
      83274892,
      "Good MESSAGE STRING %x ~~~",
-     ":83274892 Good MESSAGE STRING %x ~~~\n"},
+     "WARN :83274892 Good MESSAGE STRING %x ~~~\n"},
 
     // Empty file name, empty message string:
     {L_,
+     Severity::e_WARN,
      "",
      93874829,
      "",
-     ":93874829 \n"},
+     "WARN :93874829 \n"},
 
     // Empty file name, zero line number:
     {L_,
+     Severity::e_WARN,
      "",
      0,
      "Another Message :)",
-     ":0 Another Message :)\n"},
+     "WARN :0 Another Message :)\n"},
 
     // Empty file name, zero line number, empty message:
     {L_,
+     Severity::e_WARN,
      "",
      0,
      "",
-     ":0 \n"},
+     "WARN :0 \n"},
 };
 static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
                                        / sizeof(DEFAULT_DATA[0]);
@@ -698,6 +728,9 @@ struct LogMessageSink {
                                                          // since the last
                                                          // reset?
 
+    static bsls::LogSeverity::Enum
+                s_severity;                              // severity of message
+
     static char s_file[LOG_MESSAGE_SINK_BUFFER_SIZE];    // file name buffer
 
     static int  s_line;                                  // line number
@@ -710,13 +743,15 @@ struct LogMessageSink {
         // of 's_file', set 's_line' to 0, and write a null byte to the
         // beginning of 's_message'.
 
-    static void testMessageHandler(const char *file,
-                                   int         line,
-                                   const char *message);
-        // Copy the specified 'file' string into 's_file'.  Write the specified
-        // 'line' to 's_line'. Copy the specified 'message' into 's_message'.
-        // The behavior is undefined unless 'f' is a null-terminated string,
-        // 'line' is not negative, and 'message' is a null-terminated string.
+    static void testMessageHandler(bsls::LogSeverity::Enum  severity,
+                                   const char              *file,
+                                   int                      line,
+                                   const char              *message);
+        // Copy the 'severity' to 's_severity', the specified 'file' string
+        // into 's_file'.  Write the specified 'line' to 's_line'.  Copy the
+        // specified 'message' into 's_message'.  The behavior is undefined
+        // unless 'f' is a null-terminated string, 'line' is not negative, and
+        // 'message' is a null-terminated string.
 };
 
 // PUBLIC CLASS DATA
@@ -724,26 +759,30 @@ bool LogMessageSink::s_hasBeenCalled                         = false;
 char LogMessageSink::s_file[LOG_MESSAGE_SINK_BUFFER_SIZE]    = {'\0'};
 int  LogMessageSink::s_line                                  = 0;
 char LogMessageSink::s_message[LOG_MESSAGE_SINK_BUFFER_SIZE] = {'\0'};
+Severity::Enum LogMessageSink::s_severity                    =
+                                                             Severity::e_FATAL;
 
 // CLASS METHODS
 void LogMessageSink::reset()
 {
     s_hasBeenCalled = false;
+    s_severity      = bsls::LogSeverity::e_FATAL;
     s_file[0]       = '\0';
     s_line          = 0;
     s_message[0]    = '\0';
 }
 
-void LogMessageSink::testMessageHandler(const char *file,
-                                        int         line,
-                                        const char *message)
+void LogMessageSink::testMessageHandler(bsls::LogSeverity::Enum  severity,
+                                        const char              *file,
+                                        int                      line,
+                                        const char              *message)
 {
     ASSERT(file);
     ASSERT(line >= 0);
     ASSERT(message);
 
     s_hasBeenCalled = true;
-
+    s_severity = severity;
     strncpy(s_file, file, LOG_MESSAGE_SINK_BUFFER_SIZE);
     s_line = line;
     strncpy(s_message, message, LOG_MESSAGE_SINK_BUFFER_SIZE);
@@ -1365,7 +1404,7 @@ unsigned int add(int a, int b)
 // to write a log message if one of the input parameters is less than 0:
 //..
     if(a < 0 || b < 0) {
-        BSLS_LOG("Error: Invalid input combination (%d, %d).", a, b);
+        BSLS_LOG_ERROR("Invalid input combination (%d, %d).", a, b);
         return 0;                                                     // RETURN
     }
 
@@ -1380,7 +1419,7 @@ unsigned int add(int a, int b)
 // Finally, assuming the default log message handler is currently installed, we
 // observe the following output printed to 'stderr' or to the Windows debugger:
 //..
-//  myapp.cpp:8 Error: Invalid input combination (3, -100).
+//  ERROR myapp.cpp:8 Invalid input combination (3, -100).
 //..
 // Note that an arbitrary string should never be passed to 'BSLS_LOG' as the
 // format string.  If the string happens to contain 'printf'-style format
@@ -1423,7 +1462,7 @@ void handleError(int code)
 // ensure that the true strings are logged and are not interpreted as format
 // strings:
 //..
-    BSLS_LOG_SIMPLE(errorStrings[code]);
+    BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR, errorStrings[code]);
 }
 //..
 // A user may attempt to use error code '3':
@@ -1433,7 +1472,7 @@ void handleError(int code)
 // Assuming the default log message handler is the currently installed handler,
 // the following line would be printed to 'stderr' or to the Windows debugger:
 //..
-//  myapp.cpp:14 Please use '%2f' for a slash character in a URI.
+//  ERROR myapp.cpp:14 Please use '%2f' for a slash character in a URI.
 //..
 //
 ///Example 3: Using a Different File Name or Line Number
@@ -1473,7 +1512,10 @@ void handleErrorFlexible(const char *file, int line, int code)
 // We can bypass the macros by calling the function 'bsls::Log::logMessage'
 // directly, allowing us to pass in the given file name and line number:
 //..
-    bsls::Log::logMessage(file, line, errorStringsNew[code]);
+    bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+                          file,
+                          line,
+                          errorStringsNew[code]);
 }
 //..
 // A user in a different file may now specify the original source of an error:
@@ -1483,7 +1525,7 @@ void handleErrorFlexible(const char *file, int line, int code)
 // If this line of code were placed on line 5 of the file 'otherapp.cpp', the
 // following line would be printed to 'stderr' or to the Windows debugger:
 //..
-//  otherapp.cpp:5 Invalid username.
+//  ERROR otherapp.cpp:5 Invalid username.
 //..
 //
 // Users may wrap their error function in a macro to automatically fill in the
@@ -1506,7 +1548,7 @@ int main(int argc, char *argv[]) {
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-      case 11: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //   Extracted from component header file.
@@ -1546,6 +1588,179 @@ int main(int argc, char *argv[]) {
         add(3, -100);
         handleError(3);
         handleErrorFlexible(__FILE__, __LINE__, 2);
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // MACRO 'BSLS_LOG_[LEVEL]'
+        //
+        //   Note that this is a white box test that confirms the
+        //   'BSLS_LOG_[LEVEL]' macros forward to 'BSLS_LOG' appropriately.
+        //
+        // Concerns:
+        //: 1 'BSLS_LOG_[LEVEL]' forwards its arguments to 'BSLS_LOG'
+        //:    correctly, suppling 'LEVEL' as the severity (where 'LEVEL' is
+        //:    'FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', or 'TRACE').
+        //:
+        // Plan:
+        //: 1 Use the log message sink to capture the arguments passed to
+        //:   'bsls::Log::logFormattedMessage' for each of the macros under
+        //:   test. (C-1)
+        //
+        // Testing:
+        //   BSLS_LOG_FATAL(format, ...)
+        //   BSLS_LOG_ERROR(format, ...)
+        //   BSLS_LOG_WARN(format, ...)
+        //   BSLS_LOG_INFO(format, ...)
+        //   BSLS_LOG_DEBUG(format, ...)
+        //   BSLS_LOG_TRACE(format, ...)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("\nMACRO 'BSLS_LOG_[LEVEL]'"
+                   "\n=======================\n");
+        }
+
+        bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
+        ASSERT(bsls::Log::logMessageHandler()
+               == &LogMessageSink::testMessageHandler);
+        bsls::Log::setSeverityThreshold(Severity::e_TRACE);
+
+        {
+            if (verbose) {
+                puts("\nCalling 'BSLS_LOG_[LEVEL]' macros.\n");
+            }
+
+            const char * const   testFile        = __FILE__;
+            const char * const   testFormat      = "Int: %d, String: %s";
+            const int            subInt          = 17372;
+            const char * const   subStr          = "Hello World!";
+            const char * const   expectedMessage = "Int: 17372, "
+                                                   "String: Hello World!";
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_FATAL(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_FATAL == LogMessageSink::s_severity);
+            }
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_ERROR(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_ERROR == LogMessageSink::s_severity);
+            }
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_WARN(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_WARN == LogMessageSink::s_severity);
+            }
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_INFO(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_INFO == LogMessageSink::s_severity);
+            }
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_DEBUG(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_DEBUG == LogMessageSink::s_severity);
+            }
+            {
+                LogMessageSink::reset();
+
+                int LN = __LINE__; BSLS_LOG_TRACE(testFormat, subInt, subStr);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+                ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                ASSERT(0 == strcmp(expectedMessage,LogMessageSink::s_message));
+                ASSERT(LN                == LogMessageSink::s_line);
+                ASSERT(Severity::e_TRACE == LogMessageSink::s_severity);
+            }
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // CLASS METHODS 'setSeverityThreshold','severityThreshold'
+        //
+        // Concerns:
+        //: 1 That the default value for 'severityThreshold' is 'e_WARN'
+        //:
+        //: 2 That 'setSeverityThreshold' sets 'severityThreshold' to the
+        //:   supplied 'severity'
+        //:
+        // Plan:
+        //: 1 Manually test the default 'severityThreshold' value (C-1)
+        //:
+        //: 2 Perform a loop-based test setting the threshold with
+        //:   'severityThreshold', and verifying the value is assigned
+        //:    correctly with 'severityThreshold. (C-2)
+        //
+        // Testing:
+        //   void setSeverityThreshold(bsls::LogSeverity::Enum );
+        //   bsls::LogSeverity::Enum severityThreshold();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            printf("\nCLASS METHODS 'setSeverityThreshold','severityThreshold'"
+                   "\n========================================================"
+                   "\n");
+        }
+
+        {
+            if (verbose) {
+                puts("\nTesting default 'severityThreshold'.\n");
+            }
+
+            ASSERTV(bsls::Log::severityThreshold(),
+                    Severity::e_WARN == bsls::Log::severityThreshold());
+        }
+
+        {
+            if (verbose) {
+                puts("\nTesting 'severityThreshold'.\n");
+            }
+
+            Severity::Enum DATA[] = {
+                Severity::e_FATAL,
+                Severity::e_ERROR,
+                Severity::e_WARN,
+                Severity::e_INFO,
+                Severity::e_DEBUG,
+                Severity::e_TRACE
+            };
+            const size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (unsigned int i = 0; i < NUM_DATA; ++i) {
+                bsls::Log::setSeverityThreshold(DATA[i]);
+                ASSERT(DATA[i] == bsls::Log::severityThreshold());
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1629,17 +1844,23 @@ int main(int argc, char *argv[]) {
             }
             LogMessageSink::reset();
 
-            const char * const testFile         = "testFile3.h";
-            const int          testLine         = 65536;
-            const char * const testFormat       = "Test of a simple format.";
+            const Severity::Enum testSeverity = Severity::e_WARN;
+            const char *const    testFile     = "testFile3.h";
+            const int            testLine     = 65536;
+            const char *const    testFormat   = "Test of a simple format.";
 
-            const char * const expectedMessage  = testFormat;
+            const char *const    expectedMessage = testFormat;
 
-            bsls::Log::logFormattedMessage(testFile,
+            bsls::Log::logFormattedMessage(testSeverity,
+                                           testFile,
                                            testLine,
                                            testFormat);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testSeverity,
+                         LogMessageSink::s_severity,
+                         testSeverity == LogMessageSink::s_severity);
 
             LOOP2_ASSERT(testFile,
                          LogMessageSink::s_file,
@@ -1661,22 +1882,28 @@ int main(int argc, char *argv[]) {
             }
             LogMessageSink::reset();
 
-            const char * const testFile        = "myTestFile.cpp";
-            const int          testLine        = 900123;
-            const char * const testFormat      = "String: %s, Int: %d";
-            const char * const substitutionStr = "This is a string";
-            const int          substitutionInt = 172934;
+            const Severity::Enum testSeverity    = Severity::e_WARN;
+            const char * const   testFile        = "myTestFile.cpp";
+            const int            testLine        = 900123;
+            const char * const   testFormat      = "String: %s, Int: %d";
+            const char * const   substitutionStr = "This is a string";
+            const int            substitutionInt = 172934;
 
-            const char * const expectedMessage = "String: This is a string, "
-                                                 "Int: 172934";
+            const char * const   expectedMessage = "String: This is a string, "
+                                                   "Int: 172934";
 
-            bsls::Log::logFormattedMessage(testFile,
+            bsls::Log::logFormattedMessage(testSeverity,
+                                           testFile,
                                            testLine,
                                            testFormat,
                                            substitutionStr,
                                            substitutionInt);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testSeverity,
+                         LogMessageSink::s_severity,
+                         testSeverity == LogMessageSink::s_severity);
 
             LOOP2_ASSERT(testFile,
                          LogMessageSink::s_file,
@@ -1744,8 +1971,9 @@ int main(int argc, char *argv[]) {
             ASSERT(expectedIndices[0] == SUBSTITUTION_BUFFER_SIZE - 1);
             ASSERT(expectedIndices[NUM_EXPECTED_LENGTHS - 1] == 0);
 
-            const char * const testFile         = "myTestFile.cpp";
-            const int          testLine         = 900123;
+            const Severity::Enum testSeverity = Severity::e_ERROR;
+            const char * const   testFile     = "myTestFile.cpp";
+            const int            testLine     = 900123;
 
             for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; ++i) {
                 const size_t       localIndex  = expectedIndices[i];
@@ -1760,12 +1988,19 @@ int main(int argc, char *argv[]) {
 
                 LogMessageSink::reset();
 
-                bsls::Log::logFormattedMessage(testFile,
+                bsls::Log::logFormattedMessage(testSeverity,
+                                               testFile,
                                                testLine,
                                                "%s",
                                                localBuffer);
 
                 ASSERT(LogMessageSink::s_hasBeenCalled);
+
+                LOOP4_ASSERT(i,
+                             localIndex,
+                             testSeverity,
+                             LogMessageSink::s_severity,
+                             testSeverity == LogMessageSink::s_severity);
 
                 LOOP4_ASSERT(i,
                              localIndex,
@@ -1803,18 +2038,19 @@ int main(int argc, char *argv[]) {
 
             LogMessageSink::reset();
 
-            const char * const testFile        = __FILE__;
-            const char * const testFormat      = "Int: %d, String: %s";
-            const int          subInt          = 17372;
-            const char * const subStr          = "Hello World!";
+            const Severity::Enum testSev         = Severity::e_WARN;
+            const char * const   testFile        = __FILE__;
+            const char * const   testFormat      = "Int: %d, String: %s";
+            const int            subInt          = 17372;
+            const char * const   subStr          = "Hello World!";
 
-            const char * const expectedMessage = "Int: 17372, "
+            const char * const   expectedMessage = "Int: 17372, "
                                                  "String: Hello World!";
 
             // We are expanding the '__LINE__' macro on the same line as the
             // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
             // match.
-            const int testLine =__LINE__; BSLS_LOG(testFormat, subInt, subStr);
+            int tl =__LINE__; BSLS_LOG(testSev, testFormat, subInt, subStr);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
 
@@ -1822,9 +2058,13 @@ int main(int argc, char *argv[]) {
                          LogMessageSink::s_file,
                          strcmp(testFile, LogMessageSink::s_file) == 0);
 
-            LOOP2_ASSERT(testLine,
+            LOOP2_ASSERT(testSev,
+                         LogMessageSink::s_severity,
+                         testSev == LogMessageSink::s_severity);
+
+            LOOP2_ASSERT(tl,
                          LogMessageSink::s_line,
-                         testLine == LogMessageSink::s_line);
+                         tl == LogMessageSink::s_line);
 
             LOOP2_ASSERT(expectedMessage,
                          LogMessageSink::s_message,
@@ -1839,20 +2079,25 @@ int main(int argc, char *argv[]) {
 
             LogMessageSink::reset();
 
-            const char * const testFile        = __FILE__;
-            const char * const testFormat      = "Hello World";
-            const char * const expectedMessage = testFormat;
+            const Severity::Enum testSeverity    = Severity::e_WARN;
+            const char * const   testFile        = __FILE__;
+            const char * const   testFormat      = "Hello World";
+            const char * const   expectedMessage = testFormat;
 
             // We are expanding the '__LINE__' macro on the same line as the
             // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
             // match.
-            const int testLine =__LINE__; BSLS_LOG(testFormat);
+            const int testLine =__LINE__; BSLS_LOG(testSeverity, testFormat);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
 
             LOOP2_ASSERT(testFile,
                          LogMessageSink::s_file,
                          strcmp(testFile, LogMessageSink::s_file) == 0);
+
+            LOOP2_ASSERT(testSeverity,
+                         LogMessageSink::s_severity,
+                         testSeverity == LogMessageSink::s_severity);
 
             LOOP2_ASSERT(testLine,
                          LogMessageSink::s_line,
@@ -1876,6 +2121,10 @@ int main(int argc, char *argv[]) {
         //:
         //: 3 The macro 'BSLS_LOG_SIMPLE' does not interpret the message as a
         //:   'printf'-style format string
+        //:
+        //: 4 That 'logMessage' only calls the installed handler if the
+        //:   supplied severity is as, or more, severe as the
+        //:   'severityThreshold'.
         //
         // Plan:
         //: 1 Set the currently installed log message handler to
@@ -1886,11 +2135,14 @@ int main(int argc, char *argv[]) {
         //: 3 Confirm that the registered handler was called with the proper
         //:   parameters. (C-1)
         //:
-        //: 4 Reset the sink.  Call 'BSLS_LOG_SIMPLE' with a simple message
-        //:   that includes 'printf'-style formats that should not be formatted
-        //    (C-2) (C-3)
+        //: 4 Perform a table based test to confirm that 'logMessage' writes
+        //:   a message only if it exceeds the current threshold.  (C-4)
         //:
-        //: 5 Confirm that the registered handler was again called, with the
+        //: 5 Reset the sink.  Call 'BSLS_LOG_SIMPLE' with a simple message
+        //:   that includes 'printf'-style formats that should not be formatted
+        //:   (C-2) (C-3)
+        //:
+        //: 6 Confirm that the registered handler was again called, with the
         //:   current file name, the proper line number, and the simple
         //:   message. (C-2) (C-3)
         //
@@ -1913,13 +2165,21 @@ int main(int argc, char *argv[]) {
             }
             LogMessageSink::reset();
 
-            const char * const testFile    = "helloworld.cpp";
-            const int          testLine    = 18437;
-            const char * const testMessage = "Hello World!";
+            const Severity::Enum testSeverity = Severity::e_WARN;
+            const char * const   testFile     = "helloworld.cpp";
+            const int            testLine     = 18437;
+            const char * const   testMessage  = "Hello World!";
 
-            bsls::Log::logMessage(testFile, testLine, testMessage);
+            bsls::Log::logMessage(testSeverity,
+                                  testFile,
+                                  testLine,
+                                  testMessage);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testSeverity,
+                         LogMessageSink::s_severity,
+                         testSeverity == LogMessageSink::s_severity);
 
             LOOP2_ASSERT(testFile,
                          LogMessageSink::s_file,
@@ -1934,6 +2194,71 @@ int main(int argc, char *argv[]) {
                          strcmp(testMessage, LogMessageSink::s_message) == 0);
 
         }
+        {
+            if (verbose) {
+                puts("\nCalling 'logMessage' with a variety of severities.\n");
+            }
+
+            // Note that we perform a table based test to avoid duplicating
+            // the logic implemented in 'logMessage' for testing severity.
+
+            struct {
+                 Severity::Enum d_threshold;
+                 Severity::Enum d_severity;
+                 bool           d_outputExpected;
+            } DATA[] = {
+                { Severity::e_INFO,  Severity::e_TRACE, false },
+                { Severity::e_INFO,  Severity::e_DEBUG, false },
+                { Severity::e_INFO,  Severity::e_INFO,  true  },
+                { Severity::e_INFO,  Severity::e_WARN,  true  },
+                { Severity::e_INFO,  Severity::e_ERROR, true  },
+                { Severity::e_INFO,  Severity::e_FATAL, true  },
+                { Severity::e_FATAL, Severity::e_TRACE, false },
+                { Severity::e_FATAL, Severity::e_DEBUG, false },
+                { Severity::e_FATAL, Severity::e_INFO,  false },
+                { Severity::e_FATAL, Severity::e_WARN,  false },
+                { Severity::e_FATAL, Severity::e_ERROR, false },
+                { Severity::e_FATAL, Severity::e_FATAL, true  },
+                { Severity::e_TRACE, Severity::e_TRACE, true  },
+                { Severity::e_TRACE, Severity::e_DEBUG, true  },
+                { Severity::e_TRACE, Severity::e_INFO,  true  },
+                { Severity::e_TRACE, Severity::e_WARN,  true  },
+                { Severity::e_TRACE, Severity::e_ERROR, true  },
+                { Severity::e_TRACE, Severity::e_FATAL, true  }
+            };
+            const size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+
+            for (size_t i = 0; i < NUM_DATA; ++i) {
+                LogMessageSink::reset();
+
+                const Severity::Enum testThreshold = DATA[i].d_threshold;
+                const Severity::Enum testSeverity  = DATA[i].d_severity;
+                const char * const   testFile      = "helloworld.cpp";
+                const int            testLine      = 18437;
+                const char * const   testMessage   = "Hello World!";
+                const bool           isOutExpected = DATA[i].d_outputExpected;
+
+                bsls::Log::setSeverityThreshold(testThreshold);
+                bsls::Log::logMessage(testSeverity,
+                                      testFile,
+                                      testLine,
+                                      testMessage);
+
+                ASSERTV(testThreshold,
+                        testSeverity,
+                        isOutExpected,
+                        LogMessageSink::s_hasBeenCalled,
+                        LogMessageSink::s_hasBeenCalled == isOutExpected);
+                if (LogMessageSink::s_hasBeenCalled) {
+                    ASSERT(testLine     == LogMessageSink::s_line);
+                    ASSERT(testSeverity == LogMessageSink::s_severity);
+                    ASSERT(0 == strcmp(testFile, LogMessageSink::s_file));
+                    ASSERT(0 == strcmp(testMessage,LogMessageSink::s_message));
+                }
+
+            }
+        }
 
         {
             if (verbose) {
@@ -1942,15 +2267,20 @@ int main(int argc, char *argv[]) {
 
             LogMessageSink::reset();
 
-            const char * const testFile    = __FILE__;
-            const char * const testMessage = "Hello%d Wor%ld%s!";
+            const Severity::Enum testSev   = Severity::e_WARN;
+            const char * const   testFile  = __FILE__;
+            const char * const   testMsg   = "Hello%d Wor%ld%s!";
 
             // We are expanding the '__LINE__' macro on the same line as the
             // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
             // match.
-            const int testLine =__LINE__; BSLS_LOG_SIMPLE(testMessage);
+            const int testLine =__LINE__; BSLS_LOG_SIMPLE(testSev, testMsg);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testSev,
+                         LogMessageSink::s_severity,
+                         testSev == LogMessageSink::s_severity);
 
             LOOP2_ASSERT(testFile,
                          LogMessageSink::s_file,
@@ -1960,9 +2290,9 @@ int main(int argc, char *argv[]) {
                          LogMessageSink::s_line,
                          testLine == LogMessageSink::s_line);
 
-            LOOP2_ASSERT(testMessage,
+            LOOP2_ASSERT(testMsg,
                          LogMessageSink::s_message,
-                         strcmp(testMessage, LogMessageSink::s_message) == 0);
+                         strcmp(testMsg, LogMessageSink::s_message) == 0);
 
             }
 
@@ -2107,15 +2437,16 @@ int main(int argc, char *argv[]) {
             }
             OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
 
-            const char * const tFile       = "testingAFile.cpp";
-            const int          tLine       = 10272;
-            const char * const tMsg        = "Platform default handler!";
+            const Severity::Enum tSev  = Severity::e_FATAL;
+            const char * const   tFile = "testingAFile.cpp";
+            const int            tLine = 10272;
+            const char * const   tMsg  = "Platform default handler!";
 
-            const char * const expectedMsg = "testingAFile.cpp:10272 "
+            const char * const expectedMsg = "FATAL testingAFile.cpp:10272 "
                                              "Platform default handler!\n";
 
             stderrRedirector.enable();
-            (bsls::Log::platformDefaultMessageHandler)(tFile,tLine,tMsg);
+            (bsls::Log::platformDefaultMessageHandler)(tSev,tFile,tLine,tMsg);
             ASSERT(stderrRedirector.load());
             ASSERT(stderrRedirector.isOutputReady());
             stderrRedirector.disable();
@@ -2422,27 +2753,29 @@ int main(int argc, char *argv[]) {
         //:   other line number} X {empty message string, non-empty message
         //:   string}
         //:
-        //: 4 Both methods properly handle the extreme value 'INT_MAX' for the
+        //: 4 Both methods handle different values for 'severity'
+        //:
+        //: 5 Both methods properly handle the extreme value 'INT_MAX' for the
         //:   line number
         //
         // Plan:
         //: 1 For each handler, write a simple string and capture its output.
         //:   Ensure that the captured string matches what is expected. (C-1),
-        //:   (C-2)
+        //:   (C-2,4)
         //:
         //: 2 For each handler, apply the more extensive format inputs and
         //:   confirm that the output is formatted just like a predefined
-        //:   expected format string. (C-3)
+        //:   expected format string. (C-3,4)
         //:
         //: 3 For each handler, send it a normal file name and message, but
         //:   send a line number of INT_MAX, and ensure that the captured
-        //:   output is as expected. (C-4)
+        //:   output is as expected. (C-5)
         //:
         //
         // Testing:
-        //   typedef void (*LogMessageHandler)(file, line, message);
-        //   static void stdoutMessageHandler(file, line, message);
-        //   static void stderrMessageHandler(file, line, message);
+        //   typedef void (*LogMessageHandler)(severity, file, line, message);
+        //   static void stdoutMessageHandler(severity, file, line, message);
+        //   static void stderrMessageHandler(severity, file, line, message);
         // --------------------------------------------------------------------
         if (verbose) {
             printf("\nSTDOUT AND STDERR MESSAGE HANDLERS"
@@ -2479,7 +2812,11 @@ int main(int argc, char *argv[]) {
             // 1 Basic Writing Operation'
             if(veryVerbose) puts("\nWriting simple string.\n");
             redirector.enable();
-            HANDLER("testfile.cpp", 1073, "Testing basic operation.");
+            HANDLER(Severity::e_WARN,
+                    "testfile.cpp",
+                    1073,
+                    "Testing basic operation.");
+
             redirector.load();
             redirector.disable();
             LOOP2_ASSERT(i, STREAM, redirector.isOutputReady());
@@ -2490,40 +2827,40 @@ int main(int argc, char *argv[]) {
                          STREAM,
                          redirector.getOutput(),
                          0 == redirector.compare(
-                              "testfile.cpp:1073 Testing basic operation.\n"));
+                         "WARN testfile.cpp:1073 Testing basic operation.\n"));
 
             // 3 Proper Complex Format
             if(veryVerbose) puts("\nChecking complex combinations.\n");
             for(size_t j = 0; j < NUM_DEFAULT_DATA; ++j) {
-                const int          SOURCE_LINE
-                                    = DEFAULT_DATA[j].d_sourceLine;
-
-                const char * const FILE
-                                    = DEFAULT_DATA[j].d_file;
-
-                const int          LINE
-                                    = DEFAULT_DATA[j].d_line;
-
-                const char * const MESSAGE
-                                    = DEFAULT_DATA[j].d_message;
-
-                const char * const EXPECTED
-                                    = DEFAULT_DATA[j].d_expected;
+                const Severity::Enum SEVERITY
+                                       = DEFAULT_DATA[j].d_severity;
+                const int            SOURCE_LINE
+                                       = DEFAULT_DATA[j].d_sourceLine;
+                const char * const   FILE
+                                       = DEFAULT_DATA[j].d_file;
+                const int            LINE
+                                       = DEFAULT_DATA[j].d_line;
+                const char * const   MESSAGE
+                                       = DEFAULT_DATA[j].d_message;
+                const char * const   EXPECTED
+                                       = DEFAULT_DATA[j].d_expected;
 
                 if(veryVerbose)
-                { T_
-                  P_(SOURCE_LINE)
-                  P_(i)
-                  P_(STREAM)
-                  P_(j)
-                  P_(FILE)
-                  P_(LINE)
-                  P_(MESSAGE)
-                  P_(EXPECTED)
+                { 
+                    T_
+                    P_(SEVERITY)
+                    P_(SOURCE_LINE)
+                    P_(i)
+                    P_(STREAM)
+                    P_(j)
+                    P_(FILE)
+                    P_(LINE)
+                    P_(MESSAGE)
+                    P_(EXPECTED)
                 }
 
                 redirector.enable();
-                HANDLER(FILE, LINE, MESSAGE);
+                HANDLER(SEVERITY, FILE, LINE, MESSAGE);
                 redirector.load();
                 redirector.disable();
 
@@ -2539,9 +2876,10 @@ int main(int argc, char *argv[]) {
             // 4 INT_MAX handling
             if(veryVerbose) puts("\nChecking INT_MAX.\n");
 
-            const char * const normalFile    = "some_file.cpp";
-            const int          extremeLine   = INT_MAX;
-            const char * const normalMessage = "Some message!";
+            const Severity::Enum normalSeverity = Severity::e_ERROR;
+            const char * const   normalFile     = "some_file.cpp";
+            const int            extremeLine    = INT_MAX;
+            const char * const   normalMessage  = "Some message!";
 
             // There will be no system in which INT_MAX will be more than ~20
             // characters (in hypothetical 64-bit case), so we have a very good
@@ -2552,7 +2890,8 @@ int main(int argc, char *argv[]) {
             const int status = _snprintf(
                               expectedString,
                               sizeof(expectedString)/sizeof(expectedString[0]),
-                              "%s:%d %s\n",
+                              "%s %s:%d %s\n",
+                              Severity::toAscii(normalSeverity),
                               normalFile,
                               extremeLine,
                               normalMessage);
@@ -2560,7 +2899,8 @@ int main(int argc, char *argv[]) {
             const int status = snprintf(
                               expectedString,
                               sizeof(expectedString)/sizeof(expectedString[0]),
-                              "%s:%d %s\n",
+                              "%s %s:%d %s\n",
+                              Severity::toAscii(normalSeverity),
                               normalFile,
                               extremeLine,
                               normalMessage);
@@ -2571,7 +2911,7 @@ int main(int argc, char *argv[]) {
                            < sizeof(expectedString)/sizeof(expectedString[0]));
 
             redirector.enable();
-            HANDLER(normalFile, extremeLine, normalMessage);
+            HANDLER(normalSeverity, normalFile, extremeLine, normalMessage);
             redirector.load();
             redirector.disable();
 
@@ -2658,17 +2998,23 @@ int main(int argc, char *argv[]) {
         }
 
         ASSERT(! LogMessageSink::s_hasBeenCalled);
+        ASSERT(! LogMessageSink::s_severity);
         ASSERT(!*LogMessageSink::s_file);
         ASSERT(! LogMessageSink::s_line);
         ASSERT(!*LogMessageSink::s_message);
 
-        const char * const file    = "TeStIng123.cpp";
-        const int          line    = 893721;
-        const char * const message = "Testing\nThe\nTest";
+        const Severity::Enum severity = Severity::e_WARN;
+        const char *const    file     = "TeStIng123.cpp";
+        const int            line     = 893721;
+        const char *const    message  = "Testing\nThe\nTest";
 
-        (LogMessageSink::testMessageHandler)(file, line, message);
+        (LogMessageSink::testMessageHandler)(severity, file, line, message);
 
         ASSERT(LogMessageSink::s_hasBeenCalled);
+
+        LOOP2_ASSERT(file,
+                     LogMessageSink::s_severity,
+                     Severity::e_WARN == LogMessageSink::s_severity);
 
         LOOP2_ASSERT(file,
                      LogMessageSink::s_file,
@@ -2685,6 +3031,7 @@ int main(int argc, char *argv[]) {
         LogMessageSink::reset();
 
         ASSERT(! LogMessageSink::s_hasBeenCalled);
+        ASSERT(! LogMessageSink::s_severity);
         ASSERT(!*LogMessageSink::s_file);
         ASSERT(! LogMessageSink::s_line);
         ASSERT(!*LogMessageSink::s_message);
