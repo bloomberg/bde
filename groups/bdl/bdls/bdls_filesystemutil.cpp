@@ -1934,7 +1934,7 @@ int FilesystemUtil::createDirectories(const char *path,
         PathUtil::popLeaf(&workingPath);
     }
 
-    if (isDirectory(workingPath)) {
+    if (isDirectory(workingPath, true)) {
         return 0;                                                     // RETURN
     }
 
@@ -1950,7 +1950,7 @@ int FilesystemUtil::createDirectories(const char *path,
         PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
                              static_cast<int>(directoryStack.back().length()));
         if (0 != makeDirectory(workingPath.c_str(), false)) {
-            if (!isDirectory(workingPath)) {
+            if (!isDirectory(workingPath, true)) {
                 return -1;                                            // RETURN
             }
         }
