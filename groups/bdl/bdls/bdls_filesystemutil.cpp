@@ -115,9 +115,7 @@ struct NameRec {
         // The file names match.  Exactly one of them will have been found as
         // a pattern, and we want that one to be sorted first.
 
-        BSLS_ASSERT_SAFE(d_foundAsPattern != rhs.d_foundAsPattern);
-
-        return d_foundAsPattern;    // found as pattern comes first
+        return d_foundAsPattern && !rhs.d_foundAsPattern;
     }
 };
 
