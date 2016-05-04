@@ -613,7 +613,7 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // Bind the member function 'now' to 'this', and let the scheduler call
     // this binder as its current time callback.
 
-    d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::bind(
+    d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::memFn(
                                             &EventSchedulerTestTimeSource::now,
                                             this);
 }
