@@ -1521,12 +1521,12 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING SWAP MANIPULATORS:
-        //   Test the "swap" and "test and swap" functions for the Int,Int64,
-        //   Pointer and Bool atomic types.
+        //   Test the "swap" and "test and swap" functions for the Int, Int64,
+        //   Pointer, and Bool atomic types.
         //
         // Plan:
         //   For each atomic type("AtomicInt", "AtomicInt64", "AtomicPointer",
-        //   "AtomicBool"), perform the following tests to verify the swap, and
+        //   "AtomicBool"), perform the following tests to verify the swap and
         //   testAndSwap manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
@@ -2177,9 +2177,9 @@ int main(int argc, char *argv[])
         //   First, verify the initialization functions by initializing each
         //   atomic type and testing the resulting value.
         //
-        //   Next, for the AtomicInt, AtomicInt64, AtomicPointer and AtomicBool
-        //   types, for a sequence of independent test values, use the
-        //   initialization constructor to construct an object 'x' of each
+        //   Next, for the AtomicInt, AtomicInt64, AtomicPointer, and
+        //   AtomicBool types, for a sequence of independent test values, use
+        //   the initialization constructor to construct an object 'x' of each
         //   type.  Then using the copy constructor, construct an object 'y'
         //   from 'x'.  Next construct a third object 'z'.  Using the
         //   assignment operator, assign the value of 'x' to 'z'.  Finally

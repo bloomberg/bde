@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1), Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides classes with atomic operations for
-// 'int', 'Int64', pointer and 'bool' types.  These classes are based on atomic
-// operations supplied by the 'bsls_atomicoperations' component.  The
-// 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the
+// 'int', 'Int64', pointer, and 'bool' types.  These classes are based on
+// atomic operations supplied by the 'bsls_atomicoperations' component.
+// The 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the
 // corresponding atomic integer types, and provide overloaded operators and
 // functions for common arithmetic operations.  The 'bsls::AtomicPointer' class
 // represents the atomic pointer type, and provides atomic operations to
