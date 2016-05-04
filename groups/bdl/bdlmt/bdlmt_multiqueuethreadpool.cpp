@@ -604,8 +604,8 @@ int MultiQueueThreadPool::resumeQueue(int id)
     int                                     rc = 1;
     bslmt::ReadLockGuard<bslmt::RWMutex>    regGuard(&d_registryLock);
 
-    if (STATE_RUNNING == d_state.loadRelaxed() &
-        0 == d_queueRegistry.find(id, &context)) 
+    if (STATE_RUNNING == d_state.loadRelaxed() 
+        && 0 == d_queueRegistry.find(id, &context)) 
     {
         bslmt::QLockGuard guard(&context->mutex());
         if (!context->d_queue.d_paused) {
