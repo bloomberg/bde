@@ -19,13 +19,15 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov (azakhar1), Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides classes with atomic operations for
-// 'int', 'Int64', and pointer types.  These classes are based on atomic
+// 'int', 'Int64', pointer and 'bool' types.  These classes are based on atomic
 // operations supplied by the 'bsls_atomicoperations' component.  The
 // 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the
 // corresponding atomic integer types, and provide overloaded operators and
 // functions for common arithmetic operations.  The 'bsls::AtomicPointer' class
 // represents the atomic pointer type, and provides atomic operations to
-// manipulate and dereference a pointer.
+// manipulate and dereference a pointer.  The 'bsls::AtomicBool' class
+// represents an atomic boolean type and provides operations to set and
+// retrieve its value.
 //
 ///Memory Order and Consistency Guarantees of Atomic Operations
 ///------------------------------------------------------------
@@ -1043,6 +1045,97 @@ class AtomicPointer {
         // memory ordering guarantee.
 };
 
+                               // ================
+                               // class AtomicBool
+                               // ================
+
+class AtomicBool {
+    // This class implements an atomic boolean, which supports common boolean
+    // operations in a way that is guaranteed to be atomic.  Operations on
+    // objects of this class provide the sequential consistency memory ordering
+    // guarantee unless explicitly qualified with a less strict consistency
+    // guarantee suffix (i.e., Acquire, Release, AcqRel or Relaxed).
+
+    // DATA
+    enum {
+        False,
+        True
+    };
+    AtomicOperations::AtomicTypes::Int d_value;
+
+  private:
+    // NOT IMPLEMENTED
+    AtomicBool(const AtomicBool&);               // = delete
+    AtomicBool& operator=(const AtomicBool& );   // = delete
+        // Note that the copy constructor and the copy-assignment operator
+        // are not implemented because they cannot be done atomically.
+
+  public:
+    // CREATORS
+    AtomicBool();
+        // Create an atomic boolean object having the default value False.
+
+    AtomicBool(bool value);
+        // Create an atomic boolean object having the specified 'value'.
+
+    //! ~AtomicBool() = default;
+        // Destroy this atomic boolean object.
+
+    // MANIPULATORS
+    AtomicBool& operator=(bool value);
+        // Atomically assign the specified 'value' to this object, and return a
+        // modifiable reference to 'this' object.
+
+    void storeRelaxed(bool value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the relaxed memory ordering guarantee.
+
+    void storeRelease(bool value);
+        // Atomically assign the specified 'value' to this object, providing
+        // the release memory ordering guarantee.
+
+    bool swap(bool swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value.
+
+    bool swapAcqRel(bool swapValue);
+        // Atomically set the value of this object to the specified 'swapValue'
+        // and return its previous value, providing the acquire/release memory
+        // ordering guarantee.
+
+    bool testAndSwap(bool compareValue, bool swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic boolean to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic boolean, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically.
+
+    bool testAndSwapAcqRel(bool compareValue, bool swapValue);
+        // Compare the value of this object to the specified 'compareValue'.
+        // If they are equal, set the value of this atomic boolean to the
+        // specified 'swapValue', otherwise leave this value unchanged.  Return
+        // the previous value of this atomic boolean, whether or not the swap
+        // occurred.  Note that the entire test-and-swap operation is performed
+        // atomically and it provides the acquire/release memory ordering
+        // guarantee.
+
+    // ACCESSORS
+    operator bool() const;
+        // Return the current value of this object.
+
+    bool load() const;
+        // Return the current value of this object.
+
+    bool loadRelaxed() const;
+        // Return the current value of this object, providing the relaxed
+        // memory ordering guarantee.
+
+    bool loadAcquire() const;
+        // Return the current value of this object, providing the acquire
+        // memory ordering guarantee.
+};
+
 }  // close package namespace
 
 namespace bsls {
@@ -1480,6 +1573,115 @@ inline
 TYPE *AtomicPointer<TYPE>::loadAcquire() const
 {
     return (TYPE *) AtomicOperations_Imp::getPtrAcquire(&d_value);
+}
+
+                               // ----------------
+                               // class AtomicBool
+                               // ----------------
+
+// CREATORS
+inline
+AtomicBool::AtomicBool()
+{
+    AtomicOperations_Imp::initInt(&d_value, AtomicBool::False);
+}
+
+inline
+AtomicBool::AtomicBool(bool value)
+{
+    AtomicOperations_Imp::initInt(
+        &d_value,
+        value ? AtomicBool::True : AtomicBool::False);
+}
+
+// MANIPULATORS
+inline
+AtomicBool& AtomicBool::operator=(bool value)
+{
+    AtomicOperations_Imp::setInt(
+        &d_value,
+        value ? AtomicBool::True : AtomicBool::False);
+    return *this;
+}
+
+inline
+void AtomicBool::storeRelaxed(bool value)
+{
+    AtomicOperations_Imp::setIntRelaxed(
+        &d_value,
+        value ? AtomicBool::True : AtomicBool::False);
+}
+
+inline
+void AtomicBool::storeRelease(bool value)
+{
+    AtomicOperations_Imp::setIntRelease(
+        &d_value,
+        value ? AtomicBool::True : AtomicBool::False);
+}
+
+inline
+bool AtomicBool::swap(bool swapValue)
+{
+    return AtomicOperations_Imp::swapInt(
+            &d_value,
+            swapValue ? AtomicBool::True : AtomicBool::False)
+        == AtomicBool::True;
+}
+
+inline
+bool AtomicBool::swapAcqRel(bool swapValue)
+{
+    return AtomicOperations_Imp::swapIntAcqRel(
+            &d_value,
+            swapValue ? AtomicBool::True : AtomicBool::False)
+        == AtomicBool::True;
+}
+
+inline
+bool AtomicBool::testAndSwap(bool compareValue, bool swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapInt(
+            &d_value,
+            compareValue ? AtomicBool::True : AtomicBool::False,
+            swapValue ? AtomicBool::True : AtomicBool::False)
+        == AtomicBool::True;
+}
+
+inline
+bool AtomicBool::testAndSwapAcqRel(bool compareValue, bool swapValue)
+{
+    return AtomicOperations_Imp::testAndSwapIntAcqRel(
+            &d_value,
+            compareValue ? AtomicBool::True : AtomicBool::False,
+            swapValue ? AtomicBool::True : AtomicBool::False)
+        == AtomicBool::True;
+}
+
+// ACCESSORS
+
+inline
+AtomicBool::operator bool() const
+{
+    return AtomicOperations_Imp::getInt(&d_value) == AtomicBool::True;
+}
+
+inline
+bool AtomicBool::load() const
+{
+    return this->operator bool();
+}
+
+inline
+bool AtomicBool::loadRelaxed() const
+{
+    return AtomicOperations_Imp::getIntRelaxed(&d_value) == AtomicBool::True;
+}
+
+inline
+bool AtomicBool::loadAcquire() const
+{
+    return AtomicOperations_Imp::getIntAcquire(&d_value) == AtomicBool::True;
 }
 
 }  // close package namespace
