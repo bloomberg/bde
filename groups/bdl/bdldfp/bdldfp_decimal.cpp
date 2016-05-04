@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
+#include <bsls_exceptionutil.h>
 #include <bsls_performancehint.h>
 
 #include <bsl_algorithm.h>
@@ -86,18 +87,28 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 template <class CHARTYPE, class TRAITS, class DECIMAL>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
 printImpl(bsl::basic_ostream<CHARTYPE, TRAITS>& out,
-      DECIMAL                               value)
+          DECIMAL                               value)
 {
-    typename bsl::basic_ostream<CHARTYPE, TRAITS>::sentry kerberos(out);
-    if (kerberos) {
-        typedef BloombergLP::bdldfp::DecimalNumPut<CHARTYPE> Facet;
-        const Facet& facet(bsl::has_facet<Facet>(out.getloc())
-                           ? bsl::use_facet<Facet>(out.getloc())
-                           : Facet::object());
-        facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
-                  out,
-                  out.fill(),
-                  value);
+    BSLS_TRY {
+        typename bsl::basic_ostream<CHARTYPE, TRAITS>::sentry kerberos(out);
+        if (kerberos) {
+            typedef BloombergLP::bdldfp::DecimalNumPut<CHARTYPE> Facet;
+            const Facet& facet(bsl::has_facet<Facet>(out.getloc())
+                               ? bsl::use_facet<Facet>(out.getloc())
+                               : Facet::object());
+
+            bsl::ostreambuf_iterator<CHARTYPE, TRAITS> itr =
+                facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
+                          out,
+                          out.fill(),
+                          value);
+            if (itr.failed()) {
+                out.setstate(bsl::ios::failbit | bsl::ios::badbit);
+            }
+        }
+    }
+    BSLS_CATCH(...) {
+        out.setstate(bsl::ios::badbit);
     }
     return out;
 }
