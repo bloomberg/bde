@@ -170,18 +170,17 @@ enum { NAME_ASCII, NAME_UTF8, NAME_ANSI };
 static const char *const NAMES[] = {
     "name",                                      // ASCII
     "\x24\xc2\xa2\xe2\x82\xac\xf0\xa4\xad\xa2",  // utf-8
+#ifndef BSLS_PLATFORM_OS_DARWIN
+// 'NAME_ANSI' is not utf8, and the filesystem translates the name to
+// "%F1%E5m%EA".
     "\xf1\xe5m\xea",                             // not utf-8
+#endif
 };
 static const size_t NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 // 'NAME_ANSI' is not utf8, therefore the Windows implementation will refuse to
 // create a file with that name.
-
-static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
-#elif defined(BSLS_PLATFORM_OS_DARWIN)
-// 'NAME_ANSI' is not utf8, and the filesystem translates the name to
-// "%F1%E5m%EA".
 
 static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
 #else
