@@ -436,7 +436,7 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY: {
         return manipulator(
-                      d_encodeDateAndTimeTypesAsBinary,
+                      &d_encodeDateAndTimeTypesAsBinary,
                       ATTRIBUTE_INFO_ARRAY[
                       e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY]);
       } break;
