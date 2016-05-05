@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // European continent.  Thus:
 //..
 //  assert(++bdlt::Date(1752, 9, 2) ==   bdlt::Date(1752, 9, 14));
-//  assert(  bdlt::Date(1752, 9, 2) == --bdlt::Date(1715, 9, 14));
+//  assert(  bdlt::Date(1752, 9, 2) == --bdlt::Date(1752, 9, 14));
 //..
 // Note that two 'static' (class) methods:
 //..
