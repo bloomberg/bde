@@ -137,7 +137,7 @@ void MultiQueueThreadPool_Queue::numProcessedReset(int *numDequeued,
 inline
 int MultiQueueThreadPool_Queue::length() const
 {
-    return d_list.size();
+    return static_cast<int>(d_list.size());
 }
 
 inline
@@ -224,9 +224,10 @@ void MultiQueueThreadPool::deleteQueueCb(int                    id,
 
     d_registryLock.lockWrite();
 
-    MultiQueueThreadPool_QueueContext *context;
+    MultiQueueThreadPool_QueueContext *context = 0;
     int rc = d_queueRegistry.remove(id, &context);
     BSLS_ASSERT(0 == rc);
+    (void)rc;
 
     context->d_destroyFlag = true;
 
@@ -274,6 +275,7 @@ void MultiQueueThreadPool::processQueueCb(
             // Enqueue the processing callback for this queue.
             int status = d_threadPool_p->enqueueJob(context->d_processingCb);
             BSLS_ASSERT(0 == status);
+            (void)status;
         }
     }
 }
@@ -548,10 +550,11 @@ void MultiQueueThreadPool::shutdown()
 
     for (bsl::vector<int>::iterator it = qids.begin(); it != qids.end();
                                                                         ++it) {
-        MultiQueueThreadPool_QueueContext *context;
+        MultiQueueThreadPool_QueueContext *context = 0;
         int status = d_queueRegistry.remove(*it, &context);
         BSLS_ASSERT(0 == status);
         BSLS_ASSERT(0 == context->d_queue.d_numPendingJobs);
+        (void)status;
         d_queuePool.releaseObject(context);
     }
 

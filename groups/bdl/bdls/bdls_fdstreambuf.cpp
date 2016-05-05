@@ -666,7 +666,8 @@ int FdStreamBuf::underflowRead()
     // if appropriate.
 
     bsl::ptrdiff_t bytesRead = d_fileHandler.read(d_buf_p,
-                                                  d_bufEOS_p - d_buf_p);
+                                                  static_cast<int>(
+                                                        d_bufEOS_p - d_buf_p));
 
     // Don't enter error mode for a failed read.  Error mode is sticky, and we
     // might succeed if we try again.
@@ -734,10 +735,11 @@ int FdStreamBuf::allocateBuffer()
     // Choose a buffer that's at least 4096 characters long and that's a
     // multiple of the page size.
 
-    const int pageSize       = d_fileHandler.pageSize();
-    const int defaultBufsize = ((pageSize + 4095UL) / pageSize) * pageSize;
+    const bsl::size_t pageSize       = d_fileHandler.pageSize();
+    const bsl::size_t defaultBufsize = ((pageSize + 4095UL) / pageSize)
+                                                                    * pageSize;
 
-    return allocateBuffer(0, defaultBufsize);
+    return allocateBuffer(0, static_cast<int>(defaultBufsize));
 }
 
 void FdStreamBuf::deallocateBuffer()
@@ -986,7 +988,8 @@ FdStreamBuf::overflow(int_type c)
         *iend++ = static_cast<char>(c);
     }
 
-    const int_type ret = d_fileHandler.write(d_buf_p, iend - d_buf_p)
+    const int_type ret = d_fileHandler.write(d_buf_p,
+                                             static_cast<int>(iend - d_buf_p))
                          ? outputError()
                          : traits_type::not_eof(c);
     setp(d_buf_p, d_bufEOS_p - 1);
@@ -1004,7 +1007,7 @@ FdStreamBuf *FdStreamBuf::setbuf(char *buffer, bsl::streamsize numBytes)
     // no effect.
 {
     if (e_NULL_MODE == d_mode && 0 == d_buf_p) {
-        allocateBuffer(buffer, numBytes);
+        allocateBuffer(buffer, static_cast<int>(numBytes));
     }
 
     return this;
@@ -1195,7 +1198,8 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
 
     while (buffer < end) {
         if (gptr() < egptr()) {
-            const int chunk = bsl::min(egptr() - gptr(), end - buffer);
+            const int chunk = static_cast<int>(bsl::min(egptr() - gptr(),
+                                                        end - buffer));
             traits_type::copy(buffer, gptr(), chunk);
             buffer += chunk;
             gbump(chunk);
@@ -1234,7 +1238,8 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
 
     while (buffer < end) {
         if (pptr() < epptr()) {
-            const int chunk = bsl::min(epptr() - pptr(), end - buffer);
+            const int chunk = static_cast<int>(bsl::min(epptr() - pptr(),
+                                                        end - buffer));
             traits_type::copy(pptr(), buffer, chunk);
             buffer += chunk;
             pbump(chunk);

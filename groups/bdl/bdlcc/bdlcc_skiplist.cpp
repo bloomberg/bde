@@ -167,9 +167,9 @@ struct bcec_SkipList_Pool {
     typedef bcec_SkipList_PoolNode Node;
 
     bsls::AtomicPointer<Node> d_freeList;
-    int                      d_objectSize;
-    int                      d_numObjects;
-    int                      d_level;
+    int                       d_objectSize;
+    int                       d_numObjectsToAllocate;
+    int                       d_level;
 };
 
 namespace bdlcc {
@@ -180,15 +180,11 @@ namespace bdlcc {
 
 class SkipList_PoolManager {
     enum {
-        k_MAX_POOLS           =  32,
+        k_MAX_POOLS                       =  32,
 
-        k_INITIAL_NUM_OBJECTS =  -1,  // default 'numObjects' value
+        k_INITIAL_NUM_OBJECTS_TO_ALLOCATE =   1,
 
-        k_GROW_FACTOR         =   2,  // multiplicative factor to grow pool
-                                      // capacity
-
-        k_MAX_NUM_OBJECTS     = -32   // minimum 'd_numObjects' value beyond
-                                      // which 'd_numObjects' becomes positive
+        k_GROWTH_FACTOR                   =  2
     };
 
     typedef bcec_SkipList_PoolNode  Node;
@@ -223,8 +219,7 @@ void SkipList_PoolManager::replenish(Pool *pool)
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     int objectSize = pool->d_objectSize;
-    int numObjects = (pool->d_numObjects >= 0 ? pool->d_numObjects :
-                                                -pool->d_numObjects);
+    int numObjects = pool->d_numObjectsToAllocate;
 
     BSLS_ASSERT(0 < objectSize);
     BSLS_ASSERT(0 < numObjects);
@@ -245,17 +240,7 @@ void SkipList_PoolManager::replenish(Pool *pool)
         last->d_next_p = old;
     } while (old != pool->d_freeList.testAndSwap(old,(Node*)(void*)start));
 
-    // Grow pool capacity only if 'd_numObjects' is negative and greater than
-    // 'k_MAX_NUM_OBJECTS' (i.e., |newNumObjects| < |k_MAX_NUM_OBJECTS|).
-
-    if (numObjects < 0) {
-        if (numObjects > k_MAX_NUM_OBJECTS) {
-            pool->d_numObjects *= k_GROW_FACTOR;
-        }
-        else {
-            pool->d_numObjects = -numObjects;
-        }
-    }
+    pool->d_numObjectsToAllocate *= k_GROWTH_FACTOR;
 }
 
 void *SkipList_PoolManager::allocate(Pool *pool)
@@ -354,7 +339,7 @@ void SkipList_PoolManager::initPool(Pool *pool, int level, int objectSize)
 {
     pool->d_freeList = 0;
     pool->d_objectSize = objectSize;
-    pool->d_numObjects = k_INITIAL_NUM_OBJECTS;
+    pool->d_numObjectsToAllocate = k_INITIAL_NUM_OBJECTS_TO_ALLOCATE;
     pool->d_level = level;
 }
 

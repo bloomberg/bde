@@ -82,6 +82,10 @@ BitArray::~BitArray()
 {
     const size_t estimated = arraySize(d_length);
     const size_t actual    = d_array.size();
+
+    (void)estimated;
+    (void)actual;
+
     BSLS_ASSERT(estimated == actual);
     BSLS_ASSERT(0 <          actual);
 }

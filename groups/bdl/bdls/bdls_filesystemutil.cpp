@@ -1941,6 +1941,7 @@ int FilesystemUtil::createDirectories(const char *path,
     while (PathUtil::hasLeaf(workingPath)) {
         directoryStack.push_back(bsl::string());
         int rc = PathUtil::getLeaf(&directoryStack.back(), workingPath);
+        (void)rc;
         BSLS_ASSERT(0 == rc);
         PathUtil::popLeaf(&workingPath);
     }
@@ -2032,7 +2033,8 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
 #if defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
     defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
     defined(BSLS_PLATFORM_OS_AIX)
-    if (reserveFlag && 0 == posix_fallocate(descriptor, 0, size)) {
+    if (   reserveFlag
+        && 0 == posix_fallocate(descriptor, 0, static_cast<off_t>(size))) {
         reserveFlag = false;  //  File space has been allocated
     }
 #endif

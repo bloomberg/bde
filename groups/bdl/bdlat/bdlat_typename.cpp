@@ -237,7 +237,7 @@ bool bdlat_TypeName_Imp::idempotentConcat(char       *dest,
     int remaining = destSize - 1;
     for (int i = 0; i < numSegments; ++i) {
         const char *segment = segments[i];
-        int segmentLen = bsl::strlen(segment);
+        int segmentLen = static_cast<int>(bsl::strlen(segment));
         if (segmentLen > remaining) {
             segmentLen = remaining;
         }

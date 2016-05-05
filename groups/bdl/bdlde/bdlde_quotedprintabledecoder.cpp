@@ -284,7 +284,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             if (ch == (unsigned char)0xFF) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
-                *numIn = begin - originalBegin;
+                *numIn = static_cast<int>(begin - originalBegin);
                 d_state = e_ERROR_STATE;
                 return -1;                                            // RETURN
             }
@@ -297,7 +297,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             if ('\n' != *begin) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
-                *numIn = begin - originalBegin;
+                *numIn = static_cast<int>(begin - originalBegin);
                 d_state = e_ERROR_STATE;
                 return -1;                                            // RETURN
             }
@@ -308,7 +308,7 @@ int QuotedPrintableDecoder::convert(char       *out,
             if ('\n' != *begin) {
                 *numOut = numEmitted;
                 d_outputLength += numEmitted;
-                *numIn = begin - originalBegin;
+                *numIn = static_cast<int>(begin - originalBegin);
                 d_state = e_ERROR_STATE;
                 return -1;                                            // RETURN
             }
@@ -337,7 +337,7 @@ int QuotedPrintableDecoder::convert(char       *out,
                 if (d_hexBuffer == (char)0xFF) {
                     *numOut = numEmitted;
                     d_outputLength += numEmitted;
-                    *numIn = begin - originalBegin;
+                    *numIn = static_cast<int>(begin - originalBegin);
                     d_state = e_ERROR_STATE;
                     return -1;                                        // RETURN
                 }
@@ -373,7 +373,7 @@ int QuotedPrintableDecoder::convert(char       *out,
 
     *numOut = numEmitted;
     d_outputLength += numEmitted;
-    *numIn = begin - originalBegin;
+    *numIn = static_cast<int>(begin - originalBegin);
     return 0;
     // TBD return value
 }
@@ -385,6 +385,8 @@ int QuotedPrintableDecoder::endConvert(char *out,
     BSLS_ASSERT(out);
     BSLS_ASSERT(numOut);
 
+    (void)out;
+    
     if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state ||
                                                               d_bufferLength) {
         d_state = e_ERROR_STATE;
