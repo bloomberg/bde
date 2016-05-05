@@ -349,7 +349,7 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
 
         d_buffers.push_back(buffer);
         d_preDataIndexLength = oldDataLength;
-        d_dataIndex = d_buffers.size() - 1;
+        d_dataIndex = static_cast<int>(d_buffers.size()) - 1;
     }
     else if (bufferSize == d_dataLength) {
         // Another fast path.  At the start, there was no data, but empty
@@ -552,7 +552,8 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
     const int numSrcDataBuffers = srcBlob->numDataBuffers();
     const int numDstDataBuffers = numDataBuffers();
 
-    reserveBufferCapacity(d_buffers.size() + numSrcDataBuffers);
+    reserveBufferCapacity(static_cast<int>(d_buffers.size())
+                          + numSrcDataBuffers);
 
     BlobBufferIterator dstIter = d_buffers.begin() + numDstDataBuffers;
     BlobBufferIterator srcIter = srcBlob->d_buffers.begin();

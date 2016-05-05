@@ -360,7 +360,7 @@ const ball::UserFields& Record::customFields() const
 inline
 int Record::numAllocatedBytes() const
 {
-    return d_allocator.numBytesTotal();
+    return static_cast<int>(d_allocator.numBytesTotal());
 }
 
 }  // close package namespace

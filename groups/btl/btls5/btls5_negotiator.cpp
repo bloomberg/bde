@@ -427,7 +427,8 @@ static void connectToEndpoint(btls5::Negotiator::NegotiationHandle negotiation)
         return;                                                       // RETURN
     }
     const bsl::string& buf = req.str();
-    int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
+    int rc = negotiation->d_socket_p->write(buf.c_str(),
+                                            static_cast<int>(buf.size()));
     if (rc != static_cast<int>(buf.size())) {
         terminate(negotiation,
                   btls5::Negotiator::e_ERROR,
@@ -495,7 +496,8 @@ static void sendAuthenticationRequest(
         return;                                                       // RETURN
     }
     const bsl::string& buf = request.str();
-    int rc = negotiation->d_socket_p->write(buf.c_str(), buf.size());
+    int rc = negotiation->d_socket_p->write(buf.c_str(),
+                                            static_cast<int>(buf.size()));
 
     if (rc != static_cast<int>(buf.size())) {
         terminate(negotiation,
@@ -591,7 +593,7 @@ static int sendMethodRequest(btls5::Negotiator::NegotiationHandle negotiation)
         // Don't offer PASSWORD authentication unless we have credentials.
 
         --pkt.d_nmethods;
-        length -= sizeof *pkt.d_methods;
+        length -= static_cast<int>(sizeof *pkt.d_methods);
     }
 
     if (registerReadCb(methodCallback, negotiation)) {

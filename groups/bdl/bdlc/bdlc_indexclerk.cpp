@@ -18,7 +18,7 @@ BSLS_IDENT_RCSID(bdlc_indexclerk_cpp,"$Id$ $CSID$")
 #include <bslma_testallocator.h>  // for testing only
 #include <bsls_performancehint.h>
 
-#include <bsl_cstddef.h>
+#include <bsl_cstring.h>  // size_t
 #include <bsl_ostream.h>
 #include <bsl_vector.h>
 

@@ -349,7 +349,7 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
 
     bdlt::Datetime timestamp = fixedFields.timestamp();
     if (d_publishInLocalTime) {
-        int localTimeOffsetInSeconds  =
+        bsls::Types::Int64 localTimeOffsetInSeconds  =
             bdlt::LocalTimeOffset::localTimeOffset(timestamp).totalSeconds();
         timestamp.addSeconds(localTimeOffsetInSeconds);
     }

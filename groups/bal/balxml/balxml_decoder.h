@@ -421,7 +421,7 @@ class Decoder_ElementContext {
     virtual int endElement(Decoder *decoder) = 0;
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder) = 0;
 
     virtual int parseAttribute(const char  *name,
@@ -1004,7 +1004,7 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1047,7 +1047,7 @@ class Decoder_NillableContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1105,7 +1105,7 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1147,7 +1147,7 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1190,7 +1190,7 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1239,7 +1239,7 @@ class Decoder_CustomizedContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1279,7 +1279,7 @@ class Decoder_UnknownElementContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1320,7 +1320,7 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1379,7 +1379,7 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -1446,7 +1446,7 @@ class Decoder_StdVectorCharContext : public Decoder_ElementContext {
     virtual int endElement(Decoder *decoder);
 
     virtual int addCharacters(const char   *chars,
-                              unsigned int  length,
+                              bsl::size_t   length,
                               Decoder      *decoder);
 
     virtual int parseAttribute(const char  *name,
@@ -2208,7 +2208,7 @@ int Decoder_ChoiceContext<TYPE>::endElement(Decoder *decoder)
 
 template <class TYPE>
 int Decoder_ChoiceContext<TYPE>::addCharacters(const char   *chars,
-                                               unsigned int  length,
+                                               bsl::size_t   length,
                                                Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
@@ -2350,7 +2350,7 @@ int Decoder_PushParserContext<TYPE, PARSER>::endElement(Decoder *decoder)
 template <class TYPE, class PARSER>
 int Decoder_PushParserContext<TYPE, PARSER>::addCharacters(
                                                          const char   *chars,
-                                                         unsigned int  length,
+                                                         bsl::size_t   length,
                                                          Decoder      *decoder)
 {
     const char *begin = chars;
@@ -2446,7 +2446,7 @@ int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 
 template <class TYPE>
 int Decoder_SequenceContext<TYPE>::addCharacters(const char   *chars,
-                                                 unsigned int  length,
+                                                 bsl::size_t   length,
                                                  Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
@@ -2569,7 +2569,7 @@ int Decoder_SimpleContext<TYPE>::endElement(Decoder *)
 
 template <class TYPE>
 int Decoder_SimpleContext<TYPE>::addCharacters(const char   *chars,
-                                               unsigned int  length,
+                                               bsl::size_t   length,
                                                Decoder      *decoder)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
@@ -2664,7 +2664,7 @@ int Decoder_CustomizedContext<TYPE>::endElement(Decoder *decoder)
 
 template <class TYPE>
 int Decoder_CustomizedContext<TYPE>::addCharacters(const char   *chars,
-                                                   unsigned int  length,
+                                                   bsl::size_t   length,
                                                    Decoder      *decoder)
 {
     return d_baseContext.addCharacters(chars, length, decoder);
@@ -2723,7 +2723,7 @@ int Decoder_UTF8Context<TYPE>::endElement(Decoder *)
 template <class TYPE>
 inline int
 Decoder_UTF8Context<TYPE>::addCharacters(const char   *chars,
-                                         unsigned int  length,
+                                         bsl::size_t   length,
                                          Decoder      *)
 {
     enum { k_SUCCESS = 0 };

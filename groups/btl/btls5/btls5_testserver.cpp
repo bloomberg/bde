@@ -483,11 +483,11 @@ void Socks5Session::readMethods(const Socks5MethodRequestHeader *data,
     BSLS_ASSERT(5 == data->d_version);
     BSLS_ASSERT(1 <= data->d_numMethods);
     if (length < static_cast<int>(sizeof(*data)) + data->d_numMethods) {
-        *needed = sizeof(*data) + data->d_numMethods;
+        *needed = static_cast<int>(sizeof(*data) + data->d_numMethods);
         return;                                                       // RETURN
     }
     *needed = 0;
-    *consumed = sizeof(*data) + data->d_numMethods;
+    *consumed = static_cast<int>(sizeof(*data) + data->d_numMethods);
 
     LOG_DEBUG << "method request: version "
               << static_cast<int>(data->d_version)
@@ -540,7 +540,7 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
     if (length < static_cast<int>(sizeof(*data)) + ulen + 1) {
         // read username and password length (one byte)
 
-        *needed = sizeof(*data) + ulen + 1;
+        *needed = static_cast<int>(sizeof(*data)) + ulen + 1;
         return;                                                       // RETURN
     }
     const unsigned char *ubuf =
@@ -548,12 +548,12 @@ void Socks5Session::readCredentials(const Socks5CredentialsHeader *data,
 
     const int plen = ubuf[ulen];  // following username is the password length
     if (length < static_cast<int>(sizeof(*data)) + ulen + 1 + plen) {
-        *needed = sizeof(*data) + ulen + 1 + plen;
+        *needed = static_cast<int>(sizeof(*data)) + ulen + 1 + plen;
         return;                                                       // RETURN
     }
 
     *needed = 0;
-    *consumed = sizeof(*data) + ulen + 1 + plen;
+    *consumed = static_cast<int>(sizeof(*data)) + ulen + 1 + plen;
 
     bsl::string username(reinterpret_cast<const char *>(ubuf),
                          ulen,
@@ -646,11 +646,11 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
         }
         const int hostLen = *reinterpret_cast<const unsigned char *>(data + 1);
         if (length < static_cast<int>(sizeof(*data)) + 1 + hostLen + 2) {
-            *needed = sizeof(*data) + 1 + hostLen + 2;
+            *needed = static_cast<int>(sizeof(*data)) + 1 + hostLen + 2;
             return;                                                   // RETURN
         }
         *needed = 0;
-        *consumed = sizeof(*data) + 1 + hostLen + 2;
+        *consumed = static_cast<int>(sizeof(*data)) + 1 + hostLen + 2;
 
         const char *hostBuffer = reinterpret_cast<const char *>(data + 1) + 1;
 
@@ -683,12 +683,14 @@ void Socks5Session::readConnect(const Socks5ConnectBase *data,
         }
         LOG_DEBUG << "sending error code " << reply << " and closing";
         respBase->d_reply = reply;
-        clientWrite(static_cast<char *>(respBuffer), respLen);
+        clientWrite(static_cast<char *>(respBuffer),
+                    static_cast<int>(respLen));
     }
 
     if (btls5::TestServerArgs::e_SUCCEED_AND_CLOSE == d_args.d_mode) {
         LOG_DEBUG << "sending success and closing";
-        clientWrite(static_cast<char *>(respBuffer), respLen);
+        clientWrite(static_cast<char *>(respBuffer),
+                    static_cast<int>(respLen));
     }
 
     if (btls5::TestServerArgs::e_CONNECT == d_args.d_mode) {

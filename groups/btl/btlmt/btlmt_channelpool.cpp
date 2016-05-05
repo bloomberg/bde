@@ -2206,8 +2206,10 @@ void Channel::resetRecordedMaxWriteQueueSize()
 // PRIVATE MANIPULATORS
 TcpTimerEventManager *ChannelPool::allocateEventManager()
 {
-    int numManagers = d_managers.size();
-    BSLS_ASSERT(numManagers == d_config.maxThreads());
+    typedef bsl::vector<TcpTimerEventManager *>::size_type size_type;
+
+    size_type numManagers = d_managers.size();
+    BSLS_ASSERT(static_cast<int>(numManagers) == d_config.maxThreads());
 
     // If there's a single thread, there's no need to choose the event manager
     // with the least usage (since there is only 1 option).
@@ -2216,7 +2218,7 @@ TcpTimerEventManager *ChannelPool::allocateEventManager()
         return d_managers[0];                                         // RETURN
     }
 
-    int result = 0;
+    size_type result = 0;
 
     // If metrics are being collected, use those metrics to determine the
     // event manager with the lowest work-load.
@@ -2227,7 +2229,7 @@ TcpTimerEventManager *ChannelPool::allocateEventManager()
 
         minMetrics += d_managers[result]->numEvents();
 
-        for (int i = 1; i < numManagers; ++i) {
+        for (size_type i = 1; i < numManagers; ++i) {
             int currentMetrics =
                          d_managers[i]->timeMetrics()->percentage(e_CPU_BOUND);
 
@@ -2245,7 +2247,7 @@ TcpTimerEventManager *ChannelPool::allocateEventManager()
         // the fewest registered events.
 
         int minEvents = d_managers[0]->numTotalSocketEvents();
-        for (int i = 1; i < numManagers; ++i) {
+        for (size_type i = 1; i < numManagers; ++i) {
             int numEvents = d_managers[i]->numTotalSocketEvents();
             if (numEvents < minEvents) {
                 minEvents = numEvents;
@@ -3204,14 +3206,16 @@ void ChannelPool::timerCb(int clockId)
 
 void ChannelPool::metricsCb()
 {
+    typedef bsl::vector<TcpTimerEventManager *>::size_type size_type;
+
     int s = 0;
     BSLS_ASSERT(static_cast<int>(d_managers.size()) <= d_config.maxThreads());
-    int numManagers = d_managers.size();
+    size_type numManagers = d_managers.size();
 
     BSLS_ASSERT(0 < numManagers);
     BSLS_ASSERT(0 < d_config.maxThreads());
 
-    for (int i = 0; i < numManagers; ++i) {
+    for (size_type i = 0; i < numManagers; ++i) {
         s += d_managers[i]->timeMetrics()->percentage(e_CPU_BOUND);
         d_managers[i]->timeMetrics()->resetAll();
     }
@@ -3319,8 +3323,10 @@ ChannelPool::~ChannelPool()
 
     // Deallocate event managers.
 
-    int numEventManagers = d_managers.size();
-    for (int i = 0; i < numEventManagers; ++i) {
+    typedef bsl::vector<TcpTimerEventManager *>::size_type size_type;
+
+    size_type numEventManagers = d_managers.size();
+    for (size_type i = 0; i < numEventManagers; ++i) {
         d_allocator_p->deleteObjectRaw(d_managers[i]);
     }
 }
@@ -3847,7 +3853,7 @@ int ChannelPool::stopAndRemoveAllChannels()
     // function so another thread does not succeed in calling 'start' before
     // this function returns.
 
-    const int numManagers = d_managers.size();
+    const int numManagers = static_cast<int>(d_managers.size());
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
@@ -3956,7 +3962,7 @@ int ChannelPool::start()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
-    int numManagers = d_managers.size();
+    int numManagers = static_cast<int>(d_managers.size());
     for (int i = 0; i < numManagers; ++i) {
         bslmt::ThreadAttributes attr;
         attr.setStackSize(d_config.threadStackSize());
@@ -3977,7 +3983,7 @@ int ChannelPool::stop()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_managersStateChangeLock);
 
-    int numManagers = d_managers.size();
+    int numManagers = static_cast<int>(d_managers.size());
     for (int i = 0; i < numManagers; ++i) {
         if (d_managers[i]->disable()) {
            while(--i >= 0) {
@@ -4500,8 +4506,9 @@ void ChannelPool::getHandleStatistics(
     // 2. Those being in connection (ConnectorMap)
     // 3. The active channels (either imported, connected, or accepted, found
     //    in the 'd_channels' catalog)
+    typedef bsl::vector<HandleInfo>::size_type size_type;
 
-    int idx = handleInfo->size();
+    size_type idx = handleInfo->size();
 
     {
         // Item 1.  Oops: misses sockets after accept(&connection) but before

@@ -142,7 +142,7 @@ int TcpTimerEventManager::dispatch(int flags)
             bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
                                                        requests(d_allocator_p);
             d_timers.popLE(now, &requests);
-            int numTimers = requests.size();
+            int numTimers = static_cast<int>(requests.size());
             for (int i = 0; i < numTimers; ++i) {
                 requests[i].data()();
             }

@@ -12817,7 +12817,7 @@ class TestContext : public balxml::Decoder_ElementContext {
         // to 'endElement'.
 
     virtual int addCharacters(const char      *chars,
-                              unsigned int     length,
+                              size_t           length,
                               balxml::Decoder *decoder);
         // TBD: doc
         //
@@ -12894,7 +12894,7 @@ int TestContext::endElement(balxml::Decoder *decoder)
 }
 
 int TestContext::addCharacters(const char      *chars,
-                               unsigned int     length,
+                               size_t           length,
                                balxml::Decoder *decoder)
 {
     ASSERT(d_isInsideElement);
@@ -13000,7 +13000,7 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
         // to 'endElement'.
 
     virtual int addCharacters(const char      *chars,
-                              unsigned int     length,
+                              size_t           length,
                               balxml::Decoder *decoder);
 
     virtual int parseAttribute(const char      *name,
@@ -13084,7 +13084,7 @@ int TestVectorElemTypeContext::endElement(balxml::Decoder *decoder)
 }
 
 int TestVectorElemTypeContext::addCharacters(const char      *chars,
-                                             unsigned int     length,
+                                             size_t           length,
                                              balxml::Decoder *decoder)
 {
     bsl::string strChars(chars, length);

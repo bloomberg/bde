@@ -593,7 +593,7 @@ int Decoder_NillableContext::endElement(Decoder *decoder)
 }
 
 int Decoder_NillableContext::addCharacters(const char   *chars,
-                                           unsigned int  length,
+                                           bsl::size_t   length,
                                            Decoder      *decoder)
 {
     BSLS_ASSERT(d_elementContext_p);
@@ -686,7 +686,7 @@ int Decoder_UnknownElementContext::endElement(Decoder *)
 }
 
 int Decoder_UnknownElementContext::addCharacters(const char *,
-                                                 unsigned int,
+                                                 bsl::size_t,
                                                  Decoder *)
 {
     enum { BAEXML_SUCCESS = 0 };
@@ -755,7 +755,7 @@ int Decoder_StdStringContext::endElement(Decoder *decoder)
 }
 
 int Decoder_StdStringContext::addCharacters(const char   *chars,
-                                            unsigned int  length,
+                                            bsl::size_t   length,
                                             Decoder      *decoder)
 {
     return d_context_p->addCharacters(chars, length, decoder);
@@ -829,7 +829,7 @@ int Decoder_StdVectorCharContext::endElement(Decoder *decoder)
 }
 
 int Decoder_StdVectorCharContext::addCharacters(const char   *chars,
-                                                unsigned int  length,
+                                                bsl::size_t   length,
                                                 Decoder      *decoder)
 {
     return d_context_p->addCharacters(chars, length, decoder);
