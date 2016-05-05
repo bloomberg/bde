@@ -77,6 +77,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
+
+#ifndef INCLUDED_BSLS_ANNOTATION
+#include <bsls_annotation.h>
+#endif
+
 BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
@@ -107,9 +112,9 @@ template <class TO, class FROM>
 inline
 TO bsls::PointerCastUtil::cast(FROM from)
 {
-    typedef char FROM_SizeCheck[
+    typedef BSLS_ANNOTATION_UNUSED char FROM_SizeCheck[
                          sizeof(bsls::Types::IntPtr) >= sizeof(FROM) ? 1 : -1];
-    typedef char   TO_SizeCheck[
+    typedef BSLS_ANNOTATION_UNUSED char   TO_SizeCheck[
                          sizeof(bsls::Types::IntPtr) >= sizeof(TO)   ? 1 : -1];
         // Static assert that the 'FROM' and 'TO' types are not larger than the
         // intermediate integer type.  Note that 'bslmf_Assert' cannot be used
