@@ -57,6 +57,12 @@ static void createArrayStorage(DatumMutableArrayRef        *array,
                           // -----------------------
 
 // CREATORS
+DatumArrayBuilder::DatumArrayBuilder(bslma::Allocator *basicAllocator)
+: d_capacity(0)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 DatumArrayBuilder::DatumArrayBuilder(SizeType          initialCapacity,
                                      bslma::Allocator *basicAllocator)
 : d_capacity(initialCapacity)

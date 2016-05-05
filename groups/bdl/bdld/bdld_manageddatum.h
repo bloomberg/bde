@@ -422,8 +422,9 @@ ManagedDatum& ManagedDatum::operator=(const ManagedDatum& rhs)
 inline
 void ManagedDatum::adopt(const Datum& obj)
 {
-    BSLS_ASSERT(&obj != &d_data);
-    ManagedDatum(obj, d_allocator_p).swap(*this);
+    if (&obj != &d_data) {
+        ManagedDatum(obj, d_allocator_p).swap(*this);
+    }
 }
 
 inline

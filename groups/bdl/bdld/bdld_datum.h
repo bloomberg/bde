@@ -679,6 +679,7 @@ class Datum {
         , e_BINARY               = 14  // pointer to the binary data
         , e_DECIMAL64            = 15  // Decimal64
         , k_NUM_TYPES            = 16  // number of distinct enumerated types
+
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -1721,6 +1722,7 @@ class Datum {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
+
 };
 
 // FREE OPERATORS
@@ -3694,6 +3696,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
 }
 
 #endif // BSLS_PLATFORM_CPU_32_BIT
+
 
                          // -------------------
                          // class DatumArrayRef
