@@ -673,6 +673,18 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_typelist.h>
 #endif
 
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include <bslx_instreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSLX_VERSIONFUNCTIONS
+#include <bslx_versionfunctions.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -2067,6 +2079,18 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // Return 'typeid(void)'.
         //
         // DEPRECATED: Do not use.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // DEPRECATED: Do not use.
+
+    int maxSupportedBdexVersion() const;
+        // DEPRECATED: Do not use.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // DEPRECATED: Do not use.
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
@@ -5145,6 +5169,85 @@ struct Variant_SwapVisitor {
     }
 };
 
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                 // ==================================
+                 // struct Variant_BdexStreamInVisitor
+                 // ==================================
+
+template <class STREAM>
+struct Variant_BdexStreamInVisitor {
+    // This visitor, when invoked as a non-modifiable function object on an
+    // initialized instance of some parameterized 'TYPE', will stream in
+    // a value of the same 'TYPE' into that instance from a stream specified at
+    // construction of this visitor,  using a version also specified at
+    // construction of this visitor.
+
+    // PUBLIC DATA
+    STREAM& d_stream;   // held, not owned
+    int     d_version;  // 'bdex' version
+
+    // CREATORS
+    Variant_BdexStreamInVisitor(STREAM& stream, int version)
+    : d_stream(stream)
+    , d_version(version)
+    {
+    }
+
+    // ACCESSORS
+    template <class VALUETYPE>
+    inline
+    void operator() (VALUETYPE& object) const
+    {
+        bslx::InStreamFunctions::bdexStreamIn(d_stream, object, d_version);
+    }
+
+    inline
+    void operator() (bslmf::Nil) const
+    {
+        // no op
+    }
+};
+
+                // ===================================
+                // struct Variant_BdexStreamOutVisitor
+                // ===================================
+
+template <class STREAM>
+struct Variant_BdexStreamOutVisitor {
+    // This visitor, when invoked as a non-modifiable function object on an
+    // initialized instance of some parameterized 'TYPE', will stream out the
+    // value of that instance into a stream specified at construction of this
+    // visitor, using a version also specified at construction of this
+    // visitor.
+
+    // PUBLIC DATA
+    STREAM& d_stream;   // held, not owned
+    int     d_version;  // 'bdex' version
+
+    // CREATORS
+    Variant_BdexStreamOutVisitor(STREAM& stream, int version)
+    : d_stream(stream)
+    , d_version(version)
+    {
+    }
+
+    // ACCESSORS
+    template <class VALUETYPE>
+    inline
+    void operator() (const VALUETYPE& object) const
+    {
+        bslx::OutStreamFunctions::bdexStreamOut(d_stream, object, d_version);
+    }
+
+    inline
+    void operator() (bslmf::Nil) const
+    {
+        // no op
+    }
+};
+#endif
                     // ===========================
                     // struct Variant_PrintVisitor
                     // ===========================
@@ -6566,6 +6669,61 @@ const bsl::type_info& VariantImp<TYPES>::typeInfo() const
 {
     return typeid(void);
 }
+
+template <class TYPES>
+template <class STREAM>
+STREAM& VariantImp<TYPES>::bdexStreamIn(STREAM& stream, int version)
+{
+    int type;
+    bslx::InStreamFunctions::bdexStreamIn(stream, type, 0);
+
+    if (!stream || type < 0 || 20 < type) {
+        stream.invalidate();
+        return stream;
+    }
+
+    if (type != this->d_type) {
+        reset();
+
+        if (type) {
+            Variant_DefaultConstructVisitor defaultConstructor(
+                                                         this->getAllocator());
+            doApply(defaultConstructor, type);
+        }
+
+        this->d_type = type;
+    }
+
+    if (type) {
+        Variant_BdexStreamInVisitor<STREAM> streamer(stream, version);
+        doApply(streamer, type);
+    }
+    return stream;
+}
+
+template <class TYPES>
+inline
+int VariantImp<TYPES>::maxSupportedBdexVersion() const
+{
+    return 1;
+}
+
+template <class TYPES>
+template <class STREAM>
+STREAM& VariantImp<TYPES>::bdexStreamOut(STREAM& stream,
+                                         int     version) const
+{
+    bslx::OutStreamFunctions::bdexStreamOut(stream, this->d_type, 0);
+
+    if (this->d_type) {
+        typedef Variant_BdexStreamOutVisitor<STREAM> Streamer;
+
+        Streamer streamer(stream, version);
+        doApply<Streamer&>(streamer, this->d_type);
+    }
+    return stream;
+}
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace

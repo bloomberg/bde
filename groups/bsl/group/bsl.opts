@@ -14,4 +14,4 @@
 !! unix-SunOS-*-*-*        shr SHR_SHLIB_DEPS  = -lCstd -lCrun -lc -lm -lsunmath -lpthread
 !! unix-Linux-*-*-*        shr SHR_SHLIB_DEPS  = -lrt
 
-windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED
+#windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED

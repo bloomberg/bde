@@ -189,8 +189,8 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
             // Since it's 'AF_INET', we know we can cast 'it->ai_addr' (which
             // is a 'struct sockaddr *') to a 'struct sockaddr_in *'.
 
-            struct sockaddr_in *sockAddrIn =
-                           reinterpret_cast<struct sockaddr_in *>(it->ai_addr);
+            struct sockaddr_in *sockAddrIn = static_cast<struct sockaddr_in *>(
+                                             static_cast<void *>(it->ai_addr));
 
             // Note that 's_addr' below is in network byte order; but this is
             // OK because the contract for 'btlso::IPv4Address::setIpAddress'
