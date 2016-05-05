@@ -1101,14 +1101,15 @@ void Datetime::setDatetime(const Date& date,
 inline
 void Datetime::setDatetime(const Date& date, const Time& time)
 {
-    int hour;
-    int minute;
-    int second;
-    int millisecond;
-
-    time.getTime(&hour, &minute, &second, &millisecond);
-
-    setDatetime(date, hour, minute, second, millisecond);
+    if (24 != time.hour()) {
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+                + TimeUnitRatio::k_US_PER_MS *
+                                          (time - Time(0)).totalMilliseconds();
+    }
+    else {
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+                + TimeUnitRatio::k_US_PER_D;
+    }
 }
 
 inline
@@ -1197,14 +1198,14 @@ void Datetime::setYearMonthDay(int year, int month, int day)
 inline
 void Datetime::setTime(const Time& time)
 {
-    int hour;
-    int minute;
-    int second;
-    int millisecond;
-
-    time.getTime(&hour, &minute, &second, &millisecond);
-
-    setTime(hour, minute, second, millisecond);
+    if (24 != time.hour()) {
+        d_value = (d_value & 0xffffffe000000000)
+                | (TimeUnitRatio::k_US_PER_MS *
+                                         (time - Time(0)).totalMilliseconds());
+    }
+    else {
+        d_value = (d_value & 0xffffffe000000000) | TimeUnitRatio::k_US_PER_D;
+    }
 }
 
 inline
