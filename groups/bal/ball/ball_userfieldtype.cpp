@@ -11,9 +11,9 @@ BSLS_IDENT_RCSID(ball_userfieldtype_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace ball {
 
-                     // ----------------------
+                     // --------------------
                      // struct UserFieldType
-                     // ----------------------
+                     // --------------------
 
 // CLASS METHODS
 bsl::ostream& UserFieldType::print(bsl::ostream&       stream,
@@ -38,6 +38,7 @@ const char *UserFieldType::toAscii(UserFieldType::Enum value)
       case(e_DOUBLE) : return "DOUBLE";                               // RETURN
       case(e_STRING) : return "STRING";                               // RETURN
       case(e_DATETIMETZ) : return "DATETIMETZ";                       // RETURN
+      case(e_CHAR_ARRAY) : return "CHAR_ARRAY";                       // RETURN
       default: return "(* UNKNOWN *)";                                // RETURN
     }
 }

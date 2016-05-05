@@ -11,7 +11,6 @@
 #include <ball_loggermanagerconfiguration.h>
 
 #include <ball_userfields.h>                                // for testing only
-#include <ball_userfieldsschema.h>
 
 #include <bslim_testutil.h>
 #include <bsls_assert.h>
@@ -42,8 +41,7 @@ using namespace bsl;  // automatically added by script
 //..
 //    ball::LMC   ball::LoggerManagerConfiguration
 //    ball::LMD   ball::LoggerManagerDefaults
-//    Descriptors ball::UserFieldsSchema
-//    Populator   bsl::function<void(UserFields*,const Descriptors&)>
+//    Populator   bsl::function<void(UserFields *)>
 //    CNF         bsl::function<void(bsl::string *, const char *)>
 //    DTC         bsl::function<void(int *, int *, int *, int *, const char*)>
 //..
@@ -56,12 +54,11 @@ using namespace bsl;  // automatically added by script
 // [ 1] void setDefaultValues(const ball::LMD& defaults);
 // [ 5] void setLogOrder(LogOrder value);
 // [ 6] void setTriggerMarkers(TriggerMarkers value);
-// [ 1] void setUserFieldsSchema(const Schema& , const Populator& );
+// [ 1] void setUserFieldsPopulatorCallback(const Populator&);
 // [ 1] void setCategoryNameFilterCallback(const CNF& nameFilter);
 // [ 1] void setDefaultThresholdLevelsCallback(const DTC& );
 // [ 2] void setDefaultThresholdLevelsIfValid(int)
 // [ 1] const ball::LMD& defaults() const;
-// [ 1] const ball::UserFieldsSchema& userFieldsSchema() const;
 // [ 5] const LogOrder logOrder() const;
 // [ 6] const TriggerMarkers triggerMarkers() const;
 // [ 1] const Populator& userFieldsPopulatorCallback() const;
@@ -137,15 +134,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef ball::LoggerManagerConfiguration Obj;
 typedef ball::LoggerManagerDefaults      Defs;
-typedef ball::UserFieldsSchema           Descriptors;
-
 
 // Functor typedefs
-typedef bsl::function<void(ball::UserFields *, const ball::UserFieldsSchema&)>
-                                                                         PopCb;
-typedef bsl::function<void(bsl::string *, const char *)>                 CnfCb;
-typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
-
+typedef bsl::function<void(ball::UserFields *)>                      PopCb;
+typedef bsl::function<void(bsl::string *, const char *)>             CnfCb;
+typedef bsl::function<void(int *, int *, int *, int *, const char*)> DtCb;
 
 //=============================================================================
 //                             USAGE EXAMPLE 1
@@ -156,20 +149,13 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
 // The following snippets of code illustrate how to use a
 // 'ball::LoggerManagerConfiguration' object.
 //
-// First we define a simple function that will serve as a
+// First, we define a simple function that will serve as a
 // 'UserFieldsPopulatorCallback', a callback that will be invoked for each
 // logged message to populate user defined fields for the log record:
 //..
-    void exampleCallback(ball::UserFields              *fields,
-                         const ball::UserFieldsSchema&  schema)
+    void exampleCallback(ball::UserFields *fields)
     {
-      // Verify the schema matches this callbacks expectations.
-//
-      BSLS_ASSERT(1                             == schema.length());
-      BSLS_ASSERT(ball::UserFieldType::e_STRING == schema.type(0));
-      BSLS_ASSERT("example"                     == schema.name(0));
-//
-      fields->appendString("example user field value");
+        fields->appendString("example user field value");
     }
 //..
 // Next, we define a function 'inititialize' in which we will create and
@@ -182,7 +168,7 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
       ball::LoggerManagerConfiguration config;
 //
 //..
-// Here, we configure the default record buffer size, logger buffer size, and
+// Then, we configure the default record buffer size, logger buffer size, and
 // the various logging thresholds (see {'ball_loggermanager'} for more
 // information on the various threshold levels):
 //..
@@ -200,23 +186,15 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
       ASSERT(    0 == config.defaultTriggerLevel());
       ASSERT(    0 == config.defaultTriggerAllLevel());
 //..
-// Next, we create a user field schema, that will be used with the user field
-// populator callback 'exampleCallback':
+// Next, we populate the remaining attributes of our configuration object (note
+// that the following methods cannot fail and return 'void'):
 //..
-      ball::UserFieldsSchema schema;
-      schema.appendFieldDescription("example", ball::UserFieldType::e_STRING);
-//..
-// Now, we set populate the configuration options in our schema (note that the
-// following methods cannot fail and return 'void'):
-//..
-      config.setUserFieldsSchema(schema, &exampleCallback);
+      config.setUserFieldsPopulatorCallback(&exampleCallback);
       config.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
-      config.setTriggerMarkers(
-                            ball::LoggerManagerConfiguration::e_NO_MARKERS);
+      config.setTriggerMarkers(ball::LoggerManagerConfiguration::e_NO_MARKERS);
 //..
-// Then, we verify the options are configured correctly:
+// Now, we verify the options are configured correctly:
 //..
-      ASSERT(schema == config.userFieldsSchema());
       ASSERT(ball::LoggerManagerConfiguration::e_FIFO == config.logOrder());
       ASSERT(ball::LoggerManagerConfiguration::e_NO_MARKERS
                                                    == config.triggerMarkers());
@@ -240,10 +218,6 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
 //          triggerLevel     : 0
 //          triggerAllLevel  : 0
 //      ]
-//      User Fields Schema:
-//      [
-//          example = STRING
-//      ]
 //      User Fields Populator functor is not null
 //      Category Name Filter functor is null
 //      Default Threshold Callback functor is null
@@ -255,7 +229,7 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
 //-----------------------------------------------------------------------------
 //          Dummy functions to populate each of the three functors
 //-----------------------------------------------------------------------------
-void pop(ball::UserFields *, ball::UserFieldsSchema )
+void pop(ball::UserFields *)
 {
 }
 
@@ -314,9 +288,6 @@ int main(int argc, char *argv[])
     d1.setDefaultThresholdLevelsIfValid(RECORD_LEVEL[1], PASS_LEVEL[1],
                                         TRIGGER_LEVEL[1],TRIGGER_ALL_LEVEL[1]);
 
-    // Build up a non-default 'ball::UserFieldsSchema'.
-    Descriptors s1;
-
     // Populate the three functors (from functions defined above)
     PopCb pCb1(&pop);
 
@@ -327,9 +298,6 @@ int main(int argc, char *argv[])
     // Create a default ('X0') and a non-default ('X1') attribute object
     const Defs   D0;
     const Defs   D1(d1);
-
-    const Descriptors S0;
-    const Descriptors S1(s1);
 
     const PopCb  PCB0;
     const PopCb  PCB1(pCb1);
@@ -663,8 +631,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCheck default ctor. " << endl;
 
-        ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldsSchema());
+        ASSERT(D0 == X1.defaults());
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -674,12 +641,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tSetting default values explicitly." <<endl;
 
         mX1.setDefaultValues(D0);
-        mX1.setUserFieldsSchema(S0, PCB0);
+        mX1.setUserFieldsPopulatorCallback(PCB0);
         mX1.setCategoryNameFilterCallback(CNFCB0);
         mX1.setDefaultThresholdLevelsCallback(DTCB0);
 
-        ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldsSchema());
+        ASSERT(D0 == X1.defaults());
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -695,8 +661,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
-        ASSERT(    D1 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldsSchema());
+        ASSERT(D1 == X1.defaults());
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
         ASSERT(!X1.defaultThresholdLevelsCallback());
@@ -729,12 +694,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tChange attribute 1." << endl;
 
-        mX1.setUserFieldsSchema(S1, PCB1);
+        mX1.setUserFieldsPopulatorCallback(PCB1);
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
-        ASSERT(    D0 == X1.defaults());
-        ASSERT(    S1 == X1.userFieldsSchema());
+        ASSERT(D0 == X1.defaults());
 
         ASSERT(X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
@@ -754,7 +718,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y1 == X1));          ASSERT(0 == (Y1 != X1));
         ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
 
-        mX1.setUserFieldsSchema(S0, PCB0);
+        mX1.setUserFieldsPopulatorCallback(PCB0);
 
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
@@ -773,8 +737,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
-        ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldsSchema());
+        ASSERT(D0 == X1.defaults());
 
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(X1.categoryNameFilterCallback());
@@ -813,8 +776,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { cout << "\t\tX1 = ";  X1.print(cout, -5, 4); }
 
-        ASSERT(    D0 == X1.defaults());
-        ASSERT(    S0 == X1.userFieldsSchema());
+        ASSERT(D0 == X1.defaults());
 
         ASSERT(!X1.userFieldsPopulatorCallback());
         ASSERT(!X1.categoryNameFilterCallback());
@@ -850,10 +812,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing output operator<<." << endl;
 
         mY1.setDefaultValues(D1);
-        mY1.setUserFieldsSchema(S1, PCB1);
+        mY1.setUserFieldsPopulatorCallback(PCB1);
         mY1.setCategoryNameFilterCallback(CNFCB1);
         mY1.setDefaultThresholdLevelsCallback(DTCB1);
-
 
       } break;
       default: {

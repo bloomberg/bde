@@ -341,15 +341,15 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               } break;
               case 'u': {
                 typedef ball::UserFields Values;
-                const Values& userFields = record.userFields();
-                const int numUserFields  = userFields.length();
+                const Values& customFields = record.customFields();
+                const int numCustomFields  = customFields.length();
 
-                if (numUserFields > 0) {
+                if (numCustomFields > 0) {
                     bsl::stringstream ss;
-                    Values::ConstIterator it = userFields.begin();
+                    Values::ConstIterator it = customFields.begin();
                     ss << *it;
                     ++it;
-                    for (; it != userFields.end(); ++it) {
+                    for (; it != customFields.end(); ++it) {
                         ss << " " << *it;
                     }
                     output += ss.str();

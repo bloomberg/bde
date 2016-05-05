@@ -19,13 +19,14 @@ BSLS_IDENT("$Id: $")
 ///Enumerators
 ///-----------
 //..
-//  Name                           Description
-//  -------------------            ----------------------------------
-//  e_VOID                         Enumerator representing an unset value
-//  e_INT64                        Enumerator representing an integral value
-//  e_DOUBLE                       Enumerator representing an double value
-//  e_STRING                       Enumerator representing a string value
-//  e_DATETIMETZ                   Enumerator representing a DatetimeTz value
+//  Name                    Description
+//  ------------            -------------------------------------------------
+//  e_VOID                  Enumerator representing an unset value
+//  e_INT64                 Enumerator representing an integral value
+//  e_DOUBLE                Enumerator representing an double value
+//  e_STRING                Enumerator representing a string value
+//  e_DATETIMETZ            Enumerator representing a DatetimeTz value
+//  e_CHAR_ARRAY            Enumerator representing a bsl::vector<char> value
 //..
 //
 ///Usage
@@ -89,8 +90,8 @@ struct UserFieldType {
         e_INT64,
         e_DOUBLE,
         e_STRING,
-        e_DATETIMETZ
-
+        e_DATETIMETZ,
+        e_CHAR_ARRAY
     };
 
     // CLASS METHODS
@@ -147,9 +148,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, UserFieldType::Enum value);
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                             // ----------------------
+                             // --------------------
                              // struct UserFieldType
-                             // ----------------------
+                             // --------------------
 
 
 }  // close package namespace

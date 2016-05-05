@@ -171,10 +171,10 @@ namespace USAGE_EXAMPLE_1 {
                   << fixedFields.category()                << ' '
                   << fixedFields.message()                 << ' ';
 //
-        const ball::UserFields& userFields = record.userFields();
-        const int numUserFields = userFields.length();
-        for (int i = 0; i < numUserFields; ++i) {
-            *d_stream << userFields[i] << ' ';
+        const ball::UserFields& customFields = record.customFields();
+        const int numCustomFields = customFields.length();
+        for (int i = 0; i < numCustomFields; ++i) {
+            *d_stream << customFields[i] << ' ';
         }
 //
         *d_stream << '\n' << bsl::flush;
@@ -196,7 +196,7 @@ namespace USAGE_EXAMPLE_1 {
 //..
         bdlt::Datetime         now;
         ball::RecordAttributes fixedFields;
-        ball::UserFields       userFields;
+        ball::UserFields       customFields;
 //
         const int NUM_MESSAGES = 3;
         for (int n = 0; n < NUM_MESSAGES; ++n) {
@@ -205,7 +205,7 @@ namespace USAGE_EXAMPLE_1 {
             bsl::shared_ptr<const ball::Record> handle;
             handle.createInplace(bslma::Default::allocator(),
                                  fixedFields,
-                                 userFields);
+                                 customFields);
             adapter->publish(handle,
                              ball::Context(ball::Transmission::e_TRIGGER,
                                            n,

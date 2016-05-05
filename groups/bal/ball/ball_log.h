@@ -110,13 +110,11 @@ BSLS_IDENT("$Id: $")
 //      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //..
 // Seven other macros based on C++ streams, similar to 'BALL_LOG_TRACE', etc.,
-// allow the caller to specify a "callback" function which is passed the
-// 'ball::UserFields *' used to represent the user fields of a log record.  The
-// callback is expected to populate these user fields according to the schema
-// specified in the logger manager configuration.  'BALL_LOGCB_TRACE',
-// 'BALL_LOGCB_DEBUG', 'BALL_LOGCB_INFO', 'BALL_LOGCB_WARN',
-// 'BALL_LOGCB_ERROR', 'BALL_LOGCB_FATAL', and 'BALL_LOGCB_END', have the
-// following usage pattern:
+// allow the caller to specify a "callback" function that is passed the
+// 'ball::UserFields *' used to represent the user fields of a log record.
+// 'BALL_LOGCB_TRACE', 'BALL_LOGCB_DEBUG', 'BALL_LOGCB_INFO',
+// 'BALL_LOGCB_WARN', 'BALL_LOGCB_ERROR', 'BALL_LOGCB_FATAL', and
+// 'BALL_LOGCB_END' have the following usage pattern:
 //..
 //  BALL_LOGCB_TRACE(CB) << X << Y ... << BALL_LOGCB_END
 //  BALL_LOGCB_DEBUG(CB) << X << Y ... << BALL_LOGCB_END
@@ -649,7 +647,7 @@ BSLS_IDENT("$Id: $")
                                         BALL_SEVERITY)) {                     \
             ball::Log_Stream ball_lOcAl_StReAm(BALL_LOG_CATEGORY, __FILE__,   \
                                               __LINE__, BALL_SEVERITY);       \
-            CB(&ball_lOcAl_StReAm.record()->userFields());                    \
+            CB(&ball_lOcAl_StReAm.record()->customFields());                  \
             BALL_STREAM
 
 #define BALL_LOGCB_TRACE(CB) BALL_LOGCB_STREAM(ball::Severity::e_TRACE, CB)

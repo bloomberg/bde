@@ -19,7 +19,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 #include <ball_loggermanagerdefaults.h>
 #include <ball_recordattributes.h>            // for testing only
 #include <ball_severity.h>
-#include <ball_userfieldsschema.h>
 #include <ball_testobserver.h>                // for testing only
 
 #include <bslmt_mutex.h>
@@ -235,7 +234,6 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
 Logger::Logger(
            Observer                                   *observer,
            RecordBuffer                               *recordBuffer,
-           const ball::UserFieldsSchema               *schema,
            const Logger::UserFieldsPopulatorCallback&  populator,
            const PublishAllTriggerCallback&            publishAllCallback,
            int                                         scratchBufferSize,
@@ -245,7 +243,6 @@ Logger::Logger(
 : d_recordPool(-1, globalAllocator)
 , d_observer_p(observer)
 , d_recordBuffer_p(recordBuffer)
-, d_userFieldsSchema_p(schema)
 , d_populator(populator)
 , d_publishAll(publishAllCallback)
 , d_scratchBufferSize(scratchBufferSize)
@@ -255,7 +252,6 @@ Logger::Logger(
 {
     BSLS_ASSERT(d_observer_p);
     BSLS_ASSERT(d_recordBuffer_p);
-    BSLS_ASSERT(d_userFieldsSchema_p);
     BSLS_ASSERT(d_allocator_p);
 
     // 'snprintf' message buffer
@@ -266,7 +262,6 @@ Logger::~Logger()
 {
     BSLS_ASSERT(d_observer_p);
     BSLS_ASSERT(d_recordBuffer_p);
-    BSLS_ASSERT(d_userFieldsSchema_p);
     BSLS_ASSERT(d_publishAll);
     BSLS_ASSERT(d_scratchBuffer_p);
     BSLS_ASSERT(d_allocator_p);
@@ -322,7 +317,7 @@ void Logger::logMessage(const Category&            category,
     record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
 
     if (d_populator) {
-        d_populator(&record->userFields(), *d_userFieldsSchema_p);
+        d_populator(&record->customFields());
     }
 
     bsl::shared_ptr<Record> handle(record, &d_recordPool, d_allocator_p);
@@ -423,7 +418,7 @@ void Logger::logMessage(const Category&            category,
 Record *Logger::getRecord(const char *file, int line)
 {
     Record *record = d_recordPool.getObject();
-    record->userFields().removeAll();
+    record->customFields().removeAll();
     record->fixedFields().clearMessage();
     record->fixedFields().setFileName(file);
     record->fixedFields().setLineNumber(line);
@@ -705,7 +700,6 @@ void LoggerManager::constructObject(
 
     d_logger_p = new(*d_allocator_p) Logger(d_observer_p,
                                             d_recordBuffer_p,
-                                            &d_userFieldsSchema,
                                             d_populator,
                                             d_publishAllCallback,
                                             d_scratchBufferSize,
@@ -737,8 +731,6 @@ LoggerManager::LoggerManager(
                            configuration.defaults().defaultPassLevel(),
                            configuration.defaults().defaultTriggerLevel(),
                            configuration.defaults().defaultTriggerAllLevel())
-, d_userFieldsSchema(configuration.userFieldsSchema(),
-               bslma::Default::globalAllocator(globalAllocator))
 , d_populator(configuration.userFieldsPopulatorCallback())
 , d_logger_p(0)
 , d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
@@ -800,7 +792,6 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer)
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                 buffer,
-                                                &d_userFieldsSchema,
                                                 d_populator,
                                                 d_publishAllCallback,
                                                 d_scratchBufferSize,
@@ -819,7 +810,6 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(d_observer_p,
                                                 buffer,
-                                                &d_userFieldsSchema,
                                                 d_populator,
                                                 d_publishAllCallback,
                                                 scratchBufferSize,
@@ -838,7 +828,6 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
-                                                &d_userFieldsSchema,
                                                 d_populator,
                                                 d_publishAllCallback,
                                                 d_scratchBufferSize,
@@ -858,7 +847,6 @@ Logger *LoggerManager::allocateLogger(RecordBuffer *buffer,
 
     Logger *logger = new(*d_allocator_p) Logger(observer,
                                                 buffer,
-                                                &d_userFieldsSchema,
                                                 d_populator,
                                                 d_publishAllCallback,
                                                 scratchBufferSize,

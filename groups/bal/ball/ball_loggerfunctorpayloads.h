@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // Functions in this component have at most nine parameters and match one of
 // the four signatures:
 //..
-//    (ball::UserFields *, const ball::UserFieldsSchema &)
+//    (ball::UserFields *)
 //    (ball::Transmission::Cause)
 //    (int *, int *, int *, int *, const char *)
 //..
@@ -44,12 +44,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  ball::Logger Functors
 //  --------------------
-//  typedef bsl::function<void(ball::UserFields *, const ball::UserSchema&)>
-//                                                                   Populator;
+//  typedef bsl::function<void(ball::UserFields *)> Populator;
 //      // 'Populator' is the type of a user-supplied callback functor used to
-//      // populate the user-defined fields in each log record.  In particular,
-//      // the first 'd_userSchema_p->length()' user-defined fields of each
-//      // record must be type-consistent with 'd_userSchema_p'.
+//      // populate the user-defined fields in each log record.
 //
 //  typedef bsl::function<void(ball::Transmission::Cause)> PublishAllCallback;
 //      // 'PublishAllCallback' is the type of the functor that is invoked
