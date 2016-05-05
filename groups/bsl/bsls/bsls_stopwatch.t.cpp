@@ -33,6 +33,7 @@ using namespace BloombergLP;
 // behavior.
 //-----------------------------------------------------------------------------
 // [ 2] bsls::Stopwatch();
+// [ 2] bsls::Stopwatch(const bsls::Stopwatch& other);
 // [ 2] ~bsls::Stopwatch();
 // [ 3] void start();
 // [ 3] void stop();
@@ -655,11 +656,40 @@ int main(int argc, char *argv[])
         {
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
             x.start();                 ASSERT(true  == X.isRunning());
+
+            Obj y(x);  const Obj& Y = y;
+            ASSERT(true == X.isRunning());
+            ASSERT(true == Y.isRunning());
+
+            y.stop();
+            ASSERT(true  == X.isRunning());
+            ASSERT(false == Y.isRunning());
         }
 
         {
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
             x.stop();                  ASSERT(false == X.isRunning());
+
+            x.start(true);
+            delayWall(0.2);
+            delayUser(0.2);
+            delaySystem(0.2);
+            x.stop();
+
+            Obj y(x);  const Obj& Y = y;
+            ASSERT(false == X.isRunning());
+            ASSERT(false == Y.isRunning());
+
+            double v;
+
+            v = X.accumulatedWallTime() - Y.accumulatedWallTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
+
+            v = X.accumulatedUserTime() - Y.accumulatedUserTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
+
+            v = X.accumulatedSystemTime() - Y.accumulatedSystemTime();
+            ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
         }
 
         {
@@ -754,6 +784,16 @@ int main(int argc, char *argv[])
         ASSERT(false == X1.isRunning());
         ASSERT(false == X2.isRunning());
         ASSERT(false == X3.isRunning());
+
+        Obj x4(X1);  const Obj& X4 = x4;
+
+        ASSERT(false == X1.isRunning());
+        ASSERT(false == X4.isRunning());
+
+        double v;
+
+        v = X1.accumulatedWallTime() - X4.accumulatedWallTime();
+        ASSERT(-1.0e-15 <= v && v <= 1.0e-15);
 
       } break;
       case -1: {
@@ -979,7 +1019,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
