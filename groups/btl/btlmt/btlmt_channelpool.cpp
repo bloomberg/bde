@@ -164,6 +164,24 @@ enum ChannelDownMask {
     e_CLOSED_BOTH_MASK    = e_CLOSED_SEND_MASK | e_CLOSED_RECEIVE_MASK
 };
 
+int getPlatformErrorCode()
+    // Return the platform-specific error for an operation that was executed
+    // immediately before this function was called.  The error code returned by
+    // this method is valid only if the previous operation failed.  Calling
+    // this method after the successful completion of an operation may result
+    // in this method returning the stale error from a previously failed
+    // method.
+{
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS)
+    int rc = WSAGetLastError();
+    if (!rc) rc = GetLastError();
+    if (!rc) rc = errno;
+    return rc;
+#else
+    return errno;
+#endif
+}
+
                     // ===================
                     // local class Channel
                     // ===================
@@ -2321,10 +2339,12 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
          && btlso::SocketHandle::e_ERROR_INTERRUPTED != status) {
             // Deregister the socket event to avoid spewing and spinning.
 
+            const int platformErrorCode = getPlatformErrorCode();
+
             bslmt::LockGuard<bslmt::Mutex> aGuard(&d_acceptorsLock);
 
             if (server->d_isClosedFlag) {
-                d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_ALERT);
+                d_poolStateCb(e_ERROR_ACCEPTING, serverId, platformErrorCode);
                 return;                                               // RETURN
             }
 
@@ -2354,7 +2374,7 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
                                                            exponentialBackoff,
                                                            acceptRetryFunctor);
 
-            d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_ALERT);
+            d_poolStateCb(e_ERROR_ACCEPTING, serverId, platformErrorCode);
         }
         else {
             // Ignore blocking and interrupts, but reset the exponential
@@ -2384,7 +2404,7 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     if (d_config.maxConnections() <= numChannels) {
         // Too many channels, move on
 
-        d_poolStateCb(e_CHANNEL_LIMIT, serverId, e_CRITICAL);
+        d_poolStateCb(e_CHANNEL_LIMIT, serverId, 0);
         return;                                                       // RETURN
     }
 
@@ -2458,7 +2478,7 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     }
 
     if (d_config.maxConnections() == numChannels) {
-        d_poolStateCb(e_CHANNEL_LIMIT, 0, e_ALERT);
+        d_poolStateCb(e_CHANNEL_LIMIT, 0, 0);
     }
 }
 
@@ -2485,9 +2505,10 @@ void ChannelPool::acceptRetryCb(int                          serverId,
                                                   server->d_socket_p->handle(),
                                                   btlso::EventType::e_ACCEPT,
                                                   acceptFunctor)) {
+
         close(serverId);
 
-        d_poolStateCb(e_ERROR_ACCEPTING, serverId, e_CRITICAL);
+        d_poolStateCb(e_ERROR_ACCEPTING, serverId, getPlatformErrorCode());
     }
 }
 
@@ -2516,7 +2537,7 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
                                                          acceptTimeoutFunctor);
     BSLS_ASSERT(server->d_timeoutTimerId);
 
-    d_poolStateCb(e_ACCEPT_TIMEOUT, serverId, e_ALERT);
+    d_poolStateCb(e_ACCEPT_TIMEOUT, serverId, 0);
 }
 
 int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
@@ -2527,7 +2548,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         KeepHalfOpenMode            mode,
                         bool                        isTimedFlag,
                         const bsls::TimeInterval&   timeout,
-                        const btlso::SocketOptions *socketOptions)
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
 {
     enum {
         e_AMBIGUOUS_REUSE_ADDRESS     = -11,
@@ -2548,6 +2570,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     if (socketOptions
      && !socketOptions->reuseAddress().isNull()
      && (bool) reuseAddress != socketOptions->reuseAddress().value()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_AMBIGUOUS_REUSE_ADDRESS;                             // RETURN
     }
 
@@ -2555,6 +2580,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
     if (idx != d_acceptors.end()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_DUPLICATE_ID;                                        // RETURN
     }
 
@@ -2587,6 +2615,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
 
     StreamSocket *serverSocket = d_factory.allocate();
     if (!serverSocket) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_ALLOCATE_FAILED;                                     // RETURN
     }
     ss->d_socket_p = serverSocket;
@@ -2598,6 +2629,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     if (0 != serverSocket->setOption(btlso::SocketOptUtil::k_SOCKETLEVEL,
                                      btlso::SocketOptUtil::k_REUSEADDRESS,
                                      !!reuseAddress)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_SET_OPTION_FAILED;                                   // RETURN
     }
 
@@ -2606,15 +2640,24 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                                                         serverSocket->handle(),
                                                        *socketOptions);
         if (rc) {
+            if (platformErrorCode) {
+                *platformErrorCode = getPlatformErrorCode();
+            }
             return e_SET_SOCKET_OPTION_FAILED;                        // RETURN
         }
     }
 
     if (0 != serverSocket->bind(endpoint)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_BIND_FAILED;                                         // RETURN
     }
 
     if (0 != serverSocket->localAddress(&serverAddress)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_LOCAL_ADDRESS_FAILED;                                // RETURN
     }
 
@@ -2622,6 +2665,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     ss->d_endpoint = serverAddress;
 
     if (0 != serverSocket->listen(backlog)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_LISTEN_FAILED;                                       // RETURN
     }
 
@@ -2631,6 +2677,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         // when connection is present*.
 
     if (0 != serverSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
@@ -2645,6 +2694,9 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     int ret   = fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
 
     if (-1 == ret) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_SET_CLOEXEC_FAILED;                                  // RETURN
     }
 
@@ -2676,6 +2728,10 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
         d_acceptors.erase(idx);
 
         aGuard.release()->unlock();
+
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
 
         return e_REGISTER_FAILED;                                     // RETURN
     }
@@ -2760,7 +2816,7 @@ void ChannelPool::connectEventCb(ConnectorMap::iterator idx)
             cs.d_socket.reset();
             cs.d_inProgress = false;
 
-            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, 0);
 
             if (0 == cs.d_numAttempts) {
                 // There is no reason to wait until next timeout to remove the
@@ -2825,7 +2881,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                                                      cs.d_serverName.c_str(),
                                                      &errorCode);
         if (retCode) {
-            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING, clientId, errorCode);
             continueFlag = false;
         }
     }
@@ -2845,12 +2901,16 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
             else {
                 d_factory.deallocate(connectionSocket);
-                d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+                d_poolStateCb(e_ERROR_CONNECTING,
+                              clientId,
+                              getPlatformErrorCode());
                 continueFlag = false;
             }
         }
         else {
-            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING,
+                          clientId,
+                          getPlatformErrorCode());
             continueFlag = false;
         }
     }
@@ -2867,7 +2927,9 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                                                    cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(e_ERROR_SETTING_OPTIONS, clientId, e_ALERT);
+                d_poolStateCb(e_ERROR_SETTING_OPTIONS,
+                              clientId,
+                              getPlatformErrorCode());
 
                 bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
@@ -2883,7 +2945,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             if (rc) {
                 d_poolStateCb(e_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
-                              e_ALERT);
+                              getPlatformErrorCode());
 
                 bslmt::LockGuard<bslmt::Mutex> cGuard(&d_connectorsLock);
                 d_connectors.erase(idx);
@@ -2902,7 +2964,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
                 cs.d_socket.reset();
                 cs.d_inProgress = false;
 
-                d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+                d_poolStateCb(e_ERROR_CONNECTING, clientId, 0);
                 continueFlag = false;
             }
             else {
@@ -2928,7 +2990,9 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         else {
             cs.d_socket.reset();
 
-            d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+            d_poolStateCb(e_ERROR_CONNECTING,
+                          clientId,
+                          getPlatformErrorCode());
             continueFlag = false;
         }
     }
@@ -2989,7 +3053,7 @@ void ChannelPool::connectTimeoutCb(ConnectorMap::iterator idx)
         // The callback was already invoked if the connection failed earlier,
         // do not invoke it twice.
 
-        d_poolStateCb(e_ERROR_CONNECTING, clientId, e_ALERT);
+        d_poolStateCb(e_ERROR_CONNECTING, clientId, 0);
     }
 
     if (removeConnectorFlag) {
@@ -3090,7 +3154,7 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     }
 
     if (d_config.maxConnections() == d_channels.length()) {
-        d_poolStateCb(e_CHANNEL_LIMIT, sourceId, e_ALERT);
+        d_poolStateCb(e_CHANNEL_LIMIT, sourceId, 0);
     }
 }
 
@@ -3313,7 +3377,8 @@ int ChannelPool::listen(int                         port,
                         int                         serverId,
                         int                         reuseAddress,
                         bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions)
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
 {
     enum { e_IS_NOT_TIMED = 0 };
 
@@ -3328,7 +3393,8 @@ int ChannelPool::listen(int                         port,
                         e_CLOSE_BOTH,
                         e_IS_NOT_TIMED,
                         bsls::TimeInterval(),
-                        socketOptions);
+                        socketOptions,
+                        platformErrorCode);
 }
 
 int ChannelPool::listen(int                         port,
@@ -3337,7 +3403,8 @@ int ChannelPool::listen(int                         port,
                         const bsls::TimeInterval&   timeout,
                         int                         reuseAddress,
                         bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions)
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
 {
     enum { e_IS_TIMED = 1 };
 
@@ -3352,7 +3419,8 @@ int ChannelPool::listen(int                         port,
                         e_CLOSE_BOTH,
                         e_IS_TIMED,
                         timeout,
-                        socketOptions);
+                        socketOptions,
+                        platformErrorCode);
 }
 
 int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
@@ -3360,7 +3428,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         int                         serverId,
                         int                         reuseAddress,
                         bool                        readEnabledFlag,
-                        const btlso::SocketOptions *socketOptions)
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
 {
     enum { e_IS_NOT_TIMED = 0 };
 
@@ -3372,7 +3441,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         e_CLOSE_BOTH,
                         e_IS_NOT_TIMED,
                         bsls::TimeInterval(),
-                        socketOptions);
+                        socketOptions,
+                        platformErrorCode);
 }
 
 int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
@@ -3382,7 +3452,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         int                         reuseAddress,
                         bool                        readEnabledFlag,
                         KeepHalfOpenMode            mode,
-                        const btlso::SocketOptions *socketOptions)
+                        const btlso::SocketOptions *socketOptions,
+                        int                        *platformErrorCode)
 {
     enum { e_IS_TIMED = 1 };
 
@@ -3394,7 +3465,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
                         mode,
                         e_IS_TIMED,
                         timeout,
-                        socketOptions);
+                        socketOptions,
+                        platformErrorCode);
 }
 
                          // *** Client-related section
@@ -3409,13 +3481,17 @@ int ChannelPool::connect(
                                               *socket,
                     ConnectResolutionMode      resolutionMode,
                     bool                       readEnabledFlag,
-                    KeepHalfOpenMode           halfCloseMode)
+                    KeepHalfOpenMode           halfCloseMode,
+                    int                       *platformErrorCode)
 {
     BSLS_ASSERT(0 < numAttempts);
     BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
 
     if (0 != socket
      && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
@@ -3429,7 +3505,8 @@ int ChannelPool::connect(
                       readEnabledFlag,
                       halfCloseMode,
                       0,
-                      0);
+                      0,
+                      platformErrorCode);
 }
 
 int ChannelPool::connect(
@@ -3440,13 +3517,17 @@ int ChannelPool::connect(
                     bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
                                               *socket,
                     bool                       readEnabledFlag,
-                    KeepHalfOpenMode           mode)
+                    KeepHalfOpenMode           mode,
+                    int                       *platformErrorCode)
 {
     BSLS_ASSERT(0 < numAttempts);
     BSLS_ASSERT(bsls::TimeInterval(0) < interval || 1 == numAttempts);
 
     if (0 != socket
      && 0 != (*socket)->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE)) {
+        if (platformErrorCode) {
+            *platformErrorCode = getPlatformErrorCode();
+        }
         return e_SET_NONBLOCKING_FAILED;                              // RETURN
     }
 
@@ -3458,7 +3539,8 @@ int ChannelPool::connect(
                       readEnabledFlag,
                       mode,
                       0,
-                      0);
+                      0,
+                      platformErrorCode);
 }
 
 int ChannelPool::connectImp(
@@ -3473,11 +3555,15 @@ int ChannelPool::connectImp(
                     bool                        readEnabledFlag,
                     KeepHalfOpenMode            keepHalfOpenMode,
                     const btlso::SocketOptions *socketOptions,
-                    const btlso::IPv4Address   *localAddress)
+                    const btlso::IPv4Address   *localAddress,
+                    int                        *platformErrorCode)
 {
     BSLS_ASSERT(0 == socketOptions || (0 == socket && 0 == localAddress));
 
     if (!d_startFlag) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_RUNNING;                                         // RETURN
     }
 
@@ -3485,6 +3571,9 @@ int ChannelPool::connectImp(
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_DUPLICATE_ID;                                        // RETURN
     }
 
@@ -3499,6 +3588,9 @@ int ChannelPool::connectImp(
         if (btlso::ResolveUtil::getAddress(&serverAddress,
                                            serverName,
                                            &errorCode)) {
+            if (platformErrorCode) {
+                *platformErrorCode = errorCode;
+            }
             return e_FAILED_RESOLUTION;                               // RETURN
         }
         resolutionFlag = false;
@@ -3557,11 +3649,15 @@ int ChannelPool::connectImp(
                     bool                        readEnabledFlag,
                     KeepHalfOpenMode            mode,
                     const btlso::SocketOptions *socketOptions,
-                    const btlso::IPv4Address   *localAddress)
+                    const btlso::IPv4Address   *localAddress,
+                    int                        *platformErrorCode)
 {
     BSLS_ASSERT(0 == socketOptions || 0 == socket);
 
     if (!d_startFlag) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_RUNNING;                                         // RETURN
     }
 
@@ -3569,6 +3665,9 @@ int ChannelPool::connectImp(
 
     ConnectorMap::iterator idx = d_connectors.find(clientId);
     if (idx != d_connectors.end()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_DUPLICATE_ID;                                        // RETURN
     }
 
@@ -4089,23 +4188,35 @@ void ChannelPool::deregisterClock(int clockId)
                            // *** Socket options ***
 
 int ChannelPool::getLingerOption(
-                             btlso::SocketOptUtil::LingerData *result,
-                             int                               channelId) const
+                     btlso::SocketOptUtil::LingerData *result,
+                     int                               channelId,
+                     int                              *platformErrorCode) const
 {
     enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
-    return channelHandle->socket()->lingerOption(result);
+
+    const int rc = channelHandle->socket()->lingerOption(result);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
 int
 ChannelPool::getServerSocketOption(int *result,
                                    int  option,
                                    int  level,
-                                   int  serverId) const
+                                   int  serverId,
+                                   int *platformErrorCode) const
 {
     enum { e_NOT_FOUND = 1 };
 
@@ -4113,16 +4224,28 @@ ChannelPool::getServerSocketOption(int *result,
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    return idx->second->d_socket_p->socketOption(result, level, option);
+    const int rc = idx->second->d_socket_p->socketOption(result,
+                                                         level,
+                                                         option);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
 int ChannelPool::getSocketOption(int *result,
                                  int  option,
                                  int  level,
-                                 int  channelId) const
+                                 int  channelId,
+                                 int *platformErrorCode) const
 {
     BSLS_ASSERT(result);
 
@@ -4130,30 +4253,52 @@ int ChannelPool::getSocketOption(int *result,
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    return channelHandle->socket()->socketOption(result, level, option);
+    const int rc = channelHandle->socket()->socketOption(result,
+                                                         level,
+                                                         option);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
 int ChannelPool::setLingerOption(
-                             const btlso::SocketOptUtil::LingerData& value,
-                             int                                     channelId)
+                    const btlso::SocketOptUtil::LingerData&  value,
+                    int                                      channelId,
+                    int                                     *platformErrorCode)
 {
     enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    return channelHandle->socket()->setLingerOption(value);
+    const int rc = channelHandle->socket()->setLingerOption(value);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
-int ChannelPool::setServerSocketOption(int option,
-                                       int level,
-                                       int value,
-                                       int serverId)
+int ChannelPool::setServerSocketOption(int  option,
+                                       int  level,
+                                       int  value,
+                                       int  serverId,
+                                       int *platformErrorCode)
 {
     enum  { e_NOT_FOUND = 1 };
 
@@ -4161,26 +4306,45 @@ int ChannelPool::setServerSocketOption(int option,
 
     ServerStateMap::const_iterator idx = d_acceptors.find(serverId);
     if (idx == d_acceptors.end()) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
     BSLS_ASSERT(idx->second->d_socket_p);
 
-    return idx->second->d_socket_p->setOption(level, option, value);
+    const int rc = idx->second->d_socket_p->setOption(level, option, value);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
-int ChannelPool::setSocketOption(int option,
-                                 int level,
-                                 int value,
-                                 int channelId)
+int ChannelPool::setSocketOption(int  option,
+                                 int  level,
+                                 int  value,
+                                 int  channelId,
+                                 int *platformErrorCode)
 {
     enum  { e_NOT_FOUND = 1 };
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return e_NOT_FOUND;                                           // RETURN
     }
 
-    return channelHandle->socket()->setOption(level, option, value);
+    const int rc = channelHandle->socket()->setOption(level, option, value);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
                               // *** Metrics ***
@@ -4433,16 +4597,26 @@ ChannelPool::getServerAddress(btlso::IPv4Address *result,
 
 int
 ChannelPool::getLocalAddress(btlso::IPv4Address *result,
-                             int                 channelId) const
+                             int                 channelId,
+                             int                *platformErrorCode) const
 {
     BSLS_ASSERT(result);
 
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
+        if (platformErrorCode) {
+            *platformErrorCode = 0;
+        }
         return -1;                                                    // RETURN
     }
 
-    return channelHandle->socket()->localAddress(result);
+    const int rc = channelHandle->socket()->localAddress(result);
+
+    if (rc && platformErrorCode) {
+        *platformErrorCode = getPlatformErrorCode();
+    }
+
+    return rc;
 }
 
 int

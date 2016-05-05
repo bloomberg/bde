@@ -184,6 +184,9 @@ typedef btlmt::SessionPool                         Obj;
 typedef btlso::SocketOptions                       SocketOptions;
 typedef btlmt::AsyncChannel::BlobBasedReadCallback BlobReadCallback;
 typedef btlso::StreamSocketFactoryDeleter          SocketFactoryDeleter;
+typedef btlso::SocketOptions                       SocketOptions;
+typedef bsls::TimeInterval                         TimeInterval;
+typedef btlso::IPv4Address                         IPAddress;
 
 static int verbose = 0;
 static int veryVerbose = 0;
@@ -228,6 +231,21 @@ void poolStateCallbackWithBarrier(int             state,
                << " Source: "  << source << MTENDL;
     }
     *poolState = state;
+    barrier->wait();
+}
+
+void poolStateCallbackWithError(int             reason,
+                                int             source,
+                                int             error,
+                                void           *userData,
+                                int            *platformError,
+                                bslmt::Barrier *barrier)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state changed: (" << reason << ", " << source
+               << ", " << error << ") " << MTENDL;
+    }
+    *platformError = error;
     barrier->wait();
 }
 
@@ -305,6 +323,22 @@ void sessionStateCallbackWithCounter(int              state,
         ++*numUpConnections;
       } break;
     }
+}
+
+void readCb(int         result,
+            int        *numNeeded,
+            btlb::Blob *data,
+            int         channelId)
+{
+    if (result) {
+        // Session is going down.
+
+        return;
+    }
+
+    data->removeAll();
+
+    *numNeeded = 1;
 }
 
 void readCbWithBlob(int         result,
@@ -1789,7 +1823,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1810,6 +1844,393 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING: platform errors are returned correctly
+        //
+        // Concerns:
+        //: 1 Synchronous errors in channel pool methods are returned correctly
+        //:   through an optionally-specified argument.
+        //:
+        //: 2 Asynchronous errors in channel pool methods are returned
+        //:   correctly through the pool state callback's third argument.
+        //
+        // Plan:
+        //: 1 Invoke 'connect' and 'listen' methods passing arguments that
+        //:   cause the operation to fail.
+        //:
+        //: 2 Verify that for synchronous failures the optionally-specified
+        //:   error argument has the platform-specific error in it.  For
+        //:   asynchrounous errors confirm that the pool state callback's
+        //:   third arugment contains the platform error.
+        //
+        // Testing:
+        //-------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING getting platform-specific errors"
+                               << bsl::endl
+                               << "========================================"
+                               << bsl::endl;
+
+        using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(4);
+
+        btlmt::SessionPool::SessionStateCallback scb = &sessionStateCallback;
+
+        BlobReadCallback callback(&readCb);
+
+        TestFactory TF(&callback);
+        Obj         mX(config, &poolStateCallback);  const Obj& X = mX;
+
+        ASSERT(0 == mX.start());
+
+        const int            B    =   1;                        // Backlog
+        const int            SID  = 101;                        // ServerId
+        const int            RA   =   1;                        // ReuseAddr
+        const bool           REF  = true;                       // ReadEnabled
+        const SocketOptions *OPTS = (const SocketOptions *) 0;  // SocketOpts
+        const IPAddress     *LA   = (const IPAddress *) 0;      // LocalAddr
+        void                *UD   = (void *) 0;                 // UserData
+        const int            BP   = 80;                         // Bad PortNum
+        const TimeInterval   T;                                 // TimeInterval
+        IPAddress            BA(getLocalAddress());             // Bad IPAddr
+        BA.setPortNumber(BP);
+
+        Obj::ConnectResolutionMode CRM = Obj::RESOLVE_ONCE;
+
+        // Listening on an invalid port number through various 'listen'
+        // overloads.
+
+        typedef bslma::ManagedPtr<btlso::StreamSocket<IPAddress> > SSPtr;
+
+        int h;
+
+        {
+            int error = 0;
+
+            int rc = mX.listen(&h, scb, BP, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BP, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BA, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BA, B, RA, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // Listening on a port number already in use via the various 'listen'
+        // overloads.
+
+        {
+            int error = 0;
+            int lh;
+
+            int rc = mX.listen(&lh, scb, 0, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            int P = mX.portNumber(lh);
+
+            error = 0;
+
+            int h;
+            rc = mX.listen(&h, scb, P, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, P, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            IPAddress A(getLocalAddress());
+            A.setPortNumber(P);
+
+            rc = mX.listen(&h, scb, A, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, A, B, RA, &TF, UD, OPTS, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            rc = mX.closeHandle(lh);
+            ASSERT(0 == rc);
+        }
+
+        // 'listen' synchronous error - failure to set socket options
+
+        {
+            int error = 0;
+
+            SocketOptions SO;
+            SO.setSendTimeout(0);
+
+            int rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BP, B, &TF, UD, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BA, B, &TF, UD, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.listen(&h, scb, BA, B, RA, &TF, UD, &SO, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // 'connect' synchronous error -- unresolvable address
+
+        {
+            int error = 0;
+
+            const char *a = "badaddress";
+            int rc = mX.connect(&h, scb, a, BP, 1, T,
+                                (SSPtr *) 0, &TF, UD, CRM, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+
+            error = 0;
+
+            rc = mX.connect(&h, scb, a, BP, 1, T,
+                            &TF, UD, CRM, OPTS, LA, &error);
+
+            ASSERT(0 != rc);
+            ASSERT(0 != error);
+        }
+
+        // 'connect' asynchronous error -- setting socket options
+
+        {
+            int error = 0;
+            int lh;
+
+            int rc = mX.listen(&lh, scb, 0, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            int P = mX.portNumber(lh);
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::SessionPool::SessionPoolStateCallbackWithPlatformError
+                pcbwe = bdlf::BindUtil::bind(&poolStateCallbackWithError,
+                                             _1, _2, _3, _4,
+                                             &platformError,
+                                             &poolBarrier);
+
+            Obj mY(pcbwe, config);  const Obj& Y = mY;
+            ASSERT(0 == mY.start());
+
+            SocketOptions SO;
+            SO.setSendTimeout(0);
+
+            IPAddress A(getLocalAddress());
+            A.setPortNumber(P);
+
+            rc = mY.connect(&h, scb, A, 1, T, &TF, UD, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+
+            rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
+                            CRM, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+        }
+
+        // 'connect' asynchronous error -- using an unreachable peer address
+
+        {
+            int error = 0;
+            int ch;
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::SessionPool::SessionPoolStateCallbackWithPlatformError
+                pcbwe = bdlf::BindUtil::bind(&poolStateCallbackWithError,
+                                             _1, _2, _3, _4,
+                                             &platformError,
+                                             &poolBarrier);
+
+            Obj mX(pcbwe, config);
+            ASSERT(0 == mX.start());
+
+            const char *host = "www.bloomberg.com";
+            const int   P = 12345;
+
+            IPAddress ADDR(host, P);
+            int rc = mX.connect(&h, scb, ADDR, 1, T,
+                                &TF, UD, OPTS, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+//             ASSERT(0 != platformError);
+
+            rc = mX.connect(&h, scb, ADDR, 1, T, (SSPtr *) 0, &TF, UD, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+//             ASSERT(0 != platformError);
+        }
+
+        // 'connect' asynchronous error -- using a bound local address
+
+        {
+            int error = 0;
+            int lh;
+
+            Obj mY(config, &poolStateCallback);
+            ASSERT(0 == mY.start());
+
+            int rc = mY.listen(&lh, scb, 0, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            IPAddress A(getLocalAddress());
+            A.setPortNumber(mY.portNumber(lh));
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::SessionPool::SessionPoolStateCallbackWithPlatformError
+                pcbwe = bdlf::BindUtil::bind(&poolStateCallbackWithError,
+                                             _1, _2, _3, _4,
+                                             &platformError,
+                                             &poolBarrier);
+
+            Obj mX(pcbwe, config);
+            ASSERT(0 == mX.start());
+
+            rc = mX.connect(&h, scb, A, 1, T,
+                            &TF, UD, OPTS, &A, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+        }
+
+        // Invoking the overload taking a 'btlb::BlobBufferFactory'
+        // 'connect' asynchronous error -- setting socket options
+
+        {
+            int error = 0;
+            int lh;
+
+            int rc = mX.listen(&lh, scb, 0, B, &TF, UD, OPTS, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            int P = mX.portNumber(lh);
+
+            bslmt::Barrier poolBarrier(2);
+            int            platformError = 0;
+
+            btlmt::SessionPool::SessionPoolStateCallbackWithPlatformError
+                pcbwe = bdlf::BindUtil::bind(&poolStateCallbackWithError,
+                                             _1, _2, _3, _4,
+                                             &platformError,
+                                             &poolBarrier);
+
+            const int                     SIZE = 1024 * 1024; // 1 MB
+            btlb::PooledBlobBufferFactory factory(SIZE);
+
+            Obj mY(pcbwe, &factory, config);  const Obj& X = mX;
+            ASSERT(0 == mY.start());
+
+            SocketOptions SO;
+            SO.setSendTimeout(0);
+
+            IPAddress A(getLocalAddress());
+            A.setPortNumber(P);
+
+            rc = mY.connect(&h, scb, A, 1, T, &TF, UD, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+
+            rc = mY.connect(&h, scb, "localhost", P, 1, T, &TF, UD,
+                            CRM, &SO, LA, &error);
+
+            ASSERT(0 == rc);
+            ASSERT(0 == error);
+
+            poolBarrier.wait();
+
+            ASSERT(0 != platformError);
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -1872,7 +2293,6 @@ int main(int argc, char *argv[])
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolStateCb;
         typedef btlmt::SessionPool::SessionStateCallback     SessionStateCb;
 
-        PoolStateCb    poolCb         = &poolStateCallback;
         SessionStateCb sessionStateCb = bdlf::BindUtil::bind(
                                               &sessionStateCallbackWithBarrier,
                                               _1,
@@ -1883,7 +2303,7 @@ int main(int argc, char *argv[])
         const char FILL = 0xBB;
         BSLS_ASSERT(0 == SIZE % 2); // test invariant
         {
-            Obj mX(&blobFactory, config, poolCb, &pa);
+            Obj mX(&blobFactory, config, &poolStateCallback, &pa);
 
             int rc = mX.start();
             ASSERT(0 == rc);
@@ -2044,7 +2464,6 @@ int main(int argc, char *argv[])
         config.setMaxThreads(2 * NUM_THREADS);
         config.setWriteQueueWatermarks(0, NUM_BYTES * 10);  // 1Mb
 
-        PoolCb    poolStateCb(&poolStateCallback);
         SessionCb sessionStateCb = bdlf::BindUtil::bind(
                                 &sessionStateCallbackUsingChannelMapAndCounter,
                                 _1,
@@ -2059,7 +2478,7 @@ int main(int argc, char *argv[])
         dataBlob.setLength(NUM_BYTES);
 
         TestFactory sessionFactory;
-        Obj         mX(config, poolStateCb);
+        Obj         mX(config, &poolStateCallback);
 
         ASSERT(0 == mX.start());
 
