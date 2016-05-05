@@ -36,9 +36,25 @@ BSLS_IDENT("$Id: $")
 // per queue, each queue is guaranteed to be processed serially by the thread
 // pool.
 //
-// In addition to the ability to create and delete queues, clients are able to
-// tune the underlying thread pool in accordance with the 'bdlmt::ThreadPool'
-// documentation.
+// In addition to the ability to create, delete, pause, and resume queues,
+// clients are able to tune the underlying thread pool in accordance with the
+// 'bdlmt::ThreadPool' documentation.
+//
+///Disabled Queues
+///---------------
+// 'bdlmt::MultiQueueThreadPool' allows clients to disable and re-enable queues.
+// A disabled queue will allow no further jobs to be enqueued, but will
+// continue to process the jobs that were enqueued prior to the call to
+// 'disableQueue'.  Note that calling 'disableQueue' will block the calling
+// thread until the currently executing job (if any) on that queue completes.
+//
+///Paused Queues
+///-------------
+// 'bdlmt::MultiQueueThreadPool' also allows clients to pause and resume queues.
+// Pausing a queue suspends the processing of jobs from a queue -- i.e., after
+// 'pause' returns no further jobs will be processed on that queue until the
+// queue is resumed.  Note that calling 'pauseQueue' will block the calling
+// thread until the currently executing job (if any) on that queue completes.
 //
 ///Thread Safety
 ///-------------
@@ -52,10 +68,6 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-//
-// NOTICE: This usage example relies on absolute paths that may not exist.
-// The example should be rephrased to work on an array of strings instead of a
-// file, or perhaps re-written entirely.
 //
 ///Example 1: A Word Search Application
 /// - - - - - - - - - - - - - - - - - -
@@ -229,10 +241,10 @@ BSLS_IDENT("$Id: $")
 //          MAX_IDLE    = 100  // use a very short idle time since new jobs
 //                             // arrive only at startup
 //      };
-//      bslmt::ThreadAttributes           defaultAttrs;
+//      bslmt::ThreadAttributes     defaultAttrs;
 //      bdlmt::MultiQueueThreadPool pool(defaultAttrs,
-//                                     MIN_THREADS, MAX_THREADS, MAX_IDLE,
-//                                     basicAllocator);
+//                                       MIN_THREADS, MAX_THREADS, MAX_IDLE,
+//                                       basicAllocator);
 //      RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 //
 //      // Start the pool, enabling queue creation and processing.
@@ -319,6 +331,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_QLOCK
+#include <bslmt_qlock.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
 #endif
@@ -370,18 +386,24 @@ class MultiQueueThreadPool_Queue {
     enum {
         // Queue states.
 
-        e_ENQUEUEING_ENABLED,     // enqueueing is enabled
-        e_ENQUEUEING_DISABLED,    // enqueueing is disabled
-        e_ENQUEUEING_BLOCKED      // enqueueing is permanently disabled
+        e_ENQUEUING_ENABLED,  // enqueueing is enabled
+        e_ENQUEUING_DISABLED, // enqueueing is disabled
+        e_DELETING             // queue is stopped pending deletion
     };
 
   private:
-    bsl::deque<Job> d_list;
+    bsl::deque<Job> d_list;           // queue of jobs to be executed
+
     bsls::AtomicInt d_numPendingJobs; // number of unprocessed jobs
-    volatile int    d_state;          // maintains enqueue state
+
+    bsls::AtomicInt d_state;          // maintains enqueue state
+
+    bool            d_paused;         // whether job processing is disabled
+
     bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
                                       // queue since creation or the last time
                                       // it was reset.
+
     bsls::AtomicInt d_numDequeued;    // the number of items dequeued from this
                                       // queue since creation or the last time
                                       // it was reset.
@@ -417,11 +439,16 @@ class MultiQueueThreadPool_Queue {
         // on success, and a non-zero value if enqueuing is disabled.
 
     int pushFront(const Job& functor);
-        // Push the specified 'functor' on the front of this queue.  Return 0
-        // on success, and a non-zero value otherwise.  This method always
-        // succeeds, regardless of whether or not enqueuing is disabled.
+        // Add the specified 'functor' at the front of this queue.  Return 0
+        // on success, and a non-zero value if enqueuing is disabled.
 
-    void block();
+    int forceFront(const Job& functor);
+        // Add the specified 'functor' at the front of this queue.  Return 0
+        // on success, and a non-zero value otherwise.  This method succeeds
+        // regardless of whether or not enqueuing is disabled, and fails only
+        // if the queue is in a "deleting" state.
+
+    void prepareForDeletion();
         // Permanently disable enqueuing to this queue.
 
     void enable();
@@ -466,10 +493,21 @@ class MultiQueueThreadPool_QueueContext {
         // ID must be bound to the functor at the time of its instantiation.
 
     // PUBLIC DATA MEMBERS
-    MultiQueueThreadPool_Queue d_queue;
-    mutable bsls::SpinLock     d_lock;
-    QueueProcessorCb           d_processingCb;
-    bool                       d_destroyFlag;
+    MultiQueueThreadPool_Queue d_queue; 
+    mutable bslmt::QLock       d_lock;         // protect queue and
+                                               // informational members
+
+    bool                       d_pausing;      // set while pauseQueue is
+                                               // waiting for callback
+    
+    QueueProcessorCb           d_processingCb; // bound processing callback for
+                                               // pool
+    
+    bool                       d_destroyFlag;  // signals worker thread to
+                                               // delete queue
+    
+    bslmt::ThreadUtil::Handle  d_processor;    // current worker thread, or
+                                               // ThreadUtil::invalidHandle()
 
   private:
     // NOT IMPLEMENTED
@@ -501,7 +539,7 @@ class MultiQueueThreadPool_QueueContext {
         // new object.  Note that this method is not thread-safe.
 
     // ACCESSORS
-    bsls::SpinLock& mutex() const;
+    bslmt::QLock& mutex() const;
         // Return the lock that is used by this context.
 
 };
@@ -521,9 +559,14 @@ class MultiQueueThreadPool {
 
   private:
     // TYPES
-    enum {
-        e_ENQUEUE_FRONT,    // enqueue new job at front of queue
-        e_ENQUEUE_BACK      // enqueue new job at back of queue
+    enum EnqueueType {
+        e_DELETION,    // enqueue at front and then disable queue permanently
+                       // (for deletion)
+
+        e_BACK,        // enqueue new job at back of queue
+        e_FRONT,       // enqueue new job at front of queue
+        e_FRONT_FORCE, // enqueue new job at front of queue regardless of
+                       // disabled state
     };
 
   private:
@@ -545,8 +588,8 @@ class MultiQueueThreadPool {
                       d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
-    volatile int      d_state;              // maintains internal state
-    bsls::SpinLock    d_stateLock;          // synchronizes internal state
+    bsls::AtomicInt   d_state;              // maintains internal state
+    bslmt::Mutex      d_stateLock;          // synchronizes internal state
 
     bsls::AtomicInt   d_numDequeued;        // the total number of requests
                                             // processed by this pool since the
@@ -575,11 +618,11 @@ class MultiQueueThreadPool {
         // If the queue contained in the specified 'context' is not empty,
         // dequeue the next job, and process it.
 
-    int enqueueJobImpl(int id, const Job& functor, int where);
+    int enqueueJobImpl(int id, const Job& functor, EnqueueType where);
         // Enqueue the specified 'functor' to the queue specified by 'id' at
         // either the front or the back of the queue, as specified by 'where'.
         // Return 0 if enqueued successfully, and a non-zero value if queuing
-        // is otherwise.  The behavior is undefined unless 'functor' is bound.
+        // is disabled.  The behavior is undefined unless 'functor' is bound.
 
   public:
     // TRAITS
@@ -619,35 +662,43 @@ class MultiQueueThreadPool {
         // 'start' or 'stop' at the time of the call.
 
     // MANIPULATORS
+    int addJobAtFront(int id, const Job& functor);
+        // Add the specified 'functor' at the front of the queue specified by
+        // 'id'.  Return 0 if added successfully, and a non-zero value if
+        // queuing is disabled.  The behavior is undefined unless 'functor' is
+        // bound.  Note that the position of 'functor' relative to any
+        // currently queued jobs is unspecified unless the queue is currently
+        // paused.
+
     int createQueue();
         // Create a queue with unlimited capacity and a default number of
         // initial elements.  Return a non-zero queue ID on success, and 0
         // otherwise.  The queue ID can be used to enqueue jobs to the queue,
-        // or to delete the queue.
+        // or to control or delete the queue.
 
     int deleteQueue(int id, const CleanupFunctor& cleanupFunctor);
         // Disable enqueuing to the queue associated with the specified 'id',
         // and enqueue the specified 'cleanupFunctor' to the *front* of the
         // queue.  The 'cleanupFunctor' is guaranteed to be the last queue
-        // element processed, after which the queue is destroyed and removed
-        // from all internal registries.  The caller will NOT be blocked until
-        // 'cleanupFunctor' executes to completion.  Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined if this
-        // function is called simultaneously with 'disableQueue', 'drainQueue',
-        // 'start', 'drain', 'stop', or 'shutdown'.  Note that passing an
-        // unbound 'cleanupFunctor' is equivalent to passing a 'cleanupFunctor'
-        // bound with 'makeNull'.  Also note that this function will fail if
-        // called on a stopped multi queue thread pool.
+        // element processed, after which the queue is destroyed.  The caller
+        // will NOT be blocked until 'cleanupFunctor' executes to completion.
+        // Return 0 on success, and a non-zero value otherwise.  Note that
+        // this function will fail if called on a stopped multi queue thread
+        // pool.
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
         // and block the calling thread until a currently-active callback, if
-        // any, is completed.  Return 0 on success, and a non-zero value
-        // otherwise.
+        // any, is completed; then destroy the queue.  Note that the queue
+        // may be destroyed after this method returns.  Return 0 on success,
+        // and a non-zero value otherwise.
 
     int disableQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id'.
-        // Return 0 on success, and a non-zero value otherwise.
+        // Return 0 on success, and a non-zero value otherwise.  Note that this
+        // method differs from 'pauseQueue' in that (1) 'disableQueue' does
+        // *not* stop processing for a queue, and (2) prevents additional jobs
+        // from being enqueued.
 
     int drainQueue(int id);
         // Wait until all jobs in the queue indicated by the specified 'id' are
@@ -660,7 +711,7 @@ class MultiQueueThreadPool {
     int enqueueJob(int id, const Job& functor);
         // Enqueue the specified 'functor' to the queue specified by 'id'.
         // Return 0 if enqueued successfully, and a non-zero value if queuing
-        // is otherwise.  The behavior is undefined unless 'functor' is bound.
+        // is disabled.  The behavior is undefined unless 'functor' is bound.
 
     int enableQueue(int id);
         // Enable enqueuing to the queue associated with the specified 'id'.
@@ -673,6 +724,22 @@ class MultiQueueThreadPool {
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset and reset these values.
 
+    int pauseQueue(int id);
+        // Wait until any currently-executing job on the queue with the
+        // specified 'id' completes, then prevent any more jobs from being
+        // executed on that queue.  Return 0 on success, and a non-zero value
+        // if the queue is already paused or is being paused or deleted by
+        // another thread.  Note that this method may be invoked from a job
+        // executing on the given queue, in which case this method does not
+        // wait.  Note also that this method differs from 'disableQueue' in
+        // that (1) 'pauseQueue' stops processing for a queue, and (2) does
+        // *not* prevent additional jobs from being enqueued.
+
+    int resumeQueue(int id);
+        // Allow jobs on the queue with the specified 'id' to begin executing.
+        // Return 0 on success, and a non-zero value if the queue does not
+        // exist or is not paused.
+
     int start();
         // Enable queuing on all queues, start the thread pool if the thread
         // pool is owned by this object, and ensure that at least the minimum
@@ -680,7 +747,7 @@ class MultiQueueThreadPool {
         // a non-zero value otherwise.  This method will block if any thread is
         // executing 'drain', 'stop', or 'shutdown' at the time of the call.
         // This method has no effect if this thread pool has already been
-        // started.
+        // started.  Note that any paused queues remain paused.
 
     void drain();
         // Block until all queues are empty.  This method waits until all
@@ -689,18 +756,18 @@ class MultiQueueThreadPool {
         // is called.  This method may be called on a stopped or started thread
         // pool.  This method will block if any thread is executing 'start',
         // 'stop', or 'shutdown' at the time of the call.  Note that 'drain'
-        // does not attempt to delete queues directly.  However as a
+        // does not attempt to delete queues directly.  However, as a
         // side-effect of emptying all queues, any queue for which
         // 'deleteQueue' was called previously will be deleted before 'drain'
         // unblocks.
 
     void stop();
-        // Disable queuing on all queues, and wait until all queues are empty.
-        // Then, stop the thread pool if the thread pool is owned by this
-        // object.  This method will block if any thread is executing 'start'
-        // or 'drain' or 'shutdown' at the time of the call.  Note that 'stop'
-        // does not attempt to delete queues directly.  However as a
-        // side-effect of emptying all queues, any queue for which
+        // Disable queuing on all queues and wait until all non-paused queues
+        // are empty.  Then, stop the thread pool if the thread pool is owned
+        // by this object.  This method will block if any thread is executing
+        // 'start' or 'drain' or 'shutdown' at the time of the call.  Note
+        // that 'stop' does not attempt to delete queues directly.  However, as
+        // a side-effect of emptying all queues, any queue for which
         // 'deleteQueue' was called previously will be deleted before 'stop'
         // unblocks.
 
@@ -711,6 +778,10 @@ class MultiQueueThreadPool {
         // is executing 'start' or 'drain' or 'stop' at the time of the call.
 
     // ACCESSORS
+    bool isPaused(int id) const;
+        // Return 'true' if the queue associated with the specified 'id' is
+        // currently paused, or 'false' otherwise.
+
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
         // this object.
@@ -740,10 +811,17 @@ class MultiQueueThreadPool {
 
 // MANIPULATORS
 inline
+int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
+{
+    ++d_numEnqueued;
+    return enqueueJobImpl(id, functor, e_FRONT);
+}
+
+inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     ++d_numEnqueued;
-    return enqueueJobImpl(id, functor, e_ENQUEUE_BACK);
+    return enqueueJobImpl(id, functor, e_BACK);
 }
 
 inline
