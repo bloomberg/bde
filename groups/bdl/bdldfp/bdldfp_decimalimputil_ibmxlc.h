@@ -44,7 +44,7 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_DECSINGLE
 extern "C" {
-#include <decSingle.h>
+#include <decnumber/decSingle.h>
 }
 #endif
 
@@ -1410,4 +1410,3 @@ DecimalImpUtil_IbmXlc::convertToDPD(
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

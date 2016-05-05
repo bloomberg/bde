@@ -9,6 +9,11 @@ The following changes have been made from the upstream:
 - The "EXAMPLES" and "TESTS" directories have been removed, mostly because they
   occupied about 20MB in size combined.
 
+- Moved directory "LIBRARY/src" to "LIBRARY/src/inteldfp" to allow packages
+  depending on inteldfp to use relative include paths (e.g., "#include
+  <inteldfp/bid_functions.h>" instead of "#include <bid_functions.h>") be built
+  in place.
+
 - The line breaks have been converted to use Unix Style from DOS style.
 
 - The mode of the source files have been changed to be no longer executable.
