@@ -290,6 +290,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
 #endif
@@ -320,27 +324,37 @@ class Pool {
     };
 
     // DATA
-    int   d_blockSize;          // size (in bytes) of each allocated memory
-                                // block returned to client
+    bsls::Types::size_type  d_blockSize;          // size (in bytes) of each
+                                                  // allocated memory block
+                                                  // returned to client
 
-    int   d_internalBlockSize;  // actual size of each block maintained on free
-                                // list (contains overhead for 'Link')
+    bsls::Types::size_type  d_internalBlockSize;  // actual size of each block
+                                                  // maintained on free list
+                                                  // (contains overhead for
+                                                  // 'Link')
 
-    int   d_chunkSize;          // current chunk size (in blocks-per-chunk)
+    int                     d_chunkSize;          // current chunk size (in
+                                                  // blocks-per-chunk)
 
-    int   d_maxBlocksPerChunk;  // maximum chunk size (in blocks-per-chunk)
+    int                     d_maxBlocksPerChunk;  // maximum chunk size (in
+                                                  // blocks-per-chunk)
 
     bsls::BlockGrowth::Strategy
-          d_growthStrategy;     // growth strategy of the chunk size
+                            d_growthStrategy;     // growth strategy of the
+                                                  // chunk size
 
-    Link *d_freeList_p;         // linked list of free memory blocks
+    Link                   *d_freeList_p;         // linked list of free memory
+                                                  // blocks
 
     InfrequentDeleteBlockList
-          d_blockList;          // memory manager for allocated memory
+                            d_blockList;          // memory manager for
+                                                  // allocated memory
 
-    char *d_begin_p;            // start of a contiguous group of memory blocks
+    char                   *d_begin_p;            // start of a contiguous
+                                                  // group of memory blocks
 
-    char *d_end_p;              // end of a contiguous group of memory blocks
+    char                   *d_end_p;              // end of a contiguous group
+                                                  // of memory blocks
 
   private:
     // PRIVATE MANIPULATORS
@@ -356,11 +370,12 @@ class Pool {
   public:
     // CREATORS
     explicit
-    Pool(int blockSize, bslma::Allocator *basicAllocator = 0);
-    Pool(int                          blockSize,
+    Pool(bsls::Types::size_type  blockSize,
+         bslma::Allocator       *basicAllocator = 0);
+    Pool(bsls::Types::size_type       blockSize,
          bsls::BlockGrowth::Strategy  growthStrategy,
          bslma::Allocator            *basicAllocator = 0);
-    Pool(int                          blockSize,
+    Pool(bsls::Types::size_type       blockSize,
          bsls::BlockGrowth::Strategy  growthStrategy,
          int                          maxBlocksPerChunk,
          bslma::Allocator            *basicAllocator = 0);
@@ -424,7 +439,7 @@ class Pool {
         // behavior is undefined unless '0 <= numBlocks'.
 
     // ACCESSORS
-    int blockSize() const;
+    bsls::Types::size_type blockSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
@@ -560,7 +575,7 @@ void Pool::release()
 
 // ACCESSORS
 inline
-int Pool::blockSize() const
+bsls::Types::size_type Pool::blockSize() const
 {
     return d_blockSize;
 }
@@ -594,7 +609,7 @@ void operator delete(void *address, BloombergLP::bdlma::Pool& pool)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

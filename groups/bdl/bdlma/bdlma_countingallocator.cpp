@@ -21,7 +21,7 @@ namespace {
 // Define the number of bytes by which the address returned to the user is
 // *offset* from the actual address of the allocated memory block.
 
-static const bslma::Allocator::size_type OFFSET =
+static const bsls::Types::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 }  // close unnamed namespace
@@ -65,7 +65,7 @@ CountingAllocator::~CountingAllocator()
 }
 
 // MANIPULATORS
-void *CountingAllocator::allocate(size_type size)
+void *CountingAllocator::allocate(bsls::Types::size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -75,7 +75,7 @@ void *CountingAllocator::allocate(size_type size)
     // Round up 'size' for maximal alignment and add sufficient space to record
     // 'size' in the allocated block.
 
-    const size_type totalSize =
+    const bsls::Types::size_type totalSize =
                  bsls::AlignmentUtil::roundUpToMaximalAlignment(size) + OFFSET;
 
     void *address = d_allocator_p->allocate(totalSize);
@@ -83,7 +83,7 @@ void *CountingAllocator::allocate(size_type size)
     d_numBytesInUse.addRelaxed(static_cast<bsls::Types::Int64>(size));
     d_numBytesTotal.addRelaxed(static_cast<bsls::Types::Int64>(size));
 
-    *static_cast<size_type *>(address) = size;
+    *static_cast<bsls::Types::size_type *>(address) = size;
 
     return static_cast<char *>(address) + OFFSET;
 }
@@ -125,7 +125,7 @@ bsl::ostream& CountingAllocator::print(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

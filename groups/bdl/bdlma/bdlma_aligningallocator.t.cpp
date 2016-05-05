@@ -40,7 +40,7 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [3] deallocate(void *address);
 // [2] AligningAllocator(size_type alignment, Allocator *alloctor);
-// [2] allocate(size_type size);
+// [2] allocate(bsls::Types::size_type size);
 // [1] bdlma_bufferedsequentialallocator -- Test Framework
 //-----------------------------------------------------------------------------
 // [4] USAGE EXAMPLE
@@ -95,6 +95,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace USAGE_EXAMPLE {
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using 'bdlma::AligningAllocator'
+///- - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are dealing with an externally supplied library function that
 // creates a linked list of null-terminated strings, and we want to use a
 // default-constructed buffered sequential allocator for memory allocation.
@@ -130,7 +136,7 @@ namespace USAGE_EXAMPLE {
                                     bslma::Allocator  *allocator)
         // Create a linked list of strings beginning with the specified '*head'
         // containing the null-terminated strings from the null-terminated
-        // 'stringArray'.  Use the specified 'allocator' for allocation.
+        // 'stringArray'.  Use the specified 'allocator' to supply memory.
     {
         *head = 0;
         const char *string;
@@ -300,7 +306,7 @@ if (veryVerbose) {
         //
         // Testing:
         //   AligningAllocator(size_type alignment, Allocator *alloctor);
-        //   allocate(size_type size);
+        //   allocate(bsls::Types::size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "ALIGNING ALLOCATOR ALIGNMENT TEST\n"
@@ -379,7 +385,7 @@ if (veryVerbose) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

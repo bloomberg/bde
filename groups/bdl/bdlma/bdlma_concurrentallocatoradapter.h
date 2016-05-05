@@ -241,6 +241,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmt { class Mutex; }
 namespace bdlma {
@@ -255,7 +259,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
     // thread-safe access to the decorated allocator.
 
     // DATA
-    bslmt::Mutex      *d_mutex_p;      // synchronizer for operations on the
+    bslmt::Mutex     *d_mutex_p;      // synchronizer for operations on the
                                       // allocator (held, not owned)
 
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
@@ -276,7 +280,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
         // Destroy this thread-enabled allocator adapter.
 
     // MANIPULATORS
-    virtual void *allocate(size_type numBytes);
+    virtual void *allocate(bsls::Types::size_type numBytes);
         // Return a newly-allocated block of memory of (at least) the specified
         // 'numBytes'.  If 'numBytes' is 0, a null pointer is returned with no
         // other effect.  If this allocator cannot return the requested number
@@ -317,7 +321,7 @@ ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

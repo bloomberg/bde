@@ -74,10 +74,11 @@ using namespace bsl;
 // // ACCESSORS
 // [ 2] char *buffer() const;
 // [ 2] int bufferSize() const;
+// [11] int calculateAlignmentOffsetFromSize(address, size) const;
 // [ 7] bool hasSufficientCapacity(int size) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -377,7 +378,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -407,6 +408,97 @@ int main(int argc, char *argv[])
         result = detectNOccurrences(3, array, 5);
         ASSERT(false == result);
 
+      } break;
+      case 11: {
+        // -------------------------------------------------------------------
+        // TESTING 'calculateAlignmentOffsetFromSize'
+        //   Ensure this accessor returns the expected value.
+        //
+        // Concerns:
+        //: 1 The method returns the expected value for all alignment
+        //:   strategies, values of 'address', and values of 'size'.
+        //
+        // Plan:
+        //: 1 Directly verify the result of this method for a large set of
+        //:   'address' values and '0 == size'.
+        //:
+        //: 2 Directly verify the result of this method using
+        //:   'bsls::AlignmentUtil' as an oracle for a large set of 'address'
+        //:   and 'size > 0' values.  (C-1)
+        //
+        // Testing:
+        //   int calculateAlignmentOffsetFromSize(address, size) const;
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'calculateAlignmentOffsetFromSize'"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        char              address[1024];
+        const bsl::size_t numAddress = sizeof address;
+
+        for (bsl::size_t i = 0; i < numAddress; ++i) {
+            const void *a = &address[i];
+
+            {
+                const Obj bm(bsls::Alignment::BSLS_NATURAL);
+                const Obj bmOracle(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bmOracle.calculateAlignmentOffsetFromSize(a, 0));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                ASSERT(   bm.calculateAlignmentOffsetFromSize(a, 0)
+                       == bm.calculateAlignmentOffsetFromSize(a, 1));
+            }
+            {
+                const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                ASSERT(0 == bm.calculateAlignmentOffsetFromSize(a, 0));
+            }
+
+            for (bsl::size_t s = 1; s <= 128; ++s) {
+                {
+                    const int alignment =
+                            bsls::AlignmentUtil::calculateAlignmentFromSize(s);
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_NATURAL);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment =
+                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_MAXIMUM);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+                {
+                    const int alignment = 1;
+                    const int offset    =
+                      bsls::AlignmentUtil::calculateAlignmentOffset(a,
+                                                                    alignment);
+
+                    const Obj bm(bsls::Alignment::BSLS_BYTEALIGNED);
+
+                    ASSERT(bm.calculateAlignmentOffsetFromSize(a, s) ==
+                                                                       offset);
+                }
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -540,7 +632,9 @@ int main(int argc, char *argv[])
             void *addr1 = mX.allocate(INITIALSIZE);
             ASSERT(0 != addr1);
 
-            int ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+            int ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
             LOOP2_ASSERT(NEWSIZE, ret, NEWSIZE == ret);
 
             void *addr2 = mX.allocate(1);
@@ -550,7 +644,9 @@ int main(int argc, char *argv[])
             // Truncating previously allocated address should fail.
             if (EXPOFFSET != 0
              && ((char *)addr1 + INITIALSIZE) != ((char *)addr2 + 1)) {
-                ret = mX.truncate(addr1, INITIALSIZE, NEWSIZE);
+                ret = static_cast<int>(mX.truncate(addr1,
+                                                   INITIALSIZE,
+                                                   NEWSIZE));
                 LOOP2_ASSERT(INITIALSIZE, ret, INITIALSIZE == ret);
             }
         }
@@ -566,9 +662,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 1));
+                ASSERT_PASS(mX.truncate(addr, 2, 1));
 
-                ASSERT_SAFE_FAIL(mX.truncate(   0, 1, 0));
+                ASSERT_FAIL(mX.truncate(   0, 1, 0));
             }
 
             if (veryVerbose) cout << "\t'0 <= newSize'" << endl;
@@ -577,10 +673,10 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2,  1));
-                ASSERT_SAFE_PASS(mX.truncate(addr, 1,  0));
+                ASSERT_PASS(mX.truncate(addr, 2,  1));
+                ASSERT_PASS(mX.truncate(addr, 1,  0));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 0, -1));
+                ASSERT_FAIL(mX.truncate(addr, 0, -1));
             }
 
             if (veryVerbose) cout << "\t'newSize <= originalSize'" << endl;
@@ -589,9 +685,20 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(2);
 
-                ASSERT_SAFE_PASS(mX.truncate(addr, 2, 2));
+                ASSERT_PASS(mX.truncate(addr, 2, 2));
 
-                ASSERT_SAFE_FAIL(mX.truncate(addr, 2, 3));
+                ASSERT_FAIL(mX.truncate(addr, 2, 3));
+            }
+
+            if (veryVerbose) {
+                cout << "\t'originalSize <= d_bufferSize'" << endl;
+            }
+            {
+                Obj mX(buffer, k_BUFFER_SIZE);
+
+                void *addr = mX.allocate(2);
+
+                ASSERT_FAIL(mX.truncate(addr, k_BUFFER_SIZE + 1, 3));
             }
         }
 
@@ -720,13 +827,13 @@ int main(int argc, char *argv[])
 
             ASSERT(0 != addr);
 
-            int newSize = mX.expand(addr, 1);
+            int newSize = static_cast<int>(mX.expand(addr, 1));
             LOOP3_ASSERT(LINE, EXPUSED, newSize, EXPUSED == newSize);
 
             void *addr2 = mX.allocate(1);
             ASSERT(0 == addr2);
 
-            int ret = mX.expand(addr, newSize);
+            int ret = static_cast<int>(mX.expand(addr, newSize));
             LOOP2_ASSERT(LINE, ret, newSize == ret);
         }
 
@@ -736,7 +843,7 @@ int main(int argc, char *argv[])
         void *addr = mX.allocate(1);
         ASSERT(&buffer[0] == addr);
 
-        int newSize = mX.expand(addr, 1);
+        int newSize = static_cast<int>(mX.expand(addr, 1));
         ASSERT(k_BUFFER_SIZE == newSize);
 
         addr = mX.allocate(1);
@@ -753,9 +860,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr, 1));
+                ASSERT_PASS(mX.expand(addr, 1));
 
-                ASSERT_SAFE_FAIL(mX.expand(   0, 4));
+                ASSERT_FAIL(mX.expand(   0, 4));
             }
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
@@ -764,10 +871,9 @@ int main(int argc, char *argv[])
 
                 void *addr = mX.allocate(1);
 
-                ASSERT_SAFE_PASS(mX.expand(addr,  1));
+                ASSERT_PASS(mX.expand(addr,  1));
 
-                ASSERT_SAFE_FAIL(mX.expand(addr,  0));
-                ASSERT_SAFE_FAIL(mX.expand(addr, -1));
+                ASSERT_FAIL(mX.expand(addr,  0));
             }
         }
 
@@ -910,7 +1016,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.hasSufficientCapacity( 1));
 
                 ASSERT_SAFE_FAIL(mX.hasSufficientCapacity( 0));
-                ASSERT_SAFE_FAIL(mX.hasSufficientCapacity(-1));
             }
 
             if (veryVerbose) cout << "\t'0 != buffer()'" << endl;
@@ -1174,7 +1279,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.replaceBuffer(buffer,  1));
 
                 ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer,  0));
-                ASSERT_SAFE_FAIL(mX.replaceBuffer(buffer, -1));
             }
         }
 
@@ -1585,9 +1689,8 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.allocate(    1));
                 ASSERT_SAFE_PASS(mX.allocateRaw( 1));
 
-                ASSERT_SAFE_FAIL(mX.allocate(    0));
+                ASSERT_SAFE_PASS(mX.allocate(    0));
                 ASSERT_SAFE_FAIL(mX.allocateRaw( 0));
-                ASSERT_SAFE_FAIL(mX.allocateRaw(-1));
             }
         }
 
@@ -1797,7 +1900,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj(buffer,  1));
 
                 ASSERT_SAFE_FAIL(Obj(buffer,  0));
-                ASSERT_SAFE_FAIL(Obj(buffer, -1));
             }
         }
       } break;
@@ -1869,7 +1971,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

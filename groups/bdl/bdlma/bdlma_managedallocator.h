@@ -63,9 +63,14 @@ BSLS_IDENT("$Id: $")
 //      // the 'bdlma::ManagedAllocator' protocol.
 //
 //      // DATA
-//      char *d_buffer_p;    // external buffer (held, not owned)
-//      int   d_bufferSize;  // size (in bytes) of external buffer
-//      int   d_cursor;      // offset to next available byte in buffer
+//      char                   *d_buffer_p;    // external buffer (held, not
+//                                             // owned)
+//
+//      bsls::Types::size_type  d_bufferSize;  // size (in bytes) of external
+//                                             // buffer
+//
+//      bsls::Types::IntPtr     d_cursor;      // offset to next available byte
+//                                             // in buffer
 //
 //    private:
 //      // NOT IMPLEMENTED
@@ -74,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_BufferAllocator(char *buffer, size_type bufferSize);
+//      my_BufferAllocator(char *buffer, bsls::Types::size_type bufferSize);
 //          // Create a buffer allocator for allocating maximally-aligned
 //          // memory blocks from the specified external 'buffer' having the
 //          // specified 'bufferSize' (in bytes).
@@ -83,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this buffer allocator.
 //
 //      // MANIPULATORS
-//      void *allocate(size_type size);
+//      void *allocate(bsls::Types::size_type size);
 //          // Return the address of a maximally-aligned contiguous block of
 //          // memory of the specified 'size' (in bytes) on success, and 0 if
 //          // the allocation request exceeds the remaining free memory space
@@ -105,9 +110,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  inline
-//  my_BufferAllocator::my_BufferAllocator(char *buffer, size_type bufferSize)
+//  my_BufferAllocator::my_BufferAllocator(char                   *buffer,
+//                                         bsls::Types::size_type  bufferSize)
 //  : d_buffer_p(buffer)
-//  , d_bufferSize(static_cast<int>(bufferSize))
+//  , d_bufferSize(bufferSize)
 //  , d_cursor(0)
 //  {
 //  }
@@ -133,10 +139,10 @@ BSLS_IDENT("$Id: $")
 //
 //  // STATIC HELPER FUNCTIONS
 //  static
-//  void *allocateFromBufferImp(int  *cursor,
-//                              char *buffer,
-//                              int   bufferSize,
-//                              int   size)
+//  void *allocateFromBufferImp(bsls::Types::IntPtr    *cursor,
+//                              char                   *buffer,
+//                              bsls::Types::size_type  bufferSize,
+//                              bsls::Types::size_type  size)
 //      // Allocate a maximally-aligned memory block of the specified 'size'
 //      // (in bytes) from the specified 'buffer' having the specified
 //      // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
@@ -144,8 +150,8 @@ BSLS_IDENT("$Id: $")
 //      // sufficient available memory, and 0 otherwise.  The 'cursor' is set
 //      // to the first byte position immediately after the allocated memory if
 //      // there is sufficient memory, and not modified otherwise.  The
-//      // behavior is undefined unless '0 <= bufferSize', '0 < size',
-//      // '0 <= *cursor', and '*cursor <= bufferSize'.
+//      // behavior is undefined unless '0 < size', '0 <= *cursor', and
+//      // '*cursor <= bufferSize'.
 //
 //  {
 //      const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
@@ -168,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  void *my_BufferAllocator::allocate(size_type size)
+//  void *my_BufferAllocator::allocate(bsls::Types::size_type size)
 //  {
 //      return 0 == size ? 0 : allocateFromBufferImp(&d_cursor,
 //                                                   d_buffer_p,
@@ -349,9 +355,9 @@ class ManagedAllocator : public bslma::Allocator {
   public:
     // MANIPULATORS
     virtual void release() = 0;
-        // Release all memory currently allocated through this allocator.
-        // The effect of using a pointer after this call that was obtained
-        // from this allocator before this call is undefined.
+        // Release all memory currently allocated through this allocator.  The
+        // effect of using a pointer after this call that was obtained from
+        // this allocator before this call is undefined.
 };
 
 }  // close package namespace
@@ -360,7 +366,7 @@ class ManagedAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

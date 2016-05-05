@@ -82,6 +82,9 @@ BSLS_IDENT("$Id$")
 //  void externalPopulateStringList(Node             **head,
 //                                  const char       **stringArray,
 //                                  bslma::Allocator  *allocator)
+//      // Create a linked list of strings beginning with the specified '*head'
+//      // containing the null-terminated strings from the null-terminated
+//      // 'stringArray'.  Use the specified 'allocator' to supply memory.
 //  {
 //      *head = 0;
 //      const char *string;
@@ -161,6 +164,10 @@ BSLS_IDENT("$Id$")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
 #endif
@@ -168,9 +175,9 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdlma {
 
-                          // ======================
-                          // class AlignedAllocator
-                          // ======================
+                         // =======================
+                         // class AligningAllocator
+                         // =======================
 
 class AligningAllocator : public bslma::Allocator {
     // This 'class' provides a mechanism that serves as a wrapper around
@@ -179,15 +186,16 @@ class AligningAllocator : public bslma::Allocator {
     // by the alignment specified at construction.
 
     // DATA
-    size_type         d_mask;                // alignment - 1
-    bslma::Allocator *d_heldAllocator_p;     // allocator passed at
-                                             // construction
+    bsls::Types::size_type  d_mask;             // alignment - 1
+
+    bslma::Allocator       *d_heldAllocator_p;  // allocator passed at
+                                                // construction
 
   public:
     // CREATORS
     explicit
-    AligningAllocator(size_type         alignment,
-                      bslma::Allocator *allocator = 0);
+    AligningAllocator(bsls::Types::size_type  alignment,
+                      bslma::Allocator       *allocator = 0);
         // Create an 'AligningAllocator' object that guarantees alignment by
         // the specified 'alignment' of memory allocated.  Optionally specify
         // 'allocator', the underlying allocator to be used for memory
@@ -200,7 +208,7 @@ class AligningAllocator : public bslma::Allocator {
         // used.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return a newly allocated block of memory of (at least) the specified
         // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
         // returned with no other effect.  If this allocator cannot return the
@@ -225,7 +233,7 @@ class AligningAllocator : public bslma::Allocator {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

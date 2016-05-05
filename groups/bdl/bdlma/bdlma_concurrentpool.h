@@ -336,26 +336,31 @@ class ConcurrentPool {
     };
 
     // DATA
-    int              d_blockSize;  // size of each allocated memory block
-                                   // returned to client
+    bsls::Types::size_type d_blockSize;  // size of each allocated memory block
+                                         // returned to client
 
-    int              d_internalBlockSize;
-                                   // actual size of each block maintained on
-                                   // free list (contains overhead for 'Link')
+    bsls::Types::size_type d_internalBlockSize;
+                                         // actual size of each block
+                                         // maintained on free list (contains
+                                         // overhead for 'Link')
 
-    int              d_chunkSize;  // current chunk size (in blocks-per-chunk)
+    int                    d_chunkSize;  // current chunk size (in
+                                         // blocks-per-chunk)
 
-    int              d_maxBlocksPerChunk;
-                                   // maximum chunk size (in blocks-per-chunk)
-    bsls::BlockGrowth::Strategy
-                     d_growthStrategy;
-                                   // growth strategy of the chunk size
-    bsls::AtomicPointer<Link>
-                     d_freeList;   // linked list of free memory blocks
-    bdlma::InfrequentDeleteBlockList
-                     d_blockList;  // memory manager for allocated memory
+    int                    d_maxBlocksPerChunk;
+                                         // maximum chunk size (in
+                                         // blocks-per-chunk)
 
-    bslmt::Mutex      d_mutex;      // protects access to the block list
+    bsls::BlockGrowth::Strategy d_growthStrategy;
+                                         // growth strategy of the chunk size
+
+    bsls::AtomicPointer<Link> d_freeList;
+                                         // linked list of free memory blocks
+
+    bdlma::InfrequentDeleteBlockList d_blockList;
+                                         // memory manager for allocated memory
+
+    bslmt::Mutex      d_mutex;           // protects access to the block list
 
     // PRIVATE MANIPULATORS
     void replenish();
@@ -371,12 +376,12 @@ class ConcurrentPool {
 
   public:
     // CREATORS
-    explicit ConcurrentPool(int               blockSize,
-                            bslma::Allocator *basicAllocator = 0);
-    ConcurrentPool(int                          blockSize,
+    explicit ConcurrentPool(bsls::Types::size_type  blockSize,
+                            bslma::Allocator       *basicAllocator = 0);
+    ConcurrentPool(bsls::Types::size_type       blockSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
-    ConcurrentPool(int                          blockSize,
+    ConcurrentPool(bsls::Types::size_type       blockSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    int                          maxBlocksPerChunk,
                    bslma::Allocator            *basicAllocator = 0);
@@ -439,7 +444,7 @@ class ConcurrentPool {
         // behavior is undefined unless '0 <= numBlocks'.
 
     // ACCESSORS
-    int blockSize() const;
+    bsls::Types::size_type blockSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
@@ -552,7 +557,7 @@ void ConcurrentPool::release()
 
 // ACCESSORS
 inline
-int ConcurrentPool::blockSize() const
+bsls::Types::size_type ConcurrentPool::blockSize() const
 {
     return d_blockSize;
 }
@@ -588,7 +593,7 @@ void operator delete(void *address, BloombergLP::bdlma::ConcurrentPool& pool)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

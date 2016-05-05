@@ -34,11 +34,11 @@ enum {
 
 // LOCAL FUNCTIONS
 static inline
-int roundUp(int x, int y)
+bsls::Types::size_type roundUp(bsls::Types::size_type x,
+                               bsls::Types::size_type y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '0 <= x' and '1 <= y'.
+    // specified 'y'.  The behavior is undefined unless '1 <= y'.
 {
-    BSLS_ASSERT(0 <= x);
     BSLS_ASSERT(1 <= y);
 
     return (x + y - 1) / y * y;
@@ -72,7 +72,7 @@ void Pool::replenish()
 }
 
 // CREATORS
-Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
+Pool::Pool(bsls::Types::size_type blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(k_INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
@@ -88,7 +88,7 @@ Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
-Pool::Pool(int                          blockSize,
+Pool::Pool(bsls::Types::size_type       blockSize,
            bsls::BlockGrowth::Strategy  growthStrategy,
            bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
@@ -108,7 +108,7 @@ Pool::Pool(int                          blockSize,
                                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
-Pool::Pool(int                          blockSize,
+Pool::Pool(bsls::Types::size_type       blockSize,
            bsls::BlockGrowth::Strategy  growthStrategy,
            int                          maxBlocksPerChunk,
            bslma::Allocator            *basicAllocator)
@@ -132,7 +132,7 @@ Pool::Pool(int                          blockSize,
 
 Pool::~Pool()
 {
-    BSLS_ASSERT(static_cast<int>(sizeof(Link)) <= d_internalBlockSize);
+    BSLS_ASSERT(sizeof(Link) <= d_internalBlockSize);
     BSLS_ASSERT(0 < d_chunkSize);
 }
 
@@ -178,7 +178,7 @@ void Pool::reserveCapacity(int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

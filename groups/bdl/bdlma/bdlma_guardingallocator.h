@@ -299,6 +299,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -357,7 +361,7 @@ class GuardingAllocator : public bslma::Allocator {
         // has no effect on any outstanding allocated memory.
 
     // MANIPULATORS
-    virtual void *allocate(size_type size);
+    virtual void *allocate(bsls::Types::size_type size);
         // Return a newly-allocated maximally-aligned block of memory of the
         // specified 'size' (in bytes) that has a read/write protected guard
         // page located immediately before or after it according to the
@@ -395,7 +399,7 @@ GuardingAllocator::GuardingAllocator(GuardPageLocation guardLocation)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

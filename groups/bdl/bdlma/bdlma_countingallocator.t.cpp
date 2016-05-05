@@ -48,7 +48,7 @@ using namespace bsl;
 // [ 2] ~CountingAllocator();
 //
 // MANIPULATORS
-// [ 3] void *allocate(size_type size);
+// [ 3] void *allocate(bsls::Types::size_type size);
 // [ 3] void deallocate(void *address);
 //
 // ACCESSORS
@@ -1022,7 +1022,7 @@ if (veryVerbose)
         //:   'mX.deallocate(0)' has no effect.  (C-6)
         //
         // Testing:
-        //   void *allocate(size_type size);
+        //   void *allocate(bsls::Types::size_type size);
         //   void deallocate(void *address);
         //   Int64 numBytesInUse() const;
         //   Int64 numBytesTotal() const;
@@ -1529,7 +1529,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
