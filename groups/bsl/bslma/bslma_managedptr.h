@@ -823,6 +823,14 @@ class ManagedPtr {
         // Alias for a function-pointer type for functions used to destroy the
         // object managed by a 'ManagedPtr' object.
 
+    typedef TARGET_TYPE element_type;
+        // Alias to the 'TARGET_TYPE' template parameter.
+        // Note that 'element_type' refers to the same type as 'ElementType'.
+   
+    typedef TARGET_TYPE ElementType;
+        // Alias to the 'TARGET_TYPE' template parameter.
+        // Note that 'ElementType' refers to the same type as 'element_type'.
+
   private:
     // PRIVATE TYPES
     typedef typename bsls::UnspecifiedBool<ManagedPtr>::BoolType BoolType;
