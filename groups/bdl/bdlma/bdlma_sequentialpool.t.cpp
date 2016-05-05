@@ -1585,7 +1585,7 @@ int main(int argc, char *argv[])
 
                 mX.allocate(INT_MAX / 4);
             }
-#ifdef BSLS_PLATFORM_CPU_64_BIT
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_LINUX)
             {
                 Obj mX;
 
