@@ -2301,17 +2301,33 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatumMapRef& rhs);
     // and return a reference to the modifiable 'stream'.  The function will
     // have no effect if the 'stream' is not valid.
 
-// ============================================================================
-//                               INLINE DEFINITIONS
-// ============================================================================
+                            // ====================
+                            // struct Datum_Helpers
+                            // ====================
+
+struct Datum_Helpers {
+    // This struct contains helper functions used to access typed objects
+    // within a buffer.  The functions assume that objects within the buffers
+    // have proper alignment and use casts to suppress compiler warnings about
+    // possible alignment problems.
+    template <class Type>
+    static Type load(const void *source, int offset);
+        // Return the typed value found at the specified 'offset' within the
+        // specified 'source'.
+
+    template <class Type>
+    static Type store(void *destination, int offset, Type value);
+        // Store the specified typed 'value' at the specified 'offset' within
+        // the specified 'destination' and return 'value'.
+};
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
 
-                           // ----------------------
-                           // struct Datum_Helpers32
-                           // ----------------------
+                        // ======================
+                        // struct Datum_Helpers32
+                        // ======================
 
-struct Datum_Helpers32 {
+struct Datum_Helpers32 : Datum_Helpers {
     // This struct contains helper functions used in the 32-bit variation.  The
     // functions are for internal use only and may change or disappear without
     // notice.
@@ -2341,20 +2357,54 @@ struct Datum_Helpers32 {
         // It may change or be removed without notice.
 };
 
+#endif
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // struct Datum_Helpers
+                            // --------------------
+
 // CLASS METHODS
+template <class Type>
+inline
+Type Datum_Helpers::load(const void *source, int offset)
+{
+    // The intermediate cast to 'void *' avoids warnings about the cast to a
+    // pointer of stricter alignment.
+    return *static_cast<const Type *>(
+            static_cast<const void *>(
+            static_cast<const char *>(source) + offset));
+}
+
+template <class Type>
+inline
+Type Datum_Helpers::store(void *destination, int offset, Type value)
+{
+    // The intermediate cast to 'void *' avoids warnings about the cast to a
+    // pointer of stricter alignment.
+    return *static_cast<Type *>(
+            static_cast<void *>(
+            static_cast<char *>(destination) + offset)) = value;
+}
+
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+
+                        // ----------------------
+                        // struct Datum32_Helpers
+                        // ----------------------
+
+// CLASS METHODS
+
 inline
 bsls::Types::Int64 Datum_Helpers32::loadSmallInt64(short high16, int low32)
 {
     bsls::Types::Int64 value;
-    unsigned char *pv = reinterpret_cast<unsigned char*>(&value);
 
-    if ((*reinterpret_cast<short*>(pv + b32) = high16) < 0) {
-        *reinterpret_cast<short*>(pv + b48) = -1;
-    } else {
-        *reinterpret_cast<short*>(pv + b48) = 0;
-    }
-
-    *reinterpret_cast<long*>(pv + b00) = low32;
+    store<short>(&value, b48, store<short>(&value, b32, high16) < 0 ? -1 : 0);
+    store<long> (&value, b00, low32);
 
     return value;
 }
@@ -2364,21 +2414,16 @@ bool Datum_Helpers32::storeSmallInt64(bsls::Types::Int64  value,
                                       short              *phigh16,
                                       int                *plow32)
 {
-    const unsigned char *pv = reinterpret_cast<const unsigned char*>(&value);
-
     // Check that the sign can be infered from the compressed 6-byte integer.
     // It is the case if the upper 16 bits are the same as the 17th bit.
 
-    if ((*reinterpret_cast<const short*>(pv + b48) == 0
-         && *reinterpret_cast<const short*>(pv + b32) >= 0)
-        || (*reinterpret_cast<const short*>(pv + b48) == -1
-            && *reinterpret_cast<const short*>(pv + b32) < 0)) {
-        *plow32 = *reinterpret_cast<const long*>(pv + b00);
-        *phigh16 = *reinterpret_cast<const short*>(pv + b32);
-        return true;
-    } else {
-        return false;
+    if ((load<short>(&value, b48) ==  0 && load<short>(&value, b32) >= 0) ||
+        (load<short>(&value, b48) == -1 && load<short>(&value, b32) <  0)) {
+        *phigh16 = load<short>(&value, b32);
+        *plow32  = load<long> (&value, b00);
+        return true;                                                  // RETURN
     }
+    return false;
 }
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
@@ -2464,16 +2509,15 @@ bsls::Types::Int64 Datum::theLargeInteger64() const
     BSLS_ASSERT_SAFE(internalType() == e_INTERNAL_EXTENDED);
     BSLS_ASSERT_SAFE(
         extendedInternalType() == e_EXTENDED_INTERNAL_INTEGER64_ALLOC);
-    return *static_cast<const bsls::Types::Int64*>(d_as.d_cvp);
+    return Datum_Helpers::load<bsls::Types::Int64>(d_as.d_cvp, 0);
 }
 
 inline
 DatumArrayRef Datum::theLongArrayReference() const
 {
-    const char *data = static_cast<const char *>(d_as.d_cvp);
     return DatumArrayRef(
-           *reinterpret_cast<Datum *const *>(data),
-           *reinterpret_cast<const SizeType *>(data + sizeof(const Datum *)));
+        Datum_Helpers::load<Datum *> (d_as.d_cvp, 0),
+        Datum_Helpers::load<SizeType>(d_as.d_cvp, sizeof(Datum *)));
 }
 
 inline
@@ -2485,10 +2529,9 @@ bslstl::StringRef Datum::theLongestShortString() const
 inline
 bslstl::StringRef Datum::theLongStringReference() const
 {
-    const char *data = static_cast<const char*>(d_as.d_cvp);
     return bslstl::StringRef(
-                    *reinterpret_cast<char *const *>(data),
-                    *reinterpret_cast<const SizeType *>(data + sizeof(data)));
+        Datum_Helpers::load<char *>  (d_as.d_cvp, 0),
+        Datum_Helpers::load<SizeType>(d_as.d_cvp, sizeof(char *)));
 }
 
 inline
@@ -2600,7 +2643,7 @@ bslstl::StringRef Datum::theInternalString() const
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     const char *data = static_cast<const char *>(d_as.d_cvp);
     return bslstl::StringRef(data + sizeof(SizeType),
-                             *reinterpret_cast<const SizeType *>(data));
+                             Datum_Helpers::load<SizeType>(data, 0));
 #else   // BSLS_PLATFORM_CPU_32_BIT
     return bslstl::StringRef(static_cast<const char *>(d_as.d_ptr),
                              d_as.d_int32);
@@ -2652,10 +2695,9 @@ Datum Datum::createArrayReference(const Datum      *array,
         return result;                                                // RETURN
     }
 
-    char *mem = static_cast<char *>(
-                     basicAllocator->allocate(sizeof(array) + sizeof(length)));
-    *reinterpret_cast<const Datum **>(mem) = array;
-    *reinterpret_cast<SizeType *>(mem + sizeof(array)) = length;
+    void *mem = basicAllocator->allocate(sizeof(array) + sizeof(length));
+    Datum_Helpers::store<const Datum *>(mem, 0,             array);
+    Datum_Helpers::store<SizeType>     (mem, sizeof(array), length);
 
     return createExtendedDataObject(e_EXTENDED_INTERNAL_AREF_ALLOC, mem);
 #else   // BSLS_PLATFORM_CPU_32_BIT
@@ -2890,9 +2932,8 @@ Datum Datum::createStringRef(const char       *string,
     }
 
     void *mem = basicAllocator->allocate(sizeof(length) + sizeof(string));
-    *reinterpret_cast<const char **>(mem) = string;
-    *reinterpret_cast<SizeType *>(static_cast<char *>(mem) + sizeof(string))
-        = length;
+    Datum_Helpers::store<const char *>(mem, 0,              string);
+    Datum_Helpers::store<SizeType>    (mem, sizeof(string), length);
 
     return createExtendedDataObject(e_EXTENDED_INTERNAL_SREF_ALLOC, mem);
 #else   // BSLS_PLATFORM_CPU_32_BIT
@@ -3341,9 +3382,9 @@ DatumError Datum::theError() const
 #endif // BSLS_PLATFORM_CPU_32_BIT
 
     return DatumError(
-                *reinterpret_cast<const int *>(data),
-                bslstl::StringRef(data + 2 * sizeof(int),
-                                  *(reinterpret_cast<const int *>(data) + 1)));
+        Datum_Helpers::load<int>(data, 0),
+        bslstl::StringRef(data + 2 * sizeof(int),
+                          Datum_Helpers::load<int>(data, sizeof(int))));
 }
 
 inline

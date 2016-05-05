@@ -1061,13 +1061,13 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     stats->d_lstData[e_VIRTUAL_SIZE]  =
         static_cast<double>(status.pr_brksize) / (1024 * 1024);
 
-    cpuTimeU = bsls::TimeInterval(static_cast<double>(status.pr_utime.tv_sec),
-                                 static_cast<double>(status.pr_utime.tv_nsec)).
-                                                     totalSecondsAsDouble();
+    cpuTimeU =
+        bsls::TimeInterval(status.pr_utime.tv_sec, status.pr_utime.tv_nsec)
+            .totalSecondsAsDouble();
 
-    cpuTimeS = bsls::TimeInterval(static_cast<double>(status.pr_stime.tv_sec),
-                                 static_cast<double>(status.pr_stime.tv_nsec)).
-                                                     totalSecondsAsDouble();
+    cpuTimeS =
+        bsls::TimeInterval(status.pr_stime.tv_sec, status.pr_stime.tv_nsec)
+            .totalSecondsAsDouble();
 
     close(fd);
 #else

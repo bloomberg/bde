@@ -27,6 +27,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_devpoll_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
 #include <bsl_cstring.h>
+#include <bsl_limits.h>
 #include <bsl_utility.h>
 
 namespace BloombergLP {
@@ -146,7 +147,10 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
         while (timeout > now) {
             bsls::TimeInterval currTimeout(timeout - now);
             struct timespec    ts;
-            ts.tv_sec  = currTimeout.seconds();
+            ts.tv_sec = static_cast<time_t>(
+                bsl::min(static_cast<bsls::Types::Int64>(
+                             bsl::numeric_limits<time_t>::max()),
+                         currTimeout.seconds()));
             ts.tv_nsec = currTimeout.nanoseconds();
 
             // Sleep till it's time.
@@ -215,8 +219,11 @@ int DefaultEventManager<Platform::DEVPOLL>::dispatch(
 
                 // Convert this timeout to a 32 bit value in milliseconds.
 
-                dopoll.dp_timeout = curr_timeout.seconds() * 1000
-                                      + curr_timeout.nanoseconds()/1000000 + 1;
+                dopoll.dp_timeout = static_cast<int>(
+                    bsl::min(static_cast<bsls::Types::Int64>(
+                                 bsl::numeric_limits<int>::max()),
+                             curr_timeout.seconds() * 1000 +
+                                 curr_timeout.nanoseconds() / 1000000 + 1));
             }
             dopoll.dp_timeout = bsl::min(
                                        dopoll.dp_timeout,
@@ -343,7 +350,7 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
       case EventType::e_ACCEPT: {
         BSLS_ASSERT(0 == eventmask);
 
-        pfd.events = (eventmask |= POLLIN);
+        pfd.events = static_cast<short>(eventmask |= POLLIN);
       } break;
 
         // No other event can be registered simultaneously with CONNECT.
@@ -351,7 +358,7 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
       case EventType::e_CONNECT: {
         BSLS_ASSERT(0 == eventmask);
 
-        pfd.events = (eventmask |= POLLOUT);
+        pfd.events = static_cast<short>(eventmask |= POLLOUT);
       } break;
 
         // Only WRITE can be registered simultaneously with READ.
@@ -359,7 +366,7 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
       case EventType::e_READ: {
         BSLS_ASSERT(0 == (eventmask & ~POLLOUT));
 
-        pfd.events = (eventmask |= POLLIN);
+        pfd.events = static_cast<short>(eventmask |= POLLIN);
       } break;
 
         // Only READ can be registered simultaneously with WRITE.
@@ -367,7 +374,7 @@ int DefaultEventManager<Platform::DEVPOLL>::registerSocketEvent(
       case EventType::e_WRITE: {
         BSLS_ASSERT(0 == (eventmask & ~POLLIN));
 
-        pfd.events = (eventmask |= POLLOUT);
+        pfd.events = static_cast<short>(eventmask |= POLLOUT);
       } break;
 
       default: {
@@ -464,7 +471,7 @@ void DefaultEventManager<Platform::DEVPOLL>::deregisterSocketEvent(
     if (eventmask) {
         // Write the new event mask for this fd to /dev/poll.
 
-        pfd.events = eventmask;
+        pfd.events = static_cast<short>(eventmask);
         int rc = write(d_dpFd, &pfd, sizeof(struct ::pollfd));
         BSLS_ASSERT(sizeof(struct ::pollfd) == rc);
     }

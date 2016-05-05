@@ -9418,9 +9418,9 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     // its heap-allocated address is found in 'd_objbuf.d_object_p'.  There is
     // no need to computed this using metaprogramming; the compiler will
     // optimize away the conditional test.
-    char *wrappedFuncBuf_p = static_cast<char*>(
-        k_IS_INPLACE ? &rep->d_objbuf : rep->d_objbuf.d_object_p);
-    FUNC *wrappedFunc_p = reinterpret_cast<FUNC*>(wrappedFuncBuf_p);
+    void *wrappedFuncBuf_p =
+        k_IS_INPLACE ? &rep->d_objbuf : rep->d_objbuf.d_object_p;
+    FUNC *wrappedFunc_p = static_cast<FUNC*>(wrappedFuncBuf_p);
 
     switch (opCode) {
 
