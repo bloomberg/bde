@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bsls::LogSeverity::Enum', which enumerates a set of severity levels used
-// for logging with 'bsls_log'.  
+// for logging with 'bsls_log'.
 //
 ///Enumerators
 ///-----------
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 //  e_WARN        A severity appropriate for log messages accompanying an
 //                event that may indicate a problem.
 //
-//  e_INFO        A severity appropriate for log messages accompanying an
-//                event that may indicate a problem.
+//  e_INFO        A severity appropriate for log messages providing informative
+//                status about the running process.
 //
 //  e_DEBUG       A severity appropriate for log messages providing information
 //                useful for debugging.

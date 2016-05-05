@@ -120,8 +120,8 @@ BSLS_IDENT("$Id: $")
 //  {
 //..
 //
-// Now, we check the precondition of the function, and use the 'BSLS_LOG' macro
-// to write a log message if one of the input parameters is less than 0:
+// Now, we check the precondition of the function, and use the 'BSLS_LOG_ERROR'
+// macro to write a log message if one of the input parameters is less than 0:
 //..
 //      if(a < 0 || b < 0) {
 //          BSLS_LOG_ERROR("Invalid input combination (%d, %d).", a, b);
