@@ -741,11 +741,11 @@ if (veryVerbose)
         }
         {
             static const struct {
-                int         d_lineNum;      // source line number
-                Enum        d_value;        // specification value
-                int         d_version;      // version to stream with
-                int         d_length;       // expect output length
-                const char *d_fmt_p;        // expected output format
+                int          d_lineNum;      // source line number
+                Enum         d_value;        // specification value
+                int          d_version;      // version to stream with
+                bsl::size_t  d_length;       // expect output length
+                const char  *d_fmt_p;        // expected output format
             } DATA[] = {
                 //LINE  VALUE       VER  LEN  FORMAT
                 //----  ----------  ---  ---  -------
@@ -768,7 +768,7 @@ if (veryVerbose)
                 const int         LINE        = DATA[i].d_lineNum;
                 const Enum        VALUE       = DATA[i].d_value;
                 const int         VERSION     = DATA[i].d_version;
-                const int         LEN         = DATA[i].d_length;
+                const bsl::size_t LEN         = DATA[i].d_length;
                 const char *const FMT         = DATA[i].d_fmt_p;
 
                 // Test using class methods.
@@ -788,7 +788,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -827,7 +827,7 @@ if (veryVerbose)
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (bsl::size_t j = 0; j < out.length(); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]

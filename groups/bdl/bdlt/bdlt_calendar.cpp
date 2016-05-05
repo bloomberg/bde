@@ -90,7 +90,8 @@ void Calendar::synchronizeCache()
 // PRIVATE ACCESSORS
 bool Calendar::isCacheSynchronized() const
 {
-    if (d_packedCalendar.length() != d_nonBusinessDays.length()) {
+    if (d_packedCalendar.length() !=
+                                static_cast<int>(d_nonBusinessDays.length())) {
         return false;                                                 // RETURN
     }
 
@@ -352,7 +353,8 @@ Calendar_BusinessDayConstIter::Calendar_BusinessDayConstIter(
         // Otherwise, advance the iterator to reference the next date so we can
         // find the next business day.
 
-        if (d_currentOffset == d_nonBusinessDays_p->length() - 1) {
+        if (d_currentOffset
+                      == static_cast<int>(d_nonBusinessDays_p->length()) - 1) {
             d_currentOffset = -1;
             return;                                                   // RETURN
         }

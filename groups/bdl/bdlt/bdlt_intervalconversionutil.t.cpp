@@ -183,8 +183,10 @@ void loopMeter(bsls::Types::Uint64 index,
         bsl::cerr << "|\nBEGIN." << bsl::flush;
     }
     else {                      // middle of the loop
-        int t1 = int((double(index - 1) * size)/length + 0.5);
-        int t2 = int((double(index)     * size)/length + 0.5);
+        int t1 = int((static_cast<double>(index - 1) * size)
+                                          / static_cast<double>(length) + 0.5);
+        int t2 = int((static_cast<double>(index)     * size)
+                                          / static_cast<double>(length) + 0.5);
         int dt = t2 - t1;       // accumulated ticks (but no accumulated error)
 
         for (int i = 0; i < dt; ++i) {
@@ -636,7 +638,7 @@ int main(int argc, char *argv[])
 
                 // Extract days.
 
-                int DAYS = source;
+                int DAYS = static_cast<int>(source);
 
                 // Now continue with a normal test.
 
