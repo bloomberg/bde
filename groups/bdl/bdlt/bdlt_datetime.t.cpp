@@ -132,8 +132,11 @@ using namespace bsl;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 //
 // FREE OPERATORS
+// [16] Datetime operator+(const Datetime&, const TimeInterval&);
+// [16] Datetime operator+(const TimeInterval&, const Datetime&);
 // [16] Datetime operator+(const Datetime&, const DatetimeInterval&);
 // [16] Datetime operator+(const DatetimeInterval&, const Datetime&);
+// [16] Datetime operator-(const Datetime&, const TimeInterval&);
 // [16] Datetime operator-(const Datetime&, const DatetimeInterval&);
 // [16] DatetimeInterval operator-(const Datetime&, const Datetime&);
 // [ 6] bool operator==(const Datetime& lhs, const Datetime& rhs);
@@ -1501,8 +1504,11 @@ if (veryVerbose)
         //:   largest, and *vice* *versa*.  (C-4)
         //
         // Testing:
+        //   Datetime operator+(const Datetime&, const TimeInterval&);
+        //   Datetime operator+(const TimeInterval&, const Datetime&);
         //   Datetime operator+(const Datetime&, const DatetimeInterval&);
         //   Datetime operator+(const DatetimeInterval&, const Datetime&);
+        //   Datetime operator-(const Datetime&, const TimeInterval&);
         //   Datetime operator-(const Datetime&, const DatetimeInterval&);
         //   DatetimeInterval operator-(const Datetime&, const Datetime&);
         // --------------------------------------------------------------------
@@ -1517,6 +1523,12 @@ if (veryVerbose)
         {
             // Verify that the signatures and return types are standard.
 
+            typedef Obj              (*operatorPtrAddObjTi)(
+                                                    const Obj&,
+                                                    const bsls::TimeInterval&);
+            typedef Obj              (*operatorPtrAddTiObj)(
+                                                     const bsls::TimeInterval&,
+                                                     const Obj&);
             typedef Obj              (*operatorPtrAddObjDti)(
                                                       const Obj&,
                                                       const DatetimeInterval&);
@@ -1525,22 +1537,38 @@ if (veryVerbose)
                                                        const Obj&);
             typedef DatetimeInterval (*operatorPtrDiffObj)(const Obj&,
                                                            const Obj&);
+            typedef Obj              (*operatorPtrDiffTi)(
+                                                    const Obj&,
+                                                    const bsls::TimeInterval&);
             typedef Obj              (*operatorPtrDiffDti)(
                                                       const Obj&,
                                                       const DatetimeInterval&);
-             operatorPtrAddObjDti operatorAddObjDti =
+
+            operatorPtrAddObjTi operatorAddObjTi =
+                             static_cast<operatorPtrAddObjTi>(bdlt::operator+);
+            operatorPtrAddTiObj operatorAddTiObj =
+                             static_cast<operatorPtrAddTiObj>(bdlt::operator+);
+
+            operatorPtrAddObjDti operatorAddObjDti =
                             static_cast<operatorPtrAddObjDti>(bdlt::operator+);
-             operatorPtrAddDtiObj operatorAddDtiObj =
+            operatorPtrAddDtiObj operatorAddDtiObj =
                             static_cast<operatorPtrAddDtiObj>(bdlt::operator+);
 
             operatorPtrDiffObj operatorDiffObj =
                               static_cast<operatorPtrDiffObj>(bdlt::operator-);
+
+            operatorPtrDiffTi operatorDiffTi =
+                               static_cast<operatorPtrDiffTi>(bdlt::operator-);
+
             operatorPtrDiffDti operatorDiffDti =
                               static_cast<operatorPtrDiffDti>(bdlt::operator-);
 
-            (void)operatorAddObjDti;  // quash potential compiler warnings
+            (void)operatorAddObjTi;  // quash potential compiler warnings
+            (void)operatorAddTiObj;
+            (void)operatorAddObjDti;
             (void)operatorAddDtiObj;
             (void)operatorDiffObj;
+            (void)operatorDiffTi;
             (void)operatorDiffDti;
         }
 
@@ -1714,8 +1742,8 @@ if (veryVerbose)
             }
         }
 
-        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
-        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
+        const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
+        const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
         if (verbose) cout
           << "\nTest largest supported time interval changes." << endl;
@@ -1731,6 +1759,33 @@ if (veryVerbose)
 
             ASSERT( delta == Y - X);
             ASSERT(-delta == X - Y);
+
+            Obj r1 = X + delta;  const Obj& R1 = r1;
+            r1.setMicrosecond(999);
+
+            Obj r2 = delta + X;  const Obj& R2 = r2;
+            r2.setMicrosecond(999);
+
+            Obj r3 = Y - delta;  const Obj& R3 = r3;
+            r3.setMicrosecond(0);
+
+            ASSERT(Y == R1);
+            ASSERT(Y == R2);
+            ASSERT(X == R3);
+        }
+
+        {
+            const int              numDaysEpoch =   endOfEpoch.date()
+                                                - startOfEpoch.date();
+            const bsls::TimeInterval delta(
+                       bdlt::TimeUnitRatio::k_S_PER_D * (numDaysEpoch + 1) - 1,
+                       (bdlt::TimeUnitRatio::k_US_PER_S - 1)
+                                           * bdlt::TimeUnitRatio::k_NS_PER_US);
+
+            if (veryVerbose) { P(startOfEpoch) P(endOfEpoch) P(delta) }
+
+            const Obj X(startOfEpoch);
+            const Obj Y(  endOfEpoch);
 
             ASSERT(Y == X + delta);
             ASSERT(Y == delta + X);
@@ -1811,7 +1866,7 @@ if (veryVerbose)
         //:   (C-2.2)
         //:
         //: 4 Use ad hoc tests to convert 'Datetime()' to
-        //:   'Datetime(1, 1, 1, 0, 0, 0, 0' by adding (subtracting) a zero
+        //:   'Datetime(1, 1, 1, 0, 0, 0, 0)' by adding (subtracting) a zero
         //:   interval.  (C-4)
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
@@ -1898,9 +1953,12 @@ if (veryVerbose)
             int d_usecs;
         } INTERVAL_VALUES[] = {
             { -1001,    0,   0,   0,    0,    0 },
+            { -1000,  -23, -59, -59, -999, -999 },
             { -1000,  -23, -59, -59, -999,    0 },
             { -1000,  -23, -59, -59, -998,    0 },
+            {   -10,   25,  80,  70,   -1,   -1 },
             {   -10,   25,  80,  70,   -1,    0 },
+            {   -10,   25,  80,  70,   -1,    1 },
             {   -10,   25,  80,  70,    0,    0 },
             {   -10,   25,  80,  70,    1,    0 },
             {    -1,    0,  -1,   0,    0,    0 },
@@ -1912,9 +1970,12 @@ if (veryVerbose)
             {     1,    0,   1,   0,    0,    0 },
             {    10,   25,  80,  70,   -1,    0 },
             {    10,   25,  80,  70,    0,    0 },
+            {    10,   25,  80,  70,    1,   -1 },
             {    10,   25,  80,  70,    1,    0 },
+            {    10,   25,  80,  70,    1,    1 },
             {  1000,   23,  59,  59,  998,    0 },
             {  1000,   23,  59,  59,  999,    0 },
+            {  1000,   23,  59,  59,  999,  999 },
             {  1001,    0,   0,   0,    0,    0 },
          };
         const int NUM_INTERVAL_VALUES =
@@ -1965,7 +2026,7 @@ if (veryVerbose)
 
                 x += delta; // 'operator+='
 
-                y.addMilliseconds(delta.totalMilliseconds());
+                y.addMicroseconds(delta.totalMicroseconds());
 
                 if (veryVerbose) { P_(X);  P(Y); }
 
@@ -1981,7 +2042,7 @@ if (veryVerbose)
 
                 u -= delta;  // 'operator-='
 
-                v.addMilliseconds(-delta.totalMilliseconds());
+                v.addMicroseconds(-delta.totalMicroseconds());
 
                 if (veryVerbose) { P_(U);  P(V); }
 
