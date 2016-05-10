@@ -308,6 +308,13 @@ class Datetime {
     // CLASS DATA
     static const bsls::Types::Uint64 k_MAX_US_FROM_EPOCH;
 
+    static const bsls::Types::Uint64 k_DATE_MASK = 0xffffffe000000000;
+    static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffff;
+
+    enum {
+        k_NUM_TIME_BITS = 37
+    };
+
     // DATA
     bsls::Types::Uint64 d_value;  // encoded offset from the epoch
 
@@ -890,7 +897,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
 inline
 void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
 {
-    d_value = ((totalMicroseconds / TimeUnitRatio::k_US_PER_D) << 37)
+    d_value = ((totalMicroseconds / TimeUnitRatio::k_US_PER_D)
+                                                            << k_NUM_TIME_BITS)
             + totalMicroseconds % TimeUnitRatio::k_US_PER_D;
 }
 
@@ -901,11 +909,11 @@ bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
     int h = hour();
 
     if (TimeUnitRatio::k_H_PER_D_32 != h) {
-        return (d_value >> 37) * TimeUnitRatio::k_US_PER_D
-             + (d_value & 0x1fffffffff);                              // RETURN
+        return (d_value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D
+             + (d_value & k_TIME_MASK);                               // RETURN
     }
 
-    return (d_value >> 37) * TimeUnitRatio::k_US_PER_D;
+    return (d_value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D;
 }
 
 // CLASS METHODS
@@ -954,7 +962,7 @@ Datetime::Datetime()
 
 inline
 Datetime::Datetime(const Date& date)
-: d_value(static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+: d_value(static_cast<bsls::Types::Uint64>(date - Date()) << k_NUM_TIME_BITS)
 {
 }
 
@@ -1090,7 +1098,8 @@ void Datetime::setDatetime(const Date& date,
                                        millisecond,
                                        microsecond));
 
-    d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+    d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
             + TimeUnitRatio::k_US_PER_H  * hour
             + TimeUnitRatio::k_US_PER_M  * minute
             + TimeUnitRatio::k_US_PER_S  * second
@@ -1102,12 +1111,14 @@ inline
 void Datetime::setDatetime(const Date& date, const Time& time)
 {
     if (24 != time.hour()) {
-        d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
                 + TimeUnitRatio::k_US_PER_MS *
                                           (time - Time(0)).totalMilliseconds();
     }
     else {
-        d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
                 + TimeUnitRatio::k_US_PER_D;
     }
 }
@@ -1175,8 +1186,9 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
-    d_value = (static_cast<bsls::Types::Uint64>(date - Date()) << 37)
-            | (d_value & 0x1fffffffff);
+    d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
+            | (d_value & k_TIME_MASK);
 }
 
 inline
@@ -1199,12 +1211,12 @@ inline
 void Datetime::setTime(const Time& time)
 {
     if (24 != time.hour()) {
-        d_value = (d_value & 0xffffffe000000000)
+        d_value = (d_value & k_DATE_MASK)
                 | (TimeUnitRatio::k_US_PER_MS *
                                          (time - Time(0)).totalMilliseconds());
     }
     else {
-        d_value = (d_value & 0xffffffe000000000) | TimeUnitRatio::k_US_PER_D;
+        d_value = (d_value & k_DATE_MASK) | TimeUnitRatio::k_US_PER_D;
     }
 }
 
@@ -1234,7 +1246,7 @@ void Datetime::setTime(int hour,
             + TimeUnitRatio::k_US_PER_S  * second
             + TimeUnitRatio::k_US_PER_MS * millisecond
             + microsecond
-            + (d_value & 0xffffffe000000000);
+            + (d_value & k_DATE_MASK);
 }
 
 inline
@@ -1244,15 +1256,15 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(     hour <= 24);
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour) {
-        bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_D
                                                     * TimeUnitRatio::k_US_PER_D
                      + microseconds % TimeUnitRatio::k_US_PER_H
                      + hour         * TimeUnitRatio::k_US_PER_H;
-        d_value = microseconds | (d_value & 0xffffffe000000000);
+        d_value = microseconds | (d_value & k_DATE_MASK);
     }
     else {
-        d_value = TimeUnitRatio::k_US_PER_D | (d_value & 0xffffffe000000000);
+        d_value = TimeUnitRatio::k_US_PER_D | (d_value & k_DATE_MASK);
     }
 }
 
@@ -1263,16 +1275,16 @@ void Datetime::setMinute(int minute)
     BSLS_ASSERT_SAFE(     minute <= 59);
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
-        bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_H
                                                     * TimeUnitRatio::k_US_PER_H
                      + microseconds % TimeUnitRatio::k_US_PER_M
                      + minute       * TimeUnitRatio::k_US_PER_M;
-        d_value = microseconds | (d_value & 0xffffffe000000000);
+        d_value = microseconds | (d_value & k_DATE_MASK);
     }
     else {
         d_value = TimeUnitRatio::k_US_PER_M * minute
-                | (d_value & 0xffffffe000000000);
+                | (d_value & k_DATE_MASK);
     }
 }
 
@@ -1283,16 +1295,16 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(     second <= 59);
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
-        bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_M
                                                     * TimeUnitRatio::k_US_PER_M
                      + microseconds % TimeUnitRatio::k_US_PER_S
                      + second       * TimeUnitRatio::k_US_PER_S;
-        d_value = microseconds | (d_value & 0xffffffe000000000);
+        d_value = microseconds | (d_value & k_DATE_MASK);
     }
     else {
         d_value = TimeUnitRatio::k_US_PER_S * second
-                | (d_value & 0xffffffe000000000);
+                | (d_value & k_DATE_MASK);
     }
 }
 
@@ -1303,16 +1315,16 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
-        bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_S
                                                     * TimeUnitRatio::k_US_PER_S
                      + microseconds % TimeUnitRatio::k_US_PER_MS
                      + millisecond  * TimeUnitRatio::k_US_PER_MS;
-        d_value = microseconds | (d_value & 0xffffffe000000000);
+        d_value = microseconds | (d_value & k_DATE_MASK);
     }
     else {
         d_value = TimeUnitRatio::k_US_PER_MS * millisecond
-                | (d_value & 0xffffffe000000000);
+                | (d_value & k_DATE_MASK);
     }
 }
 
@@ -1323,14 +1335,14 @@ void Datetime::setMicrosecond(int microsecond)
     BSLS_ASSERT_SAFE(     microsecond <= 999);
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
-        bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_MS
                                                    * TimeUnitRatio::k_US_PER_MS
                      + microsecond;
-        d_value = microseconds | (d_value & 0xffffffe000000000);
+        d_value = microseconds | (d_value & k_DATE_MASK);
     }
     else {
-        d_value = (d_value & 0xffffffe000000000) + microsecond;
+        d_value = (d_value & k_DATE_MASK) | microsecond;
     }
 }
 
@@ -1528,7 +1540,7 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    return Date() + static_cast<int>(d_value >> 37);
+    return Date() + static_cast<int>(d_value >> k_NUM_TIME_BITS);
 }
 
 inline
@@ -1581,7 +1593,7 @@ void Datetime::getTime(int *hour,
                        int *millisecond,
                        int *microsecond) const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     if (hour) {
         *hour = static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
@@ -1610,7 +1622,7 @@ void Datetime::getTime(int *hour,
 inline
 int Datetime::hour() const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     return static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
 }
@@ -1618,7 +1630,7 @@ int Datetime::hour() const
 inline
 int Datetime::minute() const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_M
@@ -1628,7 +1640,7 @@ int Datetime::minute() const
 inline
 int Datetime::second() const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_S
@@ -1638,7 +1650,7 @@ int Datetime::second() const
 inline
 int Datetime::millisecond() const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_MS
@@ -1648,7 +1660,7 @@ int Datetime::millisecond() const
 inline
 int Datetime::microsecond() const
 {
-    bsls::Types::Uint64 microseconds = d_value & 0x1fffffffff;
+    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
 
     return static_cast<int>(microseconds % TimeUnitRatio::k_US_PER_MS);
 }
