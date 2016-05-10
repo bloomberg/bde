@@ -1327,7 +1327,7 @@ int main(int argc, char *argv[])
         //        difference between model and utility values empirically.
         //     3. Maximum value of Int64 is 9223372036854775807.
         //        9223372036854775807 nanoseconds ~ 106752 days ~ 292 years.
-        //        We definetely don't worry about 'rollover' for CPU timers,
+        //        We definitely don't worry about 'rollover' for CPU timers,
         //        because they start simultaneously with the process.  Model
         //        wall time counter has Epoch (00:00:00 UTC on 1 January 1970)
         //        as a starting point, so 'rollover' will occur only in 2262.
@@ -1486,6 +1486,8 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(rightDifference > oldModelWallTime - oldUtilWallTime);
+            ASSERT(MODEL_WALL_TICK_DURATION - leftDifference >
+                                           oldUtilWallTime - oldModelWallTime);
 
             for (int i = 0; i < NUM_INTERVALS; i++) {
                 do {
@@ -1532,6 +1534,8 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 >= oldModelSystemTime - oldUtilSystemTime);
+            ASSERT(MODEL_CPU_TICK_DURATION >
+                                       oldUtilSystemTime - oldModelSystemTime);
 
             for (int i = 0; i < NUM_INTERVALS; i++) {
                 do {
@@ -1576,6 +1580,8 @@ int main(int argc, char *argv[])
             }
 
             ASSERT(0 >= oldModelUserTime - oldUtilUserTime);
+            ASSERT(MODEL_CPU_TICK_DURATION >
+                                           oldUtilUserTime - oldModelUserTime);
 
             for (int i = 0; i < NUM_INTERVALS; i++) {
                 do {
