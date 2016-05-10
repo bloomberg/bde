@@ -260,6 +260,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timeunitratio.h>
 #endif
 
+#ifndef INCLUDED_BDLB_BITUTIL
+#include <bdlb_bitutil.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -272,8 +276,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LOG
+#include <bsls_log.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
@@ -308,12 +324,15 @@ class Datetime {
     // CLASS DATA
     static const bsls::Types::Uint64 k_MAX_US_FROM_EPOCH;
 
+    static const bsls::Types::Uint64 k_REP_MASK  = 0x8000000000000000;
     static const bsls::Types::Uint64 k_DATE_MASK = 0xffffffe000000000;
     static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffff;
 
     enum {
         k_NUM_TIME_BITS = 37
     };
+
+    static bsls::AtomicInt64 s_invalidRepresentationCount;
 
     // DATA
     bsls::Types::Uint64 d_value;  // encoded offset from the epoch
@@ -339,6 +358,13 @@ class Datetime {
         // Return the difference, measured in microseconds, between this
         // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
         // and the epoch.
+
+    bsls::Types::Uint64 updatedRepresentation() const;
+        // If 'd_value' is a valid representation, return 'd_value'.
+        // Otherwise, return the representation of the datetime corresponding
+        // to the datetime implied by assuming the value in 'd_value' is the
+        // concatenation of a 'Date' and a 'Time', and log or assert the
+        // detection of an invalid date.
 
   public:
     // CLASS METHODS
@@ -900,20 +926,85 @@ void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
     d_value = ((totalMicroseconds / TimeUnitRatio::k_US_PER_D)
                                                             << k_NUM_TIME_BITS)
             + totalMicroseconds % TimeUnitRatio::k_US_PER_D;
+    d_value |= k_REP_MASK;
 }
 
 // PRIVATE ACCESSORS
 inline
 bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 {
-    int h = hour();
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+        int h = hour();
 
-    if (TimeUnitRatio::k_H_PER_D_32 != h) {
-        return (d_value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D
-             + (d_value & k_TIME_MASK);                               // RETURN
+        bsls::Types::Uint64 value = d_value & (~k_REP_MASK);
+
+        if (TimeUnitRatio::k_H_PER_D_32 != h) {
+            return (value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D
+                 + (value & k_TIME_MASK);                             // RETURN
+        }
+
+        return (value >> k_NUM_TIME_BITS)
+                                        * TimeUnitRatio::k_US_PER_D;  // RETURN
     }
 
-    return (d_value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D;
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+
+    // Log detection of invalid format with logarithmic back-off.
+
+    bdlb::BitUtil::uint64_t count =
+          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
+    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+        BSLS_LOG_SIMPLE(
+                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+    }
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    bsls::Types::Uint64 days = (d_value & 0xffffffff) - 1;
+    bsls::Types::Uint64 milliseconds =
+                                (d_value >> 32) % TimeUnitRatio::k_MS_PER_D_32;
+#else
+    bsls::Types::Uint64 days = (d_value >> 32) - 1;
+    bsls::Types::Uint64 milliseconds =
+                         (d_value & 0xffffffff) % TimeUnitRatio::k_MS_PER_D_32;
+#endif
+
+    return TimeUnitRatio::k_US_PER_D  * days
+         + TimeUnitRatio::k_US_PER_MS * milliseconds;
+}
+
+inline
+bsls::Types::Uint64 Datetime::updatedRepresentation() const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+        return d_value;                                               // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+
+    // Log detection of invalid format with logarithmic back-off.
+
+    bdlb::BitUtil::uint64_t count =
+          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
+    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+        BSLS_LOG_SIMPLE(
+                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+    }
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    bsls::Types::Uint64 days = (d_value & 0xffffffff) - 1;
+    bsls::Types::Uint64 milliseconds =
+                                (d_value >> 32) % TimeUnitRatio::k_MS_PER_D_32;
+#else
+    bsls::Types::Uint64 days = (d_value >> 32) - 1;
+    bsls::Types::Uint64 milliseconds =
+                         (d_value & 0xffffffff) % TimeUnitRatio::k_MS_PER_D_32;
+#endif
+
+    return (days << k_NUM_TIME_BITS)
+         | (TimeUnitRatio::k_US_PER_MS * milliseconds)
+         | k_REP_MASK;
 }
 
 // CLASS METHODS
@@ -958,12 +1049,14 @@ inline
 Datetime::Datetime()
 : d_value(TimeUnitRatio::k_US_PER_D)
 {
+    d_value |= k_REP_MASK;
 }
 
 inline
 Datetime::Datetime(const Date& date)
 : d_value(static_cast<bsls::Types::Uint64>(date - Date()) << k_NUM_TIME_BITS)
 {
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -996,6 +1089,7 @@ inline
 Datetime::Datetime(const Datetime& original)
 : d_value(original.d_value)
 {
+    d_value = updatedRepresentation();
 }
 
 // MANIPULATORS
@@ -1003,6 +1097,7 @@ inline
 Datetime& Datetime::operator=(const Datetime& rhs)
 {
     d_value = rhs.d_value;
+    d_value = updatedRepresentation();
 
     return *this;
 }
@@ -1105,6 +1200,8 @@ void Datetime::setDatetime(const Date& date,
             + TimeUnitRatio::k_US_PER_S  * second
             + TimeUnitRatio::k_US_PER_MS * millisecond
             + microsecond;
+
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -1121,6 +1218,8 @@ void Datetime::setDatetime(const Date& date, const Time& time)
                                                             << k_NUM_TIME_BITS)
                 + TimeUnitRatio::k_US_PER_D;
     }
+
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -1186,9 +1285,13 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
+    d_value = updatedRepresentation();
+
     d_value = (static_cast<bsls::Types::Uint64>(date - Date())
                                                             << k_NUM_TIME_BITS)
             | (d_value & k_TIME_MASK);
+
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -1210,6 +1313,8 @@ void Datetime::setYearMonthDay(int year, int month, int day)
 inline
 void Datetime::setTime(const Time& time)
 {
+    d_value = updatedRepresentation();
+
     if (24 != time.hour()) {
         d_value = (d_value & k_DATE_MASK)
                 | (TimeUnitRatio::k_US_PER_MS *
@@ -1241,6 +1346,8 @@ void Datetime::setTime(int hour,
                 0                                 == millisecond &&
                 0                                 == microsecond));
 
+    d_value = updatedRepresentation();
+
     d_value = TimeUnitRatio::k_US_PER_H  * hour
             + TimeUnitRatio::k_US_PER_M  * minute
             + TimeUnitRatio::k_US_PER_S  * second
@@ -1254,6 +1361,8 @@ void Datetime::setHour(int hour)
 {
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
+
+    d_value = updatedRepresentation();
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
@@ -1273,6 +1382,8 @@ void Datetime::setMinute(int minute)
 {
     BSLS_ASSERT_SAFE(0 <= minute);
     BSLS_ASSERT_SAFE(     minute <= 59);
+
+    d_value = updatedRepresentation();
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
@@ -1294,6 +1405,8 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(0 <= second);
     BSLS_ASSERT_SAFE(     second <= 59);
 
+    d_value = updatedRepresentation();
+
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_M
@@ -1314,6 +1427,8 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(0 <= millisecond);
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
+    d_value = updatedRepresentation();
+
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
         microseconds = microseconds / TimeUnitRatio::k_US_PER_S
@@ -1333,6 +1448,8 @@ void Datetime::setMicrosecond(int microsecond)
 {
     BSLS_ASSERT_SAFE(0 <= microsecond);
     BSLS_ASSERT_SAFE(     microsecond <= 999);
+
+    d_value = updatedRepresentation();
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
@@ -1507,8 +1624,10 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 
             stream.getUint64(tmp);
 
-            if (stream && tmp <= DatetimeImpUtil::k_MAX_VALUE) {
+            if (   stream
+                && tmp <= (DatetimeImpUtil::k_MAX_VALUE & (~k_REP_MASK))) {
                 d_value = tmp;
+                d_value |= k_REP_MASK;
             }
             else {
                 stream.invalidate();
@@ -1540,7 +1659,9 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    return Date() + static_cast<int>(d_value >> k_NUM_TIME_BITS);
+    bsls::Types::Uint64 value = updatedRepresentation() & (~k_REP_MASK);
+
+    return Date() + static_cast<int>(value >> k_NUM_TIME_BITS);
 }
 
 inline
@@ -1593,7 +1714,7 @@ void Datetime::getTime(int *hour,
                        int *millisecond,
                        int *microsecond) const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     if (hour) {
         *hour = static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
@@ -1622,7 +1743,7 @@ void Datetime::getTime(int *hour,
 inline
 int Datetime::hour() const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     return static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
 }
@@ -1630,7 +1751,7 @@ int Datetime::hour() const
 inline
 int Datetime::minute() const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_M
@@ -1640,7 +1761,7 @@ int Datetime::minute() const
 inline
 int Datetime::second() const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_S
@@ -1650,7 +1771,7 @@ int Datetime::second() const
 inline
 int Datetime::millisecond() const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     return static_cast<int>(  microseconds
                             / TimeUnitRatio::k_US_PER_MS
@@ -1660,7 +1781,7 @@ int Datetime::millisecond() const
 inline
 int Datetime::microsecond() const
 {
-    bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
 
     return static_cast<int>(microseconds % TimeUnitRatio::k_US_PER_MS);
 }
@@ -1673,7 +1794,10 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 2: {
-            stream.putUint64(d_value);
+            bsls::Types::Uint64 value =
+                                       updatedRepresentation() & (~k_REP_MASK);
+
+            stream.putUint64(value);
           } break;
           case 1: {
             date().bdexStreamOut(stream, 1);
@@ -1833,7 +1957,10 @@ bool bdlt::operator<(const Datetime& lhs, const Datetime& rhs)
     BSLS_ASSERT_SAFE(24 != lhs.hour());
     BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.d_value < rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue < rhsValue;
 }
 
 inline
@@ -1842,7 +1969,10 @@ bool bdlt::operator<=(const Datetime& lhs, const Datetime& rhs)
     BSLS_ASSERT_SAFE(24 != lhs.hour());
     BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.d_value <= rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue <= rhsValue;
 }
 
 inline
@@ -1851,7 +1981,10 @@ bool bdlt::operator>(const Datetime& lhs, const Datetime& rhs)
     BSLS_ASSERT_SAFE(24 != lhs.hour());
     BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.d_value > rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue > rhsValue;
 }
 
 inline
@@ -1860,7 +1993,10 @@ bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
     BSLS_ASSERT_SAFE(24 != lhs.hour());
     BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.d_value >= rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue >= rhsValue;
 }
 
 }  // close enterprise namespace

@@ -16,26 +16,30 @@ namespace bdlt {
                           // ----------------------
 
 // CLASS VALUES
-const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 0ULL;
+const bsls::Types::Uint64 DatetimeImpUtil::k_0001_01_01_VALUE = 1ULL << 63;
 
 #ifdef BDE_USE_PROLEPTIC_DATES
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
-                                                               719162ULL << 37;
+                                           719162ULL << 37
+                                         | DatetimeImpUtil::k_0001_01_01_VALUE;
                     // 719162 is 1970/01/01 - 0001/01/01 in Proleptic Gregorian
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
-                                (3652058ULL << 37) + TimeUnitRatio::k_US_PER_D;
+                                 (3652058ULL << 37) + TimeUnitRatio::k_US_PER_D
+                               | DatetimeImpUtil::k_0001_01_01_VALUE;
                    // 3652058 is 9999/12/31 - 0001/01/01 in Proleptic Gregorian
 
 #else
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_1970_01_01_VALUE =
-                                                               719164ULL << 37;
+                                           719164ULL << 37
+                                         | DatetimeImpUtil::k_0001_01_01_VALUE;
                                   // 719164 is 1970/01/01 - 0001/01/01 in POSIX
 
 const bsls::Types::Uint64 DatetimeImpUtil::k_MAX_VALUE =
-                                (3652060ULL << 37) + TimeUnitRatio::k_US_PER_D;
+                               ((3652060ULL << 37) + TimeUnitRatio::k_US_PER_D)
+                             | DatetimeImpUtil::k_0001_01_01_VALUE;
                                  // 3652060 is 9999/12/31 - 0001/01/01 in POSIX
 
 #endif

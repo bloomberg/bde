@@ -11,7 +11,9 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_log.h>
 #include <bsls_timeinterval.h>
+#include <bsls_types.h>
 
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>
@@ -286,6 +288,27 @@ const int DEFAULT_NUM_DATA =
                   static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // ============================================================================
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+
+static int s_countingLogMessageHandlerCount = 0;
+
+static void countingLogMessageHandler(const char *, const int, const char *)
+    // Increment 's_countingLogMessageHandlerCount'.
+{
+    ++s_countingLogMessageHandlerCount;
+}
+
+#endif
+
+struct DT {
+    Date d_date;
+    Time d_time;
+};
+
+// ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -311,7 +334,344 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
+    // Create an object with an invalid internal representation.
+
+    Obj mInvalid;  const Obj& INVALID = mInvalid;
+    {
+        reinterpret_cast<DT *>(&mInvalid)->d_date.setYearMonthDay(1, 1, 1);
+        reinterpret_cast<DT *>(&mInvalid)->d_time.setTime(24);
+    }
+
     switch (test) { case 0:
+      // --------------------------------------------------------------------
+      // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
+      // --------------------------------------------------------------------
+
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
+      case 59: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        const int                    NUM_DATA  = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int LINE   = DATA[ti].d_line;
+            const int YEAR   = DATA[ti].d_year;
+            const int MONTH  = DATA[ti].d_month;
+            const int DAY    = DATA[ti].d_day;
+            const int HOUR   = DATA[ti].d_hour;
+            const int MINUTE = DATA[ti].d_minute;
+            const int SECOND = DATA[ti].d_second;
+            const int MSEC   = DATA[ti].d_msec;
+
+            if (veryVerbose) {
+                T_  P_(YEAR) P_(MONTH)  P(DAY)
+                T_  P_(HOUR) P_(MINUTE) P_(SECOND) P(MSEC);
+            }
+
+            Obj mX;  const Obj& X = mX;
+
+            reinterpret_cast<DT *>(&mX)->d_date.setYearMonthDay(YEAR,
+                                                                MONTH,
+                                                                DAY);
+            reinterpret_cast<DT *>(&mX)->d_time.setTime(HOUR,
+                                                        MINUTE,
+                                                        SECOND,
+                                                        MSEC);
+
+            LOOP_ASSERT(LINE, Date(YEAR, MONTH, DAY)     == X.date());
+            LOOP_ASSERT(LINE,
+                        Time(HOUR, MINUTE, SECOND, MSEC) == X.time());
+            LOOP_ASSERT(LINE,                          0 == X.microsecond());
+        }
+      } break;
+      case 58: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMicroseconds(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 57: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMilliseconds(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 56: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addSeconds(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 55: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addMinutes(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 54: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addHours(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 53: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addTime(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 52: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.addDays(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time()  == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 51: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMicrosecond(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 50: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMillisecond(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 49: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setSecond(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 48: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setMinute(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 47: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setHour(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 46: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setTime(0);
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 45: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setTime(Time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time()  == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 44: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid.setDate(Date());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time()  == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 43: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid -= DatetimeInterval();
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 42: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid += DatetimeInterval();
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 41: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid -= bsls::TimeInterval();
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 40: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        mInvalid += bsls::TimeInterval();
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+        ASSERT(Date()  == INVALID.date());
+        ASSERT(Time(0) == INVALID.time());
+        ASSERT(      1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 39: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        char buffer[64];
+        INVALID.printToBuffer(buffer, sizeof buffer);
+
+        ASSERT(2 == s_countingLogMessageHandlerCount);
+      } break;
+      case 38: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.microsecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 37: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.millisecond();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 36: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.second();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 35: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.minute();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 34: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.hour();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 33: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        int hour;
+        INVALID.getTime(&hour);
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 32: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.dayOfWeek();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 31: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.dayOfYear();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 30: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.day();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 29: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.month();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 28: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.year();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 27: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.time();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 26: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+        INVALID.date();
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 25: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        int exp = 0;
+        for (bsls::Types::Uint64 i = 1; i <= 4096; ++i) {
+            if (i == (1ULL << exp)) {
+                ++exp;
+            }
+            INVALID.date();
+            ASSERT(exp == s_countingLogMessageHandlerCount);
+        }
+      } break;
+#endif
+      case 24: {
+        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+
+        // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
+
+        ASSERT_SAFE_FAIL(INVALID.date());
+        ASSERT_SAFE_FAIL(INVALID.time());
+        ASSERT_SAFE_FAIL(INVALID.year());
+        ASSERT_SAFE_FAIL(INVALID.month());
+        ASSERT_SAFE_FAIL(INVALID.day());
+        ASSERT_SAFE_FAIL(INVALID.dayOfYear());
+        ASSERT_SAFE_FAIL(INVALID.dayOfWeek());
+        {
+            int hour;
+            ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
+        }
+        ASSERT_SAFE_FAIL(INVALID.hour());
+        ASSERT_SAFE_FAIL(INVALID.minute());
+        ASSERT_SAFE_FAIL(INVALID.second());
+        ASSERT_SAFE_FAIL(INVALID.millisecond());
+        ASSERT_SAFE_FAIL(INVALID.microsecond());
+        {
+            char buffer[64];
+            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer, sizeof buffer));
+        }
+
+        ASSERT_SAFE_FAIL(mInvalid += bsls::TimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid -= bsls::TimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid += DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid -= DatetimeInterval());
+        ASSERT_SAFE_FAIL(mInvalid.setDate(Date()));
+        ASSERT_SAFE_FAIL(mInvalid.setTime(Time()));
+        ASSERT_SAFE_FAIL(mInvalid.setTime(0));
+        ASSERT_SAFE_FAIL(mInvalid.setHour(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMinute(0));
+        ASSERT_SAFE_FAIL(mInvalid.setSecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMillisecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.setMicrosecond(0));
+        ASSERT_SAFE_FAIL(mInvalid.addDays(0));
+        ASSERT_SAFE_FAIL(mInvalid.addTime(0));
+        ASSERT_SAFE_FAIL(mInvalid.addHours(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMinutes(0));
+        ASSERT_SAFE_FAIL(mInvalid.addSeconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMilliseconds(0));
+        ASSERT_SAFE_FAIL(mInvalid.addMicroseconds(0));
+      } break;
       case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -4157,8 +4517,7 @@ if (veryVerbose)
             // Stream out "new" value.
             using bslx::OutStreamFunctions::bdexStreamOut;
 
-            out.putUint64(  bdlt::DatetimeImpUtil::k_0001_01_01_VALUE
-                          + bdlt::TimeUnitRatio::k_US_PER_H);
+            out.putUint64(bdlt::TimeUnitRatio::k_US_PER_H);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());

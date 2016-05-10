@@ -27,7 +27,7 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
                               // class Datetime
                               // --------------
 
-// CLASS VALUES
+// CLASS DATA
 #ifdef BDE_USE_PROLEPTIC_DATES
 const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
                                     3652059ULL * TimeUnitRatio::k_US_PER_D - 1;
@@ -37,6 +37,8 @@ const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
                                     3652061ULL * TimeUnitRatio::k_US_PER_D - 1;
                              // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
 #endif
+
+bsls::AtomicInt64 Datetime::s_invalidRepresentationCount(0);
 
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
