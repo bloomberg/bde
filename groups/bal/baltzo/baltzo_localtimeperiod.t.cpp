@@ -2122,8 +2122,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         NL
                            "description = \"MDT\""                          NL
                            "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"       NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         NL
                            "]"                                              NL
                                                                             },
 
@@ -2133,8 +2133,8 @@ int main(int argc, char *argv[])
                            "  dstInEffectFlag = true"                       NL
                            "  description = \"MDT\""                        NL
                            " ]"                                             NL
-                           " utcStartTime = 15APR2010_08:00:00.000"         NL
-                           " utcEndTime = 08DEC2010_09:00:00.000"           NL
+                           " utcStartTime = 15APR2010_08:00:00.000000"      NL
+                           " utcEndTime = 08DEC2010_09:00:00.000000"        NL
                            "]"                                              NL
                                                                             },
 
@@ -2144,8 +2144,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         SP
                            "description = \"MDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"       SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         SP
                            "]"
                                                                             },
 
@@ -2162,8 +2162,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         NL
                            "description = \"MDT\""                          NL
                            "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"       NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         NL
                            "]"                                              NL
                                                                             },
 
@@ -2173,8 +2173,8 @@ int main(int argc, char *argv[])
                            "          dstInEffectFlag = true"               NL
                            "          description = \"MDT\""                NL
                            "        ]"                                      NL
-                           "        utcStartTime = 15APR2010_08:00:00.000"  NL
-                           "        utcEndTime = 08DEC2010_09:00:00.000"    NL
+                         "        utcStartTime = 15APR2010_08:00:00.000000" NL
+                         "        utcEndTime = 08DEC2010_09:00:00.000000"   NL
                            "      ]"                                        NL
                                                                             },
 
@@ -2184,8 +2184,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         SP
                            "description = \"MDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"       SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         SP
                            "]"
                                                                             },
 
@@ -2195,8 +2195,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         NL
                            "description = \"MDT\""                          NL
                            "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"       NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         NL
                            "]"                                              NL
                                                                             },
 
@@ -2206,8 +2206,8 @@ int main(int argc, char *argv[])
                            "          dstInEffectFlag = true"               NL
                            "          description = \"MDT\""                NL
                            "        ]"                                      NL
-                           "        utcStartTime = 15APR2010_08:00:00.000"  NL
-                           "        utcEndTime = 08DEC2010_09:00:00.000"    NL
+                         "        utcStartTime = 15APR2010_08:00:00.000000" NL
+                         "        utcEndTime = 08DEC2010_09:00:00.000000"   NL
                            "      ]"                                        NL
                                                                             },
 
@@ -2218,8 +2218,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         SP
                            "description = \"MDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"       SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         SP
                            "]"
                                                                             },
 
@@ -2235,8 +2235,8 @@ int main(int argc, char *argv[])
                            "            dstInEffectFlag = false"            NL
                            "            description = \"IDT\""              NL
                            "         ]"                                     NL
-                           "         utcStartTime = 16MAY2011_09:00:00.000" NL
-                           "         utcEndTime = 09JAN2012_10:00:00.000"   NL
+                        "         utcStartTime = 16MAY2011_09:00:00.000000" NL
+                        "         utcEndTime = 09JAN2012_10:00:00.000000"   NL
                            "      ]"                                        NL
                                                                             },
 
@@ -2254,8 +2254,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         SP
                            "description = \"MDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"       SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         SP
                            "]"
                                                                             },
 
@@ -2266,8 +2266,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = false"                        SP
                            "description = \"IDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 16MAY2011_09:00:00.000"          SP
-                           "utcEndTime = 09JAN2012_10:00:00.000"            SP
+                           "utcStartTime = 16MAY2011_09:00:00.000000"       SP
+                           "utcEndTime = 09JAN2012_10:00:00.000000"         SP
                            "]"
                                                                             },
 

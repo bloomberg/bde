@@ -587,7 +587,8 @@ void getDatetimeField(bsl::string       *result,
     ASSERT(0            <= recordIndex);
     ASSERT(lines.size() >  recordIndex);
 
-    const bsl::size_t dateFieldLength = bsl::strlen("23DEC2013_16:40:44.052");
+    const bsl::size_t dateFieldLength =
+                                      bsl::strlen("23DEC2013_16:40:44.052000");
     *result = lines[recordIndex].substr(0, dateFieldLength);
 }
 

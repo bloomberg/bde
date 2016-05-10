@@ -978,7 +978,7 @@ int main(int argc, char *argv[])
             mX.setThreadID(19);
 
             o << X << ends;
-            bsl::string s = "[ 01JAN0001_24:00:00.000 "
+            bsl::string s = "[ 01JAN0001_24:00:00.000000 "
                             "74372 "
                             "19 "
                             "ball_recordattributes.t.cpp "
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //line  indent +/-  spaces/Tab  format                // ADJUST
                 //----  ----------  ----------  --------------
-                { L_,    0,         -1,         "[ 01JAN0001_24:00:00.000 "
+                { L_,    0,         -1,         "[ 01JAN0001_24:00:00.000000 "
                                                 "74372 "
                                                 "19 "
                                                 "ball_recordattributes.t.cpp "
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    0,          0,        "["                           NL
-                                               "01JAN0001_24:00:00.000"      NL
+                                               "01JAN0001_24:00:00.000000"   NL
                                                "74372"                       NL
                                                "19"                          NL
                                                "ball_recordattributes.t.cpp" NL
@@ -1029,7 +1029,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    0,          2,      "["                             NL
-                                             "  01JAN0001_24:00:00.000"      NL
+                                             "  01JAN0001_24:00:00.000000"   NL
                                              "  74372"                       NL
                                              "  19"                          NL
                                              "  ball_recordattributes.t.cpp" NL
@@ -1041,7 +1041,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    1,          1,      " ["                            NL
-                                             "  01JAN0001_24:00:00.000"      NL
+                                             "  01JAN0001_24:00:00.000000"   NL
                                              "  74372"                       NL
                                              "  19"                          NL
                                              "  ball_recordattributes.t.cpp" NL
@@ -1053,7 +1053,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    1,          2,    "  ["                             NL
-                                           "    01JAN0001_24:00:00.000"      NL
+                                           "    01JAN0001_24:00:00.000000"   NL
                                            "    74372"                       NL
                                            "    19"                          NL
                                            "    ball_recordattributes.t.cpp" NL
@@ -1065,7 +1065,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,   -1,          2,    "["                               NL
-                                           "    01JAN0001_24:00:00.000"      NL
+                                           "    01JAN0001_24:00:00.000000"   NL
                                            "    74372"                       NL
                                            "    19"                          NL
                                            "    ball_recordattributes.t.cpp" NL
@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,   -2,          1,     "["                              NL
-                                            "   01JAN0001_24:00:00.000"      NL
+                                            "   01JAN0001_24:00:00.000000"   NL
                                             "   74372"                       NL
                                             "   19"                          NL
                                             "   ball_recordattributes.t.cpp" NL
@@ -1089,7 +1089,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    2,          1,    "  ["                             NL
-                                           "   01JAN0001_24:00:00.000"       NL
+                                           "   01JAN0001_24:00:00.000000"    NL
                                            "   74372"                        NL
                                            "   19"                           NL
                                            "   ball_recordattributes.t.cpp"  NL
@@ -1101,7 +1101,7 @@ int main(int argc, char *argv[])
                 },
 
                 { L_,    1,          3,  "   ["                              NL
-                                         "      01JAN0001_24:00:00.000"      NL
+                                         "      01JAN0001_24:00:00.000000"   NL
                                          "      74372"                       NL
                                          "      19"                          NL
                                          "      ball_recordattributes.t.cpp" NL
