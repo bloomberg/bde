@@ -6,8 +6,10 @@
 #include <bsls_types.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
+    #include <stdio.h>     // file I/O operations
     #include <sys/time.h>  // 'gethrtime()'
+    #include <sys/times.h> // struct tms, times()
+    #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
     #include <unistd.h>    // 'sleep'
 #ifdef BSLS_PLATFORM_OS_SOLARIS   // Solaris OR late SunOS!
     #include <limits.h>    // 'CLK_TCK', for Sun (on FreeBSD, in <sys/time.h>)
@@ -46,23 +48,20 @@ using namespace BloombergLP;
 // address basic concerns to probe both our own code for consistent behavior
 // and the system results for plausible correct behavior.
 //-----------------------------------------------------------------------------
-// [11] bsls::Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
+// [ 8] bsls::Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
 // [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
 // [ 1] void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64);
 // [ 1] bsls::Types::Int64 bsls::TimeUtil::getTimer();
 // [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
-// [11] OpaqueNativeTime getTimerRaw();
+// [ 8] OpaqueNativeTime getTimerRaw();
 //-----------------------------------------------------------------------------
 // [XX] Breathing Test -- NOT IMPLEMENTED
 // [ 2] USAGE
 // [ 3] Performance Test
-// [ 4] Test for unique, monotonically increasing return values (statistical)
-// [ 5] Test correct hooking of methods to underlying OS APIs (approximately)
+// [ 4] Test correct hooking of methods to underlying OS APIs (Windows only)
+// [ 5] Test correct hooking of methods to underlying OS APIs (Unix only)
 // [ 6] Test of 'gethrtime()' (Sun and HP only -- statistical)
-// [ 7] Initialization test: getProcessSystemTimer (UNIX only)
-// [ 8] Initialization test: getProcessUserTimer (UNIX only)
-// [ 9] Initialization test: getProcessTimers (UNIX only)
-// [10] Initialization test: getTimer (Windows only)
+// [ 7] Initialization test: getTimer (Windows only)
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -95,6 +94,11 @@ static void aSsErT(bool b, const char *s, int i) {
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+// ========================================================================
+//                          PRINTF FORMAT MACROS
+// ------------------------------------------------------------------------
+#define TI64 BSLS_BSLTESTUTIL_FORMAT_I64
+
 //=============================================================================
 //                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -103,6 +107,10 @@ typedef bsls::TimeUtil     TU;
 typedef bsls::Types::Int64 Int64;
 
 typedef Int64 (*TimerMethod) ();
+
+const Int64 nsecsPerMicrosecond = 1000LL;
+const Int64 nsecsPerMillisecond = 1000LL * 1000LL;
+const Int64 nsecsPerSecond = 1000LL * 1000LL * 1000LL;
 
 //=============================================================================
 //                              HELPER FUNCTIONS
@@ -122,21 +130,65 @@ static Int64 callGetProcessTimersRetUser() {
     return uTimer;
 }
 
-static void osSleep(unsigned seconds) {
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    for(;;) {
-        int t = sleep(seconds);
-        if (t <= 0) {
-            break;
-        }
-        seconds = t;
-    }
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+static void osNanosleep(long int nanoseconds) {
+
+    timespec interval;
+
+    interval.tv_sec = 0;
+    interval.tv_nsec = nanoseconds;
+    nanosleep(&interval, 0);
+}
+#elif defined (BSLS_PLATFORM_OS_WINDOWS)
+static void osSleep(unsigned seconds) {
     Sleep(seconds*1000);  // milliseconds
+}
 #else
     #error "Do not know how to sleep on this platform"
 #endif
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+Int64 getModelSystemTime()
+    // Return CPU system time for current process, acquired from 'times()'
+    // function, that is used as a model.
+{
+    struct tms processTimes;
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
+         return 0;                                                    // RETURN
+    }
+    long ticksPerSecond = ::sysconf(_SC_CLK_TCK);
+
+    return static_cast<bsls::Types::Int64>(processTimes.tms_stime)
+                                             * nsecsPerSecond / ticksPerSecond;
 }
+
+Int64 getModelUserTime()
+    // Return CPU user time for current process, acquired from 'times()'
+    // function, that is used as a model.
+{
+    struct tms processTimes;
+    if (static_cast<clock_t>(-1) == ::times(&processTimes)) {
+         return 0;                                                    // RETURN
+    }
+    long ticksPerSecond = ::sysconf(_SC_CLK_TCK);
+
+    return static_cast<bsls::Types::Int64>(processTimes.tms_utime)
+                                             * nsecsPerSecond / ticksPerSecond;
+}
+
+Int64 getModelWallTime()
+    // Return wall time for current process, acquired from 'gettimeofday()'
+    // function, that is used as a model.
+{
+    struct timeval now;
+    int            rv = gettimeofday(&now, NULL);
+    if (-1 == rv) {
+        return 0;                                                     // RETURN
+    }
+
+   return now.tv_sec * nsecsPerSecond + now.tv_usec * nsecsPerMicrosecond;
+}
+#endif
 
 //=============================================================================
 //                             USAGE EXAMPLE CODE
@@ -497,7 +549,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header must build and
@@ -539,7 +591,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING convertRawTime() arithmetic *** Windows Only ***
         //
@@ -1015,7 +1067,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING getTimerRaw() and convertRawTime()
         //
@@ -1065,7 +1117,8 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) printf("0: Elapsed time under test: %lld nsec\n", dT);
+            if (verbose)
+                printf("0: Elapsed time under test: " TI64 " nsec\n", dT);
         }
 
         {
@@ -1079,8 +1132,10 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) printf("1: Elapsed time under test: %lld nsec\n", dT);
-            if (veryVerbose) printf("Computed Values: %g\n", x);
+            if (verbose)
+                 printf("1: Elapsed time under test: " TI64 " nsec\n", dT);
+            if (veryVerbose)
+                 printf("Computed Values: %g\n", x);
         }
 
         {
@@ -1095,8 +1150,10 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) printf("2: Elapsed time under test: %lld nsec\n", dT);
-            if (veryVerbose) printf("Computed Values: %g %g\n", x, y);
+            if (verbose)
+                printf("2: Elapsed time under test: " TI64 " nsec\n", dT);
+            if (veryVerbose)
+                printf("Computed Values: %g %g\n", x, y);
         }
 
         {
@@ -1113,8 +1170,10 @@ int main(int argc, char *argv[])
             dT = TU::convertRawTime(t2) - TU::convertRawTime(t1);
             ASSERT(dT >= 0);
 
-            if (verbose) printf("3: Elapsed time under test: %lld nsec\n", dT);
-            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
+            if (verbose)
+                printf("3: Elapsed time under test: " TI64 " nsec\n", dT);
+            if (veryVerbose)
+                printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -1134,8 +1193,9 @@ int main(int argc, char *argv[])
             ASSERT(dT >= 0);
 
             if (verbose)
-                printf("10: Elapsed time under test: %lld nsec\n", dT);
-            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
+                printf("10: Elapsed time under test: " TI64 " nsec\n", dT);
+            if (veryVerbose)
+                printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
         {
@@ -1155,12 +1215,13 @@ int main(int argc, char *argv[])
             ASSERT(dT >= 0);
 
             if (verbose)
-                printf("100: Elapsed time under test: %lld nsec\n", dT);
-            if (veryVerbose) printf("Computed Values: %g %g %g\n", x, y, z);
+                printf("100: Elapsed time under test: " TI64 " nsec\n", dT);
+            if (veryVerbose)
+                printf("Computed Values: %g %g %g\n", x, y, z);
         }
 
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
         //   *** Windows only ***: bsls::TimeUtil::getTimer()
@@ -1185,79 +1246,8 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls::TimeUtil::getProcessTimers()
-        //
-        // Plan:
-        //   Call the method and check that the values returned are not
-        //   negative (the uninitialized factor value is -1).
-        //
-        // Testing:
-        //   bsls::TimeUtil::getProcessTimers()
-        // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_UNIX
-        if (verbose)
-            printf("\nTesting TimeUtil initialization (process timers)"
-                   "\n================================================\n");
-
-        Int64 ts, tu; TU::getProcessTimers(&ts, &tu);
-        if (verbose) { T_; P_(ts); P_(tu); }
-        ASSERT(ts >= 0); ASSERT(tu >= 0);
-#endif
-
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls::TimeUtil::getProcessUserTimer()
-        //
-        // Plan:
-        //   Call the method and check that the return value is not negative
-        //   (the uninitialized factor value is -1).
-        //
-        // Testing:
-        //   bsls::TimeUtil::getProcessUserTimer()
-        // --------------------------------------------------------------------
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-        if (verbose)
-            printf("\nTesting TimeUtil initialization (user timer)"
-                   "\n============================================\n");
-
-        Int64 t = TU::getProcessUserTimer();
-        if (verbose) { T_; P_(t); }
-        ASSERT(t >= 0);
-#endif
-
-      } break;
       case 6: {
-        // --------------------------------------------------------------------
-        // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls::TimeUtil::getProcessSystemTimer()
-        //
-        // Plan:
-        //   Call the method and check that the return value is not negative
-        //   (the uninitialized factor value is -1).
-        //
-        // Testing:
-        //   bsls::TimeUtil::getProcessSystemTimer()
-        // --------------------------------------------------------------------
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-        if (verbose)
-            printf("\nTesting TimeUtil initialization (system timer)"
-                   "\n==============================================\n");
-
-        Int64 t = TU::getProcessSystemTimer();
-        if (verbose) { T_; P_(t); }
-        ASSERT(t >= 0);
-#endif
-
-      } break;
-      case 5: {
 #if defined (BSLS_PLATFORM_OS_SOLARIS) || defined (BSLS_PLATFORM_OS_HPUX)
         // --------------------------------------------------------------------
         // PERFORMANCE TEST 'gethrtime()' *** Sun and HP ONLY ***
@@ -1322,9 +1312,298 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
-        // HOOKING TEST
+        // HOOKING TEST  *** Unix ONLY ***
+        //   Verify that the functions return the correct values.
+        //   Notes:
+        //     1. Straight comparison with the return values of system
+        //        functions isn't acceptable.  So we will use some model
+        //        functions serving the same purposes.  The main idea is that
+        //        change of model time intends adequate change of the utility
+        //        one.
+        //     2. Starting point of utility wall time counter for linux
+        //        ('clock_gettime') is unspecified, so we need to determine
+        //        difference between model and utility values empirically.
+        //     3. Maximum value of Int64 is 9223372036854775807.
+        //        9223372036854775807 nanoseconds ~ 106752 days ~ 292 years.
+        //        We definetely don't worry about 'rollover' for CPU timers,
+        //        because they start simultaneously with the process.  Model
+        //        wall time counter has Epoch (00:00:00 UTC on 1 January 1970)
+        //        as a starting point, so 'rollover' will occur only in 2262.
+        //        Starting point of utility wall time counter for linux
+        //        ('clock_gettime') is unspecified.  POSIX machines in general
+        //        may return current monotonic time from any arbitrary, yet
+        //        consistent, point in time (often the Epoch or machine boot
+        //        time).  But we are neglect possibility of utility wall time
+        //        rollover too, as the utility does.
+        //
+        // Concerns:
+        //   1. Values returned by 'getTimer' should come from the system
+        //      function, appropriate for current architecture.
+        //   2. Values returned by 'getProcessSystemTimer' should come from
+        //      'getrusage'.
+        //   3. Values returned by 'getProcessUserTimer' should come from
+        //      'getrusage'.
+        //   4. Values returned by 'getProcessSystemTimer' returns system CPU
+        //      time.
+        //   5. Values returned by 'getProcessUserTimer' returns user CPU time.
+        //
+        // Plan:
+        //   1. Determine difference for model and utility wall time counters.
+        //   2. For each timer (wall, system and user):
+        //      1. Take initial values of appropriate model and utility timers
+        //         as base ones.
+        //      2. Execute an inner loop. On each iteration collect new model
+        //         timer values.  As soon as new model timer value is bigger
+        //         than the utility base one, collect new value of utility
+        //         timer and verify it.  Use current values of timers as base
+        //         ones for next iteration.
+        //
+        // Testing:
+        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+        // --------------------------------------------------------------------
+#if defined BSLS_PLATFORM_OS_UNIX
+        if (verbose) {
+            printf("\nUnix Hooking Test."
+                   "\n==================\n");
+        }
+
+        // We are going to perform some actions, measure them with two
+        // different functions (used by utility under test and another system
+        // function) and compare results.  As model functions have not higher
+        // precision than utility ones, we need to determine tiniest periods,
+        // that can be caught by them, to set acceptable measurement errors.
+
+        const Int64 MODEL_WALL_TICK_DURATION = nsecsPerMicrosecond;
+        const Int64 MODEL_CPU_TICK_DURATION = nsecsPerMillisecond * 10;
+
+        if (veryVeryVerbose) {
+            printf("\tModel wall time tick duration: " TI64 " nanoseconds.\n"
+                   "\tModel cpu time tick duration:  " TI64 " nanoseconds.\n",
+                   MODEL_WALL_TICK_DURATION,
+                   MODEL_CPU_TICK_DURATION);
+        }
+
+        const int NUM_SCENARIOS = 3;
+        const int NUM_INTERVALS = 10;
+
+        // Starting point of utility wall time counter for linux
+        // ('clock_gettime') is unspecified.  Usually it is Epoch or machine
+        // boot time.  To compare results of utility counter with model timer
+        // values we need to determine their difference as accurately as
+        // possible.  It is impossible to obtain unitary "epochDifference",
+        // because of tools imperfection. So we use two border values.  To get
+        // them we collect several samples of utility and model wall times in a
+        // tight loop.  Then find the shortest interval of (higher precision)
+        // utility timer values that covers change of (lower precision) model
+        // timer values.
+        //
+        //                 change
+        //                 |   |
+        // LOW:    1   1   1   2   2   2
+        // HIGH: a   b   c   d   e   f
+        //               |       |
+        //                interval
+        //
+        // Finally we calculate right border as the difference between big
+        // model value and small utility value ([2]-[c]) and left border as the
+        // difference between small model value and big utility value
+        // ([1]-[e]).  These borders are used later in the results checks.
+        //
+        //                util + leftDifference          util + rightDifference
+        // ---|-----------------|----------------|------------------|---
+        //  util                                model
+
+        Int64 leftDifference;
+        Int64 rightDifference;
+        {
+            const int NUM_MEASUREMENTS = 100;
+            Int64     ut[NUM_MEASUREMENTS];
+            Int64     mt[NUM_MEASUREMENTS];
+
+            for (int i = 0; i < NUM_MEASUREMENTS; i++) {
+                ut[i] = TU::getTimer();
+                mt[i] = getModelWallTime();
+            }
+
+            Int64 minInterval = ut[0];
+            int   minIntervalIndex = 0;
+
+            for (int i = 0; i < NUM_MEASUREMENTS - 2; i++) {
+                if (mt[i] < mt[i+1]) {
+                    if (ut[i+2] - ut[i] < minInterval) {
+
+                        minInterval = ut[i+2] - ut[i];
+                        minIntervalIndex = i;
+                    }
+                }
+            }
+            rightDifference = mt[minIntervalIndex + 1] - ut[minIntervalIndex];
+            leftDifference = mt[minIntervalIndex] - ut[minIntervalIndex + 2];
+        }
+
+        if (veryVeryVerbose) {
+            printf("\tLeft wall time difference:  " TI64 " nanoseconds.\n"
+                   "\tRight wall time difference: " TI64 " nanoseconds.\n",
+                   leftDifference,
+                   rightDifference);
+        }
+
+        // Timers verification. For each time (wall, system and user) we call
+        // 'utility' and 'model' functions in turn to show that the following
+        // relationship exists:
+        //
+        //   model values:  a    b    c    d    e    f
+        //
+        //   util values:     A    B    C    D    E     F
+        //
+        //   a <= A <= b <= B <= c <= C <= d <= D <= e <= E <= f
+        //
+        // It is the *chain* of inequalities that establishes that the two
+        // clocks are measuring the same quantity.
+
+        {
+            if (verbose) {
+                printf("\nTesting 'getTimer()'.\n\n");
+            }
+
+            Int64 modelWallTime;
+            Int64 utilWallTime;
+            Int64 oldModelWallTime = getModelWallTime();
+            Int64 oldUtilWallTime = TU::getTimer();
+
+            if (veryVeryVerbose) {
+                printf (
+                     "\tUtil+leftDiff: \tModel:         \tUtil+rightDiff:\n"
+                     "\t---------------\t---------------\t------------------\n"
+                     "\t\t\t" TI64 "\n"
+                     "\t\t\t\t\t" TI64 "\n",
+                     oldModelWallTime,
+                     oldUtilWallTime + rightDifference);
+            }
+
+            ASSERT(rightDifference > oldModelWallTime - oldUtilWallTime);
+
+            for (int i = 0; i < NUM_INTERVALS; i++) {
+                do {
+                    modelWallTime = getModelWallTime();
+                } while (modelWallTime - rightDifference < oldUtilWallTime);
+
+                utilWallTime = TU::getTimer();
+
+                if (veryVeryVerbose) {
+                    printf ("\t" TI64 "\n"
+                            "\t\t\t" TI64 "\n"
+                            "\t\t\t\t\t" TI64 "\n",
+                            utilWallTime + leftDifference,
+                            modelWallTime,
+                            utilWallTime + rightDifference);
+                }
+
+                ASSERT(MODEL_WALL_TICK_DURATION - leftDifference >
+                                              oldUtilWallTime - modelWallTime);
+                ASSERT(rightDifference > modelWallTime - utilWallTime);
+
+                oldModelWallTime = modelWallTime;
+                oldUtilWallTime = utilWallTime;
+            }
+        }
+
+        {
+            if (verbose) {
+                printf("\nTesting 'getProcessSystemTimer()'.\n\n");
+            }
+
+            Int64 modelSystemTime;
+            Int64 utilSystemTime;
+            Int64 oldModelSystemTime = getModelSystemTime();
+            Int64 oldUtilSystemTime = TU::getProcessSystemTimer();
+
+            if (veryVeryVerbose) {
+                printf ("\tModel:\t\tUtil:\n"
+                        "\t--------\t--------\n"
+                        "\t" TI64 "\n"
+                        "\t\t\t" TI64 "\n",
+                        oldModelSystemTime,
+                        oldUtilSystemTime);
+            }
+
+            ASSERT(0 >= oldModelSystemTime - oldUtilSystemTime);
+
+            for (int i = 0; i < NUM_INTERVALS; i++) {
+                do {
+                    modelSystemTime = getModelSystemTime();
+                } while (modelSystemTime <= oldUtilSystemTime);
+
+                utilSystemTime = TU::getProcessSystemTimer();
+
+                if (veryVeryVerbose) {
+                    printf ("\t" TI64 "\n"
+                            "\t\t\t" TI64 "\n",
+                            modelSystemTime,
+                            utilSystemTime);
+                }
+
+                ASSERT(MODEL_CPU_TICK_DURATION >
+                                          oldUtilSystemTime - modelSystemTime);
+                ASSERT(0 > modelSystemTime - utilSystemTime);
+
+                oldModelSystemTime = modelSystemTime;
+                oldUtilSystemTime = utilSystemTime;
+            }
+        }
+
+        {
+            if (verbose) {
+                printf("\nTesting 'getProcessUserTimer()'.\n\n");
+            }
+
+            Int64 utilUserTime;
+            Int64 modelUserTime;
+            Int64 oldModelUserTime = getModelUserTime();
+            Int64 oldUtilUserTime = TU::getProcessUserTimer();
+
+            if (veryVeryVerbose) {
+                printf ("\tModel:\t\t Util:\n"
+                        "\t--------\t--------\n"
+                        "\t" TI64 "\n"
+                        "\t\t\t" TI64 "\n",
+                        oldModelUserTime,
+                        oldUtilUserTime);
+            }
+
+            ASSERT(0 >= oldModelUserTime - oldUtilUserTime);
+
+            for (int i = 0; i < NUM_INTERVALS; i++) {
+                do {
+                    modelUserTime = getModelUserTime();
+                } while (modelUserTime <= oldUtilUserTime);
+
+                utilUserTime = TU::getProcessUserTimer();
+
+                if (veryVeryVerbose) {
+                    printf ("\t" TI64 "\n"
+                            "\t\t\t" TI64 "\n",
+                            modelUserTime,
+                            utilUserTime);
+                }
+
+                ASSERT(MODEL_CPU_TICK_DURATION >
+                                              oldUtilUserTime - modelUserTime);
+                ASSERT(0 > modelUserTime - utilUserTime);
+
+                oldModelUserTime = modelUserTime;
+                oldUtilUserTime = utilUserTime;
+            }
+        }
+#endif
+      } break;
+      case 4: {
+        // -------------------------------------------------------------
+        // HOOKING TEST  *** Windows ONLY ***
         // Concerns:
         //   That the wall time, user time, and system time calls are making
         //   the correct calls into the OS.
@@ -1349,30 +1628,9 @@ int main(int argc, char *argv[])
         //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
         // --------------------------------------------------------------------
 
-        const Int64 nsecsPerSec = 1000LL * 1000LL * 1000LL;
-
-        //  The initialization of 'timeQuantum' varies from OS to OS.
-        //  'timeQuantum' is to be the minimum increment visible in a
-        //  timer, expressed as a number of nanoseconds.  POSIX wants it
-        //  to be 100 milliseconds.
-#if defined BSLS_PLATFORM_OS_SOLARIS || defined BSLS_PLATFORM_OS_FREEBSD
-        const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
-#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX    \
-   || defined BSLS_PLATFORM_OS_HPUX  || defined BSLS_PLATFORM_OS_DARWIN
-        const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
-                                        // On our local flavor of Linux, old
-                                        // POSIX requirements and immoderate
-                                        // file system cleverness combine to
-                                        // make the symbol that is available
-                                        // wrong (CLOCKS_PER_SEC == 1000000)
-                                        // and the symbol that is correct
-                                        // (CLK_TCK) unavailable.
-                                        // (AIX just walks its own path.)
-#elif defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
+#if defined BSLS_PLATFORM_OS_WINDOWS || defined BSLS_PLATFORM_OS_CYGWIN
         const Int64 timeQuantum = 100;  // Hard-coded from Windows
-                                        // documentation.  We need to test
-                                        // (not pre-accept)
-                                        // 'UnixTimerUtil::s_nsecsPerSecond'.
+                                        // documentation.
 
         const Int64 windowsFudge = 15 * 1000000LL;
                                         // This interval (15 milliseconds) is
@@ -1381,12 +1639,6 @@ int main(int argc, char *argv[])
                                         // synchronization between the Windows
                                         // wall-time timer and the Windows
                                         // processor time counts.
-#else
-# error Need platform info to find time quantum!
-        const Int64 timeQuantum[0];     // There is an error here, but
-                                        // the '#error' directive is not
-                                        // available everywhere.
-#endif
 
         // First subtest: Get values, sleep, get values, check that
         // they make sense for the OS counters they are supposed to be.
@@ -1396,7 +1648,7 @@ int main(int argc, char *argv[])
                 printf("\nHooking Test: System time requests across sleep."
                        "\n================================================\n");
 
-            if (veryVerbose) printf("timeQuantum = %lld\n", timeQuantum);
+            if (veryVerbose) printf("timeQuantum = " TI64 "\n", timeQuantum);
 
             const unsigned shortSleep = 2;
             Int64 wt1 = TU::getTimer();
@@ -1428,11 +1680,7 @@ int main(int argc, char *argv[])
             // their differences taken, and those differences compared to
             // whatever constants are involved.
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-            ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSec);
-#else
-            ASSERT(wt2 - wt1 >= shortSleep * nsecsPerSec);
-#endif
+            ASSERT(wt2 - wt1 + windowsFudge >= shortSleep * nsecsPerSecond);
                                                // Did we sleep long enough?
 
             ASSERT(ut2 - ut1 >= 0);            // User time must not go
@@ -1467,13 +1715,16 @@ int main(int argc, char *argv[])
             Int64 uQuantsSpent = 0;
             Int64 sQuantsSpent = 0;
             for (int i = 0; i < NUM_INTERVALS; ++i) {
+                Sample& s = samples[i+1];
+
+                s.d_wt = TU::getTimer();
+                s.d_ut = TU::getProcessUserTimer();
+                s.d_st = TU::getProcessSystemTimer();
+            }
+
+            for (int i = 0; i < NUM_INTERVALS; ++i) {
                 Sample& s0 = samples[i];
                 Sample& s1 = samples[i+1];
-
-                s1.d_wt = TU::getTimer();
-                s1.d_ut = TU::getProcessUserTimer();
-                s1.d_st = TU::getProcessSystemTimer();
-
                 // Sys and user differences must be zero mod quantum, or
                 // quantum is wrong.
 
@@ -1502,9 +1753,9 @@ int main(int argc, char *argv[])
             ASSERT(sQuantsSpent <= 1);
 
             if (veryVerbose) {
-                printf( " 0: wt: %lld\n"
-                        " 0: ut: %lld\n"
-                        " 0: st: %lld\n",
+                printf( " 0: wt: " TI64 "\n"
+                        " 0: ut: " TI64 "\n"
+                        " 0: st: " TI64 "\n",
                         samples[0].d_wt,
                         samples[0].d_ut,
                         samples[0].d_st);
@@ -1513,9 +1764,9 @@ int main(int argc, char *argv[])
                     Sample& s0 = samples[i - 1];
                     Sample& s1 = samples[i];
 
-                    printf("%2d: wt: %lld - %lld = %lld\n"
-                           "%2d: ut: %lld - %lld = %lld\n"
-                           "%2d: st: %lld - %lld = %lld\n",
+                    printf("%2d: wt: " TI64 " - " TI64 " = " TI64 "\n"
+                           "%2d: ut: " TI64 " - " TI64 " = " TI64 "\n"
+                           "%2d: st: " TI64 " - " TI64 " = " TI64 "\n",
                            i, s1.d_wt, s0.d_wt, s1.d_wt - s0.d_wt,
                            i, s1.d_ut, s0.d_ut, s1.d_ut - s0.d_ut,
                            i, s1.d_st, s0.d_st, s1.d_st - s0.d_st);
@@ -1549,9 +1800,18 @@ int main(int argc, char *argv[])
             Int64 st2 = TU::getProcessSystemTimer();
 
             if (veryVerbose) {
-                printf("wt2: %lld -  wt1: %lld = %lld\n", wt2, wt1, wt2 - wt1);
-                printf("ut2: %lld -  ut1: %lld = %lld\n", ut2, ut1, ut2 - ut1);
-                printf("st2: %lld -  st1: %lld = %lld\n", st2, st1, st2 - st1);
+                printf("wt2: " TI64 " -  wt1: " TI64 " = " TI64 "\n",
+                       wt2,
+                       wt1,
+                       wt2 - wt1);
+                printf("ut2: " TI64 " -  ut1: " TI64 " = " TI64 "\n",
+                       ut2,
+                       ut1,
+                       ut2 - ut1);
+                printf("st2: " TI64 " -  st1: " TI64 " = " TI64 "\n",
+                       st2,
+                       st1,
+                       st2 - st1);
             }
 
             ASSERT(wt2 - wt1 >= timeQuantum);
@@ -1562,20 +1822,12 @@ int main(int argc, char *argv[])
 
             ASSERT(st2 - st1 >= 0);     // And system time did not go backward.
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1)
                                    + 10 * windowsFudge + 2 * timeQuantum >= 0);
-#else
-            ASSERT((wt2 - wt1) - (ut2 - ut1) - (st2 - st1) +
-                                                         2 * timeQuantum >= 0);
-                                        // And our wall time was greater than
-                                        // our user and system time together,
-                                        // allowing for quantization error
-                                        // (in both user and system time).
-#endif
+
 
         }
-
+#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
