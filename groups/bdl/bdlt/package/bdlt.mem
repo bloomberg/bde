@@ -5,6 +5,7 @@ bdlt_calendarreverseiteratoradapter
 bdlt_currenttime
 bdlt_date
 bdlt_datetime
+bdlt_datetimeimputil
 bdlt_datetimeinterval
 bdlt_datetimetz
 bdlt_datetimeutil

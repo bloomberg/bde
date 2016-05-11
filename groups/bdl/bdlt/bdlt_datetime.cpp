@@ -23,9 +23,22 @@ namespace bdlt {
 BSLMF_ASSERT(bsl::is_trivially_copyable<Date>::value);
 BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
 
-                        // --------------
-                        // class Datetime
-                        // --------------
+                              // --------------
+                              // class Datetime
+                              // --------------
+
+// CLASS DATA
+#ifdef BDE_USE_PROLEPTIC_DATES
+const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
+                                    3652059ULL * TimeUnitRatio::k_US_PER_D - 1;
+               // 3652059 is 9999/12/31 - 0001/01/01 + 1 in Proleptic Gregorian
+#else
+const bsls::Types::Uint64 Datetime::k_MAX_US_FROM_EPOCH =
+                                    3652061ULL * TimeUnitRatio::k_US_PER_D - 1;
+                             // 3652061 is 9999/12/31 - 0001/01/01 + 1 in POSIX
+#endif
+
+bsls::AtomicInt64 Datetime::s_invalidRepresentationCount(0);
 
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
@@ -47,7 +60,7 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     int rc = printToBuffer(buffer, k_BUFFER_SIZE);
 
     (void)rc;
-    BSLS_ASSERT(22 == rc);  // The datetime format contains 22 characters.
+    BSLS_ASSERT(25 == rc);  // The datetime format contains 25 characters.
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);    // 'true' -> suppress '['
@@ -65,6 +78,7 @@ int Datetime::printToBuffer(char *result, int numBytes) const
     int year;
     int month;
     int day;
+
     date().getYearMonthDay(&year, &month, &day);
 
     static const char *const k_MONTHS[] = {
@@ -74,12 +88,15 @@ int Datetime::printToBuffer(char *result, int numBytes) const
         "SEP", "OCT", "NOV", "DEC"
     };
 
-    const char *const asciiMonth = k_MONTHS[month];
-    int               hour;
-    int               minute;
-    int               second;
-    int               millisecond;
-    time().getTime(&hour, &minute, &second, &millisecond);
+    const char *const asciiMonth  = k_MONTHS[month];
+
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+    int microsecond;
+
+    getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
@@ -87,31 +104,33 @@ int Datetime::printToBuffer(char *result, int numBytes) const
 
     const int rc = _snprintf(result,
                              numBytes,
-                             "%02d%s%04d_%02d:%02d:%02d.%03d",
+                             "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
                              day,
                              asciiMonth,
                              year,
                              hour,
                              minute,
                              second,
-                             millisecond);
+                             millisecond,
+                             microsecond);
 
     if ((0 > rc || rc == numBytes) && numBytes > 0) {
-        result[numBytes - 1] = '\0';  // Make sure to null-terminate
-                                      // on overflow.
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
     }
-    return 22;  // Format of 'bdlt::Datetime' always has 22 characters.
+    return 25;  // Format of 'bdlt::Datetime' always has 25 characters.
 #else
     return snprintf(result,
                     numBytes,
-                    "%02d%s%04d_%02d:%02d:%02d.%03d",
+                    "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
                     day,
                     asciiMonth,
                     year,
                     hour,
                     minute,
                     second,
-                    millisecond);
+                    millisecond,
+                    microsecond);
 #endif
 }
 
@@ -126,7 +145,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const Datetime& object)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

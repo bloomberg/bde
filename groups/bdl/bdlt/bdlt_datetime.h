@@ -10,68 +10,70 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a value-semantic type representing both date and time.
 //
 //@CLASSES:
-//  bdlt::Datetime: combined date and time value (millisecond resolution)
+//  bdlt::Datetime: date and time value (at least microsecond resolution)
 //
 //@SEE_ALSO: bdlt_date, bdlt_time, bdlt_datetimetz
 //
 //@AUTHOR: John Lakos (jlakos), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component implements a value-semantic type,
-// 'bdlt::Datetime', that represents the composition of the values of a
-// 'bdlt::Date' object and a 'bdlt::Time' object.  The combined "date+time"
-// value of a 'bdlt::Datetime' object is expressed textually as
-// "yyyy/mm/dd_hh:mm:ss.sss", where "yyyy/mm/dd" represents the "date" part of
-// the value and "hh:mm:ss.sss" represents the "time" part.
+// 'bdlt::Datetime', that represents the composition of a date and a time
+// value.  The combined "date+time" value of a 'bdlt::Datetime' object is
+// expressed textually as "yyyy/mm/dd_hh:mm:ss.ssssss", where "yyyy/mm/dd"
+// represents the "date" part of the value and "hh:mm:ss.ssssss" represents the
+// "time" part.
 //
 // In addition to the usual value-semantic complement of methods for getting
 // and setting value, the 'bdlt::Datetime' class provides methods and operators
 // for making relative adjustments to value ('addDays', 'addTime', 'addHours',
 // etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
-// object can affect the values of both the 'bdlt::Time' and 'bdlt::Date' parts
-// of the object.  For example, invoking 'addHours(2)' on a 'bdlt::Datetime'
-// object whose value is "1987/10/03_22:30:00.000" updates the value to
-// "1987/10/04_00:30:00.000".
+// object can affect the values of both the time and date parts of the object.
+// For example, invoking 'addHours(2)' on a 'bdlt::Datetime' object whose value
+// is "1987/10/03_22:30:00.000000" updates the value to
+// "1987/10/04_00:30:00.000000".
 //
 ///Valid 'bdlt::Datetime' Values and Their Representations
 ///-------------------------------------------------------
 // The "date" part of a 'bdlt::Datetime' value has a range of validity
 // identical to a 'bdlt::Date' object -- i.e., valid dates (according to the
-// Unix [POSIX] calendar) having years in the range '[1 .. 9999]'.  The set of
-// valid "time" values for a 'bdlt::Datetime' object is, similarly, the same as
-// the valid values for 'bdlt::Time', namely '[00:00:00.000 .. 23:59:59.999]',
-// as well as 24:00:00.000 (the default constructed value for 'bdlt::Time').
-// Note that the supported range of time does *not* allow for the injection of
-// leap seconds.  The (combined) value "0001/01/01_24:00:00.000" is the default
-// constructed value of 'bdlt::Datetime'.
+// Unix [POSIX] calendar) having years in the range '[1 .. 9999]'.  The valid
+// time values are '[00:00:00.000000 .. 23:59:59.999999]'.  Furthermore, the
+// unset time value (i.e., 24:00:00.000000, corresponding to the default
+// constructed value for 'bdlt::Time') is available for every valid date.  Note
+// that the supported range of time does *not* allow for the injection of leap
+// seconds.  The value "0001/01/01_24:00:00.000000" is the default constructed
+// value of 'bdlt::Datetime'.
 //
 // Furthermore, consistent with the 'bdlt::Time' type, a 'bdlt::Datetime'
-// object whose "time" part has the default value (24:00:00.000) behaves the
+// object whose "time" part has the default constructed value, behaves the
 // same, with respect to manipulators and (most) free operators, as if the
-// "time" part had the value 00:00:00.000.  As for 'bdlt::Time', the behavior
-// of all 'bdlt::Datetime' relational comparison operators is undefined if the
-// "time" part of either operand is 24:00:00.000.  Consequently,
-// 'bdlt::Datetime' objects whose "time" part has the default constructed value
-// must *not* be used as keys for the standard associative containers, since
-// 'operator<' is not defined for such objects.
+// "time" part had the value 00:00:00.000000.  As for 'bdlt::Time', the
+// behavior of all 'bdlt::Datetime' relational comparison operators is
+// undefined if the "time" part of either operand is 24:00:00.000000.
+// Consequently, 'bdlt::Datetime' objects whose "time" part has the default
+// constructed value must *not* be used as keys for the standard associative
+// containers, since 'operator<' is not defined for such objects.
 //
 ///Attributes
 ///----------
 // Conceptually, the two primary attributes of 'bdlt::Datetime' are the
-// constituent 'bdlt::Date' and 'bdlt::Time' values.  These attributes are
-// given the special designation "part" in this component (i.e., the "time"
-// part and the "date" part, respectively) to distinguish them from the many
-// other attributes (see below) that derive from these two main parts.
+// constituent date and time values.  These attributes are given the special
+// designation "part" in this component (i.e., the "time" part and the "date"
+// part, respectively) to distinguish them from the many other attributes (see
+// below) that derive from these two main parts.
 //..
-//  Name  Type        Default       Range
-//  ----  ----------  ------------  ------------------------------
-//  date  bdlt::Date  0001/01/01    [0001/01/01   ..   9999/12/31]
-//  time  bdlt::Time  24:00:00.000  [00:00:00.000 .. 23:59:59.999]
+//  Name  Related Type  Default          Range
+//  ----  ------------  ---------------  ------------------------------------
+//  date  bdlt::Date    0001/01/01       [0001/01/01      .. 9999/12/31]
+//  time  bdlt::Time*   24:00:00.000000  [00:00:00.000000 .. 23:59:59.999999]
 //..
+// (*) Note that 'bdlt::Time' supports only millisecond resolution.
+//
 // A 'bdlt::Datetime' object can be used in terms of its "date" and "time"
 // parts or, if appropriate to an application, the object can be viewed as a
-// single, integrated type having the combined individual attributes of
-// 'bdlt::Date' and 'bdlt::Time'.  Accessors and manipulators are provided for
-// each of these seven (derived) attributes:
+// single, integrated type having the combined individual attributes of date
+// and time.  Accessors and manipulators are provided for each of these eight
+// (derived) attributes:
 //..
 //  Name         Type  Default  Range        Constraint
 //  -----------  ----  -------  -----------  -----------------------------
@@ -82,6 +84,7 @@ BSLS_IDENT("$Id: $")
 //  minute       int    0       [0 ..   59]  must be 0 if '24 == hour'
 //  second       int    0       [0 ..   59]  must be 0 if '24 == hour'
 //  millisecond  int    0       [0 ..  999]  must be 0 if '24 == hour'
+//  microsecond  int    0       [0 ..  999]  must be 0 if '24 == hour'
 //..
 // There are two additional "date" part attributes to 'bdlt::Datetime':
 //..
@@ -102,15 +105,16 @@ BSLS_IDENT("$Id: $")
 // Values represented by objects of type 'bdlt::Datetime' are used widely in
 // practice.  The values of the individual attributes resulting from a
 // default-constructed 'bdlt::Datetime' object, 'dt', are
-// "0001/01/01_24:00:00.000":
+// "0001/01/01_24:00:00.000000":
 //..
 //  bdlt::Datetime dt;          assert( 1 == dt.date().year());
 //                              assert( 1 == dt.date().month());
 //                              assert( 1 == dt.date().day());
-//                              assert(24 == dt.time().hour());
-//                              assert( 0 == dt.time().minute());
-//                              assert( 0 == dt.time().second());
-//                              assert( 0 == dt.time().millisecond());
+//                              assert(24 == dt.hour());
+//                              assert( 0 == dt.minute());
+//                              assert( 0 == dt.second());
+//                              assert( 0 == dt.millisecond());
+//                              assert( 0 == dt.microsecond());
 //..
 // We can then set 'dt' to have a specific value, say, 8:43pm on January 6,
 // 2013:
@@ -119,10 +123,11 @@ BSLS_IDENT("$Id: $")
 //                              assert(2013 == dt.date().year());
 //                              assert(   1 == dt.date().month());
 //                              assert(   6 == dt.date().day());
-//                              assert(  20 == dt.time().hour());
-//                              assert(  43 == dt.time().minute());
-//                              assert(   0 == dt.time().second());
-//                              assert(   0 == dt.time().millisecond());
+//                              assert(  20 == dt.hour());
+//                              assert(  43 == dt.minute());
+//                              assert(   0 == dt.second());
+//                              assert(   0 == dt.millisecond());
+//                              assert(   0 == dt.microsecond());
 //..
 // Now suppose we add 6 hours and 9 seconds to this value.  There is more than
 // one way to do it:
@@ -133,10 +138,11 @@ BSLS_IDENT("$Id: $")
 //                              assert(2013 == dt2.date().year());
 //                              assert(   1 == dt2.date().month());
 //                              assert(   7 == dt2.date().day());
-//                              assert(   2 == dt2.time().hour());
-//                              assert(  43 == dt2.time().minute());
-//                              assert(   9 == dt2.time().second());
-//                              assert(   0 == dt2.time().millisecond());
+//                              assert(   2 == dt2.hour());
+//                              assert(  43 == dt2.minute());
+//                              assert(   9 == dt2.second());
+//                              assert(   0 == dt2.millisecond());
+//                              assert(   0 == dt2.microsecond());
 //
 //  bdlt::Datetime dt3(dt);
 //  dt3.addTime(6, 0, 9);
@@ -149,10 +155,11 @@ BSLS_IDENT("$Id: $")
 //                              assert(2013 == dt3.date().year());
 //                              assert(   1 == dt3.date().month());
 //                              assert(  17 == dt3.date().day());
-//                              assert(   2 == dt3.time().hour());
-//                              assert(  43 == dt3.time().minute());
-//                              assert(   9 == dt3.time().second());
-//                              assert(   0 == dt3.time().millisecond());
+//                              assert(   2 == dt3.hour());
+//                              assert(  43 == dt3.minute());
+//                              assert(   9 == dt3.second());
+//                              assert(   0 == dt3.millisecond());
+//                              assert(   0 == dt3.microsecond());
 //..
 // We can also add more than a day's worth of time:
 //..
@@ -170,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The streaming operator produces the following output on 'stdout':
 //..
-//  06JAN2013_20:43:00.000
+//  06JAN2013_20:43:00.000000
 //..
 //
 ///Example 2: Creating a Schedule of Equal Time Intervals
@@ -212,14 +219,14 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we observe:
 //..
-//  26JUN2014_20:31:23.000
-//  26JUN2014_21:47:52.714
-//  26JUN2014_23:04:22.428
-//  27JUN2014_00:20:52.142
-//  27JUN2014_01:37:21.856
-//  27JUN2014_02:53:51.570
-//  27JUN2014_04:10:21.284
-//  27JUN2014_05:26:50.998
+//  26JUN2014_20:31:23.000000
+//  26JUN2014_21:47:52.714000
+//  26JUN2014_23:04:22.428000
+//  27JUN2014_00:20:52.142000
+//  27JUN2014_01:37:21.856000
+//  27JUN2014_02:53:51.570000
+//  27JUN2014_04:10:21.284000
+//  27JUN2014_05:26:50.998000
 //..
 // Notice how our objects (since they manage both "date" and "time of day"
 // parts of each point in time) seamlessly handle the transition between the
@@ -231,6 +238,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEIMPUTIL
+#include <bdlt_datetimeimputil.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
@@ -249,6 +260,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timeunitratio.h>
 #endif
 
+#ifndef INCLUDED_BDLB_BITUTIL
+#include <bdlb_bitutil.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
 #endif
@@ -259,6 +274,26 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LOG
+#include <bsls_log.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -272,52 +307,87 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                        // ==============
-                        // class Datetime
-                        // ==============
+                              // ==============
+                              // class Datetime
+                              // ==============
 
 class Datetime {
     // This class implements a simply-constrained value-semantic type
-    // representing the composition of values of a 'Date' object and a 'Time'
-    // object.  Valid date values for the "date" part of a 'Datetime' object
-    // are the same as those defined for 'Date' objects; similarly, valid time
-    // values for the "time" part of a 'Datetime' object are the same as those
-    // defined for 'Time' objects.  Relational operators are disallowed on
+    // representing the composition of date and time values.  Valid date values
+    // for the "date" part of a 'Datetime' object are the same as those defined
+    // for 'Date' objects; similarly, valid time values for the "time" part of
+    // a 'Datetime' object are similar to those defined for 'Time' objects (but
+    // with additional precision).  Relational operators are disallowed on
     // 'Datetime' objects whose "time" part has the same value as that of a
     // default constructed 'Time' object.
 
-    // PRIVATE TYPES
+    // CLASS DATA
+    static const bsls::Types::Uint64 k_MAX_US_FROM_EPOCH;
+
+    static const bsls::Types::Uint64 k_REP_MASK  = 0x8000000000000000;
+    static const bsls::Types::Uint64 k_DATE_MASK = 0xffffffe000000000;
+    static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffff;
+
     enum {
-        k_MILLISECONDS_PER_DAY    = TimeUnitRatio::k_MS_PER_D_32,
-        k_MILLISECONDS_PER_HOUR   = TimeUnitRatio::k_MS_PER_H_32,
-        k_MILLISECONDS_PER_MINUTE = TimeUnitRatio::k_MS_PER_M_32,
-        k_MILLISECONDS_PER_SECOND = TimeUnitRatio::k_MS_PER_S_32
+        k_NUM_TIME_BITS = 37
     };
 
+    static bsls::AtomicInt64 s_invalidRepresentationCount;
+
     // DATA
-    Date d_date;  // "date" part of "date+time" value
-    Time d_time;  // "time" part of "date+time" value
+    bsls::Types::Uint64 d_value;  // encoded offset from the epoch
 
     // FRIENDS
     friend DatetimeInterval operator-(const Datetime&, const Datetime&);
+
+    friend bool operator==(const Datetime&, const Datetime&);
+    friend bool operator!=(const Datetime&, const Datetime&);
+    friend bool operator< (const Datetime&, const Datetime&);
+    friend bool operator<=(const Datetime&, const Datetime&);
+    friend bool operator> (const Datetime&, const Datetime&);
+    friend bool operator>=(const Datetime&, const Datetime&);
+
+    // PRIVATE MANIPULATOR
+    void setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds);
+        // Assign to 'd_value' the representation of a datetime such that the
+        // difference between this datetime and the epoch is the specified
+        // 'totalMicroseconds'.
+
+    // PRIVATE ACCESSORS
+    bsls::Types::Uint64 microsecondsFromEpoch() const;
+        // Return the difference, measured in microseconds, between this
+        // datetime value, with 24:00:00.000000 converted to 0:00:00.000000,
+        // and the epoch.
+
+    bsls::Types::Uint64 updatedRepresentation() const;
+        // If 'd_value' is a valid representation, return 'd_value'.
+        // Otherwise, return the representation of the datetime corresponding
+        // to the datetime implied by assuming the value in 'd_value' is the
+        // concatenation of a 'Date' and a 'Time', and log or assert the
+        // detection of an invalid date.
 
   public:
     // CLASS METHODS
     static bool isValid(int year,
                         int month,
                         int day,
-                        int hour        = 0,
-                        int minute      = 0,
-                        int second      = 0,
-                        int millisecond = 0);
+                        int hour = 0,
+                        int minute = 0,
+                        int second = 0,
+                        int millisecond = 0,
+                        int microsecond = 0);
         // Return 'true' if the specified 'year', 'month', and 'day' attribute
-        // values, and the optionally specified 'hour', 'minute', 'second', and
-        // 'millisecond' attribute values, represent a valid 'Datetime' value,
-        // and 'false' otherwise.  Unspecified trailing optional parameters
-        // default to 0.  'year', 'month', 'day', 'hour', 'minute', 'second',
-        // and 'millisecond' attribute values represent a valid 'Datetime'
-        // value if 'true == Date::isValidYearMonthDay(year, month, day)' and
-        // 'true == Time::isValid(hour, minute, second, millisecond)'.
+        // values, and the optionally specified 'hour', 'minute', 'second',
+        // 'millisecond', and 'microsecond' attribute values, represent a valid
+        // 'Datetime' value, and 'false' otherwise.  Unspecified trailing
+        // optional parameters default to 0.  'year', 'month', 'day', 'hour',
+        // 'minute', 'second', 'millisecond', and 'microsecond' attribute
+        // values represent a valid 'Datetime' value if
+        // 'true == Date::isValidYearMonthDay(year, month, day)',
+        // '0 <= hour < 24', '0 <= minute < 60', '0 <= second < 60',
+        // '0 <= millisecond < 1000', and '0 <= microsecond < 1000'.
+        // Additionally, a valid 'year', 'month', 'day' with the time portion
+        // equal to 24:00:00.000000 also represents a valid 'Datetime' value.
 
                                   // Aspects
 
@@ -336,11 +406,12 @@ class Datetime {
     Datetime();
         // Create a 'Datetime' object whose "date" and "time" parts have their
         // respective default-constructed values, "0001/01/01" and
-        // "24:00:00.000" (see 'bdlt_date' and 'bdlt_time').
+        // "24:00:00.000000".
 
     Datetime(const Date& date);                                     // IMPLICIT
         // Create a 'Datetime' object whose "date" part has the value of the
-        // specified 'date' and whose "time" part has the value "00:00:00.000".
+        // specified 'date' and whose "time" part has the value
+        // "00:00:00.000000".
 
     Datetime(const Date& date, const Time& time);
         // Create a 'Datetime' object whose "date" and "time" parts have the
@@ -349,29 +420,44 @@ class Datetime {
     Datetime(int year,
              int month,
              int day,
-             int hour        = 0,
-             int minute      = 0,
-             int second      = 0,
-             int millisecond = 0);
+             int hour = 0,
+             int minute = 0,
+             int second = 0,
+             int millisecond = 0,
+             int microsecond = 0);
         // Create a 'Datetime' object whose "date" part has the value
         // represented by the specified 'year', 'month', and 'day' attributes,
         // and whose "time" part has the value represented by the optionally
-        // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
-        // Unspecified trailing optional parameters default to 0.  The behavior
-        // is undefined unless the seven attributes (collectively) represent a
-        // valid 'Datetime' value (see 'isValid').
+        // specified 'hour', 'minute', 'second', 'millisecond', and
+        // 'microsecond' attributes.  Unspecified trailing optional parameters
+        // default to 0.  The behavior is undefined unless the eight attributes
+        // (collectively) represent a valid 'Datetime' value (see 'isValid').
 
     Datetime(const Datetime& original);
         // Create a 'Datetime' object having the value of the specified
         // 'original' object.
 
-//! ~Datetime() = default;
+    //! ~Datetime() = default;
         // Destroy this 'Datetime' object.
 
     // MANIPULATORS
     Datetime& operator=(const Datetime& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
+
+    Datetime& operator+=(const bsls::TimeInterval& rhs);
+        // Add to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  If
+        // '24 == hour()' on entry, set the 'hour' attribute of this object to
+        // 0 before performing the addition.  The behavior is undefined unless
+        // the resulting value is valid for 'Datetime' (see 'isValid').
+
+    Datetime& operator-=(const bsls::TimeInterval& rhs);
+        // Subtract from this object the value of the specified 'rhs' object,
+        // and return a reference providing modifiable access to this object.
+        // If '24 == hour()' on entry, set the 'hour' attribute of this object
+        // to 0 before performing the subtraction.  The behavior is undefined
+        // unless the resulting value is valid for 'Datetime' (see 'isValid').
 
     Datetime& operator+=(const DatetimeInterval& rhs);
         // Add to this object the value of the specified 'rhs' object, and
@@ -387,36 +473,57 @@ class Datetime {
         // to 0 before performing the subtraction.  The behavior is undefined
         // unless the resulting value is valid for 'Datetime' (see 'isValid').
 
+    void setDatetime(const Date& date,
+                     int         hour = 0,
+                     int         minute = 0,
+                     int         second = 0,
+                     int         millisecond = 0,
+                     int         microsecond = 0);
+        // Set the value of this object to a 'Datetime' whose "date" part has
+        // the value represented by the specified 'date', and whose "time" part
+        // has the value represented by the optionally specified 'hour',
+        // 'minute', 'second', 'millisecond', and 'microsecond' attributes.
+        // Unspecified trailing optional parameters default to 0.  The behavior
+        // is undefined unless the attributes (collectively) represent a valid
+        // 'Datetime' value (see 'isValid').
+
+    void setDatetime(const Date& date, const Time& time);
+        // Set the value of this object to a 'Datetime' whose "date" part has
+        // the value represented by the specified 'date', and whose "time" part
+        // has the value represented by the specified 'time'.
+
     void setDatetime(int year,
                      int month,
                      int day,
-                     int hour        = 0,
-                     int minute      = 0,
-                     int second      = 0,
-                     int millisecond = 0);
-        // Set the "date" part of this object to have the value represented by
-        // the specified 'year', 'month', and 'day' attributes, and set the
-        // "time" part to have the value represented by the optionally
-        // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
-        // Unspecified trailing optional parameters default to 0.  The behavior
-        // is undefined unless the seven attributes (collectively) represent a
-        // valid 'Datetime' value (see 'isValid').
+                     int hour = 0,
+                     int minute = 0,
+                     int second = 0,
+                     int millisecond = 0,
+                     int microsecond = 0);
+        // Set the value of this object to a 'Datetime' whose "date" part has
+        // the value represented by the specified 'year', 'month', and 'day'
+        // attributes, and whose "time" part has the value represented by the
+        // optionally specified 'hour', 'minute', 'second', 'millisecond', and
+        // 'microsecond' attributes.  Unspecified trailing optional parameters
+        // default to 0.  The behavior is undefined unless the eight attributes
+        // (collectively) represent a valid 'Datetime' value (see 'isValid').
 
     int setDatetimeIfValid(int year,
                            int month,
                            int day,
-                           int hour        = 0,
-                           int minute      = 0,
-                           int second      = 0,
-                           int millisecond = 0);
+                           int hour = 0,
+                           int minute = 0,
+                           int second = 0,
+                           int millisecond = 0,
+                           int microsecond = 0);
         // Set the "date" part of this object to have the value represented by
         // the specified 'year', 'month', and 'day' attributes, and set the
         // "time" part to have the value represented by the optionally
-        // specified 'hour', 'minute', 'second', and 'millisecond' attributes,
-        // *if* the seven attribute values (collectively) represent a valid
-        // 'Datetime' value (see 'isValid').  Unspecified trailing optional
-        // parameters default to 0.  Return 0 on success, and a non-zero value
-        // (with no effect) otherwise.
+        // specified 'hour', 'minute', 'second', 'millisecond', and
+        // 'microsecond' attributes, *if* the eight attribute values
+        // (collectively) represent a valid 'Datetime' value (see 'isValid').
+        // Unspecified trailing optional parameters default to 0.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.
 
     void setDate(const Date& date);
         // Set the "date" part of this object to have the value of the
@@ -444,17 +551,18 @@ class Datetime {
         // part of this object.
 
     void setTime(int hour,
-                 int minute      = 0,
-                 int second      = 0,
-                 int millisecond = 0);
+                 int minute = 0,
+                 int second = 0,
+                 int millisecond = 0,
+                 int microsecond = 0);
         // Set the "time" part of this object to have the value represented by
         // the specified 'hour' attribute value and the optionally specified
-        // 'minute', 'second', and 'millisecond' attribute values.  Unspecified
-        // trailing optional parameters default to 0.  The behavior is
-        // undefined unless 'hour', 'minute', 'second', and 'millisecond'
-        // represent a valid 'Time' value (i.e.,
-        // 'true == Time::isValid(hour, minute, second, millisecond)').  Note
-        // that this method has no effect on the "date" part of this object.
+        // 'minute', 'second', 'millisecond', and 'microsecond' attribute
+        // values.  Unspecified trailing optional parameters default to 0.  The
+        // behavior is undefined unless 'hour', 'minute', 'second',
+        // 'millisecond', and 'microsecond' represent a valid "time" portion of
+        // a 'Datetime' value.  Note that this method has no effect on the
+        // "date" part of this object.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this object to the specified 'hour'
@@ -482,6 +590,13 @@ class Datetime {
         // Note that this method has no effect on the "date" part of this
         // object.
 
+    void setMicrosecond(int microsecond);
+        // Set the 'microsecond' attribute of this object to the specified
+        // 'microsecond' value.  If '24 == hour()', set the 'hour' attribute to
+        // 0.  The behavior is undefined unless '0 <= microsecond <= 999'.
+        // Note that this method has no effect on the "date" part of this
+        // object.
+
     void addDays(int days);
         // Add the specified number of 'days' to the value of this object.  The
         // behavior is undefined unless the resulting value is in the valid
@@ -490,18 +605,19 @@ class Datetime {
         // positive, 0, or negative.
 
     void addTime(bsls::Types::Int64 hours,
-                 bsls::Types::Int64 minutes      = 0,
-                 bsls::Types::Int64 seconds      = 0,
-                 bsls::Types::Int64 milliseconds = 0);
+                 bsls::Types::Int64 minutes = 0,
+                 bsls::Types::Int64 seconds = 0,
+                 bsls::Types::Int64 milliseconds = 0,
+                 bsls::Types::Int64 microseconds = 0);
         // Add the specified number of 'hours', and the optionally specified
-        // number of 'minutes', 'seconds', and 'milliseconds', to the value of
-        // this object, adjusting the "date" part of this object accordingly.
-        // Unspecified trailing optional parameters default to 0.  If
-        // '24 == hour()' on entry, set the 'hour' attribute to 0 before
-        // performing the addition.  The behavior is undefined unless the
-        // arguments represent a valid 'DatetimeInterval' value and the
-        // resulting value is in the valid range for a 'Datetime' object.  Note
-        // that each argument independently may be positive, negative, or 0.
+        // number of 'minutes', 'seconds', 'milliseconds', and 'microseconds'
+        // to the value of this object, adjusting the "date" part of this
+        // object accordingly.  Unspecified trailing optional parameters
+        // default to 0.  If '24 == hour()' on entry, set the 'hour' attribute
+        // to 0 before performing the addition.  The behavior is undefined
+        // unless the resulting value is in the valid range for a 'Datetime'
+        // object.  Note that each argument independently may be positive,
+        // negative, or 0.
 
     void addHours(bsls::Types::Int64 hours);
         // Add the specified number of 'hours' to the value of this object,
@@ -535,6 +651,14 @@ class Datetime {
         // resulting value is in the valid range for a 'Datetime' object.  Note
         // that 'milliseconds' may be positive, negative, or 0.
 
+    void addMicroseconds(bsls::Types::Int64 microseconds);
+        // Add the specified number of 'microseconds' to the value of this
+        // object, adjusting the "date" part of the object accordingly.  If
+        // '24 == hour()' on entry, set the 'hour' attribute to 0 before
+        // performing the addition.  The behavior is undefined unless the
+        // resulting value is in the valid range for a 'Datetime' object.  Note
+        // that 'microseconds' may be positive, negative, or 0.
+
                                   // Aspects
 
     template <class STREAM>
@@ -555,7 +679,8 @@ class Datetime {
         // Return the value of the "date" part of this object.
 
     Time time() const;
-        // Return the value of the "time" part of this object.
+        // Return the value of the "time" part of this object, truncated to
+        // millisecond resolution.
 
     int year() const;
         // Return the value of the 'year' attribute of this object.
@@ -574,6 +699,19 @@ class Datetime {
         // Return the value of the 'dayOfWeek' attribute associated with the
         // 'day' (of the month) attribute of this object.
 
+    void getTime(int *hour,
+                 int *minute = 0,
+                 int *second = 0,
+                 int *millisecond = 0,
+                 int *microsecond = 0) const;
+        // Load, into the specified 'hour', and the optionally specified
+        // 'minute', 'second', 'millisecond', and 'microsecond' the respective
+        // 'hour', 'minute', 'second', 'millisecond', and 'microsecond'
+        // attribute values from this time object.  Unspecified arguments
+        // default to 0.  Supplying 0 for an address argument suppresses the
+        // loading of the value for the corresponding attribute, but has no
+        // effect on the loading of other attribute values.
+
     int hour() const;
         // Return the value of the 'hour' attribute of this object.
 
@@ -585,6 +723,9 @@ class Datetime {
 
     int millisecond() const;
         // Return the value of the 'millisecond' attribute of this object.
+
+    int microsecond() const;
+        // Return the value of the 'microsecond' attribute of this object.
 
     int printToBuffer(char *result, int numBytes) const;
         // Efficiently write to the specified 'result' buffer no more than the
@@ -627,15 +768,6 @@ class Datetime {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
-    Date& date();
-        // !DEPRECATED!: Do *not* use.
-        //
-        // Return a reference providing modifiable access to the internal date
-        // object of this datetime.
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -660,9 +792,9 @@ class Datetime {
     int validateAndSetDatetime(int year,
                                int month,
                                int day,
-                               int hour        = 0,
-                               int minute      = 0,
-                               int second      = 0,
+                               int hour = 0,
+                               int minute = 0,
+                               int second = 0,
                                int millisecond = 0);
         // !DEPRECATED!: Use 'setDatetimeIfValid' instead.
         //
@@ -678,32 +810,51 @@ class Datetime {
 };
 
 // FREE OPERATORS
-Datetime operator+(const Datetime&         lhs,
-                   const DatetimeInterval& rhs);
+Datetime operator+(const Datetime& lhs, const bsls::TimeInterval& rhs);
+    // Return a 'Datetime' object having a value that is the sum of the
+    // specified 'lhs' ('Datetime') and the specified 'rhs'
+    // ('bsls::TimeInterval').  If '24 == lhs.hour()', the result is the same
+    // as if the 'hour' attribute of 'lhs' is 0.  The behavior is undefined
+    // unless the resulting value is in the valid range for a 'Datetime'
+    // object.
+
+Datetime operator+(const bsls::TimeInterval& lhs, const Datetime& rhs);
+    // Return a 'Datetime' object having a value that is the sum of the
+    // specified 'lhs' ('bsls::TimeInterval') and the specified 'rhs'
+    // ('Datetime').  If '24 == rhs.hour()', the result is the same as if the
+    // 'hour' attribute of 'rhs' is 0.  The behavior is undefined unless the
+    // resulting value is in the valid range for a 'Datetime' object.
+
+Datetime operator+(const Datetime& lhs, const DatetimeInterval& rhs);
     // Return a 'Datetime' object having a value that is the sum of the
     // specified 'lhs' ('Datetime') and the specified 'rhs'
     // ('DatetimeInterval').  If '24 == lhs.hour()', the result is the same as
     // if the 'hour' attribute of 'lhs' is 0.  The behavior is undefined unless
     // the resulting value is in the valid range for a 'Datetime' object.
 
-Datetime operator+(const DatetimeInterval& lhs,
-                   const Datetime&         rhs);
+Datetime operator+(const DatetimeInterval& lhs, const Datetime& rhs);
     // Return a 'Datetime' object having a value that is the sum of the
     // specified 'lhs' ('DatetimeInterval') and the specified 'rhs'
     // ('Datetime').  If '24 == rhs.hour()', the result is the same as if the
     // 'hour' attribute of 'rhs' is 0.  The behavior is undefined unless the
     // resulting value is in the valid range for a 'Datetime' object.
 
-Datetime operator-(const Datetime&         lhs,
-                   const DatetimeInterval& rhs);
+Datetime operator-(const Datetime& lhs, const bsls::TimeInterval& rhs);
+    // Return a 'Datetime' object having a value that is the difference between
+    // the specified 'lhs' ('Datetime') and the specified 'rhs'
+    // ('bsls::TimeInterval').  If '24 == lhs.hour()', the result is the same
+    // as if the 'hour' attribute of 'lhs' is 0.  The behavior is undefined
+    // unless the resulting value is in the valid range for a 'Datetime'
+    // object.
+
+Datetime operator-(const Datetime& lhs, const DatetimeInterval& rhs);
     // Return a 'Datetime' object having a value that is the difference between
     // the specified 'lhs' ('Datetime') and the specified 'rhs'
     // ('DatetimeInterval').  If '24 == lhs.hour()', the result is the same as
     // if the 'hour' attribute of 'lhs' is 0.  The behavior is undefined unless
     // the resulting value is in the valid range for a 'Datetime' object.
 
-DatetimeInterval operator-(const Datetime& lhs,
-                           const Datetime& rhs);
+DatetimeInterval operator-(const Datetime& lhs, const Datetime& rhs);
     // Return a 'DatetimeInterval' object having a value that is the difference
     // between the specified 'lhs' ('Datetime') and the specified 'rhs'
     // ('Datetime').  If the 'hour' attribute of either operand is 24, the
@@ -715,23 +866,21 @@ bool operator==(const Datetime& lhs, const Datetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'Datetime' objects have the same
     // value if they have the same values for their "date" and "time" parts,
-    // respectively (i.e.,
-    // 'lhs.date() == rhs.date() && lhs.time() == rhs.time()').
+    // respectively.
 
 bool operator!=(const Datetime& lhs, const Datetime& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'Datetime' objects do not
     // have the same value, and 'false' otherwise.  Two 'Datetime' objects do
     // not have the same value if they do not have the same values for either
-    // of their "date" or "time" parts, respectively (i.e.,
-    // 'lhs.date() != rhs.date() || lhs.time() != rhs.time()').
+    // of their "date" or "time" parts, respectively.
 
 bool operator<(const Datetime& lhs, const Datetime& rhs);
     // Return 'true' if the value of the specified 'lhs' object is less than
     // the value of the specified 'rhs' object, and 'false' otherwise.  A
     // 'Datetime' object 'a' is less than a 'Datetime' object 'b' if
-    // 'a.date() < b.date()', or if
-    // 'a.date() == b.date() && a.time() < b.time()'.  The behavior is
-    // undefined unless '24 != lhs.hour() && 24 != rhs.hour()'.
+    // 'a.date() < b.date()', or if 'a.date() == b.date()' and the time portion
+    // of 'a' is less than the time portion of 'b'.  The behavior is undefined
+    // unless '24 != lhs.hour() && 24 != rhs.hour()'.
 
 bool operator<=(const Datetime& lhs, const Datetime& rhs);
     // Return 'true' if the value of the specified 'lhs' object is less than or
@@ -742,8 +891,8 @@ bool operator>(const Datetime& lhs, const Datetime& rhs);
     // Return 'true' if the value of the specified 'lhs' object is greater than
     // the value of the specified 'rhs' object, and 'false' otherwise.  A
     // 'Datetime' object 'a' is greater than a 'Datetime' object 'b' if
-    // 'a.date() > b.date()', or if
-    // 'a.date() == b.date() && a.time() > b.time()'.  The behavior is
+    // 'a.date() > b.date()', or if 'a.date() == b.date()' and the time portion
+    // of 'a' is greater than the time portion of 'b'.  The behavior is
     // undefined unless '24 != lhs.hour() && 24 != rhs.hour()'.
 
 bool operator>=(const Datetime& lhs, const Datetime& rhs);
@@ -763,12 +912,98 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
     //..
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                               // --------------
-                               // class Datetime
-                               // --------------
+                              // --------------
+                              // class Datetime
+                              // --------------
+
+// PRIVATE MANIPULATOR
+inline
+void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
+{
+    d_value = ((totalMicroseconds / TimeUnitRatio::k_US_PER_D)
+                                                            << k_NUM_TIME_BITS)
+            + totalMicroseconds % TimeUnitRatio::k_US_PER_D;
+    d_value |= k_REP_MASK;
+}
+
+// PRIVATE ACCESSORS
+inline
+bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+        int h = hour();
+
+        bsls::Types::Uint64 value = d_value & (~k_REP_MASK);
+
+        if (TimeUnitRatio::k_H_PER_D_32 != h) {
+            return (value >> k_NUM_TIME_BITS) * TimeUnitRatio::k_US_PER_D
+                 + (value & k_TIME_MASK);                             // RETURN
+        }
+
+        return (value >> k_NUM_TIME_BITS)
+                                        * TimeUnitRatio::k_US_PER_D;  // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+
+    // Log detection of invalid format with logarithmic back-off.
+
+    bdlb::BitUtil::uint64_t count =
+          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
+    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+        BSLS_LOG_SIMPLE(
+                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+    }
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    bsls::Types::Uint64 days = (d_value & 0xffffffff) - 1;
+    bsls::Types::Uint64 milliseconds =
+                                (d_value >> 32) % TimeUnitRatio::k_MS_PER_D_32;
+#else
+    bsls::Types::Uint64 days = (d_value >> 32) - 1;
+    bsls::Types::Uint64 milliseconds =
+                         (d_value & 0xffffffff) % TimeUnitRatio::k_MS_PER_D_32;
+#endif
+
+    return TimeUnitRatio::k_US_PER_D  * days
+         + TimeUnitRatio::k_US_PER_MS * milliseconds;
+}
+
+inline
+bsls::Types::Uint64 Datetime::updatedRepresentation() const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+        return d_value;                                               // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+
+    // Log detection of invalid format with logarithmic back-off.
+
+    bdlb::BitUtil::uint64_t count =
+          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
+    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+        BSLS_LOG_SIMPLE(
+                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+    }
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    bsls::Types::Uint64 days = (d_value & 0xffffffff) - 1;
+    bsls::Types::Uint64 milliseconds = d_value >> 32;
+#else
+    bsls::Types::Uint64 days = (d_value >> 32) - 1;
+    bsls::Types::Uint64 milliseconds = d_value & 0xffffffff;
+#endif
+
+    return (days << k_NUM_TIME_BITS)
+         | (TimeUnitRatio::k_US_PER_MS * milliseconds)
+         | k_REP_MASK;
+}
 
 // CLASS METHODS
 inline
@@ -778,38 +1013,54 @@ bool Datetime::isValid(int year,
                        int hour,
                        int minute,
                        int second,
-                       int millisecond)
+                       int millisecond,
+                       int microsecond)
 {
     return Date::isValidYearMonthDay(year, month, day)
-        && Time::isValid(hour, minute, second, millisecond);
+        && (   (0 <= hour      && hour   < bdlt::TimeUnitRatio::k_H_PER_D_32 &&
+                0 <= minute    && minute < bdlt::TimeUnitRatio::k_M_PER_H_32 &&
+                0 <= second    && second < bdlt::TimeUnitRatio::k_S_PER_M_32 &&
+                0 <= millisecond && millisecond
+                                       < bdlt::TimeUnitRatio::k_MS_PER_S_32  &&
+                0 <= microsecond && microsecond
+                                       < bdlt::TimeUnitRatio::k_US_PER_MS_32)
+            || (bdlt::TimeUnitRatio::k_H_PER_D_32 == hour &&
+                0                                 == minute &&
+                0                                 == second &&
+                0                                 == millisecond &&
+                0                                 == microsecond));
 }
 
                                   // Aspects
 
 inline
-int Datetime::maxSupportedBdexVersion(int /* versionSelector */)
+int Datetime::maxSupportedBdexVersion(int versionSelector)
 {
+    if (versionSelector >= 20160411) {
+        return 2;                                                     // RETURN
+    }
     return 1;
 }
 
 // CREATORS
 inline
 Datetime::Datetime()
+: d_value(TimeUnitRatio::k_US_PER_D)
 {
+    d_value |= k_REP_MASK;
 }
 
 inline
 Datetime::Datetime(const Date& date)
-: d_date(date)
-, d_time(0, 0, 0, 0)
+: d_value(static_cast<bsls::Types::Uint64>(date - Date()) << k_NUM_TIME_BITS)
 {
+    d_value |= k_REP_MASK;
 }
 
 inline
 Datetime::Datetime(const Date& date, const Time& time)
-: d_date(date)
-, d_time(time)
 {
+    setDatetime(date, time);
 }
 
 inline
@@ -819,32 +1070,68 @@ Datetime::Datetime(int year,
                    int hour,
                    int minute,
                    int second,
-                   int millisecond)
-: d_date(year, month, day)
-, d_time(hour, minute, second, millisecond)
+                   int millisecond,
+                   int microsecond)
 {
-    BSLS_ASSERT_SAFE(Datetime::isValid(year,
-                                       month,
-                                       day,
-                                       hour,
-                                       minute,
-                                       second,
-                                       millisecond));
+    setDatetime(year,
+                month,
+                day,
+                hour,
+                minute,
+                second,
+                millisecond,
+                microsecond);
 }
 
 inline
 Datetime::Datetime(const Datetime& original)
-: d_date(original.d_date)
-, d_time(original.d_time)
+: d_value(original.d_value)
 {
+    d_value = updatedRepresentation();
 }
 
 // MANIPULATORS
 inline
 Datetime& Datetime::operator=(const Datetime& rhs)
 {
-    d_date = rhs.d_date;
-    d_time = rhs.d_time;
+    d_value = rhs.d_value;
+    d_value = updatedRepresentation();
+
+    return *this;
+}
+
+inline
+Datetime& Datetime::operator+=(const bsls::TimeInterval& rhs)
+{
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                               k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
+
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                             microsecondsFromEpoch() + rhs.totalMicroseconds();
+    setMicrosecondsFromEpoch(totalMicroseconds);
+
+    return *this;
+}
+
+inline
+Datetime& Datetime::operator-=(const bsls::TimeInterval& rhs)
+{
+    BSLS_ASSERT_SAFE(-rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                               k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
+
+    BSLS_ASSERT_SAFE( rhs.totalMicroseconds()
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                             microsecondsFromEpoch() - rhs.totalMicroseconds();
+    setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
 }
@@ -852,10 +1139,18 @@ Datetime& Datetime::operator=(const Datetime& rhs)
 inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+                     <= static_cast<bsls::Types::Int64>(
+                               k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    d_date += d_time.addInterval(rhs);
+    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                          microsecondsFromEpoch()
+                        + rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+    setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
 }
@@ -863,12 +1158,66 @@ Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 inline
 Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(-rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+    BSLS_ASSERT_SAFE(-rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+                     <= static_cast<bsls::Types::Int64>(
+                               k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
 
-    d_date += d_time.addInterval(-rhs);
+    BSLS_ASSERT_SAFE( rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS
+                     <= static_cast<bsls::Types::Int64>(
+                                                     microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds =
+                          microsecondsFromEpoch()
+                        - rhs.totalMilliseconds() * TimeUnitRatio::k_US_PER_MS;
+    setMicrosecondsFromEpoch(totalMicroseconds);
 
     return *this;
+}
+
+inline
+void Datetime::setDatetime(const Date& date,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         millisecond,
+                           int         microsecond)
+{
+    BSLS_ASSERT_SAFE(Datetime::isValid(date.year(),
+                                       date.month(),
+                                       date.day(),
+                                       hour,
+                                       minute,
+                                       second,
+                                       millisecond,
+                                       microsecond));
+
+    d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
+            + TimeUnitRatio::k_US_PER_H  * hour
+            + TimeUnitRatio::k_US_PER_M  * minute
+            + TimeUnitRatio::k_US_PER_S  * second
+            + TimeUnitRatio::k_US_PER_MS * millisecond
+            + microsecond;
+
+    d_value |= k_REP_MASK;
+}
+
+inline
+void Datetime::setDatetime(const Date& date, const Time& time)
+{
+    if (24 != time.hour()) {
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
+                + TimeUnitRatio::k_US_PER_MS *
+                                          (time - Time(0)).totalMilliseconds();
+    }
+    else {
+        d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
+                + TimeUnitRatio::k_US_PER_D;
+    }
+
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -878,7 +1227,8 @@ void Datetime::setDatetime(int year,
                            int hour,
                            int minute,
                            int second,
-                           int millisecond)
+                           int millisecond,
+                           int microsecond)
 {
     BSLS_ASSERT_SAFE(Datetime::isValid(year,
                                        month,
@@ -886,10 +1236,15 @@ void Datetime::setDatetime(int year,
                                        hour,
                                        minute,
                                        second,
-                                       millisecond));
+                                       millisecond,
+                                       microsecond));
 
-    d_date.setYearMonthDay(year, month, day);
-    d_time.setTime(hour, minute, second, millisecond);
+    setDatetime(Date(year, month, day),
+                hour,
+                minute,
+                second,
+                millisecond,
+                microsecond);
 }
 
 inline
@@ -899,7 +1254,8 @@ int Datetime::setDatetimeIfValid(int year,
                                  int hour,
                                  int minute,
                                  int second,
-                                 int millisecond)
+                                 int millisecond,
+                                 int microsecond)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -909,8 +1265,14 @@ int Datetime::setDatetimeIfValid(int year,
                           hour,
                           minute,
                           second,
-                          millisecond)) {
-        setDatetime(year, month, day, hour, minute, second, millisecond);
+                          millisecond,
+                          microsecond)) {
+        setDatetime(Date(year, month, day),
+                    hour,
+                    minute,
+                    second,
+                    millisecond,
+                    microsecond);
 
         return k_SUCCESS;                                             // RETURN
     }
@@ -921,7 +1283,13 @@ int Datetime::setDatetimeIfValid(int year,
 inline
 void Datetime::setDate(const Date& date)
 {
-    d_date = date;
+    d_value = updatedRepresentation();
+
+    d_value = (static_cast<bsls::Types::Uint64>(date - Date())
+                                                            << k_NUM_TIME_BITS)
+            | (d_value & k_TIME_MASK);
+
+    d_value |= k_REP_MASK;
 }
 
 inline
@@ -929,7 +1297,7 @@ void Datetime::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(Date::isValidYearDay(year, dayOfYear));
 
-    d_date.setYearDay(year, dayOfYear);
+    setDate(Date(year, dayOfYear));
 }
 
 inline
@@ -937,21 +1305,53 @@ void Datetime::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(Date::isValidYearMonthDay(year, month, day));
 
-    d_date.setYearMonthDay(year, month, day);
+    setDate(Date(year, month, day));
 }
 
 inline
 void Datetime::setTime(const Time& time)
 {
-    d_time = time;
+    d_value = updatedRepresentation();
+
+    if (24 != time.hour()) {
+        d_value = (d_value & k_DATE_MASK)
+                | (TimeUnitRatio::k_US_PER_MS *
+                                         (time - Time(0)).totalMilliseconds());
+    }
+    else {
+        d_value = (d_value & k_DATE_MASK) | TimeUnitRatio::k_US_PER_D;
+    }
 }
 
 inline
-void Datetime::setTime(int hour, int minute, int second, int millisecond)
+void Datetime::setTime(int hour,
+                       int minute,
+                       int second,
+                       int millisecond,
+                       int microsecond)
 {
-    BSLS_ASSERT_SAFE(Time::isValid(hour, minute, second, millisecond));
+    BSLS_ASSERT_SAFE(
+               (0 <= hour      && hour   < bdlt::TimeUnitRatio::k_H_PER_D_32 &&
+                0 <= minute    && minute < bdlt::TimeUnitRatio::k_M_PER_H_32 &&
+                0 <= second    && second < bdlt::TimeUnitRatio::k_S_PER_M_32 &&
+                0 <= millisecond && millisecond
+                                       < bdlt::TimeUnitRatio::k_MS_PER_S_32  &&
+                0 <= microsecond && microsecond
+                                       < bdlt::TimeUnitRatio::k_US_PER_MS_32)
+            || (bdlt::TimeUnitRatio::k_H_PER_D_32 == hour &&
+                0                                 == minute &&
+                0                                 == second &&
+                0                                 == millisecond &&
+                0                                 == microsecond));
 
-    d_time.setTime(hour, minute, second, millisecond);
+    d_value = updatedRepresentation();
+
+    d_value = TimeUnitRatio::k_US_PER_H  * hour
+            + TimeUnitRatio::k_US_PER_M  * minute
+            + TimeUnitRatio::k_US_PER_S  * second
+            + TimeUnitRatio::k_US_PER_MS * millisecond
+            + microsecond
+            + (d_value & k_DATE_MASK);
 }
 
 inline
@@ -960,7 +1360,17 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
 
-    d_time.setHour(hour);
+    d_value = updatedRepresentation();
+
+    if (TimeUnitRatio::k_H_PER_D_32 != hour) {
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+        microseconds = microseconds % TimeUnitRatio::k_US_PER_H
+                     + hour         * TimeUnitRatio::k_US_PER_H;
+        d_value = microseconds | (d_value & k_DATE_MASK);
+    }
+    else {
+        d_value = TimeUnitRatio::k_US_PER_D | (d_value & k_DATE_MASK);
+    }
 }
 
 inline
@@ -969,7 +1379,20 @@ void Datetime::setMinute(int minute)
     BSLS_ASSERT_SAFE(0 <= minute);
     BSLS_ASSERT_SAFE(     minute <= 59);
 
-    d_time.setMinute(minute);
+    d_value = updatedRepresentation();
+
+    if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+        microseconds = microseconds / TimeUnitRatio::k_US_PER_H
+                                                    * TimeUnitRatio::k_US_PER_H
+                     + microseconds % TimeUnitRatio::k_US_PER_M
+                     + minute       * TimeUnitRatio::k_US_PER_M;
+        d_value = microseconds | (d_value & k_DATE_MASK);
+    }
+    else {
+        d_value = TimeUnitRatio::k_US_PER_M * minute
+                | (d_value & k_DATE_MASK);
+    }
 }
 
 inline
@@ -978,7 +1401,20 @@ void Datetime::setSecond(int second)
     BSLS_ASSERT_SAFE(0 <= second);
     BSLS_ASSERT_SAFE(     second <= 59);
 
-    d_time.setSecond(second);
+    d_value = updatedRepresentation();
+
+    if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+        microseconds = microseconds / TimeUnitRatio::k_US_PER_M
+                                                    * TimeUnitRatio::k_US_PER_M
+                     + microseconds % TimeUnitRatio::k_US_PER_S
+                     + second       * TimeUnitRatio::k_US_PER_S;
+        d_value = microseconds | (d_value & k_DATE_MASK);
+    }
+    else {
+        d_value = TimeUnitRatio::k_US_PER_S * second
+                | (d_value & k_DATE_MASK);
+    }
 }
 
 inline
@@ -987,94 +1423,192 @@ void Datetime::setMillisecond(int millisecond)
     BSLS_ASSERT_SAFE(0 <= millisecond);
     BSLS_ASSERT_SAFE(     millisecond <= 999);
 
-    d_time.setMillisecond(millisecond);
+    d_value = updatedRepresentation();
+
+    if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+        microseconds = microseconds / TimeUnitRatio::k_US_PER_S
+                                                    * TimeUnitRatio::k_US_PER_S
+                     + microseconds % TimeUnitRatio::k_US_PER_MS
+                     + millisecond  * TimeUnitRatio::k_US_PER_MS;
+        d_value = microseconds | (d_value & k_DATE_MASK);
+    }
+    else {
+        d_value = TimeUnitRatio::k_US_PER_MS * millisecond
+                | (d_value & k_DATE_MASK);
+    }
+}
+
+inline
+void Datetime::setMicrosecond(int microsecond)
+{
+    BSLS_ASSERT_SAFE(0 <= microsecond);
+    BSLS_ASSERT_SAFE(     microsecond <= 999);
+
+    d_value = updatedRepresentation();
+
+    if (TimeUnitRatio::k_H_PER_D_32 != hour()) {
+        bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
+        microseconds = microseconds / TimeUnitRatio::k_US_PER_MS
+                                                   * TimeUnitRatio::k_US_PER_MS
+                     + microsecond;
+        d_value = microseconds | (d_value & k_DATE_MASK);
+    }
+    else {
+        d_value = (d_value & k_DATE_MASK) | microsecond;
+    }
 }
 
 inline
 void Datetime::addDays(int days)
 {
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(days));
+    BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
 
-    d_date += days;
+    d_value = updatedRepresentation();  // needed to avoid double logging from
+                                        // 'date' and then 'setDate'
+
+    setDate(date() + days);
 }
 
 inline
 void Datetime::addTime(bsls::Types::Int64 hours,
                        bsls::Types::Int64 minutes,
                        bsls::Types::Int64 seconds,
-                       bsls::Types::Int64 milliseconds)
+                       bsls::Types::Int64 milliseconds,
+                       bsls::Types::Int64 microseconds)
 {
-    const DatetimeInterval delta(0,
-                                 hours,
-                                 minutes,
-                                 seconds,
-                                 milliseconds);
+    // Reduce the input parameters to 'days' and 'microseconds', without any
+    // constraints on the representation, without the possibility of overflow
+    // or underflow.
 
-    BSLS_ASSERT_SAFE(delta <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+    bsls::Types::Int64 days = hours        / TimeUnitRatio::k_H_PER_D
+                            + minutes      / TimeUnitRatio::k_M_PER_D
+                            + seconds      / TimeUnitRatio::k_S_PER_D
+                            + milliseconds / TimeUnitRatio::k_MS_PER_D
+                            + microseconds / TimeUnitRatio::k_US_PER_D;
 
-    d_date += d_time.addInterval(delta);
+    hours        %= TimeUnitRatio::k_H_PER_D;
+    minutes      %= TimeUnitRatio::k_M_PER_D;
+    seconds      %= TimeUnitRatio::k_S_PER_D;
+    milliseconds %= TimeUnitRatio::k_MS_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    microseconds = hours             * TimeUnitRatio::k_US_PER_H
+                 + minutes           * TimeUnitRatio::k_US_PER_M
+                 + seconds           * TimeUnitRatio::k_US_PER_S
+                 + milliseconds      * TimeUnitRatio::k_US_PER_MS
+                 + microseconds;
+
+    // Modify the representation to ensure 'days' and 'microseconds' have the
+    // same sign (i.e., both are positive or both are negative or 'days == 0').
+
+    days         += microseconds / TimeUnitRatio::k_US_PER_D;
+    microseconds %= TimeUnitRatio::k_US_PER_D;
+
+    if (days > 0 && microseconds < 0) {
+        --days;
+        microseconds += TimeUnitRatio::k_US_PER_D;
+    }
+    else if (days < 0 && microseconds > 0) {
+        ++days;
+        microseconds -= TimeUnitRatio::k_US_PER_D;
+    }
+
+    // Piecewise add the 'days' and 'microseconds' to this datetime.
+
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+
+    BSLS_ASSERT_SAFE( days <= static_cast<bsls::Types::Int64>
+                                     ((k_MAX_US_FROM_EPOCH - totalMicroseconds)
+                                                 / TimeUnitRatio::k_US_PER_D));
+    BSLS_ASSERT_SAFE(-days <= static_cast<bsls::Types::Int64>
+                              (totalMicroseconds / TimeUnitRatio::k_US_PER_D));
+
+    totalMicroseconds += days * TimeUnitRatio::k_US_PER_D;
+
+    BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
+                                    (k_MAX_US_FROM_EPOCH - totalMicroseconds));
+    BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
+                                                          (totalMicroseconds));
+
+    totalMicroseconds += microseconds;
+
+    // Assign the value.
+
+    setMicrosecondsFromEpoch(totalMicroseconds);
 }
-
 
 inline
 void Datetime::addHours(bsls::Types::Int64 hours)
 {
-    const bsls::Types::Int64 totalMsec = hours * k_MILLISECONDS_PER_HOUR;
+    BSLS_ASSERT_SAFE( hours <= static_cast<bsls::Types::Int64>
+                               ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
+                                                 / TimeUnitRatio::k_US_PER_H));
+    BSLS_ASSERT_SAFE(-hours <= static_cast<bsls::Types::Int64>
+                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_H));
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    setMicrosecondsFromEpoch(hours * TimeUnitRatio::k_US_PER_H
+                                                          + totalMicroseconds);
 }
 
 inline
 void Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
-    const bsls::Types::Int64 totalMsec = minutes * k_MILLISECONDS_PER_MINUTE;
+    BSLS_ASSERT_SAFE( minutes <= static_cast<bsls::Types::Int64>
+                               ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
+                                                 / TimeUnitRatio::k_US_PER_M));
+    BSLS_ASSERT_SAFE(-minutes <= static_cast<bsls::Types::Int64>
+                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_M));
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    setMicrosecondsFromEpoch(minutes * TimeUnitRatio::k_US_PER_M
+                                                          + totalMicroseconds);
 }
 
 inline
 void Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
-    const bsls::Types::Int64 totalMsec = seconds * k_MILLISECONDS_PER_SECOND;
+    BSLS_ASSERT_SAFE( seconds <= static_cast<bsls::Types::Int64>
+                               ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
+                                                 / TimeUnitRatio::k_US_PER_S));
+    BSLS_ASSERT_SAFE(-seconds <= static_cast<bsls::Types::Int64>
+                        (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_S));
 
-    const int normMsec  = static_cast<int>(totalMsec % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(totalMsec / k_MILLISECONDS_PER_DAY);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
-
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
-
-    d_date += numDays;
+    setMicrosecondsFromEpoch(seconds * TimeUnitRatio::k_US_PER_S
+                                                          + totalMicroseconds);
 }
 
 inline
 void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
-    const int normMsec  = static_cast<int>(
-                                        milliseconds % k_MILLISECONDS_PER_DAY);
-    const int wholeDays = static_cast<int>(
-                                        milliseconds / k_MILLISECONDS_PER_DAY);
+    BSLS_ASSERT_SAFE( milliseconds <= static_cast<bsls::Types::Int64>
+                               ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
+                                                / TimeUnitRatio::k_US_PER_MS));
+    BSLS_ASSERT_SAFE(-milliseconds <= static_cast<bsls::Types::Int64>
+                       (microsecondsFromEpoch() / TimeUnitRatio::k_US_PER_MS));
 
-    const int numDays   = wholeDays + d_time.addMilliseconds(normMsec);
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
-    BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(numDays));
+    setMicrosecondsFromEpoch(milliseconds * TimeUnitRatio::k_US_PER_MS
+                                                          + totalMicroseconds);
+}
 
-    d_date += numDays;
+inline
+void Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
+{
+    BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
+                              (k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
+    BSLS_ASSERT_SAFE(-microseconds <= static_cast<bsls::Types::Int64>
+                                                    (microsecondsFromEpoch()));
+
+    bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
+
+    setMicrosecondsFromEpoch(microseconds + totalMicroseconds);
 }
 
                                   // Aspects
@@ -1084,15 +1618,29 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2: {
+            bsls::Types::Uint64 tmp;
+
+            stream.getUint64(tmp);
+
+            if (   stream
+                && tmp <= (DatetimeImpUtil::k_MAX_VALUE & (~k_REP_MASK))) {
+                d_value = tmp;
+                d_value |= k_REP_MASK;
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
           case 1: {
-            Date dateTmp;
-            Time timeTmp;
-            dateTmp.bdexStreamIn(stream, 1);
-            timeTmp.bdexStreamIn(stream, 1);
+            Date date;
+            Time time;
+
+            date.bdexStreamIn(stream, 1);
+            time.bdexStreamIn(stream, 1);
 
             if (stream) {
-                d_date = dateTmp;
-                d_time = timeTmp;
+                setDatetime(date, time);
             }
             else {
                 stream.invalidate();
@@ -1110,67 +1658,131 @@ STREAM& Datetime::bdexStreamIn(STREAM& stream, int version)
 inline
 Date Datetime::date() const
 {
-    return d_date;
+    bsls::Types::Uint64 value = updatedRepresentation() & (~k_REP_MASK);
+
+    return Date() + static_cast<int>(value >> k_NUM_TIME_BITS);
 }
 
 inline
 Time Datetime::time() const
 {
-    return d_time;
+    int hour;
+    int minute;
+    int second;
+    int millisecond;
+
+    getTime(&hour, &minute, &second, &millisecond);
+
+    return Time(hour, minute, second, millisecond);
 }
 
 inline
 int Datetime::year() const
 {
-    return d_date.year();
+    return date().year();
 }
 
 inline
 int Datetime::month() const
 {
-    return d_date.month();
+    return date().month();
 }
 
 inline
 int Datetime::day() const
 {
-    return d_date.day();
+    return date().day();
 }
 
 inline
 int Datetime::dayOfYear() const
 {
-    return d_date.dayOfYear();
+    return date().dayOfYear();
 }
 
 inline
 DayOfWeek::Enum Datetime::dayOfWeek() const
 {
-    return d_date.dayOfWeek();
+    return date().dayOfWeek();
+}
+
+inline
+void Datetime::getTime(int *hour,
+                       int *minute,
+                       int *second,
+                       int *millisecond,
+                       int *microsecond) const
+{
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    if (hour) {
+        *hour = static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
+    }
+    if (minute) {
+        *minute = static_cast<int>(  microseconds
+                                   / TimeUnitRatio::k_US_PER_M
+                                   % TimeUnitRatio::k_M_PER_H);
+    }
+    if (second) {
+        *second = static_cast<int>(  microseconds
+                                   / TimeUnitRatio::k_US_PER_S
+                                   % TimeUnitRatio::k_S_PER_M);
+    }
+    if (millisecond) {
+        *millisecond = static_cast<int>(  microseconds
+                                        / TimeUnitRatio::k_US_PER_MS
+                                        % TimeUnitRatio::k_MS_PER_S);
+    }
+    if (microsecond) {
+        *microsecond = static_cast<int>(
+                                    microseconds % TimeUnitRatio::k_US_PER_MS);
+    }
 }
 
 inline
 int Datetime::hour() const
 {
-    return d_time.hour();
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    return static_cast<int>(microseconds / TimeUnitRatio::k_US_PER_H);
 }
 
 inline
 int Datetime::minute() const
 {
-    return d_time.minute();
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    return static_cast<int>(  microseconds
+                            / TimeUnitRatio::k_US_PER_M
+                            % TimeUnitRatio::k_M_PER_H);
 }
 
 inline
 int Datetime::second() const
 {
-    return d_time.second();
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    return static_cast<int>(  microseconds
+                            / TimeUnitRatio::k_US_PER_S
+                            % TimeUnitRatio::k_S_PER_M);
 }
 
 inline
 int Datetime::millisecond() const
 {
-    return d_time.millisecond();
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    return static_cast<int>(  microseconds
+                            / TimeUnitRatio::k_US_PER_MS
+                            % TimeUnitRatio::k_MS_PER_S);
+}
+
+inline
+int Datetime::microsecond() const
+{
+    bsls::Types::Uint64 microseconds = updatedRepresentation() & k_TIME_MASK;
+
+    return static_cast<int>(microseconds % TimeUnitRatio::k_US_PER_MS);
 }
 
                                   // Aspects
@@ -1180,9 +1792,15 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
+          case 2: {
+            bsls::Types::Uint64 value =
+                                       updatedRepresentation() & (~k_REP_MASK);
+
+            stream.putUint64(value);
+          } break;
           case 1: {
-            d_date.bdexStreamOut(stream, 1);
-            d_time.bdexStreamOut(stream, 1);
+            date().bdexStreamOut(stream, 1);
+            time().bdexStreamOut(stream, 1);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -1192,15 +1810,6 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-
-inline
-Date& Datetime::date()
-{
-    return d_date;
-}
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 inline
 int Datetime::maxSupportedBdexVersion()
@@ -1246,6 +1855,24 @@ int Datetime::validateAndSetDatetime(int year,
 
 // FREE OPERATORS
 inline
+bdlt::Datetime bdlt::operator+(const Datetime&           lhs,
+                               const bsls::TimeInterval& rhs)
+{
+    Datetime result(lhs);
+
+    return result += rhs;
+}
+
+inline
+bdlt::Datetime bdlt::operator+(const bsls::TimeInterval& lhs,
+                               const Datetime&           rhs)
+{
+    Datetime result(rhs);
+
+    return result += lhs;
+}
+
+inline
 bdlt::Datetime bdlt::operator+(const Datetime&         lhs,
                                const DatetimeInterval& rhs)
 {
@@ -1264,6 +1891,15 @@ bdlt::Datetime bdlt::operator+(const DatetimeInterval& lhs,
 }
 
 inline
+bdlt::Datetime bdlt::operator-(const Datetime&           lhs,
+                               const bsls::TimeInterval& rhs)
+{
+    Datetime result(lhs);
+
+    return result -= rhs;
+}
+
+inline
 bdlt::Datetime bdlt::operator-(const Datetime&         lhs,
                                const DatetimeInterval& rhs)
 {
@@ -1276,63 +1912,96 @@ inline
 bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
                                        const Datetime& rhs)
 {
-    DatetimeInterval timeInterval1(lhs.d_date - rhs.d_date, 0, 0);
-    DatetimeInterval timeInterval2 = lhs.d_time - rhs.d_time;
-    timeInterval1 += timeInterval2;
+    bsls::Types::Uint64 lhsTotalMicroseconds = lhs.microsecondsFromEpoch();
+    bsls::Types::Uint64 rhsTotalMicroseconds = rhs.microsecondsFromEpoch();
 
-    return timeInterval1;
+    if (lhsTotalMicroseconds >= rhsTotalMicroseconds) {
+        lhsTotalMicroseconds -= rhsTotalMicroseconds;
+
+        return bdlt::DatetimeInterval(
+           0,
+           0,
+           0,
+           0,
+           lhsTotalMicroseconds / bdlt::TimeUnitRatio::k_US_PER_MS);  // RETURN
+    }
+
+    rhsTotalMicroseconds -= lhsTotalMicroseconds;
+
+    return bdlt::DatetimeInterval(
+                      0,
+                      0,
+                      0,
+                      0,
+                      -static_cast<bsls::Types::Int64>(
+                                            rhsTotalMicroseconds
+                                          / bdlt::TimeUnitRatio::k_US_PER_MS));
 }
 
 inline
 bool bdlt::operator==(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.date() == rhs.date() && lhs.time() == rhs.time();
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue == rhsValue;
 }
 
 inline
 bool bdlt::operator!=(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.date() != rhs.date() || lhs.time() != rhs.time();
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue != rhsValue;
 }
 
 inline
 bool bdlt::operator<(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.date() <  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() < rhs.time());
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue < rhsValue;
 }
 
 inline
 bool bdlt::operator<=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.date() <  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() <= rhs.time());
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue <= rhsValue;
 }
 
 inline
 bool bdlt::operator>(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.date() >  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() > rhs.time());
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue > rhsValue;
 }
 
 inline
 bool bdlt::operator>=(const Datetime& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(Time() != lhs.time());
-    BSLS_ASSERT_SAFE(Time() != rhs.time());
+    BSLS_ASSERT_SAFE(24 != lhs.hour());
+    BSLS_ASSERT_SAFE(24 != rhs.hour());
 
-    return lhs.date() >  rhs.date()
-       || (lhs.date() == rhs.date() && lhs.time() >= rhs.time());
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue >= rhsValue;
 }
 
 }  // close enterprise namespace
@@ -1351,7 +2020,7 @@ struct is_trivially_copyable<BloombergLP::bdlt::Datetime> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

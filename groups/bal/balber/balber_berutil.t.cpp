@@ -3764,27 +3764,21 @@ int main(int argc, char *argv[])
             // Invalid value returns an error
             {
                 bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
-                const Type VALUE1(bdlt::Datetime(bdlt::Date(0, 1, 1),
-                                                bdlt::Time(0, 0, 0, 0)));
-                const Type VALUE2(bdlt::Datetime(bdlt::Date(1, 0, 1),
-                                                bdlt::Time(0, 0, 0, 0)));
-                const Type VALUE3(bdlt::Datetime(bdlt::Date(1, 1, 0),
-                                                bdlt::Time(0, 0, 0, 0)));
+
+                bdlt::Datetime value1(bdlt::Date(1, 1, 1));
+                value1.addDays(-1);
+
+                bdlt::Datetime value2(bdlt::Date(9999, 12, 31));
+                value2.addDays(1);
+                
+                const Type VALUE1(value1);
+                const Type VALUE2(value2);
 
                 bdlsb::MemOutStreamBuf osb;
                 ASSERT(0 != Util::putValue(&osb, VALUE1));
                 ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
-
-                // The date value is converted to a valid date in this case
-                // and the error remains undetected.  This is fine since the
-                // user is already in undefined behavior and our error is at
-                // best a convenience and not contractually required.
-
-//                 ASSERT(0 != Util::putValue(&osb, VALUE2));
-//                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
-
-                ASSERT(0 != Util::putValue(&osb, VALUE3));
-                ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
+                ASSERT(0 != Util::putValue(&osb, VALUE2));
+                ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
             }
         }
 
