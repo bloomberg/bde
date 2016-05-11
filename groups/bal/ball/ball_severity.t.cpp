@@ -11,12 +11,12 @@
 #include <ball_severity.h>
 
 #include <bdlb_string.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bslim_testutil.h>
 
 #include <bsl_cstdlib.h>                      // atoi()
 #include <bsl_cstring.h>                      // strcmp(), memcmp(), memcpy()
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -149,7 +149,8 @@ int main(int argc, char *argv[])
                           << "\n======================" << endl;
 
         char buf[256];  memset(buf, 0xff, sizeof buf);  // Scribble on buf.
-        ostrstream out(buf, sizeof buf);
+        bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+        bsl::ostream out(&obuf);
         ball::Severity::Level level = ball::Severity::e_ERROR;
         const char *asciiLevel = ball::Severity::toAscii(level);
         ASSERT(0 == strcmp(asciiLevel, "ERROR"));
@@ -300,7 +301,9 @@ int main(int argc, char *argv[])
                                     ? DATA[i].d_value : -1;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
-            ostrstream out(buf, sizeof buf); out << Enum(VALUE) << ends;
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out << Enum(VALUE) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
             const int SZ = strlen(FMT) + 1;

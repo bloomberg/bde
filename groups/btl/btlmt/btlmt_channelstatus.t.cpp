@@ -10,6 +10,7 @@
 
 #include <btlmt_channelstatus.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <btlb_blob.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -19,7 +20,6 @@
 #include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -341,7 +341,8 @@ int main(int argc, char *argv[])
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
 
             Obj::print(out, ENUM, LEVEL, SPL) << ends;
 
@@ -363,7 +364,8 @@ int main(int argc, char *argv[])
                 memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
                                           // values.
 
-                ostrstream out(buf, sizeof buf);
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream out(&obuf);
                 Obj::print(out, ENUM) << ends;
 
                 ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
@@ -385,7 +387,9 @@ int main(int argc, char *argv[])
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out.setstate(ios::badbit);
             Obj::print(out, ENUM, LEVEL, SPL);
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
@@ -482,7 +486,8 @@ int main(int argc, char *argv[])
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
 
             out << ENUM << ends;
 
@@ -504,7 +509,8 @@ int main(int argc, char *argv[])
                 memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
                                           // values.
 
-                ostrstream out(buf, sizeof buf);
+                bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+                bsl::ostream out(&obuf);
                 Obj::print(out, ENUM, 0, -1) << ends;
 
                 ASSERTV(LINE, ti,  0 == memcmp(buf, STR, SZ));
@@ -524,7 +530,9 @@ int main(int argc, char *argv[])
 
             memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out.setstate(ios::badbit);
             out << ENUM;
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));

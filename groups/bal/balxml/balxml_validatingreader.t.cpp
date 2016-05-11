@@ -22,7 +22,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -865,7 +864,7 @@ int parse(balxml::ValidatingReader *reader,
     reader->enableValidation(true);
     ASSERT(reader->validationFlag());
 
-    bsl::istrstream schemaStream(xsdSchema);
+    bsl::istringstream schemaStream(xsdSchema);
     reader->addSchema("aaa.xsd", schemaStream.rdbuf());
 //..
 // Now we call the 'open' method to setup the reader for parsing using the data

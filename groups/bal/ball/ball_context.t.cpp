@@ -10,6 +10,7 @@
 
 #include <ball_context.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bsls_platform.h>                      // for testing only
 
 #include <bslma_testallocator.h>                // for testing only
@@ -279,7 +280,8 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         char buf[1024];  memset(buf, 0xff, sizeof buf);  // Scribble on buffer
-        ostrstream out(buf, sizeof buf);
+        bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+        bsl::ostream out(&obuf);
 
         my_Logger   logger(out);
         bsl::string message;
@@ -481,7 +483,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
         {
             Obj C(X1);
-            ASSERT(C == X1 == 1);          ASSERT(C != X1 == 0);
+            ASSERT((C == X1) == 1);       ASSERT((C != X1) == 0);
         }
 
         mY1 = X1;
@@ -513,7 +515,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
         {
             Obj C(X1);
-            ASSERT(C == X1 == 1);          ASSERT(C != X1 == 0);
+            ASSERT((C == X1) == 1);       ASSERT((C != X1) == 0);
         }
 
         mY1 = X1;
@@ -548,7 +550,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
         {
             Obj C(X1);
-            ASSERT(C == X1 == 1);          ASSERT(C != X1 == 0);
+            ASSERT((C == X1) == 1);       ASSERT((C != X1) == 0);
         }
 
         mY1 = X1;
@@ -578,7 +580,8 @@ int main(int argc, char *argv[])
 
         char buf[1024];
         {
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << X1 << ends;
             if (veryVeryVerbose) cout << "X1 buf:\n" << buf << endl;
             bsl::string s = "[ PASSTHROUGH 0 1 ]";
@@ -586,7 +589,8 @@ int main(int argc, char *argv[])
             ASSERT(buf == s);
         }
         {
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << Y1 << ends;
             if (veryVeryVerbose) cout << "Y1 buf:\n" << buf << endl;
             bsl::string s = "[ TRIGGER 8 9 ]";
@@ -684,8 +688,12 @@ int main(int argc, char *argv[])
                 memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
 
                 if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
-                ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
-                ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
+                bdlsb::FixedMemOutStreamBuf obuf1(buf1, SIZE);
+                bsl::ostream out1(&obuf1);
+                X.print(out1, IND, SPL) << ends;
+                bdlsb::FixedMemOutStreamBuf obuf2(buf2, SIZE);
+                bsl::ostream out2(&obuf2);
+                X.print(out2, IND, SPL) << ends;
                 if (veryVerbose) cout << "ACTUAL FORMAT:" << endl<<buf1<<endl;
 
                 const int SZ = strlen(FMT) + 1;
