@@ -665,13 +665,13 @@ int main(int argc, char *argv[])
         bsl::ostringstream buf1, buf2;
 
         const char *EXP_1 =
-            "[ 01JAN2008_00:00:00.000000+0000  "
+            "[ 01JAN2008_00:00:00.000+0000  "
             "[   [ (1, 0)    [     [ INVALID_ID: 1 2 3 4 ]    "
             " [ A.A: 3 2 1 0 ]    ]   ]   [ (2, 0)   "
             " [     [ A.B: 6 7 8 9 ]    ]   ]  ] ] ";
 
         const char *EXP_2 =
-            "   [ 01JAN2008_00:00:00.000000+0000\n"
+            "   [ 01JAN2008_00:00:00.000+0000\n"
             "      [\n"
             "         [ (1, 0)\n"
             "            [\n"

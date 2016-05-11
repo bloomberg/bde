@@ -2625,27 +2625,27 @@ int main(int argc, char *argv[])
         //---- - ---  ---   ---------------------------------------------------
 
         { L_,  0,  0,  &A,  "["                                              NL
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
                             "timeZoneId = \"EDT\""                           NL
                             "]"                                              NL
                                                                              },
 
         { L_,  0,  1,  &A,  "["                                              NL
-                            " datetimeTz = 03MAY2011_15:00:00.000000-0400"   NL
+                            " datetimeTz = 03MAY2011_15:00:00.000-0400"      NL
                             " timeZoneId = \"EDT\""                          NL
                             "]"                                              NL
                                                                              },
 
         { L_,  0, -1,  &A,  "["                                              SP
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
                             "]"
                                                                              },
 
-        { L_,  0, -8,  &A, "["                                               NL
-                           "    datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
-                           "    timeZoneId = \"EDT\""                        NL
-                           "]"                                               NL
+        { L_,  0, -8,  &A,  "["                                              NL
+                            "    datetimeTz = 03MAY2011_15:00:00.000-0400"   NL
+                            "    timeZoneId = \"EDT\""                       NL
+                            "]"                                              NL
                                                                              },
         // -------------------------------------------------------------------
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }      -->  8 expected o/ps
@@ -2655,55 +2655,55 @@ int main(int argc, char *argv[])
         //---- - ---  ---   ---------------------------------------------------
 
         { L_,  3,  0,  &A,  "["                                              NL
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
                             "timeZoneId = \"EDT\""                           NL
                             "]"                                              NL
                                                                              },
 
         { L_,  3,  2,  &A,
-                       "      ["                                             NL
-                       "        datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
-                       "        timeZoneId = \"EDT\""                        NL
-                       "      ]"                                             NL
+                          "      ["                                          NL
+                          "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                          "        timeZoneId = \"EDT\""                     NL
+                          "      ]"                                          NL
                                                                              },
 
         { L_,  3, -2,  &A,  "      ["                                        SP
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
                             "]"
                                                                              },
 
         { L_,  3, -8,  &A,
-               "            ["                                               NL
-               "                datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
-               "                timeZoneId = \"EDT\""                        NL
-               "            ]"                                               NL
+                  "            ["                                            NL
+                  "                datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                  "                timeZoneId = \"EDT\""                     NL
+                  "            ]"                                            NL
                                                                              },
 
         { L_, -3,  0,  &A,  "["                                              NL
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    NL
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       NL
                             "timeZoneId = \"EDT\""                           NL
                             "]"                                              NL
                                                                              },
 
         { L_, -3,  2,  &A,
-                       "["                                                   NL
-                       "        datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
-                       "        timeZoneId = \"EDT\""                        NL
-                       "      ]"                                             NL
+                          "["                                                NL
+                          "        datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                          "        timeZoneId = \"EDT\""                     NL
+                          "      ]"                                          NL
                                                                              },
 
         { L_, -3, -2,  &A,  "["                                              SP
-                            "datetimeTz = 03MAY2011_15:00:00.000000-0400"    SP
+                            "datetimeTz = 03MAY2011_15:00:00.000-0400"       SP
                             "timeZoneId = \"EDT\""                           SP
                             "]"
                                                                              },
 
         { L_, -3, -8,  &A,
-               "["                                                           NL
-               "                datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
-               "                timeZoneId = \"EDT\""                        NL
-               "            ]"                                               NL
+                  "["                                                        NL
+                  "                datetimeTz = 03MAY2011_15:00:00.000-0400" NL
+                  "                timeZoneId = \"EDT\""                     NL
+                  "            ]"                                            NL
                                                                              },
 
         // ------------------------------------------------------------------
@@ -2714,10 +2714,10 @@ int main(int argc, char *argv[])
         //---- - ---  ---   ---------------------------------------------------
 
         { L_,  2,  3,  &B,
-                      "      ["                                              NL
-                      "         datetimeTz = 09JAN2011_10:00:00.000000+0200" NL
-                      "         timeZoneId = \"IST\""                        NL
-                      "      ]"                                              NL
+                         "      ["                                           NL
+                         "         datetimeTz = 09JAN2011_10:00:00.000+0200" NL
+                         "         timeZoneId = \"IST\""                     NL
+                         "      ]"                                           NL
                                                                              },
         // -------------------------------------------------------------------
         // P-2.1.4: { A B } x { -8 }  x { -8 }            -->  2 expected o/ps
@@ -2728,14 +2728,14 @@ int main(int argc, char *argv[])
 
         { L_, -8, -8,  &A,
                            "["                                               NL
-                           "    datetimeTz = 03MAY2011_15:00:00.000000-0400" NL
+                           "    datetimeTz = 03MAY2011_15:00:00.000-0400"    NL
                            "    timeZoneId = \"EDT\""                        NL
                            "]"                                               NL
                                                                              },
 
         { L_, -8, -8,  &B,
                            "["                                               NL
-                           "    datetimeTz = 09JAN2011_10:00:00.000000+0200" NL
+                           "    datetimeTz = 09JAN2011_10:00:00.000+0200"    NL
                            "    timeZoneId = \"IST\""                        NL
                            "]"                                               NL
                                                                              },
@@ -2747,13 +2747,13 @@ int main(int argc, char *argv[])
         //---- - ---  ---   ---------------------------------------------------
 
         { L_, -9, -9,  &A,  "["                                              SP
-                            "03MAY2011_15:00:00.000000-0400"                 SP
+                            "03MAY2011_15:00:00.000-0400"                    SP
                             "\"EDT\""                                        SP
                             "]"
                                                                              },
 
         { L_, -9, -9,  &B,  "["                                              SP
-                            "09JAN2011_10:00:00.000000+0200"                 SP
+                            "09JAN2011_10:00:00.000+0200"                    SP
                             "\"IST\""                                        SP
                             "]"
                                                                              },
