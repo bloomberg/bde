@@ -994,12 +994,10 @@ bsls::Types::Uint64 Datetime::updatedRepresentation() const
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     bsls::Types::Uint64 days = (d_value & 0xffffffff) - 1;
-    bsls::Types::Uint64 milliseconds =
-                                (d_value >> 32) % TimeUnitRatio::k_MS_PER_D_32;
+    bsls::Types::Uint64 milliseconds = d_value >> 32;
 #else
     bsls::Types::Uint64 days = (d_value >> 32) - 1;
-    bsls::Types::Uint64 milliseconds =
-                         (d_value & 0xffffffff) % TimeUnitRatio::k_MS_PER_D_32;
+    bsls::Types::Uint64 milliseconds = d_value & 0xffffffff;
 #endif
 
     return (days << k_NUM_TIME_BITS)
@@ -1366,9 +1364,7 @@ void Datetime::setHour(int hour)
 
     if (TimeUnitRatio::k_H_PER_D_32 != hour) {
         bsls::Types::Uint64 microseconds = d_value & k_TIME_MASK;
-        microseconds = microseconds / TimeUnitRatio::k_US_PER_D
-                                                    * TimeUnitRatio::k_US_PER_D
-                     + microseconds % TimeUnitRatio::k_US_PER_H
+        microseconds = microseconds % TimeUnitRatio::k_US_PER_H
                      + hour         * TimeUnitRatio::k_US_PER_H;
         d_value = microseconds | (d_value & k_DATE_MASK);
     }
@@ -1467,6 +1463,9 @@ inline
 void Datetime::addDays(int days)
 {
     BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
+
+    d_value = updatedRepresentation();  // needed to avoid double logging from
+                                        // 'date' and then 'setDate'
 
     setDate(date() + days);
 }
@@ -1942,13 +1941,19 @@ bdlt::DatetimeInterval bdlt::operator-(const Datetime& lhs,
 inline
 bool bdlt::operator==(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.d_value == rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue == rhsValue;
 }
 
 inline
 bool bdlt::operator!=(const Datetime& lhs, const Datetime& rhs)
 {
-    return lhs.d_value != rhs.d_value;
+    bsls::Types::Uint64 lhsValue = lhs.updatedRepresentation();
+    bsls::Types::Uint64 rhsValue = rhs.updatedRepresentation();
+
+    return lhsValue != rhsValue;
 }
 
 inline

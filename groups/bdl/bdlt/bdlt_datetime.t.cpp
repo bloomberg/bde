@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
 
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
-      case 59: {
+      case 71: {
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
 
         const int                    NUM_DATA  = DEFAULT_NUM_DATA;
@@ -384,6 +384,114 @@ int main(int argc, char *argv[])
                         Time(HOUR, MINUTE, SECOND, MSEC) == X.time());
             LOOP_ASSERT(LINE,                          0 == X.microsecond());
         }
+      } break;
+      case 70: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID >= X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 69: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X >= INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 68: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID > X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 67: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X > INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 66: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID <= X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 65: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X <= INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 64: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID < X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 63: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X < INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 62: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID != X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 61: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X != INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 60: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        INVALID == X;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
+      } break;
+      case 59: {
+        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
+
+        Obj mX;  const Obj& X = mX;
+
+        X == INVALID;
+
+        ASSERT(1 == s_countingLogMessageHandlerCount);
       } break;
       case 58: {
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
@@ -543,6 +651,9 @@ int main(int argc, char *argv[])
         char buffer[64];
         INVALID.printToBuffer(buffer, sizeof buffer);
 
+        // Note that 'printToBuffer' does 'getYearMonthDay' and 'getTime' so it
+        // will log twice.
+
         ASSERT(2 == s_countingLogMessageHandlerCount);
       } break;
       case 38: {
@@ -639,7 +750,7 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.dayOfYear());
         ASSERT_SAFE_FAIL(INVALID.dayOfWeek());
         {
-            int hour;
+            int hour;  (void)hour;
             ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
         }
         ASSERT_SAFE_FAIL(INVALID.hour());
@@ -648,7 +759,7 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.millisecond());
         ASSERT_SAFE_FAIL(INVALID.microsecond());
         {
-            char buffer[64];
+            char buffer[64];  (void)buffer;
             ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer, sizeof buffer));
         }
 
