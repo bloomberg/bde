@@ -23,6 +23,67 @@ namespace btlso {
                         // class SocketOptUtil
                         // -------------------
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+// PRIVATE CLASS METHODS
+int SocketOptUtil::setReuseAddressOnWindows(
+                                        btlso::SocketHandle::Handle  handle,
+                                        int                          level,
+                                        const char                  *value,
+                                        int                          valueLen,
+                                        int                         *errorCode)
+{
+    // Earlier versions of Windows (prior to Windows Server 2003) allowed
+    // reusing the port number bound to a socket handle even if that handle
+    // set its 'SO_REUSEADDR' option value to 0.  This allowed subsequent
+    // applications to "hijack" ports bound to earlier applications.  To
+    // fix this security hole, Windows introduced another socket option,
+    // 'SO_EXCLUSIVEADDRUSE', that guaranteed that a port bound to an
+    // application could not be reused.
+    //
+    // Even though the 'SO_REUSEADDR' behavior was fixed in Windows starting
+    // from Windows Server 2003, it is still recommended to set the
+    // 'SO_EXCLUSIVEADDRUSE' option to guarantee that ports are not reused.
+    //
+    // For more information see:
+    //..
+    // https://msdn.microsoft.com/en-us/library/windows/
+    //                                          desktop/ms740621(v=vs.85).aspx.
+    //..
+    // In this method we check the value of the 'SO_REUSEADDR' option value and
+    // set both the 'SO_REUSEADDR' and 'SO_EXCLUSIVEADDRUSE' options
+    // accordingly.
+
+    int exclusiveAddrOptionValue =
+                            0 == *reinterpret_cast<const int *>(value) ? 1 : 0;
+
+    int rc = setsockopt(
+                     handle,
+                     level,
+                     SO_EXCLUSIVEADDRUSE,
+                     reinterpret_cast<const char *>(&exclusiveAddrOptionValue),
+                     sizeof exclusiveAddrOptionValue);
+    if (0 != rc) {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+
+    rc = setsockopt(handle, level, k_REUSEADDRESS, value, valueLen);
+
+    if (0 != rc) {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+#endif
+
+// CLASS METHODS
 int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
                                     const SocketOptions& options)
 {

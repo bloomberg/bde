@@ -109,10 +109,12 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef btlso::SocketOptUtil             SockOptUtil;
+typedef btlso::SocketImpUtil             SockImpUtil;
 typedef btlso::SocketOptUtil::LingerData LingerData;
 typedef btlso::SocketHandle::Handle      SocketHandle;
 typedef btlso::SocketOptions             SocketOptions;
 typedef btlso::LingerOptions             LingerOptions;
+typedef btlso::IPv4Address               IPv4Address;
 
 const unsigned short DUMMY_PORT = 5000;
 
@@ -1229,7 +1231,7 @@ int main(int argc, char *argv[])
             {
                 struct {
                   int                        d_lineNum;
-                  btlso::SocketImpUtil::Type  type;      // socket type.
+                  btlso::SocketImpUtil::Type type;      // socket type.
                   int                        expType;
                                    // expected type of the new created socket.
                 } SOCK_TYPES[] =
@@ -1254,7 +1256,11 @@ int main(int argc, char *argv[])
                   #else
                   { L_,  btlso::SocketOptUtil::k_DEBUGINFO,     1,  0 },
                   #endif
+                  #ifndef BSLS_PLATFORM_OS_WINDOWS
+                  // Setting REUSEADDRESS on windows is tested in a separate
+                  // block below
                   { L_,  btlso::SocketOptUtil::k_REUSEADDRESS,  1,  0 },
+                  #endif
                   { L_,  btlso::SocketOptUtil::k_DONTROUTE,     1,  0 },
                   { L_,  btlso::SocketOptUtil::k_SENDBUFFER,   64,  32 },
                   { L_,  btlso::SocketOptUtil::k_RECEIVEBUFFER,64,  32 }
@@ -1336,7 +1342,8 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(i, j, 0 == errorcode);
                         LOOP2_ASSERT(i, j, 0 != optResult);
                         // SNDBUF and RCVBUF don't go through the follow block.
-                        if(j != 3 && j != 4) {
+                        if(SockOptUtil::k_SENDBUFFER    != SOCK_OPTS[j].opt
+                        && SockOptUtil::k_RECEIVEBUFFER != SOCK_OPTS[j].opt) {
                             result = btlso::SocketOptUtil::setOption(
                                         serverSocket[i],
                                         btlso::SocketOptUtil::k_SOCKETLEVEL,
@@ -1467,7 +1474,121 @@ int main(int argc, char *argv[])
                                                &errorcode);
                     LOOP_ASSERT(i, 0 == errorcode);
                 }
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+                if (verbose)
+                    cout << "\nTesting setting 'reuseAddress' on Windows"
+                         << bsl::endl;
+
+                // Confirm that setting 'SO_REUSEADDR' on Windows also sets the
+                // 'SO_EXCLUSIVEADDRUSE' option.  The 'SO_REUSEADDR' option
+                // value for windows is also tested here.
+
+                const int L   = SockOptUtil::k_SOCKETLEVEL;
+                const int RA  = SockOptUtil::k_REUSEADDRESS;
+                const int EAU = SO_EXCLUSIVEADDRUSE;
+
+                for (int i = 0; i < NUM_TYPES; ++i) {
+
+                    const SockImpUtil::Type T = SOCK_TYPES[i].type;
+
+                    // Without passing 'errorCode' to 'setOption' & 'getOption'
+                    {
+                        btlso::SocketHandle::Handle sp[2];
+
+                        int rc = SockImpUtil::socketPair<IPv4Address>(sp, T);
+                        LOOP_ASSERT(rc, 0 == rc);
+
+                        int val = 1, expVal = 1, actVal = 0;
+
+                        rc = SockOptUtil::setOption(sp[0], L, RA, val);
+                        LOOP_ASSERT(rc, 0 == rc);
+
+                        rc = SockOptUtil::getOption(&actVal, sp[0], L, RA);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(expVal, expVal == actVal);
+
+                        val = 1, expVal = 0, actVal = 1;
+
+                        rc = SockOptUtil::getOption(&actVal, sp[0], L, EAU);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(expVal, expVal == actVal);
+
+                        val = 0, expVal = 0, actVal = 1;
+
+                        rc = SockOptUtil::setOption(sp[1], L, RA, val);
+                        LOOP_ASSERT(rc, 0 == rc);
+
+                        rc = SockOptUtil::getOption(&actVal, sp[1], L, RA);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(expVal, expVal == !!actVal);
+
+                        val = 0, expVal = 1, actVal = 0;
+
+                        rc = SockOptUtil::getOption(&actVal, sp[1], L, EAU);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(expVal, expVal == !!actVal);
+
+                        rc = SockImpUtil::close(sp[0]);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        rc = SockImpUtil::close(sp[1]);
+                        LOOP_ASSERT(rc, 0 == rc);
+                    }
+
+                    // Passing 'errorCode' to 'setOption' & 'getOption'
+                    {
+                        btlso::SocketHandle::Handle sp[2];
+
+                        int rc = SockImpUtil::socketPair<IPv4Address>(sp, T);
+                        LOOP_ASSERT(rc, 0 == rc);
+
+                        int e = 0;
+
+                        int val = 1, expVal = 1, actVal = 0;
+
+                        rc = SockOptUtil::setOption(sp[0], L, RA, val, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+
+                        rc = SockOptUtil::getOption(&actVal, sp[0], L, RA, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+                        LOOP_ASSERT(expVal, expVal == actVal);
+
+                        val = 1, expVal = 0, actVal = 1;
+
+                        rc = SockOptUtil::getOption(&actVal, sp[0],L, EAU, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+                        LOOP_ASSERT(expVal, expVal == actVal);
+
+                        val = 0, expVal = 0, actVal = 1;
+
+                        rc = SockOptUtil::setOption(sp[1], L, RA, val, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+
+                        rc = SockOptUtil::getOption(&actVal, sp[1], L, RA, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+                        LOOP_ASSERT(expVal, expVal == !!actVal);
+
+                        val = 0, expVal = 1, actVal = 0;
+
+                        rc = SockOptUtil::getOption(&actVal, sp[1],L, EAU, &e);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        LOOP_ASSERT(e,  0 ==  e);
+                        LOOP_ASSERT(expVal, expVal == !!actVal);
+
+                        rc = SockImpUtil::close(sp[0]);
+                        LOOP_ASSERT(rc, 0 == rc);
+                        rc = SockImpUtil::close(sp[1]);
+                        LOOP_ASSERT(rc, 0 == rc);
+                    }
+                }
+#endif
             }
+
             if (verbose) cout << "\nTesting 'setOption' FUNCTION"
                               << "\n============================"
                               << "\nTesting TCPLEVEL Listed Options"
