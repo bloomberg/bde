@@ -24,9 +24,13 @@ BSLS_IDENT("$Id: $")
 //             Name             Type   Default
 //  -------------------------   ----   -------
 //  omitColonInZoneDesignator   bool    false
+//  precision                   int     3
 //  useCommaForDecimalSign      bool    false
 //  useZAbbreviationForUtc      bool    false
 //..
+//: o 'precision': number of digits used to represent fractional seconds;
+//:   must be in the range '0 .. 6'.
+//:
 //: o 'omitColonInZoneDesignator': 'true' if ':' should be omitted from zone
 //:   designators.
 //:
@@ -38,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Default Configuration
 ///---------------------
-// This component also provides a (process-wide) default configuration that
-// may be set and retrieved via the 'setDefaultConfiguration' and
+// This component also provides a (process-wide) default configuration that may
+// be set and retrieved via the 'setDefaultConfiguration' and
 // 'defaultConfiguration' class methods, respectively.  See Usage Example 2 for
 // further details.
 //
@@ -159,27 +163,28 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                        // ==============================
-                        // class Iso8601UtilConfiguration
-                        // ==============================
+                      // ==============================
+                      // class Iso8601UtilConfiguration
+                      // ==============================
 
 class Iso8601UtilConfiguration {
     // This unconstrained (value-semantic) attribute class characterizes how to
     // configure certain behavior in 'Iso8601Util' functions.  Currently, only
-    // the 'generate' and 'generateRaw' methods of that utility are affected
-    // by 'Iso8601UtilConfiguration' settings.  See the Attributes section
-    // under @DESCRIPTION in the component-level documentation for information
-    // on the class attributes.
+    // the 'generate' and 'generateRaw' methods of that utility are affected by
+    // 'Iso8601UtilConfiguration' settings.  See the Attributes section under
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.
 
   private:
     // PRIVATE TYPES
     enum {
         // This enumeration denotes the distinct bits that define the values of
-        // each of the three configuration attributes.
+        // each of the four configuration attributes.
 
-        k_omitColonInZoneDesignatorBit = 0x1,
-        k_useCommaForDecimalSignBit    = 0x2,
-        k_useZAbbreviationForUtcBit    = 0x4
+        k_precisionMask                = 0x07,
+        k_omitColonInZoneDesignatorBit = 0x08,
+        k_useCommaForDecimalSignBit    = 0x10,
+        k_useZAbbreviationForUtcBit    = 0x20
     };
 
     // CLASS DATA
@@ -221,6 +226,7 @@ class Iso8601UtilConfiguration {
         // Create an 'Iso8601UtilConfiguration' object having the (default)
         // attribute values:
         //..
+        //  precision()                 == 3
         //  omitColonInZoneDesignator() == false
         //  useCommaForDecimalSign()    == false
         //  useZAbbreviationForUtc()    == false
@@ -243,6 +249,11 @@ class Iso8601UtilConfiguration {
         // Set the 'omitColonInZoneDesignator' attribute of this object to the
         // specified 'value'.
 
+    void setPrecision(int value);
+        // Set the 'precision' attribute of this object to the specified
+        // 'value'.  The behavior is undefined unles '0 <= value' and
+        // '6 >= 'value'.
+
     void setUseCommaForDecimalSign(bool value);
         // Set the 'useCommaForDecimalSign' attribute of this object to the
         // specified 'value'.
@@ -255,6 +266,9 @@ class Iso8601UtilConfiguration {
     bool omitColonInZoneDesignator() const;
         // Return the value of the 'omitColonInZoneDesignator' attribute of
         // this object.
+
+    int precision() const;
+        // Return the value of the 'precision' attribute of this object.
 
     bool useCommaForDecimalSign() const;
         // Return the value of the 'useCommaForDecimalSign' attribute of this
@@ -290,15 +304,15 @@ bool operator==(const Iso8601UtilConfiguration& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
     // have the same value if each of their 'omitColonInZoneDesignator',
-    // 'useCommaForDecimalSign', and 'useZAbbreviationForUtc' attributes
-    // (respectively) have the same value.
+    // 'precision', 'useCommaForDecimalSign', and 'useZAbbreviationForUtc'
+    // attributes (respectively) have the same value.
 
 bool operator!=(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
     // objects do not have the same value if any of their
-    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', or
+    // 'omitColonInZoneDesignator', 'precision', 'useCommaForDecimalSign', or
     // 'useZAbbreviationForUtc' attributes (respectively) do not have the same
     // value.
 
@@ -312,12 +326,12 @@ bsl::ostream& operator<<(bsl::ostream&                   stream,
     // 'object.print(stream, 0, -1)', but with the attribute names elided.
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------------------
-                        // class Iso8601UtilConfiguration
-                        // ------------------------------
+                      // ------------------------------
+                      // class Iso8601UtilConfiguration
+                      // ------------------------------
 
 // PRIVATE CREATORS
 inline
@@ -326,6 +340,7 @@ Iso8601UtilConfiguration::Iso8601UtilConfiguration(int configurationMask)
 {
     BSLS_ASSERT_SAFE(0 == (configurationMask
                            & ~(k_omitColonInZoneDesignatorBit
+                             | k_precisionMask
                              | k_useCommaForDecimalSignBit
                              | k_useZAbbreviationForUtcBit)));
 }
@@ -349,7 +364,7 @@ void Iso8601UtilConfiguration::setDefaultConfiguration(
 // CREATORS
 inline
 Iso8601UtilConfiguration::Iso8601UtilConfiguration()
-: d_configurationMask(0)
+: d_configurationMask(3)
 {
 }
 
@@ -365,6 +380,7 @@ Iso8601UtilConfiguration::~Iso8601UtilConfiguration()
 {
     BSLS_ASSERT_SAFE(0 == (d_configurationMask
                            & ~(k_omitColonInZoneDesignatorBit
+                             | k_precisionMask
                              | k_useCommaForDecimalSignBit
                              | k_useZAbbreviationForUtcBit)));
 }
@@ -384,6 +400,12 @@ inline
 bool Iso8601UtilConfiguration::omitColonInZoneDesignator() const
 {
     return d_configurationMask & k_omitColonInZoneDesignatorBit;
+}
+
+inline
+int Iso8601UtilConfiguration::precision() const
+{
+    return d_configurationMask & k_precisionMask;
 }
 
 inline
@@ -420,7 +442,7 @@ bool bdlt::operator!=(const Iso8601UtilConfiguration& lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

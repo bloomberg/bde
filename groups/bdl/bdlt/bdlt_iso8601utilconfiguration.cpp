@@ -11,13 +11,13 @@ BSLS_IDENT_RCSID(bdlt_iso8601utilconfiguration_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-                        // ------------------------------
-                        // class Iso8601UtilConfiguration
-                        // ------------------------------
+                      // ------------------------------
+                      // class Iso8601UtilConfiguration
+                      // ------------------------------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int
-Iso8601UtilConfiguration::s_defaultConfiguration = { 0 };
+Iso8601UtilConfiguration::s_defaultConfiguration = { 3 };
 
 // MANIPULATORS
 void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
@@ -28,6 +28,14 @@ void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
     else {
         d_configurationMask &= ~k_omitColonInZoneDesignatorBit;
     }
+}
+
+void Iso8601UtilConfiguration::setPrecision(int value)
+{
+    BSLS_ASSERT(0 <= value);
+    BSLS_ASSERT(6 >= value);
+
+    d_configurationMask = (d_configurationMask & (~k_precisionMask)) | value;
 }
 
 void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
@@ -63,6 +71,7 @@ Iso8601UtilConfiguration::print(bsl::ostream& stream,
     printer.start();
     printer.printAttribute("omitColonInZoneDesignator",
                                                   omitColonInZoneDesignator());
+    printer.printAttribute("precision",              precision());
     printer.printAttribute("useCommaForDecimalSign", useCommaForDecimalSign());
     printer.printAttribute("useZAbbreviationForUtc", useZAbbreviationForUtc());
     printer.end();
@@ -79,6 +88,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
     printer.printValue(object.omitColonInZoneDesignator());
+    printer.printValue(object.precision());
     printer.printValue(object.useCommaForDecimalSign());
     printer.printValue(object.useZAbbreviationForUtc());
     printer.end();
@@ -89,7 +99,7 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
