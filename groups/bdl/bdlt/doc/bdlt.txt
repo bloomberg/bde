@@ -20,21 +20,17 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 28 components having 7 levels of physical
+ The 'bdlt' package currently has 24 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   7. bdlt_currenttime
-     bdlt_defaultcalendarcache
-     bdlt_iso8601util
 
-  6. bdlt_calendarcache
-     bdlt_datetimetz
+  6. bdlt_datetimetz
      bdlt_localtimeoffset
 
   5. bdlt_calendar
-     bdlt_calendarloader
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
@@ -43,6 +39,7 @@
      bdlt_dateutil
      bdlt_packedcalendar
      bdlt_timetz
+     bdlt_timeutil
 
   3. bdlt_date
      bdlt_intervalconversionutil
@@ -50,14 +47,13 @@
 
   2. bdlt_datetimeinterval
      bdlt_dayofweekset
-     bdlt_delegatingdateimputil                          !DEPRECATED!
+     bdlt_serialdateimputil
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
-     bdlt_iso8601utilconfiguration
      bdlt_monthofyear
-     bdlt_posixdateimputil                               !DEPRECATED!
-     bdlt_serialdateimputil
+     bdlt_posixdateimputil
+     bdlt_prolepticdateimputil
      bdlt_timeunitratio
 ..
 
@@ -65,12 +61,6 @@
 /------------------
 : 'bdlt_calendar':
 :      Provide fast repository for accessing weekend/holiday information.
-:
-: 'bdlt_calendarcache':
-:      Provide an efficient cache for read-only 'bdlt::Calendar' objects.
-:
-: 'bdlt_calendarloader':
-:      Provide a protocol (or pure interface) for loading calendars.
 :
 : 'bdlt_calendarreverseiteratoradapter':
 :      Provide reverse iterator adapter for calendar iterators.
@@ -105,23 +95,11 @@
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
 :
-: 'bdlt_defaultcalendarcache':
-:      Provide a process-wide default 'bdlt::CalendarCache' object.
-:
-: 'bdlt_delegatingdateimputil':                          !DEPRECATED!
-:      Provide low-level support functions for date-value manipulation.
-:
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
 :
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
-:
-: 'bdlt_iso8601util':
-:      Provide conversions between date/time objects and ISO 8601 strings.
-:
-: 'bdlt_iso8601utilconfiguration':
-:      Provide an attribute class to configure ISO 8601 string generation.
 :
 : 'bdlt_localtimeoffset':
 :      Provide utilities to retrieve the local time offset.
@@ -132,7 +110,10 @@
 : 'bdlt_packedcalendar':
 :      Provide a compact repository for weekend/holiday information.
 :
-: 'bdlt_posixdateimputil':                               !DEPRECATED!
+: 'bdlt_posixdateimputil':
+:      Provide low-level support functions for date-value manipulation.
+:
+: 'bdlt_prolepticdateimputil':
 :      Provide low-level support functions for date-value manipulation.
 :
 : 'bdlt_serialdateimputil':
@@ -146,6 +127,9 @@
 :
 : 'bdlt_timeunitratio':
 :      Provide constants characterizing ratios between common time units.
+:
+: 'bdlt_timeutil':
+:      Provide common non-primitive operations on 'bdlt::Time'.
 
 /Value Types
 /-----------

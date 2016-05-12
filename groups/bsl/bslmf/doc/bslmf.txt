@@ -55,7 +55,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 63 components having 15 levels of physical
+ The 'bslmf' package currently has 67 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -67,6 +67,7 @@
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
+      bslmf_usesallocatorargt
 
   13. bslmf_detectnestedtrait
       bslmf_isenum
@@ -87,6 +88,7 @@
    8. bslmf_addconst
       bslmf_addvolatile
       bslmf_isarithmetic
+      bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
       bslmf_removepointer
@@ -100,6 +102,7 @@
       bslmf_isvoid
       bslmf_memberfunctionpointertraits
       bslmf_removecvq
+      bslmf_util
 
    6. bslmf_addpointer
       bslmf_addreference
@@ -112,6 +115,7 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
       bslmf_removevolatile
@@ -219,6 +223,9 @@
 : 'bslmf_isconvertibletoany':
 :      Provide a compile-time check for types convertible to any type.
 :
+: 'bslmf_isempty':
+:      Provide a compile-time check for detecting an empty class type.
+:
 : 'bslmf_isenum':
 :      Provide compile-time check for determining enumerated types.
 :
@@ -300,6 +307,9 @@
 : 'bslmf_nil':
 :      Provide a nil type.
 :
+: 'bslmf_nthparameter':
+:      Metafunction to return the Nth type parameter in a parameter pack
+:
 : 'bslmf_removeconst':
 :      Provide a meta-function for removing top-level 'const'-qualifier.
 :
@@ -329,4 +339,10 @@
 :
 : 'bslmf_typelist':
 :      Provide a typelist component.
+:
+: 'bslmf_usesallocatorargt':
+:      Provide a metafunction for 'allocator_arg_t' construction
+:
+: 'bslmf_util':
+:      Provide low-level functions on 'bslmf' types.
 

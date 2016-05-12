@@ -19,52 +19,54 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 53 components having 8 levels of physical
+ The 'bslstl' package currently has 54 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  8. bslstl_ownerless
+  9. bslstl_ownerless
 
-  7. bslstl_queue
-     bslstl_sharedptr
+  8. bslstl_sharedptr
+
+  7. bslstl_map
+     bslstl_multimap
+     bslstl_multiset
+     bslstl_queue
+     bslstl_set
      bslstl_stack
 
   6. bslstl_deque
-     bslstl_map
-     bslstl_multimap
-     bslstl_multiset
-     bslstl_set
+     bslstl_istringstream
+     bslstl_mapcomparator
+     bslstl_ostringstream
+     bslstl_setcomparator
+     bslstl_stringstream
+     bslstl_treenodepool
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
      bslstl_unorderedset
 
-  5. bslstl_hashtable
-     bslstl_istringstream
-     bslstl_mapcomparator
-     bslstl_ostringstream
+  5. bslstl_bitset
+     bslstl_hashtable
      bslstl_priorityqueue
      bslstl_randomaccessiterator
-     bslstl_setcomparator
-     bslstl_stringstream
-     bslstl_treenodepool
-
-  4. bslstl_bidirectionaliterator
-     bslstl_bitset
-     bslstl_hashtablebucketiterator
-     bslstl_hashtableiterator
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+
+  4. bslstl_bidirectionaliterator
+     bslstl_hashtablebucketiterator
+     bslstl_hashtableiterator
+     bslstl_string
      bslstl_vector
 
   3. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
      bslstl_forwarditerator
+     bslstl_function
      bslstl_iteratorutil
      bslstl_list
-     bslstl_string
      bslstl_treeiterator
 
   2. bslstl_iterator
@@ -117,6 +119,9 @@
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
+:
+: 'bslstl_function':
+:      Provide a polymorphic function object with a specific prototype.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
