@@ -112,15 +112,17 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - -
 // The 'generate' and 'generateRaw' functions provide an optional configuration
 // parameter.  This optional parameter, of type 'Iso8601UtilConfiguration',
-// enables configuration of three aspects of ISO 8601 string generation:
+// enables configuration of four aspects of ISO 8601 string generation:
 //
 //: o The decimal sign to use in fractional seconds: '.' or ','.
+//:
+//: o The precision of the fractional seconds.
 //:
 //: o Whether ':' is optional in zone designators.
 //:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// 'Iso8601UtilConfiguration' has three attributes that directly correspond to
+// 'Iso8601UtilConfiguration' has four attributes that directly correspond to
 // these aspects.  In addition, for generate methods that are not supplied with
 // a configuration argument, a process-wide configuration takes effect.  See
 // 'bdlt_iso8601utilconfiguration' for details.
@@ -184,10 +186,10 @@ BSLS_IDENT("$Id: $")
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (i.e., it can contain more than
-// three).  If more than three digits are included in the fractional second,
-// values greater than or equal to .9995 are rounded up to 1000 milliseconds.
-// This incurs a carry of one second into the 'second' attribute of the 'Time'
-// component:
+// three).  For 'Time' and 'TimeTz', if more than three digits are included in
+// the fractional second, values greater than or equal to .9995 are rounded up
+// to 1 second.  This incurs a carry of one second into the 'second' attribute
+// of the 'Time' component:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -205,9 +207,11 @@ BSLS_IDENT("$Id: $")
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
-// Note that if a carry due to rounding of the fractional second would cause an
-// overflow at the extreme upper end of the valid range of dates (i.e.,
-// 9999/12/31), then parsing for 'Datetime' and 'DatetimeTz' would fail.
+// For 'Datetime' and 'DatetimeTz', if more than six digits are included in the
+// fractional second, values greater than or equal to .9999995 are rounded up
+// to 1 second.  Note that if a carry due to rounding of the fractional second
+// would cause an overflow at the extreme upper end of the valid range of dates
+// (i.e., 9999/12/31), then parsing for 'Datetime' and 'DatetimeTz' would fail.
 //
 ///Leap Seconds
 /// - - - - - -
@@ -454,7 +458,7 @@ BSLS_IDENT("$Id: $")
 //                                   BUFLEN,
 //                                   sourceTimeTz,
 //                                   configuration);
-//  assert(BUFLEN - 2 == rc);
+//  assert(BUFLEN - 5 == rc);
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
 //..
 // For comparison, see the output that was produced by the streaming operator
@@ -469,7 +473,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::TimeTz targetTimeTz;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
+//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 5);
 //
 //  assert(           0 == rc);
 //  assert(sourceTimeTz == targetTimeTz);
@@ -479,7 +483,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::Time targetTime;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
+//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 5);
 //  assert(                     0 == rc);
 //  assert(sourceTimeTz.utcTime() == targetTime);
 //..
@@ -543,11 +547,11 @@ struct Iso8601Util {
         k_DATE_STRLEN       = 10,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 12,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 18,  // 'bdlt::TimeTz'
+        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
+        k_TIMETZ_STRLEN     = 21,  // 'bdlt::TimeTz'
 
-        k_DATETIME_STRLEN   = 23,  // 'bdlt::Datetime'
-        k_DATETIMETZ_STRLEN = 29,  // 'bdlt::DatetimeTz'
+        k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
+        k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'
 
         k_MAX_STRLEN        = k_DATETIMETZ_STRLEN
 
@@ -1057,7 +1061,7 @@ struct Iso8601Util {
 };
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                             // ------------------
@@ -1603,7 +1607,7 @@ int Iso8601Util::generateRaw(char              *buffer,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

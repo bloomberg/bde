@@ -778,14 +778,14 @@ if (veryVerbose)
                                      BUFLEN,
                                      sourceTimeTz,
                                      configuration);
-    ASSERT(BUFLEN - 2 == rc);
+    ASSERT(BUFLEN - 5 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
 //..
 // For comparison, see the output that was produced by the streaming operator
 // above.
 //
 // Next, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::TimeTz'object , and assert that the parse was
+// parse into a second 'bdlt::TimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
 // original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
 // 'BUFLEN' because the former indicates the correct number of characters in
@@ -793,7 +793,7 @@ if (veryVerbose)
 //..
     bdlt::TimeTz targetTimeTz;
 
-    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
+    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 5);
 
     ASSERT(           0 == rc);
     ASSERT(sourceTimeTz == targetTimeTz);
@@ -803,7 +803,7 @@ if (veryVerbose)
 //..
     bdlt::Time targetTime;
 
-    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
+    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 5);
     ASSERT(                     0 == rc);
     ASSERT(sourceTimeTz.utcTime() == targetTime);
 //..
@@ -1224,45 +1224,66 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
+                int         d_usec;
                 int         d_offset;
             } DATA[] = {
                 // leap seconds
                 { L_, "0001-01-01T00:00:60.000",
-                                          0001, 01, 01, 00, 01, 00, 000,   0 },
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
                 { L_, "9998-12-31T23:59:60.999",
-                                          9999, 01, 01, 00, 00, 00, 999,   0 },
+                                     9999, 01, 01, 00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
+                { L_, "0001-01-01T00:00:00.0000001",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.0000009",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
+                { L_, "0001-01-01T00:00:00.00000001",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.00000049",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.00000050",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
+                { L_, "0001-01-01T00:00:00.00000099",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
                 { L_, "0001-01-01T00:00:00.0001",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 100,   0 },
                 { L_, "0001-01-01T00:00:00.0009",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 900,   0 },
                 { L_, "0001-01-01T00:00:00.00001",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000,  10,   0 },
                 { L_, "0001-01-01T00:00:00.00049",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 490,   0 },
                 { L_, "0001-01-01T00:00:00.00050",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 500,   0 },
                 { L_, "0001-01-01T00:00:00.00099",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 990,   0 },
                 { L_, "0001-01-01T00:00:00.9994" ,
-                                          0001, 01, 01, 00, 00, 00, 999,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 400,   0 },
                 { L_, "0001-01-01T00:00:00.9995" ,
-                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 500,   0 },
                 { L_, "0001-01-01T00:00:00.9999" ,
-                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 900,   0 },
                 { L_, "9998-12-31T23:59:60.9999" ,
-                                          9999, 01, 01, 00, 00, 01, 000,   0 },
+                                     9999, 01, 01, 00, 00, 00, 999, 900,   0 },
+                { L_, "0001-01-01T00:00:00.9999994" ,
+                                     0001, 01, 01, 00, 00, 00, 999, 999,   0 },
+                { L_, "0001-01-01T00:00:00.9999995" ,
+                                     0001, 01, 01, 00, 00, 01, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.9999999" ,
+                                     0001, 01, 01, 00, 00, 01, 000, 000,   0 },
+                { L_, "9998-12-31T23:59:60.9999999" ,
+                                     9999, 01, 01, 00, 00, 01, 000, 000,   0 },
 
                 // omit fractional seconds
                 { L_, "2014-12-23T12:34:45",
-                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,   0 },
                 { L_, "2014-12-23T12:34:45Z",
-                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,   0 },
                 { L_, "2014-12-23T12:34:45+00:30",
-                                          2014, 12, 23, 12, 34, 45, 000,  30 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,  30 },
                 { L_, "2014-12-23T12:34:45-01:30",
-                                          2014, 12, 23, 12, 34, 45, 000, -90 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1277,6 +1298,7 @@ if (veryVerbose)
                 const int   MIN    = DATA[ti].d_min;
                 const int   SEC    = DATA[ti].d_sec;
                 const int   MSEC   = DATA[ti].d_msec;
+                const int   USEC   = DATA[ti].d_usec;
                 const int   OFFSET = DATA[ti].d_offset;
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
@@ -1284,8 +1306,14 @@ if (veryVerbose)
                 bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
                 bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
-                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
-                                                         HOUR, MIN, SEC, MSEC),
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR,
+                                                         MONTH,
+                                                         DAY,
+                                                         HOUR,
+                                                         MIN,
+                                                         SEC,
+                                                         MSEC,
+                                                         USEC),
                                           OFFSET);
 
                 ASSERTV(LINE, INPUT, LENGTH,
@@ -1599,7 +1627,7 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIME == X);
+                        ASSERTV(ILINE, JLINE, CLINE, TIME, X, TIME == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
@@ -4824,7 +4852,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
