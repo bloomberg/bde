@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 33 components having 9 levels of physical
+ The 'bslma' package currently has 34 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -37,7 +37,8 @@
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  5. bslma_autodeallocator
+  5. bslma_allocatoradaptor
+     bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
      bslma_deallocatorproctor
@@ -70,6 +71,9 @@
 /------------------
 : 'bslma_allocator':
 :      Provide a pure abstract interface for memory-allocation mechanisms.
+:
+: 'bslma_allocatoradaptor':
+:      Provide a polymorphic adaptor for STL-style allocators
 :
 : 'bslma_autodeallocator':
 :      Provide a range proctor to managed a block of memory.

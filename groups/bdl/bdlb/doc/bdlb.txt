@@ -9,22 +9,37 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 6 components having 2 levels of physical
+ The 'bdlb' package currently has 10 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bdlb_guidutil
+  4. bdlb_bitstringutil
+
+  3. bdlb_bitstringimputil
+
+  2. bdlb_bitmaskutil
+     bdlb_guidutil
 
   1. bdlb_bitutil
      bdlb_cstringequalto
      bdlb_cstringless
      bdlb_guid
      bdlb_randomdevice
+     bdlb_stringrefutil
 ..
 
 /Component Synopsis
 /------------------
+: 'bdlb_bitmaskutil':
+:      Provide simple mask values of 'uint32_t' and 'uint64_t' types.
+:
+: 'bdlb_bitstringimputil':
+:      Provide functional bit-manipulation of 'uint64_t' values.
+:
+: 'bdlb_bitstringutil':
+:      Provide efficient operations on a multi-word sequence of bits.
+:
 : 'bdlb_bitutil':
 :      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
 :
@@ -42,3 +57,6 @@
 :
 : 'bdlb_randomdevice':
 :      Provide a common interface to a system's random number generator.
+:
+: 'bdlb_stringrefutil':
+:      Provide utility functions on 'bslstl::StringRef'-erenced strings.

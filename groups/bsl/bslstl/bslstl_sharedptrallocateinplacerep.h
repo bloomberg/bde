@@ -36,7 +36,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'releaseRef' and 'releaseWeakRef').  Note that there is no thread safety
 // guarantees for operations on the managed object contained in
 // 'bslstl::SharedPtrAllocateInplaceRep'.
-//
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

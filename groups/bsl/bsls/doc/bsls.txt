@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 60 components having 14 levels of physical
+ The 'bsls' package currently has 62 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -79,6 +79,7 @@
       bsls_int64                                         !DEPRECATED!
       bsls_nullptr
       bsls_performancehint
+      bsls_pointercastutil
       bsls_systemclocktype
       bsls_unspecifiedbool
       bsls_util
@@ -94,6 +95,7 @@
    2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
+      bsls_macrorepeat
       bsls_platform
       bsls_protocoltest
 
@@ -237,6 +239,9 @@
 : 'bsls_macroincrement':
 :      Provide a macro to increment preprocessor numbers.
 :
+: 'bsls_macrorepeat':
+:      repreat a macro invocation with different numeric arguments
+:
 : 'bsls_nativestd':
 :      Define the namespace 'native_std' as an alias for '::std'.
 :
@@ -254,6 +259,9 @@
 :
 : 'bsls_platformutil':                                   !DEPRECATED!
 :      Provide consistent interface for platform-dependent functionality.
+:
+: 'bsls_pointercastutil':
+:      Provide function to cast between function and data pointers.
 :
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.

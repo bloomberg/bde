@@ -18,13 +18,20 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslim' package currently has 1 component.
+ The 'bslim' package currently has 2 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   1. bslim_printer
+     bslim_testutil
 ..
 
 /Component Synopsis
 /------------------
 : 'bslim_printer':
 :      Provide a mechanism to implement standard 'print' methods.
+:
+: 'bslim_testutil':
+:      Provide test utilities for components above 'bsl'.
 
