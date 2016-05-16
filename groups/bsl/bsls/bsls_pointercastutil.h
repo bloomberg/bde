@@ -70,6 +70,10 @@ BSLS_IDENT("$Id: $")
 //  assert(counter == 2);
 //..
 
+#ifndef INCLUDED_BSLS_ANNOTATION
+#include <bsls_annotation.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -108,9 +112,11 @@ inline
 TO bsls::PointerCastUtil::cast(FROM from)
 {
     typedef char FROM_SizeCheck[
-                         sizeof(bsls::Types::IntPtr) >= sizeof(FROM) ? 1 : -1];
+                         sizeof(bsls::Types::IntPtr) >= sizeof(FROM) ? 1 : -1]
+                            BSLS_ANNOTATION_UNUSED;
     typedef char   TO_SizeCheck[
-                         sizeof(bsls::Types::IntPtr) >= sizeof(TO)   ? 1 : -1];
+                         sizeof(bsls::Types::IntPtr) >= sizeof(TO)   ? 1 : -1]
+                            BSLS_ANNOTATION_UNUSED;
         // Static assert that the 'FROM' and 'TO' types are not larger than the
         // intermediate integer type.  Note that 'bslmf_Assert' cannot be used
         // here because of package dependency rules.
