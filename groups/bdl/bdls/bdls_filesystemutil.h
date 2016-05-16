@@ -642,6 +642,11 @@ struct FilesystemUtil {
         // subsequently be called with paths which have already been deleted,
         // so must be prepared for this event.  See 'findMatchingPaths' for a
         // discussion of how 'pattern' is interpreted.
+        //
+        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+        // implementation of the system 'glob' function can temporarily change
+        // the working directory of the entire program, casuing attempts in
+        // other threads to open files with relative path names to fail.
 
     static int visitTree(
               const char                                    *root,
@@ -676,6 +681,11 @@ struct FilesystemUtil {
         // matches 'pattern'.  Also note that no pattern matching is done on
         // 'root' -- if it contains wildcards, they are not interpreted as such
         // and must exactly match the characters in the name of the directory.
+        //
+        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+        // implementation of the system 'glob' function can temporarily change
+        // the working directory of the entire program, casuing attempts in
+        // other threads to open files with relative path names to fail.
 
     static void findMatchingPaths(bsl::vector<bsl::string> *result,
                                   const char               *pattern);
@@ -697,6 +707,11 @@ struct FilesystemUtil {
         // but not "file.txt"; however, it also matches "file" (without any
         // extension).  Likewise, "*.*" matches any filename, including
         // filenames having no extension.
+        //
+        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+        // implementation of the system 'glob' function can temporarily change
+        // the working directory of the entire program, casuing attempts in
+        // other threads to open files with relative path names to fail.
 
     static Offset getAvailableSpace(const bsl::string&  path);
     static Offset getAvailableSpace(const char         *path);
@@ -825,6 +840,11 @@ struct FilesystemUtil {
         // this method will fail.  Also note that if the function fails when
         // 'recursive' is 'true', it may or may not have removed *some* files
         // or directories before failing.
+        //
+        // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
+        // implementation of the system 'glob' function can temporarily change
+        // the working directory of the entire program, casuing attempts in
+        // other threads to open files with relative path names to fail.
 
     static int rollFileChain(const bsl::string& path, int maxSuffix);
     static int rollFileChain(const char        *path, int maxSuffix);
