@@ -1,5 +1,14 @@
-bsl-internal (2.27.10.0) unstable; urgency=low
+bsl-internal (2.27.11.0) unstable; urgency=low
 
+  * bb0f1b6 Merge pull request #408 from mgiroux/review/fix-unused-typedef-warning-drqs-81638921
+  * c6d40a2 Merge pull request #405 from sbreitst/releases/2.27.x-bdedox-drqs-81638921
+  * 460555c Merge pull request #385 from hversche/pr/339-rebased
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 16 May 2016 10:31:33 -0400
+
+bsl-internal (2.27.10.0) git; urgency=low
+
+  * 80c53be Changelog for version 2.27.10.0
   * be8fa0a Changelog for version 2.27.10.0
   * 6efaa97 Merge pull request #380 from mgiroux/review/bump-patchversion-to-2.27.10
   * b35ae69 Bump patchversion to 2.27.10
@@ -9,7 +18,7 @@ bsl-internal (2.27.10.0) unstable; urgency=low
   * 73ff8d2 Merge pull request #363 from sbreitst/releases/2.27.x
   * 85520c4 Merge pull request #361 from hversche/pr/359-rebased
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 2 May 2016 17:48:12 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 2 May 2016 17:48:57 -0400
 
 bsl-internal (2.27.0.2) git; urgency=low
 
