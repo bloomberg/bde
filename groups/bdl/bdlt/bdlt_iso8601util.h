@@ -458,7 +458,7 @@ BSLS_IDENT("$Id: $")
 //                                   BUFLEN,
 //                                   sourceTimeTz,
 //                                   configuration);
-//  assert(BUFLEN - 5 == rc);
+//  assert(BUFLEN - 2 == rc);
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
 //..
 // For comparison, see the output that was produced by the streaming operator
@@ -473,7 +473,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::TimeTz targetTimeTz;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 5);
+//  rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
 //
 //  assert(           0 == rc);
 //  assert(sourceTimeTz == targetTimeTz);
@@ -483,7 +483,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::Time targetTime;
 //
-//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 5);
+//  rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
 //  assert(                     0 == rc);
 //  assert(sourceTimeTz.utcTime() == targetTime);
 //..
@@ -547,8 +547,8 @@ struct Iso8601Util {
         k_DATE_STRLEN       = 10,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 21,  // 'bdlt::TimeTz'
+        k_TIME_STRLEN       = 12,  // 'bdlt::Time'
+        k_TIMETZ_STRLEN     = 18,  // 'bdlt::TimeTz'
 
         k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
         k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'

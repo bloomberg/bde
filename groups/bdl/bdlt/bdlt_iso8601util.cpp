@@ -452,12 +452,42 @@ int generateZoneDesignator(char                            *buffer,
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 static
-int generatedLengthForTimeObject(int                             defaultLength,
+int generatedLengthForDateTzObject(
+                                 int                             defaultLength,
+                                 int                             tzOffset,
                                  const Iso8601UtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
-    // is used, for a 'bdlt' object, with a "time" attribute, whose ISO 8601
-    // representation has the specified 'defaultLength' (in bytes).  The
-    // behavior is undefined unless '0 <= defaultLength'.
+    // is used, for a 'bdlt::DateTz' object having the specified 'tzOffset'
+    // whose ISO 8601 representation has the specified 'defaultLength' (in
+    // bytes).  The behavior is undefined unless '0 <= defaultLength' and
+    // '-(24 * 60) < tzOffset < 24 * 60'.
+{
+    BSLS_ASSERT_SAFE(0 <= defaultLength);
+    BSLS_ASSERT_SAFE(-(24 * 60) < tzOffset);
+    BSLS_ASSERT_SAFE(             tzOffset < 24 * 60);
+
+    // Consider only those 'configuration' options that can affect the length
+    // of the output.
+
+    if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
+        return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
+    }
+
+    if (configuration.omitColonInZoneDesignator()) {
+        return defaultLength - 1;                                     // RETURN
+    }
+
+    return defaultLength;
+}
+
+static
+int generatedLengthForDatetimeObject(
+                                 int                             defaultLength,
+                                 const Iso8601UtilConfiguration& configuration)
+    // Return the number of bytes generated, when the specified 'configuration'
+    // is used, for a 'bdlt::Datetime' object whose ISO 8601 representation has
+    // the specified 'defaultLength' (in bytes).  The behavior is undefined
+    // unless '0 <= defaultLength'.
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
 
@@ -465,15 +495,15 @@ int generatedLengthForTimeObject(int                             defaultLength,
 }
 
 static
-int generatedLengthForTimeTzObject(
+int generatedLengthForDatetimeTzObject(
                                  int                             defaultLength,
                                  int                             tzOffset,
                                  const Iso8601UtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
-    // is used, for a "Tz" 'bdlt' object, with a "time" attribute, having the
-    // specified 'tzOffset' whose ISO 8601 representation has the specified
-    // 'defaultLength' (in bytes).  The behavior is undefined unless
-    // '0 <= defaultLength' and '-(24 * 60) < tzOffset < 24 * 60'.
+    // is used, for a 'bdlt::DatetimeTz' object having the specified 'tzOffset'
+    // whose ISO 8601 representation has the specified 'defaultLength' (in
+    // bytes).  The behavior is undefined unless '0 <= defaultLength' and
+    // '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
     BSLS_ASSERT_SAFE(-(24 * 60) < tzOffset);
@@ -496,14 +526,34 @@ int generatedLengthForTimeTzObject(
 }
 
 static
-int generatedLengthForTzObject(int                             defaultLength,
-                               int                             tzOffset,
-                               const Iso8601UtilConfiguration& configuration)
+int generatedLengthForTimeObject(int                             defaultLength,
+                                 const Iso8601UtilConfiguration& configuration)
     // Return the number of bytes generated, when the specified 'configuration'
-    // is used, for a "Tz" 'bdlt' object, without a "time" attribute, having
-    // the specified 'tzOffset' whose ISO 8601 representation has the specified
-    // 'defaultLength' (in bytes).  The behavior is undefined unless
-    // '0 <= defaultLength' and '-(24 * 60) < tzOffset < 24 * 60'.
+    // is used, for a 'bdlt::Time' object whose ISO 8601 representation has the
+    // specified 'defaultLength' (in bytes).  The behavior is undefined unless
+    // '0 <= defaultLength'.
+{
+    BSLS_ASSERT_SAFE(0 <= defaultLength);
+
+    int precision = configuration.precision();
+
+    if (precision > 3) {
+        precision = 3;
+    }
+
+    return defaultLength - (3 - precision);
+}
+
+static
+int generatedLengthForTimeTzObject(
+                                 int                             defaultLength,
+                                 int                             tzOffset,
+                                 const Iso8601UtilConfiguration& configuration)
+    // Return the number of bytes generated, when the specified 'configuration'
+    // is used, for a 'bdlt::TimeTz' object having the specified 'tzOffset'
+    // whose ISO 8601 representation has the specified 'defaultLength' (in
+    // bytes).  The behavior is undefined unless '0 <= defaultLength' and
+    // '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
     BSLS_ASSERT_SAFE(-(24 * 60) < tzOffset);
@@ -511,6 +561,14 @@ int generatedLengthForTzObject(int                             defaultLength,
 
     // Consider only those 'configuration' options that can affect the length
     // of the output.
+
+    int precision = configuration.precision();
+
+    if (precision > 3) {
+        precision = 3;
+    }
+
+    defaultLength = defaultLength - (3 - precision);
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
@@ -626,8 +684,9 @@ int Iso8601Util::generate(char                            *buffer,
     if (bufferLength >= k_DATETIME_STRLEN + 1) {
         outLen = generateRaw(buffer, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForTimeObject(k_DATETIME_STRLEN,
-                                                           configuration));
+        BSLS_ASSERT(outLen == generatedLengthForDatetimeObject(
+                                                             k_DATETIME_STRLEN,
+                                                             configuration));
 
         buffer[outLen] = '\0';
     }
@@ -636,8 +695,9 @@ int Iso8601Util::generate(char                            *buffer,
 
         outLen = generateRaw(outBuf, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForTimeObject(k_DATETIME_STRLEN,
-                                                           configuration));
+        BSLS_ASSERT(outLen == generatedLengthForDatetimeObject(
+                                                             k_DATETIME_STRLEN,
+                                                             configuration));
 
         bsl::memcpy(buffer, outBuf, bufferLength);
     }
@@ -670,9 +730,9 @@ int Iso8601Util::generate(char                            *buffer,
         copyBuf(buffer, bufferLength, outBuf, outLen);
     }
 
-    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETZ_STRLEN,
-                                                          object.offset(),
-                                                          configuration));
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForDateTzObject(k_DATETZ_STRLEN,
+                                                              object.offset(),
+                                                              configuration));
 
     return outLen;
 }
@@ -737,7 +797,7 @@ int Iso8601Util::generate(char                            *buffer,
     }
 
     BSLS_ASSERT_SAFE(outLen ==
-                            generatedLengthForTimeTzObject(k_DATETIMETZ_STRLEN,
+                        generatedLengthForDatetimeTzObject(k_DATETIMETZ_STRLEN,
                                                            object.offset(),
                                                            configuration));
 
@@ -874,13 +934,19 @@ int Iso8601Util::generateRaw(char                            *buffer,
     int precision = configuration.precision();
 
     if (precision) {
-        p += generateInt(p, object.second()     , 2, decimalSign);
+        // 'bdlt::Time' only supports milliseconds; limit precision to 3.
 
-        int value = object.millisecond() * 1000;
+        if (precision > 3) {
+            precision = 3;
+        }
 
-        for (int i = 6; i > precision; --i) value /= 10;
+        p += generateInt(p, object.second(), 2, decimalSign);
 
-        p += generateInt(p, object.millisecond(), precision);
+        int value = object.millisecond();
+
+        for (int i = 3; i > precision; --i) value /= 10;
+
+        p += generateInt(p, value, precision);
     }
     else {
         p += generateInt(p, object.second(), 2);
@@ -910,13 +976,13 @@ int Iso8601Util::generateRaw(char                            *buffer,
     int precision = configuration.precision();
 
     if (precision) {
-        p += generateInt(p, object.second()     , 2, decimalSign);
+        p += generateInt(p, object.second(), 2, decimalSign);
 
-        int value = object.millisecond() * 1000;
+        int value = object.millisecond() * 1000 + object.microsecond();
 
         for (int i = 6; i > precision; --i) value /= 10;
 
-        p += generateInt(p, object.millisecond(), precision);
+        p += generateInt(p, value, precision);
     }
     else {
         p += generateInt(p, object.second(), 2);
