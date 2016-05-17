@@ -121,8 +121,9 @@ int main(int argc, char *argv[])
 // 'bbldc::TerminatedBasicDayCountAdapter' to adapt the
 // 'bbldc::TerminatedIsda30360Eom' day-count convention to the
 // 'bbldc::BasicDayCount' protocol, and then the use of the day-count methods.
-// First, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::BasicDayCount':
+//
+// First, we define an instance of the adapted 'bbldc::TerminatedIsda30360Eom'
+// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
 //..
     const bbldc::TerminatedBasicDayCountAdapter<bbldc::TerminatedIsda30360Eom>
                                                 myDcc(bdlt::Date(2004, 2, 29));

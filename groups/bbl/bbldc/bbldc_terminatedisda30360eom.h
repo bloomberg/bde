@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // consisting of exactly 30 days.  Special end-of-month rule adjustments *are*
 // made to account for the last day of February.  Note that in this day-count
 // convention, the second date may or may not be adjusted depending on the
-// termination date.
+// termination date (e.g., maturity date).
 //
 ///ISDA 30/360 eom Day Count Algorithm
 ///-----------------------------------
@@ -40,6 +40,8 @@ BSLS_IDENT("$Id: $")
 // daysDiff ::= sign(endDate - beginDate) *
 //                                   (Yl - Ye) * 360 + (Ml - Me) * 30 + Dl - De
 //..
+// Reference: http://www.isda.org/c_and_a/docs/30-360-2006ISDADefs.xls
+//            (tab labeled "30E-360 ISDA")
 //
 // The year fraction is simply the day count divided by 360.
 //

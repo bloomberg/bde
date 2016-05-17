@@ -138,15 +138,15 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::TerminatedDayCountUtil' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
+// 'bbldc::TerminatedDayCountUtil' methods.  First, create three 'bdlt::Date'
+// variables, 'd1', 'd2', and 'dt':
 //..
     const bdlt::Date d1(2003, 10, 18);
     const bdlt::Date d2(2003, 12, 31);
     const bdlt::Date dt(2004,  2, 29);
 //..
 // Then, compute the day count between 'd1' and 'd2' according to the ISDA
-// 30/360 EOM day-count convention:
+// 30/360 EOM day-count convention with termination date 'dt':
 //..
     const int daysDiff = bbldc::TerminatedDayCountUtil::daysDiff(
                                  d1,
@@ -156,13 +156,14 @@ int main(int argc, char *argv[])
     ASSERT(72 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates according to the
-// BUS-252 day-count convention:
+// ISDA 30/360 EOM day-count convention with termination date 'dt':
 //..
     const double yearsDiff = bbldc::TerminatedDayCountUtil::yearsDiff(
                                  d1,
                                  d2,
                                  dt,
                                  bbldc::DayCountConvention::e_ISDA_30_360_EOM);
+
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..

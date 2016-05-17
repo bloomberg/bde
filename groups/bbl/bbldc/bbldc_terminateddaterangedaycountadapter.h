@@ -15,8 +15,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a parameterized (template)
 // implementation, 'bbldc::TerminatedDateRangeDayCountAdapter', of the
-// 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
-// supporting the following two class methods.
+// 'bbldc::DateRangeDayCount' protocol that allows for special handling of a
+// termination date (e.g., maturity date).  The template argument can be any
+// type supporting the following two class methods.
 //..
 //  int daysDiff(const bdlt::Date& beginDate,
 //               const bdlt::Date& endDate,
@@ -50,8 +51,11 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::TerminatedDateRangeDayCountAdapter' to adapt the
 // 'bbldc::TerminatedIsda30360Eom' day-count convention to the
 // 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
-// methods.  First, we define an instance of the adapted day-count convention
-// and obtain a reference to the 'bbldc::DateRangeDayCount':
+// methods.
+//
+// First, we define an instance of the adapted 'bbldc::TerminatedIsda30360Eom'
+// day-count convention and obtain a reference to the
+// 'bbldc::DateRangeDayCount':
 //..
 //  const bbldc::TerminatedDateRangeDayCountAdapter<
 //                                               bbldc::TerminatedIsda30360Eom>

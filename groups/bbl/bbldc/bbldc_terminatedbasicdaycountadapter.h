@@ -14,8 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a parameterized (template)
 // implementation, 'bbldc::TerminatedBasicDayCountAdapter', of the
-// 'bbldc::BasicDayCount' protocol.  The template argument can be any type
-// supporting the following two class methods.
+// 'bbldc::BasicDayCount' protocol that allows for special handling of a
+// termination date (e.g., maturity date).  The template argument can be any
+// type supporting the following two class methods.
 //..
 //  int daysDiff(const bdlt::Date& beginDate,
 //               const bdlt::Date& endDate,
@@ -29,9 +30,9 @@ BSLS_IDENT("$Id: $")
 // convenient support for run-time polymorphic choice of day-count conventions
 // (via conventional use of a base-class pointer or reference) without having
 // to implement each derived type explicitly.  In this sense,
-// 'bbldc::TerminatedBasicDayCountAdapter' adapts the various concrete "basic"
-// day-count convention classes (e.g., 'bbldc::TerminatedIsda30360Eom') to a
-// run-time binding mechanism.
+// 'bbldc::TerminatedBasicDayCountAdapter' adapts the various concrete
+// "terminated" day-count convention classes (e.g.,
+// 'bbldc::TerminatedIsda30360Eom') to a run-time binding mechanism.
 //
 ///Usage
 ///-----
@@ -43,8 +44,9 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::TerminatedBasicDayCountAdapter' to adapt the
 // 'bbldc::TerminatedIsda30360Eom' day-count convention to the
 // 'bbldc::BasicDayCount' protocol, and then the use of the day-count methods.
-// First, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::BasicDayCount':
+//
+// First, we define an instance of the adapted 'bbldc::TerminatedIsda30360Eom'
+// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
 //..
 //  const bbldc::TerminatedBasicDayCountAdapter<bbldc::TerminatedIsda30360Eom>
 //                                              myDcc(bdlt::Date(2004, 2, 29));

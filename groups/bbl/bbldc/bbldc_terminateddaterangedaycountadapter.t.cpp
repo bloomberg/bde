@@ -125,8 +125,11 @@ int main(int argc, char *argv[])
 // 'bbldc::TerminatedDateRangeDayCountAdapter' to adapt the
 // 'bbldc::TerminatedIsda30360Eom' day-count convention to the
 // 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
-// methods.  First, we define an instance of the adapted day-count convention
-// and obtain a reference to the 'bbldc::DateRangeDayCount':
+// methods.
+//
+// First, we define an instance of the adapted 'bbldc::TerminatedIsda30360Eom'
+// day-count convention and obtain a reference to the
+// 'bbldc::DateRangeDayCount':
 //..
     const bbldc::TerminatedDateRangeDayCountAdapter<
                                                  bbldc::TerminatedIsda30360Eom>
