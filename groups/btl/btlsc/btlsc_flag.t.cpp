@@ -10,11 +10,11 @@
 #include <btlsc_flag.h>
 
 #include <bdls_testutil.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bsl_cstdlib.h>         // 'atoi'
 #include <bsl_cstring.h>         // 'strcmp', 'memcmp', 'memcpy'
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -252,7 +252,8 @@ if (verbose) {  // added in test driver
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             out << (Enum) twoToTheN(i) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 

@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 //: 2 NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
 //:   'BSLS_NATURAL', specifies that a memory block be aligned based on the
 //:   size (in bytes) of that block.  An object of a fundamental type ('int',
-//:   etc.) is *naturally* *aligned* when it's size evenly divides its address.
+//:   etc.) is *naturally* *aligned* when its size evenly divides its address.
 //:   An object of an aggregate type has natural alignment if the alignment of
 //:   the most-restrictively aligned sub-object evenly divides the address of
 //:   the aggregate.  Natural alignment is always at least as restrictive as

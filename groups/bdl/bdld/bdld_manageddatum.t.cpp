@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
             Obj        mMD(Datum::copyString("A very long string", &ta), &ta);
             const Obj& MD = mMD;
 
-            ASSERT_SAFE_FAIL(mMD.adopt(MD.datum()));
+            ASSERT_SAFE_PASS(mMD.adopt(MD.datum()));
             ASSERT_SAFE_PASS(mMD.adopt(
                                   Datum::copyString("Another very long string",
                                   &ta)));

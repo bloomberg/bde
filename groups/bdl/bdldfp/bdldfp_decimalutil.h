@@ -194,6 +194,17 @@ struct DecimalUtil {
         // unspecified if the function returns a non-zero value.
 
 
+                            // Formatting functions
+
+    static void format(Decimal32  value, bsl::string *out);
+    static void format(Decimal64  value, bsl::string *out);
+    static void format(Decimal128 value, bsl::string *out);
+        // Produce a string representation of the specified decimal 'value', in
+        // the specified 'out' string. The string will be suitable for use with
+        // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
+        // Decimal Floating-Point Technical Report, except that it is
+        // unspecified whether the NaNs returned are quiet or signaling.
+
                                   // math
 
     static Decimal64  fma(Decimal64  x, Decimal64  y, Decimal64  z);

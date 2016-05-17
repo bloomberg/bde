@@ -10,6 +10,7 @@
 
 #include <btlso_ipv4address.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
 #include <bslx_testinstream.h>
@@ -29,8 +30,6 @@
 #else
 #include <netinet/in.h>
 #endif
-
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -1212,7 +1211,7 @@ int main(int argc, char *argv[])
         //   object in a single-line format.
         //
         // Plan:
-        //   For each of a set of object values, use 'ostrstream' to write
+        //   For each of a set of object values, use 'ostream' to write
         //   that object's value to a character buffer and then compare
         //   the contents of that buffer with the expected output format.
         //
@@ -1262,7 +1261,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: "
                                       << FMT << endl;
-                ostrstream out(buf, SIZE);  out << X << ends;
+                bdlsb::FixedMemOutStreamBuf obuf(buf, SIZE);
+                bsl::ostream out(&obuf);
+                out << X << ends;
                 if (veryVerbose) cout << "\tACTUAL FORMAT:   "
                                       << buf << endl;
 
@@ -1277,11 +1278,12 @@ int main(int argc, char *argv[])
                 // Check to make sure setw applies to the whole object.
 
                 char buf2[SIZE];
-                ostrstream out_setw(buf2, SIZE);
+                bdlsb::FixedMemOutStreamBuf obuf2(buf2, SIZE);
+                bsl::ostream out_setw(&obuf2);
                 out_setw << setw(100) << X << ends;
 
-                string str(out.str());
-                string setw_str(out_setw.str());
+                string str(buf);
+                string setw_str(buf2);
 
                 str = string(100 - str.length(), ' ') + str;
 

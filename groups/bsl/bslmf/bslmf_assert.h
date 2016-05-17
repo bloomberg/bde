@@ -124,7 +124,7 @@ namespace BloombergLP {
                              // Support types
                              // =============
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VER_MAJOR < 0x5130
 
 // Using a different implementation on Sun; see BSLMF_ASSERT for details.
 
@@ -179,7 +179,7 @@ struct AssertTest {
                              // macro BSLMF_ASSERT
                              // ==================
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VER_MAJOR < 0x5130
 
 // The usual definition of the 'BSLMF_ASSERT' macro doesn't work with SunCC
 // (version 10 and below) inside template classes.  Note that Sun CC has a

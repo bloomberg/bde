@@ -16,6 +16,7 @@
 #include <ball_transmission.h>                  // for testing only
 #include <ball_userfields.h>                    // for testing only
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -30,7 +31,6 @@
 
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -204,7 +204,8 @@ int main(int argc, char *argv[])
 
         {
             char buf[2048];
-            ostrstream out(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
 
             my_OstreamObserver    myObserver(out);
             ball::Observer&        observer =
