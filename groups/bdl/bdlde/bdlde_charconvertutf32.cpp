@@ -480,6 +480,7 @@ struct Utf8ZeroBasedEnd {
                        // -----------------------------
 
 // CREATORS
+inline
 Utf8ZeroBasedEnd::Utf8ZeroBasedEnd()
 {
 }
