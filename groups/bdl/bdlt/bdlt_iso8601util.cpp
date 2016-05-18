@@ -491,7 +491,7 @@ int generatedLengthForDatetimeObject(
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
 
-    return defaultLength - (6 - configuration.precision());
+    return defaultLength - (6 - configuration.fractionalSecondPrecision());
 }
 
 static
@@ -512,7 +512,8 @@ int generatedLengthForDatetimeTzObject(
     // Consider only those 'configuration' options that can affect the length
     // of the output.
 
-    defaultLength = defaultLength - (6 - configuration.precision());
+    defaultLength =
+               defaultLength - (6 - configuration.fractionalSecondPrecision());
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
@@ -535,7 +536,7 @@ int generatedLengthForTimeObject(int                             defaultLength,
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
 
-    int precision = configuration.precision();
+    int precision = configuration.fractionalSecondPrecision();
 
     if (precision > 3) {
         precision = 3;
@@ -562,7 +563,7 @@ int generatedLengthForTimeTzObject(
     // Consider only those 'configuration' options that can affect the length
     // of the output.
 
-    int precision = configuration.precision();
+    int precision = configuration.fractionalSecondPrecision();
 
     if (precision > 3) {
         precision = 3;
@@ -652,8 +653,9 @@ int Iso8601Util::generate(char                            *buffer,
     if (bufferLength >= k_TIME_STRLEN + 1) {
         outLen = generateRaw(buffer, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForTimeObject(k_TIME_STRLEN,
-                                                           configuration));
+        BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(
+                                                               k_TIME_STRLEN,
+                                                               configuration));
 
         buffer[outLen] = '\0';
     }
@@ -662,8 +664,9 @@ int Iso8601Util::generate(char                            *buffer,
 
         outLen = generateRaw(outBuf, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForTimeObject(k_TIME_STRLEN,
-                                                           configuration));
+        BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(
+                                                               k_TIME_STRLEN,
+                                                               configuration));
 
         bsl::memcpy(buffer, outBuf, bufferLength);
     }
@@ -684,7 +687,7 @@ int Iso8601Util::generate(char                            *buffer,
     if (bufferLength >= k_DATETIME_STRLEN + 1) {
         outLen = generateRaw(buffer, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForDatetimeObject(
+        BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
                                                              k_DATETIME_STRLEN,
                                                              configuration));
 
@@ -695,7 +698,7 @@ int Iso8601Util::generate(char                            *buffer,
 
         outLen = generateRaw(outBuf, object, configuration);
 
-        BSLS_ASSERT(outLen == generatedLengthForDatetimeObject(
+        BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
                                                              k_DATETIME_STRLEN,
                                                              configuration));
 
@@ -931,7 +934,7 @@ int Iso8601Util::generateRaw(char                            *buffer,
                              ? ','
                              : '.';
 
-    int precision = configuration.precision();
+    int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
         // 'bdlt::Time' only supports milliseconds; limit precision to 3.
@@ -944,7 +947,9 @@ int Iso8601Util::generateRaw(char                            *buffer,
 
         int value = object.millisecond();
 
-        for (int i = 3; i > precision; --i) value /= 10;
+        for (int i = 3; i > precision; --i) {
+            value /= 10;
+        }
 
         p += generateInt(p, value, precision);
     }
@@ -973,14 +978,16 @@ int Iso8601Util::generateRaw(char                            *buffer,
                              ? ','
                              : '.';
 
-    int precision = configuration.precision();
+    int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
         p += generateInt(p, object.second(), 2, decimalSign);
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
-        for (int i = 6; i > precision; --i) value /= 10;
+        for (int i = 6; i > precision; --i) {
+            value /= 10;
+        }
 
         p += generateInt(p, value, precision);
     }

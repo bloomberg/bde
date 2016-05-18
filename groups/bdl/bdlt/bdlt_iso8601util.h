@@ -83,9 +83,10 @@ BSLS_IDENT("$Id: $")
 // Strings produced by the 'generate' and 'generateRaw' functions are a
 // straightforward transposition of the attributes of the source 'bdlt' value
 // into an appropriate ISO 8601 format, and are best illustrated by a few
-// examples.  Note that for any type having a time component ('Time', 'TimeTz',
-// 'Datetime', and 'DatetimeTz'), the fractional second is always generated,
-// and always with three decimal digits:
+// examples.  Note that for 'Datetime' and 'DatetimeTz', the fractional second
+// is generated with the precision specified in the configuration.  Also note
+// that for 'Time' and 'TimeTz', the fractional second is generated with the
+// precision specified in the configuration up to a maximum precision of 3.
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |    Generated ISO 8601 String    |

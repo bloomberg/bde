@@ -532,16 +532,16 @@ const int NUM_BAD_ZONE_DATA =
 
 static
 Config& gg(Config *object,
+           int     fractionSecondPrecision,
            bool    omitColonInZoneDesignatorFlag,
-           int     precision,
            bool    useCommaForDecimalSignFlag,
            bool    useZAbbreviationForUtcFlag)
     // Return, by reference, the specified '*object' with its value adjusted
     // according to the specified 'omitColonInZoneDesignatorFlag',
     // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
 {
+    object->setFractionalSecondPrecision(fractionSecondPrecision);
     object->setOmitColonInZoneDesignator(omitColonInZoneDesignatorFlag);
-    object->setPrecision(precision);
     object->setUseCommaForDecimalSign(useCommaForDecimalSignFlag);
     object->setUseZAbbreviationForUtc(useZAbbreviationForUtcFlag);
 
@@ -573,7 +573,7 @@ void updateExpectedPerConfig(bsl::string   *expected,
             ++length;
         }
 
-        int precision = configuration.precision();
+        int precision = configuration.fractionalSecondPrecision();
 
         if (precision > maxPrecision) {
             precision = maxPrecision;
@@ -1004,7 +1004,7 @@ if (veryVerbose)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // without zone designator in parsed string
                         {
@@ -1656,7 +1656,7 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // without zone designator in parsed string
                     {
@@ -2075,7 +2075,7 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // without zone designator in parsed string
                     {
@@ -2448,7 +2448,7 @@ if (veryVerbose)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         Config::setDefaultConfiguration(C);
 
@@ -2582,15 +2582,15 @@ if (veryVerbose)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // Set the default configuration to the complement of
                         // 'C'.
 
                         Config mDFLT;  const Config& DFLT = mDFLT;
                         gg(&mDFLT,
-                           !OMITCOLON,
                            9 - PRECISION,
+                           !OMITCOLON,
                            !USECOMMA,
                            !USEZ);
                         Config::setDefaultConfiguration(DFLT);
@@ -2696,13 +2696,13 @@ if (veryVerbose)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // Set the default configuration to use the complement
                         // of 'USEZ'.
 
                         Config mDFLT;  const Config& DFLT = mDFLT;
-                        gg(&mDFLT, OMITCOLON, PRECISION, USECOMMA, !USEZ);
+                        gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                         Config::setDefaultConfiguration(DFLT);
 
                         bsl::string EXPECTED(BASE_EXPECTED);
@@ -2960,7 +2960,7 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
@@ -3091,12 +3091,12 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, 9 - PRECISION, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3198,13 +3198,13 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to use the complement of
                     // 'USEZ'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, OMITCOLON, PRECISION, USECOMMA, !USEZ);
+                    gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3454,7 +3454,7 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
@@ -3585,12 +3585,12 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, 9 - PRECISION, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3692,13 +3692,13 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to use the complement of
                     // 'USEZ'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, OMITCOLON, PRECISION, USECOMMA, !USEZ);
+                    gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -3957,7 +3957,7 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
@@ -4088,12 +4088,12 @@ if (veryVerbose)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, 9 - PRECISION, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
@@ -4331,7 +4331,7 @@ if (veryVerbose)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
@@ -4458,12 +4458,12 @@ if (veryVerbose)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, !OMITCOLON, 9 - PRECISION, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
@@ -4698,7 +4698,7 @@ if (veryVerbose)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
@@ -4825,12 +4825,12 @@ if (veryVerbose)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, PRECISION, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, !OMITCOLON, 9 - PRECISION, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);

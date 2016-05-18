@@ -30,12 +30,13 @@ void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
     }
 }
 
-void Iso8601UtilConfiguration::setPrecision(int value)
+void Iso8601UtilConfiguration::setFractionalSecondPrecision(int value)
 {
     BSLS_ASSERT(0 <= value);
     BSLS_ASSERT(6 >= value);
 
-    d_configurationMask = (d_configurationMask & (~k_precisionMask)) | value;
+    d_configurationMask = (d_configurationMask
+                                 & (~k_fractionalSecondPrecisionMask)) | value;
 }
 
 void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
@@ -69,9 +70,10 @@ Iso8601UtilConfiguration::print(bsl::ostream& stream,
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
+    printer.printAttribute("fractionalSecondPrecision",
+                                                  fractionalSecondPrecision());
     printer.printAttribute("omitColonInZoneDesignator",
                                                   omitColonInZoneDesignator());
-    printer.printAttribute("precision",              precision());
     printer.printAttribute("useCommaForDecimalSign", useCommaForDecimalSign());
     printer.printAttribute("useZAbbreviationForUtc", useZAbbreviationForUtc());
     printer.end();
@@ -87,8 +89,8 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
+    printer.printValue(object.fractionalSecondPrecision());
     printer.printValue(object.omitColonInZoneDesignator());
-    printer.printValue(object.precision());
     printer.printValue(object.useCommaForDecimalSign());
     printer.printValue(object.useZAbbreviationForUtc());
     printer.end();
