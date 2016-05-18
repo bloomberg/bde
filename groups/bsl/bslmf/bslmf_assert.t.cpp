@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(145 == __LINE__);
-        BSLMF_ASSERT(1);  ASSERT(146 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(202 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(203 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
@@ -210,8 +210,8 @@ int main(int argc, char *argv[])
     !defined(BSLS_PLATFORM_CMP_MSVC) &&                      \
     !defined(BSLS_PLATFORM_CMP_SUN)  &&                      \
     !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800)
-        bslmf_Assert_145 t1; // test typedef name creation; matches above line
-        bslmf_Assert_146 t2; // test typedef name creation; matches above line
+        bslmf_Assert_202 t1; // test typedef name creation; matches above line
+        bslmf_Assert_203 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
 #endif
 
