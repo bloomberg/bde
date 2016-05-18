@@ -31,6 +31,8 @@ BSLS_IDENT("$Id: $")
 //  e_SIA_30_360_NEOM            Convention is SIA 30/360 no-end-of-month.
 //  e_PERIOD_ICMA_ACTUAL_ACTUAL  Convention is period-based ICMA Actual/Actual.
 //  e_CALENDAR_BUS_252           Convention is calendar-based BUS-252.
+//  e_ISDA_30_360_EOM            Convention is ISDA 30/360 end-of-month.
+//  e_NL_365                     Convention is NL/365.
 //..
 //
 ///Usage
@@ -102,7 +104,9 @@ struct DayCountConvention {
         e_SIA_30_360_EOM            =  7,
         e_SIA_30_360_NEOM           =  8,
         e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
-        e_CALENDAR_BUS_252          = 10
+        e_CALENDAR_BUS_252          = 10,
+        e_ISDA_30_360_EOM           = 11,
+        e_NL_365                    = 12
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BBEDC_ACTUAL_360         = e_ACTUAL_360,
@@ -114,7 +118,7 @@ struct DayCountConvention {
         BBEDC_PSA_30_360_EOM     = e_PSA_30_360_EOM,
         BBEDC_SIA_30_360_EOM     = e_SIA_30_360_EOM,
         BBEDC_SIA_30_360_NEOM    = e_SIA_30_360_NEOM,
-        
+
         ACTUAL_360         = BBEDC_ACTUAL_360,
         ACTUAL_365_FIXED   = BBEDC_ACTUAL_365_FIXED,
         ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
@@ -189,9 +193,9 @@ struct DayCountConvention {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  The behavior is
         // undefined unless 'value' is in the range
-        // '[e_ACTUAL_360 .. e_CALENDAR_BUS_252]'.  See 'toAscii' for what
-        // constitutes the string representation of a
-        // 'bbldc::DayCountConvention::Enum' value.
+        // '[e_ACTUAL_360 .. e_NL_365]'.  See 'toAscii' for what constitutes
+        // the string representation of a 'bbldc::DayCountConvention::Enum'
+        // value.
 
     static const char *toAscii(Enum convention);
         // Return the abbreviated character-string representation of the
@@ -297,8 +301,8 @@ STREAM& DayCountConvention::bdexStreamIn(STREAM&                   stream,
             char newValue;
             stream.getInt8(newValue);
             if (   stream
-                && e_ACTUAL_360       <= newValue
-                && e_CALENDAR_BUS_252 >= newValue) {
+                && e_ACTUAL_360 <= newValue
+                && e_NL_365     >= newValue) {
                 variable = static_cast<DayCountConvention::Enum>(newValue);
             }
             else {
@@ -388,7 +392,7 @@ int bbldc::maxSupportedBdexVersion(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
