@@ -452,6 +452,10 @@ bool Utf8PtrBasedEnd::verifyContinuations(const OctetType *octets,
                        // =============================
 
 struct Utf8ZeroBasedEnd {
+    // CREATORS
+    Utf8ZeroBasedEnd();
+        // Create a 'Utf8ZeroBasedEnd' object.
+
     // ACCESSORS
     bool isFinished(const OctetType *position) const;
         // Return 'true' if the specified 'position' is at the end of input,
@@ -474,6 +478,12 @@ struct Utf8ZeroBasedEnd {
                        // -----------------------------
                        // local struct Utf8ZeroBasedEnd
                        // -----------------------------
+
+// CREATORS
+inline
+Utf8ZeroBasedEnd::Utf8ZeroBasedEnd()
+{
+}
 
 // ACCESSORS
 inline
