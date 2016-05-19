@@ -269,6 +269,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_EVENTCALLBACKREGISTRY
+#include <btlso_eventcallbackregistry.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGER
 #include <btlso_eventmanager.h>
 #endif
@@ -334,54 +338,28 @@ template <>
 class DefaultEventManager<Platform::EPOLL> : public EventManager
 {
   private:
-    struct HandleEvents {
-        bool                   d_isValid;
-        EventManager::Callback d_readCallback;
-        EventManager::Callback d_writeCallback;
-        EventType::Type        d_readEventType;
-        EventType::Type        d_writeEventType;
-        int                    d_mask;
-
-        BSLMF_NESTED_TRAIT_DECLARATION(HandleEvents, bslmf::IsBitwiseMoveable);
-    };
-
-    typedef bsl::unordered_map<int, HandleEvents> EventMap;
-
-    int                                d_epollFd;// epoll fd
+    int                                d_epollFd; // epoll file descriptor
 
     bsl::vector<struct ::epoll_event>  d_signaled;
-                                                 // array of 'epoll_event'
-                                                 // structures indicating
-                                                 // pending IO operations
-
-    bool                               d_isInvokingCb;
-                                                 // is the manager invoking
-                                                 // callbacks
+                                                  // array of 'epoll_event'
+                                                  // structures indicating
+                                                  // pending IO operations
 
     TimeMetrics                       *d_timeMetric_p;
-                                                 // metrics to use for
-                                                 // reporting percent-busy
-                                                 // statistics
+                                                  // metrics to use for
+                                                  // reporting percent-busy
+                                                  // statistics
 
-    EventMap                           d_events; // map of socket handles to
-                                                 // associated events
+    EventCallbackRegistry              d_callbacks;
+                                                  // map of events to callbacks
 
-    bsl::vector<EventMap::iterator>    d_entriesBeingRemoved;
-                                                 // if we're in a user cb, we
-                                                 // will not update the map
-                                                 // right away but keep the
-                                                 // list what needs to be
-                                                 // removed here
-
-    int                                d_numEvents;
-                                                 // number of registered events
-
+    bslma::Allocator                  *d_allocator_p;
+                                                  // supplies memory
+    
     // PRIVATE MANIPULATORS
-    int dispatchCallbacks(const bsl::vector<struct ::epoll_event>& signaled,
-                          int                                      numReady);
-        // Invoke the callbacks in the specified 'signaled' vector of events
-        // with the specified 'numReady' number of ready callbacks.  Return the
-        // number of callbacks that were invoked.
+    int dispatchCallbacks(int numEvents);
+        // Invoke any registered callbacks for the first 'numEvents' events in 
+        // 'd_signaled'.  Return the number of callbacks invoked.
 
     int dispatchImp(int flags, const bsls::TimeInterval *timeout = 0);
         // For each pending socket event, invoke the corresponding callback
@@ -430,7 +408,8 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
         // callbacks are invoked in the same thread that invokes 'dispatch',
         // and the order of invocation, relative to the order of registration,
         // is unspecified.  Also note that -1 is never returned unless 'flags'
-        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // contains 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
+        // if invoked from within a socket callback of this event manager.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -448,7 +427,8 @@ class DefaultEventManager<Platform::EPOLL> : public EventManager
         // thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
         // that -1 is never returned unless 'option' is set to
-        // 'bteso_Flag::k_ASYNC_INTERRUPT'.
+        // 'bteso_Flag::k_ASYNC_INTERRUPT'.  The behavior is undefined
+        // if invoked from within a socket callback of this event manager.
 
     int registerSocketEvent(const SocketHandle::Handle&   handle,
                             const EventType::Type         event,
