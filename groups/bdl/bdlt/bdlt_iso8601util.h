@@ -73,10 +73,10 @@ BSLS_IDENT("$Id: $")
 // '2002-03-17T15:46:00+04:00' has a zone designator of '+4:00', indicating a
 // timezone 4 hours ahead of UTC.
 //
-// An ISO 8601 *fractional* *second* corresponds to the 'millisecond' attribute
-// of a 'bdlt::Time' object.  For example, the 'Time' value (and ISO 8601
-// string) '15:46:09.330' has a 'millisecond' attribute value of 330, a.k.a. a
-// fractional second of .33.
+// An ISO 8601 *fractional* *second* corresponds to, for example, the
+// 'millisecond' attribute of a 'bdlt::Time' object.  For example, the 'Time'
+// value (and ISO 8601 string) '15:46:09.330' has a 'millisecond' attribute
+// value of 330; i.e., a fractional second of .33.
 //
 ///ISO 8601 String Generation
 ///--------------------------
@@ -187,10 +187,13 @@ BSLS_IDENT("$Id: $")
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (i.e., it can contain more than
-// three).  For 'Time' and 'TimeTz', if more than three digits are included in
-// the fractional second, values greater than or equal to .9995 are rounded up
-// to 1 second.  This incurs a carry of one second into the 'second' attribute
-// of the 'Time' component:
+// six).  For 'Time' and 'TimeTz', if more than three digits are included in
+// the fractional second, values are rounded to a full millisecond; i.e.,
+// values greater than or equal to .5 milliseconds are rounded up.  For
+// 'Datetime' and 'DatetimeTz', if more than six digits are included in the
+// fractional second, values are rounded to a full microsecond; i.e., values
+// greater than or equal to .5 microseconds are rounded up.  These roundings
+// may incurs a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -208,20 +211,18 @@ BSLS_IDENT("$Id: $")
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
-// For 'Datetime' and 'DatetimeTz', if more than six digits are included in the
-// fractional second, values greater than or equal to .9999995 are rounded up
-// to 1 second.  Note that if a carry due to rounding of the fractional second
-// would cause an overflow at the extreme upper end of the valid range of dates
-// (i.e., 9999/12/31), then parsing for 'Datetime' and 'DatetimeTz' would fail.
+// Note that, for 'Datetime' and 'DatetimeTz', if a carry due to rounding of
+// the fractional second would cause an overflow at the extreme upper end of
+// the valid range of dates (i.e., 9999/12/31), then parsing would fail.
 //
 ///Leap Seconds
 /// - - - - - -
-// Leap seconds are not representable by 'bdlt::Time'.  Hence, they are not
-// produced by any of the 'Iso8601Util' generate functions.  However, positive
-// leap seconds *are* supported by the parse functions.  A leap second is
-// recognized when the value parsed for the 'second' attribute of a 'Time' is
-// 60--regardless of the values parsed for the 'hour', 'minute', and
-// 'millisecond' attributes.  Note that this behavior is more generous than
+// Leap seconds are not representable by 'bdlt::Time' or 'bdlt::Datetime'.
+// Hence, they are not produced by any of the 'Iso8601Util' generate functions.
+// However, positive leap seconds *are* supported by the parse functions.  A
+// leap second is recognized when the value parsed for the 'second' attribute
+// of a 'Time' is 60--regardless of the values parsed for the 'hour', 'minute',
+// and 'millisecond' attributes.  Note that this behavior is more generous than
 // that afforded by the ISO 8601 specification (which indicates that a positive
 // leap second can only be represented as "23:59:60Z").
 //
@@ -304,26 +305,23 @@ BSLS_IDENT("$Id: $")
 //
 // <Parsed DateTz>         ::=  <DATE>{<ZONE>}
 //
-// <Generated Time>        ::=  <TIME FIXED>
+// <Generated Time>        ::=  <TIME FLEXIBLE>
 //
 // <Parsed Time>           ::=  <Parsed TimeTz>
 //
-// <Generated TimeTz>      ::=  <TIME FIXED><ZONE>
+// <Generated TimeTz>      ::=  <TIME FLEXIBLE><ZONE>
 //
 // <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
 //
-// <Generated Datetime>    ::=  <DATE>T<TIME FIXED>
+// <Generated Datetime>    ::=  <DATE>T<TIME FLEXIBLE>
 //
 // <Parsed Datetime>       ::=  <Parsed DatetimeTz>
 //
-// <Generated DatetimeTz>  ::=  <DATE>T<TIME FIXED><ZONE>
+// <Generated DatetimeTz>  ::=  <DATE>T<TIME FLEXIBLE><ZONE>
 //
 // <Parsed DatetimeTz>     ::=  <DATE>T<TIME FLEXIBLE>{<ZONE>}
 //
 // <DATE>                  ::=  YYYY-MM-DD
-//
-// <TIME FIXED>            ::=  hh:mm:ss(.|,)sss   # exactly three digits in
-//                                                 # the fractional second
 //
 // <TIME FLEXIBLE>         ::=  hh:mm:ss{(.|,)s+}  # one or more digits in the
 //                                                 # fractional second

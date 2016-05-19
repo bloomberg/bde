@@ -491,7 +491,9 @@ int generatedLengthForDatetimeObject(
 {
     BSLS_ASSERT_SAFE(0 <= defaultLength);
 
-    return defaultLength - (6 - configuration.fractionalSecondPrecision());
+    return defaultLength
+         - (6 - configuration.fractionalSecondPrecision())
+         - (0 == configuration.fractionalSecondPrecision() ? 1 : 0);
 }
 
 static
@@ -512,8 +514,9 @@ int generatedLengthForDatetimeTzObject(
     // Consider only those 'configuration' options that can affect the length
     // of the output.
 
-    defaultLength =
-               defaultLength - (6 - configuration.fractionalSecondPrecision());
+    defaultLength = defaultLength
+                  - (6 - configuration.fractionalSecondPrecision())
+                  - (0 == configuration.fractionalSecondPrecision() ? 1 : 0);
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
@@ -542,7 +545,7 @@ int generatedLengthForTimeObject(int                             defaultLength,
         precision = 3;
     }
 
-    return defaultLength - (3 - precision);
+    return defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
 }
 
 static
@@ -569,7 +572,7 @@ int generatedLengthForTimeTzObject(
         precision = 3;
     }
 
-    defaultLength = defaultLength - (3 - precision);
+    defaultLength = defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
@@ -650,26 +653,23 @@ int Iso8601Util::generate(char                            *buffer,
 
     int outLen;
 
-    if (bufferLength >= k_TIME_STRLEN + 1) {
+    if (bufferLength >= k_TIME_STRLEN) {
         outLen = generateRaw(buffer, object, configuration);
-
-        BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(
-                                                               k_TIME_STRLEN,
-                                                               configuration));
-
-        buffer[outLen] = '\0';
     }
     else {
         char outBuf[k_TIME_STRLEN];
 
         outLen = generateRaw(outBuf, object, configuration);
 
-        BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(
-                                                               k_TIME_STRLEN,
-                                                               configuration));
-
         bsl::memcpy(buffer, outBuf, bufferLength);
     }
+
+    if (bufferLength > outLen) {
+        buffer[outLen] = '\0';
+    }
+
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeObject(k_TIME_STRLEN,
+                                                            configuration));
 
     return outLen;
 }
@@ -684,26 +684,24 @@ int Iso8601Util::generate(char                            *buffer,
 
     int outLen;
 
-    if (bufferLength >= k_DATETIME_STRLEN + 1) {
+    if (bufferLength >= k_DATETIME_STRLEN) {
         outLen = generateRaw(buffer, object, configuration);
-
-        BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
-                                                             k_DATETIME_STRLEN,
-                                                             configuration));
-
-        buffer[outLen] = '\0';
     }
     else {
         char outBuf[k_DATETIME_STRLEN];
 
         outLen = generateRaw(outBuf, object, configuration);
 
-        BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
-                                                             k_DATETIME_STRLEN,
-                                                             configuration));
-
         bsl::memcpy(buffer, outBuf, bufferLength);
     }
+
+    if (bufferLength > outLen) {
+        buffer[outLen] = '\0';
+    }
+
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForDatetimeObject(
+                                                             k_DATETIME_STRLEN,
+                                                             configuration));
 
     return outLen;
 }
@@ -750,12 +748,10 @@ int Iso8601Util::generate(char                            *buffer,
 
     int outLen;
 
-    if (bufferLength >= k_TIMETZ_STRLEN + 1) {
+    if (bufferLength >= k_TIMETZ_STRLEN) {
         outLen = generateRaw(buffer, object, configuration);
 
         BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
-
-        buffer[outLen] = '\0';
     }
     else {
         char outBuf[k_TIMETZ_STRLEN];
@@ -765,6 +761,10 @@ int Iso8601Util::generate(char                            *buffer,
         BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
 
         copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
+
+    if (bufferLength > outLen) {
+        buffer[outLen] = '\0';
     }
 
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTimeTzObject(k_TIMETZ_STRLEN,
@@ -784,19 +784,23 @@ int Iso8601Util::generate(char                            *buffer,
 
     int outLen;
 
-    if (bufferLength >= k_DATETIMETZ_STRLEN + 1) {
+    if (bufferLength >= k_DATETIMETZ_STRLEN) {
         outLen = generateRaw(buffer, object, configuration);
-        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
 
-        buffer[outLen] = '\0';
+        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
     }
     else {
         char outBuf[k_DATETIMETZ_STRLEN];
 
         outLen = generateRaw(outBuf, object, configuration);
+
         BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
 
         copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
+
+    if (bufferLength > outLen) {
+        buffer[outLen] = '\0';
     }
 
     BSLS_ASSERT_SAFE(outLen ==
@@ -832,6 +836,7 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(k_TIME_STRLEN);
 
     const int len = generateRaw(&string->front(), object, configuration);
+
     BSLS_ASSERT(k_TIME_STRLEN >= len);
 
     string->resize(len);
@@ -848,6 +853,7 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(k_DATETIME_STRLEN);
 
     const int len = generateRaw(&string->front(), object, configuration);
+
     BSLS_ASSERT(k_DATETIME_STRLEN >= len);
 
     string->resize(len);
@@ -864,6 +870,7 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(k_DATETZ_STRLEN);
 
     const int len = generateRaw(&string->front(), object, configuration);
+
     BSLS_ASSERT(k_DATETZ_STRLEN >= len);
 
     string->resize(len);
@@ -880,6 +887,7 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(k_TIMETZ_STRLEN);
 
     const int len = generateRaw(&string->front(), object, configuration);
+
     BSLS_ASSERT(k_TIMETZ_STRLEN >= len);
 
     string->resize(len);
@@ -896,6 +904,7 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(k_DATETIMETZ_STRLEN);
 
     const int len = generateRaw(&string->front(), object, configuration);
+
     BSLS_ASSERT(k_DATETIMETZ_STRLEN >= len);
 
     string->resize(len);

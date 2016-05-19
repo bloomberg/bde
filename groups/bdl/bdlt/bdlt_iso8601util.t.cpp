@@ -311,6 +311,14 @@ const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
     { L_,       true,          6,   false,     true  },
     { L_,       true,          6,    true,    false  },
     { L_,       true,          6,    true,     true  },
+
+    // additional configurations
+
+    { L_,      false,          0,   false,    false  },
+    { L_,      false,          1,   false,    false  },
+    { L_,      false,          2,   false,    false  },
+    { L_,      false,          4,   false,    false  },
+    { L_,      false,          5,   false,    false  }
 };
 const int NUM_DEFAULT_CNFG_DATA =
         static_cast<int>(sizeof DEFAULT_CNFG_DATA / sizeof *DEFAULT_CNFG_DATA);
@@ -532,7 +540,7 @@ const int NUM_BAD_ZONE_DATA =
 
 static
 Config& gg(Config *object,
-           int     fractionSecondPrecision,
+           int     fractionalSecondPrecision,
            bool    omitColonInZoneDesignatorFlag,
            bool    useCommaForDecimalSignFlag,
            bool    useZAbbreviationForUtcFlag)
@@ -540,7 +548,11 @@ Config& gg(Config *object,
     // according to the specified 'omitColonInZoneDesignatorFlag',
     // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
 {
-    object->setFractionalSecondPrecision(fractionSecondPrecision);
+    if (fractionalSecondPrecision > 6) {
+        fractionalSecondPrecision = 6;
+    }
+
+    object->setFractionalSecondPrecision(fractionalSecondPrecision);
     object->setOmitColonInZoneDesignator(omitColonInZoneDesignatorFlag);
     object->setUseCommaForDecimalSign(useCommaForDecimalSignFlag);
     object->setUseZAbbreviationForUtc(useZAbbreviationForUtcFlag);
@@ -972,23 +984,15 @@ if (veryVerbose)
                 const int MIN   = TIME_DATA[tj].d_min;
                 const int SEC   = TIME_DATA[tj].d_sec;
                 const int MSEC  = TIME_DATA[tj].d_msec;
-
-                const bdlt::Time TIME(HOUR, MIN, SEC, MSEC);
+                const int USEC  = TIME_DATA[tj].d_usec;
 
                 for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
                     const int KLINE  = ZONE_DATA[tk].d_line;
                     const int OFFSET = ZONE_DATA[tk].d_offset;
 
-                    if (TIME == bdlt::Time() && OFFSET != 0) {
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
+                        && OFFSET != 0) {
                         continue;  // skip invalid compositions
-                    }
-
-                    const bdlt::Datetime   DATETIME(DATE, TIME);
-                    const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
-
-                    if (veryVerbose) {
-                        T_ P_(ILINE) P_(JLINE) P_(KLINE)
-                        P_(DATETIME) P(DATETIMETZ)
                     }
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -998,9 +1002,53 @@ if (veryVerbose)
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
+                        int expMsec = MSEC;
+                        int expUsec = USEC;
+                        {
+                            // adjust the expected milliseconds to account for
+                            // PRECISION truncating the value generated
+
+                            int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec *= 10;
+                            }
+
+                            // adjust the expected microseconds to account for
+                            // PRECISION truncating the value generated
+
+                            precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec *= 10;
+                            }
+                        }
+
+                        const bdlt::Datetime   DATETIME(YEAR,
+                                                        MONTH,
+                                                        DAY,
+                                                        HOUR,
+                                                        MIN,
+                                                        SEC,
+                                                        expMsec,
+                                                        expUsec);
+                        const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
                         if (veryVerbose) {
+                            if (0 == tc) {
+                                T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                                                    P_(DATETIME) P(DATETIMETZ);
+                            }
                             T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                                                          P_(USECOMMA) P(USEZ);
                         }
 
                         Config mC;  const Config& C = mC;
@@ -1009,7 +1057,8 @@ if (veryVerbose)
                         // without zone designator in parsed string
                         {
                             const int LENGTH = Util::generateRaw(buffer,
-                                                                 DATETIME, C);
+                                                                 DATETIME,
+                                                                 C);
 
                             if (veryVerbose) {
                                 const bsl::string STRING(buffer, LENGTH);
@@ -1629,19 +1678,14 @@ if (veryVerbose)
             const int SEC   = TIME_DATA[ti].d_sec;
             const int MSEC  = TIME_DATA[ti].d_msec;
 
-            const bdlt::Time TIME(HOUR, MIN, SEC, MSEC);
-
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
                 const int JLINE  = ZONE_DATA[tj].d_line;
                 const int OFFSET = ZONE_DATA[tj].d_offset;
 
-                if (TIME == bdlt::Time() && OFFSET != 0) {
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
+                    && OFFSET != 0) {
                     continue;  // skip invalid compositions
                 }
-
-                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
-
-                if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ) }
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -1650,9 +1694,32 @@ if (veryVerbose)
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
+                    int expMsec = MSEC;
+                    {
+                        // adjust the expected milliseconds to account for
+                        // PRECISION truncating the value generated
+
+                        int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec *= 10;
+                        }
+                    }
+
+                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec);
+
+                    const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
                     if (veryVerbose) {
+                        if (0 == tc) {
+                            T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
+                        }
                         T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
-                                                           P_(USECOMMA) P(USEZ)
+                                                          P_(USECOMMA) P(USEZ);
                     }
 
                     Config mC;  const Config& C = mC;
