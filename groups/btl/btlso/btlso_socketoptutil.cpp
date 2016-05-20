@@ -25,6 +25,18 @@ namespace btlso {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
+int areAllBytesZero(const char *value, int valueLen)
+   // Return '1' if all bytes in the specified 'value' array of characters of
+   // the specified 'valueLen' are zero and 0 otherwise.
+{
+    for (int i = 0; i < valueLen; ++i) {
+        if (0 != value[i]) {
+            return 0;                                                 // RETURN
+        }
+    }
+    return 1;
+}
+
 // PRIVATE CLASS METHODS
 int SocketOptUtil::setReuseAddressOnWindows(
                                         btlso::SocketHandle::Handle  handle,
@@ -50,12 +62,23 @@ int SocketOptUtil::setReuseAddressOnWindows(
     // https://msdn.microsoft.com/en-us/library/windows/
     //                                          desktop/ms740621(v=vs.85).aspx.
     //..
-    // In this method we check the value of the 'SO_REUSEADDR' option value and
-    // set both the 'SO_REUSEADDR' and 'SO_EXCLUSIVEADDRUSE' options
-    // accordingly.
+    // In this method we assign both the 'SO_REUSEADDR' 'SO_REUSEADDR' and
+    // 'SO_EXCLUSIVEADDRUSE' options based on the supplied 'value'.
 
-    int exclusiveAddrOptionValue =
-                            0 == *reinterpret_cast<const int *>(value) ? 1 : 0;
+    // When setting the 'SO_REUSEADDRESS' option, 'value' is expected to be an
+    // 'int' with 'valueLen' expected to equal 'sizeof(int)' (see
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/
+    //                                                 ms740476(v=vs.85).aspx))
+    // However, since this method is called from the templated 'setOption'
+    // method, we cannot assume that 'setOption' was called with 'value' of
+    // type 'int'.  Although unlikely, users may be calling 'setOption' with
+    // 'value' of some other integral types.  So we find the value of the
+    // 'SO_EXCLUSIVEADDRUSE' option by iterating over the bytes in 'value'.  If
+    // all bytes in 'value' are 0 then the user wants to disable 'SO_REUSEADDR'
+    // and we should enable 'SO_EXCLUSIVEADDRUSE'.  Otherwise, we should
+    // disable 'SO_EXCLUSIVEADDRUSE' and enable 'SO_REUSEADDR'.
+
+    int exclusiveAddrOptionValue = areAllBytesZero(value, valueLen);
 
     int rc = setsockopt(
                      handle,

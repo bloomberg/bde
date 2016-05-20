@@ -10620,16 +10620,17 @@ void TestDriver::testCase25()
                                         btlmt::ChannelPool::e_CHANNEL_UP,
                                         bsls::TimeInterval(1.0)));
 
-#if  defined(BSLS_PLATFORM_OS_LINUX)          \
- &&  defined(BDE_BUILD_TARGET_OPT)            \
- &&  defined(BSLS_PLATFORM_CPU_64_BIT)
-            // 64-bit opt builds on Linux this check that the latest imported
-            // socket is assigned to the lastClientSocketThreadId fails.  The
-            // allocation to a specific event manager thread is not an error
-            // per se.  It happens only in one specific build mode and where
-            // the allocation to event managers is based on the cpu
-            // utilization of the process.
-#elif !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !( (defined(BSLS_PLATFORM_OS_LINUX)         \
+     && defined(BDE_BUILD_TARGET_OPT)           \
+     && defined(BSLS_PLATFORM_CPU_64_BIT))      \
+    || (defined(BSLS_PLATFORM_OS_WINDOWS)))
+            // On 64-bit opt builds on Linux and on Windows this check that the
+            // latest imported socket is assigned to the
+            // lastClientSocketThreadId fails.  The allocation to a specific
+            // event manager thread is not an error per se.  It happens only in
+            // one specific build mode and where the allocation to event
+            // managers is based on the cpu utilization of the process.
+
             // Verify that the newly imported socket was assigned to the
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
