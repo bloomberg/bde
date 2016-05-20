@@ -10621,8 +10621,8 @@ void TestDriver::testCase25()
                                         bsls::TimeInterval(1.0)));
 
 #if !( (defined(BSLS_PLATFORM_OS_LINUX)         \
-     && defined(BDE_BUILD_TARGET_OPT)           \
-     && defined(BSLS_PLATFORM_CPU_64_BIT))      \
+      && defined(BDE_BUILD_TARGET_OPT)          \
+      && defined(BSLS_PLATFORM_CPU_64_BIT))     \
     || (defined(BSLS_PLATFORM_OS_WINDOWS)))
             // On 64-bit opt builds on Linux and on Windows this check that the
             // latest imported socket is assigned to the
