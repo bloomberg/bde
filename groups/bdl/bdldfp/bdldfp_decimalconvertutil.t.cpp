@@ -8088,7 +8088,7 @@ int main(int argc, char* argv[])
                                << "\n==============================\n";
 
         if (verbose) {
-            bsl::cout << "float\n";
+            bsl::cout << "6-digit float\n";
         }
         {
             for (int e = -9; e <= 4; ++e) {
@@ -8105,6 +8105,33 @@ int main(int argc, char* argv[])
                     if (verbose) {
                         if (rand() % 500 == 0 && rand() % 500 == 0) {
                             P_(e) P_(n) P_(d) P(b)
+                        }
+                    }
+                }
+            }
+        }
+        if (verbose) {
+            bsl::cout << "7-digit float\n";
+        }
+        {
+            for (int e = -3; e <= 8; ++e) {
+                for (int l = -9; l <= 9; ++l) {
+                    for (int m = 0; m <= 999999; ++m) {
+                        char buf[30];
+                        sprintf(buf, "%d.%.6de%d", l, m, e);
+                        float b;
+                        sscanf(buf, "%f", &b);
+                        Decimal64 d = Util::decimal64FromFloat(b);
+                        Decimal64 p = PARSEDEC64(buf);
+                        float t = Util::decimalToFloat(d);
+                        int n = 1000000 * l + (l < 0 ? -m : m);
+                        ASSERTV(buf, b == t && p == d);
+                        ASSERTV(e, n, d, p, b, t, b == t);
+                        ASSERTV(e, n, d, p, b, t, p == d);
+                        if (verbose) {
+                            if (rand() % 1500 == 0 && rand() % 1500 == 0) {
+                                P_(buf) P_(e) P_(n) P_(d) P(b)
+                            }
                         }
                     }
                 }

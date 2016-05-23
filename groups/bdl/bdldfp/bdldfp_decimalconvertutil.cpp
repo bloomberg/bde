@@ -103,7 +103,7 @@ struct StdioFormat<float> {
     // This template specialization of 'StdioFormat' provides a function that
     // returns a 'printf'-style format string for 'float' values.
 
-    static const char* format();
+    static const char* format(float);
         // Return a 'printf'-style format string that can be used to restore a
         // decimal value that was previously converted to a 'float' value.
         // Refer to the documentation of 'decimalFromFloat' for the conversion
@@ -115,7 +115,7 @@ struct StdioFormat<double> {
     // This template specialization of 'StdioFormat' provides a function that
     // returns a 'printf'-style format string for 'double' values.
 
-    static char const* format();
+    static char const* format(double);
         // Return a 'printf'-style format string that can be used to restore a
         // decimal value that was previously converted to a 'double' value.
         // Refer to the documentation of 'decimalFromDouble' for the conversion
@@ -127,13 +127,20 @@ struct StdioFormat<double> {
                         // -----------------
 
 inline
-const char* StdioFormat<float>::format()
+const char* StdioFormat<float>::format(float v)
 {
-    return "%.6g";
+    // 9.999993e-4 and 9.999994e-4 convert to the same float.
+    // 8.589973e+9 and 8.589974e+9 convert to the same float.
+    // All decimals with seven significant digits that lie in the range
+    // '[ 9.999995e-4 .. 8.589972e+9 ]' convert to a unique float, so we can
+    // do a seven-digit conversion to eke out an extra decimal places for this
+    // important range in which many business numbers lie.
+    v = fabsf(v);
+    return v >= 9.999995e-4f && v <= 8.589972e+9f ? "%.7g" : "%.6g";
 }
 
 inline
-const char* StdioFormat<double>::format()
+const char* StdioFormat<double>::format(double)
 {
     return "%.15g";
 }
@@ -246,7 +253,7 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     char buffer[48];
     int rc = snprintf(buffer,
                       sizeof(buffer),
-                      StdioFormat<BINARY_TYPE>::format(), bfp);
+                      StdioFormat<BINARY_TYPE>::format(bfp), bfp);
     (void)rc;
     BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
 
@@ -566,7 +573,7 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
             d = binary;
         }
 
-        int   n    = static_cast<int>(d + copysignf(.5, d));  // round
+        int   n    = static_cast<int>(d);
         float diff = d - float(n);
 
         reduce(&n, &scale);
@@ -586,10 +593,15 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
         // not need to verify by back conversion.
         //
         // Compute the ratio of the fractional part of the scaled binary number
-        // to its integer part.  If it's small enough (using 5e-7, generously
-        // below the 1e-6 computed above), skip the verification.
+        // to its integer part.  If it's small enough, skip the verification.
+        //
+        // So what is "small enough"?  5e-7 would do.  However, we want to
+        // allow 7-digit decimals in a restricted range (see StdioFormat above)
+        // and using 5e-7 causes some of those to convert as accurate 6-digit
+        // numbers.  1e-8 eliminates those at the cost of about 7% fewer quick
+        // conversions.
 
-        if (fabsf(diff / d) < 5e-7f) {
+        if (fabsf(diff / d) < 1e-8f) {
             return rv;                                                // RETURN
         }
 
