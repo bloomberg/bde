@@ -556,15 +556,15 @@ int main(int argc, char *argv[])
                     { L_, "soros.wk1",                 0,   soros,  SUCCESS },
                     { L_, "jlu_wrong",          &errCode,       0,     FAIL },
                     { L_, "jlu_wrong",                 0,       0,     FAIL },
-                    { L_, "fft-corp-rtr1",      &errCode,     fft,  SUCCESS },
-                    { L_, "yusen-rtr2",         &errCode,   yusen,  SUCCESS },
+                    { L_, "fft-corp-rtr1",      &errCode,     fft,     FAIL },
+                    { L_, "yusen-rtr2",         &errCode,   yusen,     FAIL },
             #elif defined BSLS_PLATFORM_OS_WINDOWS
                     { L_, "sundev0",            &errCode,        0,       FAIL
                                                                             },
-                    { L_, "sundev1",            &errCode,  sundev1,    SUCCESS
-                                                                            },
-                    { L_, "sundev1",                   0,  sundev1,    SUCCESS
-                                                                            },
+//                  { L_, "sundev1",            &errCode,  sundev1,    SUCCESS
+//                                                                           },
+//                  { L_, "sundev1",                   0,  sundev1,    SUCCESS
+//                                                                           },
                     { L_, "sundev5",            &errCode,  sundev5,    SUCCESS
                                                                             },
                     { L_, "sundev5",                   0,  sundev5,    SUCCESS
@@ -1016,7 +1016,6 @@ int main(int argc, char *argv[])
                 { L_,  "time",       "tcp",     &errCode,      37,  SUCCESS },
                 { L_,  "biff",       "tcp",     &errCode,       0,     FAIL },
                 { L_,  "biff",       "udp",     &errCode,     512,  SUCCESS },
-                { L_,  "syslog",     "tcp",     &errCode,       0,     FAIL },
                 { L_,  "syslog",     "udp",     &errCode,     514,  SUCCESS },
                 { L_,  "ingreslock", "tcp",     &errCode,    1524,  SUCCESS },
               #if !defined(BSLS_PLATFORM_OS_LINUX) \
@@ -1066,7 +1065,7 @@ int main(int argc, char *argv[])
                                                   PROTOCOL,
                                                   errorPtr);
 
-                LOOP2_ASSERT(LINE, retCode, EXP_RET == retCode);
+                LOOP3_ASSERT(LINE, retCode, EXP_RET, EXP_RET == retCode);
                 if (FAIL == EXP_RET) {
                     // For entries w/ invalid name.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1186,12 +1185,12 @@ int main(int argc, char *argv[])
                 { L_, "soros.wk1",                 0,    soros,    SUCCESS },
                 { L_, "jlu_wrong",          &errCode,        0,       FAIL },
                 { L_, "jlu_wrong",                 0,        0,       FAIL },
-                { L_, "fft-corp-rtr1",      &errCode,      fft,    SUCCESS },
-                { L_, "yusen-rtr2",         &errCode,    yusen,    SUCCESS },
+                { L_, "fft-corp-rtr1",      &errCode,      fft,       FAIL },
+                { L_, "yusen-rtr2",         &errCode,    yusen,       FAIL },
         #elif defined BSLS_PLATFORM_OS_WINDOWS
                 { L_, "sundev0",            &errCode,        0,       FAIL },
-                { L_, "sundev1",            &errCode,  sundev1,    SUCCESS },
-                { L_, "sundev1",                   0,  sundev1,    SUCCESS },
+//              { L_, "sundev1",            &errCode,  sundev1,    SUCCESS },
+//              { L_, "sundev1",                   0,  sundev1,    SUCCESS },
                 { L_, "sundev5",            &errCode,  sundev5,    SUCCESS },
                 { L_, "sundev5",                   0,  sundev5,    SUCCESS },
                 { L_, "ibm1",               &errCode,     ibm1,    SUCCESS },
@@ -1231,7 +1230,7 @@ int main(int argc, char *argv[])
                     cout << endl;
                 }
 
-                LOOP_ASSERT(LINE, EXP_RET == retCode);
+                LOOP3_ASSERT(LINE, EXP_RET, retCode, EXP_RET == retCode);
                 if (FAIL == EXP_RET) {
                     // Entries with invalid name.
 
