@@ -8110,6 +8110,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
+
         if (verbose) {
             bsl::cout << "7-digit float\n";
         }
@@ -8197,6 +8198,55 @@ int main(int argc, char* argv[])
                 double t = Util::decimalToDouble(d);
                 ASSERTV(s, d, b, t, b == t);
                 P_(s) P_(d) P_(b) Q("double")
+            }
+        }
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // BUSINESS FLOAT CONVERSION TEST
+        //
+        // Concerns:
+        //: 1 Floats built from 7 significant digits with the decimal point
+        //:   anywhere within (including before and after) round-trip.
+        //
+        // Plan:
+        //: 1 Iterate through all such numbers and verify that they convert to
+        //:   Decimal64 and back unchanged.
+        //
+        // Testing:
+        //  BUSINESS FLOAT CONVERSION TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "BUSINESS FLOAT CONVERSION TEST\n";
+        }
+        {
+            const int digits = 7;
+            const int tens[] = {
+                1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000
+            };
+            int z = tens[digits];
+            for (int i = 0; i < z; ++i) {
+                char buf[32];
+                sprintf(buf, "%0*d", digits, i);
+                for (int j = 0; j <= digits; ++j) {
+                    char buf2[32];
+                    memcpy(buf2, buf, j);
+                    buf2[j] = '.';
+                    memcpy(buf2 + j + 1, buf + j, digits + 1 - j);
+                    float b;
+                    sscanf(buf2, "%f", &b);
+                    Decimal64 d = Util::decimal64FromFloat(b);
+                    Decimal64 p = PARSEDEC64(buf2);
+                    float t = Util::decimalToFloat(d);
+                    ASSERTV(buf2, d, p, b, t, b == t);
+                    ASSERTV(buf2, d, p, b, t, p == d);
+                    if (verbose) {
+                        if (rand() % 1000 == 0 && rand() % 1000 == 0) {
+                            P_(buf2) P_(d) P(b)
+                        }
+                    }
+                }
             }
         }
       } break;
