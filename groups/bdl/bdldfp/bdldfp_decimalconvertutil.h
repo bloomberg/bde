@@ -445,34 +445,29 @@ struct DecimalConvertUtil {
     static Decimal32  decimal32FromFloat (float binary);
     static Decimal64  decimal64FromFloat (float binary);
     static Decimal128 decimal128FromFloat(float binary);
-        // Return the original decimal floating-point value stored in the
-        // specified 'binary' floating-point value by a call to the
-        // corresponding 'decimalToFloat' function earlier.  Thus this
-        // function provides a limited decimal-binary-decimal round-trip
-        // conversion when used together with 'decimalToFloat'.  The behavior
-        // is undefined:
+        // Return a decimal number close in value to the specified 'binary'.
+        // The behavior is undefined if 'binary' does not have a value lying
+        // within the representable range of the return type.
         //
-        //: o unless 'std::numeric_limits<float>::radix == 2'.
-        //:
-        //: o unless the decimal is read back into the same size decimal type
-        //    that was passed as argument to 'decimalToFloat'.
-        //:
-        //: o unless the decimal is read back from an unchanged 'float'
-        //:   returned by 'decimalToFloat'.
-        //:
-        //: o if the decimal originally stored into the 'float' had more than
-        //:   'std::numeric_limits<float>::digits10' significant digits.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<float>::max()'.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'float' was larger than 'std::numeric_limits<float>::min()'.
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a base-2 floating-point type and
-        // *not* to create a decimal from the exact base-2 value.  Use the
-        // conversion constructors when you are not restoring a decimal.
+        // These functions are meant to be used on values that originated as
+        // conversions from decimal, and attempt to return a value equal to the
+        // original decimal value.  (A value is "converted from a decimal" if
+        // it is a nearest value to that decimal, using round-to-even; the
+        // value need not be the result of a literal conversion operation.)
+        //
+        // The return value will be equal the original decimal if any of the
+        // following hold for the absolute value of the original decimal:
+        //
+        // 1) contained no more than six significant digits
+        //
+        // 2) was one of N*10^E, with '0 <= N <= 9999999' and '-7 <= E <= 0'
+        //
+        // 3) contained no more than seven significant digits and was in the
+        //    range '[ .0009999995 .. 8589972000 ]'
+        //
+        // Otherwise, the return value is one nearest in value to 'binary' with
+        // six or seven significant digits.  (This contract does not specify
+        // when either is chosen.)
 
                         // decimalToBID functions
 
