@@ -702,10 +702,10 @@ class RegEx {
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
         // ('pattern()').  Begin matching at the optionally specified
-        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not
-        // specified, then begin matching from the start of 'subject'.  Return
-        // 0 on success, 1 if the depth limit was exceeded, 2 if memory
-        // available for the JIT stack is not large enough (applicable only if
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // then begin matching from the start of 'subject'.  Return 0 on
+        // success, 1 if the depth limit was exceeded, 2 if memory available
+        // for the JIT stack is not large enough (applicable only if
         // 'pattern()' was prepared with 'k_FLAG_JIT'), and another non-zero
         // value otherwise.  The behavior is undefined unless
         // 'isPrepared() == true', 'subject || subjectLength == 0', and
@@ -752,29 +752,29 @@ class RegEx {
         // Match the specified 'subject', having the specified 'subjectLength',
         // against the pattern held by this regular-expression object
         // ('pattern()').  Begin matching at the optionally specified
-        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not
-        // specified, then begin matching from the start of 'subject'.  On
-        // success, (1) load the first element of the specified 'result' with
-        // respectively '(offset, length)' pair or 'bslstl::StringRef'
-        // indicating the leftmost match of 'pattern()', (2) load elements of
-        // 'result' in the range '[ 1 .. numSubpatterns() ]' with the pairs
+        // 'subjectOffset' in 'subject'.  If 'subjectOffset' is not specified,
+        // then begin matching from the start of 'subject'.  On success, (1)
+        // load the first element of the specified 'result' with respectively
+        // '(offset, length)' pair or 'bslstl::StringRef' indicating the
+        // leftmost match of 'pattern()', (2) load elements of 'result' in the
+        // range '[ 1 .. numSubpatterns() ]' with the pairs
         // ('bslstl::StringRef') indicating the respective matches of
         // sub-patterns (unmatched sub-patterns have their respective 'result'
         // elements loaded with '(-1, 0)' pair (empty 'StringRef');
-        // sub-patterns matching multiple times have their respective 'result'
-        // elements loaded with the pairs indicating the rightmost match), and
-        // (3) return 0.  Otherwise, return a non-zero value with no effect
-        // on 'result'.  The return value is 1 if the failure is caused by
-        // exceeding the depth limit, and 2 if memory available for the JIT
-        // stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
+        // sub-patterns matching multiple times have their respective
+        // 'result' elements loaded with the pairs indicating the rightmost
+        // match), and (3) return 0.  Otherwise, return a non-zero value with
+        // no effect on 'result'.  The return value is 1 if the failure is
+        // caused by exceeding the depth limit, and 2 if memory available for
+        // the JIT stack is not large enough (applicable only if 'pattern()'
+        // was prepared with 'k_FLAG_JIT').  The behavior is undefined unless
         // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
+        // 'subjectOffset <= subjectLength'.  The behavior is also undefined
+        // if 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
         // valid UTF-8.  Note that 'subject' need not be null-terminated and
         // may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly 'numSubpatterns() +
-        // 1' elements.
+        // successful call, 'result' will contain exactly
+        // 'numSubpatterns() + 1' elements.
 
     int matchRaw(const char *subject,
                  size_t      subjectLength,
