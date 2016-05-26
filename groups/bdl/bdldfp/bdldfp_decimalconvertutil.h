@@ -446,8 +446,11 @@ struct DecimalConvertUtil {
     static Decimal64  decimal64FromFloat (float binary);
     static Decimal128 decimal128FromFloat(float binary);
         // Return a decimal number close in value to the specified 'binary'.
-        // The behavior is undefined if 'binary' does not have a value lying
-        // within the representable range of the return type.
+        //
+        // Singular values (infinity, not-a-number, and negative zero) are
+        // converted to corresponding singular values of the return type.
+        // Values out of range of the return type are converted to the
+        // appropriately signed infinity.
         //
         // These functions are meant to be used on values that originated as
         // conversions from decimal, and attempt to return a value equal to the
@@ -455,7 +458,7 @@ struct DecimalConvertUtil {
         // it is a nearest value to that decimal, using round-to-even; the
         // value need not be the result of a literal conversion operation.)
         //
-        // The return value will be equal the original decimal if any of the
+        // The return value will equal the original decimal if any of the
         // following hold for the absolute value of the original decimal:
         //
         // 1) contained no more than six significant digits
@@ -468,6 +471,12 @@ struct DecimalConvertUtil {
         // Otherwise, the return value is one nearest in value to 'binary' with
         // six or seven significant digits.  (This contract does not specify
         // when either is chosen.)
+        //
+        // Note that decimal values which have gone through a conversion to IBM
+        // (Perkin-Elmer) floating-point before being converted to IEEE 754
+        // format do not necessarily match the definition of "converted from a
+        // decimal" as specified above, and therefore these functions may not
+        // return those original decimal values.
 
                         // decimalToBID functions
 
