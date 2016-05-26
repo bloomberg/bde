@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
                     { L_, "linxdev27",                 0, linxdev27, SUCCESS },
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
-                    { L_, "p111",               &errCode,     p111,    SUCCESS
+                    { L_, "p111",               &errCode,     p111,  SUCCESS },
             #endif
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
