@@ -648,8 +648,10 @@ int main(int argc, char *argv[])
       case 39: {
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
 
+        const int PRECISION = 6;
+
         char buffer[64];
-        INVALID.printToBuffer(buffer, sizeof buffer);
+        INVALID.printToBuffer(buffer, sizeof buffer, PRECISION);
 
         // Note that 'printToBuffer' does 'getYearMonthDay' and 'getTime' so it
         // will log twice.
@@ -759,8 +761,12 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.millisecond());
         ASSERT_SAFE_FAIL(INVALID.microsecond());
         {
+            const int PRECISION = 6;
+
             char buffer[64];  (void)buffer;
-            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer, sizeof buffer));
+            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer,
+                                                   sizeof buffer,
+                                                   PRECISION));
         }
 
         ASSERT_SAFE_FAIL(mInvalid += bsls::TimeInterval());
@@ -5738,8 +5744,10 @@ if (veryVerbose)
                 x.setYearMonthDay(YEAR, MONTH, DAY);
                 x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
+                const int PRECISION = 6;
+
                 char      *p = buf + sizeof(buf)/2;
-                const int  RC = X.printToBuffer(p, LIMIT);
+                const int  RC = X.printToBuffer(p, LIMIT, PRECISION);
 
                 LOOP2_ASSERT(LINE, RC, 25 == RC);  // Should always return 25
                                                    // because size of datetime
@@ -5778,11 +5786,13 @@ if (veryVerbose)
 
                 const Obj X;
 
-                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE));
-                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  ));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  ));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  ));
+                const int PRECISION = 6;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
             }
         }
       } break;

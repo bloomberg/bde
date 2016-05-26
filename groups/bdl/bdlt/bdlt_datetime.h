@@ -329,7 +329,8 @@ class Datetime {
     static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffff;
 
     enum {
-        k_NUM_TIME_BITS = 37
+        k_NUM_TIME_BITS = 37,
+        k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
     static bsls::AtomicInt64 s_invalidRepresentationCount;
@@ -727,7 +728,9 @@ class Datetime {
     int microsecond() const;
         // Return the value of the 'microsecond' attribute of this object.
 
-    int printToBuffer(char *result, int numBytes) const;
+    int printToBuffer(char *result,
+                      int   numBytes,
+                      int   fractionalSecondPrecision) const;
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
         // object.  Return the number of characters (not including the null
@@ -737,6 +740,7 @@ class Datetime {
         // and 'result' refers to at least 'numBytes' contiguous bytes.  Note
         // that the return value is greater than or equal to 'numBytes' if the
         // output representation was truncated to avoid 'result' overrun.
+        // TBD: doc
 
                                   // Aspects
 

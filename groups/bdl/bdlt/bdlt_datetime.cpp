@@ -57,7 +57,9 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     const int k_BUFFER_SIZE = 128;   // Buffer sized to hold a *bad* date.
     char      buffer[k_BUFFER_SIZE];
 
-    int rc = printToBuffer(buffer, k_BUFFER_SIZE);
+    int rc = printToBuffer(buffer,
+                           k_BUFFER_SIZE,
+                           k_DEFAULT_FRACTIONAL_SECOND_PRECISION);
 
     (void)rc;
     BSLS_ASSERT(25 == rc);  // The datetime format contains 25 characters.
@@ -70,10 +72,14 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     return stream;
 }
 
-int Datetime::printToBuffer(char *result, int numBytes) const
+int Datetime::printToBuffer(char *result,
+                            int   numBytes,
+                            int   fractionalSecondPrecision) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 <= fractionalSecondPrecision);
+    BSLS_ASSERT(fractionalSecondPrecision <= 6);
 
     int year;
     int month;
@@ -98,21 +104,28 @@ int Datetime::printToBuffer(char *result, int numBytes) const
 
     getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
+    int value = millisecond * 1000 + microsecond;
+
+    char spec[] = "%02d%s%04d_%02d:%02d:%02d.%0Xd";
+
+    const int PRECISION_INDEX = sizeof spec - 3;
+
+    spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
+
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
     // null-terminate and returns -1 on overflow.
 
     const int rc = _snprintf(result,
                              numBytes,
-                             "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
+                             spec,
                              day,
                              asciiMonth,
                              year,
                              hour,
                              minute,
                              second,
-                             millisecond,
-                             microsecond);
+                             value);
 
     if ((0 > rc || rc == numBytes) && numBytes > 0) {
         result[numBytes - 1] = '\0';  // Make sure to null-terminate on
@@ -122,15 +135,14 @@ int Datetime::printToBuffer(char *result, int numBytes) const
 #else
     return snprintf(result,
                     numBytes,
-                    "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
+                    spec,
                     day,
                     asciiMonth,
                     year,
                     hour,
                     minute,
                     second,
-                    millisecond,
-                    microsecond);
+                    value);
 #endif
 }
 
