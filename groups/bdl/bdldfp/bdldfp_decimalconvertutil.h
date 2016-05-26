@@ -463,9 +463,7 @@ struct DecimalConvertUtil {
         //
         // 1) contained no more than six significant digits
         //
-        // 2) was one of N*10^E, with '0 <= N <= 9999999' and '-7 <= E <= 0'
-        //
-        // 3) contained no more than seven significant digits and was in the
+        // 2) contained no more than seven significant digits and was in the
         //    range '[ .0009999995 .. 8589972000 ]'
         //
         // Otherwise, the return value is one nearest in value to 'binary' with
