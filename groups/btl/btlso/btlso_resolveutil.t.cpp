@@ -801,14 +801,12 @@ int main(int argc, char *argv[])
                 { L_, "sundev1",                   0,     sundev1   },
                 { L_, "sundev5",            &errCode,     sundev5   },
                 { L_, "sundev5",                   0,     sundev5   },
+        #if !defined(BSLS_PLATFORM_OS_WINDOWS)
+                // It is hard to rely on Reverse DNS configuration on Windows
                 { L_, "ibm1",               &errCode,     ibm1      },
                 { L_, "ibm1",                      0,     ibm1      },
                 { L_, "linxdev27",          &errCode,     linxdev27 },
                 { L_, "linxdev27",                 0,     linxdev27 },
-
-        #ifdef BSLS_PLATFORM_OS_WINDOWS
-// It is hard to rely on Reverse DNS configuration on Windows
-//                { L_, "p111",               &errCode,        p111 },
         #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
