@@ -166,7 +166,7 @@
 / - - - - - - - - - - - - - - - - - - - - -
  The 'bdlt' package defines 'bdlt::Date' to represent date values, 'bdlt::Time'
  to represent time values (to millisecond resolution) within a day, and the
- combined 'bdlt::Datetime', to represent all points in time (to microsecond
+ combined 'bdlt::Datetime' to represent all points in time (to microsecond
  resolution) across the range of date values.  The ranges of each type are
  shown below.
 ..

@@ -132,8 +132,8 @@ int parseFractionalSecond(const char **nextPos,
     // otherwise.  There must be at least one digit, only the first 7 digits
     // are significant, and all digits beyond the first 7 are parsed but
     // ignored.  The behavior is undefined unless 'begin <= end' and
-    // '0 <= roundMicroseconds < 1000000'.  Also note that successfully parsing
-    // a fractional second before 'end' is reached is not an error.
+    // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
+    // fractional second before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(microsecond);
