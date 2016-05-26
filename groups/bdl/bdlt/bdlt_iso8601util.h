@@ -73,22 +73,25 @@ BSLS_IDENT("$Id: $")
 // '2002-03-17T15:46:00+04:00' has a zone designator of '+4:00', indicating a
 // timezone 4 hours ahead of UTC.
 //
-// An ISO 8601 *fractional* *second* corresponds to the 'millisecond' attribute
-// of a 'bdlt::Time' object.  For example, the 'Time' value (and ISO 8601
-// string) '15:46:09.330' has a 'millisecond' attribute value of 330, a.k.a. a
-// fractional second of .33.
+// An ISO 8601 *fractional* *second* corresponds to, for example, the
+// 'millisecond' attribute of a 'bdlt::Time' object, or the combined
+// 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime' object.
+// For example, the 'Time' value (and ISO 8601 string) '15:46:09.330' has a
+// 'millisecond' attribute value of 330; i.e., a fractional second of .33.
 //
 ///ISO 8601 String Generation
 ///--------------------------
 // Strings produced by the 'generate' and 'generateRaw' functions are a
 // straightforward transposition of the attributes of the source 'bdlt' value
 // into an appropriate ISO 8601 format, and are best illustrated by a few
-// examples.  Note that for any type having a time component ('Time', 'TimeTz',
-// 'Datetime', and 'DatetimeTz'), the fractional second is always generated,
-// and always with three decimal digits:
+// examples.  Note that for 'Datetime' and 'DatetimeTz', the fractional second
+// is generated with the precision specified in the configuration.  Also note
+// that for 'Time' and 'TimeTz', the fractional second is generated with the
+// precision specified in the configuration up to a maximum precision of 3.
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |    Generated ISO 8601 String    |
+//  |                                      |  (using default configuration)  |
 //  +======================================+=================================+
 //  |  Date(2002, 03, 17)                  |  2002-03-17                     |
 //  +--------------------------------------+---------------------------------+
@@ -112,15 +115,17 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - -
 // The 'generate' and 'generateRaw' functions provide an optional configuration
 // parameter.  This optional parameter, of type 'Iso8601UtilConfiguration',
-// enables configuration of three aspects of ISO 8601 string generation:
+// enables configuration of four aspects of ISO 8601 string generation:
 //
 //: o The decimal sign to use in fractional seconds: '.' or ','.
+//:
+//: o The precision of the fractional seconds.
 //:
 //: o Whether ':' is optional in zone designators.
 //:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// 'Iso8601UtilConfiguration' has three attributes that directly correspond to
+// 'Iso8601UtilConfiguration' has four attributes that directly correspond to
 // these aspects.  In addition, for generate methods that are not supplied with
 // a configuration argument, a process-wide configuration takes effect.  See
 // 'bdlt_iso8601utilconfiguration' for details.
@@ -175,19 +180,22 @@ BSLS_IDENT("$Id: $")
 //..
 // In the last example above, the conversion to UTC incurs a carry into the
 // 'day' attribute of the 'Date' component of the resulting 'Datetime' value.
-// Note that if such a carry would cause an underflow or overflow at the
-// extreme ends of the valid range of dates (0001/01/01 and 9999/12/31), then
-// parsing for 'Datetime' would fail.
+// Note that if such a carry causes an underflow or overflow at the extreme
+// ends of the valid range of dates (0001/01/01 and 9999/12/31), then parsing
+// for 'Datetime' fails.
 //
 ///Fractional Seconds
 /// - - - - - - - - -
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
 // present, it can have one or more digits (i.e., it can contain more than
-// three).  If more than three digits are included in the fractional second,
-// values greater than or equal to .9995 are rounded up to 1000 milliseconds.
-// This incurs a carry of one second into the 'second' attribute of the 'Time'
-// component:
+// six).  For 'Time' and 'TimeTz', if more than three digits are included in
+// the fractional second, values are rounded to a full millisecond; i.e.,
+// values greater than or equal to .5 milliseconds are rounded up.  For
+// 'Datetime' and 'DatetimeTz', if more than six digits are included in the
+// fractional second, values are rounded to a full microsecond; i.e., values
+// greater than or equal to .5 microseconds are rounded up.  These roundings
+// may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -205,18 +213,18 @@ BSLS_IDENT("$Id: $")
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
-// Note that if a carry due to rounding of the fractional second would cause an
-// overflow at the extreme upper end of the valid range of dates (i.e.,
-// 9999/12/31), then parsing for 'Datetime' and 'DatetimeTz' would fail.
+// Note that, for 'Datetime' and 'DatetimeTz', if a carry due to rounding of
+// the fractional second would cause an overflow at the extreme upper end of
+// the valid range of dates (i.e., 9999/12/31), then parsing would fail.
 //
 ///Leap Seconds
 /// - - - - - -
-// Leap seconds are not representable by 'bdlt::Time'.  Hence, they are not
-// produced by any of the 'Iso8601Util' generate functions.  However, positive
-// leap seconds *are* supported by the parse functions.  A leap second is
-// recognized when the value parsed for the 'second' attribute of a 'Time' is
-// 60--regardless of the values parsed for the 'hour', 'minute', and
-// 'millisecond' attributes.  Note that this behavior is more generous than
+// Leap seconds are not representable by 'bdlt::Time' or 'bdlt::Datetime'.
+// Hence, they are not produced by any of the 'Iso8601Util' generate functions.
+// However, positive leap seconds *are* supported by the parse functions.  A
+// leap second is recognized when the value parsed for the 'second' attribute
+// of a 'Time' is 60--regardless of the values parsed for the 'hour', 'minute',
+// and 'millisecond' attributes.  Note that this behavior is more generous than
 // that afforded by the ISO 8601 specification (which indicates that a positive
 // leap second can only be represented as "23:59:60Z").
 //
@@ -299,26 +307,23 @@ BSLS_IDENT("$Id: $")
 //
 // <Parsed DateTz>         ::=  <DATE>{<ZONE>}
 //
-// <Generated Time>        ::=  <TIME FIXED>
+// <Generated Time>        ::=  <TIME FLEXIBLE>
 //
 // <Parsed Time>           ::=  <Parsed TimeTz>
 //
-// <Generated TimeTz>      ::=  <TIME FIXED><ZONE>
+// <Generated TimeTz>      ::=  <TIME FLEXIBLE><ZONE>
 //
 // <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
 //
-// <Generated Datetime>    ::=  <DATE>T<TIME FIXED>
+// <Generated Datetime>    ::=  <DATE>T<TIME FLEXIBLE>
 //
 // <Parsed Datetime>       ::=  <Parsed DatetimeTz>
 //
-// <Generated DatetimeTz>  ::=  <DATE>T<TIME FIXED><ZONE>
+// <Generated DatetimeTz>  ::=  <DATE>T<TIME FLEXIBLE><ZONE>
 //
 // <Parsed DatetimeTz>     ::=  <DATE>T<TIME FLEXIBLE>{<ZONE>}
 //
 // <DATE>                  ::=  YYYY-MM-DD
-//
-// <TIME FIXED>            ::=  hh:mm:ss(.|,)sss   # exactly three digits in
-//                                                 # the fractional second
 //
 // <TIME FLEXIBLE>         ::=  hh:mm:ss{(.|,)s+}  # one or more digits in the
 //                                                 # fractional second
@@ -355,7 +360,7 @@ BSLS_IDENT("$Id: $")
 //..
 // produces:
 //..
-//  31JAN2005_08:59:59.123+0400
+//  31JAN2005_08:59:59.123000+0400
 //..
 // Next, we use a 'generate' function to produce an ISO 8601-compliant string
 // for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
@@ -474,8 +479,8 @@ BSLS_IDENT("$Id: $")
 //  assert(           0 == rc);
 //  assert(sourceTimeTz == targetTimeTz);
 //..
-// Finally, we parse the string in 'buffer' a second time, this time loading
-// the result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// Then, we parse the string in 'buffer' a second time, this time loading the
+// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
 //..
 //  bdlt::Time targetTime;
 //
@@ -485,6 +490,18 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
+//
+// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
+// fractional seconds:
+//..
+//  configuration.setFractionalSecondPrecision(0);
+//  rc = bdlt::Iso8601Util::generate(buffer,
+//                                   BUFLEN,
+//                                   sourceTimeTz,
+//                                   configuration);
+//  assert(BUFLEN - 6 == rc);
+//  assert(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -546,8 +563,8 @@ struct Iso8601Util {
         k_TIME_STRLEN       = 12,  // 'bdlt::Time'
         k_TIMETZ_STRLEN     = 18,  // 'bdlt::TimeTz'
 
-        k_DATETIME_STRLEN   = 23,  // 'bdlt::Datetime'
-        k_DATETIMETZ_STRLEN = 29,  // 'bdlt::DatetimeTz'
+        k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
+        k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'
 
         k_MAX_STRLEN        = k_DATETIMETZ_STRLEN
 
@@ -1057,7 +1074,7 @@ struct Iso8601Util {
 };
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                             // ------------------
@@ -1603,7 +1620,7 @@ int Iso8601Util::generateRaw(char              *buffer,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

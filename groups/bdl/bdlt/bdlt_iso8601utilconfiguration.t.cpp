@@ -27,11 +27,13 @@ using namespace bsl;
 // 'setAttributeName' and 'attributeName'.
 //
 // Primary Manipulators:
+//: o 'setFractionalSecondPrecision'
 //: o 'setOmitColonInZoneDesignator'
 //: o 'setUseCommaForDecimalSign'
 //: o 'setUseZAbbreviationForUtc'
 //
 // Basic Accessors:
+//: o 'fractionalSecondPrecision'
 //: o 'omitColonInZoneDesignator'
 //: o 'useCommaForDecimalSign'
 //: o 'useZAbbreviationForUtc'
@@ -62,11 +64,13 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] Config& operator=(const Config& rhs);
+// [ 2] void setFractionalSecondPrecision(int value);
 // [ 2] void setOmitColonInZoneDesignator(bool value);
 // [ 2] void setUseCommaForDecimalSign(bool value);
 // [ 2] void setUseZAbbreviationForUtc(bool value);
 //
 // ACCESSORS
+// [ 4] int  fractionalSecondPrecision() const;
 // [ 4] bool omitColonInZoneDesignator() const;
 // [ 4] bool useCommaForDecimalSign() const;
 // [ 4] bool useZAbbreviationForUtc() const;
@@ -156,6 +160,7 @@ typedef bdlt::Iso8601UtilConfiguration Obj;
 struct DefaultDataRow {
     int  d_line;       // source line number
     bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
+    int  d_precision;  // 'fractionalSecondPrecision'     "
     bool d_useComma;   // 'useCommaForDecimalSign'        "
     bool d_useZ;       // 'useZAbbreviationForUtc'        "
 };
@@ -163,16 +168,32 @@ struct DefaultDataRow {
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE   omit ':'   use ','   use 'Z'
-    //----   --------   -------   -------
-    { L_,      false,    false,    false  },
-    { L_,      false,    false,     true  },
-    { L_,      false,     true,    false  },
-    { L_,      false,     true,     true  },
-    { L_,       true,    false,    false  },
-    { L_,       true,    false,     true  },
-    { L_,       true,     true,    false  },
-    { L_,       true,     true,     true  },
+    //LINE   omit ':'   precision   use ','   use 'Z'
+    //----   --------   ---------   -------   -------
+    { L_,      false,          3,    false,    false  },
+    { L_,      false,          3,    false,     true  },
+    { L_,      false,          3,     true,    false  },
+    { L_,      false,          3,     true,     true  },
+    { L_,      false,          6,    false,    false  },
+    { L_,      false,          6,    false,     true  },
+    { L_,      false,          6,     true,    false  },
+    { L_,      false,          6,     true,     true  },
+    { L_,       true,          3,    false,    false  },
+    { L_,       true,          3,    false,     true  },
+    { L_,       true,          3,     true,    false  },
+    { L_,       true,          3,     true,     true  },
+    { L_,       true,          6,    false,    false  },
+    { L_,       true,          6,    false,     true  },
+    { L_,       true,          6,     true,    false  },
+    { L_,       true,          6,     true,     true  },
+
+    // additional configurations
+
+    { L_,      false,          0,    false,    false  },
+    { L_,      false,          1,    false,    false  },
+    { L_,      false,          2,    false,    false  },
+    { L_,      false,          4,    false,    false  },
+    { L_,      false,          5,    false,    false  }
 };
 const int NUM_DEFAULT_DATA =
                   static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
@@ -263,6 +284,7 @@ int main(int argc, char *argv[])
 // default value:
 //..
     bdlt::Iso8601UtilConfiguration configuration;
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -271,6 +293,7 @@ int main(int argc, char *argv[])
 // decimal sign (in fractional seconds):
 //..
     configuration.setUseCommaForDecimalSign(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -279,6 +302,7 @@ int main(int argc, char *argv[])
 // in zone designators:
 //..
     configuration.setOmitColonInZoneDesignator(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT( configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -299,6 +323,7 @@ int main(int argc, char *argv[])
     bdlt::Iso8601UtilConfiguration configuration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
     ASSERT(bdlt::Iso8601UtilConfiguration() == configuration);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -307,6 +332,15 @@ int main(int argc, char *argv[])
 // the zone designator is UTC (i.e., instead of '+00:00'):
 //..
     configuration.setUseZAbbreviationForUtc(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
+    ASSERT(!configuration.omitColonInZoneDesignator());
+    ASSERT(!configuration.useCommaForDecimalSign());
+    ASSERT( configuration.useZAbbreviationForUtc());
+//..
+// Then, we modify 'configuration' to display milliseconds:
+//..
+    configuration.setFractionalSecondPrecision(6);
+    ASSERT( configuration.fractionalSecondPrecision() == 6);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT( configuration.useZAbbreviationForUtc());
@@ -320,6 +354,7 @@ int main(int argc, char *argv[])
 //..
     const bdlt::Iso8601UtilConfiguration newConfiguration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
+    ASSERT( newConfiguration.fractionalSecondPrecision() == 6);
     ASSERT(!newConfiguration.omitColonInZoneDesignator());
     ASSERT(!newConfiguration.useCommaForDecimalSign());
     ASSERT( newConfiguration.useZAbbreviationForUtc());
@@ -392,13 +427,17 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE      = DATA[ti].d_line;
             const bool OMITCOLON = DATA[ti].d_omitColon;
+            const int  PRECISION = DATA[ti].d_precision;
             const bool USECOMMA  = DATA[ti].d_useComma;
             const bool USEZ      = DATA[ti].d_useZ;
 
-            if (veryVerbose) { T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ) }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(OMITCOLON) P_(PRECISION) P_(USECOMMA) P(USEZ);
+            }
 
             Obj mZ;  const Obj& Z = mZ;
 
+            mZ.setFractionalSecondPrecision(PRECISION);
             mZ.setOmitColonInZoneDesignator(OMITCOLON);
             mZ.setUseCommaForDecimalSign(USECOMMA);
             mZ.setUseZAbbreviationForUtc(USEZ);
@@ -533,15 +572,22 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  ILINE      = DATA[ti].d_line;
             const bool IOMITCOLON = DATA[ti].d_omitColon;
+            const int  IPRECISION = DATA[ti].d_precision;
             const bool IUSECOMMA  = DATA[ti].d_useComma;
             const bool IUSEZ      = DATA[ti].d_useZ;
 
             if (veryVerbose) {
-                T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
+                T_
+                P_(ILINE)
+                P_(IOMITCOLON)
+                P_(IPRECISION)
+                P_(IUSECOMMA)
+                P(IUSEZ)
             }
 
             Obj mZ;  const Obj& Z = mZ;
 
+            mZ.setFractionalSecondPrecision(IPRECISION);
             mZ.setOmitColonInZoneDesignator(IOMITCOLON);
             mZ.setUseCommaForDecimalSign(IUSECOMMA);
             mZ.setUseZAbbreviationForUtc(IUSEZ);
@@ -562,15 +608,22 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  JLINE      = DATA[tj].d_line;
                 const bool JOMITCOLON = DATA[tj].d_omitColon;
+                const int  JPRECISION = DATA[tj].d_precision;
                 const bool JUSECOMMA  = DATA[tj].d_useComma;
                 const bool JUSEZ      = DATA[tj].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
+                    T_
+                    P_(JLINE)
+                    P_(JOMITCOLON)
+                    P_(JPRECISION)
+                    P_(JUSECOMMA)
+                    P(JUSEZ)
                 }
 
                 Obj mX;  const Obj& X = mX;
 
+                mX.setFractionalSecondPrecision(JPRECISION);
                 mX.setOmitColonInZoneDesignator(JOMITCOLON);
                 mX.setUseCommaForDecimalSign(JUSECOMMA);
                 mX.setUseZAbbreviationForUtc(JUSEZ);
@@ -591,6 +644,7 @@ int main(int argc, char *argv[])
             {
                 Obj mX;  const Obj& X = mX;
 
+                mX.setFractionalSecondPrecision(IPRECISION);
                 mX.setOmitColonInZoneDesignator(IOMITCOLON);
                 mX.setUseCommaForDecimalSign(IUSECOMMA);
                 mX.setUseZAbbreviationForUtc(IUSEZ);
@@ -686,19 +740,24 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE      = DATA[ti].d_line;
             const bool OMITCOLON = DATA[ti].d_omitColon;
+            const int  PRECISION = DATA[ti].d_precision;
             const bool USECOMMA  = DATA[ti].d_useComma;
             const bool USEZ      = DATA[ti].d_useZ;
 
-            if (veryVerbose) { T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ) }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(OMITCOLON) P_(PRECISION) P_(USECOMMA) P(USEZ);
+            }
 
             Obj mZ;  const Obj& Z = mZ;
 
+            mZ.setFractionalSecondPrecision(PRECISION);
             mZ.setOmitColonInZoneDesignator(OMITCOLON);
             mZ.setUseCommaForDecimalSign(USECOMMA);
             mZ.setUseZAbbreviationForUtc(USEZ);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
 
+            mZZ.setFractionalSecondPrecision(PRECISION);
             mZZ.setOmitColonInZoneDesignator(OMITCOLON);
             mZZ.setUseCommaForDecimalSign(USECOMMA);
             mZZ.setUseZAbbreviationForUtc(USEZ);
@@ -818,17 +877,24 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  ILINE      = DATA[ti].d_line;
             const bool IOMITCOLON = DATA[ti].d_omitColon;
+            const int  IPRECISION = DATA[ti].d_precision;
             const bool IUSECOMMA  = DATA[ti].d_useComma;
             const bool IUSEZ      = DATA[ti].d_useZ;
 
             if (veryVerbose) {
-                T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
+                T_
+                P_(ILINE)
+                P_(IOMITCOLON)
+                P_(IPRECISION)
+                P_(IUSECOMMA)
+                P(IUSEZ)
             }
 
             // Ensure an object compares correctly with itself (alias test).
             {
                 Obj mW;  const Obj& W = mW;
 
+                mW.setFractionalSecondPrecision(IPRECISION);
                 mW.setOmitColonInZoneDesignator(IOMITCOLON);
                 mW.setUseCommaForDecimalSign(IUSECOMMA);
                 mW.setUseZAbbreviationForUtc(IUSEZ);
@@ -848,6 +914,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;
 
+            mX.setFractionalSecondPrecision(IPRECISION);
             mX.setOmitColonInZoneDesignator(IOMITCOLON);
             mX.setUseCommaForDecimalSign(IUSECOMMA);
             mX.setUseZAbbreviationForUtc(IUSEZ);
@@ -855,17 +922,25 @@ int main(int argc, char *argv[])
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int  JLINE      = DATA[tj].d_line;
                 const bool JOMITCOLON = DATA[tj].d_omitColon;
+                const int  JPRECISION = DATA[tj].d_precision;
                 const bool JUSECOMMA  = DATA[tj].d_useComma;
                 const bool JUSEZ      = DATA[tj].d_useZ;
 
                 if (veryVerbose) {
-                    T_ T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
+                    T_
+                    T_
+                    P_(JLINE)
+                    P_(JOMITCOLON)
+                    P_(JPRECISION)
+                    P_(JUSECOMMA)
+                    P(JUSEZ)
                 }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
                 Obj mY;  const Obj& Y = mY;
 
+                mY.setFractionalSecondPrecision(JPRECISION);
                 mY.setOmitColonInZoneDesignator(JOMITCOLON);
                 mY.setUseCommaForDecimalSign(JUSECOMMA);
                 mY.setUseZAbbreviationForUtc(JUSEZ);
@@ -876,13 +951,15 @@ int main(int argc, char *argv[])
 
                 if (EXP) {
                     ASSERTV(ILINE, JLINE, X, Y,
-                 X.omitColonInZoneDesignator() == Y.omitColonInZoneDesignator()
+                 X.fractionalSecondPrecision() == Y.fractionalSecondPrecision()
+              && X.omitColonInZoneDesignator() == Y.omitColonInZoneDesignator()
               && X.useCommaForDecimalSign()    == Y.useCommaForDecimalSign()
               && X.useZAbbreviationForUtc()    == Y.useZAbbreviationForUtc());
                 }
                 else {
                     ASSERTV(ILINE, JLINE, X, Y,
-                 X.omitColonInZoneDesignator() != Y.omitColonInZoneDesignator()
+                 X.fractionalSecondPrecision() != Y.fractionalSecondPrecision()
+              || X.omitColonInZoneDesignator() != Y.omitColonInZoneDesignator()
               || X.useCommaForDecimalSign()    != Y.useCommaForDecimalSign()
               || X.useZAbbreviationForUtc()    != Y.useZAbbreviationForUtc());
                 }
@@ -993,6 +1070,7 @@ int main(int argc, char *argv[])
             int         d_spacesPerLevel;
 
             bool        d_omitColonInZoneDesignator;
+            int         d_precision;
             bool        d_useCommaForDecimalSign;
             bool        d_useZAbbreviationForUtc;
 
@@ -1003,37 +1081,42 @@ int main(int argc, char *argv[])
 #define SP " "
 
         // ------------------------------------------------------------------
-        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
+        // P-2.1.1: { A } x { 0 } x { 0, 1, -1, -8 } --> 4 expected o/ps
         // ------------------------------------------------------------------
 
-        //LINE L SPL  OMIT   SIGN   USEZ   EXP
-        //---- - ---  ----   ----   ----   ---
+        //LINE L SPL  OMIT   PRE   SIGN   USEZ   EXP
+        //---- - ---  ----   ---   ----   ----   ---
 
-        { L_,  0,  0, true,  true,  true,
+        { L_,  0,  0, true,    6,  true,  true,
                                           "["                                NL
+                                          "fractionalSecondPrecision = 6"    NL
                                           "omitColonInZoneDesignator = true" NL
                                           "useCommaForDecimalSign = true"    NL
                                           "useZAbbreviationForUtc = true"    NL
                                           "]"                                NL
                                                                              },
 
-        { L_,  0,  1, true,  true,  true,
+        { L_,  0,  1, true,    6,  true,  true,
                                          "["                                 NL
+                                         " fractionalSecondPrecision = 6"    NL
                                          " omitColonInZoneDesignator = true" NL
                                          " useCommaForDecimalSign = true"    NL
                                          " useZAbbreviationForUtc = true"    NL
                                          "]"                                 NL
                                                                              },
 
-        { L_,  0, -1, true,  true,  true, "["                                SP
+        { L_,  0, -1, true,    6,  true,  true,
+                                          "["                                SP
+                                          "fractionalSecondPrecision = 6"    SP
                                           "omitColonInZoneDesignator = true" SP
                                           "useCommaForDecimalSign = true"    SP
                                           "useZAbbreviationForUtc = true"    SP
                                           "]"
                                                                              },
 
-        { L_,  0, -8, true,  true,  true,
+        { L_,  0, -8, true,    6,  true,  true,
                                       "["                                    NL
+                                      "    fractionalSecondPrecision = 6"    NL
                                       "    omitColonInZoneDesignator = true" NL
                                       "    useCommaForDecimalSign = true"    NL
                                       "    useZAbbreviationForUtc = true"    NL
@@ -1041,66 +1124,77 @@ int main(int argc, char *argv[])
                                                                              },
 
         // ------------------------------------------------------------------
-        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
         // ------------------------------------------------------------------
 
         //LINE L SPL  OMIT   SIGN   USEZ   EXP
         //---- - ---  ----   ----   ----   ---
 
-        { L_,  3,  0, true,  true,  true, "["                                NL
+        { L_,  3,  0, true,    6,  true,  true,
+                                          "["                                NL
+                                          "fractionalSecondPrecision = 6"    NL
                                           "omitColonInZoneDesignator = true" NL
                                           "useCommaForDecimalSign = true"    NL
                                           "useZAbbreviationForUtc = true"    NL
                                           "]"                                NL
                                                                              },
 
-        { L_,  3,  2, true,  true,  true,
+        { L_,  3,  2, true,    6,  true,  true,
                                   "      ["                                  NL
+                                  "        fractionalSecondPrecision = 6"    NL
                                   "        omitColonInZoneDesignator = true" NL
                                   "        useCommaForDecimalSign = true"    NL
                                   "        useZAbbreviationForUtc = true"    NL
                                   "      ]"                                  NL
                                                                              },
 
-        { L_,  3, -2, true,  true,  true, "      ["                          SP
+        { L_,  3, -2, true,    6,  true,  true,
+                                          "      ["                          SP
+                                          "fractionalSecondPrecision = 6"    SP
                                           "omitColonInZoneDesignator = true" SP
                                           "useCommaForDecimalSign = true"    SP
                                           "useZAbbreviationForUtc = true"    SP
                                           "]"
                                                                              },
 
-        { L_,  3, -8, true,  true,  true,
+        { L_,  3, -8, true,    6,  true,  true,
                           "            ["                                    NL
+                          "                fractionalSecondPrecision = 6"    NL
                           "                omitColonInZoneDesignator = true" NL
                           "                useCommaForDecimalSign = true"    NL
                           "                useZAbbreviationForUtc = true"    NL
                           "            ]"                                    NL
                                                                              },
 
-        { L_, -3,  0, true,  true,  true, "["                                NL
+        { L_, -3,  0, true,    6,  true,  true,
+                                          "["                                NL
+                                          "fractionalSecondPrecision = 6"    NL
                                           "omitColonInZoneDesignator = true" NL
                                           "useCommaForDecimalSign = true"    NL
                                           "useZAbbreviationForUtc = true"    NL
                                           "]"                                NL
                                                                              },
 
-        { L_, -3,  2, true,  true,  true,
+        { L_, -3,  2, true,    6,  true,  true,
                                   "["                                        NL
+                                  "        fractionalSecondPrecision = 6"    NL
                                   "        omitColonInZoneDesignator = true" NL
                                   "        useCommaForDecimalSign = true"    NL
                                   "        useZAbbreviationForUtc = true"    NL
                                   "      ]"                                  NL
                                                                              },
 
-        { L_, -3, -2, true,  true,  true,
+        { L_, -3, -2, true,    6,  true,  true,
                                         "["                                  SP
+                                        "fractionalSecondPrecision = 6"      SP
                                         "omitColonInZoneDesignator = true"   SP
                                         "useCommaForDecimalSign = true"      SP
                                         "useZAbbreviationForUtc = true"      SP
                                         "]"
                                                                              },
-        { L_, -3, -8, true,  true,  true,
+        { L_, -3, -8, true,    6,  true,  true,
                           "["                                                NL
+                          "                fractionalSecondPrecision = 6"    NL
                           "                omitColonInZoneDesignator = true" NL
                           "                useCommaForDecimalSign = true"    NL
                           "                useZAbbreviationForUtc = true"    NL
@@ -1108,14 +1202,15 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
+        // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected o/p
         // -----------------------------------------------------------------
 
-        //LINE L SPL  OMIT   SIGN   USEZ   EXP
-        //---- - ---  ----   ----   ----   ---
+        //LINE L SPL  OMIT   PRE   SIGN   USEZ   EXP
+        //---- - ---  ----   ---   ----   ----   ---
 
-        { L_,  2,  3, false, false, false,
+        { L_,  2,  3, false,   3,  false, false,
                                 "      ["                                    NL
+                                "         fractionalSecondPrecision = 3"     NL
                                 "         omitColonInZoneDesignator = false" NL
                                 "         useCommaForDecimalSign = false"    NL
                                 "         useZAbbreviationForUtc = false"    NL
@@ -1123,37 +1218,41 @@ int main(int argc, char *argv[])
                                                                              },
 
         // -----------------------------------------------------------------
-        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // P-2.1.4: { A B } x { -8 } x { -8 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
-        //LINE L SPL  OMIT   SIGN   USEZ   EXP
-        //---- - ---  ----   ----   ----   ---
+        //LINE L SPL  OMIT   PRE   SIGN   USEZ   EXP
+        //---- - ---  ----   ---   ----   ----   ---
 
-        { L_, -8, -8, true,  true,  true,
+        { L_, -8, -8, true,    6,  true,  true,
                                       "["                                    NL
+                                      "    fractionalSecondPrecision = 6"    NL
                                       "    omitColonInZoneDesignator = true" NL
                                       "    useCommaForDecimalSign = true"    NL
                                       "    useZAbbreviationForUtc = true"    NL
                                       "]"                                    NL
                                                                              },
 
-        { L_, -8, -8, false, false, false,
+        { L_, -8, -8, false,   3,  false, false,
                                      "["                                     NL
+                                     "    fractionalSecondPrecision = 3"     NL
                                      "    omitColonInZoneDesignator = false" NL
                                      "    useCommaForDecimalSign = false"    NL
                                      "    useZAbbreviationForUtc = false"    NL
                                      "]"                                     NL
                                                                              },
         // -----------------------------------------------------------------
-        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
+        // P-2.1.5: { A B } x { -9 } x { -9 } --> 2 expected o/ps
         // -----------------------------------------------------------------
 
         //LINE L SPL  OMIT   SIGN   USEZ   EXP
         //---- - ---  ----   ----   ----   ---
 
-        { L_, -9, -9, true,  true,  true,  "[ true true true ]"              },
+        { L_, -9, -9, true,    6,  true,  true,
+                                           "[ 6 true true true ]"            },
 
-        { L_, -9, -9, false, false, false, "[ false false false ]"           },
+        { L_, -9, -9, false,   3,  false, false,
+                                           "[ 3 false false false ]"         },
 
 #undef NL
 #undef SP
@@ -1169,6 +1268,7 @@ int main(int argc, char *argv[])
                 const int         L    = DATA[ti].d_level;
                 const int         SPL  = DATA[ti].d_spacesPerLevel;
                 const bool        OMIT = DATA[ti].d_omitColonInZoneDesignator;
+                const int         PRE  = DATA[ti].d_precision;
                 const bool        SIGN = DATA[ti].d_useCommaForDecimalSign;
                 const bool        USEZ = DATA[ti].d_useZAbbreviationForUtc;
                 const char *const EXP  = DATA[ti].d_expected_p;
@@ -1178,6 +1278,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
                 Obj mX;  const Obj& X = mX;
+                mX.setFractionalSecondPrecision(PRE);
                 mX.setOmitColonInZoneDesignator(OMIT);
                 mX.setUseCommaForDecimalSign(SIGN);
                 mX.setUseZAbbreviationForUtc(USEZ);
@@ -1247,6 +1348,7 @@ int main(int argc, char *argv[])
         //:     expected value.  (C-1..2)
         //
         // Testing:
+        //   int  fractionalSecondPrecision() const;
         //   bool omitColonInZoneDesignator() const;
         //   bool useCommaForDecimalSign() const;
         //   bool useZAbbreviationForUtc() const;
@@ -1268,6 +1370,7 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int  LINE      = DATA[ti].d_line;
             const bool OMITCOLON = DATA[ti].d_omitColon;
+            const int  PRECISION = DATA[ti].d_precision;
             const bool USECOMMA  = DATA[ti].d_useComma;
             const bool USEZ      = DATA[ti].d_useZ;
 
@@ -1277,10 +1380,12 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;
 
+            mX.setFractionalSecondPrecision(PRECISION);
             mX.setOmitColonInZoneDesignator(OMITCOLON);
             mX.setUseCommaForDecimalSign(USECOMMA);
             mX.setUseZAbbreviationForUtc(USEZ);
 
+            ASSERTV(LINE, PRECISION == X.fractionalSecondPrecision());
             ASSERTV(LINE, OMITCOLON == X.omitColonInZoneDesignator());
             ASSERTV(LINE, USECOMMA  == X.useCommaForDecimalSign());
             ASSERTV(LINE, USEZ      == X.useZAbbreviationForUtc());
@@ -1329,6 +1434,8 @@ int main(int argc, char *argv[])
         //: 3 Each attribute can be set to represent any value.
         //:
         //: 4 Any argument can be 'const'.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create two sets of attribute values for the object: ('D') values
@@ -1355,9 +1462,12 @@ int main(int argc, char *argv[])
         //:   and verify after each manipulation that only that attribute's
         //:   value changed.  (C-2)
         //:
+        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
+        //
         // Testing:
         //   Iso8601UtilConfiguration();
         //   ~Iso8601UtilConfiguration();
+        //   void setFractionalSecondPrecision(int value);
         //   void setOmitColonInZoneDesignator(bool value);
         //   void setUseCommaForDecimalSign(bool value);
         //   void setUseZAbbreviationForUtc(bool value);
@@ -1371,106 +1481,143 @@ int main(int argc, char *argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const bool D1 = false;  // 'omitColonInZoneDesignator'
-        const bool D2 = false;  // 'useCommaForDecimalSign'
-        const bool D3 = false;  // 'useZAbbreviationForUtc'
+        const int  D1 = 3;      // 'fractionalSecondPrecision'
+        const bool D2 = false;  // 'omitColonInZoneDesignator'
+        const bool D3 = false;  // 'useCommaForDecimalSign'
+        const bool D4 = false;  // 'useZAbbreviationForUtc'
 
         // 'A' values.
 
-        const bool A1 = true;   // 'omitColonInZoneDesignator'
-        const bool A2 = true;   // 'useCommaForDecimalSign'
-        const bool A3 = true;   // 'useZAbbreviationForUtc'
+        const int  A1 = 6;      // 'fractionalSecondPrecision'
+        const bool A2 = true;   // 'omitColonInZoneDesignator'
+        const bool A3 = true;   // 'useCommaForDecimalSign'
+        const bool A4 = true;   // 'useZAbbreviationForUtc'
 
         {
             Obj mX;  const Obj& X = mX;
 
-            // -------------------------------------
-            // Verify the object's attribute values.
-            // -------------------------------------
+                  // -------------------------------------
+                  // Verify the object's attribute values.
+                  // -------------------------------------
 
-            ASSERTV(D1, X.omitColonInZoneDesignator(),
-                    D1 == X.omitColonInZoneDesignator());
-            ASSERTV(D2, X.useCommaForDecimalSign(),
-                    D2 == X.useCommaForDecimalSign());
-            ASSERTV(D3, X.useZAbbreviationForUtc(),
-                    D3 == X.useZAbbreviationForUtc());
+            ASSERTV(D1, X.fractionalSecondPrecision(),
+                    D1 == X.fractionalSecondPrecision());
+            ASSERTV(D2, X.omitColonInZoneDesignator(),
+                    D2 == X.omitColonInZoneDesignator());
+            ASSERTV(D3, X.useCommaForDecimalSign(),
+                    D3 == X.useCommaForDecimalSign());
+            ASSERTV(D4, X.useZAbbreviationForUtc(),
+                    D4 == X.useZAbbreviationForUtc());
 
-            // -----------------------------------------------------
-            // Verify that each attribute is independently settable.
-            // -----------------------------------------------------
+          // -----------------------------------------------------
+          // Verify that each attribute is independently settable.
+          // -----------------------------------------------------
+
+            // 'fractionalSecondPrecision'
+            {
+                mX.setFractionalSecondPrecision(A1);
+                ASSERT(A1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
+
+                mX.setFractionalSecondPrecision(D1);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
+            }
 
             // 'omitColonInZoneDesignator'
             {
-                mX.setOmitColonInZoneDesignator(A1);
-                ASSERT(A1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setOmitColonInZoneDesignator(A2);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(A2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
 
-                mX.setOmitColonInZoneDesignator(D1);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setOmitColonInZoneDesignator(D2);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
             // 'useCommaForDecimalSign'
             {
-                mX.setUseCommaForDecimalSign(A2);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(A2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setUseCommaForDecimalSign(A3);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(A3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
 
-                mX.setUseCommaForDecimalSign(D2);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setUseCommaForDecimalSign(D3);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
             // 'useZAbbreviationForUtc'
             {
-                mX.setUseZAbbreviationForUtc(A3);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(A3 == X.useZAbbreviationForUtc());
+                mX.setUseZAbbreviationForUtc(A4);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(A4 == X.useZAbbreviationForUtc());
 
-                mX.setUseZAbbreviationForUtc(D3);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setUseZAbbreviationForUtc(D4);
+                ASSERT(D1 == X.fractionalSecondPrecision());
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
             // Corroborate attribute independence.
             {
                 // Set all attributes to their 'A' values.
 
-                mX.setOmitColonInZoneDesignator(A1);
-                mX.setUseCommaForDecimalSign(A2);
-                mX.setUseZAbbreviationForUtc(A3);
+                mX.setOmitColonInZoneDesignator(A2);
+                mX.setUseCommaForDecimalSign(A3);
+                mX.setUseZAbbreviationForUtc(A4);
 
-                ASSERT(A1 == X.omitColonInZoneDesignator());
-                ASSERT(A2 == X.useCommaForDecimalSign());
-                ASSERT(A3 == X.useZAbbreviationForUtc());
+                ASSERT(A2 == X.omitColonInZoneDesignator());
+                ASSERT(A3 == X.useCommaForDecimalSign());
+                ASSERT(A4 == X.useZAbbreviationForUtc());
 
                 // Set all attributes to their 'D' values.
 
-                mX.setOmitColonInZoneDesignator(D1);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(A2 == X.useCommaForDecimalSign());
-                ASSERT(A3 == X.useZAbbreviationForUtc());
+                mX.setOmitColonInZoneDesignator(D2);
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(A3 == X.useCommaForDecimalSign());
+                ASSERT(A4 == X.useZAbbreviationForUtc());
 
-                mX.setUseCommaForDecimalSign(D2);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(A3 == X.useZAbbreviationForUtc());
+                mX.setUseCommaForDecimalSign(D3);
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(A4 == X.useZAbbreviationForUtc());
 
-                mX.setUseZAbbreviationForUtc(D3);
-                ASSERT(D1 == X.omitColonInZoneDesignator());
-                ASSERT(D2 == X.useCommaForDecimalSign());
-                ASSERT(D3 == X.useZAbbreviationForUtc());
+                mX.setUseZAbbreviationForUtc(D4);
+                ASSERT(D2 == X.omitColonInZoneDesignator());
+                ASSERT(D3 == X.useCommaForDecimalSign());
+                ASSERT(D4 == X.useZAbbreviationForUtc());
             }
 
             // Let the object go out of scope.
         }
 
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj mX;
+
+            ASSERT_FAIL(mX.setFractionalSecondPrecision(-1));
+            ASSERT_PASS(mX.setFractionalSecondPrecision( 0));
+            ASSERT_PASS(mX.setFractionalSecondPrecision( 6));
+            ASSERT_FAIL(mX.setFractionalSecondPrecision( 7));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1500,20 +1647,25 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        // Attribute 1 Values: 'omitColonInZoneDesignator'
+        // Attribute 1 Values: 'fractionalSecondPrecision'
 
-        const bool D1 = false;  // default value
-        const bool A1 = true;
+        const int  D1 = 3;      // default value
+        const int  A1 = 6;
 
-        // Attribute 2 Values: 'useCommaForDecimalSign'
+        // Attribute 2 Values: 'omitColonInZoneDesignator'
 
         const bool D2 = false;  // default value
         const bool A2 = true;
 
-        // Attribute 3 Values: 'useZAbbreviationForUtc'
+        // Attribute 3 Values: 'useCommaForDecimalSign'
 
         const bool D3 = false;  // default value
         const bool A3 = true;
+
+        // Attribute 4 Values: 'useZAbbreviationForUtc'
+
+        const bool D4 = false;  // default value
+        const bool A4 = true;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1525,9 +1677,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(D1 == W.omitColonInZoneDesignator());
-        ASSERT(D2 == W.useCommaForDecimalSign());
-        ASSERT(D3 == W.useZAbbreviationForUtc());
+        ASSERT(D1 == W.fractionalSecondPrecision());
+        ASSERT(D2 == W.omitColonInZoneDesignator());
+        ASSERT(D3 == W.useCommaForDecimalSign());
+        ASSERT(D4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1544,9 +1697,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(D1 == X.omitColonInZoneDesignator());
-        ASSERT(D2 == X.useCommaForDecimalSign());
-        ASSERT(D3 == X.useZAbbreviationForUtc());
+        ASSERT(D1 == X.fractionalSecondPrecision());
+        ASSERT(D2 == X.omitColonInZoneDesignator());
+        ASSERT(D3 == X.useCommaForDecimalSign());
+        ASSERT(D4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1559,16 +1713,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
                              "\t\t{ w:D x:A         }" << endl;
 
-        mX.setOmitColonInZoneDesignator(A1);
-        mX.setUseCommaForDecimalSign(A2);
-        mX.setUseZAbbreviationForUtc(A3);
+        mX.setFractionalSecondPrecision(A1);
+        mX.setOmitColonInZoneDesignator(A2);
+        mX.setUseCommaForDecimalSign(A3);
+        mX.setUseZAbbreviationForUtc(A4);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(A1 == X.omitColonInZoneDesignator());
-        ASSERT(A2 == X.useCommaForDecimalSign());
-        ASSERT(A3 == X.useZAbbreviationForUtc());
+        ASSERT(A1 == X.fractionalSecondPrecision());
+        ASSERT(A2 == X.omitColonInZoneDesignator());
+        ASSERT(A3 == X.useCommaForDecimalSign());
+        ASSERT(A4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1582,16 +1738,18 @@ int main(int argc, char *argv[])
                              "\t\t{ w:D x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
-        mY.setOmitColonInZoneDesignator(A1);
-        mY.setUseCommaForDecimalSign(A2);
-        mY.setUseZAbbreviationForUtc(A3);
+        mY.setFractionalSecondPrecision(A1);
+        mY.setOmitColonInZoneDesignator(A2);
+        mY.setUseCommaForDecimalSign(A3);
+        mY.setUseZAbbreviationForUtc(A4);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
-        ASSERT(A1 == Y.omitColonInZoneDesignator());
-        ASSERT(A2 == Y.useCommaForDecimalSign());
-        ASSERT(A3 == Y.useZAbbreviationForUtc());
+        ASSERT(A1 == Y.fractionalSecondPrecision());
+        ASSERT(A2 == Y.omitColonInZoneDesignator());
+        ASSERT(A3 == Y.useCommaForDecimalSign());
+        ASSERT(A4 == Y.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1610,9 +1768,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
-        ASSERT(A1 == Z.omitColonInZoneDesignator());
-        ASSERT(A2 == Z.useCommaForDecimalSign());
-        ASSERT(A3 == Z.useZAbbreviationForUtc());
+        ASSERT(A1 == Z.fractionalSecondPrecision());
+        ASSERT(A2 == Z.omitColonInZoneDesignator());
+        ASSERT(A3 == Z.useCommaForDecimalSign());
+        ASSERT(A4 == Z.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1627,16 +1786,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
-        mZ.setOmitColonInZoneDesignator(D1);
-        mZ.setUseCommaForDecimalSign(D2);
-        mZ.setUseZAbbreviationForUtc(D3);
+        mZ.setFractionalSecondPrecision(D1);
+        mZ.setOmitColonInZoneDesignator(D2);
+        mZ.setUseCommaForDecimalSign(D3);
+        mZ.setUseZAbbreviationForUtc(D4);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
-        ASSERT(D1 == Z.omitColonInZoneDesignator());
-        ASSERT(D2 == Z.useCommaForDecimalSign());
-        ASSERT(D3 == Z.useZAbbreviationForUtc());
+        ASSERT(D1 == Z.fractionalSecondPrecision());
+        ASSERT(D2 == Z.omitColonInZoneDesignator());
+        ASSERT(D3 == Z.useCommaForDecimalSign());
+        ASSERT(D4 == Z.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1655,9 +1816,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(A1 == W.omitColonInZoneDesignator());
-        ASSERT(A2 == W.useCommaForDecimalSign());
-        ASSERT(A3 == W.useZAbbreviationForUtc());
+        ASSERT(A1 == W.fractionalSecondPrecision());
+        ASSERT(A2 == W.omitColonInZoneDesignator());
+        ASSERT(A3 == W.useCommaForDecimalSign());
+        ASSERT(A4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1676,9 +1838,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(D1 == W.omitColonInZoneDesignator());
-        ASSERT(D2 == W.useCommaForDecimalSign());
-        ASSERT(D3 == W.useZAbbreviationForUtc());
+        ASSERT(D1 == W.fractionalSecondPrecision());
+        ASSERT(D2 == W.omitColonInZoneDesignator());
+        ASSERT(D3 == W.useCommaForDecimalSign());
+        ASSERT(D4 == W.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1697,9 +1860,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(A1 == X.omitColonInZoneDesignator());
-        ASSERT(A2 == X.useCommaForDecimalSign());
-        ASSERT(A3 == X.useZAbbreviationForUtc());
+        ASSERT(A1 == X.fractionalSecondPrecision());
+        ASSERT(A2 == X.omitColonInZoneDesignator());
+        ASSERT(A3 == X.useCommaForDecimalSign());
+        ASSERT(A4 == X.useZAbbreviationForUtc());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1733,7 +1897,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

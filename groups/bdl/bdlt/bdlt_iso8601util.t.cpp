@@ -189,6 +189,13 @@ typedef bdlt::Iso8601UtilConfiguration Config;
 
 typedef bslstl::StringRef              StrRef;
 
+const int k_DATE_MAX_PRECISION       = 3;
+const int k_DATETZ_MAX_PRECISION     = 3;
+const int k_DATETIME_MAX_PRECISION   = 6;
+const int k_DATETIMETZ_MAX_PRECISION = 6;
+const int k_TIME_MAX_PRECISION       = 3;
+const int k_TIMETZ_MAX_PRECISION     = 3;
+
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
@@ -230,20 +237,21 @@ struct DefaultTimeDataRow {
     int         d_min;      // minute
     int         d_sec;      // second
     int         d_msec;     // millisecond
+    int         d_usec;     // microsecond
     const char *d_iso8601;  // ISO 8601 string
 };
 
 static
 const DefaultTimeDataRow DEFAULT_TIME_DATA[] =
 {
-    //LINE   HOUR   MIN   SEC   MSEC      ISO8601
-    //----   ----   ---   ---   ----   --------------
-    { L_,       0,    0,    0,     0,  "00:00:00.000" },
-    { L_,       1,    2,    3,     4,  "01:02:03.004" },
-    { L_,      10,   20,   30,    40,  "10:20:30.040" },
-    { L_,      19,   43,   27,   805,  "19:43:27.805" },
-    { L_,      23,   59,   59,   999,  "23:59:59.999" },
-    { L_,      24,    0,    0,     0,  "24:00:00.000" },
+    //LINE   HOUR   MIN   SEC   MSEC   USEC         ISO8601
+    //----   ----   ---   ---   ----   ----    -----------------
+    { L_,       0,    0,    0,     0,     0,   "00:00:00.000000" },
+    { L_,       1,    2,    3,     4,     5,   "01:02:03.004005" },
+    { L_,      10,   20,   30,    40,    50,   "10:20:30.040050" },
+    { L_,      19,   43,   27,   805,   107,   "19:43:27.805107" },
+    { L_,      23,   59,   59,   999,   999,   "23:59:59.999999" },
+    { L_,      24,    0,    0,     0,     0,   "24:00:00.000000" },
 };
 const int NUM_DEFAULT_TIME_DATA =
         static_cast<int>(sizeof DEFAULT_TIME_DATA / sizeof *DEFAULT_TIME_DATA);
@@ -277,6 +285,7 @@ const int NUM_DEFAULT_ZONE_DATA =
 struct DefaultCnfgDataRow {
     int  d_line;       // source line number
     bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
+    int  d_precision;  // 'precision'                     "
     bool d_useComma;   // 'useCommaForDecimalSign'        "
     bool d_useZ;       // 'useZAbbreviationForUtc'        "
 };
@@ -284,16 +293,32 @@ struct DefaultCnfgDataRow {
 static
 const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
 {
-    //LINE   omit ':'   use ','   use 'Z'
-    //----   --------   -------   -------
-    { L_,      false,    false,    false  },
-    { L_,      false,    false,     true  },
-    { L_,      false,     true,    false  },
-    { L_,      false,     true,     true  },
-    { L_,       true,    false,    false  },
-    { L_,       true,    false,     true  },
-    { L_,       true,     true,    false  },
-    { L_,       true,     true,     true  },
+    //LINE   omit ':'   precision   use ','   use 'Z'
+    //----   --------   ---------   -------   -------
+    { L_,      false,          3,   false,    false  },
+    { L_,      false,          3,   false,     true  },
+    { L_,      false,          3,    true,    false  },
+    { L_,      false,          3,    true,     true  },
+    { L_,      false,          6,   false,    false  },
+    { L_,      false,          6,   false,     true  },
+    { L_,      false,          6,    true,    false  },
+    { L_,      false,          6,    true,     true  },
+    { L_,       true,          3,   false,    false  },
+    { L_,       true,          3,   false,     true  },
+    { L_,       true,          3,    true,    false  },
+    { L_,       true,          3,    true,     true  },
+    { L_,       true,          6,   false,    false  },
+    { L_,       true,          6,   false,     true  },
+    { L_,       true,          6,    true,    false  },
+    { L_,       true,          6,    true,     true  },
+
+    // additional configurations
+
+    { L_,      false,          0,   false,    false  },
+    { L_,      false,          1,   false,    false  },
+    { L_,      false,          2,   false,    false  },
+    { L_,      false,          4,   false,    false  },
+    { L_,      false,          5,   false,    false  }
 };
 const int NUM_DEFAULT_CNFG_DATA =
         static_cast<int>(sizeof DEFAULT_CNFG_DATA / sizeof *DEFAULT_CNFG_DATA);
@@ -515,6 +540,7 @@ const int NUM_BAD_ZONE_DATA =
 
 static
 Config& gg(Config *object,
+           int     fractionalSecondPrecision,
            bool    omitColonInZoneDesignatorFlag,
            bool    useCommaForDecimalSignFlag,
            bool    useZAbbreviationForUtcFlag)
@@ -522,6 +548,11 @@ Config& gg(Config *object,
     // according to the specified 'omitColonInZoneDesignatorFlag',
     // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
 {
+    if (fractionalSecondPrecision > 6) {
+        fractionalSecondPrecision = 6;
+    }
+
+    object->setFractionalSecondPrecision(fractionalSecondPrecision);
     object->setOmitColonInZoneDesignator(omitColonInZoneDesignatorFlag);
     object->setUseCommaForDecimalSign(useCommaForDecimalSignFlag);
     object->setUseZAbbreviationForUtc(useZAbbreviationForUtcFlag);
@@ -531,7 +562,8 @@ Config& gg(Config *object,
 
 static
 void updateExpectedPerConfig(bsl::string   *expected,
-                             const Config&  configuration)
+                             const Config&  configuration,
+                             int            maxPrecision)
     // Update the specified 'expected' ISO 8601 string as if it were generated
     // using the specified 'configuration'.  The behavior is undefined unless
     // the zone designator within 'expected' (if any) is of the form
@@ -539,11 +571,32 @@ void updateExpectedPerConfig(bsl::string   *expected,
 {
     ASSERT(expected);
 
-    if (configuration.useCommaForDecimalSign()) {
-        const bsl::string::size_type index = expected->find('.');
+    const bsl::string::size_type index = expected->find('.');
 
+    if (configuration.useCommaForDecimalSign()) {
         if (index != bsl::string::npos) {
             (*expected)[index] = ',';
+        }
+    }
+
+    if (index != bsl::string::npos) {
+        bsl::string::size_type length = 0;
+        while (isdigit((*expected)[index + length + 1])) {
+            ++length;
+        }
+
+        int precision = configuration.fractionalSecondPrecision();
+
+        if (precision > maxPrecision) {
+            precision = maxPrecision;
+        }
+
+        if (0 == precision) {
+            expected->erase(index, length + 1);
+        }
+        else if (precision < static_cast<int>(length)) {
+            expected->erase(index + precision + 1,
+                            length - precision);
         }
     }
 
@@ -678,7 +731,7 @@ if (veryVerbose)
 //..
 // produces:
 //..
-//  31JAN2005_08:59:59.123+0400
+//  31JAN2005_08:59:59.123000+0400
 //..
 // Next, we use a 'generate' function to produce an ISO 8601-compliant string
 // for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
@@ -785,7 +838,7 @@ if (veryVerbose)
 // above.
 //
 // Next, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::TimeTz'object , and assert that the parse was
+// parse into a second 'bdlt::TimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
 // original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
 // 'BUFLEN' because the former indicates the correct number of characters in
@@ -798,8 +851,8 @@ if (veryVerbose)
     ASSERT(           0 == rc);
     ASSERT(sourceTimeTz == targetTimeTz);
 //..
-// Finally, we parse the string in 'buffer' a second time, this time loading
-// the result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// Then, we parse the string in 'buffer' a second time, this time loading the
+// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
 //..
     bdlt::Time targetTime;
 
@@ -809,6 +862,18 @@ if (veryVerbose)
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
+//
+// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
+// fractional seconds:
+//..
+    configuration.setFractionalSecondPrecision(0);
+    rc = bdlt::Iso8601Util::generate(buffer,
+                                     BUFLEN,
+                                     sourceTimeTz,
+                                     configuration);
+    ASSERT(BUFLEN - 6 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+//..
 
       } break;
       case 9: {
@@ -931,42 +996,81 @@ if (veryVerbose)
                 const int MIN   = TIME_DATA[tj].d_min;
                 const int SEC   = TIME_DATA[tj].d_sec;
                 const int MSEC  = TIME_DATA[tj].d_msec;
-
-                const bdlt::Time TIME(HOUR, MIN, SEC, MSEC);
+                const int USEC  = TIME_DATA[tj].d_usec;
 
                 for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
                     const int KLINE  = ZONE_DATA[tk].d_line;
                     const int OFFSET = ZONE_DATA[tk].d_offset;
 
-                    if (TIME == bdlt::Time() && OFFSET != 0) {
+                    if (   bdlt::Time(HOUR, MIN, SEC, MSEC)  == bdlt::Time()
+                        && OFFSET != 0) {
                         continue;  // skip invalid compositions
-                    }
-
-                    const bdlt::Datetime   DATETIME(DATE, TIME);
-                    const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
-
-                    if (veryVerbose) {
-                        T_ P_(ILINE) P_(JLINE) P_(KLINE)
-                        P_(DATETIME) P(DATETIMETZ)
                     }
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
                         const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
+                        int expMsec = MSEC;
+                        int expUsec = USEC;
+                        {
+                            // adjust the expected milliseconds to account for
+                            // PRECISION truncating the value generated
+
+                            int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expMsec *= 10;
+                            }
+
+                            // adjust the expected microseconds to account for
+                            // PRECISION truncating the value generated
+
+                            precision = (PRECISION > 3 ? PRECISION - 3: 0);
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec /= 10;
+                            }
+
+                            for (int i = 3; i > precision; --i) {
+                                expUsec *= 10;
+                            }
+                        }
+
+                        const bdlt::Datetime   DATETIME(YEAR,
+                                                        MONTH,
+                                                        DAY,
+                                                        HOUR,
+                                                        MIN,
+                                                        SEC,
+                                                        expMsec,
+                                                        expUsec);
+                        const bdlt::DatetimeTz DATETIMETZ(DATETIME, OFFSET);
+
                         if (veryVerbose) {
-                            T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                            if (0 == tc) {
+                                T_ P_(ILINE) P_(JLINE) P_(KLINE)
+                                                    P_(DATETIME) P(DATETIMETZ);
+                            }
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // without zone designator in parsed string
                         {
                             const int LENGTH = Util::generateRaw(buffer,
-                                                                 DATETIME, C);
+                                                                 DATETIME,
+                                                                 C);
 
                             if (veryVerbose) {
                                 const bsl::string STRING(buffer, LENGTH);
@@ -1224,45 +1328,66 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
+                int         d_usec;
                 int         d_offset;
             } DATA[] = {
                 // leap seconds
                 { L_, "0001-01-01T00:00:60.000",
-                                          0001, 01, 01, 00, 01, 00, 000,   0 },
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
                 { L_, "9998-12-31T23:59:60.999",
-                                          9999, 01, 01, 00, 00, 00, 999,   0 },
+                                     9999, 01, 01, 00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
+                { L_, "0001-01-01T00:00:00.0000001",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.0000009",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
+                { L_, "0001-01-01T00:00:00.00000001",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.00000049",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.00000050",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
+                { L_, "0001-01-01T00:00:00.00000099",
+                                     0001, 01, 01, 00, 00, 00, 000,   1,   0 },
                 { L_, "0001-01-01T00:00:00.0001",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 100,   0 },
                 { L_, "0001-01-01T00:00:00.0009",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 900,   0 },
                 { L_, "0001-01-01T00:00:00.00001",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000,  10,   0 },
                 { L_, "0001-01-01T00:00:00.00049",
-                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 490,   0 },
                 { L_, "0001-01-01T00:00:00.00050",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 500,   0 },
                 { L_, "0001-01-01T00:00:00.00099",
-                                          0001, 01, 01, 00, 00, 00, 001,   0 },
+                                     0001, 01, 01, 00, 00, 00, 000, 990,   0 },
                 { L_, "0001-01-01T00:00:00.9994" ,
-                                          0001, 01, 01, 00, 00, 00, 999,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 400,   0 },
                 { L_, "0001-01-01T00:00:00.9995" ,
-                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 500,   0 },
                 { L_, "0001-01-01T00:00:00.9999" ,
-                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                                     0001, 01, 01, 00, 00, 00, 999, 900,   0 },
                 { L_, "9998-12-31T23:59:60.9999" ,
-                                          9999, 01, 01, 00, 00, 01, 000,   0 },
+                                     9999, 01, 01, 00, 00, 00, 999, 900,   0 },
+                { L_, "0001-01-01T00:00:00.9999994" ,
+                                     0001, 01, 01, 00, 00, 00, 999, 999,   0 },
+                { L_, "0001-01-01T00:00:00.9999995" ,
+                                     0001, 01, 01, 00, 00, 01, 000, 000,   0 },
+                { L_, "0001-01-01T00:00:00.9999999" ,
+                                     0001, 01, 01, 00, 00, 01, 000, 000,   0 },
+                { L_, "9998-12-31T23:59:60.9999999" ,
+                                     9999, 01, 01, 00, 00, 01, 000, 000,   0 },
 
                 // omit fractional seconds
                 { L_, "2014-12-23T12:34:45",
-                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,   0 },
                 { L_, "2014-12-23T12:34:45Z",
-                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,   0 },
                 { L_, "2014-12-23T12:34:45+00:30",
-                                          2014, 12, 23, 12, 34, 45, 000,  30 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000,  30 },
                 { L_, "2014-12-23T12:34:45-01:30",
-                                          2014, 12, 23, 12, 34, 45, 000, -90 },
+                                     2014, 12, 23, 12, 34, 45, 000, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1277,6 +1402,7 @@ if (veryVerbose)
                 const int   MIN    = DATA[ti].d_min;
                 const int   SEC    = DATA[ti].d_sec;
                 const int   MSEC   = DATA[ti].d_msec;
+                const int   USEC   = DATA[ti].d_usec;
                 const int   OFFSET = DATA[ti].d_offset;
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
@@ -1284,8 +1410,14 @@ if (veryVerbose)
                 bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
                 bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
-                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
-                                                         HOUR, MIN, SEC, MSEC),
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR,
+                                                         MONTH,
+                                                         DAY,
+                                                         HOUR,
+                                                         MIN,
+                                                         SEC,
+                                                         MSEC,
+                                                         USEC),
                                           OFFSET);
 
                 ASSERTV(LINE, INPUT, LENGTH,
@@ -1558,32 +1690,52 @@ if (veryVerbose)
             const int SEC   = TIME_DATA[ti].d_sec;
             const int MSEC  = TIME_DATA[ti].d_msec;
 
-            const bdlt::Time TIME(HOUR, MIN, SEC, MSEC);
-
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
                 const int JLINE  = ZONE_DATA[tj].d_line;
                 const int OFFSET = ZONE_DATA[tj].d_offset;
 
-                if (TIME == bdlt::Time() && OFFSET != 0) {
+                if (   bdlt::Time(HOUR, MIN, SEC, MSEC) == bdlt::Time()
+                    && OFFSET != 0) {
                     continue;  // skip invalid compositions
                 }
-
-                const bdlt::TimeTz TIMETZ(TIME, OFFSET);
-
-                if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ) }
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
+                    int expMsec = MSEC;
+                    {
+                        // adjust the expected milliseconds to account for
+                        // PRECISION truncating the value generated
+
+                        int precision = (PRECISION < 3 ? PRECISION : 3);
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec /= 10;
+                        }
+
+                        for (int i = 3; i > precision; --i) {
+                            expMsec *= 10;
+                        }
+                    }
+
+                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec);
+
+                    const bdlt::TimeTz TIMETZ(TIME, OFFSET);
+
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        if (0 == tc) {
+                            T_ P_(ILINE) P_(JLINE) P_(TIME) P(TIMETZ);
+                        }
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                          P_(USECOMMA) P(USEZ);
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // without zone designator in parsed string
                     {
@@ -1599,7 +1751,7 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIME == X);
+                        ASSERTV(ILINE, JLINE, CLINE, TIME, X, TIME == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
@@ -1992,15 +2144,17 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // without zone designator in parsed string
                     {
@@ -2327,6 +2481,7 @@ if (veryVerbose)
                 const int   MIN     = TIME_DATA[tj].d_min;
                 const int   SEC     = TIME_DATA[tj].d_sec;
                 const int   MSEC    = TIME_DATA[tj].d_msec;
+                const int   USEC    = TIME_DATA[tj].d_usec;
                 const char *ISO8601 = TIME_DATA[tj].d_iso8601;
 
                 const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
@@ -2343,7 +2498,15 @@ if (veryVerbose)
                         continue;  // skip invalid compositions
                     }
 
-                    const TYPE        X(bdlt::Datetime(DATE, TIME), OFFSET);
+                    const TYPE        X(bdlt::Datetime(YEAR,
+                                                       MONTH,
+                                                       DAY,
+                                                       HOUR,
+                                                       MIN,
+                                                       SEC,
+                                                       MSEC,
+                                                       USEC),
+                                        OFFSET);
                     const bsl::string BASE_EXPECTED(
                           EXPECTED_DATE + 'T' + EXPECTED_TIME + EXPECTED_ZONE);
 
@@ -2354,20 +2517,24 @@ if (veryVerbose)
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
                         const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                         if (veryVerbose) {
-                            T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         Config::setDefaultConfiguration(C);
 
                         bsl::string EXPECTED(BASE_EXPECTED);
-                        updateExpectedPerConfig(&EXPECTED, C);
+                        updateExpectedPerConfig(&EXPECTED,
+                                                C,
+                                                k_DATETIMETZ_MAX_PRECISION);
 
                         const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -2484,25 +2651,33 @@ if (veryVerbose)
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
                         const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                        const int  PRECISION = CNFG_DATA[tc].d_precision;
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                         if (veryVerbose) {
-                            T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                            T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // Set the default configuration to the complement of
                         // 'C'.
 
                         Config mDFLT;  const Config& DFLT = mDFLT;
-                        gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                        gg(&mDFLT,
+                           9 - PRECISION,
+                           !OMITCOLON,
+                           !USECOMMA,
+                           !USEZ);
                         Config::setDefaultConfiguration(DFLT);
 
                         bsl::string EXPECTED(BASE_EXPECTED);
-                        updateExpectedPerConfig(&EXPECTED, C);
+                        updateExpectedPerConfig(&EXPECTED,
+                                                C,
+                                                k_DATETIMETZ_MAX_PRECISION);
 
                         const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -2591,25 +2766,28 @@ if (veryVerbose)
 
                     for (int tc = 0; tc < 2; ++tc) {
                         const bool OMITCOLON = true;
+                        const int  PRECISION = 3;
                         const bool USECOMMA  = true;
                         const bool USEZ      = USEZ_CNFG_DATA[tc];
 
                         if (veryVerbose) {
-                            T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                            T_ P_(OMITCOLON) P_(PRECISION) P_(USECOMMA) P(USEZ)
                         }
 
                         Config mC;  const Config& C = mC;
-                        gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                        gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                         // Set the default configuration to use the complement
                         // of 'USEZ'.
 
                         Config mDFLT;  const Config& DFLT = mDFLT;
-                        gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                        gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                         Config::setDefaultConfiguration(DFLT);
 
                         bsl::string EXPECTED(BASE_EXPECTED);
-                        updateExpectedPerConfig(&EXPECTED, C);
+                        updateExpectedPerConfig(&EXPECTED,
+                                                C,
+                                                k_DATETIMETZ_MAX_PRECISION);
 
                         const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -2851,20 +3029,24 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_TIMETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -2978,24 +3160,28 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_TIMETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3082,25 +3268,28 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < 2; ++tc) {
                     const bool OMITCOLON = true;
+                    const int  PRECISION = 3;
                     const bool USECOMMA  = true;
                     const bool USEZ      = USEZ_CNFG_DATA[tc];
 
                     if (veryVerbose) {
-                        T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(OMITCOLON) P_(PRECISION) P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to use the complement of
                     // 'USEZ'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                    gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_TIMETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3334,20 +3523,24 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_DATETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3461,24 +3654,28 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_DATETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3565,25 +3762,28 @@ if (veryVerbose)
 
                 for (int tc = 0; tc < 2; ++tc) {
                     const bool OMITCOLON = true;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = true;
                     const bool USEZ      = USEZ_CNFG_DATA[tc];
 
                     if (veryVerbose) {
-                        T_ P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(OMITCOLON) P_(PRECISION) P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to use the complement of
                     // 'USEZ'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, OMITCOLON, USECOMMA, !USEZ);
+                    gg(&mDFLT, PRECISION, OMITCOLON, USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_DATETZ_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3803,12 +4003,19 @@ if (veryVerbose)
                 const int   MIN     = TIME_DATA[tj].d_min;
                 const int   SEC     = TIME_DATA[tj].d_sec;
                 const int   MSEC    = TIME_DATA[tj].d_msec;
+                const int   USEC    = TIME_DATA[tj].d_usec;
                 const char *ISO8601 = TIME_DATA[tj].d_iso8601;
 
-                const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
                 const bsl::string EXPECTED_TIME(ISO8601);
 
-                const TYPE        X(DATE, TIME);
+                const TYPE        X(YEAR,
+                                    MONTH,
+                                    DAY,
+                                    HOUR,
+                                    MIN,
+                                    SEC,
+                                    MSEC,
+                                    USEC);
                 const bsl::string BASE_EXPECTED(
                                           EXPECTED_DATE + 'T' + EXPECTED_TIME);
 
@@ -3819,20 +4026,24 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     Config::setDefaultConfiguration(C);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_DATETIME_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -3946,24 +4157,28 @@ if (veryVerbose)
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
                     const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                    const int  PRECISION = CNFG_DATA[tc].d_precision;
                     const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                     const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                     if (veryVerbose) {
-                        T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                        T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                     }
 
                     Config mC;  const Config& C = mC;
-                    gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                    gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                     // Set the default configuration to the complement of 'C'.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
-                    gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                    gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
                     bsl::string EXPECTED(BASE_EXPECTED);
-                    updateExpectedPerConfig(&EXPECTED, C);
+                    updateExpectedPerConfig(&EXPECTED,
+                                            C,
+                                            k_DATETIME_MAX_PRECISION);
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -4185,20 +4400,24 @@ if (veryVerbose)
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
                 const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
-                updateExpectedPerConfig(&EXPECTED, C);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_TIME_MAX_PRECISION);
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -4308,24 +4527,28 @@ if (veryVerbose)
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
                 const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
-                updateExpectedPerConfig(&EXPECTED, C);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_TIME_MAX_PRECISION);
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -4544,20 +4767,24 @@ if (veryVerbose)
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
                 const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 Config::setDefaultConfiguration(C);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
-                updateExpectedPerConfig(&EXPECTED, C);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_DATE_MAX_PRECISION);
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -4667,24 +4894,28 @@ if (veryVerbose)
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
                 const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
                 const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                 const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
                 if (veryVerbose) {
-                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
                 }
 
                 Config mC;  const Config& C = mC;
-                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
 
                 // Set the default configuration to the complement of 'C'.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
-                gg(&mDFLT, !OMITCOLON, !USECOMMA, !USEZ);
+                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
                 Config::setDefaultConfiguration(DFLT);
 
                 bsl::string EXPECTED(BASE_EXPECTED);
-                updateExpectedPerConfig(&EXPECTED, C);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_DATE_MAX_PRECISION);
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
@@ -4824,7 +5055,7 @@ if (veryVerbose)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
