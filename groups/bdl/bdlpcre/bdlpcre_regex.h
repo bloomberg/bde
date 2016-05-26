@@ -958,7 +958,7 @@ int RegEx::match(const char *subject,
                  size_t      subjectLength,
                  size_t      subjectOffset) const
 {
-    return privateMatch(subject, subjectLength, subjectOffset, true);
+    return privateMatch(subject, subjectLength, subjectOffset, false);
 }
 
 inline
@@ -967,7 +967,7 @@ int RegEx::match(bsl::pair<size_t, size_t> *result,
                  size_t                     subjectLength,
                  size_t                     subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, true);
+    return privateMatch(result, subject, subjectLength, subjectOffset, false);
 }
 
 inline
@@ -976,7 +976,7 @@ int RegEx::match(bslstl::StringRef *result,
                  size_t             subjectLength,
                  size_t             subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, true);
+    return privateMatch(result, subject, subjectLength, subjectOffset, false);
 }
 
 inline
@@ -985,7 +985,7 @@ int RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
                  size_t                                   subjectLength,
                  size_t                                   subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, true);
+    return privateMatch(result, subject, subjectLength, subjectOffset, false);
 }
 
 inline
@@ -994,7 +994,7 @@ int RegEx::match(bsl::vector<bslstl::StringRef>  *result,
                  size_t                           subjectLength,
                  size_t                           subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, true);
+    return privateMatch(result, subject, subjectLength, subjectOffset, false);
 }
 
 inline
@@ -1002,7 +1002,7 @@ int RegEx::matchRaw(const char *subject,
                     size_t      subjectLength,
                     size_t      subjectOffset) const
 {
-    return privateMatch(subject, subjectLength, subjectOffset, false);
+    return privateMatch(subject, subjectLength, subjectOffset, true);
 }
 
 inline
@@ -1011,7 +1011,7 @@ int RegEx::matchRaw(bsl::pair<size_t, size_t> *result,
                     size_t                     subjectLength,
                     size_t                     subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, false);
+    return privateMatch(result, subject, subjectLength, subjectOffset, true);
 }
 
 inline
@@ -1020,7 +1020,7 @@ int RegEx::matchRaw(bslstl::StringRef *result,
                     size_t             subjectLength,
                     size_t             subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, false);
+    return privateMatch(result, subject, subjectLength, subjectOffset, true);
 }
 
 inline
@@ -1030,7 +1030,7 @@ int RegEx::matchRaw(
                   size_t                                   subjectLength,
                   size_t                                   subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, false);
+    return privateMatch(result, subject, subjectLength, subjectOffset, true);
 }
 
 inline
@@ -1039,7 +1039,7 @@ int RegEx::matchRaw(bsl::vector<bslstl::StringRef>  *result,
                     size_t                           subjectLength,
                     size_t                           subjectOffset) const
 {
-    return privateMatch(result, subject, subjectLength, subjectOffset, false);
+    return privateMatch(result, subject, subjectLength, subjectOffset, true);
 }
 
 inline
