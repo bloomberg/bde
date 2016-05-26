@@ -74,9 +74,10 @@ BSLS_IDENT("$Id: $")
 // timezone 4 hours ahead of UTC.
 //
 // An ISO 8601 *fractional* *second* corresponds to, for example, the
-// 'millisecond' attribute of a 'bdlt::Time' object.  For example, the 'Time'
-// value (and ISO 8601 string) '15:46:09.330' has a 'millisecond' attribute
-// value of 330; i.e., a fractional second of .33.
+// 'millisecond' attribute of a 'bdlt::Time' object, or the combined
+// 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime' object.
+// For example, the 'Time' value (and ISO 8601 string) '15:46:09.330' has a
+// 'millisecond' attribute value of 330; i.e., a fractional second of .33.
 //
 ///ISO 8601 String Generation
 ///--------------------------
@@ -90,6 +91,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |    Generated ISO 8601 String    |
+//  |                                      |  (using default configuration)  |
 //  +======================================+=================================+
 //  |  Date(2002, 03, 17)                  |  2002-03-17                     |
 //  +--------------------------------------+---------------------------------+
@@ -178,9 +180,9 @@ BSLS_IDENT("$Id: $")
 //..
 // In the last example above, the conversion to UTC incurs a carry into the
 // 'day' attribute of the 'Date' component of the resulting 'Datetime' value.
-// Note that if such a carry would cause an underflow or overflow at the
-// extreme ends of the valid range of dates (0001/01/01 and 9999/12/31), then
-// parsing for 'Datetime' would fail.
+// Note that if such a carry causes an underflow or overflow at the extreme
+// ends of the valid range of dates (0001/01/01 and 9999/12/31), then parsing
+// for 'Datetime' fails.
 //
 ///Fractional Seconds
 /// - - - - - - - - -
@@ -193,7 +195,7 @@ BSLS_IDENT("$Id: $")
 // 'Datetime' and 'DatetimeTz', if more than six digits are included in the
 // fractional second, values are rounded to a full microsecond; i.e., values
 // greater than or equal to .5 microseconds are rounded up.  These roundings
-// may incurs a carry of one second into the 'second' attribute:
+// may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -358,7 +360,7 @@ BSLS_IDENT("$Id: $")
 //..
 // produces:
 //..
-//  31JAN2005_08:59:59.123+0400
+//  31JAN2005_08:59:59.123000+0400
 //..
 // Next, we use a 'generate' function to produce an ISO 8601-compliant string
 // for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
@@ -477,8 +479,8 @@ BSLS_IDENT("$Id: $")
 //  assert(           0 == rc);
 //  assert(sourceTimeTz == targetTimeTz);
 //..
-// Finally, we parse the string in 'buffer' a second time, this time loading
-// the result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// Then, we parse the string in 'buffer' a second time, this time loading the
+// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
 //..
 //  bdlt::Time targetTime;
 //
@@ -488,6 +490,18 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
+//
+// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
+// fractional seconds:
+//..
+//  configuration.setFractionalSecondPrecision(0);
+//  rc = bdlt::Iso8601Util::generate(buffer,
+//                                   BUFLEN,
+//                                   sourceTimeTz,
+//                                   configuration);
+//  assert(BUFLEN - 6 == rc);
+//  assert(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

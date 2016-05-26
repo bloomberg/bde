@@ -731,7 +731,7 @@ if (veryVerbose)
 //..
 // produces:
 //..
-//  31JAN2005_08:59:59.123+0400
+//  31JAN2005_08:59:59.123000+0400
 //..
 // Next, we use a 'generate' function to produce an ISO 8601-compliant string
 // for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
@@ -851,8 +851,8 @@ if (veryVerbose)
     ASSERT(           0 == rc);
     ASSERT(sourceTimeTz == targetTimeTz);
 //..
-// Finally, we parse the string in 'buffer' a second time, this time loading
-// the result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// Then, we parse the string in 'buffer' a second time, this time loading the
+// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
 //..
     bdlt::Time targetTime;
 
@@ -862,6 +862,18 @@ if (veryVerbose)
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
+//
+// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
+// fractional seconds:
+//..
+    configuration.setFractionalSecondPrecision(0);
+    rc = bdlt::Iso8601Util::generate(buffer,
+                                     BUFLEN,
+                                     sourceTimeTz,
+                                     configuration);
+    ASSERT(BUFLEN - 6 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+//..
 
       } break;
       case 9: {

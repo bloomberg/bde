@@ -81,6 +81,7 @@ BSLS_IDENT("$Id: $")
 // default value:
 //..
 //  bdlt::Iso8601UtilConfiguration configuration;
+//  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert(!configuration.omitColonInZoneDesignator());
 //  assert(!configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
@@ -89,6 +90,7 @@ BSLS_IDENT("$Id: $")
 // decimal sign (in fractional seconds):
 //..
 //  configuration.setUseCommaForDecimalSign(true);
+//  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert(!configuration.omitColonInZoneDesignator());
 //  assert( configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
@@ -97,6 +99,7 @@ BSLS_IDENT("$Id: $")
 // in zone designators:
 //..
 //  configuration.setOmitColonInZoneDesignator(true);
+//  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert( configuration.omitColonInZoneDesignator());
 //  assert( configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
@@ -115,6 +118,7 @@ BSLS_IDENT("$Id: $")
 //  bdlt::Iso8601UtilConfiguration configuration =
 //                      bdlt::Iso8601UtilConfiguration::defaultConfiguration();
 //  assert(bdlt::Iso8601UtilConfiguration() == configuration);
+//  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert(!configuration.omitColonInZoneDesignator());
 //  assert(!configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
@@ -123,6 +127,15 @@ BSLS_IDENT("$Id: $")
 // the zone designator is UTC (i.e., instead of '+00:00'):
 //..
 //  configuration.setUseZAbbreviationForUtc(true);
+//  assert( configuration.fractionalSecondPrecision() == 3);
+//  assert(!configuration.omitColonInZoneDesignator());
+//  assert(!configuration.useCommaForDecimalSign());
+//  assert( configuration.useZAbbreviationForUtc());
+//..
+// Then, we modify 'configuration' to display milliseconds:
+//..
+//  configuration.setFractionalSecondPrecision(6);
+//  assert( configuration.fractionalSecondPrecision() == 6);
 //  assert(!configuration.omitColonInZoneDesignator());
 //  assert(!configuration.useCommaForDecimalSign());
 //  assert( configuration.useZAbbreviationForUtc());
@@ -136,6 +149,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  const bdlt::Iso8601UtilConfiguration newConfiguration =
 //                      bdlt::Iso8601UtilConfiguration::defaultConfiguration();
+//  assert( newConfiguration.fractionalSecondPrecision() == 6);
 //  assert(!newConfiguration.omitColonInZoneDesignator());
 //  assert(!newConfiguration.useCommaForDecimalSign());
 //  assert( newConfiguration.useZAbbreviationForUtc());
@@ -181,10 +195,10 @@ class Iso8601UtilConfiguration {
         // This enumeration denotes the distinct bits that define the values of
         // each of the four configuration attributes.
 
-        k_fractionalSecondPrecisionMask = 0x07,
-        k_omitColonInZoneDesignatorBit  = 0x08,
-        k_useCommaForDecimalSignBit     = 0x10,
-        k_useZAbbreviationForUtcBit     = 0x20
+        k_FRACTIONAL_SECOND_PRECISION_MASK  = 0x07,
+        k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT = 0x08,
+        k_USE_COMMA_FOR_DECIMAL_SIGN_BIT    = 0x10,
+        k_USE_Z_ABBREVIATION_FOR_UTC_BIT    = 0x20
     };
 
     // CLASS DATA
@@ -340,10 +354,10 @@ Iso8601UtilConfiguration::Iso8601UtilConfiguration(int configurationMask)
 : d_configurationMask(configurationMask)
 {
     BSLS_ASSERT_SAFE(0 == (configurationMask
-                           & ~(k_fractionalSecondPrecisionMask
-                             | k_omitColonInZoneDesignatorBit
-                             | k_useCommaForDecimalSignBit
-                             | k_useZAbbreviationForUtcBit)));
+                           & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
+                             | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
+                             | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT
+                             | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }
 
 // CLASS METHODS
@@ -380,10 +394,10 @@ inline
 Iso8601UtilConfiguration::~Iso8601UtilConfiguration()
 {
     BSLS_ASSERT_SAFE(0 == (d_configurationMask
-                           & ~(k_fractionalSecondPrecisionMask
-                             | k_omitColonInZoneDesignatorBit
-                             | k_useCommaForDecimalSignBit
-                             | k_useZAbbreviationForUtcBit)));
+                           & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
+                             | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
+                             | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT
+                             | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }
 
 // MANIPULATORS
@@ -400,25 +414,25 @@ Iso8601UtilConfiguration& Iso8601UtilConfiguration::operator=(
 inline
 int Iso8601UtilConfiguration::fractionalSecondPrecision() const
 {
-    return d_configurationMask & k_fractionalSecondPrecisionMask;
+    return d_configurationMask & k_FRACTIONAL_SECOND_PRECISION_MASK;
 }
 
 inline
 bool Iso8601UtilConfiguration::omitColonInZoneDesignator() const
 {
-    return d_configurationMask & k_omitColonInZoneDesignatorBit;
+    return d_configurationMask & k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
 }
 
 inline
 bool Iso8601UtilConfiguration::useCommaForDecimalSign() const
 {
-    return d_configurationMask & k_useCommaForDecimalSignBit;
+    return d_configurationMask & k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
 }
 
 inline
 bool Iso8601UtilConfiguration::useZAbbreviationForUtc() const
 {
-    return d_configurationMask & k_useZAbbreviationForUtcBit;
+    return d_configurationMask & k_USE_Z_ABBREVIATION_FOR_UTC_BIT;
 }
 
 }  // close package namespace

@@ -23,10 +23,10 @@ Iso8601UtilConfiguration::s_defaultConfiguration = { 3 };
 void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
 {
     if (value) {
-        d_configurationMask |= k_omitColonInZoneDesignatorBit;
+        d_configurationMask |= k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
     }
     else {
-        d_configurationMask &= ~k_omitColonInZoneDesignatorBit;
+        d_configurationMask &= ~k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
     }
 }
 
@@ -36,26 +36,26 @@ void Iso8601UtilConfiguration::setFractionalSecondPrecision(int value)
     BSLS_ASSERT(6 >= value);
 
     d_configurationMask = (d_configurationMask
-                                 & (~k_fractionalSecondPrecisionMask)) | value;
+                              & (~k_FRACTIONAL_SECOND_PRECISION_MASK)) | value;
 }
 
 void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
 {
     if (value) {
-        d_configurationMask |= k_useCommaForDecimalSignBit;
+        d_configurationMask |= k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
     }
     else {
-        d_configurationMask &= ~k_useCommaForDecimalSignBit;
+        d_configurationMask &= ~k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
     }
 }
 
 void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(bool value)
 {
     if (value) {
-        d_configurationMask |= k_useZAbbreviationForUtcBit;
+        d_configurationMask |= k_USE_Z_ABBREVIATION_FOR_UTC_BIT;
     }
     else {
-        d_configurationMask &= ~k_useZAbbreviationForUtcBit;
+        d_configurationMask &= ~k_USE_Z_ABBREVIATION_FOR_UTC_BIT;
     }
 }
 

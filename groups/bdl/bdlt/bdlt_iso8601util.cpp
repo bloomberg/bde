@@ -131,15 +131,17 @@ int parseFractionalSecond(const char **nextPos,
     // digit).  Return 0 on success, and a non-zero value (with no effect)
     // otherwise.  There must be at least one digit, only the first 7 digits
     // are significant, and all digits beyond the first 7 are parsed but
-    // ignored.  The behavior is undefined unless 'begin <= end'.  Also note
-    // that successfully parsing a fractional second before 'end' is reached is
-    // not an error.
+    // ignored.  The behavior is undefined unless 'begin <= end' and
+    // '0 <= roundMicroseconds < 1000000'.  Also note that successfully parsing
+    // a fractional second before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(microsecond);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
+    BSLS_ASSERT(0     <= roundMicroseconds);
+    BSLS_ASSERT(         roundMicroseconds < 1000000);
 
     const char *p = begin;
 
@@ -203,8 +205,9 @@ int parseTime(const char **nextPos,
     // 'true' if a leap second was indicated and 'false' otherwise, and set the
     // specified '*nextPos' to the location one past the last parsed character.
     // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
-    // successfully parsing a time before 'end' is reached is not an error.
+    // otherwise.  The behavior is undefined unless 'begin <= end' and
+    // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
+    // time before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(hour);
@@ -216,6 +219,8 @@ int parseTime(const char **nextPos,
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
+    BSLS_ASSERT(0     <= roundMicroseconds);
+    BSLS_ASSERT(         roundMicroseconds < 1000000);
 
     const char *p = begin;
 

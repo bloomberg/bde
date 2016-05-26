@@ -160,7 +160,7 @@ typedef bdlt::Iso8601UtilConfiguration Obj;
 struct DefaultDataRow {
     int  d_line;       // source line number
     bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
-    int  d_precision;  // 'fractionalSecondPrecision'                     "
+    int  d_precision;  // 'fractionalSecondPrecision'     "
     bool d_useComma;   // 'useCommaForDecimalSign'        "
     bool d_useZ;       // 'useZAbbreviationForUtc'        "
 };
@@ -186,6 +186,14 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,       true,          6,    false,     true  },
     { L_,       true,          6,     true,    false  },
     { L_,       true,          6,     true,     true  },
+
+    // additional configurations
+
+    { L_,      false,          0,    false,    false  },
+    { L_,      false,          1,    false,    false  },
+    { L_,      false,          2,    false,    false  },
+    { L_,      false,          4,    false,    false  },
+    { L_,      false,          5,    false,    false  }
 };
 const int NUM_DEFAULT_DATA =
                   static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
@@ -276,6 +284,7 @@ int main(int argc, char *argv[])
 // default value:
 //..
     bdlt::Iso8601UtilConfiguration configuration;
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -284,6 +293,7 @@ int main(int argc, char *argv[])
 // decimal sign (in fractional seconds):
 //..
     configuration.setUseCommaForDecimalSign(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -292,6 +302,7 @@ int main(int argc, char *argv[])
 // in zone designators:
 //..
     configuration.setOmitColonInZoneDesignator(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT( configuration.omitColonInZoneDesignator());
     ASSERT( configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -312,6 +323,7 @@ int main(int argc, char *argv[])
     bdlt::Iso8601UtilConfiguration configuration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
     ASSERT(bdlt::Iso8601UtilConfiguration() == configuration);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT(!configuration.useZAbbreviationForUtc());
@@ -320,6 +332,15 @@ int main(int argc, char *argv[])
 // the zone designator is UTC (i.e., instead of '+00:00'):
 //..
     configuration.setUseZAbbreviationForUtc(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 3);
+    ASSERT(!configuration.omitColonInZoneDesignator());
+    ASSERT(!configuration.useCommaForDecimalSign());
+    ASSERT( configuration.useZAbbreviationForUtc());
+//..
+// Then, we modify 'configuration' to display milliseconds:
+//..
+    configuration.setFractionalSecondPrecision(6);
+    ASSERT( configuration.fractionalSecondPrecision() == 6);
     ASSERT(!configuration.omitColonInZoneDesignator());
     ASSERT(!configuration.useCommaForDecimalSign());
     ASSERT( configuration.useZAbbreviationForUtc());
@@ -333,6 +354,7 @@ int main(int argc, char *argv[])
 //..
     const bdlt::Iso8601UtilConfiguration newConfiguration =
                         bdlt::Iso8601UtilConfiguration::defaultConfiguration();
+    ASSERT( newConfiguration.fractionalSecondPrecision() == 6);
     ASSERT(!newConfiguration.omitColonInZoneDesignator());
     ASSERT(!newConfiguration.useCommaForDecimalSign());
     ASSERT( newConfiguration.useZAbbreviationForUtc());
