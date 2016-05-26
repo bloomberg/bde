@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 28 components having 10 levels of physical
+ The 'bdlt' package currently has 30 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -32,6 +32,7 @@
   8. bdlt_currenttime
 
   7. bdlt_localtimeoffset
+     bdlt_fixutil
      bdlt_iso8601util
 
   6. bdlt_datetimeutil
@@ -58,6 +59,7 @@
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
+     bdlt_fixutilconfiguration
      bdlt_iso8601utilconfiguration
      bdlt_monthofyear
      bdlt_posixdateimputil                               !DEPRECATED!
@@ -120,6 +122,12 @@
 :
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
+:
+: 'bdlt_fixutil':
+:      Provide conversions between date/time objects and FIX strings.
+:
+: 'bdlt_fixutilconfiguration':
+:      Provide an attribute class to configure FIX string generation.
 :
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
