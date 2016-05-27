@@ -53,7 +53,8 @@ BSLS_IDENT("$Id: $")
 //  %d - timestamp in 'DDMonYYYY_HH:MM:SS.mmm' format (27AUG2007_16:09:46.161)
 //  %D - timestamp in 'DDMonYYYY_HH:MM:SS.mmmuuu' format
 //                                                  (27AUG2007_16:09:46.161324)
-//  %i - timestamp in ISO 8601 format (without the millisecond field)
+//  %i - timestamp in ISO 8601 format (without the millisecond or microsecond
+//                                     fields)
 //  %I - timestamp in ISO 8601 format (*with* the millisecond field)
 //  %O - timestamp in ISO 8601 format (*with* the millisecond and microsecond
 //                                     fields)

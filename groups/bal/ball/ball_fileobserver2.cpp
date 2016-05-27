@@ -360,7 +360,7 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
     *ptr = '\n';
     ++ptr;
 
-    const int fractionalSecondPrecision = 6;
+    const int fractionalSecondPrecision = 3;
 
     int length = timestamp.printToBuffer(ptr,
                                          sizeof(buffer) - 1,

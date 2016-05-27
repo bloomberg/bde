@@ -732,15 +732,16 @@ class Datetime {
                       int   numBytes,
                       int   fractionalSecondPrecision) const;
         // Efficiently write to the specified 'result' buffer no more than the
-        // specified 'numBytes' of a representation of the value of this
-        // object.  Return the number of characters (not including the null
-        // character) that would have been written if the limit due to
+        // specified 'numBytes' of a representation of the value of this object
+        // with the specified 'fractionalSecondPrecision' digits of the
+        // fractional seconds.  Return the number of characters (not including
+        // the null character) that would have been written if the limit due to
         // 'numBytes' were not imposed.  'result' is null-terminated unless
-        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes'
-        // and 'result' refers to at least 'numBytes' contiguous bytes.  Note
-        // that the return value is greater than or equal to 'numBytes' if the
-        // output representation was truncated to avoid 'result' overrun.
-        // TBD: doc
+        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes',
+        // '0 <= fractionalSecondPrecision <= 6', and 'result' refers to at
+        // least 'numBytes' contiguous bytes.  Note that the return value is
+        // greater than or equal to 'numBytes' if the output representation was
+        // truncated to avoid 'result' overrun.
 
                                   // Aspects
 

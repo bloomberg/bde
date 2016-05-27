@@ -104,7 +104,67 @@ int Datetime::printToBuffer(char *result,
 
     getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
-    int value = millisecond * 1000 + microsecond;
+    int value;
+
+    switch (fractionalSecondPrecision) {
+      case 0: {
+        char spec[] = "%02d%s%04d_%02d:%02d:%02d";
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+        // Windows uses a different variant of snprintf that does not
+        // necessarily null-terminate and returns -1 on overflow.
+
+        const int rc = _snprintf(result,
+                                 numBytes,
+                                 spec,
+                                 day,
+                                 asciiMonth,
+                                 year,
+                                 hour,
+                                 minute,
+                                 second);
+
+        if ((0 > rc || rc == numBytes) && numBytes > 0) {
+            result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                          // overflow.
+        }
+
+        // Format of 'bdlt::Datetime' has 18 characters without fractional
+        // seconds.
+
+        return 18;                                                    // RETURN
+#else
+        return snprintf(result,
+                        numBytes,
+                        spec,
+                        day,
+                        asciiMonth,
+                        year,
+                        hour,
+                        minute,
+                        second);                                      // RETURN
+#endif
+
+      } break;
+      case 1: {
+        value = millisecond / 100;
+      } break;
+      case 2: {
+        value = millisecond / 10 ;
+      } break;
+      case 3: {
+        value = millisecond;
+      } break;
+      case 4: {
+        value = millisecond * 10 + microsecond / 100;
+      } break;
+      case 5: {
+        value = millisecond * 100 + microsecond / 10;
+      } break;
+      default: {
+        value = millisecond * 1000 + microsecond;
+      } break;
+    }
 
     char spec[] = "%02d%s%04d_%02d:%02d:%02d.%0Xd";
 
@@ -131,7 +191,9 @@ int Datetime::printToBuffer(char *result,
         result[numBytes - 1] = '\0';  // Make sure to null-terminate on
                                       // overflow.
     }
-    return 25;  // Format of 'bdlt::Datetime' always has 25 characters.
+    return 19 + fractionalSecondPrecision;  // Format of 'bdlt::Datetime' has
+                                            // 18 characters + fractional
+                                            // seconds.
 #else
     return snprintf(result,
                     numBytes,
