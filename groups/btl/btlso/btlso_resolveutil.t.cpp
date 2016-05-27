@@ -492,49 +492,16 @@ int main(int argc, char *argv[])
 
                 int errCode = UNUSED_VALUE;
 
-            #ifdef BSLS_PLATFORM_OS_UNIX
-                const char *applix[]  = { "86.0.0.32",
-                                      #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                       && !defined(BSLS_PLATFORM_OS_FREEBSD)
-                                          "86.0.0.43",
-                                          "87.0.0.36",
-                                          "87.0.0.131",
-                                      #endif
-                                          0
-                                        };
-                const char *soros[] = { "202.217.132.211",
-                                    #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                     && !defined(BSLS_PLATFORM_OS_FREEBSD)
-                                        "202.217.132.212",
-                                        "202.217.132.213",
-                                    #endif
-                                        0
-                                      };
-                const char *fft[]   = { "192.168.218.1",
-                                    #if defined(BSLS_PLATFORM_OS_AIX)        \
-                                     || (defined(BSLS_PLATFORM_OS_SOLARIS) &&\
-                                         (BSLS_PLATFORM_OS_VER_MAJOR >= 10 ||\
-                                          defined(BSLS_PLATFORM_CMP_GNU)   ||\
-                                          defined(BSLS_PLATFORM_CMP_CLANG)))
-                                        "192.168.219.1",
-                                    #endif
-                                        0
-                                      };
-                const char *yusen[] = { "192.168.79.34",
-                                    #if defined(BSLS_PLATFORM_OS_AIX)        \
-                                     || defined(BSLS_PLATFORM_OS_SOLARIS)   \
-                                     || defined(BSLS_PLATFORM_OS_HPUX)
-                                        "192.168.79.65",
-                                    #endif
-                                        0
-                                      };
-            #else // defined BSLS_PLATFORM_OS_WINDOWS
-                // Cannot come up with any multi-homed resolvable hosts.
+                const char *sundev1[]    = { "10.122.70.245",  0 };
+                const char *sundev5[]    = { "10.126.159.229", 0 };
+                const char *ibm1[]       = { "172.17.5.40",    0 };
+                const char *linxdev27[]  = { "10.122.130.229", 0 };
 
-        const char* sundev1[] = { "172.17.1.20",    0 };
-        const char* sundev5[] = { "10.126.159.229", 0 };
-        const char* ibm1[]    = { "172.17.5.40",    0 };
-        const char* p111[]    = { "10.126.161.151", 0 };
+                const char *badAddr1[] = { "86.0.0.32", 0 };
+                const char *badAddr2[] = { "202.217.132.211", 0 };
+
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
+                const char* p111[]    = { "10.126.161.151", 0 };
             #endif
 
                 struct {
@@ -547,36 +514,24 @@ int main(int argc, char *argv[])
                 //  line  hostname              errorCode  expAddr   expRet
                 //  ----  --------              ---------  -------   ------
                 {
-            #ifdef BSLS_PLATFORM_OS_UNIX
                     { L_, "jlu1",               &errCode,       0,     FAIL },
                     { L_, "jlu1",                      0,       0,     FAIL },
-                    { L_, "applix",             &errCode,  applix,  SUCCESS },
-                    { L_, "applix",                    0,  applix,  SUCCESS },
-                    { L_, "soros.wk1",          &errCode,   soros,  SUCCESS },
-                    { L_, "soros.wk1",                 0,   soros,  SUCCESS },
                     { L_, "jlu_wrong",          &errCode,       0,     FAIL },
                     { L_, "jlu_wrong",                 0,       0,     FAIL },
-                    { L_, "fft-corp-rtr1",      &errCode,     fft,     FAIL },
-                    { L_, "yusen-rtr2",         &errCode,   yusen,     FAIL },
-            #elif defined BSLS_PLATFORM_OS_WINDOWS
-                    { L_, "sundev0",            &errCode,        0,       FAIL
-                                                                            },
-//                  { L_, "sundev1",            &errCode,  sundev1,    SUCCESS
-//                                                                           },
-//                  { L_, "sundev1",                   0,  sundev1,    SUCCESS
-//                                                                           },
-                    { L_, "sundev5",            &errCode,  sundev5,    SUCCESS
-                                                                            },
-                    { L_, "sundev5",                   0,  sundev5,    SUCCESS
-                                                                            },
-                    { L_, "ibm1",               &errCode,     ibm1,    SUCCESS
-                                                                            },
-                    { L_, "p111",               &errCode,     p111,    SUCCESS
-                                                                            }
-            #else
+                    { L_, "fft-corp-rtr1",      &errCode, badAddr1,    FAIL },
+                    { L_, "yusen-rtr2",         &errCode, badAddr2,    FAIL },
+                    { L_, "sundev0",            &errCode,        0,    FAIL },
+                    { L_, "sundev1",            &errCode,  sundev1,  SUCCESS },
+                    { L_, "sundev1",                   0,  sundev1,  SUCCESS },
+                    { L_, "sundev5",            &errCode,  sundev5,  SUCCESS },
+                    { L_, "sundev5",                   0,  sundev5,  SUCCESS },
+                    { L_, "ibm1",               &errCode,     ibm1,  SUCCESS },
+                    { L_, "ibm1",                      0,     ibm1,  SUCCESS },
+                    { L_, "linxdev27",          &errCode, linxdev27, SUCCESS },
+                    { L_, "linxdev27",                 0, linxdev27, SUCCESS },
 
-            #error getHostnameByAddress does not handle current platform type!
-
+            #ifdef BSLS_PLATFORM_OS_WINDOWS
+                    { L_, "p111",               &errCode,     p111,  SUCCESS },
             #endif
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -824,32 +779,13 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTest valid IP addresses." << endl;
 
-        #ifdef BSLS_PLATFORM_OS_UNIX
-            const char *applix[]  = { "86.0.0.43",
-                                      "87.0.0.36",
-                                      "87.0.0.131",
-                                      "86.0.0.32",
-                                      0
-                                    };
-            const char *soros[] = { "202.217.132.211",
-                                    "202.217.132.212",
-                                    "202.217.132.213",
-                                    0
-                                  };
-            const char *fft[]   = { "192.168.218.1",
-                                    "192.168.219.1",
-                                    0 };
-            const char *yusen[] = { "192.168.79.34",
-                                    "192.168.79.65",
-                                    0
-                                  };
-        #else // defined BSLS_PLATFORM_OS_WINDOWS
-            // Cannot come up with any multi-homed resolvable hosts.
+            const char *sundev1[]    = { "10.122.70.245",  0 };
+            const char *sundev5[]    = { "10.126.159.229", 0 };
+            const char *ibm1[]       = { "172.17.5.40",    0 };
+            const char *linxdev27[]  = { "10.122.130.229", 0 };
 
-            const char* sundev31[] = { "172.17.5.196",   0 };
-            const char* sundev5[]  = { "10.126.159.229", 0 };
-            const char* ibm1[]     = { "172.17.5.40",    0 };
-            const char* p111[]     = { "10.126.151.36",  0 };
+        #ifdef BSLS_PLATFORM_OS_WINDOWS
+            const char* p111[]       = { "10.126.151.36",  0 };
         #endif
 
             struct {
@@ -861,25 +797,16 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   d_expAddr
             //  ----  --------              ---------   ---------
             {
-        #ifdef BSLS_PLATFORM_OS_UNIX
-                { L_, "applix",             &errCode,      applix },
-                { L_, "applix",                    0,      applix },
-                { L_, "soros.wk1",          &errCode,       soros },
-                { L_, "soros.wk1",                 0,       soros },
-                { L_, "fft-corp-rtr1",      &errCode,         fft },
-                { L_, "yusen-rtr2",         &errCode,       yusen },
-        #elif defined BSLS_PLATFORM_OS_WINDOWS
-// It is hard to rely on Reverse DNS configuration on Windows
-//                { L_, "sundev31",           &errCode,    sundev31 },
-//                { L_, "sundev31",                  0,    sundev31 },
-                { L_, "sundev5",            &errCode,     sundev5 },
-                { L_, "sundev5",                   0,     sundev5 },
-//                { L_, "ibm1",               &errCode,        ibm1 },
-//                { L_, "p111",               &errCode,        p111 },
-        #else
-
-        #error getHostnameByAddress does not handle current platform type!
-
+                { L_, "sundev1",            &errCode,     sundev1   },
+                { L_, "sundev1",                   0,     sundev1   },
+                { L_, "sundev5",            &errCode,     sundev5   },
+                { L_, "sundev5",                   0,     sundev5   },
+        #if !defined(BSLS_PLATFORM_OS_WINDOWS)
+                // It is hard to rely on Reverse DNS configuration on Windows
+                { L_, "ibm1",               &errCode,     ibm1      },
+                { L_, "ibm1",                      0,     ibm1      },
+                { L_, "linxdev27",          &errCode,     linxdev27 },
+                { L_, "linxdev27",                 0,     linxdev27 },
         #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1116,51 +1043,18 @@ int main(int argc, char *argv[])
 
             int errCode = UNUSED_VALUE;
 
-            const char *me[]      = { "127.0.0.1", 0 };
-        #ifdef BSLS_PLATFORM_OS_UNIX
+            const char *me[]         = { "127.0.0.1",      0 };
+            const char *sundev1[]    = { "10.122.70.245",  0 };
+            const char *sundev5[]    = { "10.126.159.229", 0 };
+            const char *ibm1[]       = { "172.17.5.40",    0 };
+            const char *linxdev27[]  = { "10.122.130.229", 0 };
+
             // Cannot come up with any multi-homed resolvable hosts.
 
-            const char *applix[]  = { "86.0.0.32",
-                                  #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                   && !defined(BSLS_PLATFORM_OS_FREEBSD)
-                                      "86.0.0.43",
-                                      "87.0.0.36",
-                                      "87.0.0.131",
-                                  #endif
-                                      0
-                                    };
-            const char *soros[] = { "202.217.132.211",
-                                #if !defined(BSLS_PLATFORM_OS_LINUX) \
-                                 && !defined(BSLS_PLATFORM_OS_FREEBSD)
-                                    "202.217.132.212",
-                                    "202.217.132.213",
-                                #endif
-                                    0
-                                  };
-            const char *fft[]   = { "192.168.218.1",
-                                #if defined(BSLS_PLATFORM_OS_AIX)            \
-                                 || (defined(BSLS_PLATFORM_OS_SOLARIS) &&    \
-                                       (BSLS_PLATFORM_OS_VER_MAJOR >= 10 ||  \
-                                        defined(BSLS_PLATFORM_CMP_GNU)   ||  \
-                                        defined(BSLS_PLATFORM_CMP_CLANG)))
-                                    "192.168.219.1",
-                                #endif
-                                    0
-                                  };
-            const char *yusen[] = { "192.168.79.34",
-                                #if defined(BSLS_PLATFORM_OS_AIX)        \
-                                 || defined(BSLS_PLATFORM_OS_SOLARIS)    \
-                                 || defined(BSLS_PLATFORM_OS_HPUX)
-                                    "192.168.79.65",
-                                #endif
-                                    0
-                                  };
-        #else // defined BSLS_PLATFORM_OS_WINDOWS
-            // Cannot come up with any multi-homed resolvable hosts.
+            const char *badAddr1[] = { 0 };
+            const char *badAddr2[] = { 0 };
 
-            const char* sundev1[] = { "172.17.1.20",    0 };
-            const char* sundev5[] = { "10.126.159.229", 0 };
-            const char* ibm1[]    = { "172.17.5.40",    0 };
+        #ifdef BSLS_PLATFORM_OS_WINDOWS
             const char* p111[]    = { "10.126.161.151", 0 };
         #endif
 
@@ -1174,31 +1068,28 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   expAddr     expRet
             //  ----  --------              ---------   -------     ------
             {
-                { L_, "localhost",          &errCode,      me,     SUCCESS },
-                { L_, "localhost",                 0,      me,     SUCCESS },
-        #ifdef BSLS_PLATFORM_OS_UNIX
-                { L_, "jlu1",               &errCode,        0,       FAIL },
-                { L_, "jlu1",                      0,        0,       FAIL },
-                { L_, "applix",             &errCode,   applix,    SUCCESS },
-                { L_, "applix",                    0,   applix,    SUCCESS },
-                { L_, "soros.wk1",          &errCode,    soros,    SUCCESS },
-                { L_, "soros.wk1",                 0,    soros,    SUCCESS },
+                { L_, "localhost",          &errCode,       me,     SUCCESS },
+                { L_, "localhost",                 0,       me,     SUCCESS },
+
+                { L_, "jlu1",               &errCode,         0,       FAIL },
+                { L_, "jlu1",                      0,         0,       FAIL },
+
+                { L_, "sundev1",            &errCode,   sundev1,    SUCCESS },
+                { L_, "sundev1",                   0,   sundev1,    SUCCESS },
+                { L_, "sundev5",            &errCode,   sundev5,    SUCCESS },
+                { L_, "sundev5",                   0,   sundev5,    SUCCESS },
+                { L_, "ibm1",               &errCode,      ibm1,    SUCCESS },
+                { L_, "ibm1",                      0,      ibm1,    SUCCESS },
+                { L_, "linxdev27",          &errCode, linxdev27,    SUCCESS },
+                { L_, "linxdev27",                 0, linxdev27,    SUCCESS },
+
                 { L_, "jlu_wrong",          &errCode,        0,       FAIL },
                 { L_, "jlu_wrong",                 0,        0,       FAIL },
-                { L_, "fft-corp-rtr1",      &errCode,      fft,       FAIL },
-                { L_, "yusen-rtr2",         &errCode,    yusen,       FAIL },
-        #elif defined BSLS_PLATFORM_OS_WINDOWS
-                { L_, "sundev0",            &errCode,        0,       FAIL },
-//              { L_, "sundev1",            &errCode,  sundev1,    SUCCESS },
-//              { L_, "sundev1",                   0,  sundev1,    SUCCESS },
-                { L_, "sundev5",            &errCode,  sundev5,    SUCCESS },
-                { L_, "sundev5",                   0,  sundev5,    SUCCESS },
-                { L_, "ibm1",               &errCode,     ibm1,    SUCCESS },
+                { L_, "fft-corp-rtr1",      &errCode, badAddr1,       FAIL },
+                { L_, "yusen-rtr2",         &errCode, badAddr2,       FAIL },
+
+        #ifdef BSLS_PLATFORM_OS_WINDOWS
                 { L_, "p111",               &errCode,     p111,    SUCCESS }
-        #else
-
-        #error getHostnameByAddress does not handle current platform type!
-
         #endif
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1224,7 +1115,7 @@ int main(int argc, char *argv[])
                                                 errorPtr);
 
                 if (verbose) {
-                    P_(LINE);
+                    P_(LINE); P(resultArray.size());
                     copy(resultArray.begin(), resultArray.end(),
                          ostream_iterator<btlso::IPv4Address>(cout, " "));
                     cout << endl;
