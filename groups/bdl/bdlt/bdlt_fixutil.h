@@ -20,7 +20,8 @@ BSLS_IDENT("$Id: $")
 // representations that are compliant with the FIX standard.  The version of
 // the FIX standard that is the basis for this component can be found at:
 //..
-//  TBD
+//  http://www.fixtradingcommunity.org/FIXimate/FIXimate3.0/latestEP/en/
+//                                          FIX.5.0SP2_EP208/fix_datatypes.html
 //..
 // In general terms, 'FixUtil' functions support what FIX refers to as
 // *complete* *representations* in *extended* *format*.  We first present a
@@ -91,39 +92,39 @@ BSLS_IDENT("$Id: $")
 //  |             Object Value             |      Generated FIX String       |
 //  |                                      |  (using default configuration)  |
 //  +======================================+=================================+
-//  |  Date(2002, 03, 17)                  |  2002-03-17                     |
+//  |  Date(2002, 03, 17)                  |  20020317                       |
 //  +--------------------------------------+---------------------------------+
 //  |  Time(15, 46, 09, 330)               |  15:46:09.330                   |
 //  +--------------------------------------+---------------------------------+
 //  |  Datetime(Date(2002, 03, 17)         |                                 |
-//  |           Time(15, 46, 09, 330))     |  2002-03-17T15:46:09.330        |
+//  |           Time(15, 46, 09, 330))     |  20020317-15:46:09.330          |
 //  +--------------------------------------+---------------------------------+
-//  |  DateTz(Date(2002, 03, 17), -120)    |  2002-03-17-02:00               |
+//  |  DateTz(Date(2002, 03, 17), -120)    |  20020317-02:00                 |
 //  +--------------------------------------+---------------------------------+
 //  |  TimeTz(Time(15, 46, 09, 330), 270)  |  15:46:09.330+04:30             |
 //  +--------------------------------------+---------------------------------+
 //  |  DatetimeTz(Datetime(                |                                 |
 //  |              Date(2002, 03, 17),     |                                 |
 //  |              Time(15, 46, 09, 330)), |                                 |
-//  |             0)                       |  2002-03-17T15:46:09.330+00:00  |
+//  |             0)                       |  20020317-15:46:09.330+00:00    |
 //  +--------------------------------------+---------------------------------+
 //..
+// Note that the FIX specification does not have an equivalent to
+// 'bdlt::DateTz'.
 //
 ///Configuration
 ///- - - - - - -
 // The 'generate' and 'generateRaw' functions provide an optional configuration
 // parameter.  This optional parameter, of type 'FixUtilConfiguration', enables
-// configuration of four aspects of FIX string generation:
+// configuration of three aspects of FIX string generation:
 //
-//: o The decimal sign to use in fractional seconds: '.' or ','.
-//:
 //: o The precision of the fractional seconds.
 //:
 //: o Whether ':' is optional in zone designators.
 //:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// 'FixUtilConfiguration' has four attributes that directly correspond to these
+// 'FixUtilConfiguration' has three attributes that directly correspond to these
 // aspects.  In addition, for generate methods that are not supplied with a
 // configuration argument, a process-wide configuration takes effect.  See
 // 'bdlt_fixutilconfiguration' for details.
@@ -136,8 +137,7 @@ BSLS_IDENT("$Id: $")
 // parse methods are not configurable like the generate methods (i.e., via an
 // optional 'FixUtilConfiguration' argument).  Moreover, the process-wide
 // configuration has no effect on parsing either.  Instead, the parse methods
-// automatically accept '.' or ',' as the decimal sign in fractional seconds,
-// and treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
+// automatically treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
 // denoting UTC).
 //
 ///Zone Designators
@@ -154,10 +154,10 @@ BSLS_IDENT("$Id: $")
 //  +------------------------------------+-----------------------------------+
 //  |         Parsed FIX String          |        Result Object Value        |
 //  +====================================+===================================+
-//  |  2002-03-17-02:00                  |  Date(2002, 03, 17)               |
+//  |  20020317-02:00                    |  Date(2002, 03, 17)               |
 //  |                                    |  # zone designator ignored        |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17-02:65                  |  Date: parsing fails              |
+//  |  20020317-02:65                    |  Date: parsing fails              |
 //  |                                    |  # invalid zone designator        |
 //  +------------------------------------+-----------------------------------+
 //  |  15:46:09.330+04:30                |  Time(11, 16, 09, 330)            |
@@ -170,7 +170,7 @@ BSLS_IDENT("$Id: $")
 //  |                                    |         0)                        |
 //  |                                    |  # implied '+00:00'               |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17T23:46:09.222-5:00      |  Datetime(Date(2002, 03, 18),     |
+//  |  20020317-23:46:09.222-5:00        |  Datetime(Date(2002, 03, 18),     |
 //  |                                    |           Time(04, 46, 09, 222))  |
 //  |                                    |  # carry into 'day' attribute     |
 //  |                                    |  # when converted to UTC          |
@@ -258,7 +258,7 @@ BSLS_IDENT("$Id: $")
 // to "+00:00" when the time 24:00 is encountered:
 //..
 //  +------------------------------------+-----------------------------------+
-//  |       Parsed FIX String       |        Result Object Value        |
+//  |         Parsed FIX String          |        Result Object Value        |
 //  +====================================+===================================+
 //  |  24:00:00.000                      |  Time(24, 0, 0, 0)                |
 //  |                                    |  # preserve default 'Time' value  |
@@ -266,12 +266,12 @@ BSLS_IDENT("$Id: $")
 //  |  24:00:00.000-4:00                 |  TimeTz: parsing fails            |
 //  |                                    |  # zone designator not UTC        |
 //  +------------------------------------+-----------------------------------+
-//  |  0001-01-01T24:00:00.000           |  Datetime(Date(0001, 01, 01),     |
+//  |  00010101-24:00:00.000             |  Datetime(Date(0001, 01, 01),     |
 //  |                                    |           Time(24, 0, 0, 0))      |
 //  |                                    |  # preserve 'Datetime' default    |
 //  |                                    |  # value                          |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17T24:00:00.000           |  Datetime(Date(2002, 03, 17),     |
+//  |  20020317-24:00:00.000             |  Datetime(Date(2002, 03, 17),     |
 //  |                                    |           Time(24, 0, 0, 0))      |
 //  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
@@ -280,7 +280,7 @@ BSLS_IDENT("$Id: $")
 // functions provided by this component:
 //..
 //  +------------------------------------+-----------------------------------+
-//  |        Source Object Value         |     Generated FIX String     |
+//  |        Source Object Value         |       Generated FIX String        |
 //  +====================================+===================================+
 //  |  Time(24, 0, 0, 0)                 |  24:00:00.000                     |
 //  +------------------------------------+-----------------------------------+
@@ -317,16 +317,16 @@ BSLS_IDENT("$Id: $")
 //
 // <Parsed Datetime>       ::=  <Parsed DatetimeTz>
 //
-// <Generated DatetimeTz>  ::=  <DATE>T<TIME FLEXIBLE><ZONE>
+// <Generated DatetimeTz>  ::=  <DATE>-<TIME FLEXIBLE><ZONE>
 //
-// <Parsed DatetimeTz>     ::=  <DATE>T<TIME FLEXIBLE>{<ZONE>}
+// <Parsed DatetimeTz>     ::=  <DATE>-<TIME FLEXIBLE>{<ZONE>}
 //
-// <DATE>                  ::=  YYYY-MM-DD
+// <DATE>                  ::=  YYYYMMDD
 //
-// <TIME FLEXIBLE>         ::=  hh:mm:ss{(.|,)s+}  # one or more digits in the
-//                                                 # fractional second
+// <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}   # one or more digits in the
+//                                              # fractional second
 //
-// <ZONE>                  ::=  (+|-)hh{:}mm|Z     # zone designator
+// <ZONE>                  ::=  (+|-)hh{:}mm|Z  # zone designator
 //..
 //
 ///Usage
@@ -342,7 +342,7 @@ BSLS_IDENT("$Id: $")
 // following example:
 //..
 //  const bdlt::Date date(2005, 1, 31);     // 2005/01/31
-//  const bdlt::Time time(8, 59, 59, 123);  // 08::59::59.123
+//  const bdlt::Time time(8, 59, 59, 123);  // 08:59:59.123
 //  const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
 //..
 // Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding
