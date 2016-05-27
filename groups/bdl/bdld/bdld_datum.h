@@ -19,7 +19,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //   bdld::DatumMutableMapRef: type for mutable ref to a map of datums
 //   bdld::DatumMutableMapOwningKeysRef: mutable ref to a map owning keys
 //
-//@SEE ALSO: bdld_datumerror, bdld_datumudt, bdld_datumbinaryref,
+//@SEE_ALSO: bdld_datumerror, bdld_datumudt, bdld_datumbinaryref,
 //   bdld_manageddatum
 //
 //@DESCRIPTION: This component defines a mechanism, 'bdld::Datum', that
@@ -45,10 +45,10 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Notion of Value
 ///---------------
 // 'Datum' has a notion of value, but is neither a value-semantic type, nor is
-// it an in-core value-semantic type (see 'bsldoc_glossary').  A consequence of
-// the 'Datum' class's space-efficient design is that it does not fall neatly
-// into any of the standard BDE type-classifications.  The 'Datum' type's
-// notion of value is expressed by its equality-operator -- notice, in
+// it an in-core value-semantic type (see {'bsldoc_glossary'}).  A consequence
+// of the 'Datum' class's space-efficient design is that it does not fall
+// neatly into any of the standard BDE type-classifications.  The 'Datum'
+// type's notion of value is expressed by its equality-operator -- notice, in
 // particular, that two 'Datum' objects compare equal if the values they refer
 // to are the same.  However, 'Datum', as a POD, has compiler supplied copy and
 // assignment operators that do not copy any of the storage a 'Datum' may be
@@ -58,7 +58,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // the equality comparison and the copy and assignment operations violates a
 // couple properties required of a value-semantic type, most obviously: "The
 // value of an object of the type is independent of any modifiable state that
-// is not owned exclusively by that object." (see {bsldoc_glossary}).
+// is not owned exclusively by that object." (see {'bsldoc_glossary'}).
 //
 ///Memory Management
 ///-----------------
@@ -274,7 +274,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Datum::destroy(cityName, &oa);
 //..
-///
+//
 ///Example 2: Creating 'Datum' Referring to the Array of 'Datum' objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the construction of the 'Datum' object referring
@@ -402,7 +402,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Note that the same allocator must be used to create the map, the elements,
 // and to destroy the datum.
-///
+//
 ///Example 5: Mass Destruction
 ///- - - - - - - - - - - - - -
 // The following example illustrates an important idiom: the en masse
