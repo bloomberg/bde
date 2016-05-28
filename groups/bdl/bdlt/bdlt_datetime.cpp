@@ -15,6 +15,95 @@ BSLS_IDENT_RCSID(bdlt_datetime_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
+namespace {
+
+int printToBufferFormatted(char       *result,
+                           int         numBytes,
+                           const char *spec,
+                           int         day,
+                           const char *asciiMonth,
+                           int         year,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         microsecond,
+                           int         fractionalSecondPrecision)
+{
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows uses a different variant of snprintf that does not necessarily
+    // null-terminate and returns -1 on overflow.
+
+    int numCharsWritten;
+    int rc;
+
+    if (0 == fractionalSecondPrecision) {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       asciiMonth,
+                       year,
+                       hour,
+                       minute,
+                       second);
+
+        // Format of 'bdlt::Datetime' has 18 characters if there are no
+        // fractional seconds.
+
+        numCharsWritten = 18;
+    }
+    else {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       asciiMonth,
+                       year,
+                       hour,
+                       minute,
+                       second,
+                       microsecond);
+
+        // Format of 'bdlt::Datetime' has 19 characters + fractional seconds.
+
+        numCharsWritten = 19 + fractionalSecondPrecision;
+    }
+
+    if ((0 > rc || rc == numBytes) && numBytes > 0) {
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
+    }
+
+    return numCharsWritten;
+
+#else
+
+    return 0 == fractionalSecondPrecision
+           ? snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      asciiMonth,
+                      year,
+                      hour,
+                      minute,
+                      second)
+           : snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      asciiMonth,
+                      year,
+                      hour,
+                      minute,
+                      second,
+                      microsecond);
+#endif
+}
+
+}  // close unnamed namespace
+
 // 'Datetime' is trivially copyable only if 'Date' and 'Time' are also
 // trivially copyable.  In the header we have stated unconditionally that
 // 'Datetime' is trivially copyable, so we assert our assumption about 'Date'
@@ -110,41 +199,17 @@ int Datetime::printToBuffer(char *result,
       case 0: {
         char spec[] = "%02d%s%04d_%02d:%02d:%02d";
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-        // Windows uses a different variant of snprintf that does not
-        // necessarily null-terminate and returns -1 on overflow.
-
-        const int rc = _snprintf(result,
-                                 numBytes,
-                                 spec,
-                                 day,
-                                 asciiMonth,
-                                 year,
-                                 hour,
-                                 minute,
-                                 second);
-
-        if ((0 > rc || rc == numBytes) && numBytes > 0) {
-            result[numBytes - 1] = '\0';  // Make sure to null-terminate on
-                                          // overflow.
-        }
-
-        // Format of 'bdlt::Datetime' has 18 characters without fractional
-        // seconds.
-
-        return 18;                                                    // RETURN
-#else
-        return snprintf(result,
-                        numBytes,
-                        spec,
-                        day,
-                        asciiMonth,
-                        year,
-                        hour,
-                        minute,
-                        second);                                      // RETURN
-#endif
-
+        return printToBufferFormatted(result,
+                                      numBytes,
+                                      spec,
+                                      day,
+                                      asciiMonth,
+                                      year,
+                                      hour,
+                                      minute,
+                                      second,
+                                      0,
+                                      0);                             // RETURN
       } break;
       case 1: {
         value = millisecond / 100;
@@ -172,40 +237,17 @@ int Datetime::printToBuffer(char *result,
 
     spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    // Windows uses a different variant of snprintf that does not necessarily
-    // null-terminate and returns -1 on overflow.
-
-    const int rc = _snprintf(result,
-                             numBytes,
-                             spec,
-                             day,
-                             asciiMonth,
-                             year,
-                             hour,
-                             minute,
-                             second,
-                             value);
-
-    if ((0 > rc || rc == numBytes) && numBytes > 0) {
-        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
-                                      // overflow.
-    }
-    return 19 + fractionalSecondPrecision;  // Format of 'bdlt::Datetime' has
-                                            // 18 characters + fractional
-                                            // seconds.
-#else
-    return snprintf(result,
-                    numBytes,
-                    spec,
-                    day,
-                    asciiMonth,
-                    year,
-                    hour,
-                    minute,
-                    second,
-                    value);
-#endif
+    return printToBufferFormatted(result,
+                                  numBytes,
+                                  spec,
+                                  day,
+                                  asciiMonth,
+                                  year,
+                                  hour,
+                                  minute,
+                                  second,
+                                  value,
+                                  fractionalSecondPrecision);
 }
 
 }  // close package namespace

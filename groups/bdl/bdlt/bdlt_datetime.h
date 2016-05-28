@@ -730,11 +730,14 @@ class Datetime {
 
     int printToBuffer(char *result,
                       int   numBytes,
-                      int   fractionalSecondPrecision) const;
+                      int   fractionalSecondPrecision = 6) const;
         // Efficiently write to the specified 'result' buffer no more than the
-        // specified 'numBytes' of a representation of the value of this object
-        // with the specified 'fractionalSecondPrecision' digits of the
-        // fractional seconds.  Return the number of characters (not including
+        // specified 'numBytes' of a representation of the value of this
+        // object.  Optionally specify 'fractionalSecondPrecision' digits to
+        // guide how many fractional second digits to output.  If
+        // 'fractionalSecondPrecision' is not specified then 6 fractional
+        // second digits will be output (3 digits for milliseconds and 3 digits
+        // for microseconds).  Return the number of characters (not including
         // the null character) that would have been written if the limit due to
         // 'numBytes' were not imposed.  'result' is null-terminated unless
         // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes',
