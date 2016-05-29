@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_typecategory.h>
 #endif
 
-#ifndef INCLUDED_BDLDFLP_DECIMAL
+#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
 #endif
 

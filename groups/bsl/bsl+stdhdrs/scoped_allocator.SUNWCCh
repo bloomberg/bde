@@ -1,6 +1,6 @@
 // scoped_allocator                                                   -*-C++-*-
 #ifndef INCLUDED_NATIVE_SCOPED_ALLOCATOR
-#define INCLUDED_NATIVE_SCOPED_ALLOCATAOR
+#define INCLUDED_NATIVE_SCOPED_ALLOCATOR
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
