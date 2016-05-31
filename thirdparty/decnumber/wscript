@@ -18,7 +18,7 @@ def configure(conf):
     conf.load('compiler_c')
 
 def build(bld):
-    # This set of c source files correspond to the set of modules mentioned in
+    # This set of c source files corresponds to the set of modules mentioned in
     # the "Modules" section of the decNumber documentation
     # (http://speleotrove.com/decimal/decnumber.html).
     source_files = [
