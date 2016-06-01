@@ -42,6 +42,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //:    indicate the substrings of the subject that matched respective
 //:    sub-patterns.
 //
+// Each 'match' overload has twin method, 'matchRaw', bypassing heavy UTF string validity check. That
 ///"Prepared" State
 ///----------------
 // A 'bdlpcre::RegEx' object must first be prepared with a valid regular
@@ -645,13 +646,14 @@ class RegEx {
         // Prepare this regular-expression object with the specified 'pattern'
         // and the optionally specified 'flags'.  If 'flags' have k_FLAG_JIT
         // set, optionally specify 'jitStackSize', the size of the allocated
-        // JIT stack to be used for this pattern.  If 'jitStackSize' set to
-        // '0', no memory will be dynamically allocated for the JIT stack and
-        // the program stack will be used instead.  On success, put this object
-        // into the "prepared" state and return 0, with no effect on the
-        // specified 'errorMessage' and 'errorOffset'.  Otherwise, (1) put
-        // this object into the "unprepared" state, (2) load 'errorMessage' (if
-        // non-null) with a string describing the error detected, (3) load
+        // JIT stack to be used for this pattern.  Memory is allocated directly
+        // from virtual memory, without going through the heap.  If
+        // 'jitStackSize' set to '0', no memory will be allocated for the JIT
+        // stack and the program stack will be used instead.  On success, put
+        // this object into the "prepared" state and return 0, with no effect
+        // on the specified 'errorMessage' and 'errorOffset'.  Otherwise, (1)
+        // put this object into the "unprepared" state, (2) load 'errorMessage'
+        // (if non-null) with a string describing the error detected, (3) load
         // 'errorOffset' (if non-null) with the offset in 'pattern' at which
         // the error was detected, and (4) return a non-zero value.  The
         // behavior is undefined unless 'flags' is the bit-wise inclusive-or of
