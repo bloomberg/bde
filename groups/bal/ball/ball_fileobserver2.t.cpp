@@ -239,7 +239,17 @@ void logRecord1(bsl::ostream& stream, const ball::Record& record)
 
     stream << '\n';
 
-    stream << record.fixedFields().timestamp()      << " ";
+    const int SIZE = 64;
+    char      buffer[SIZE];
+    const int fractionalSecondPrecision = 3;
+
+    const int numBytesWritten = record.fixedFields().timestamp().printToBuffer(
+                                                    buffer,
+                                                    SIZE,
+                                                    fractionalSecondPrecision);
+    stream.write(buffer, numBytesWritten);
+
+    stream << " ";
     stream << record.fixedFields().processID()      << ":";
     stream << record.fixedFields().threadID()       << " ";
     stream << ball::Severity::toAscii(severityLevel) << " ";
