@@ -20,16 +20,6 @@ bsls::AtomicOperations::AtomicTypes::Int
 FixUtilConfiguration::s_defaultConfiguration = { 3 };
 
 // MANIPULATORS
-void FixUtilConfiguration::setOmitColonInZoneDesignator(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
-    }
-    else {
-        d_configurationMask &= ~k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
-    }
-}
-
 void FixUtilConfiguration::setFractionalSecondPrecision(int value)
 {
     BSLS_ASSERT(0 <= value);
@@ -37,16 +27,6 @@ void FixUtilConfiguration::setFractionalSecondPrecision(int value)
 
     d_configurationMask = (d_configurationMask
                               & (~k_FRACTIONAL_SECOND_PRECISION_MASK)) | value;
-}
-
-void FixUtilConfiguration::setUseCommaForDecimalSign(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
-    }
-    else {
-        d_configurationMask &= ~k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
-    }
 }
 
 void FixUtilConfiguration::setUseZAbbreviationForUtc(bool value)
@@ -72,9 +52,6 @@ FixUtilConfiguration::print(bsl::ostream& stream,
     printer.start();
     printer.printAttribute("fractionalSecondPrecision",
                                                   fractionalSecondPrecision());
-    printer.printAttribute("omitColonInZoneDesignator",
-                                                  omitColonInZoneDesignator());
-    printer.printAttribute("useCommaForDecimalSign", useCommaForDecimalSign());
     printer.printAttribute("useZAbbreviationForUtc", useZAbbreviationForUtc());
     printer.end();
 
@@ -90,8 +67,6 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
     printer.printValue(object.fractionalSecondPrecision());
-    printer.printValue(object.omitColonInZoneDesignator());
-    printer.printValue(object.useCommaForDecimalSign());
     printer.printValue(object.useZAbbreviationForUtc());
     printer.end();
 

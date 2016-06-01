@@ -24,18 +24,10 @@ BSLS_IDENT("$Id: $")
 //             Name             Type   Default
 //  -------------------------   ----   -------
 //  fractionalSecondPrecision   int     3
-//  omitColonInZoneDesignator   bool    false
-//  useCommaForDecimalSign      bool    false
 //  useZAbbreviationForUtc      bool    false
 //..
 //: o 'fractionalSecondPrecision': number of digits used to represent
 //:   fractional seconds; must be in the range '0 .. 6'.
-//:
-//: o 'omitColonInZoneDesignator': 'true' if ':' should be omitted from zone
-//:   designators.
-//:
-//: o 'useCommaForDecimalSign': 'true' if ',' should be used as the decimal
-//:   sign in fractional seconds; otherwise, '.' should be used.
 //:
 //: o 'useZAbbreviationForUtc': 'true' if 'Z' should be used for the zone
 //:   designator instead of '+00:00' (specific to UTC).
@@ -81,8 +73,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlt::FixUtilConfiguration configuration;
 //  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
 // Then, we modify 'configuration' to indicate that we want to use ',' as the
@@ -90,8 +80,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  configuration.setUseCommaForDecimalSign(true);
 //  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert( configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
 // Finally, we modify 'configuration' to indicate that we want to omit the ':'
@@ -99,8 +87,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  configuration.setOmitColonInZoneDesignator(true);
 //  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert( configuration.omitColonInZoneDesignator());
-//  assert( configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
 // Our 'configuration' object can now be supplied to 'my::FixUtil' to produce
@@ -118,8 +104,6 @@ BSLS_IDENT("$Id: $")
 //                      bdlt::FixUtilConfiguration::defaultConfiguration();
 //  assert(bdlt::FixUtilConfiguration() == configuration);
 //  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
 // Next, we modify 'configuration' to indicate that we want to output 'Z' when
@@ -127,16 +111,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  configuration.setUseZAbbreviationForUtc(true);
 //  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
 //  assert( configuration.useZAbbreviationForUtc());
 //..
 // Then, we modify 'configuration' to display milliseconds:
 //..
 //  configuration.setFractionalSecondPrecision(6);
 //  assert( configuration.fractionalSecondPrecision() == 6);
-//  assert(!configuration.omitColonInZoneDesignator());
-//  assert(!configuration.useCommaForDecimalSign());
 //  assert( configuration.useZAbbreviationForUtc());
 //..
 // Now, we set the default configuration to the value of our 'configuration'
@@ -149,8 +129,6 @@ BSLS_IDENT("$Id: $")
 //  const bdlt::FixUtilConfiguration newConfiguration =
 //                      bdlt::FixUtilConfiguration::defaultConfiguration();
 //  assert( newConfiguration.fractionalSecondPrecision() == 6);
-//  assert(!newConfiguration.omitColonInZoneDesignator());
-//  assert(!newConfiguration.useCommaForDecimalSign());
 //  assert( newConfiguration.useZAbbreviationForUtc());
 //..
 // Note that the expected usage is that the process-wide configuration will be
@@ -240,8 +218,6 @@ class FixUtilConfiguration {
         // attribute values:
         //..
         //  fractionalSecondPrecision() == 3
-        //  omitColonInZoneDesignator() == false
-        //  useCommaForDecimalSign()    == false
         //  useZAbbreviationForUtc()    == false
         //..
 
@@ -263,14 +239,6 @@ class FixUtilConfiguration {
         // specified 'value'.  The behavior is undefined unless '0 <= value'
         // and '6 >= value'.
 
-    void setOmitColonInZoneDesignator(bool value);
-        // Set the 'omitColonInZoneDesignator' attribute of this object to the
-        // specified 'value'.
-
-    void setUseCommaForDecimalSign(bool value);
-        // Set the 'useCommaForDecimalSign' attribute of this object to the
-        // specified 'value'.
-
     void setUseZAbbreviationForUtc(bool value);
         // Set the 'useZAbbreviationForUtc' attribute of this object to the
         // specified 'value'.
@@ -279,14 +247,6 @@ class FixUtilConfiguration {
     int fractionalSecondPrecision() const;
         // Return the value of the 'fractionalSecondPrecision' attribute of
         // this object.
-
-    bool omitColonInZoneDesignator() const;
-        // Return the value of the 'omitColonInZoneDesignator' attribute of
-        // this object.
-
-    bool useCommaForDecimalSign() const;
-        // Return the value of the 'useCommaForDecimalSign' attribute of this
-        // object.
 
     bool useZAbbreviationForUtc() const;
         // Return the value of the 'useZAbbreviationForUtc' attribute of this
@@ -317,18 +277,16 @@ bool operator==(const FixUtilConfiguration& lhs,
                 const FixUtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'FixUtilConfiguration' objects have
-    // the same value if each of their 'fractionalSecondPrecision',
-    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', and
+    // the same value if each of their 'fractionalSecondPrecision', and
     // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
 
 bool operator!=(const FixUtilConfiguration& lhs,
                 const FixUtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'FixUtilConfiguration' objects
-    // do not have the same value if any of their 'fractionalSecondPrecision',
-    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', or
-    // 'useZAbbreviationForUtc' attributes (respectively) do not have the same
-    // value.
+    // do not have the same value if any of their 'fractionalSecondPrecision'
+    // or 'useZAbbreviationForUtc' attributes (respectively) do not have the
+    // same value.
 
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const FixUtilConfiguration& object);
@@ -414,18 +372,6 @@ inline
 int FixUtilConfiguration::fractionalSecondPrecision() const
 {
     return d_configurationMask & k_FRACTIONAL_SECOND_PRECISION_MASK;
-}
-
-inline
-bool FixUtilConfiguration::omitColonInZoneDesignator() const
-{
-    return d_configurationMask & k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
-}
-
-inline
-bool FixUtilConfiguration::useCommaForDecimalSign() const
-{
-    return d_configurationMask & k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
 }
 
 inline

@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //  +--------------------------------------+---------------------------------+
 //  |  DateTz(Date(2002, 03, 17), -120)    |  20020317-02:00                 |
 //  +--------------------------------------+---------------------------------+
-//  |  TimeTz(Time(15, 46, 09, 330), 270)  |  15:46:09.330+04:30             |
+//  |  TimeTz(Time(15, 46, 09, 330), 270)  |  15:46:09+04:30                 |
 //  +--------------------------------------+---------------------------------+
 //  |  DatetimeTz(Datetime(                |                                 |
 //  |              Date(2002, 03, 17),     |                                 |
@@ -110,7 +110,8 @@ BSLS_IDENT("$Id: $")
 //  +--------------------------------------+---------------------------------+
 //..
 // Note that the FIX specification does not have an equivalent to
-// 'bdlt::DateTz'.
+// 'bdlt::DateTz'.  Also note that 'bdlt::TimeTz' conforms to the FIX
+// "TZTimeOnly" specification which does not have fractional seconds.
 //
 ///Configuration
 ///- - - - - - -
@@ -124,9 +125,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// 'FixUtilConfiguration' has three attributes that directly correspond to these
-// aspects.  In addition, for generate methods that are not supplied with a
-// configuration argument, a process-wide configuration takes effect.  See
+// 'FixUtilConfiguration' has three attributes that directly correspond to
+// these aspects.  In addition, for generate methods that are not supplied with
+// a configuration argument, a process-wide configuration takes effect.  See
 // 'bdlt_fixutilconfiguration' for details.
 //
 ///FIX String Parsing
@@ -137,8 +138,8 @@ BSLS_IDENT("$Id: $")
 // parse methods are not configurable like the generate methods (i.e., via an
 // optional 'FixUtilConfiguration' argument).  Moreover, the process-wide
 // configuration has no effect on parsing either.  Instead, the parse methods
-// automatically treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
-// denoting UTC).
+// automatically treat '+00:00', '+0000', and 'Z' as equivalent zone
+// designators (all denoting UTC).
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -309,7 +310,7 @@ BSLS_IDENT("$Id: $")
 //
 // <Parsed Time>           ::=  <Parsed TimeTz>
 //
-// <Generated TimeTz>      ::=  <TIME FLEXIBLE><ZONE>
+// <Generated TimeTz>      ::=  <TIME FIXED><ZONE>
 //
 // <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
 //
@@ -323,10 +324,11 @@ BSLS_IDENT("$Id: $")
 //
 // <DATE>                  ::=  YYYYMMDD
 //
-// <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}   # one or more digits in the
-//                                              # fractional second
+// <TIME FIXED>            ::=  hh:mm:ss
 //
-// <ZONE>                  ::=  (+|-)hh{:}mm|Z  # zone designator
+// <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}
+//
+// <ZONE>                  ::=  ((+|-)hh:mm|Z)  # zone designator
 //..
 //
 ///Usage
@@ -557,30 +559,12 @@ struct FixUtil {
         k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
 
         k_TIME_STRLEN       = 12,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 18,  // 'bdlt::TimeTz'
+        k_TIMETZ_STRLEN     = 14,  // 'bdlt::TimeTz'
 
         k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
         k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'
 
         k_MAX_STRLEN        = k_DATETIMETZ_STRLEN
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BDEPU_DATE_STRLEN         = k_DATE_STRLEN
-      , BDEPU_DATETIME_STRLEN     = k_DATETIME_STRLEN
-      , BDEPU_DATETIMETZ_STRLEN   = k_DATETIMETZ_STRLEN
-      , BDEPU_DATETZ_STRLEN       = k_DATETZ_STRLEN
-      , BDEPU_TIME_STRLEN         = k_TIME_STRLEN
-      , BDEPU_TIMETZ_STRLEN       = k_TIMETZ_STRLEN
-      , BDEPU_MAX_DATETIME_STRLEN = k_MAX_STRLEN
-
-      , DATE_STRLEN               = k_DATE_STRLEN
-      , DATETIME_STRLEN           = k_DATETIME_STRLEN
-      , DATETIMETZ_STRLEN         = k_DATETIMETZ_STRLEN
-      , DATETZ_STRLEN             = k_DATETZ_STRLEN
-      , TIME_STRLEN               = k_TIME_STRLEN
-      , TIMETZ_STRLEN             = k_TIMETZ_STRLEN
-      , MAX_DATETIME_STRLEN       = k_MAX_STRLEN
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
     // CLASS METHODS

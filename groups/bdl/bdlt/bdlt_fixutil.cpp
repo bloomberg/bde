@@ -442,13 +442,7 @@ int generateZoneDesignator(char                        *buffer,
 
         *p++ = tzSign;
 
-        if (configuration.omitColonInZoneDesignator()) {
-            p += generateInt(p, tzOffset / 60, 2);
-        }
-        else {
-            p += generateInt(p, tzOffset / 60, 2, ':');
-        }
-
+        p += generateInt(p, tzOffset / 60, 2, ':');
         p += generateInt(p, tzOffset % 60, 2);
     }
 
@@ -475,10 +469,6 @@ int generatedLengthForDateTzObject(int                         defaultLength,
 
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
-    }
-
-    if (configuration.omitColonInZoneDesignator()) {
-        return defaultLength - 1;                                     // RETURN
     }
 
     return defaultLength;
@@ -525,10 +515,6 @@ int generatedLengthForDatetimeTzObject(
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
     }
 
-    if (configuration.omitColonInZoneDesignator()) {
-        return defaultLength - 1;                                     // RETURN
-    }
-
     return defaultLength;
 }
 
@@ -568,20 +554,8 @@ int generatedLengthForTimeTzObject(int                         defaultLength,
     // Consider only those 'configuration' options that can affect the length
     // of the output.
 
-    int precision = configuration.fractionalSecondPrecision();
-
-    if (precision > 3) {
-        precision = 3;
-    }
-
-    defaultLength = defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
-
     if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
-    }
-
-    if (configuration.omitColonInZoneDesignator()) {
-        return defaultLength - 1;                                     // RETURN
     }
 
     return defaultLength;
@@ -940,10 +914,6 @@ int FixUtil::generateRaw(char                        *buffer,
     p += generateInt(p, object.hour()       , 2, ':');
     p += generateInt(p, object.minute()     , 2, ':');
 
-    const char decimalSign = configuration.useCommaForDecimalSign()
-                             ? ','
-                             : '.';
-
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
@@ -953,7 +923,7 @@ int FixUtil::generateRaw(char                        *buffer,
             precision = 3;
         }
 
-        p += generateInt(p, object.second(), 2, decimalSign);
+        p += generateInt(p, object.second(), 2, '.');
 
         int value = object.millisecond();
 
@@ -984,14 +954,10 @@ int FixUtil::generateRaw(char                        *buffer,
     p += generateInt(p, object.hour()       , 2, ':');
     p += generateInt(p, object.minute()     , 2, ':');
 
-    const char decimalSign = configuration.useCommaForDecimalSign()
-                             ? ','
-                             : '.';
-
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        p += generateInt(p, object.second(), 2, decimalSign);
+        p += generateInt(p, object.second(), 2, '.');
 
         int value = object.millisecond() * 1000 + object.microsecond();
 
@@ -1031,9 +997,15 @@ int FixUtil::generateRaw(char                        *buffer,
 {
     BSLS_ASSERT(buffer);
 
-    const int timeLen = generateRaw(buffer,
-                                    object.localTime(),
-                                    configuration);
+    const Time time = object.localTime();
+
+    char *p = buffer;
+
+    p += generateInt(p, time.hour()  , 2, ':');
+    p += generateInt(p, time.minute(), 2, ':');
+    p += generateInt(p, time.second(), 2);
+
+    const int timeLen = static_cast<int>(p - buffer);
 
     const int zoneLen = generateZoneDesignator(buffer + timeLen,
                                                object.offset(),
