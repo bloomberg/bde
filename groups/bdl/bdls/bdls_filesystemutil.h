@@ -312,9 +312,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef INCLUDED_TYPES_H
+#ifndef INCLUDED_SYS_TYPES
 #include <sys/types.h>
-#define INCLUDED_TYPES_H
+#define INCLUDED_SYS_TYPES
 #endif
 
 namespace BloombergLP {

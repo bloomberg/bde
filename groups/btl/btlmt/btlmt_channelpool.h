@@ -595,15 +595,15 @@ BSLS_IDENT("$Id: $")
 #include <btlb_pooledblobbufferfactory.h>
 #endif
 
-#ifndef INCLUDED_bslmt_MUTEX
+#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_bslmt_THREADUTIL
+#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
