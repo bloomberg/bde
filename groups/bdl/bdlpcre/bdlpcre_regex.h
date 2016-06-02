@@ -515,19 +515,6 @@ class RegEx {
 
     void extractMatchResult(
                         bsl::vector<bsl::pair<size_t, size_t> > *result) const;
-        // Extract result of matching from 'd_matchData_p' and (1) load the
-        // first element of the specified 'result' with 'bslstl::StringRef'
-        // indicating the leftmost match of 'pattern()', (2) load elements of
-        // 'result' in the range '[ 1 .. numSubpatterns() ]' with the
-        // 'bslstl::StringRef' objects indicating the respective matches of
-        // sub-patterns (unmatched sub-patterns have their respective 'result'
-        // elements loaded with empty 'StringRef'; sub-patterns matching
-        // multiple times have their respective 'result' elements loaded with
-        // the objects indicating the rightmost match).  'result' will contain
-        // exactly 'numSubpatterns() + 1' elements.
-
-    void extractMatchResult(bsl::vector<bslstl::StringRef> *result,
-                            const char                     *subject) const;
         // Extract result of matching the specified 'subject' from
         // 'd_matchData_p' and (1) load the first element of the specified
         // 'result' with '(offset, length)' pair indicating the leftmost match
@@ -537,6 +524,19 @@ class RegEx {
         // 'result' elements loaded with '(-1, 0)' pair; sub-patterns matching
         // multiple times have their respective 'result' elements loaded with
         // the pairs indicating the rightmost match).  'result' will contain
+        // exactly 'numSubpatterns() + 1' elements.
+
+    void extractMatchResult(bsl::vector<bslstl::StringRef> *result,
+                            const char                     *subject) const;
+        // Extract result of matching from 'd_matchData_p' and (1) load the
+        // first element of the specified 'result' with 'bslstl::StringRef'
+        // indicating the leftmost match of 'pattern()', (2) load elements of
+        // 'result' in the range '[ 1 .. numSubpatterns() ]' with the
+        // 'bslstl::StringRef' objects indicating the respective matches of
+        // sub-patterns (unmatched sub-patterns have their respective 'result'
+        // elements loaded with empty 'StringRef'; sub-patterns matching
+        // multiple times have their respective 'result' elements loaded with
+        // the objects indicating the rightmost match).  'result' will contain
         // exactly 'numSubpatterns() + 1' elements.
 
   public:
