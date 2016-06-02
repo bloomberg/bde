@@ -44,9 +44,15 @@ using namespace bsl;
 // [ 4] unsigned char *decimal64FromVariableWidthEncoding(*decimal, *buffer);
 // [ 4] unsigned char *decimal64ToVariableWidthEncoding(*buffer, value);
 // [ 5] Decimal64 decimal64FromDouble(double);
+// [ 6] restoreDecimal32Digits(float, int);
+// [ 6] restoreDecimal32Digits(double, int);
+// [ 6] restoreDecimal64Digits(float, int);
+// [ 6] restoreDecimal64Digits(double, int);
+// [ 6] restoreDecimal128Digits(float, int);
+// [ 6] restoreDecimal128Digits(double, int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 // [-1] CONVERSION TEST
 // [-2] ROUND TRIP CONVERSION TEST
 // ----------------------------------------------------------------------------
@@ -357,42 +363,79 @@ struct NulBuf : bsl::streambuf {
 
 //-----------------------------------------------------------------------------
 
-BSLMF_ASSERT(sizeof(float) == sizeof(int));
-int mantissaBits(float f)
-    // Return, as a binary integer, the significand bits from the binary
-    // floating point value specified by 'f'.  Note that sign is ignored.
+static float interdata(int digits, int power)
+    // Return a float value representing the specified 'digits' multiplied by
+    // ten raised to the specified 'power' in Interdata / IBM / Perkin-ELmer
+    // format.
+    //
+    // An Interdata float is represented as '.HHHHHH * 16^E' where 'H' is a hex
+    // digit and the leading such digit is non-zero.  We generate this format,
+    // then convert it to standard float format.
 {
-    union {
-        float    as_float;
-        unsigned as_int;
-    } x;
-    x.as_float = f;
-    return x.as_int & 0x7fffff;
-}
+    if (digits == 0) {
+        return 0;                                                     // RETURN
+    }
 
-BSLMF_ASSERT(sizeof(double) == sizeof(long long));
-long long mantissaBits(double d)
-    // Return, as a binary integer, the significand bits from the double
-    // precision binary floating point value specified by 'd'.  Note that sign
-    // is ignored.
-{
-    union {
-        double                 as_double;
-        unsigned long long int as_int;
-    } x;
-    x.as_double = d;
-    return x.as_int & 0xfffffffffffffull;
-}
+    long long num(digits);
+    long long den(1);
 
-struct Mantissa128 {
-#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-    long long hi;
-#endif
-    long long lo;
-#ifndef BSLS_PLATFORM_IS_BIG_ENDIAN
-    long long hi;
-#endif
-};
+    // Exactly represent the input value as the rational number num / den.
+    while (power > 0) {
+        num *= 10;
+        --power;
+    }
+    while (power < 0) {
+        den *= 10;
+        ++power;
+    }
+
+    int exponent = 126;  // The exponent for the final float value.
+
+    // Scale the rational number so that it lies in '[1/16 .. 1)'.
+    while (num > den) {
+        den *= 16;
+        exponent += 4;
+    }
+    while (16 * num < den) {
+        num *= 16;
+        exponent -= 4;
+    }
+
+    // Extract the first 24 bits of the binary representation of num / den.
+    int mantissa = 0;
+    for (int i = 0; i < 24; ++i) {
+        mantissa *= 2;
+        if (2 * num >= den) {
+            ++mantissa;
+            num += num - den;
+            den *= 2;
+        }
+        num *= 2;
+    }
+
+    // Round up if the remainder is at least one-half.
+    if (2 * num >= den) {
+        ++mantissa;
+        // If rounding overflows to 25 bits, scale down by 4 bits.
+        if (mantissa >= (1 << 24)) {
+            mantissa >>= 4;
+            exponent += 4;
+        }
+    }
+
+    // Adjust significand to be in range for a float.
+    while (mantissa < (1 << 23)) {
+        mantissa <<= 1;
+        --exponent;
+    }
+
+    // Build float representation.
+    int   n = (exponent << 23) | (mantissa - (1 << 23));
+    float f;
+    memcpy(&f, &n, sizeof(f));
+
+    return f;
+}
 
                             // Strict comparators
 
@@ -456,7 +499,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -547,6 +590,109 @@ int main(int argc, char* argv[])
             ASSERT(number == restored);
         }
         //..
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // RESTORE DECIMAL TEST
+        //
+        // Concerns:
+        //: 1 Conversion from decimal to binary and back with a known number of
+        //:   digits gives correct round-trip results.
+        //:
+        //: 2 Six-digit decimals converted to Perkin-Elmer format convert back
+        //:   to the same value when six digits are specified.
+        //
+        // Plan:
+        //: 1 Use a subset of seven-significant-digit numbers and verify that
+        //:   they round-trip through the conversions.
+        //:
+        //: 2 Take every six-digit number from .000000 to 999999., convert it
+        //:   to a float of its Perkin-Elmer converted value, convert it back
+        //:   using 'restoreDecimal32Digits(float, 6)', and verify that this
+        //:   results in the same value as converting the number to its proper
+        //:   (IEEE 754) float value.
+        //
+        // This needs more thorough testing.
+        //
+        // Testing:
+        //   restoreDecimal32Digits(float, int);
+        //   restoreDecimal32Digits(double, int);
+        //   restoreDecimal64Digits(float, int);
+        //   restoreDecimal64Digits(double, int);
+        //   restoreDecimal128Digits(float, int);
+        //   restoreDecimal128Digits(double, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nRESTORE DECIMAL TEST"
+                             "\n====================\n";
+
+        srand(unsigned(time(0)));
+
+        if (verbose) {
+            cout << "Seven-digit round-tripping\n";
+        }
+        {
+            for (int i = 0; i <= 9999999; i += rand() % 33) {
+                char buf1[32];
+                bsl::sprintf(buf1, "%.7d", i);
+                for (int j = 0; j <= 7; ++j) {
+                    char buf2[32];
+                    bsl::sprintf(buf2, "%.*s.%s", j, buf1, buf1 + j);
+                    if (veryVerbose) {
+                        if (rand() % 400 == 0 && rand() % 400 == 0) {
+                            P(buf2);
+                        }
+                    }
+                    volatile float f;
+                    bsl::sscanf(buf2, "%f", &f);
+                    volatile double d;
+                    bsl::sscanf(buf2, "%lf", &d);
+                    Decimal32 df32 = Util::restoreDecimal32Digits(f, 7);
+                    volatile float rf32 = Util::decimalToFloat(df32);
+                    ASSERTV(buf2, df32, f, rf32, f == rf32);
+                    Decimal32 dd32 = Util::restoreDecimal32Digits(d, 7);
+                    volatile double rd32 = Util::decimalToDouble(dd32);
+                    ASSERTV(buf2, dd32, d, rd32, d == rd32);
+                    Decimal64 df64 = Util::restoreDecimal64Digits(f, 7);
+                    volatile float rf64 = Util::decimalToFloat(df64);
+                    ASSERTV(buf2, df64, f, rf64, f == rf64);
+                    Decimal64 dd64 = Util::restoreDecimal64Digits(d, 7);
+                    volatile double rd64 = Util::decimalToDouble(dd64);
+                    ASSERTV(buf2, dd64, d, rd64, d == rd64);
+                    Decimal128 df128 = Util::restoreDecimal128Digits(f, 7);
+                    volatile float rf128 = Util::decimalToFloat(df128);
+                    ASSERTV(buf2, df128, f, rf128, f == rf128);
+                    Decimal128 dd128 = Util::restoreDecimal128Digits(d, 7);
+                    volatile double rd128 = Util::decimalToDouble(dd128);
+                    ASSERTV(buf2, dd128, d, rd128, d == rd128);
+                }
+            }
+        }
+
+        if (verbose) {
+            cout << "Perkin-Elmer floats test\n";
+        }
+        {
+            for (int i = 0; i <= 999999; ++i) {
+                char buf1[32];
+                sprintf(buf1, "%.7d", i);
+                for (int j = 0; j <= 7; ++j) {
+                    char buf2[32];
+                    bsl::sprintf(buf2, "%.*s.%s", j, buf1, buf1 + j);
+                    float f;
+                    bsl::sscanf(buf2, "%f", &f);
+                    volatile float pe = interdata(i, j - 7);
+                    Decimal32 df32 = Util::restoreDecimal32Digits(pe, 6);
+                    volatile float rf32 = Util::decimalToFloat(df32);
+                    if (veryVerbose) {
+                        if (rand() % 500 == 0 && rand() % 500 == 0) {
+                            P_(buf2) P_(df32) P(pe)
+                        }
+                    }
+                    ASSERTV(buf2, f, pe, rf32, df32, rf32 == f);
+                }
+            }
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -6659,7 +6805,7 @@ int main(int argc, char* argv[])
             const char *SIGNIFICAND = DATA[i].d_significand;
             int         EXPONENT    = DATA[i].d_exponent;
             long long   sig         = strtoll(SIGNIFICAND, 0, 10);
-            int         exp         = EXPONENT - strlen(SIGNIFICAND);
+            int         exp         = EXPONENT - int(strlen(SIGNIFICAND));
             Decimal64   fromBinary  = Util::decimal64FromDouble(BINARY);
             Decimal64   expected    = DecimalUtil::makeDecimal64(sig, exp);
 
@@ -8091,6 +8237,7 @@ int main(int argc, char* argv[])
             bsl::cout << "6-digit float\n";
         }
         {
+            srand(unsigned(time(0)));
             for (int e = -9; e <= 4; ++e) {
                 for (int n = -999999; n <= 999999; ++n) {
                     char buf[30];
@@ -8221,6 +8368,7 @@ int main(int argc, char* argv[])
             bsl::cout << "BUSINESS FLOAT CONVERSION TEST\n";
         }
         {
+            srand(unsigned(time(0)));
             const int digits = 7;
             const int tens[] = {
                 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000

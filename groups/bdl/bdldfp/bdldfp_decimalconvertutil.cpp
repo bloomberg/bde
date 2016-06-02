@@ -15,6 +15,10 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #  endif
 #endif
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define snprintf _snprintf
+#endif
+
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -223,37 +227,96 @@ Decimal128 DecimalTraits<Decimal128>::make(long long significand, int exponent)
                   // Helpers for Restoring Decimal from Binary
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
+static BINARY_TYPE decimalToBinary(DECIMAL_TYPE value);
+
+template <>
+inline float decimalToBinary<Decimal32, float>(Decimal32 value)
+{
+    return DecimalConvertUtil::decimalToFloat(value);
+}
+
+template <>
+inline float decimalToBinary<Decimal64, float>(Decimal64 value)
+{
+    return DecimalConvertUtil::decimalToFloat(value);
+}
+
+template <>
+inline float decimalToBinary<Decimal128, float>(Decimal128 value)
+{
+    return DecimalConvertUtil::decimalToFloat(value);
+}
+
+template <>
+inline double decimalToBinary<Decimal32, double>(Decimal32 value)
+{
+    return DecimalConvertUtil::decimalToDouble(value);
+}
+
+template <>
+inline double decimalToBinary<Decimal64, double>(Decimal64 value)
+{
+    return DecimalConvertUtil::decimalToDouble(value);
+}
+
+template <>
+inline double decimalToBinary<Decimal128, double>(Decimal128 value)
+{
+    return DecimalConvertUtil::decimalToDouble(value);
+}
+
+template <class DECIMAL_TYPE, class BINARY_TYPE>
+static inline
+bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
+    // If the specified 'bfp' is a singular value ('Inf', 'Nan', or -0) or is
+    // out of range of 'DECIMAL_TYPE', construct the equivalent decimal form or
+    // the infinity of the appropriate sign in the specified 'dfp' and return
+    // true, otherwise leave 'dfp' unchanged and return false.
+{
+    bool negative = bsl::signbit(bfp);
+
+    if (bsl::isnan(bfp)) {
+        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
+        if (negative) {
+            *dfp = -*dfp;
+        }
+        return true;                                                  // RETURN
+    }
+
+    static BINARY_TYPE max_decimal =
+        decimalToBinary<DECIMAL_TYPE, BINARY_TYPE>(
+            bsl::numeric_limits<DECIMAL_TYPE>::max());
+    if (bsl::isinf(bfp) || bfp > +max_decimal || bfp < -max_decimal) {
+        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
+        if (negative) {
+            *dfp = -*dfp;
+        }
+        return true;                                                  // RETURN
+    }
+
+    if (bfp == 0 && negative) {
+        *dfp = DECIMAL_TYPE(0);
+        *dfp = -*dfp;
+        return true;                                                  // RETURN
+    }
+
+    return false;
+}
+
+template <class DECIMAL_TYPE, class BINARY_TYPE>
 void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     // Construct, in the specified 'dfp', a decimal floating point
     // representation of the value of the binary floating point value specified
     // by 'bfp'.
 {
 
-    if (bfp != bfp) {
-        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
-        if (bfp < 0) {
-            *dfp = -*dfp;
-        }
+    if (restoreSingularDecimalFromBinary(dfp, bfp)) {
         return;                                                       // RETURN
     }
 
-    if (bfp == bsl::numeric_limits<BINARY_TYPE>::infinity()) {
-        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
-        return;                                                       // RETURN
-    }
-
-    if (bfp == -bsl::numeric_limits<BINARY_TYPE>::infinity()) {
-        *dfp = -bsl::numeric_limits<DECIMAL_TYPE>::infinity();
-        return;                                                       // RETURN
-    }
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#   define snprintf _snprintf
-#endif
     char buffer[48];
-    int rc = snprintf(buffer,
-                      sizeof(buffer),
-                      StdioFormat<BINARY_TYPE>::format(bfp), bfp);
+    int  rc = snprintf(
+           buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(bfp), bfp);
     (void)rc;
     BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
 
@@ -283,14 +346,8 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
 
     *dfp = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
 
-    // Because the significand is a signed integer, it can not represent the
-    // value -0, which distinct from +0 in decimal floating point. So instead
-    // of converting the significand to a signed value, we change the decimal
-    // value based on the sign appropriately after the decimal value is
-    // created.
-
     if (negative) {
-        *dfp = -(*dfp);
+        *dfp = -*dfp;
     }
 }
 
@@ -622,6 +679,90 @@ Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
+static inline
+int bound(int limit, int value)
+    // Return the specified 'limit' if the specifed 'value' is less than 1 or
+    // greater than 'limit', and 'value' otherwise.
+{
+    return value < 1 || value > limit ? limit : value;
+}
+
+static inline
+void parseDecimal(Decimal32 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal32' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal32(result, buffer);
+}
+
+static inline
+void parseDecimal(Decimal64 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal64' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal64(result, buffer);
+}
+
+static inline
+void parseDecimal(Decimal128 *result, const char *buffer)
+    // Set the specified 'result' to the result of calling
+    // 'DecimalUtil::parseDecimal128' on the specified 'buffer'.
+{
+    DecimalUtil::parseDecimal128(result, buffer);
+}
+
+template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
+static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
+    // Return the closest decimal value with the specfied 'digits' significant
+    // digits (bounded by 'LIMIT') to the specified 'binary'.  Singular and
+    // out-of-range 'binary' values are converted to appropriate decimal
+    // singular values.
+{
+    DECIMAL_TYPE result;
+    char         buffer[32];
+    if (!restoreSingularDecimalFromBinary(&result, binary)) {
+        int rc = snprintf(
+            buffer, sizeof(buffer), "%1.*e", bound(LIMIT, digits) - 1, binary);
+        (void)rc;
+        BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
+        parseDecimal(&result, buffer);
+    }
+    return result;
+}
+
+Decimal32 DecimalConvertUtil::restoreDecimal32Digits(float binary, int digits)
+{
+    return restoreDecimalDigits<Decimal32, 7>(binary, digits);
+}
+
+Decimal64 DecimalConvertUtil::restoreDecimal64Digits(float binary, int digits)
+{
+    return restoreDecimalDigits<Decimal64, 9>(binary, digits);
+}
+
+Decimal128 DecimalConvertUtil::restoreDecimal128Digits(float binary,
+                                                       int   digits)
+{
+    return restoreDecimalDigits<Decimal128, 9>(binary, digits);
+}
+
+Decimal32 DecimalConvertUtil::restoreDecimal32Digits(double binary, int digits)
+{
+    return restoreDecimalDigits<Decimal32, 7>(binary, digits);
+}
+
+Decimal64 DecimalConvertUtil::restoreDecimal64Digits(double binary, int digits)
+{
+    return restoreDecimalDigits<Decimal64, 16>(binary, digits);
+}
+
+Decimal128 DecimalConvertUtil::restoreDecimal128Digits(double binary,
+                                                       int    digits)
+{
+    return restoreDecimalDigits<Decimal128, 17>(binary, digits);
+}
+
 
 }  // close package namespace
 }  // close enterprise namespace

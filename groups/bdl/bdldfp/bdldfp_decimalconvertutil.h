@@ -476,6 +476,32 @@ struct DecimalConvertUtil {
         // decimal" as specified above, and therefore these functions may not
         // return those original decimal values.
 
+    static Decimal32  restoreDecimal32Digits (float  binary, int digits = 7);
+    static Decimal64  restoreDecimal64Digits (float  binary, int digits = 9);
+    static Decimal128 restoreDecimal128Digits(float  binary, int digits = 9);
+    static Decimal32  restoreDecimal32Digits (double binary, int digits = 7);
+    static Decimal64  restoreDecimal64Digits (double binary, int digits = 16);
+    static Decimal128 restoreDecimal128Digits(double binary, int digits = 17);
+        // Return the decimal value with the optionally specified 'digits'
+        // number of significant digits closest in value to the specified
+        // 'binary'.  If 'digits' is not specified or is not positive, an
+        // appropriate default is used based on how many digits the target type
+        // can hold and how many digits are necessary to uniquely represent the
+        // 'binary' value.
+        //
+        // Singular values of 'binary' (infinity, NaN, and -0) are converted to
+        // equivalent singular values of the destination type, and values of
+        // 'binary' that are out of range of the destination type are converted
+        // to appropriately signed infinities.
+        //
+        // Note that if 'binary' originated as a decimal value which was
+        // converted to IBM (Perkin-Elmer / Interdata) floating-point before
+        // being converted to IEEE 754, the original decimal value can be
+        // recovered by specifying 'digits' to be 6.
+        //
+        // Note that when circumstances permit, it is liklely that using the
+        // 'decimalNNFromFloat' functions above will be substantially faster.
+
                         // decimalToBID functions
 
     static void decimal32ToBID (unsigned char *buffer,
