@@ -25,6 +25,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <ctype.h>
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
+#include <bdlb_float.h>
 
 #include <math.h>
 
@@ -273,9 +274,9 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     // the infinity of the appropriate sign in the specified 'dfp' and return
     // true, otherwise leave 'dfp' unchanged and return false.
 {
-    bool negative = bsl::signbit(bfp);
+    bool negative = bdlb::Float::signBit(bfp);
 
-    if (bsl::isnan(bfp)) {
+    if (bdlb::Float::isNan(bfp)) {
         *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
         if (negative) {
             *dfp = -*dfp;
@@ -286,7 +287,8 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     static BINARY_TYPE max_decimal =
         decimalToBinary<DECIMAL_TYPE, BINARY_TYPE>(
             bsl::numeric_limits<DECIMAL_TYPE>::max());
-    if (bsl::isinf(bfp) || bfp > +max_decimal || bfp < -max_decimal) {
+    if (bdlb::Float::isInfinite(bfp) || bfp > +max_decimal ||
+        bfp < -max_decimal) {
         *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         if (negative) {
             *dfp = -*dfp;
