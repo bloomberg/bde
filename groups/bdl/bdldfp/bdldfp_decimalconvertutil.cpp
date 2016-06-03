@@ -268,6 +268,25 @@ inline double decimalToBinary<Decimal128, double>(Decimal128 value)
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 static inline
+bool isInRange(BINARY_TYPE)
+    // Return true iff the non-singular argument is in the representable range
+    // of 'DECIMAL_TYPE'.  Only 'isInRange<Decimal32, double>' actually needs
+    // to test the value of the argument.
+{
+    return true;
+}
+
+template <>
+inline
+bool isInRange<Decimal32, double>(double value)
+{
+    static double max_decimal = decimalToBinary<Decimal32, double>(
+                                        bsl::numeric_limits<Decimal32>::max());
+    return bsl::abs(value) <= max_decimal;
+}
+
+template <class DECIMAL_TYPE, class BINARY_TYPE>
+static inline
 bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     // If the specified 'bfp' is a singular value ('Inf', 'Nan', or -0) or is
     // out of range of 'DECIMAL_TYPE', construct the equivalent decimal form or
@@ -284,11 +303,7 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
         return true;                                                  // RETURN
     }
 
-    static BINARY_TYPE max_decimal =
-        decimalToBinary<DECIMAL_TYPE, BINARY_TYPE>(
-            bsl::numeric_limits<DECIMAL_TYPE>::max());
-    if (bdlb::Float::isInfinite(bfp) || bfp > +max_decimal ||
-        bfp < -max_decimal) {
+    if (bdlb::Float::isInfinite(bfp) || !isInRange<DECIMAL_TYPE>(bfp)) {
         *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         if (negative) {
             *dfp = -*dfp;
