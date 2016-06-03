@@ -181,6 +181,10 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
+    #ifndef INCLUDED_BSL_C_ERRNO
+    #include <bsl_c_errno.h>
+    #endif
+
     #ifndef INCLUDED_BSL_C_SYS_TIME
     #include <bsl_c_sys_time.h>
     #endif

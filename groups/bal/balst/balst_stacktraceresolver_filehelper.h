@@ -139,6 +139,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -209,7 +213,7 @@ class StackTraceResolver_FileHelper {
         // undefined unless 'buf != 0' and 'offset >= 0'.
 
     int readExact(void *buf, UintPtr numBytes, Offset offset) const;
-        // Read into the specified 'buf' exactly the spacified 'numBytes' of
+        // Read into the specified 'buf' exactly the specified 'numBytes' of
         // data starting at the specified 'offset' in the current ELF or XCOFF
         // file.  Return 0 on success, or a negative value otherwise.  The
         // behavior is undefined unless 'buf != 0' and 'offset >= 0'.

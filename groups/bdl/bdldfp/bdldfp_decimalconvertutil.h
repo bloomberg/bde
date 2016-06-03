@@ -521,10 +521,10 @@ struct DecimalConvertUtil {
                                   const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implementation
         // representation of the value of the same size base-10 floating point
-        // value represented in Binary Integral Decimal format, at the specified
-        // 'buffer' address.  The behavior is undefined unless 'buffer' points
-        // to a memory area at least 'sizeof(decimal)' in size containing a
-        // value in BID format.
+        // value represented in Binary Integral Decimal format, at the
+        // specified 'buffer' address.  The behavior is undefined unless
+        // 'buffer' points to a memory area at least 'sizeof(decimal)' in size
+        // containing a value in BID format.
 
 
                         // decimalToDPD functions

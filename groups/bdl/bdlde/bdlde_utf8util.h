@@ -355,7 +355,7 @@ struct Utf8Util {
         // 'false' otherwise.  If 'string' contains invalid UTF-8, load into
         // the specified 'invalidString' the address of the beginning of the
         // first invalid UTF-8 sequence encountered; 'invalidString' is
-        // uneffected if 'string' contains only valid UTF-8.  'string' is
+        // unaffected if 'string' contains only valid UTF-8.  'string' is
         // necessarily null-terminated, so it cannot contain embedded null
         // bytes.
 
@@ -367,7 +367,7 @@ struct Utf8Util {
         // 'length' (in bytes) contains valid UTF-8, and 'false' otherwise.  If
         // 'string' contains invalid UTF-8, load into the specified
         // 'invalidString' the address of the byte after the last valid code
-        // point traversed; 'invalidString' is uneffected if 'string' contains
+        // point traversed; 'invalidString' is unaffected if 'string' contains
         // only valid UTF-8.  'string' need not be null-terminated and can
         // contain embedded null bytes.
 

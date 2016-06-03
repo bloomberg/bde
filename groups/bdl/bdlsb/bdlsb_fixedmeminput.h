@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdlsb::FixedMemInput streamBuffer(outStream.data(), outStream.length());
 //..
-// Then, create the 'bslx::GenericInStream' stream parametrized with
+// Then, create the 'bslx::GenericInStream' stream parameterized with
 // 'bdlsb::FixedMemInput':
 //..
 //  bslx::GenericInStream<bdlsb::FixedMemInput>  inStream(&streamBuffer);

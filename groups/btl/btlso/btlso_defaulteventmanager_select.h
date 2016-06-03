@@ -278,12 +278,20 @@ BSLS_IDENT("$Id: $")
 #include <btlso_platform.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include <btlso_sockethandle.h>
+#endif
+
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDLIB
+#include <bsl_cstdlib.h>
 #endif
 
 #ifndef INCLUDED_BSL_UNORDERED_MAP
