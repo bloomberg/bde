@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 //
 // A FIX *zone* *designator* corresponds to what other 'bdlt' components
 // commonly refer to as a timezone offset (or simply as an offset; e.g., see
-// 'bdlt_datetimetz').  For example, the FIX string '2002-03-17T15:46:00+04:00'
+// 'bdlt_datetimetz').  For example, the FIX string '20020317-15:46:00+04:00'
 // has a zone designator of '+4:00', indicating a timezone 4 hours ahead of
 // UTC.
 //
@@ -85,8 +85,10 @@ BSLS_IDENT("$Id: $")
 // into an appropriate FIX format, and are best illustrated by a few examples.
 // Note that for 'Datetime' and 'DatetimeTz', the fractional second is
 // generated with the precision specified in the configuration.  Also note that
-// for 'Time' and 'TimeTz', the fractional second is generated with the
-// precision specified in the configuration up to a maximum precision of 3.
+// for 'Time', the fractional second is generated with the precision specified
+// in the configuration up to a maximum precision of 3, and for 'TimeTz', no
+// fractional second is generated (as per the FIX specification for
+// "TZTimeOnly").
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |      Generated FIX String       |
@@ -110,24 +112,21 @@ BSLS_IDENT("$Id: $")
 //  +--------------------------------------+---------------------------------+
 //..
 // Note that the FIX specification does not have an equivalent to
-// 'bdlt::DateTz'.  Also note that 'bdlt::TimeTz' conforms to the FIX
-// "TZTimeOnly" specification which does not have fractional seconds.
+// 'bdlt::DateTz'.
 //
 ///Configuration
 ///- - - - - - -
 // The 'generate' and 'generateRaw' functions provide an optional configuration
 // parameter.  This optional parameter, of type 'FixUtilConfiguration', enables
-// configuration of three aspects of FIX string generation:
+// configuration of two aspects of FIX string generation:
 //
 //: o The precision of the fractional seconds.
 //:
-//: o Whether ':' is optional in zone designators.
-//:
 //: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
-// 'FixUtilConfiguration' has three attributes that directly correspond to
-// these aspects.  In addition, for generate methods that are not supplied with
-// a configuration argument, a process-wide configuration takes effect.  See
+// 'FixUtilConfiguration' has two attributes that directly correspond to these
+// aspects.  In addition, for generate methods that are not supplied with a
+// configuration argument, a process-wide configuration takes effect.  See
 // 'bdlt_fixutilconfiguration' for details.
 //
 ///FIX String Parsing
@@ -222,10 +221,10 @@ BSLS_IDENT("$Id: $")
 // Hence, they are not produced by any of the 'FixUtil' generate functions.
 // However, positive leap seconds *are* supported by the parse functions.  A
 // leap second is recognized when the value parsed for the 'second' attribute
-// of a 'Time' is 60--regardless of the values parsed for the 'hour', 'minute',
-// and 'millisecond' attributes.  Note that this behavior is more generous than
-// that afforded by the FIX specification (which indicates that a positive leap
-// second can only be represented as "23:59:60Z").
+// of a 'Time' is 60 -- regardless of the values parsed for the 'hour',
+// 'minute', and 'millisecond' attributes.  Note that this behavior is more
+// generous than that afforded by the FIX specification (which indicates that a
+// positive leap second can only be represented as "23:59:60Z").
 //
 // When a leap second is detected during parsing of a FIX string, the 'second'
 // attribute is taken to be 59, so that the value of the 'Time' object can be
@@ -285,7 +284,7 @@ BSLS_IDENT("$Id: $")
 //  +====================================+===================================+
 //  |  Time(24, 0, 0, 0)                 |  24:00:00.000                     |
 //  +------------------------------------+-----------------------------------+
-//  |  Datetime(Date(2002, 03, 17),      |  2002-03-17T24:00:00.000          |
+//  |  Datetime(Date(2002, 03, 17),      |  20020317-24:00:00.000            |
 //  |           Time(24, 0, 0, 0))       |                                   |
 //  +------------------------------------+-----------------------------------+
 //..
@@ -314,7 +313,7 @@ BSLS_IDENT("$Id: $")
 //
 // <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
 //
-// <Generated Datetime>    ::=  <DATE>T<TIME FLEXIBLE>
+// <Generated Datetime>    ::=  <DATE>-<TIME FLEXIBLE>
 //
 // <Parsed Datetime>       ::=  <Parsed DatetimeTz>
 //
@@ -328,7 +327,8 @@ BSLS_IDENT("$Id: $")
 //
 // <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}
 //
-// <ZONE>                  ::=  ((+|-)hh:mm|Z)  # zone designator
+// <ZONE>                  ::=  ((+|-)hh{:}mm)|Z  # zone designator, the colon
+//                                                # is optional during parsing
 //..
 //
 ///Usage
@@ -549,47 +549,47 @@ struct FixUtil {
     };
 
     // CLASS METHODS
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Date&                      object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Date&                      object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Date&                  object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Date&                  object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Time&                      object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Time&                      object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Time&                  object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Time&                  object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Datetime&                  object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const Datetime&                  object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Datetime&              object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const Datetime&              object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const DateTz&                    object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const DateTz&                    object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const DateTz&                object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const DateTz&                object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const TimeTz&                    object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const TimeTz&                    object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const TimeTz&                object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const TimeTz&                object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const DatetimeTz&                object);
-    static int generate(char                            *buffer,
-                        int                              bufferLength,
-                        const DatetimeTz&                object,
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const DatetimeTz&            object);
+    static int generate(char                        *buffer,
+                        int                          bufferLength,
+                        const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
         // Write the FIX representation of the specified 'object' to the
         // specified 'buffer' of the specified 'bufferLength' (in bytes),
@@ -604,35 +604,35 @@ struct FixUtil {
         // 'k_MAX_STRLEN + 1' is large enough to hold any string generated by
         // this component (counting a null terminator, if any).
 
-    static int generate(bsl::string                     *string,
-                        const Date&                      object);
-    static int generate(bsl::string                     *string,
-                        const Date&                      object,
+    static int generate(bsl::string                 *string,
+                        const Date&                  object);
+    static int generate(bsl::string                 *string,
+                        const Date&                  object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(bsl::string                     *string,
-                        const Time&                      object);
-    static int generate(bsl::string                     *string,
-                        const Time&                      object,
+    static int generate(bsl::string                 *string,
+                        const Time&                  object);
+    static int generate(bsl::string                 *string,
+                        const Time&                  object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(bsl::string                     *string,
-                        const Datetime&                  object);
-    static int generate(bsl::string                     *string,
-                        const Datetime&                  object,
+    static int generate(bsl::string                 *string,
+                        const Datetime&              object);
+    static int generate(bsl::string                 *string,
+                        const Datetime&              object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(bsl::string                     *string,
-                        const DateTz&                    object);
-    static int generate(bsl::string                     *string,
-                        const DateTz&                    object,
+    static int generate(bsl::string                 *string,
+                        const DateTz&                object);
+    static int generate(bsl::string                 *string,
+                        const DateTz&                object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(bsl::string                     *string,
-                        const TimeTz&                    object);
-    static int generate(bsl::string                     *string,
-                        const TimeTz&                    object,
+    static int generate(bsl::string                 *string,
+                        const TimeTz&                object);
+    static int generate(bsl::string                 *string,
+                        const TimeTz&                object,
                         const FixUtilConfiguration&  configuration);
-    static int generate(bsl::string                     *string,
-                        const DatetimeTz&                object);
-    static int generate(bsl::string                     *string,
-                        const DatetimeTz&                object,
+    static int generate(bsl::string                 *string,
+                        const DatetimeTz&            object);
+    static int generate(bsl::string                 *string,
+                        const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
         // Load the FIX representation of the specified 'object' into the
         // specified 'string'.  Optionally specify a 'configuration' to affect
@@ -642,48 +642,36 @@ struct FixUtil {
         // number of characters in the formatted string.  The previous contents
         // of 'string' (if any) are discarded.
 
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Date&                     object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Date&                     object,
-                                const FixUtilConfiguration& configuration);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Time&                     object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Time&                     object,
-                                const FixUtilConfiguration& configuration);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Datetime&                 object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const Datetime&                 object,
-                                const FixUtilConfiguration& configuration);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const DateTz&                   object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const DateTz&                   object,
-                                const FixUtilConfiguration& configuration);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const TimeTz&                   object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const TimeTz&                   object,
-                                const FixUtilConfiguration& configuration);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const DatetimeTz&               object);
-    static bsl::ostream& generate(
-                                bsl::ostream&                   stream,
-                                const DatetimeTz&               object,
-                                const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Date&                 object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Date&                 object,
+                                  const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Time&                 object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Time&                 object,
+                                  const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Datetime&             object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const Datetime&             object,
+                                  const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const DateTz&               object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const DateTz&               object,
+                                  const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const TimeTz&               object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const TimeTz&               object,
+                                  const FixUtilConfiguration& configuration);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const DatetimeTz&           object);
+    static bsl::ostream& generate(bsl::ostream&               stream,
+                                  const DatetimeTz&           object,
+                                  const FixUtilConfiguration& configuration);
         // Write the FIX representation of the specified 'object' to the
         // specified 'stream'.  Optionally specify a 'configuration' to affect
         // the format of the generated string.  If 'configuration' is not
@@ -691,35 +679,35 @@ struct FixUtil {
         // 'FixUtilConfiguration::defaultConfiguration()' is used.  Return a
         // reference to 'stream'.  Note that 'stream' is not null terminated.
 
-    static int generateRaw(char                            *buffer,
-                           const Date&                      object);
-    static int generateRaw(char                            *buffer,
-                           const Date&                      object,
+    static int generateRaw(char                        *buffer,
+                           const Date&                  object);
+    static int generateRaw(char                        *buffer,
+                           const Date&                  object,
                            const FixUtilConfiguration&  configuration);
-    static int generateRaw(char                            *buffer,
-                           const Time&                      object);
-    static int generateRaw(char                            *buffer,
-                           const Time&                      object,
+    static int generateRaw(char                        *buffer,
+                           const Time&                  object);
+    static int generateRaw(char                        *buffer,
+                           const Time&                  object,
                            const FixUtilConfiguration&  configuration);
-    static int generateRaw(char                            *buffer,
-                           const Datetime&                  object);
-    static int generateRaw(char                            *buffer,
-                           const Datetime&                  object,
+    static int generateRaw(char                        *buffer,
+                           const Datetime&              object);
+    static int generateRaw(char                        *buffer,
+                           const Datetime&              object,
                            const FixUtilConfiguration&  configuration);
-    static int generateRaw(char                            *buffer,
-                           const DateTz&                    object);
-    static int generateRaw(char                            *buffer,
-                           const DateTz&                    object,
+    static int generateRaw(char                        *buffer,
+                           const DateTz&                object);
+    static int generateRaw(char                        *buffer,
+                           const DateTz&                object,
                            const FixUtilConfiguration&  configuration);
-    static int generateRaw(char                            *buffer,
-                           const TimeTz&                    object);
-    static int generateRaw(char                            *buffer,
-                           const TimeTz&                    object,
+    static int generateRaw(char                        *buffer,
+                           const TimeTz&                object);
+    static int generateRaw(char                        *buffer,
+                           const TimeTz&                object,
                            const FixUtilConfiguration&  configuration);
-    static int generateRaw(char                            *buffer,
-                           const DatetimeTz&                object);
-    static int generateRaw(char                            *buffer,
-                           const DatetimeTz&                object,
+    static int generateRaw(char                        *buffer,
+                           const DatetimeTz&            object);
+    static int generateRaw(char                        *buffer,
+                           const DatetimeTz&            object,
                            const FixUtilConfiguration&  configuration);
         // Write the FIX representation of the specified 'object' to the
         // specified 'buffer'.  Optionally specify a 'configuration' to affect
@@ -738,7 +726,7 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -775,7 +763,7 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -798,7 +786,7 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -834,7 +822,7 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
@@ -856,7 +844,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -894,7 +882,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -918,7 +906,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYY-MM-DD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -954,7 +942,7 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYY-MM-DDThh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
@@ -969,69 +957,6 @@ struct FixUtil {
         // "24:00:00", then the fractional second must be absent or 0, and the
         // zone designator must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    static int generate(char              *buffer,
-                        const Date&        object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const Time&        object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const Datetime&    object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const DateTz&      object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const TimeTz&      object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const DatetimeTz&  object,
-                        int                bufferLength);
-        // !DEPRECATED!: Use the overloads taking the 'bufferLength' argument
-        // *before* the 'object' argument instead.
-
-    static int generate(char              *buffer,
-                        const DateTz&      object,
-                        int                bufferLength,
-                        bool               useZAbbreviationForUtc);
-    static int generate(char              *buffer,
-                        const TimeTz&      object,
-                        int                bufferLength,
-                        bool               useZAbbreviationForUtc);
-    static int generate(char              *buffer,
-                        const DatetimeTz&  object,
-                        int                bufferLength,
-                        bool               useZAbbreviationForUtc);
-        // !DEPRECATED!: Use the overloads taking an 'FixUtilConfiguration'
-        // object instead.
-
-    static bsl::ostream& generate(bsl::ostream&     stream,
-                                  const DateTz&     object,
-                                  bool              useZAbbreviationForUtc);
-    static bsl::ostream& generate(bsl::ostream&     stream,
-                                  const TimeTz&     object,
-                                  bool              useZAbbreviationForUtc);
-    static bsl::ostream& generate(bsl::ostream&     stream,
-                                  const DatetimeTz& object,
-                                  bool              useZAbbreviationForUtc);
-        // !DEPRECATED!: Use the overloads taking an 'FixUtilConfiguration'
-        // object instead.
-
-    static int generateRaw(char              *buffer,
-                           const DateTz&      object,
-                           bool               useZAbbreviationForUtc);
-    static int generateRaw(char              *buffer,
-                           const TimeTz&      object,
-                           bool               useZAbbreviationForUtc);
-    static int generateRaw(char              *buffer,
-                           const DatetimeTz&  object,
-                           bool               useZAbbreviationForUtc);
-        // !DEPRECATED!: Use the overloads taking an 'FixUtilConfiguration'
-        // object instead.
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
@@ -1415,155 +1340,6 @@ int FixUtil::parse(DatetimeTz *result, const bslstl::StringRef& string)
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-inline
-int FixUtil::generate(char *buffer, const Date& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char *buffer, const Time& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char *buffer, const Datetime& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char *buffer, const DateTz& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char *buffer, const TimeTz& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char *buffer, const DatetimeTz& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
-int FixUtil::generate(char          *buffer,
-                      const DateTz&  object,
-                      int            bufferLength,
-                      bool           useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(buffer, bufferLength, object, configuration);
-}
-
-inline
-int FixUtil::generate(char          *buffer,
-                      const TimeTz&  object,
-                      int            bufferLength,
-                      bool           useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(buffer, bufferLength, object, configuration);
-}
-
-inline
-int FixUtil::generate(char              *buffer,
-                      const DatetimeTz&  object,
-                      int                bufferLength,
-                      bool               useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(buffer, bufferLength, object, configuration);
-}
-
-inline
-bsl::ostream& FixUtil::generate(bsl::ostream& stream,
-                                const DateTz& object,
-                                bool          useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(stream, object, configuration);
-}
-
-inline
-bsl::ostream& FixUtil::generate(bsl::ostream& stream,
-                                const TimeTz& object,
-                                bool          useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(stream, object, configuration);
-}
-
-inline
-bsl::ostream& FixUtil::generate(bsl::ostream&     stream,
-                                const DatetimeTz& object,
-                                bool              useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generate(stream, object, configuration);
-}
-
-inline
-int FixUtil::generateRaw(char          *buffer,
-                         const DateTz&  object,
-                         bool           useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generateRaw(buffer, object, configuration);
-}
-
-inline
-int FixUtil::generateRaw(char          *buffer,
-                         const TimeTz&  object,
-                         bool           useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generateRaw(buffer, object, configuration);
-}
-
-inline
-int FixUtil::generateRaw(char              *buffer,
-                         const DatetimeTz&  object,
-                         bool               useZAbbreviationForUtc)
-{
-    FixUtilConfiguration configuration =
-                              FixUtilConfiguration::defaultConfiguration();
-    configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
-
-    return generateRaw(buffer, object, configuration);
-}
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace

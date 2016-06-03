@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 // However, we would like to produce the following (also valid) FIX string
 // instead:
 //..
-//  08:59:59,123+0400
+//  08:59:59.123000+0400
 //..
 // 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
 // assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 // and note that it has the default-constructed value:
 //..
     bdlt::FixUtilConfiguration configuration =
-                        bdlt::FixUtilConfiguration::defaultConfiguration();
+                            bdlt::FixUtilConfiguration::defaultConfiguration();
     ASSERT(bdlt::FixUtilConfiguration() == configuration);
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.useZAbbreviationForUtc());

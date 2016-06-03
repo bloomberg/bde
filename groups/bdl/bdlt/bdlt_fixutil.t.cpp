@@ -1244,7 +1244,7 @@ if (veryVerbose)
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_year;
                 int         d_month;
                 int         d_day;
@@ -1317,7 +1317,7 @@ if (veryVerbose)
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   YEAR   = DATA[ti].d_year;
                 const int   MONTH  = DATA[ti].d_month;
@@ -1371,7 +1371,7 @@ if (veryVerbose)
         {
             struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_year;
                 int         d_month;
                 int         d_day;
@@ -1399,7 +1399,7 @@ if (veryVerbose)
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   YEAR   = DATA[ti].d_year;
                 const int   MONTH  = DATA[ti].d_month;
@@ -1833,7 +1833,7 @@ if (veryVerbose)
         {
             const struct {
                 int         d_line;
-                const char *d_input;
+                const char *d_input_p;
                 int         d_hour;
                 int         d_min;
                 int         d_sec;
@@ -1870,7 +1870,7 @@ if (veryVerbose)
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE   = DATA[ti].d_line;
-                const char *INPUT  = DATA[ti].d_input;
+                const char *INPUT  = DATA[ti].d_input_p;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
                 const int   HOUR   = DATA[ti].d_hour;
                 const int   MIN    = DATA[ti].d_min;

@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // However, we would like to produce the following (also valid) FIX string
 // instead:
 //..
-//  08:59:59,123+0400
+//  08:59:59.123000+0400
 //..
 // 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
 // assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 // and note that it has the default-constructed value:
 //..
 //  bdlt::FixUtilConfiguration configuration =
-//                      bdlt::FixUtilConfiguration::defaultConfiguration();
+//                          bdlt::FixUtilConfiguration::defaultConfiguration();
 //  assert(bdlt::FixUtilConfiguration() == configuration);
 //  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert(!configuration.useZAbbreviationForUtc());
@@ -173,17 +173,15 @@ class FixUtilConfiguration {
         // each of the four configuration attributes.
 
         k_FRACTIONAL_SECOND_PRECISION_MASK  = 0x07,
-        k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT = 0x08,
-        k_USE_COMMA_FOR_DECIMAL_SIGN_BIT    = 0x10,
-        k_USE_Z_ABBREVIATION_FOR_UTC_BIT    = 0x20
+        k_USE_Z_ABBREVIATION_FOR_UTC_BIT    = 0x08
     };
 
     // CLASS DATA
     static bsls::AtomicOperations::AtomicTypes::Int
-                    s_defaultConfiguration;  // process-wide configuration
+                     s_defaultConfiguration;  // process-wide configuration
 
     // DATA
-    int             d_configurationMask;     // bitmask defining configuration
+    int              d_configurationMask;     // bitmask defining configuration
 
     // FRIENDS
     friend bool operator==(const FixUtilConfiguration&,
@@ -312,8 +310,6 @@ FixUtilConfiguration::FixUtilConfiguration(int configurationMask)
 {
     BSLS_ASSERT_SAFE(0 == (configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
-                             | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
-                             | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT
                              | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }
 
@@ -352,8 +348,6 @@ FixUtilConfiguration::~FixUtilConfiguration()
 {
     BSLS_ASSERT_SAFE(0 == (d_configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
-                             | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
-                             | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT
                              | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }
 
