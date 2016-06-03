@@ -112,6 +112,53 @@ BSLS_IDENT("$Id$ $CSID$")
 // negative class such as '[^a]' always matches newline characters, independent
 // of the setting of this option.
 //
+///JIT Compiling optimization
+///----------------------------
+// Just-in-time compiling is a heavyweight optimization that can greatly speed
+// up pattern matching. However, it comes at the cost of extra processing
+// before the match is performed, so it is of most benefit when the same
+// pattern is going to be matched many times. This does not necessarily mean
+// many calls of a matching function; if the pattern is not anchored, matching
+// attempts may take place many times at various positions in the subject, even
+// for a single call. Therefore, if the subject string is very long, it may
+// still pay to use JIT even for one-off matches.
+//
+// If 'RegEx::k_FLAG_JIT' is included in the flags supplied to 'prepare', then
+// all following matchings will be performed with JIT optimization.  To turn
+// off JIT optimization support, regular expression should be prepared again,
+// without using 'k_FLAG_JIT'.
+//
+// The table below demonstrates the supremacy of the 'match' method with JIT
+// optimization over the basic 'match' method.  Measurements have been tallied
+// over the 100000 matchings in a row on Linux/Intel x86 64-bit architecture.
+// The ratios of 'match' time to 'match' with JIT optimization time are
+// represented in the table:
+//..
+//  Legend
+//  ------
+//  'SIMPLE_PATTERN':
+//      Pattern - (abc)*
+//      Subject -  XXXabcZZZ
+//
+//  'EMAIL_PATTERN':
+//      Pattern - [A-Za-z0-9._-]+@[[A-Za-z0-9.-]+
+//      Subject - john.dow@bloomberg.net
+//
+//  'IP_ADDRESS_PATTERN':
+//      Pattern - (?:[0-9]{1,3}\.){3}[0-9]{1,3}
+//      Subject - 255.255.255.255
+//
+//  +--------------------+---------+------------------------------+
+//  | Pattern            | 'match' |'match' with JIT optimization |
+//  +====================+=========+==============================+
+//  | SIMPLE_PATTERN     |    1    |           0.38391            |
+//  +--------------------+---------+------------------------------+
+//  | EMAIL_PATTERN      |    1    |           0.44322            |
+//  +--------------------+---------+------------------------------+
+//  | IP_ADDRESS_PATTERN |    1    |           0.19228            |
+//  +--------------------+---------+------------------------------+
+//..
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate using this component to extract
@@ -515,29 +562,29 @@ class RegEx {
 
     void extractMatchResult(
                         bsl::vector<bsl::pair<size_t, size_t> > *result) const;
-        // Extract result of matching the specified 'subject' from
-        // 'd_matchData_p' and (1) load the first element of the specified
-        // 'result' with '(offset, length)' pair indicating the leftmost match
-        // of 'pattern()', (2) load elements of 'result' in the range '[ 1 ..
-        // numSubpatterns() ]' with the pairs indicating the respective matches
-        // of sub-patterns (unmatched sub-patterns have their respective
-        // 'result' elements loaded with '(-1, 0)' pair; sub-patterns matching
-        // multiple times have their respective 'result' elements loaded with
-        // the pairs indicating the rightmost match).  'result' will contain
-        // exactly 'numSubpatterns() + 1' elements.
+        // Extract result of matching from 'd_matchData_p' and (1) load the
+        // first element of the specified 'result' with '(offset, length)' pair
+        // indicating the leftmost match of 'pattern()', (2) load elements of
+        // 'result' in the range '[ 1 ..  numSubpatterns() ]' with the pairs
+        // indicating the respective matches of sub-patterns (unmatched
+        // sub-patterns have their respective 'result' elements loaded with
+        // '(-1, 0)' pair; sub-patterns matching multiple times have their
+        // respective 'result' elements loaded with the pairs indicating the
+        // rightmost match).  'result' will contain exactly
+        // 'numSubpatterns() + 1' elements.
 
     void extractMatchResult(bsl::vector<bslstl::StringRef> *result,
                             const char                     *subject) const;
-        // Extract result of matching from 'd_matchData_p' and (1) load the
-        // first element of the specified 'result' with 'bslstl::StringRef'
-        // indicating the leftmost match of 'pattern()', (2) load elements of
-        // 'result' in the range '[ 1 .. numSubpatterns() ]' with the
-        // 'bslstl::StringRef' objects indicating the respective matches of
-        // sub-patterns (unmatched sub-patterns have their respective 'result'
-        // elements loaded with empty 'StringRef'; sub-patterns matching
-        // multiple times have their respective 'result' elements loaded with
-        // the objects indicating the rightmost match).  'result' will contain
-        // exactly 'numSubpatterns() + 1' elements.
+        // Extract result of matching the specified 'subject' from
+        // 'd_matchData_p' and (1) load the first element of the specified
+        // 'result' with 'bslstl::StringRef' indicating the leftmost match of
+        // 'pattern()', (2) load elements of 'result' in the range '[ 1 ..
+        // numSubpatterns() ]' with the 'bslstl::StringRef' objects indicating
+        // the respective matches of sub-patterns (unmatched sub-patterns have
+        // their respective 'result' elements loaded with empty 'StringRef';
+        // sub-patterns matching multiple times have their respective 'result'
+        // elements loaded with the objects indicating the rightmost match).
+        // 'result' will contain exactly 'numSubpatterns() + 1' elements.
 
   public:
     // TRAITS
