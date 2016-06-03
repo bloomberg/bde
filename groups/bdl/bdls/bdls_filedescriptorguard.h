@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // after the operations are complete.
 //
 // First, we create a name for our temporary file name and a few local
-// varriables.
+// variables.
 //..
 //  const bsl::string fileName = "essay.txt";
 //  int rc;
