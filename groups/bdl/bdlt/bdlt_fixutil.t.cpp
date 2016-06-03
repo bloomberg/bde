@@ -189,25 +189,25 @@ const int k_TIMETZ_MAX_PRECISION     = 0;
 // *** 'Date' Data ***
 
 struct DefaultDateDataRow {
-    int         d_line;     // source line number
-    int         d_year;     // year (of calendar date)
-    int         d_month;    // month
-    int         d_day;      // day
-    const char *d_fix;  // FIX string
+    int         d_line;   // source line number
+    int         d_year;   // year (of calendar date)
+    int         d_month;  // month
+    int         d_day;    // day
+    const char *d_fix;    // FIX string
 };
 
 static
 const DefaultDateDataRow DEFAULT_DATE_DATA[] =
 {
     //LINE   YEAR   MONTH   DAY      FIX
-    //----   ----   -----   ---    ------------
-    { L_,       1,      1,    1,   "0001-01-01" },
-    { L_,       9,      9,    9,   "0009-09-09" },
-    { L_,      30,     10,   20,   "0030-10-20" },
-    { L_,     842,     12,   19,   "0842-12-19" },
-    { L_,    1847,      5,   19,   "1847-05-19" },
-    { L_,    2000,      2,   29,   "2000-02-29" },
-    { L_,    9999,     12,   31,   "9999-12-31" },
+    //----   ----   -----   ---    ----------
+    { L_,       1,      1,    1,   "00010101" },
+    { L_,       9,      9,    9,   "00090909" },
+    { L_,      30,     10,   20,   "00301020" },
+    { L_,     842,     12,   19,   "08421219" },
+    { L_,    1847,      5,   19,   "18470519" },
+    { L_,    2000,      2,   29,   "20000229" },
+    { L_,    9999,     12,   31,   "99991231" },
 };
 const int NUM_DEFAULT_DATE_DATA =
         static_cast<int>(sizeof DEFAULT_DATE_DATA / sizeof *DEFAULT_DATE_DATA);
@@ -215,19 +215,19 @@ const int NUM_DEFAULT_DATE_DATA =
 // *** 'Time' Data ***
 
 struct DefaultTimeDataRow {
-    int         d_line;     // source line number
-    int         d_hour;     // hour (of day)
-    int         d_min;      // minute
-    int         d_sec;      // second
-    int         d_msec;     // millisecond
-    int         d_usec;     // microsecond
-    const char *d_fix;  // FIX string
+    int         d_line;  // source line number
+    int         d_hour;  // hour (of day)
+    int         d_min;   // minute
+    int         d_sec;   // second
+    int         d_msec;  // millisecond
+    int         d_usec;  // microsecond
+    const char *d_fix;   // FIX string
 };
 
 static
 const DefaultTimeDataRow DEFAULT_TIME_DATA[] =
 {
-    //LINE   HOUR   MIN   SEC   MSEC   USEC         FIX
+    //LINE   HOUR   MIN   SEC   MSEC   USEC           FIX
     //----   ----   ---   ---   ----   ----    -----------------
     { L_,       0,    0,    0,     0,     0,   "00:00:00.000000" },
     { L_,       1,    2,    3,     4,     5,   "01:02:03.004005" },
@@ -250,7 +250,7 @@ struct DefaultZoneDataRow {
 static
 const DefaultZoneDataRow DEFAULT_ZONE_DATA[] =
 {
-    //LINE   OFFSET   FIX
+    //LINE   OFFSET     FIX
     //----   ------   --------
     { L_,     -1439,  "-23:59" },
     { L_,      -120,  "-02:00" },
@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
 // following example:
 //..
     const bdlt::Date date(2005, 1, 31);     // 2005/01/31
-    const bdlt::Time time(8, 59, 59, 123);  // 08::59::59.123
+    const bdlt::Time time(8, 59, 59, 123);  // 08:59:59.123
     const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
 //..
 // Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding
@@ -682,17 +682,16 @@ if (veryVerbose)
 //..
 //  31JAN2005_08:59:59.123000+0400
 //..
-// Next, we use a 'generate' function to produce an FIX-compliant string for
+// Next, we use a 'generate' function to produce a FIX-compliant string for
 // 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and assert
 // that both the return value and the string that is produced are as expected:
 //..
     bsl::ostringstream  oss;
-    const bsl::ostream& ret =
-                           bdlt::FixUtil::generate(oss, sourceDatetimeTz);
+    const bsl::ostream& ret = bdlt::FixUtil::generate(oss, sourceDatetimeTz);
     ASSERT(&oss == &ret);
 
     const bsl::string fix = oss.str();
-    ASSERT(fix == "2005-01-31T08:59:59.123+04:00");
+    ASSERT(fix == "20050131-08:59:59.123+04:00");
 //..
 // For comparison, see the output that was produced by the streaming operator
 // above.
@@ -705,8 +704,8 @@ if (veryVerbose)
     bdlt::DatetimeTz targetDatetimeTz;
 
     int rc = bdlt::FixUtil::parse(&targetDatetimeTz,
-                                      fix.c_str(),
-                                      static_cast<int>(fix.length()));
+                                  fix.c_str(),
+                                  static_cast<int>(fix.length()));
     ASSERT(               0 == rc);
     ASSERT(sourceDatetimeTz == targetDatetimeTz);
 //..
@@ -716,8 +715,8 @@ if (veryVerbose)
     bdlt::Datetime targetDatetime;
 
     rc = bdlt::FixUtil::parse(&targetDatetime,
-                                  fix.c_str(),
-                                  static_cast<int>(fix.length()));
+                              fix.c_str(),
+                              static_cast<int>(fix.length()));
     ASSERT(                             0 == rc);
     ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
 //..
@@ -732,95 +731,77 @@ if (veryVerbose)
 // opportunity to illustrate the flavor of the 'generate' functions that
 // outputs to a 'char *' buffer of a specified length.
 //
-// First, we construct a 'bdlt::TimeTz' object for which a corresponding
-// FIX-compliant string will be generated shortly:
-//..
-    const bdlt::TimeTz sourceTimeTz(time, tzOffset);
-//..
-// For comparison with the FIX string generated below, note that streaming the
-// value of 'sourceTimeTz' to 'stdout':
-//..
-if (veryVerbose)
-    bsl::cout << sourceTimeTz << bsl::endl;
-//..
-// produces:
-//..
-//  08:59:59.123+0400
-//..
-// Then, we construct the 'bdlt::FixUtilConfiguration' object that indicates
+// First, we construct the 'bdlt::FixUtilConfiguration' object that indicates
 // how we would like to affect the generated output FIX string.  In this case,
-// we want to use ',' as the decimal sign (in fractional seconds) and omit the
-// ':' in zone designators:
+// we want to have microsecond precision displayed:
 //..
     bdlt::FixUtilConfiguration configuration;
+
+    configuration.setFractionalSecondPrecision(6);
 //..
-// Next, we define the 'char *' buffer that will be used to stored the
-// generated string.  A buffer of size 'bdlt::FixUtil::k_TIMETZ_STRLEN + 1' is
-// large enough to hold any string generated by this component for a
-// 'bdlt::TimeTz' object, including a null terminator:
+// Then, we define the 'char *' buffer that will be used to stored the
+// generated string.  A buffer of size 'bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1'
+// is large enough to hold any string generated by this component for a
+// 'bdlt::DatetimeTz' object, including a null terminator:
 //..
-    const int BUFLEN = bdlt::FixUtil::k_TIMETZ_STRLEN + 1;
+    const int BUFLEN = bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1;
     char      buffer[BUFLEN];
 //..
-// Then, we use a 'generate' function that accepts our 'configuration' to
-// produce an FIX-compliant string for 'sourceTimeTz', this time writing the
+// Next, we use a 'generate' function that accepts our 'configuration' to
+// produce a FIX-compliant string for 'sourceDatetimeTz', this time writing the
 // output to a 'char *' buffer, and assert that both the return value and the
 // string that is produced are as expected.  Note that in comparing the return
-// value against 'BUFLEN - 2' we account for the omission of the ':' from the
-// zone designator, and also for the fact that, although a null terminator was
-// generated, it is not included in the character count returned by 'generate'.
-// Also note that we use 'bsl::strcmp' to compare the resulting string knowing
-// that we supplied a buffer having sufficient capacity to accommodate a null
-// terminator:
+// value against 'BUFLEN - 1' we account for the fact that, although a null
+// terminator was generated, it is not included in the character count returned
+// by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
+// string knowing that we supplied a buffer having sufficient capacity to
+// accommodate a null terminator:
 //..
     rc = bdlt::FixUtil::generate(buffer,
-                                     BUFLEN,
-                                     sourceTimeTz,
-                                     configuration);
-    ASSERT(BUFLEN - 2 == rc);
-    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
+                                 BUFLEN,
+                                 sourceDatetimeTz,
+                                 configuration);
+    ASSERT(BUFLEN - 1 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer,
+                                     "20050131-08:59:59.123000+04:00"));
 //..
 // For comparison, see the output that was produced by the streaming operator
 // above.
 //
 // Next, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::TimeTz' object, and assert that the parse was
+// parse into a second 'bdlt::DatetimeTz' object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
-// 'BUFLEN' because the former indicates the correct number of characters in
-// 'buffer' that we wish to parse:
+// original (i.e., 'sourceDatetimeTz').  Note that 'BUFLEN - 1' is passed and
+// *not* 'BUFLEN' because the former indicates the correct number of characters
+// in 'buffer' that we wish to parse:
 //..
-    bdlt::TimeTz targetTimeTz;
+    rc = bdlt::FixUtil::parse(&targetDatetimeTz, buffer, BUFLEN - 1);
 
-    rc = bdlt::FixUtil::parse(&targetTimeTz, buffer, BUFLEN - 2);
-
-    ASSERT(           0 == rc);
-    ASSERT(sourceTimeTz == targetTimeTz);
+    ASSERT(               0 == rc);
+    ASSERT(sourceDatetimeTz == targetDatetimeTz);
 //..
 // Then, we parse the string in 'buffer' a second time, this time loading the
-// result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+// result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
 //..
-    bdlt::Time targetTime;
+    rc = bdlt::FixUtil::parse(&targetDatetime, buffer, BUFLEN - 1);
 
-    rc = bdlt::FixUtil::parse(&targetTime, buffer, BUFLEN - 2);
-    ASSERT(                     0 == rc);
-    ASSERT(sourceTimeTz.utcTime() == targetTime);
+    ASSERT(                             0 == rc);
+    ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
 //..
 // Note that this time the value of the target object has been converted to
 // UTC.
 //
-// Finally, we modify the 'configuration' to display the 'bdlt::TimeTz' without
-// fractional seconds:
+// Finally, we modify the 'configuration' to display the 'bdlt::DatetimeTz'
+// without fractional seconds:
 //..
     configuration.setFractionalSecondPrecision(0);
     rc = bdlt::FixUtil::generate(buffer,
-                                     BUFLEN,
-                                     sourceTimeTz,
-                                     configuration);
-    ASSERT(BUFLEN - 6 == rc);
-    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
+                                 BUFLEN,
+                                 sourceDatetimeTz,
+                                 configuration);
+    ASSERT(BUFLEN - 8 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer, "20050131-08:59:59+04:00"));
 //..
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1155,7 +1136,7 @@ if (veryVerbose)
                 // Initialize with a *valid* date string, then append an
                 // invalid time.
 
-                bsl::string bad("2010-08-17");
+                bsl::string bad("20100817");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -1207,7 +1188,7 @@ if (veryVerbose)
                 // Initialize with a *valid* datetime string, then append an
                 // invalid zone designator.
 
-                bsl::string bad("2010-08-17T12:26:52.726");
+                bsl::string bad("20100817-12:26:52.726");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -1275,61 +1256,61 @@ if (veryVerbose)
                 int         d_offset;
             } DATA[] = {
                 // leap seconds
-                { L_, "0001-01-01T00:00:60.000",
+                { L_, "00010101-00:00:60.000",
                                      0001, 01, 01, 00, 01, 00, 000, 000,   0 },
-                { L_, "9998-12-31T23:59:60.999",
+                { L_, "99981231-23:59:60.999",
                                      9999, 01, 01, 00, 00, 00, 999, 000,   0 },
 
                 // fractional seconds
-                { L_, "0001-01-01T00:00:00.0000001",
+                { L_, "00010101-00:00:00.0000001",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.0000009",
+                { L_, "00010101-00:00:00.0000009",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.00000001",
+                { L_, "00010101-00:00:00.00000001",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.00000049",
+                { L_, "00010101-00:00:00.00000049",
                                      0001, 01, 01, 00, 00, 00, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.00000050",
+                { L_, "00010101-00:00:00.00000050",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.00000099",
+                { L_, "00010101-00:00:00.00000099",
                                      0001, 01, 01, 00, 00, 00, 000,   1,   0 },
-                { L_, "0001-01-01T00:00:00.0001",
+                { L_, "00010101-00:00:00.0001",
                                      0001, 01, 01, 00, 00, 00, 000, 100,   0 },
-                { L_, "0001-01-01T00:00:00.0009",
+                { L_, "00010101-00:00:00.0009",
                                      0001, 01, 01, 00, 00, 00, 000, 900,   0 },
-                { L_, "0001-01-01T00:00:00.00001",
+                { L_, "00010101-00:00:00.00001",
                                      0001, 01, 01, 00, 00, 00, 000,  10,   0 },
-                { L_, "0001-01-01T00:00:00.00049",
+                { L_, "00010101-00:00:00.00049",
                                      0001, 01, 01, 00, 00, 00, 000, 490,   0 },
-                { L_, "0001-01-01T00:00:00.00050",
+                { L_, "00010101-00:00:00.00050",
                                      0001, 01, 01, 00, 00, 00, 000, 500,   0 },
-                { L_, "0001-01-01T00:00:00.00099",
+                { L_, "00010101-00:00:00.00099",
                                      0001, 01, 01, 00, 00, 00, 000, 990,   0 },
-                { L_, "0001-01-01T00:00:00.9994" ,
+                { L_, "00010101-00:00:00.9994" ,
                                      0001, 01, 01, 00, 00, 00, 999, 400,   0 },
-                { L_, "0001-01-01T00:00:00.9995" ,
+                { L_, "00010101-00:00:00.9995" ,
                                      0001, 01, 01, 00, 00, 00, 999, 500,   0 },
-                { L_, "0001-01-01T00:00:00.9999" ,
+                { L_, "00010101-00:00:00.9999" ,
                                      0001, 01, 01, 00, 00, 00, 999, 900,   0 },
-                { L_, "9998-12-31T23:59:60.9999" ,
+                { L_, "99981231-23:59:60.9999" ,
                                      9999, 01, 01, 00, 00, 00, 999, 900,   0 },
-                { L_, "0001-01-01T00:00:00.9999994" ,
+                { L_, "00010101-00:00:00.9999994" ,
                                      0001, 01, 01, 00, 00, 00, 999, 999,   0 },
-                { L_, "0001-01-01T00:00:00.9999995" ,
+                { L_, "00010101-00:00:00.9999995" ,
                                      0001, 01, 01, 00, 00, 01, 000, 000,   0 },
-                { L_, "0001-01-01T00:00:00.9999999" ,
+                { L_, "00010101-00:00:00.9999999" ,
                                      0001, 01, 01, 00, 00, 01, 000, 000,   0 },
-                { L_, "9998-12-31T23:59:60.9999999" ,
+                { L_, "99981231-23:59:60.9999999" ,
                                      9999, 01, 01, 00, 00, 01, 000, 000,   0 },
 
                 // omit fractional seconds
-                { L_, "2014-12-23T12:34:45",
+                { L_, "20141223-12:34:45",
                                      2014, 12, 23, 12, 34, 45, 000, 000,   0 },
-                { L_, "2014-12-23T12:34:45Z",
+                { L_, "20141223-12:34:45Z",
                                      2014, 12, 23, 12, 34, 45, 000, 000,   0 },
-                { L_, "2014-12-23T12:34:45+00:30",
+                { L_, "20141223-12:34:45+00:30",
                                      2014, 12, 23, 12, 34, 45, 000, 000,  30 },
-                { L_, "2014-12-23T12:34:45-01:30",
+                { L_, "20141223-12:34:45-01:30",
                                      2014, 12, 23, 12, 34, 45, 000, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -1400,18 +1381,18 @@ if (veryVerbose)
                 int         d_msec;
                 int         d_offset;
             } DATA[] = {
-                { L_, "0001-01-01T00:00:00.000+00:00",
+                { L_, "00010101-00:00:00.000+00:00",
                                         0001, 01, 01, 00, 00, 00, 000,     0 },
-                { L_, "0001-01-01T00:00:00.000+00:01",
+                { L_, "00010101-00:00:00.000+00:01",
                                         0001, 01, 01, 00, 00, 00, 000,     1 },
-                { L_, "0001-01-01T23:58:59.000+23:59",
+                { L_, "00010101-23:58:59.000+23:59",
                                         0001, 01, 01, 23, 58, 59, 000,  1439 },
 
-                { L_, "9999-12-31T23:59:59.999+00:00",
+                { L_, "99991231-23:59:59.999+00:00",
                                         9999, 12, 31, 23, 59, 59, 999,     0 },
-                { L_, "9999-12-31T23:59:59.999-00:01",
+                { L_, "99991231-23:59:59.999-00:01",
                                         9999, 12, 31, 23, 59, 59, 999,    -1 },
-                { L_, "9999-12-31T00:01:00.000-23:59",
+                { L_, "99991231-00:01:00.000-23:59",
                                         9999, 12, 31, 00, 01, 00, 000, -1439 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -1663,8 +1644,7 @@ if (veryVerbose)
                         }
                     }
 
-                    const bdlt::Time TIME(HOUR, MIN, SEC, expMsec);
-
+                    const bdlt::Time   TIME(HOUR, MIN, SEC, expMsec);
                     const bdlt::TimeTz TIMETZ(TIME, OFFSET);
 
                     if (veryVerbose) {
@@ -1695,8 +1675,10 @@ if (veryVerbose)
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIME == Z.localTime());
-                        ASSERTV(ILINE, JLINE, CLINE,    0 == Z.offset());
+
+                        ASSERTV(ILINE, JLINE, CLINE,
+                                TIMETZ.localTime() == Z.localTime());
+                        ASSERTV(ILINE, JLINE, CLINE, 0 == Z.offset());
 
                         mX = XX;
                         mZ = ZZ;
@@ -1725,24 +1707,31 @@ if (veryVerbose)
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
+                        // 'TimeTz' uses the FIX "TZTimeOnly" format during
+                        // generation so there are no milliseconds.
+
+                        const bdlt::TimeTz EXPTIMETZ(
+                                                    bdlt::Time(HOUR, MIN, SEC),
+                                                    OFFSET);
+
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, buffer, LENGTH));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
 
                         mX = XX;
                         mZ = ZZ;
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mX, StrRef(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ.utcTime() == X);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ.utcTime() == X);
 
                         ASSERTV(ILINE, JLINE, CLINE,
                                 0 == Util::parse(&mZ, StrRef(buffer, LENGTH)));
-                        ASSERTV(ILINE, JLINE, CLINE, TIMETZ           == Z);
+                        ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
                     }
                 }  // loop over 'CNFG_DATA'
             }  // loop over 'ZONE_DATA'
@@ -2204,7 +2193,7 @@ if (veryVerbose)
                 // Initialize with a *valid* date string, then append an
                 // invalid zone designator.
 
-                bsl::string bad("2010-08-17");
+                bsl::string bad("20100817");
 
                 // Ensure that 'bad' is initially valid.
 
@@ -2439,7 +2428,7 @@ if (veryVerbose)
                                                        USEC),
                                         OFFSET);
                     const bsl::string BASE_EXPECTED(
-                          EXPECTED_DATE + 'T' + EXPECTED_TIME + EXPECTED_ZONE);
+                          EXPECTED_DATE + '-' + EXPECTED_TIME + EXPECTED_ZONE);
 
                     if (veryVerbose) {
                         T_ P_(ILINE) P_(JLINE) P_(KLINE) P_(X) P(BASE_EXPECTED)
@@ -3525,7 +3514,7 @@ if (veryVerbose)
                                     MSEC,
                                     USEC);
                 const bsl::string BASE_EXPECTED(
-                                          EXPECTED_DATE + 'T' + EXPECTED_TIME);
+                                          EXPECTED_DATE + '-' + EXPECTED_TIME);
 
                 if (veryVerbose) {
                     T_ P_(ILINE) P_(JLINE) P_(X) P(BASE_EXPECTED)

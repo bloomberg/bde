@@ -75,19 +75,19 @@ BSLS_IDENT("$Id: $")
 //  assert( configuration.fractionalSecondPrecision() == 3);
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
-// Then, we modify 'configuration' to indicate that we want to use ',' as the
-// decimal sign (in fractional seconds):
+// Then, we modify 'configuration' to indicate that we want to use 6 digits of
+// precision in the fractional seconds:
 //..
-//  configuration.setUseCommaForDecimalSign(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
+//  configuration.setFractionalSecondPrecision(6);
+//  assert( configuration.fractionalSecondPrecision() == 6);
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
-// Finally, we modify 'configuration' to indicate that we want to omit the ':'
-// in zone designators:
+// Finally, we modify 'configuration' to indicate that we want to use 'Z' as an
+// abbreviation for UTC:
 //..
-//  configuration.setOmitColonInZoneDesignator(true);
-//  assert( configuration.fractionalSecondPrecision() == 3);
-//  assert(!configuration.useZAbbreviationForUtc());
+//  configuration.setUseZAbbreviationForUtc(true);
+//  assert( configuration.fractionalSecondPrecision() == 6);
+//  assert( configuration.useZAbbreviationForUtc());
 //..
 // Our 'configuration' object can now be supplied to 'my::FixUtil' to produce
 // the desired result.

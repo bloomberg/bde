@@ -67,8 +67,8 @@ int parseDate(const char **nextPos,
               int         *day,
               const char  *begin,
               const char  *end)
-    // Parse the date, represented in the "YYYY-MM-DD" FIX extended format,
-    // from the string starting at the specified 'begin' and ending before the
+    // Parse the date, represented in the "YYYYMMDD" FIX extended format, from
+    // the string starting at the specified 'begin' and ending before the
     // specified 'end', load into the specified 'year', 'month', and 'day'
     // their respective parsed values, and set the specified '*nextPos' to the
     // location one past the last parsed character.  Return 0 on success, and a
@@ -86,7 +86,7 @@ int parseDate(const char **nextPos,
 
     const char *p = begin;
 
-    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD" - 1 };
 
     if (end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -94,17 +94,15 @@ int parseDate(const char **nextPos,
 
     // 1. Parse year.
 
-    if (0 != asciiToInt(&p, year, p, p + 4) || '-' != *p) {
+    if (0 != asciiToInt(&p, year, p, p + 4)) {
         return -1;                                                    // RETURN
     }
-    ++p;  // skip '-'
 
     // 2. Parse month.
 
-    if (0 != asciiToInt(&p, month, p, p + 2) || '-' != *p) {
+    if (0 != asciiToInt(&p, month, p, p + 2)) {
         return -1;                                                    // RETURN
     }
-    ++p;  // skip '-'
 
     // 3. Parse day.
 
@@ -896,9 +894,9 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, object.year() , 4, '-');
-    p += generateInt(p, object.month(), 2, '-');
-    p += generateInt(p, object.day()  , 2     );
+    p += generateInt(p, object.year() , 4);
+    p += generateInt(p, object.month(), 2);
+    p += generateInt(p, object.day()  , 2);
 
     return static_cast<int>(p - buffer);
 }
@@ -947,7 +945,7 @@ int FixUtil::generateRaw(char                        *buffer,
     BSLS_ASSERT(buffer);
 
     const int dateLen = generateRaw(buffer, object.date(), configuration);
-    *(buffer + dateLen) = 'T';
+    *(buffer + dateLen) = '-';
 
     char *p = buffer + dateLen + 1;
 
@@ -1037,11 +1035,11 @@ int FixUtil::parse(Date *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample FIX date: "2005-01-31+04:00"
+    // Sample FIX date: "20050131+04:00"
     //
     // The zone designator is optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -1158,7 +1156,7 @@ int FixUtil::parse(Datetime *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample FIX datetime: "2005-01-31T08:59:59.999-04:00"
+    // Sample FIX datetime: "20050131-08:59:59.999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
@@ -1208,7 +1206,7 @@ int FixUtil::parse(DateTz *result, const char *string, int length)
     //
     // The zone designator is optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -1322,11 +1320,11 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
 
-    // Sample FIX datetime: "2005-01-31T08:59:59.999-04:00"
+    // Sample FIX datetime: "20050131-08:59:59.999-04:00"
     //
     // The fractional second and zone designator are independently optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DDThh:mm:ss" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD-hh:mm:ss" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -1341,11 +1339,11 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
 
     if (0   != parseDate(&p, &year, &month, &day, p, end)
      || p   == end
-     || 'T' != *p) {
+     || '-' != *p) {
 
         return -1;                                                    // RETURN
     }
-    ++p;  // skip 'T'
+    ++p;  // skip '-'
 
     // 2. Parse time.
 

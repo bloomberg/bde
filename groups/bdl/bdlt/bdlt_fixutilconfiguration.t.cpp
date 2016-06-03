@@ -264,17 +264,19 @@ int main(int argc, char *argv[])
     ASSERT( configuration.fractionalSecondPrecision() == 3);
     ASSERT(!configuration.useZAbbreviationForUtc());
 //..
-// Then, we modify 'configuration' to indicate that we want to use ',' as the
-// decimal sign (in fractional seconds):
+// Then, we modify 'configuration' to indicate that we want to use 6 digits of
+// precision in the fractional seconds:
 //..
-    ASSERT( configuration.fractionalSecondPrecision() == 3);
+    configuration.setFractionalSecondPrecision(6);
+    ASSERT( configuration.fractionalSecondPrecision() == 6);
     ASSERT(!configuration.useZAbbreviationForUtc());
 //..
-// Finally, we modify 'configuration' to indicate that we want to omit the ':'
-// in zone designators:
+// Finally, we modify 'configuration' to indicate that we want to use 'Z' as an
+// abbreviation for UTC:
 //..
-    ASSERT( configuration.fractionalSecondPrecision() == 3);
-    ASSERT(!configuration.useZAbbreviationForUtc());
+    configuration.setUseZAbbreviationForUtc(true);
+    ASSERT( configuration.fractionalSecondPrecision() == 6);
+    ASSERT( configuration.useZAbbreviationForUtc());
 //..
 // Our 'configuration' object can now be supplied to 'my::FixUtil' to produce
 // the desired result.
@@ -1100,9 +1102,9 @@ int main(int argc, char *argv[])
         //LINE L SPL  PRE  USEZ   EXP
         //---- - ---  ---  -----  ---
 
-        { L_, -9, -9,   6,  true,          "[ 6 true true true ]"            },
+        { L_, -9, -9,   6,  true, "[ 6 true ]"                               },
 
-        { L_, -9, -9,   3, false,          "[ 3 false false false ]"         },
+        { L_, -9, -9,   3, false, "[ 3 false ]"                              },
 
 #undef NL
 #undef SP
