@@ -2116,36 +2116,36 @@ int main(int argc, char *argv[])
         //LINE L SPL  OBJ  EXPECTED
         //---- - ---  ---  ---------------------------------------------------
 
-        { L_,  0,  0,  &A, "["                                              NL
-                           "descriptor = ["                                 NL
-                           "utcOffsetInSeconds = -7"                        NL
-                           "dstInEffectFlag = true"                         NL
-                           "description = \"MDT\""                          NL
-                           "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
-                           "]"                                              NL
+        { L_,  0,  0,  &A, "["                                               NL
+                           "descriptor = ["                                  NL
+                           "utcOffsetInSeconds = -7"                         NL
+                           "dstInEffectFlag = true"                          NL
+                           "description = \"MDT\""                           NL
+                           "]"                                               NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"        NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          NL
+                           "]"                                               NL
                                                                             },
 
-        { L_,  0,  1,  &A, "["                                              NL
-                           " descriptor = ["                                NL
-                           "  utcOffsetInSeconds = -7"                      NL
-                           "  dstInEffectFlag = true"                       NL
-                           "  description = \"MDT\""                        NL
-                           " ]"                                             NL
-                           " utcStartTime = 15APR2010_08:00:00.000"         NL
-                           " utcEndTime = 08DEC2010_09:00:00.000"           NL
-                           "]"                                              NL
+        { L_,  0,  1,  &A, "["                                               NL
+                           " descriptor = ["                                 NL
+                           "  utcOffsetInSeconds = -7"                       NL
+                           "  dstInEffectFlag = true"                        NL
+                           "  description = \"MDT\""                         NL
+                           " ]"                                              NL
+                           " utcStartTime = 15APR2010_08:00:00.000000"       NL
+                           " utcEndTime = 08DEC2010_09:00:00.000000"         NL
+                           "]"                                               NL
                                                                             },
 
-        { L_,  0, -1,  &A, "["                                              SP
-                           "descriptor = ["                                 SP
-                           "utcOffsetInSeconds = -7"                        SP
-                           "dstInEffectFlag = true"                         SP
-                           "description = \"MDT\""                          SP
-                           "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+        { L_,  0, -1,  &A, "["                                               SP
+                           "descriptor = ["                                  SP
+                           "utcOffsetInSeconds = -7"                         SP
+                           "dstInEffectFlag = true"                          SP
+                           "description = \"MDT\""                           SP
+                           "]"                                               SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"        SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          SP
                            "]"
                                                                             },
 
@@ -2156,70 +2156,72 @@ int main(int argc, char *argv[])
         //LINE L SPL  OBJ  EXPECTED
         //---- - ---  ---  ---------------------------------------------------
 
-        { L_,  3,  0,  &A, "["                                              NL
-                           "descriptor = ["                                 NL
-                           "utcOffsetInSeconds = -7"                        NL
-                           "dstInEffectFlag = true"                         NL
-                           "description = \"MDT\""                          NL
-                           "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
-                           "]"                                              NL
+        { L_,  3,  0,  &A, "["                                               NL
+                           "descriptor = ["                                  NL
+                           "utcOffsetInSeconds = -7"                         NL
+                           "dstInEffectFlag = true"                          NL
+                           "description = \"MDT\""                           NL
+                           "]"                                               NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"        NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          NL
+                           "]"                                               NL
                                                                             },
 
-        { L_,  3,  2,  &A, "      ["                                        NL
-                           "        descriptor = ["                         NL
-                           "          utcOffsetInSeconds = -7"              NL
-                           "          dstInEffectFlag = true"               NL
-                           "          description = \"MDT\""                NL
-                           "        ]"                                      NL
-                           "        utcStartTime = 15APR2010_08:00:00.000"  NL
-                           "        utcEndTime = 08DEC2010_09:00:00.000"    NL
-                           "      ]"                                        NL
+        { L_,  3,  2,  &A,
+                          "      ["                                          NL
+                          "        descriptor = ["                           NL
+                          "          utcOffsetInSeconds = -7"                NL
+                          "          dstInEffectFlag = true"                 NL
+                          "          description = \"MDT\""                  NL
+                          "        ]"                                        NL
+                          "        utcStartTime = 15APR2010_08:00:00.000000" NL
+                          "        utcEndTime = 08DEC2010_09:00:00.000000"   NL
+                          "      ]"                                          NL
                                                                             },
 
-        { L_,  3, -2,  &A, "      ["                                        SP
-                           "descriptor = ["                                 SP
-                           "utcOffsetInSeconds = -7"                        SP
-                           "dstInEffectFlag = true"                         SP
-                           "description = \"MDT\""                          SP
-                           "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+        { L_,  3, -2,  &A, "      ["                                         SP
+                           "descriptor = ["                                  SP
+                           "utcOffsetInSeconds = -7"                         SP
+                           "dstInEffectFlag = true"                          SP
+                           "description = \"MDT\""                           SP
+                           "]"                                               SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"        SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          SP
                            "]"
                                                                             },
 
-        { L_, -3,  0,  &A, "["                                              NL
-                           "descriptor = ["                                 NL
-                           "utcOffsetInSeconds = -7"                        NL
-                           "dstInEffectFlag = true"                         NL
-                           "description = \"MDT\""                          NL
-                           "]"                                              NL
-                           "utcStartTime = 15APR2010_08:00:00.000"          NL
-                           "utcEndTime = 08DEC2010_09:00:00.000"            NL
-                           "]"                                              NL
+        { L_, -3,  0,  &A, "["                                               NL
+                           "descriptor = ["                                  NL
+                           "utcOffsetInSeconds = -7"                         NL
+                           "dstInEffectFlag = true"                          NL
+                           "description = \"MDT\""                           NL
+                           "]"                                               NL
+                           "utcStartTime = 15APR2010_08:00:00.000000"        NL
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          NL
+                           "]"                                               NL
                                                                             },
 
-        { L_, -3,  2,  &A, "["                                              NL
-                           "        descriptor = ["                         NL
-                           "          utcOffsetInSeconds = -7"              NL
-                           "          dstInEffectFlag = true"               NL
-                           "          description = \"MDT\""                NL
-                           "        ]"                                      NL
-                           "        utcStartTime = 15APR2010_08:00:00.000"  NL
-                           "        utcEndTime = 08DEC2010_09:00:00.000"    NL
-                           "      ]"                                        NL
+        { L_, -3,  2,  &A,
+                          "["                                                NL
+                          "        descriptor = ["                           NL
+                          "          utcOffsetInSeconds = -7"                NL
+                          "          dstInEffectFlag = true"                 NL
+                          "          description = \"MDT\""                  NL
+                          "        ]"                                        NL
+                          "        utcStartTime = 15APR2010_08:00:00.000000" NL
+                          "        utcEndTime = 08DEC2010_09:00:00.000000"   NL
+                          "      ]"                                          NL
                                                                             },
 
-        { L_, -3, -2,  &A, "["                                              SP
-                           "descriptor ="                                   SP
-                           "["                                              SP
-                           "utcOffsetInSeconds = -7"                        SP
-                           "dstInEffectFlag = true"                         SP
-                           "description = \"MDT\""                          SP
-                           "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+        { L_, -3, -2,  &A, "["                                               SP
+                           "descriptor ="                                    SP
+                           "["                                               SP
+                           "utcOffsetInSeconds = -7"                         SP
+                           "dstInEffectFlag = true"                          SP
+                           "description = \"MDT\""                           SP
+                           "]"                                               SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"        SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"          SP
                            "]"
                                                                             },
 
@@ -2229,15 +2231,16 @@ int main(int argc, char *argv[])
 
         //LINE L SPL  OBJ  EXPECTED
         //---- - ---  ---  ---------------------------------------------------
-        { L_,  2,  3,  &B, "      ["                                        NL
-                           "         descriptor = ["                        NL
-                           "            utcOffsetInSeconds = 2"             NL
-                           "            dstInEffectFlag = false"            NL
-                           "            description = \"IDT\""              NL
-                           "         ]"                                     NL
-                           "         utcStartTime = 16MAY2011_09:00:00.000" NL
-                           "         utcEndTime = 09JAN2012_10:00:00.000"   NL
-                           "      ]"                                        NL
+        { L_,  2,  3,  &B,
+                         "      ["                                           NL
+                         "         descriptor = ["                           NL
+                         "            utcOffsetInSeconds = 2"                NL
+                         "            dstInEffectFlag = false"               NL
+                         "            description = \"IDT\""                 NL
+                         "         ]"                                        NL
+                         "         utcStartTime = 16MAY2011_09:00:00.000000" NL
+                         "         utcEndTime = 09JAN2012_10:00:00.000000"   NL
+                         "      ]"                                           NL
                                                                             },
 
         // -----------------------------------------------------------------
@@ -2254,8 +2257,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = true"                         SP
                            "description = \"MDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 15APR2010_08:00:00.000"          SP
-                           "utcEndTime = 08DEC2010_09:00:00.000"            SP
+                           "utcStartTime = 15APR2010_08:00:00.000000"       SP
+                           "utcEndTime = 08DEC2010_09:00:00.000000"         SP
                            "]"
                                                                             },
 
@@ -2266,8 +2269,8 @@ int main(int argc, char *argv[])
                            "dstInEffectFlag = false"                        SP
                            "description = \"IDT\""                          SP
                            "]"                                              SP
-                           "utcStartTime = 16MAY2011_09:00:00.000"          SP
-                           "utcEndTime = 09JAN2012_10:00:00.000"            SP
+                           "utcStartTime = 16MAY2011_09:00:00.000000"       SP
+                           "utcEndTime = 09JAN2012_10:00:00.000000"         SP
                            "]"
                                                                             },
 
