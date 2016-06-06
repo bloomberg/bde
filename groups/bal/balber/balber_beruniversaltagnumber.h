@@ -147,6 +147,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_variant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -314,7 +318,7 @@ class BerUniversalTagNumber_Imp {
 
     TagVal select(const bsl::vector<char>& object, bdlat_TypeCategory::Array);
 
-                        //  ** By Catetory **
+                        //  ** By Category **
 
     template <typename TYPE>
     TagVal select(const TYPE& object, bdlat_TypeCategory::CustomizedType);
@@ -777,7 +781,7 @@ BerUniversalTagNumber_Imp::select(const bsl::vector<char>&  ,
     return BerUniversalTagNumber::e_BER_OCTET_STRING;
 }
 
-                        //  ** By Catetory **
+                        //  ** By Category **
 
 template <typename TYPE>
 inline

@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a protocol for asynchronous IO operations
+//@PURPOSE: Provide a protocol for asynchronous IO operations.
 //
 //@CLASSES:
 //  btlmt::AsyncChannel: *pure* protocol for asynchronous IO operations

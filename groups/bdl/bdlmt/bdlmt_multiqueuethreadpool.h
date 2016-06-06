@@ -42,19 +42,20 @@ BSLS_IDENT("$Id: $")
 //
 ///Disabled Queues
 ///---------------
-// 'bdlmt::MultiQueueThreadPool' allows clients to disable and re-enable queues.
-// A disabled queue will allow no further jobs to be enqueued, but will
-// continue to process the jobs that were enqueued prior to the call to
+// 'bdlmt::MultiQueueThreadPool' allows clients to disable and re-enable
+// queues.  A disabled queue will allow no further jobs to be enqueued, but
+// will continue to process the jobs that were enqueued prior to the call to
 // 'disableQueue'.  Note that calling 'disableQueue' will block the calling
 // thread until the currently executing job (if any) on that queue completes.
 //
 ///Paused Queues
 ///-------------
-// 'bdlmt::MultiQueueThreadPool' also allows clients to pause and resume queues.
-// Pausing a queue suspends the processing of jobs from a queue -- i.e., after
-// 'pause' returns no further jobs will be processed on that queue until the
-// queue is resumed.  Note that calling 'pauseQueue' will block the calling
-// thread until the currently executing job (if any) on that queue completes.
+// 'bdlmt::MultiQueueThreadPool' also allows clients to pause and resume
+// queues.  Pausing a queue suspends the processing of jobs from a queue --
+// i.e., after 'pause' returns no further jobs will be processed on that queue
+// until the queue is resumed.  Note that calling 'pauseQueue' will block the
+// calling thread until the currently executing job (if any) on that queue
+// completes.
 //
 ///Thread Safety
 ///-------------
@@ -493,19 +494,19 @@ class MultiQueueThreadPool_QueueContext {
         // ID must be bound to the functor at the time of its instantiation.
 
     // PUBLIC DATA MEMBERS
-    MultiQueueThreadPool_Queue d_queue; 
+    MultiQueueThreadPool_Queue d_queue;
     mutable bslmt::QLock       d_lock;         // protect queue and
                                                // informational members
 
     bool                       d_pausing;      // set while pauseQueue is
                                                // waiting for callback
-    
+
     QueueProcessorCb           d_processingCb; // bound processing callback for
                                                // pool
-    
+
     bool                       d_destroyFlag;  // signals worker thread to
                                                // delete queue
-    
+
     bslmt::ThreadUtil::Handle  d_processor;    // current worker thread, or
                                                // ThreadUtil::invalidHandle()
 

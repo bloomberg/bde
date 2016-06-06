@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // that define 'operator<<' so they can be used in chains of '<<' operations.
 // The 'bdlb::PrintStringHexDumper' class produces formatted, possibly
 // multi-line output, whereas the 'bdlb::PrintStringSingleLineHexDumper' class
-// produces a simple sequence of hexidecimal digits (and no newline).
+// produces a simple sequence of hexadecimal digits (and no newline).
 //
 ///'xxd'-Compatible 'hexDump'
 /// - - - - - - - - - - - - -

@@ -140,6 +140,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -183,8 +191,7 @@ class TestLoader : public Loader {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestLoader,
-                                          bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestLoader, bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit TestLoader(bslma::Allocator *basicAllocator = 0);

@@ -91,8 +91,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Stream Initializaton
-///- - - - - - - - - - - - - - - -
+///Example 1: Stream Initialization
+/// - - - - - - - - - - - - - - - -
 // The most common usage of this component is to initialize a stream.  In this
 // case, the 'bdls::FdStreamBuf' will be used for either input or output, but
 // not both.
@@ -663,7 +663,7 @@ class FdStreamBuf : public bsl::streambuf {
 
         e_OUTPUT_MODE        = 3,  // doing output
 
-        e_ERROR_MODE         = 4   // An error has occured.  Note that error
+        e_ERROR_MODE         = 4   // An error has occurred.  Note that error
                                    // mode is sticky -- subsequent I/O won't
                                    // work until error mode is cleared by a
                                    // 'reset' or a seek.

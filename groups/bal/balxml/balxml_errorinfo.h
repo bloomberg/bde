@@ -326,7 +326,7 @@ namespace balxml {
                               // ===============
 class ErrorInfo
 {
-    // This class provides detailed information for errors encounted during
+    // This class provides detailed information for errors encountered during
     // XML parsing.  Such information is common for most parsers and contains
     // the following data: line number, column number, severity code,
     // identification of source document and the parser error message.

@@ -29,8 +29,8 @@ BSLS_IDENT("$Id$")
 // form, approximations of real-number values.  The Densely Packed Decimal
 // format is a storage format which represents the significant digits of a
 // value in a compressed Binary-Coded Decimal (BCD) format.  Densely Packed
-// Decimal significands consist of a seqence of declets, each declet encoding 3
-// decimal digits, in 10 bits.  The encoding is not a 1:1 mapping with the
+// Decimal significands consist of a sequence of declets, each declet encoding
+// 3 decimal digits, in 10 bits.  The encoding is not a 1:1 mapping with the
 // binary values corresponding to the decimal value of any three digits.
 //
 // In the following example we used 'DenselyPackedDecimalImpUtil' to encode an

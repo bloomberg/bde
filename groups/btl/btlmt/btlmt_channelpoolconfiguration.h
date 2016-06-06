@@ -1,4 +1,4 @@
- // btlmt_channelpoolconfiguration.h                                   -*-C++-*-
+// btlmt_channelpoolconfiguration.h                                   -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE

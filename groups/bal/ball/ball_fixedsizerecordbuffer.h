@@ -207,7 +207,7 @@ class FixedSizeRecordBuffer: public RecordBuffer {
                                                  // contained records
 
     // Implementation note:  The order of the following data members is
-    // required to enusre proper intialization order.
+    // required to ensure proper initialization order.
 
     CountingAllocator             d_allocator;   // allocator for 'd_deque'
 

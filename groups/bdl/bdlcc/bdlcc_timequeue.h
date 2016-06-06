@@ -967,7 +967,7 @@ class TimeQueue {
         // Remove all the items from this queue.  Optionally specify a 'buffer'
         // in which to load the removed items.  The resultant items in the
         // 'buffer' are ordered by increasing time interval; items of
-        // equivalant time interval have arbitrary ordering.  Note that the
+        // equivalent time interval have arbitrary ordering.  Note that the
         // allocator of the 'buffer' vector is used to supply memory.
 
     int update(Handle                     handle,

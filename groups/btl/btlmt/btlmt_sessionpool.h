@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide thread-enabled session-based IPv4 communication
+//@PURPOSE: Provide thread-enabled session-based IPv4 communication.
 //
 //@CLASSES:
 //  btlmt::SessionPool: session manager

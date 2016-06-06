@@ -565,27 +565,27 @@ struct CharType {
 
     static const char *stringCntrl();
         // Return a null-terminated string consisting of all characters in the
-        // category 'CNTRL' (i.e., '[\0-\37]' and '\177'), ordered by increasing
+        // category 'CNTRL' (i.e., '[\0-\37]' and '\177'), ordered by
+        // increasing character codes.  Note that this string, if printed, may
+        // appear to be of length 0 because the 'NULL' character is part of the
+        // set and appears first.
+
+    static const char *stringAscii();
+        // Return a null-terminated string consisting of all characters in the
+        // category 'ASCII' (i.e., '[\0-\177]'), ordered by increasing
         // character codes.  Note that this string, if printed, may appear to
         // be of length 0 because the 'NULL' character is part of the set and
         // appears first.
 
-    static const char *stringAscii();
-        // Return a null-terminated string consisting of all characters in the
-        // category 'ASCII' (i.e., '[\0-\177]'), ordered by increasing character
-        // codes.  Note that this string, if printed, may appear to be of
-        // length 0 because the 'NULL' character is part of the set and appears
-        // first.
-
     static const char *stringIdent();
         // Return a null-terminated string consisting of all characters in the
-        // category 'IDENT' (i.e., '[ALNUM|_]'), ordered by increasing character
-        // codes.
+        // category 'IDENT' (i.e., '[ALNUM|_]'), ordered by increasing
+        // character codes.
 
     static const char *stringAlund();
         // Return a null-terminated string consisting of all characters in the
-        // category 'ALUND' (i.e., '[ALPHA|_]'), ordered by increasing character
-        // codes.
+        // category 'ALUND' (i.e., '[ALPHA|_]'), ordered by increasing
+        // character codes.
 
     static const char *stringAll();
         // Return a null-terminated string consisting of all characters in the

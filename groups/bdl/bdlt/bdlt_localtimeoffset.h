@@ -310,7 +310,7 @@ LocalTimeOffset::LocalTimeOffsetCallback
 {
     return reinterpret_cast<LocalTimeOffsetCallback>(
         reinterpret_cast<bsls::Types::IntPtr>(
-            bsls::AtomicOperations::getPtrAcquire( 
+            bsls::AtomicOperations::getPtrAcquire(
                 &s_localTimeOffsetCallback_p)));
 }
 

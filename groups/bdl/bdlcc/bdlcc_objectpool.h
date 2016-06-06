@@ -569,7 +569,7 @@ class ObjectPool_DefaultProxy {
     // a proxied 'bsl::function' object that invokes the default constructor of
     // the parameterized 'TYPE' with placement 'new'.
 
-    // PRIVATE TYTPES
+    // PRIVATE TYPES
     typedef ObjectPoolFunctors::DefaultCreator Creator;
 
     // DATA

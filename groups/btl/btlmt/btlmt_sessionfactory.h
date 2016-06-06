@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a *pure* protocol class for creating sessions
+//@PURPOSE: Provide a *pure* protocol class for creating sessions.
 //
 //@CLASSES:
 //  btlmt::SessionFactory: abstract factory for sessions

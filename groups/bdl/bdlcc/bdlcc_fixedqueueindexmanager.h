@@ -358,7 +358,6 @@ class FixedQueueIndexManager {
                                     // details)
 
 
-        
     };
 
     // CREATORS

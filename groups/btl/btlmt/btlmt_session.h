@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a *pure* protocol class for a session
+//@PURPOSE: Provide a *pure* protocol class for a session.
 //
 //@CLASSES:
 //  btlmt::Session: protocol for an abstract session.
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlmt_sessionpool, btlmt_sessionfactory
 //
 //@DESCRIPTION: This component provides a class, 'btlmt::Session', for
-// aggregating application data in one type that addtionally allows starting
+// aggregating application data in one type that additionally allows starting
 // and stopping a network connection.  Concrete implementations of this
 // protocol are intended to be used with 'btlmt_sessionpool' and will rarely
 // be used stand-alone.

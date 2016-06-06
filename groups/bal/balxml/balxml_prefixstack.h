@@ -134,9 +134,9 @@ class PrefixStack {
     // CREATORS
     PrefixStack(NamespaceRegistry *namespaceRegistry,
                 bslma::Allocator  *basicAllocator = 0);
-        // Create an empty registry.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // Create an empty registry.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     PrefixStack(const PrefixStack&  original,
                 bslma::Allocator   *basicAllocator = 0);

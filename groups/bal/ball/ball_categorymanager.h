@@ -40,12 +40,12 @@ BSLS_IDENT("$Id: $")
 //
 // A category is represented by a 'ball::Category' object.  Instances of
 // 'ball::Category' cannot be created directly; instead, they are created by
-// the 'ball::CategoryManager' class.  'ball::CategoryManager' manages a registry
-// of categories and exposes methods to add new categories to the registry
-// ('addCategory') and modify the threshold levels of existing categories
-// ('setThresholdLevels').  'ball::Category' provides accessors for direct
-// access to the name and threshold levels of a given category, and a single
-// manipulator to set the four threshold levels levels.
+// the 'ball::CategoryManager' class.  'ball::CategoryManager' manages a
+// registry of categories and exposes methods to add new categories to the
+// registry ('addCategory') and modify the threshold levels of existing
+// categories ('setThresholdLevels').  'ball::Category' provides accessors for
+// direct access to the name and threshold levels of a given category, and a
+// single manipulator to set the four threshold levels levels.
 //
 // This component also provides an iterator ('ball::CategoryManagerIter')
 // and a manipulator ('ball::CategoryManagerManip') that give read-only and
