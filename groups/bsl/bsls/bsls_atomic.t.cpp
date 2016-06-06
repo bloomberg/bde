@@ -89,6 +89,18 @@ using namespace std;
 // [ 3] T* operator->() const;
 // [ 2] operator T*() const;
 //
+// bsls::AtomicBool
+// ---------------
+// [ 2] bsls::AtomicBool();
+// [ 3] bsls::AtomicBool(const bsls::AtomicBool& rhs);
+// [ 3] bsls::AtomicBool(bool value);
+// [ 2] ~bsls::AtomicBool();
+// [ 5] bool swap(bool swapValue);
+// [ 5] bool testAndSwap(bool compareValue, bool swapValue);
+// [ 3] bsls::AtomicBool& operator= (const bsls::AtomicBool& rhs);
+// [ 2] bsls::AtomicBool& operator= (bool value);
+// [ 2] operator bool() const;
+//
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] SEQUENTIAL CONSISTENCY MEMORY ORDERING GUARANTEE TEST
@@ -161,6 +173,7 @@ typedef bsls::AtomicInt                      AI;
 typedef bsls::AtomicInt64                    AI64;
 typedef bsls::AtomicPointer<APTestObj>       AP;
 typedef bsls::AtomicPointer<const APTestObj> CAP;
+typedef bsls::AtomicBool                     AB;
 
 typedef bsls::Types::Int64            Int64;
 
@@ -1508,13 +1521,13 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING SWAP MANIPULATORS:
-        //   Test the "swap" and "test and swap" functions for the Int,Int64,
-        //   and Pointer atomic types.
+        //   Test the "swap" and "test and swap" functions for the Int, Int64,
+        //   Pointer, and Bool atomic types.
         //
         // Plan:
-        //   For each atomic type("AtomicInt", "AtomicInt64", "AtomicPointer"),
-        //   perform the following tests to verify the swap, and testAndSwap
-        //   manipulators.
+        //   For each atomic type("AtomicInt", "AtomicInt64", "AtomicPointer",
+        //   "AtomicBool"), perform the following tests to verify the swap and
+        //   testAndSwap manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
         //   set its value to a base value.  Next 'swap' it with a second test
@@ -1533,6 +1546,8 @@ int main(int argc, char *argv[])
         //   bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
+        //   bool swap(bool swapValue);
+        //   bool testAndSwap(bool compareValue, bool swapValue);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting SWAP Manipulators"
@@ -1793,6 +1808,90 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, EXPRES == result );
             }
         }
+
+        if (verbose) cout << "\nTesting 'AtomicBool' SWAP Manipulators" << endl;
+        {
+            static const struct {
+                int  d_lineNum;    // source line number
+                bool d_value;      // initial value
+                bool d_swapValue;  // swap value
+            } VALUES[] = {
+                //line value swap
+                //---- ----- -------
+                { L_,   false, false },
+                { L_,   false, true  },
+                { L_,   true , false },
+                { L_,   true , true  }
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const bool VAL    = VALUES[i].d_value;
+                const bool SWPVAL = VALUES[i].d_swapValue;
+                bool       result = 0;
+
+                AB x; const AB& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL  == X);
+
+                result = x.swap(SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); P(SWPVAL);
+                }
+                LOOP_ASSERT(i, SWPVAL == X);
+                LOOP_ASSERT(i, VAL    == result );
+            }
+        }
+
+        {
+            static const struct {
+                int  d_lineNum;       // source line number
+                bool d_value;         // initial value
+                bool d_swapValue;     // swap value
+                bool d_compareValue;  // compare value
+                bool d_expValue;      // expected value after the operations
+                bool d_expResult;     // expected result
+            } VALUES[] = {
+            //ln  val    swapValue  cmpValue  expValue  expResult
+            //--- -----  ---------  --------  --------  ---------
+            { L_, false, false    , false   , false   , false},
+            { L_, false, false    , true    , false   , false},
+            { L_, false, true     , false   , true    , false},
+            { L_, false, true     , true    , false   , false},
+            { L_, true , false    , false   , true    , true},
+            { L_, true , false    , true    , false   , true},
+            { L_, true , true     , false   , true    , true},
+            { L_, true , true     , true    , true    , true}
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const bool VAL    = VALUES[i].d_value;
+                const bool CMPVAL = VALUES[i].d_compareValue;
+                const bool SWPVAL = VALUES[i].d_swapValue;
+                const bool EXPVAL = VALUES[i].d_expValue;
+                const bool EXPRES = VALUES[i].d_expResult;
+                bool       result = 0;
+
+                AB x; const AB& X = x;
+
+                x = VAL;
+                LOOP_ASSERT(i, VAL == X);
+                result = x.testAndSwap(CMPVAL,SWPVAL);
+
+                if (veryVerbose) {
+                    T_(); P_(X);
+                    P_(VAL);P_(CMPVAL);P_(SWPVAL); P_(result);
+                    P_(EXPVAL);P_(EXPRES); NL();
+                }
+                LOOP_ASSERT(i, EXPVAL == X);
+                LOOP_ASSERT(i, EXPRES == result );
+            }
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1831,7 +1930,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         if (verbose) cout << endl
-                          << "Testing 'AtoicInt' Arithmetic Manipulators"
+                          << "Testing 'AtomicInt' Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -2078,9 +2177,9 @@ int main(int argc, char *argv[])
         //   First, verify the initialization functions by initializing each
         //   atomic type and testing the resulting value.
         //
-        //   Next, for the AtomicInt, AtomicInt64, and AtomicPointer types,
-        //   for a sequence of independent test values, use the
-        //   initialization constructor to construct an object 'x' of each
+        //   Next, for the AtomicInt, AtomicInt64, AtomicPointer, and
+        //   AtomicBool types, for a sequence of independent test values, use
+        //   the initialization constructor to construct an object 'x' of each
         //   type.  Then using the copy constructor, construct an object 'y'
         //   from 'x'.  Next construct a third object 'z'.  Using the
         //   assignment operator, assign the value of 'x' to 'z'.  Finally
@@ -2096,6 +2195,9 @@ int main(int argc, char *argv[])
         //   bsls::AtomicPointer(const bsls::AtomicPointer<T>& original);
         //   bsls::AtomicPointer(const T* value);
         //   bsls::AtomicPointer<T>& operator=(const bsls::AtomicPointer<T>&);
+        //   bsls::AtomicBool(const bsls::AtomicBool& rhs);
+        //   bsls::AtomicBool(bool value);
+        //   bsls::AtomicBool& operator= (const bsls::AtomicBool& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"
@@ -2206,6 +2308,41 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, VAL == Z);
             }
         }
+
+        if (verbose) cout << "\nTesting 'AtomicBool' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                bool d_value;   // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   false  },
+                { L_,   false  },
+                { L_,   true   },
+                { L_,   false  }
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const bool VAL  = VALUES[i].d_value;
+
+                AB x(VAL);              const AB& X = x;
+                AB y(X.loadRelaxed());  const AB& Y = y;
+                AB z;                   const AB& Z = z;
+
+                z = X.loadRelaxed();
+                if (veryVerbose) {
+                    T_(); P_(X); P_(Y); P_(Z); P(VAL);
+                }
+                LOOP_ASSERT(i, VAL == X);
+                LOOP_ASSERT(i, VAL == Y);
+                LOOP_ASSERT(i, VAL == Z);
+            }
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2215,13 +2352,14 @@ int main(int argc, char *argv[])
         //   work correctly.
         //
         // Plan:
-        //   For each atomic type(AtomicInt, AtomicInt64, AtomicPointer),
+        //   For each atomic type(AtomicInt, AtomicInt64, AtomicPointer,
+        //   AtomicBool),
         //   Begin by constructing an object using the default constructor
         //   and verify that it is the expected default value.  Then for a
         //   sequence independent test values, set the value using the basic
         //   manipulator('operator=').  Verify that the value is correct using
         //   the respective direct accessor('operator int',
-        //   'operator bsls::Types::Int64', 'operator T*').
+        //   'operator bsls::Types::Int64', 'operator T*', 'operator bool').
         //
         // Testing:
         //   bsls::AtomicInt();
@@ -2235,6 +2373,10 @@ int main(int argc, char *argv[])
         //   bsls::AtomicPointer();
         //   bsls::AtomicPointer<T>& operator= (const T *value);
         //   ~bsls::AtomicPointer();
+        //   bsls::AtomicBool();
+        //   ~bsls::AtomicBool()
+        //   bsls::AtomicBool& operator= (bool value);
+        //   operator bool() const;
         //   T& operator*() const;
         //   T* operator->() const;
         //   operator T*() const;
@@ -2344,6 +2486,37 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, VAL == X->self());
             }
         }
+
+        if (verbose) cout << "\nTesting 'bsls::AtomicBool' Primary Manipulators"
+                          << endl;
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                bool d_value;   // input value
+            } VALUES[] = {
+                //line value
+                //---- ----
+                { L_,   false  },
+                { L_,   false  },
+                { L_,   true   }
+            };
+
+            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const bool VAL  = VALUES[i].d_value;
+
+                AB x;  const AB& X = x;
+                ASSERT(false == X);
+
+                x = VAL;
+                if (veryVerbose) {
+                    T_(); P_(X); P_(VAL); NL();
+                }
+                LOOP_ASSERT(i, VAL == X);
+            }
+        }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
