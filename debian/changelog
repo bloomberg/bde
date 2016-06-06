@@ -1,10 +1,19 @@
-bsl-internal (2.27.13.0) unstable; urgency=low
+bsl-internal (2.27.14.0) unstable; urgency=low
 
+  * dc1c0c5 Merge pull request #457 from mgiroux/review/bump-patchversion-to-2.27.14
+  * 88d558a bump patchversion to 2.27.14
+  * 370bfaa Merge pull request #453 from mgiroux/review/rename-pcre-dep-file-drqs-81785378
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 6 Jun 2016 16:01:18 -0400
+
+bsl-internal (2.27.13.0) git; urgency=low
+
+  * 81af0a4 Changelog for version 2.27.13.0
   * af92449 Merge pull request #435 from mgiroux/review/bump-patchversion-to-2.27.13.0
   * 8de8823 Bump patchversion to 2.27.13.0
   * 27c21cf Merge pull request #427 from mgiroux/review/reduce-bslstl-function-expansion-limit
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 26 May 2016 17:18:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 26 May 2016 17:19:30 -0400
 
 bsl-internal (2.27.11.0) git; urgency=low
 
