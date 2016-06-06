@@ -211,6 +211,35 @@ struct SocketOptUtil {
     // operation.  All functions return O on success and a negative value on
     // error.
 
+  private:
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+    // PRIVATE CLASS METHODS
+    static int setReuseAddressOnWindows(
+                                       btlso::SocketHandle::Handle  handle,
+                                       int                          level,
+                                       const char                  *value,
+                                       int                          valueLen,
+                                       int                         *errorCode);
+        // Set the ability to reuse the IP address and port on the specified
+        // 'handle' and the specified 'level' to the specified 'value' of the
+        // specified 'valueLen' bytes.  Load into the specified 'errorCode' any
+        // platform-specific error resulting from the operation.  Return 0 on
+        // success and a non-zero value otherwise.  Note that this method sets
+        // *both* the 'SO_REUSEADDR' and 'SO_EXCLUSIVEADDRUSE' socket options
+        // to their appropriate values based on whether the user wants to allow
+        // or disallow address reuse.  If the user wants to allow reusing
+        // addresses then 'SO_REUSEADDR' is set to true and
+        // 'SO_EXCLUSIVEADDRUSE' to 'false' and if the user wants to disallow
+        // reusing address then 'SO_REUSEADDR' is set to 'false' and
+        // 'SO_EXCLUSIVEADDRUSE' is set to 'true'.  Also note that this method
+        // and behavior is specific to the Windows platform and will be
+        // compiled out on other platforms.
+#endif
+
+  public:
+
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
     struct LingerData {
         // The linger structure maintains information about a specific socket
@@ -310,6 +339,7 @@ struct SocketOptUtil {
 
     };
 
+    // CLASS METHODS
     template <class T>
     static int setOption(SocketHandle::Handle handle,
                          int                  level,
@@ -380,18 +410,29 @@ SocketOptUtil::setOption(SocketHandle::Handle  handle,
                          int                  *errorCode)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    if (0 == setsockopt(handle,
-                        level,
-                        option,
-                        reinterpret_cast<char *>(const_cast<T *>(&value)),
-                        sizeof value)) {
-        return 0;                                                     // RETURN
+    const char *optionValue = reinterpret_cast<const char *>(&value);
+
+    if (k_REUSEADDRESS == option) {
+        return setReuseAddressOnWindows(handle,
+                                        level,
+                                        optionValue,
+                                        sizeof value,
+                                        errorCode);
     }
     else {
-        if (errorCode) {
-            *errorCode = WSAGetLastError();
+        if (0 == setsockopt(handle,
+                            level,
+                            option,
+                            optionValue,
+                            sizeof value)) {
+            return 0;                                                 // RETURN
         }
-        return -1;                                                    // RETURN
+        else {
+            if (errorCode) {
+                *errorCode = WSAGetLastError();
+            }
+            return -1;                                                // RETURN
+        }
     }
 #else
     if (0 == setsockopt(handle,
@@ -438,7 +479,7 @@ SocketOptUtil::getOption(T                    *result,
                         level,
                         option,
                         static_cast<char *>(const_cast<void *>(
-                                            static_cast<const void *>(result))),
+                                           static_cast<const void *>(result))),
                         &optsize)) {
         return 0;                                                     // RETURN
     }
@@ -473,11 +514,23 @@ SocketOptUtil::setOption(SocketHandle::Handle handle,
                          const T&             value)
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    return setsockopt(handle,
-                      level,
-                      option,
-                      (const char*)&value,
-                      sizeof value );
+    const char *optionValue = reinterpret_cast<const char *>(&value);
+
+    if (k_REUSEADDRESS == option) {
+        int errorCode = 0;
+        return setReuseAddressOnWindows(handle,
+                                        level,
+                                        optionValue,
+                                        sizeof value,
+                                        &errorCode);                  // RETURN
+    }
+    else {
+        return setsockopt(handle,
+                          level,
+                          option,
+                          optionValue,
+                          sizeof value);                              // RETURN
+    }
 #else
     return setsockopt(handle,
                       level,
