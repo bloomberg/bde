@@ -3269,10 +3269,14 @@ int main(int argc, char *argv[])
         BALL_LOG_ERROR << helloWorld4 << BALL_LOG_END;
 
         bsl::string s = os.str();
-        char *ptr4 = bsl::strstr(s.c_str(), helloWorld4); ASSERT(ptr4 != NULL);
-        char *ptr3 = bsl::strstr(ptr4+1,    helloWorld3); ASSERT(ptr3 != NULL);
-        char *ptr2 = bsl::strstr(ptr3+1,    helloWorld2); ASSERT(ptr2 != NULL);
-        char *ptr1 = bsl::strstr(ptr2+1,    helloWorld1); ASSERT(ptr1 != NULL);
+        const char *ptr4 = bsl::strstr(s.c_str(), helloWorld4);
+        ASSERT(ptr4 != NULL);
+        const char *ptr3 = bsl::strstr(ptr4+1,    helloWorld3);
+        ASSERT(ptr3 != NULL);
+        const char *ptr2 = bsl::strstr(ptr3+1,    helloWorld2);
+        ASSERT(ptr2 != NULL);
+        const char *ptr1 = bsl::strstr(ptr2+1,    helloWorld1);
+        ASSERT(ptr1 != NULL);
 
         ASSERT(ptr4  < ptr3);
         ASSERT(ptr3  < ptr2);
@@ -3333,10 +3337,14 @@ int main(int argc, char *argv[])
         BALL_LOG_ERROR << helloWorld4 << BALL_LOG_END;
 
         bsl::string s = os.str();
-        char *ptr1 = bsl::strstr(s.c_str(), helloWorld1); ASSERT(ptr1 != NULL);
-        char *ptr2 = bsl::strstr(ptr1+1,    helloWorld2); ASSERT(ptr2 != NULL);
-        char *ptr3 = bsl::strstr(ptr2+1,    helloWorld3); ASSERT(ptr3 != NULL);
-        char *ptr4 = bsl::strstr(ptr3+1,    helloWorld4); ASSERT(ptr4 != NULL);
+        const char *ptr1 = bsl::strstr(s.c_str(), helloWorld1);
+        ASSERT(ptr1 != NULL);
+        const char *ptr2 = bsl::strstr(ptr1+1,    helloWorld2);
+        ASSERT(ptr2 != NULL);
+        const char *ptr3 = bsl::strstr(ptr2+1,    helloWorld3);
+        ASSERT(ptr3 != NULL);
+        const char *ptr4 = bsl::strstr(ptr3+1,    helloWorld4);
+        ASSERT(ptr4 != NULL);
 
         ASSERT(ptr1 < ptr2);
         ASSERT(ptr2 < ptr3);
@@ -3387,8 +3395,10 @@ int main(int argc, char *argv[])
         BALL_LOG_WARN << f() << BALL_LOG_END;
         bsl::string s = os.str();
         if (verbose)  bsl::cout << s << bsl::endl;
-        char *msg1   = bsl::strstr(s.c_str(), message1); ASSERT(msg1 != NULL);
-        char *msg2   = bsl::strstr(msg1+1,    message2); ASSERT(msg2 != NULL);
+        const char *msg1 = bsl::strstr(s.c_str(), message1);
+        ASSERT(msg1 != NULL);
+        const char *msg2 = bsl::strstr(msg1+1,    message2);
+        ASSERT(msg2 != NULL);
 
         ASSERT(msg1 < msg2);
       }break;
