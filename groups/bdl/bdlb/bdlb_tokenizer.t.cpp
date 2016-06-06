@@ -2644,7 +2644,7 @@ int main(int argc, char **argv)
         enum InputType {
             TOK = 0,  // token character
             SFT = 1,  // soft delimiter character
-            HRD = 2,  // hard delimiter character
+            HRD = 2   // hard delimiter character
         };
 
         typedef bdlb::Tokenizer_Data ObjData;

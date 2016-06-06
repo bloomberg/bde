@@ -565,7 +565,7 @@ class MultiQueueThreadPool {
 
         e_BACK,        // enqueue new job at back of queue
         e_FRONT,       // enqueue new job at front of queue
-        e_FRONT_FORCE, // enqueue new job at front of queue regardless of
+        e_FRONT_FORCE  // enqueue new job at front of queue regardless of
                        // disabled state
     };
 
