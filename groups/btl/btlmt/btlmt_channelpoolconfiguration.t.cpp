@@ -10,6 +10,7 @@
 
 #include <btlmt_channelpoolconfiguration.h>
 #include <bdlat_sequencefunctions.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_cstring.h>     // strlen()
@@ -17,7 +18,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -1153,7 +1153,8 @@ int main(int argc, char *argv[])
 
         char buf[10000];
         {
-            bsl::ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << X1 << ends;
             if (verbose) cout << "X1 buf:\n" << buf << endl;
             bsl::string s =
@@ -1177,7 +1178,8 @@ int main(int argc, char *argv[])
             ASSERT(buf == s);
         }
         {
-            bsl::ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << Y1 << ends;
             if (verbose) cout << "Y1 buf:\n" << buf << endl;
             bsl::string s =

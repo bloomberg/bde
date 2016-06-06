@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //  #include <balxml_validatingreader.h>
 //  #include <balxml_errorinfo.h>
 //  #include <iostream>
-//  #include <strstream>
+//  #include <sstream>
 //..
 // The following string describes an XSD schema for the documents we are going
 // to parse:
@@ -206,7 +206,7 @@ BSLS_IDENT("$Id: $")
 //    reader->enableValidation(true);
 //    ASSERT(reader->validationFlag());
 //
-//    bsl::istrstream schemaStream(xsdSchema);
+//    bsl::istringstream schemaStream(xsdSchema);
 //    reader->addSchema("aaa.xsd", schemaStream.rdbuf());
 //..
 // Now we call the 'open' method to setup the reader for parsing using the data

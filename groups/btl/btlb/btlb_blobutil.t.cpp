@@ -8,6 +8,7 @@
 // ----------------------------------------------------------------------------
 
 #include <btlb_blobutil.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <btlb_blob.h>
 
 #include <bslim_testutil.h>
@@ -28,7 +29,6 @@
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -1315,13 +1315,15 @@ int main(int argc, char *argv[]) {
 
             ASSERT(0 == myBlob.numDataBuffers() );
 
-            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
+            char buf[k_BUF_SIZE];
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
                                 expectedOutCase3[0].size()));
 
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
+                bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
                           << output
                           << "Expected String  :\n"
@@ -1343,12 +1345,14 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(1 == myBlob.numDataBuffers() );
 
-            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
+            char buf[k_BUF_SIZE];
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
                                 expectedOutCase3[1].size()));
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
+                bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
                           << output
                           << "Expected String  :\n"
@@ -1369,12 +1373,14 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(31 == myBlob.numDataBuffers() );
 
-            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
+            char buf[k_BUF_SIZE];
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
                                 expectedOutCase3[2].size()));
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
+                bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
                           << output
                           << "Expected String  :\n"
@@ -1395,13 +1401,15 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(32 == myBlob.numDataBuffers() );
 
-            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
+            char buf[k_BUF_SIZE];
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
                                 expectedOutCase3[3].size()));
 
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
+                bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
                           << output
                           << "Expected String  :\n"
@@ -1422,12 +1430,14 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(33 == myBlob.numDataBuffers() );
 
-            char buf[k_BUF_SIZE];  bsl::strstream out(buf, k_BUF_SIZE);
+            char buf[k_BUF_SIZE];
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &btlb::BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
                                 expectedOutCase3[4].size()));
             if (veryVerbose) {
-                bsl::string output(buf, out.pcount());
+                bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
                           << output
                           << "Expected String  :\n"

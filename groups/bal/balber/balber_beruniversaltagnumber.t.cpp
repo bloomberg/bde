@@ -11,6 +11,8 @@
 
 #include <bdlat_arrayfunctions.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
@@ -18,9 +20,7 @@
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen()
@@ -2908,7 +2908,9 @@ int main(int argc, char *argv[])
             const char *const FMT = DATA[i].d_ascii;
 
             if (veryVerbose) cout << "EXPECTED FORMAT: " << FMT << endl;
-            ostrstream out(buf, sizeof buf); out << DATA[i].d_enum << ends;
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream out(&obuf);
+            out << DATA[i].d_enum << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
             const int SZ = strlen(FMT) + 1;
