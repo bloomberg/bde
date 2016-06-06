@@ -298,9 +298,13 @@ class Tokenizer {
         // Reset the get pointer of the 'streambuf' held by this object to
         // refer to the byte following the last processed byte, if the held
         // 'streambuf' supports seeking, and return an error otherwise leaving
-        // this object unchanged.  After a successful function return users can
-        // read data from the 'streambuf' where this object stopped.  Return 0
-        // on success, and a non-zero value otherwise.
+        // this object unchanged.  Return 0 on success, and a non-zero value
+        // otherwise.  Note that after a successful function return users can
+        // read data from the 'streambuf' that was specified during 'reset'
+        // from where this object stopped.  Also note that this call implies
+        // the end of processing for this object and any subsequent methods
+        // invoked on this object should only be done after calling 'reset' and
+        // specifying a new 'streambuf'.
 
     void setAllowStandAloneValues(bool value);
         // Set the 'allowStandAloneValues' option to the specified 'value'.  If

@@ -457,7 +457,7 @@ int Tokenizer::resetStreamBufGetPointer()
     const int numExtraCharsRead = static_cast<int>(d_stringBuffer.size()
                                                                    - d_cursor);
     const bsl::streamoff newPos = d_streambuf_p->pubseekoff(-numExtraCharsRead,
-                                                            bsl::ios_base::end,
+                                                            bsl::ios_base::cur,
                                                             bsl::ios_base::in);
 
     return newPos >= 0 ? 0 : -1;

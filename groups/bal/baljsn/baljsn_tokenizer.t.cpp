@@ -630,8 +630,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING that strings with escaped quotes "
-                          << "are handled correctly" << endl;
+                          << "TESTING resetting streambuf get pointer" << endl;
 
 // Define data block of 1400 bytes
 
@@ -736,11 +735,11 @@ int main(int argc, char *argv[])
           4215
         },
 
-        // Total data just less than 8K
+        // Total data one less than 8K
 
         {
           L_,
-          "{ \"x\" : \"X\" }   "
+          "{ \"x\" : \"X\" }ABC"
           DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -767,7 +766,7 @@ int main(int argc, char *argv[])
 
         {
           L_,
-          "{ \"x\" : \"X\" }   "
+          "{ \"x\" : \"X\" }ABC"
           DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -794,7 +793,7 @@ int main(int argc, char *argv[])
 
         {
           L_,
-          "{ \"x\" : \"X\" }   "
+          "{ \"x\" : \"X\" }ABC"
           DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -814,14 +813,14 @@ int main(int argc, char *argv[])
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}123456",
           4,
-          8178
+          8179
         },
 
         // Total data a lot greater than 8K
 
         {
           L_,
-          "{ \"x\" : \"X\" }   "
+          "{ \"x\" : \"X\" }ABC"
           DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -843,7 +842,25 @@ int main(int argc, char *argv[])
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\"}123456",
           4,
-          8178
+          8319
+        },
+        {
+          L_,
+          "{ \"x\" : \"X\" }ABC"
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT,
+          4,
+          14003
+        },
+        {
+          L_,
+          "{ \"x\" : \"X\" }ABC"
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT
+          DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT DATA_TEXT,
+          4,
+          28003
         },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1421,7 +1438,6 @@ int main(int argc, char *argv[])
             bsl::ostringstream os;
             os << "{\"Sequence\":{";
             for (int ti = 0; ti < NUM_DATA; ++ ti) {
-                const int    LINE   = DATA[ti].d_line;
                 const string SUFFIX = DATA[ti].d_suffixText;
                 const string TEXT   = LARGE_STRING + SUFFIX;
 
