@@ -41,7 +41,6 @@ bsls_exceptionutil
 bsls_ident
 bsls_linkcoercion
 bsls_log
-bsls_logseverity
 bsls_macroincrement
 bsls_macrorepeat
 bsls_nativestd

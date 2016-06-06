@@ -306,15 +306,10 @@ bsls::AtomicOperations::AtomicTypes::Pointer Log::s_logMessageHandler =
     // which holds the log handler function.  The pointer is initialized to the
     // address of the 'static' function 'platformDefaultMessageHandler'.
 
-
-bsls::AtomicOperations::AtomicTypes::Int Log::s_severityThreshold = {
-                                                   bsls::LogSeverity::e_WARN };
-
 // CLASS METHODS
-void Log::logFormattedMessage(bsls::LogSeverity::Enum  severity,
-                              const char              *file,
-                              int                      line,
-                              const char              *format,
+void Log::logFormattedMessage(const char *file,
+                              int         line,
+                              const char *format,
                               ...)
 {
 
@@ -344,19 +339,19 @@ void Log::logFormattedMessage(bsls::LogSeverity::Enum  severity,
     va_end(substitutions);
 
     if(status < 0) {
-        BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR, "Low-level log failure.");
+        BSLS_LOG_SIMPLE("Low-level log failure.");
         // Weird error.  Could be a memory allocation failure.  Just quit.
         return;                                                       // RETURN
     }
 
-    bsls::Log::logMessage(severity, file, line, buffer);
+    bsls::Log::logMessage(file, line, buffer);
 }
 
-void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
-                                        const char              *file,
-                                        const int                line,
-                                        const char              *message)
+void Log::platformDefaultMessageHandler(const char *file,
+                                        const int   line,
+                                        const char *message)
 {
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // First, we will check if we have a valid handle to 'stderr'.
     const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
@@ -389,17 +384,15 @@ void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
 
         BufferScopedGuard guard;
 
-        const int status = snprintf_allocate(
-                                          originalBuffer,
-                                          originalBufferSize,
-                                          guard,
-                                          &buffer,
-                                          &bufferSize,
-                                          "%s %s:%d %s\n",
-                                          bsls::LogSeverity::toAscii(severity),
-                                          file,
-                                          line,
-                                          message);
+        const int status = snprintf_allocate(originalBuffer,
+                                             originalBufferSize,
+                                             guard,
+                                             &buffer,
+                                             &bufferSize,
+                                             "%s:%d %s\n",
+                                             file,
+                                             line,
+                                             message);
 
         if(status >= 4) {
             // Ensure no weird errors happened.  At least four characters must
@@ -417,49 +410,36 @@ void Log::platformDefaultMessageHandler(bsls::LogSeverity::Enum  severity,
             OutputDebugStringA("Low-level log failure.\n");
         }
     } else {
-        stderrMessageHandler(severity, file, line, message);
+        stderrMessageHandler(file, line, message);
     }
 #else
     // In non-Windows, we will just use 'stderr'.
-    stderrMessageHandler(severity, file, line, message);
+    stderrMessageHandler(file, line, message);
 #endif
 
 }
 
-void Log::stderrMessageHandler(bsls::LogSeverity::Enum  severity,
-                               const char              *file,
-                               int                      line,
-                               const char              *message)
+void Log::stderrMessageHandler(const char *file,
+                               int         line,
+                               const char *message)
 {
     BSLS_ASSERT_OPT(file);
     BSLS_ASSERT(line >= 0);
     BSLS_ASSERT_OPT(message);
 
-    fprintf(stderr,
-            "%s %s:%d %s\n",
-            bsls::LogSeverity::toAscii(severity),
-            file,
-            line,
-            message);
+    fprintf(stderr, "%s:%d %s\n", file, line, message);
     fflush(stderr);
 }
 
-void Log::stdoutMessageHandler(bsls::LogSeverity::Enum  severity,
-                               const char              *file,
-                               int                      line,
-                               const char              *message)
+void Log::stdoutMessageHandler(const char *file,
+                               int         line,
+                               const char *message)
 {
     BSLS_ASSERT_OPT(file);
     BSLS_ASSERT(line >= 0);
     BSLS_ASSERT_OPT(message);
 
-    fprintf(stdout,
-            "%s %s:%d %s\n",
-            bsls::LogSeverity::toAscii(severity),
-            file,
-            line,
-            message);
-
+    fprintf(stdout, "%s:%d %s\n", file, line, message);
     fflush(stdout);
 }
 
