@@ -5727,6 +5727,15 @@ void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 // }}} END GENERATED CODE
 #endif
 
+
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+#define BSLSTL_FUNCTION_CAST_RESULT(X) static_cast<RET>(X)
+#else
+#define BSLSTL_FUNCTION_CAST_RESULT(X) (RET)(X)
+#endif
+
+
 // ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
@@ -9832,8 +9841,9 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
-                              forwardToTarget(args)...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
+                    forwardToTarget(args)...));
 }
 
 template <class RET, class... ARGS>
@@ -9864,7 +9874,8 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return static_cast<RET>(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -9877,7 +9888,8 @@ bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-    return static_cast<RET>(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -10243,7 +10255,8 @@ RET bsl::function<RET()>::functionPtrInvoker(const Function_Rep *rep)
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f());
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f());
 }
 
 template <class RET, class ARGS_01>
@@ -10254,8 +10267,9 @@ RET bsl::function<RET(ARGS_01)>::functionPtrInvoker(const Function_Rep *rep,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01)));
 }
 
 template <class RET, class ARGS_01,
@@ -10269,10 +10283,11 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02)));
 }
 
 template <class RET, class ARGS_01,
@@ -10289,12 +10304,13 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03)));
 }
 
 template <class RET, class ARGS_01,
@@ -10314,14 +10330,15 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04)));
 }
 
 template <class RET, class ARGS_01,
@@ -10344,16 +10361,17 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05)));
 }
 
 template <class RET, class ARGS_01,
@@ -10379,18 +10397,19 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06)));
 }
 
 template <class RET, class ARGS_01,
@@ -10419,20 +10438,21 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07)));
 }
 
 template <class RET, class ARGS_01,
@@ -10464,22 +10484,23 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08)));
 }
 
 template <class RET, class ARGS_01,
@@ -10514,24 +10535,25 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09)));
 }
 
 template <class RET, class ARGS_01,
@@ -10569,26 +10591,27 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
-                              forwardToTarget(args_10)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10)));
 }
 
 template <class RET, class ARGS_01,
@@ -10629,28 +10652,29 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
-                              forwardToTarget(args_10),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
-                              forwardToTarget(args_11)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
+                    forwardToTarget(args_11)));
 }
 
 template <class RET, class ARGS_01,
@@ -10694,30 +10718,31 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
-                              forwardToTarget(args_10),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
-                              forwardToTarget(args_11),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
-                              forwardToTarget(args_12)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
+                    forwardToTarget(args_11),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
+                    forwardToTarget(args_12)));
 }
 
 template <class RET, class ARGS_01,
@@ -10764,32 +10789,33 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
-                              forwardToTarget(args_10),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
-                              forwardToTarget(args_11),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
-                              forwardToTarget(args_12),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_13>::
-                              forwardToTarget(args_13)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
+                    forwardToTarget(args_11),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
+                    forwardToTarget(args_12),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_13>::
+                    forwardToTarget(args_13)));
 }
 
 template <class RET, class ARGS_01,
@@ -10839,34 +10865,35 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
-                              forwardToTarget(args_01),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
-                              forwardToTarget(args_02),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
-                              forwardToTarget(args_03),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
-                              forwardToTarget(args_04),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
-                              forwardToTarget(args_05),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
-                              forwardToTarget(args_06),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
-                              forwardToTarget(args_07),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
-                              forwardToTarget(args_08),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
-                              forwardToTarget(args_09),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
-                              forwardToTarget(args_10),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
-                              forwardToTarget(args_11),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
-                              forwardToTarget(args_12),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_13>::
-                              forwardToTarget(args_13),
-                              BloombergLP::bslmf::ForwardingTypeUtil<ARGS_14>::
-                              forwardToTarget(args_14)));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS_01>::
+                    forwardToTarget(args_01),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_02>::
+                    forwardToTarget(args_02),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_03>::
+                    forwardToTarget(args_03),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_04>::
+                    forwardToTarget(args_04),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_05>::
+                    forwardToTarget(args_05),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_06>::
+                    forwardToTarget(args_06),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_07>::
+                    forwardToTarget(args_07),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_08>::
+                    forwardToTarget(args_08),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_09>::
+                    forwardToTarget(args_09),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_10>::
+                    forwardToTarget(args_10),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_11>::
+                    forwardToTarget(args_11),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_12>::
+                    forwardToTarget(args_12),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_13>::
+                    forwardToTarget(args_13),
+                    BloombergLP::bslmf::ForwardingTypeUtil<ARGS_14>::
+                    forwardToTarget(args_14)));
 }
 
 
@@ -11557,7 +11584,8 @@ RET bsl::function<RET()>::inplaceFunctorInvoker(const Function_Rep *rep)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f());
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f());
 }
 
 template <class RET, class ARGS_01>
@@ -11568,7 +11596,8 @@ RET bsl::function<RET(ARGS_01)>::inplaceFunctorInvoker(const Function_Rep *rep,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01));
 }
 
 template <class RET, class ARGS_01,
@@ -11582,8 +11611,9 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02));
 }
 
 template <class RET, class ARGS_01,
@@ -11600,9 +11630,10 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03));
 }
 
 template <class RET, class ARGS_01,
@@ -11622,10 +11653,11 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04));
 }
 
 template <class RET, class ARGS_01,
@@ -11648,11 +11680,12 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05));
 }
 
 template <class RET, class ARGS_01,
@@ -11678,12 +11711,13 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06));
 }
 
 template <class RET, class ARGS_01,
@@ -11712,13 +11746,14 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07));
 }
 
 template <class RET, class ARGS_01,
@@ -11750,14 +11785,15 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08));
 }
 
 template <class RET, class ARGS_01,
@@ -11792,15 +11828,16 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09));
 }
 
 template <class RET, class ARGS_01,
@@ -11838,16 +11875,17 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10));
 }
 
 template <class RET, class ARGS_01,
@@ -11888,17 +11926,18 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11));
 }
 
 template <class RET, class ARGS_01,
@@ -11942,18 +11981,19 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12));
 }
 
 template <class RET, class ARGS_01,
@@ -12000,19 +12040,20 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12,
-                              args_13));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12,
+                    args_13));
 }
 
 template <class RET, class ARGS_01,
@@ -12062,20 +12103,21 @@ RET bsl::function<RET(ARGS_01,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12,
-                              args_13,
-                              args_14));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12,
+                    args_13,
+                    args_14));
 }
 
 
@@ -12086,7 +12128,8 @@ RET
 bsl::function<RET()>::outofplaceFunctorInvoker(const Function_Rep *rep)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f());
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f());
 }
 
 template <class RET, class ARGS_01>
@@ -12097,7 +12140,8 @@ bsl::function<RET(ARGS_01)>::outofplaceFunctorInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01));
 }
 
 template <class RET, class ARGS_01,
@@ -12111,8 +12155,9 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_02>::Type args_02)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02));
 }
 
 template <class RET, class ARGS_01,
@@ -12129,9 +12174,10 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_03>::Type args_03)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03));
 }
 
 template <class RET, class ARGS_01,
@@ -12151,10 +12197,11 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_04>::Type args_04)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04));
 }
 
 template <class RET, class ARGS_01,
@@ -12177,11 +12224,12 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_05>::Type args_05)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05));
 }
 
 template <class RET, class ARGS_01,
@@ -12207,12 +12255,13 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_06>::Type args_06)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06));
 }
 
 template <class RET, class ARGS_01,
@@ -12241,13 +12290,14 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_07>::Type args_07)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07));
 }
 
 template <class RET, class ARGS_01,
@@ -12279,14 +12329,15 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_08>::Type args_08)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08));
 }
 
 template <class RET, class ARGS_01,
@@ -12321,15 +12372,16 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_09>::Type args_09)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09));
 }
 
 template <class RET, class ARGS_01,
@@ -12367,16 +12419,17 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_10>::Type args_10)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10));
 }
 
 template <class RET, class ARGS_01,
@@ -12417,17 +12470,18 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_11>::Type args_11)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11));
 }
 
 template <class RET, class ARGS_01,
@@ -12471,18 +12525,19 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_12>::Type args_12)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12));
 }
 
 template <class RET, class ARGS_01,
@@ -12529,19 +12584,20 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_13>::Type args_13)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12,
-                              args_13));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12,
+                    args_13));
 }
 
 template <class RET, class ARGS_01,
@@ -12591,20 +12647,21 @@ bsl::function<RET(ARGS_01,
             typename BloombergLP::bslmf::ForwardingType<ARGS_14>::Type args_14)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args_01,
-                              args_02,
-                              args_03,
-                              args_04,
-                              args_05,
-                              args_06,
-                              args_07,
-                              args_08,
-                              args_09,
-                              args_10,
-                              args_11,
-                              args_12,
-                              args_13,
-                              args_14));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args_01,
+                    args_02,
+                    args_03,
+                    args_04,
+                    args_05,
+                    args_06,
+                    args_07,
+                    args_08,
+                    args_09,
+                    args_10,
+                    args_11,
+                    args_12,
+                    args_13,
+                    args_14));
 }
 
 
@@ -22811,8 +22868,9 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
 
-    return static_cast<RET>(f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
-                              forwardToTarget(args)...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(BloombergLP::bslmf::ForwardingTypeUtil<ARGS>::
+                    forwardToTarget(args)...));
 }
 
 template <class RET, class... ARGS>
@@ -22838,7 +22896,8 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
 
-    return static_cast<RET>(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args...));
 }
 
 template <class RET, class... ARGS>
@@ -22849,7 +22908,8 @@ bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
     FUNC& f = *reinterpret_cast<FUNC*>(rep->d_objbuf.d_object_p);
-    return static_cast<RET>(f(args...));
+    return BSLSTL_FUNCTION_CAST_RESULT(
+                  f(args...));
 }
 
 template <class RET, class... ARGS>
