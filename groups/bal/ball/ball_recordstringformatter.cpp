@@ -248,13 +248,19 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               case '%': {
                 output += '%';
               } break;
-              case 'd': {
+              case 'd': // fall through intentionally
+              case 'D': {
+                const int fractionalSecondPrecision = 'd' == *iter ? 3 : 6;
+
                 char buffer[32];
-                timestamp.printToBuffer(buffer, sizeof buffer);
+                timestamp.printToBuffer(buffer,
+                                        sizeof buffer,
+                                        fractionalSecondPrecision);
 
                 output += buffer;
               } break;
               case 'I': // fall through intentionally
+              case 'O': // fall through intentionally
               case 'i': {
                 // use ISO8601 "extended" format
 
@@ -276,6 +282,15 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
                              sizeof(buffer),
                              ".%03d",
                              timestamp.millisecond());
+
+                    output += buffer;
+                }
+                else if ('O' == *iter) {
+                    snprintf(buffer,
+                             sizeof(buffer),
+                             ".%03d%03d",
+                             timestamp.millisecond(),
+                             timestamp.microsecond());
 
                     output += buffer;
                 }

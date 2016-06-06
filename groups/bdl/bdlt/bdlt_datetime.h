@@ -329,7 +329,8 @@ class Datetime {
     static const bsls::Types::Uint64 k_TIME_MASK = 0x0000001fffffffff;
 
     enum {
-        k_NUM_TIME_BITS = 37
+        k_NUM_TIME_BITS = 37,
+        k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
     static bsls::AtomicInt64 s_invalidRepresentationCount;
@@ -727,16 +728,23 @@ class Datetime {
     int microsecond() const;
         // Return the value of the 'microsecond' attribute of this object.
 
-    int printToBuffer(char *result, int numBytes) const;
+    int printToBuffer(char *result,
+                      int   numBytes,
+                      int   fractionalSecondPrecision = 6) const;
         // Efficiently write to the specified 'result' buffer no more than the
         // specified 'numBytes' of a representation of the value of this
-        // object.  Return the number of characters (not including the null
-        // character) that would have been written if the limit due to
+        // object.  Optionally specify 'fractionalSecondPrecision' digits to
+        // guide how many fractional second digits to output.  If
+        // 'fractionalSecondPrecision' is not specified then 6 fractional
+        // second digits will be output (3 digits for milliseconds and 3 digits
+        // for microseconds).  Return the number of characters (not including
+        // the null character) that would have been written if the limit due to
         // 'numBytes' were not imposed.  'result' is null-terminated unless
-        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes'
-        // and 'result' refers to at least 'numBytes' contiguous bytes.  Note
-        // that the return value is greater than or equal to 'numBytes' if the
-        // output representation was truncated to avoid 'result' overrun.
+        // 'numBytes' is 0.  The behavior is undefined unless '0 <= numBytes',
+        // '0 <= fractionalSecondPrecision <= 6', and 'result' refers to at
+        // least 'numBytes' contiguous bytes.  Note that the return value is
+        // greater than or equal to 'numBytes' if the output representation was
+        // truncated to avoid 'result' overrun.
 
                                   // Aspects
 
