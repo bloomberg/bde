@@ -9,21 +9,19 @@
 
 #include <bdlmt_eventscheduler.h>
 
-#include <bslim_testutil.h>
+#include <bdlb_bitutil.h>
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
 
+#include <bslim_testutil.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bsls_atomic.h>
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
-#include <bdlb_bitutil.h>
-#include <bdlt_datetime.h>
-#include <bdlt_currenttime.h>
-
-#include <bslma_defaultallocatorguard.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
@@ -107,12 +105,14 @@ using namespace bsl;  // automatically added by script
 // [09] void stop();
 //
 // ACCESSORS
+// [21] bsls::SystemClockType::Enum clockType() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
-// [21] USAGE EXAMPLE
+// [22] CLOCK REPLACEMENT BREATHING TEST
+// [23] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -2109,7 +2109,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2164,6 +2164,103 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // CLOCK-REPLACEMENT BREATHING TEST:
+        //   Exercise the basic functionality of the clock-replacement
+        //   mechanism.
+        //
+        // Concerns:
+        //: 1 The clock replacement mechanism exhibits a basic ability to
+        //:   alter the clock used for scheduling and dispatching events.
+        //
+        //:Plan:
+        //: 1 Default-construct a scheduler.
+        //:
+        //: 2 Create a 'bdlmt::EventSchedulerTestTimeSource' object, passing
+        //:   the constructor a pointer to the scheduler.
+        //:
+        //: 3 Call 'now' on the 'bdlmt::EventSchedulerTestTimeSource' object,
+        //:   and store the result in a variable 'basisTime'.
+        //:
+        //: 4 Schedule a one-time event in the scheduler, using the retrieved
+        //:   basis time.
+        //:
+        //: 5 Schedule a recurring event in the scheduler, using no absolute
+        //:   time.
+        //:
+        //: 6 Start the scheduler.
+        //:
+        //: 8 Adjust the time so that the first event will run.  Ensure that
+        //:   the first event has run, and not the second.
+        //:
+        //: 9 Adjust the time so that the recurring event will run.  Ensure
+        //:   that this event has run once.
+        //:
+        //: 10 Adjust the time so that the recurring event will run a second
+        //:    time.  Ensure that this event has run again.
+        //
+        // Testing:
+        //   Basic clock-replacement functionality.
+        // --------------------------------------------------------------------
+
+        // Convention for this test driver:
+        const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
+
+        // Create objects for both events
+        TestClass1 event1;
+        TestClass1 event2;
+
+        // Construct the scheduler
+        bdlmt::EventScheduler scheduler;
+
+        // Construct the time-source.
+        // Install the time-source in the scheduler.
+        bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
+
+        // Retrieve the initial time held in the time-source.
+        bsls::TimeInterval initialAbsoluteTime = timeSource.now();
+
+        // Schedule a single-run event at a 30 second offset.
+        scheduler.scheduleEvent(initialAbsoluteTime + 30,
+                                bdlf::MemFnUtil::memFn(&TestClass1::callback,
+                                                      &event1));
+
+        // Schedule a 60s recurring event.
+        scheduler.scheduleRecurringEvent(bsls::TimeInterval(60),
+                                         bdlf::MemFnUtil::memFn(
+                                                         &TestClass1::callback,
+                                                         &event2));
+
+        // Start the dispatcher thread.
+        scheduler.start();
+
+        // Advance the time by 35 seconds so that the first event will run.
+        timeSource.advanceTime(bsls::TimeInterval(35));
+
+        // Wait while verifying:
+        makeSureTestObjectIsExecuted(event1, mT, 100);
+
+        // Confirm that only the expected event has run.
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 0 == event2.numExecuted());
+
+        // Advance the time by another 30 seconds, so we will be at an offset
+        // of 65 seconds, meaning the recurring event will run once.
+        timeSource.advanceTime(bsls::TimeInterval(30));
+        makeSureTestObjectIsExecuted(event2, mT, 100);
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 1 == event2.numExecuted());
+
+        // Now let the recurring event run exactly once more
+        timeSource.advanceTime(bsls::TimeInterval(60));
+        makeSureTestObjectIsExecuted(event2, mT, 100, 1);
+        ASSERTV(event1.numExecuted(), 1 == event1.numExecuted());
+        ASSERTV(event2.numExecuted(), 2 == event2.numExecuted());
+
+        // Stop the scheduler and finish the test
+        scheduler.stop();
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING CLOCKTYPE ACCESSOR
@@ -2175,6 +2272,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Run all c'tors with all values of 'clockType', and verify that
         //   the value returned by the 'clockType' accessor is as expected.
+        //
+        // Testing:
+        //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING CLOCKTYPE ACCESSOR\n"
