@@ -132,15 +132,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_TIME_H
-#define INCLUDED_TIME_H
 #include <time.h>   // POSIX timespec
+#define INCLUDED_TIME_H
 #endif
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
 #ifndef INCLUDED_MACH_CLOCK_TYPES
-#define INCLUDED_MACH_CLOCK_TYPES
 #include <mach/clock_types.h>    // for 'mach_timespec_t'
+#define INCLUDED_MACH_CLOCK_TYPES
 #endif
 
 #endif
