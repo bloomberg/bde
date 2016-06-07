@@ -186,6 +186,11 @@ struct UserDefinedBwmTestType2 {
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 };
 
+struct UserDefinedOneByteTestType {
+    // One-byte simple structs should typically be bitwise moveable.
+    char dummy;
+};
+
 struct UserDefinedTcTestType {
     // This user-defined type, which is marked to be trivially copyable using
     // template specialization (below), is used for testing.  Note that
@@ -776,6 +781,12 @@ int main(int argc, char *argv[])
         //:
         //: 6 For array types, the meta-function returns 'true' if the array
         //:   element is bitwise movable, and 'false' otherwise.
+        //:
+        //: 7 A static assertion is not generated in C++11 builds because of a
+        //:   false positive IsBitwiseMoveable for a one-byte type. (I.e., the
+        //:   C++03 heuristic never gives a false positive, when compared
+        //:   to the compiler defined trait).  See 'bslmf_isbitwisemoveable.h'
+        //:   'k_ValueWithoutOnebyteHeuristic'.
         //
         // Plan:
         //:  1 Create a set of macros that will generate an 'ASSERT' test for
@@ -809,6 +820,10 @@ int main(int argc, char *argv[])
         // C-4
         ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(UserDefinedTcTestType, true);
         ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(UserDefinedTcTestType2, true);
+
+        // C-7 (1-byte type)
+        ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(UserDefinedOneByteTestType,
+                                               true);
       } break;
       case 1: {
         // --------------------------------------------------------------------
