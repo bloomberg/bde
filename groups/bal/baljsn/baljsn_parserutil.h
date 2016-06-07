@@ -23,18 +23,18 @@ BSLS_IDENT("$Id: $")
 // following table describes the format in which various Simple types are
 // decoded.
 //..
-//  Simple Type          JSON Type  Notes
-//  -----------          ---------  -----
-//  char                 number
-//  unsigned char        number
-//  int                  number
-//  unsigned int         number
-//  bsls::Types::Int64   number
-//  bsls::Types::Uint64  number
-//  float                number
-//  double               number
-//  char *               string
-//  bsl::string          string
+//  Simple Type           JSON Type  Notes
+//  -----------           ---------  -----
+//  char                  number
+//  unsigned char         number
+//  int                   number
+//  unsigned int          number
+//  bsls::Types::Int64    number
+//  bsls::Types::Uint64   number
+//  float                 number
+//  double                number
+//  char *                string
+//  bsl::string           string
 //  bdlt::Date            string     ISO 8601 format
 //  bdlt::DateTz          string     ISO 8601 format
 //  bdlt::Time            string     ISO 8601 format

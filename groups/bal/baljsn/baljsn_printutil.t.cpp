@@ -291,22 +291,24 @@ int main(int argc, char *argv[])
             int d_minute;
             int d_second;
             int d_millisecond;
+            int d_microsecond;
             int d_offset;
         } DATA[] = {
-            //Line Year   Mon  Day  Hour  Min  Sec     ms   offset
-            //---- ----   ---  ---  ----  ---  ---     --   ------
+            //Line Year   Mon  Day  Hour  Min  Sec     ms   us   offset
+            //---- ----   ---  ---  ----  ---  ---     --   --   ------
 
             // Valid dates and times
-            { L_,     1,   1,   1,    0,   0,   0,     0,        0 },
-            { L_,  2005,   1,   1,    0,   0,   0,     0,      -90 },
-            { L_,   123,   6,  15,   13,  40,  59,     0,     -240 },
-            { L_,  1999,  10,  12,   23,   0,   1,     0,     -720 },
+            { L_,     1,   1,   1,    0,   0,   0,     0,    0,      0 },
+            { L_,  2005,   1,   1,    0,   0,   0,     0,    0,    -90 },
+            { L_,   123,   6,  15,   13,  40,  59,     0,    0,   -240 },
+            { L_,  1999,  10,  12,   23,   0,   1,     0,    0,   -720 },
 
             // Vary milliseconds
-            { L_,  1999,  10,  12,   23,   0,   1,     0,       90 },
-            { L_,  1999,  10,  12,   23,   0,   1,   456,      240 },
-            { L_,  1999,  10,  12,   23,   0,   1,   999,      720 },
-            { L_,  1999,  12,  31,   23,  59,  59,   999,      720 }
+            { L_,  1999,  10,  12,   23,   0,   1,     0,    0,     90 },
+            { L_,  1999,  10,  12,   23,   0,   1,   456,    0,    240 },
+            { L_,  1999,  10,  12,   23,   0,   1,   456,  789,    240 },
+            { L_,  1999,  10,  12,   23,   0,   1,   999,  789,    720 },
+            { L_,  1999,  12,  31,   23,  59,  59,   999,  999,    720 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -314,6 +316,7 @@ int main(int argc, char *argv[])
             "\"0001-01-01\"",
             "\"2005-01-01\"",
             "\"0123-06-15\"",
+            "\"1999-10-12\"",
             "\"1999-10-12\"",
             "\"1999-10-12\"",
             "\"1999-10-12\"",
@@ -328,6 +331,7 @@ int main(int argc, char *argv[])
             "\"1999-10-12-12:00\"",
             "\"1999-10-12+01:30\"",
             "\"1999-10-12+04:00\"",
+            "\"1999-10-12+04:00\"",
             "\"1999-10-12+12:00\"",
             "\"1999-12-31+12:00\""
         };
@@ -338,6 +342,7 @@ int main(int argc, char *argv[])
             "\"13:40:59.000\"",
             "\"23:00:01.000\"",
             "\"23:00:01.000\"",
+            "\"23:00:01.456\"",
             "\"23:00:01.456\"",
             "\"23:00:01.999\"",
             "\"23:59:59.999\""
@@ -350,30 +355,33 @@ int main(int argc, char *argv[])
             "\"23:00:01.000-12:00\"",
             "\"23:00:01.000+01:30\"",
             "\"23:00:01.456+04:00\"",
+            "\"23:00:01.456+04:00\"",
             "\"23:00:01.999+12:00\"",
             "\"23:59:59.999+12:00\""
         };
 
         const char *expectedDatetime[] = {
-            "\"0001-01-01T00:00:00.000\"",
-            "\"2005-01-01T00:00:00.000\"",
-            "\"0123-06-15T13:40:59.000\"",
-            "\"1999-10-12T23:00:01.000\"",
-            "\"1999-10-12T23:00:01.000\"",
-            "\"1999-10-12T23:00:01.456\"",
-            "\"1999-10-12T23:00:01.999\"",
-            "\"1999-12-31T23:59:59.999\""
+            "\"0001-01-01T00:00:00.000000\"",
+            "\"2005-01-01T00:00:00.000000\"",
+            "\"0123-06-15T13:40:59.000000\"",
+            "\"1999-10-12T23:00:01.000000\"",
+            "\"1999-10-12T23:00:01.000000\"",
+            "\"1999-10-12T23:00:01.456000\"",
+            "\"1999-10-12T23:00:01.456789\"",
+            "\"1999-10-12T23:00:01.999789\"",
+            "\"1999-12-31T23:59:59.999999\""
         };
 
         const char *expectedDatetimeTz[] = {
-            "\"0001-01-01T00:00:00.000+00:00\"",
-            "\"2005-01-01T00:00:00.000-01:30\"",
-            "\"0123-06-15T13:40:59.000-04:00\"",
-            "\"1999-10-12T23:00:01.000-12:00\"",
-            "\"1999-10-12T23:00:01.000+01:30\"",
-            "\"1999-10-12T23:00:01.456+04:00\"",
-            "\"1999-10-12T23:00:01.999+12:00\"",
-            "\"1999-12-31T23:59:59.999+12:00\""
+            "\"0001-01-01T00:00:00.000000+00:00\"",
+            "\"2005-01-01T00:00:00.000000-01:30\"",
+            "\"0123-06-15T13:40:59.000000-04:00\"",
+            "\"1999-10-12T23:00:01.000000-12:00\"",
+            "\"1999-10-12T23:00:01.000000+01:30\"",
+            "\"1999-10-12T23:00:01.456000+04:00\"",
+            "\"1999-10-12T23:00:01.456789+04:00\"",
+            "\"1999-10-12T23:00:01.999789+12:00\"",
+            "\"1999-12-31T23:59:59.999999+12:00\""
         };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -385,12 +393,15 @@ int main(int argc, char *argv[])
             const int MINUTE      = DATA[ti].d_minute;
             const int SECOND      = DATA[ti].d_second;
             const int MILLISECOND = DATA[ti].d_millisecond;
+            const int MICROSECOND = DATA[ti].d_microsecond;
             const int OFFSET      = DATA[ti].d_offset;;
 
             bdlt::Date       theDate(YEAR, MONTH, DAY);
-            bdlt::Time       theTime(HOUR, MINUTE, SECOND, MILLISECOND);
+            bdlt::Time       theTime(HOUR, MINUTE, SECOND,
+                                     MILLISECOND);
             bdlt::Datetime   theDatetime(YEAR, MONTH, DAY,
-                                        HOUR, MINUTE, SECOND, MILLISECOND);
+                                         HOUR, MINUTE, SECOND,
+                                         MILLISECOND, MICROSECOND);
 
             bdlt::DateTz     theDateTz(theDate, OFFSET);
             bdlt::TimeTz     theTimeTz(theTime, OFFSET);
@@ -940,12 +951,14 @@ int main(int argc, char *argv[])
             const int MINUTE      = 59;
             const int SECOND      = 59;
             const int MILLISECOND = 999;
+            const int MICROSECOND = 999;
             const int OFFSET      = -720;
 
             bdlt::Date theDate(YEAR, MONTH, DAY);
             bdlt::Time theTime(HOUR, MINUTE, SECOND, MILLISECOND);
             bdlt::Datetime theDatetime(YEAR, MONTH, DAY,
-                                      HOUR, MINUTE, SECOND, MILLISECOND);
+                                       HOUR, MINUTE, SECOND,
+                                       MILLISECOND, MICROSECOND);
 
             bdlt::DateTz     theDateTz(theDate, OFFSET);
             bdlt::TimeTz     theTimeTz(theTime, OFFSET);
@@ -968,17 +981,17 @@ int main(int argc, char *argv[])
             oss.str("");
 
             Obj::printValue(oss, theDatetime);
-            ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999\"" == oss.str());
+            ASSERTV(oss.str(),"\"9999-12-31T23:59:59.999999\"" == oss.str());
             oss.str("");
 
             Obj::printValue(oss, theDatetimeTz);
             ASSERTV(oss.str(),
-                    "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
+                    "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
             oss.str("");
 
             Obj::printValue(oss, theDatetimeTz);
             ASSERTV(oss.str(),
-                    "\"9999-12-31T23:59:59.999-12:00\"" == oss.str());
+                    "\"9999-12-31T23:59:59.999999-12:00\"" == oss.str());
             oss.str("");
         }
       } break;
