@@ -2150,7 +2150,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
     bslh::DefaultHashAlgorithm hashee;
     hashAppend(hashee, now);
     hashAppend(hashee, prefix);
-    hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    hashAppend(hashee, *outPath);
     hashAppend(hashee, tid);
     hashAppend(hashee, getProcessId());
     bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
