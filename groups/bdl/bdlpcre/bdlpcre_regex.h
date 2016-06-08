@@ -129,10 +129,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // without using 'k_FLAG_JIT'.
 //
 // The table below demonstrates the supremacy of the 'match' method with JIT
-// optimization over the basic 'match' method.  Measurements have been tallied
-// over the 100000 matchings in a row on Linux/Intel x86 64-bit architecture.
-// The ratios of 'match' time to 'match' with JIT optimization time are
-// represented in the table:
+// optimization over the basic 'match' method.  Measurements (in seconds) have
+// been tallied over the 100000 matchings in a row:
 //..
 //  Legend
 //  ------
@@ -148,16 +146,19 @@ BSLS_IDENT("$Id$ $CSID$")
 //      Pattern - (?:[0-9]{1,3}\.){3}[0-9]{1,3}
 //      Subject - 255.255.255.255
 //
-//  +--------------------+---------+------------------------------+
-//  | Pattern            | 'match' |'match' with JIT optimization |
-//  +====================+=========+==============================+
-//  | SIMPLE_PATTERN     |    1    |           0.38391            |
-//  +--------------------+---------+------------------------------+
-//  | EMAIL_PATTERN      |    1    |           0.44322            |
-//  +--------------------+---------+------------------------------+
-//  | IP_ADDRESS_PATTERN |    1    |           0.19228            |
-//  +--------------------+---------+------------------------------+
+//  +--------------------+------------+------------------------------+
+//  | Pattern            |  'match'   |'match' with JIT optimization |
+//  +====================+============+==============================+
+//  | SIMPLE_PATTERN     |   0.0175   |         0.0067 (~2.6x)       |
+//  +--------------------+------------+------------------------------+
+//  | EMAIL_PATTERN      |   0.0224   |         0.0097 (~2.3x)       |
+//  +--------------------+------------+------------------------------+
+//  | IP_ADDRESS_PATTERN |   0.0344   |         0.0073 (~4.7x)       |
+//  +--------------------+------------+------------------------------+
 //..
+//
+// Note that the test was run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
+// compiled with gcc-4.4.7 in optimized mode.
 //
 ///Usage
 ///-----
