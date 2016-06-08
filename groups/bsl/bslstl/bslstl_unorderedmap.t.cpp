@@ -1602,7 +1602,7 @@ if (verbose) {
         static bool moreValue(const WordTallyEntry& a,
                               const WordTallyEntry& b)
         {
-            return !lessValue(a, b);
+            return a.second > b.second;
         }
     };
 
