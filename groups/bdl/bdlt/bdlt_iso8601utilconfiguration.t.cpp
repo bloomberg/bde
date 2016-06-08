@@ -43,7 +43,7 @@ using namespace bsl;
 // tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//: o [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BDEX STREAMING
         //   Ensure that we can serialize the value of any object of the class,
         //   and then deserialize that value back into any object of the class.
         //
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BSLX STREAMING" << endl
+                          << "BDEX STREAMING" << endl
                           << "==============" << endl;
 
         if (verbose) cout << "Not yet implemented." << endl;

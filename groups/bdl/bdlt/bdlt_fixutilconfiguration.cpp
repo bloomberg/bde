@@ -61,7 +61,7 @@ FixUtilConfiguration::print(bsl::ostream& stream,
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
+bsl::ostream& bdlt::operator<<(bsl::ostream&               stream,
                                const FixUtilConfiguration& object)
 {
     bslim::Printer printer(&stream, 0, -1);

@@ -52,16 +52,17 @@ BSLS_IDENT("$Id: $")
 // functionality).  In particular, suppose that given a sample 'bdlt::TimeTz'
 // object:
 //..
-//  const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 240);
+//  const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 0);
 //..
-// 'my::FixUtil' produces, by default, the following (valid) FIX string:
+// 'my::FixUtil' produces, by default, the following string (which, due to the
+// fractional second being displayed, is *not* a valid FIX string):
 //..
-//  08:59:59.123+04:00
+//  08:59:59.123+00:00
 //..
-// However, we would like to produce the following (also valid) FIX string
+// However, we would like to produce the following (also invalid FIX) string
 // instead:
 //..
-//  08:59:59.123000+0400
+//  08:59:59.123000Z
 //..
 // 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
 // assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the
@@ -170,10 +171,10 @@ class FixUtilConfiguration {
     // PRIVATE TYPES
     enum {
         // This enumeration denotes the distinct bits that define the values of
-        // each of the four configuration attributes.
+        // each of the two configuration attributes.
 
-        k_FRACTIONAL_SECOND_PRECISION_MASK  = 0x07,
-        k_USE_Z_ABBREVIATION_FOR_UTC_BIT    = 0x08
+        k_FRACTIONAL_SECOND_PRECISION_MASK = 0x07,
+        k_USE_Z_ABBREVIATION_FOR_UTC_BIT   = 0x08
     };
 
     // CLASS DATA
@@ -192,10 +193,9 @@ class FixUtilConfiguration {
   private:
     // PRIVATE CREATORS
     explicit FixUtilConfiguration(int configurationMask);
-        // Create an 'FixUtilConfiguration' object having the value indicated
-        // by the specified 'configurationMask'.  The behavior is undefined
-        // unless 'configurationMask' represents a valid 'FixUtilConfiguration'
-        // value.
+        // Create a 'FixUtilConfiguration' object having the value indicated by
+        // the specified 'configurationMask'.  The behavior is undefined unless
+        // 'configurationMask' represents a valid 'FixUtilConfiguration' value.
 
   public:
     // CLASS METHODS
@@ -212,7 +212,7 @@ class FixUtilConfiguration {
 
     // CREATORS
     FixUtilConfiguration();
-        // Create an 'FixUtilConfiguration' object having the (default)
+        // Create a 'FixUtilConfiguration' object having the (default)
         // attribute values:
         //..
         //  fractionalSecondPrecision() == 3
@@ -220,7 +220,7 @@ class FixUtilConfiguration {
         //..
 
     FixUtilConfiguration(const FixUtilConfiguration& original);
-        // Create an 'FixUtilConfiguration' object having the value of the
+        // Create a 'FixUtilConfiguration' object having the value of the
         // specified 'original' configuration.
 
     ~FixUtilConfiguration();
@@ -235,7 +235,8 @@ class FixUtilConfiguration {
     void setFractionalSecondPrecision(int value);
         // Set the 'fractionalSecondPrecision' attribute of this object to the
         // specified 'value'.  The behavior is undefined unless '0 <= value'
-        // and '6 >= value'.
+        // and '6 >= value'.  Note that the FIX protocol allows for much higher
+        // precision.
 
     void setUseZAbbreviationForUtc(bool value);
         // Set the 'useZAbbreviationForUtc' attribute of this object to the
@@ -275,7 +276,7 @@ bool operator==(const FixUtilConfiguration& lhs,
                 const FixUtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'FixUtilConfiguration' objects have
-    // the same value if each of their 'fractionalSecondPrecision', and
+    // the same value if each of their 'fractionalSecondPrecision' and
     // 'useZAbbreviationForUtc' attributes (respectively) have the same value.
 
 bool operator!=(const FixUtilConfiguration& lhs,
@@ -286,7 +287,7 @@ bool operator!=(const FixUtilConfiguration& lhs,
     // or 'useZAbbreviationForUtc' attributes (respectively) do not have the
     // same value.
 
-bsl::ostream& operator<<(bsl::ostream&                   stream,
+bsl::ostream& operator<<(bsl::ostream&               stream,
                          const FixUtilConfiguration& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
@@ -338,7 +339,7 @@ FixUtilConfiguration::FixUtilConfiguration()
 
 inline
 FixUtilConfiguration::FixUtilConfiguration(
-                                      const FixUtilConfiguration& original)
+                                          const FixUtilConfiguration& original)
 : d_configurationMask(original.d_configurationMask)
 {
 }
