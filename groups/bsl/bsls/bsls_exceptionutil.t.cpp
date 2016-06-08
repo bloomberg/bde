@@ -181,6 +181,10 @@ void abortSignalHandler(int /* x */)
 
 }
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+static volatile int g_abort_oldflags = 0;
+#endif
+
 void installAbortHandler()
    // Install a abort-signal handler and mark 'g_inTest' as 'true'.
 
@@ -188,12 +192,23 @@ void installAbortHandler()
     // Set the abort signal handler to the test handler.
     signal(SIGABRT, abortSignalHandler);
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    // Disable the abprt/retry/ignore dialog box that pops up in windows DEBUG
+    // builds:
+    g_abort_oldflags = _set_abort_behavior(0, _WRITE_ABORT_MSG);
+#endif
+
     // set the global test flag (used by the signal handler).
     g_inTest = true;
 }
 
 void removeAbortHandler() {
     signal(SIGABRT, SIG_DFL);
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    _set_abort_behavior(g_abort_oldflags, _WRITE_ABORT_MSG);
+#endif
+
     g_inTest = false;
 }
 
