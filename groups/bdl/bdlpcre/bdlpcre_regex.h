@@ -128,9 +128,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // off JIT optimization support, regular expression should be prepared again,
 // without using 'k_FLAG_JIT'.
 //
-// The table below demonstrates the supremacy of the 'match' method with JIT
-// optimization over the basic 'match' method.  Measurements (in seconds) have
-// been tallied over the 100000 matchings in a row:
+// The table below demonstrates the benefit of the 'match' method with JIT
+// optimization over the basic 'match' method:
 //..
 //  Legend
 //  ------
@@ -146,17 +145,19 @@ BSLS_IDENT("$Id$ $CSID$")
 //      Pattern - (?:[0-9]{1,3}\.){3}[0-9]{1,3}
 //      Subject - 255.255.255.255
 //
-//  +--------------------+------------+------------------------------+
-//  | Pattern            |  'match'   |'match' with JIT optimization |
-//  +====================+============+==============================+
-//  | SIMPLE_PATTERN     |   0.0175   |         0.0067 (~2.6x)       |
-//  +--------------------+------------+------------------------------+
-//  | EMAIL_PATTERN      |   0.0224   |         0.0097 (~2.3x)       |
-//  +--------------------+------------+------------------------------+
-//  | IP_ADDRESS_PATTERN |   0.0344   |         0.0073 (~4.7x)       |
-//  +--------------------+------------+------------------------------+
-//..
+//   Each pattern/subject returns 1 match.  Measurements (in seconds) have been
+//   tallied over the 100000 matchings in a row.
 //
+//  +--------------------+---------------------+---------------------+
+//  | Pattern            | 'match' without-JIT |  'match' using-JIT  |
+//  +====================+=====================+=====================+
+//  | SIMPLE_PATTERN     |        0.0175       |    0.0067 (~2.6x)   |
+//  +--------------------+---------------------+---------------------+
+//  | EMAIL_PATTERN      |        0.0224       |    0.0097 (~2.3x)   |
+//  +--------------------+---------------------+---------------------+
+//  | IP_ADDRESS_PATTERN |        0.0344       |    0.0073 (~4.7x)   |
+//  +--------------------+---------------------+---------------------+
+//..
 // Note that the test was run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
 // compiled with gcc-4.4.7 in optimized mode.
 //
@@ -697,7 +698,7 @@ class RegEx {
         // Return the size of the dynamically allocated JIT stack if it has
         // been specified explicitly with 'prepare' method.  Return '0' if zero
         // 'jitStackSize' value has been passed to 'prepare' method (or not
-        // supplied at all).  Return '0' if 'isPrepared() != true'.
+        // supplied at all).  Return '0' if 'isPrepared' is 'false'.
 
     int match(const char *subject,
               size_t      subjectLength,
