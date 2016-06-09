@@ -250,10 +250,10 @@ int parseTime(const char **nextPos,
 
     // 4. Parse (optional) fractional second, in microseconds.
 
-    if (p < end && ('.' == *p || ',' == *p)) {
+    if (p < end && '.' == *p) {
         // We have a fraction of a second.
 
-        ++p;  // skip '.' or ','
+        ++p;  // skip '.'
 
         if (0 != parseFractionalSecond(&p,
                                        microsecond,
@@ -286,18 +286,18 @@ int parseTime(const char **nextPos,
 }
 
 static
-int parseZoneDesignator(const char **nextPos,
+int parseTimezoneOffset(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
                         const char  *end)
-    // Parse the zone designator, represented in the "Z|(+|-])hh:mm" FIX
+    // Parse the timezone offset, represented in the "Z|(+|-])hh{:mm}" FIX
     // extended format, from the string starting at the specified 'begin' and
     // ending before the specified 'end', load into the specified
     // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
     // specified '*nextPos' to the location one past the last parsed character.
     // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
     // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
-    // successfully parsing a zone designator before 'end' is reached is not an
+    // successfully parsing a timezone offset before 'end' is reached is not an
     // error.
 {
     BSLS_ASSERT(nextPos);
@@ -321,35 +321,34 @@ int parseZoneDesignator(const char **nextPos,
         return 0;                                                     // RETURN
     }
 
-    enum { k_MINIMUM_LENGTH = sizeof "hhmm" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "hh" - 1 };
 
     if (('+' != sign && '-' != sign) || end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
     // We have parsed a '+' or '-' and established that there are sufficient
-    // characters to represent "hhmm" (but not necessarily "hh:mm").
+    // characters to represent "hh" (but not necessarily "hh:mm").
 
     // Parse hour.
 
     int hour;
+    int minute = 0;
 
     if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
     if (':' == *p) {
-        ++p;  // skip optional ':'
+        ++p;  // skip ':'
         if (end - p < 2) {
             return -1;                                                // RETURN
         }
-    }
 
-    // Parse minute.
+        // Parse minute.
 
-    int minute;
-
-    if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
-        return -1;                                                    // RETURN
+        if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
+          return -1;                                                  // RETURN
+        }
     }
 
     *minuteOffset = hour * 60 + minute;
@@ -410,10 +409,10 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
 }
 
 static
-int generateZoneDesignator(char                        *buffer,
+int generateTimezoneOffset(char                        *buffer,
                            int                          tzOffset,
                            const FixUtilConfiguration&  configuration)
-    // Write, to the specified 'buffer', the formatted zone designator
+    // Write, to the specified 'buffer', the formatted timezone offset
     // indicated by the specified 'tzOffset' and 'configuration', and return
     // the number of bytes written.  The behavior is undefined unless 'buffer'
     // has sufficient capacity and '-(24 * 60) < tzOffset < 24 * 60'.
@@ -909,8 +908,8 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer;
 
-    p += generateInt(p, object.hour()       , 2, ':');
-    p += generateInt(p, object.minute()     , 2, ':');
+    p += generateInt(p, object.hour(),   2, ':');
+    p += generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
 
@@ -949,8 +948,8 @@ int FixUtil::generateRaw(char                        *buffer,
 
     char *p = buffer + dateLen + 1;
 
-    p += generateInt(p, object.hour()       , 2, ':');
-    p += generateInt(p, object.minute()     , 2, ':');
+    p += generateInt(p, object.hour(),   2, ':');
+    p += generateInt(p, object.minute(), 2, ':');
 
     int precision = configuration.fractionalSecondPrecision();
 
@@ -982,7 +981,7 @@ int FixUtil::generateRaw(char                        *buffer,
                                     object.localDate(),
                                     configuration);
 
-    const int zoneLen = generateZoneDesignator(buffer + dateLen,
+    const int zoneLen = generateTimezoneOffset(buffer + dateLen,
                                                object.offset(),
                                                configuration);
 
@@ -1005,7 +1004,7 @@ int FixUtil::generateRaw(char                        *buffer,
 
     const int timeLen = static_cast<int>(p - buffer);
 
-    const int zoneLen = generateZoneDesignator(buffer + timeLen,
+    const int zoneLen = generateTimezoneOffset(buffer + timeLen,
                                                object.offset(),
                                                configuration);
 
@@ -1022,7 +1021,7 @@ int FixUtil::generateRaw(char                        *buffer,
                                         object.localDatetime(),
                                         configuration);
 
-    const int zoneLen     = generateZoneDesignator(buffer + datetimeLen,
+    const int zoneLen     = generateTimezoneOffset(buffer + datetimeLen,
                                                    object.offset(),
                                                    configuration);
 
@@ -1037,7 +1036,7 @@ int FixUtil::parse(Date *result, const char *string, int length)
 
     // Sample FIX date: "20050131+04:00"
     //
-    // The zone designator is optional.
+    // The timezone offset is optional.
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD" - 1 };
 
@@ -1057,12 +1056,12 @@ int FixUtil::parse(Date *result, const char *string, int length)
         return -1;                                                    // RETURN
     }
 
-    // 2. Parse and ignore zone designator, if any.
+    // 2. Parse and ignore timezone offset, if any.
 
     if (p != end) {
         int tzOffset;
 
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1080,7 +1079,7 @@ int FixUtil::parse(Time *result, const char *string, int length)
 
     // Sample FIX time: "08:59:59.999-04:00"
     //
-    // The fractional second and zone designator are independently optional.
+    // The fractional second and timezone offset are independently optional.
 
     enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
@@ -1101,17 +1100,20 @@ int FixUtil::parse(Time *result, const char *string, int length)
     bool hasLeapSecond;
     Time localTime;
 
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1000)
-     || 0 != localTime.setTimeIfValid(hour, minute, second)) {
+    // "24:00" is not a valid FIX time string.
+
+    if ( 0 != parseTime(&p,
+                        &hour,
+                        &minute,
+                        &second,
+                        &millisecond,
+                        &microsecond,
+                        &hasLeapSecond,
+                        p,
+                        end,
+                        1000)
+     ||  0 != localTime.setTimeIfValid(hour, minute, second)
+     || 24 == hour) {
         return -1;                                                    // RETURN
     }
 
@@ -1123,26 +1125,18 @@ int FixUtil::parse(Time *result, const char *string, int length)
         localTime.addMilliseconds(millisecond);
     }
 
-    // 2. Parse zone designator, if any.
+    // 2. Parse timezone offset, if any.
 
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
 
         if (tzOffset) {
             localTime.addMinutes(-tzOffset);  // convert to UTC
         }
-    }
-
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
-
-    if (24 == hour && (millisecond || microsecond || tzOffset)) {
-        return -1;                                                    // RETURN
     }
 
     *result = localTime;
@@ -1158,7 +1152,7 @@ int FixUtil::parse(Datetime *result, const char *string, int length)
 
     // Sample FIX datetime: "20050131-08:59:59.999-04:00"
     //
-    // The fractional second and zone designator are independently optional.
+    // The fractional second and timezone offset are independently optional.
 
     // 1. Parse as a 'DatetimeTz'.
 
@@ -1173,7 +1167,7 @@ int FixUtil::parse(Datetime *result, const char *string, int length)
     // 2. Account for edge cases.
 
     if (datetimeTz.offset() > 0) {
-        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000);
+        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
 
         minDatetime.addMinutes(datetimeTz.offset());
 
@@ -1182,7 +1176,7 @@ int FixUtil::parse(Datetime *result, const char *string, int length)
         }
     }
     else if (datetimeTz.offset() < 0) {
-        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
 
         maxDatetime.addMinutes(datetimeTz.offset());
 
@@ -1204,7 +1198,7 @@ int FixUtil::parse(DateTz *result, const char *string, int length)
 
     // Sample FIX date: "2005-01-31+04:00"
     //
-    // The zone designator is optional.
+    // The timezone offset is optional.
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD" - 1 };
 
@@ -1225,12 +1219,12 @@ int FixUtil::parse(DateTz *result, const char *string, int length)
         return -1;                                                    // RETURN
     }
 
-    // 2. Parse zone designator, if any.
+    // 2. Parse timezone offset, if any.
 
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1248,7 +1242,7 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
 
     // Sample FIX time: "08:59:59.999-04:00"
     //
-    // The fractional second and zone designator are independently optional.
+    // The fractional second and timezone offset are independently optional.
 
     enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
@@ -1269,17 +1263,20 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     bool hasLeapSecond;
     Time localTime;
 
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1000)
-     || 0 != localTime.setTimeIfValid(hour, minute, second)) {
+    // "24:00" is not a valid FIX time string.
+
+    if ( 0 != parseTime(&p,
+                        &hour,
+                        &minute,
+                        &second,
+                        &millisecond,
+                        &microsecond,
+                        &hasLeapSecond,
+                        p,
+                        end,
+                        1000)
+     ||  0 != localTime.setTimeIfValid(hour, minute, second)
+     || 24 == hour) {
         return -1;                                                    // RETURN
     }
 
@@ -1291,22 +1288,14 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
         localTime.addMilliseconds(millisecond);
     }
 
-    // 2. Parse zone designator, if any.
+    // 2. Parse timezone offset, if any.
 
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
-    }
-
-    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
-    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
-    // (above).
-
-    if (24 == hour && (millisecond || tzOffset)) {
-        return -1;                                                    // RETURN
     }
 
     result->setTimeTz(localTime, tzOffset);
@@ -1322,7 +1311,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
 
     // Sample FIX datetime: "20050131-08:59:59.999-04:00"
     //
-    // The fractional second and zone designator are independently optional.
+    // The fractional second and timezone offset are independently optional.
 
     enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD-hh:mm:ss" - 1 };
 
@@ -1363,12 +1352,12 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
         return -1;                                                    // RETURN
     }
 
-    // 3. Parse zone designator, if any.
+    // 3. Parse timezone offset, if any.
 
     int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
-        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
@@ -1382,22 +1371,6 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     // be directly represented with a 'Datetime'.  Hence, we create an initial
     // 'Datetime' object without accounting for these, then adjust it forward
     // by up to 2 seconds, as needed.
-    //
-    ///24:00
-    ///- - -
-    // An 'hour' value of 24 is not valid unless 'minute', 'second',
-    // 'millisecond', and 'microsecond' are all 0.  Further note that supplying
-    // an hour of 24 when constructing a 'Datetime' results in a different
-    // interpretation than that provided by FIX (see
-    // '{Note Regarding the Time 24:00}' in the component-level documentation).
-
-    if (24 == hour) {
-        // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.
-
-        if (minute || second || millisecond || microsecond || tzOffset) {
-            return -1;                                                // RETURN
-        }
-    }
 
     DatetimeInterval resultAdjustment;  // adjust for leap second and maximum
                                         // fractional second
@@ -1415,8 +1388,11 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
 
     Datetime localDatetime;
 
-    if (0 != localDatetime.setDatetimeIfValid(
-           year, month, day, hour, minute, second, millisecond, microsecond)) {
+    // "24:00" is not a valid FIX time string.
+
+    if ( 0 != localDatetime.setDatetimeIfValid(
+              year, month, day, hour, minute, second, millisecond, microsecond)
+     || 24 == hour) {
         return -1;                                                    // RETURN
     }
 

@@ -57,19 +57,19 @@ BSLS_IDENT("$Id: $")
 // return an 'int' status value (0 for success and a non-zero value for
 // failure).  Note that, besides elementary syntactical considerations, the
 // validity of parsed strings are subject to the semantic constraints imposed
-// by the various 'isValid*' class methods, (i.e., 'Date::isValidYearMonthDay',
+// by the various 'isValid*' class methods (i.e., 'Date::isValidYearMonthDay',
 // 'Time::isValid', etc.).
 //
 ///Terminology
 ///-----------
 // As this component concerns FIX, some terms from that specification are used
-// liberally in what follows.  Two FIX terms of particular note are *zone*
-// *designator* and *fractional* *second*.
+// liberally in what follows.  Two FIX terms of particular note are *timezone*
+// *offset* and *fractional* *second*.
 //
-// A FIX *zone* *designator* corresponds to what other 'bdlt' components
+// A FIX *timezone* *offset* corresponds to what other 'bdlt' components
 // commonly refer to as a timezone offset (or simply as an offset; e.g., see
 // 'bdlt_datetimetz').  For example, the FIX string '20020317-15:46:00+04:00'
-// has a zone designator of '+4:00', indicating a timezone 4 hours ahead of
+// has a timezone offset of '+4:00', indicating a timezone 4 hours ahead of
 // UTC.
 //
 // A FIX *fractional* *second* corresponds to, for example, the 'millisecond'
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //
 //: o The precision of the fractional seconds.
 //:
-//: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
+//: o Whether 'Z' is output for the timezone offset instead of '+00:00' (UTC).
 //
 // 'FixUtilConfiguration' has two attributes that directly correspond to these
 // aspects.  In addition, for generate methods that are not supplied with a
@@ -137,28 +137,28 @@ BSLS_IDENT("$Id: $")
 // parse methods are not configurable like the generate methods (i.e., via an
 // optional 'FixUtilConfiguration' argument).  Moreover, the process-wide
 // configuration has no effect on parsing either.  Instead, the parse methods
-// automatically treat '+00:00', '+0000', and 'Z' as equivalent zone
-// designators (all denoting UTC).
+// automatically treat '+00:00' and 'Z' as equivalent timezone offsets (both
+// denoting UTC).
 //
-///Zone Designators
+///Timezone Offsets
 /// - - - - - - - -
-// The zone designator is optional, and can be present when parsing for *any*
-// type, i.e., even for 'Date', 'Time', and 'Datetime'.  If a zone designator
+// The timezone offset is optional, and can be present when parsing for *any*
+// type, i.e., even for 'Date', 'Time', and 'Datetime'.  If a timezone offset
 // is parsed for a 'Date', it must be valid, so it can affect the status value
 // that is returned in that case, but it is otherwise ignored.  For 'Time' and
-// 'Datetime', any zone designator present in the parsed string will affect the
-// resulting object value (unless the zone designator denotes UTC) because the
-// result is converted to UTC.  If the zone designator is absent, it is treated
+// 'Datetime', any timezone offset present in the parsed string will affect the
+// resulting object value (unless the timezone offset denotes UTC) because the
+// result is converted to UTC.  If the timezone offset is absent, it is treated
 // as if '+00:00' were specified:
 //..
 //  +------------------------------------+-----------------------------------+
 //  |         Parsed FIX String          |        Result Object Value        |
 //  +====================================+===================================+
 //  |  20020317-02:00                    |  Date(2002, 03, 17)               |
-//  |                                    |  # zone designator ignored        |
+//  |                                    |  # timezone offset ignored        |
 //  +------------------------------------+-----------------------------------+
 //  |  20020317-02:65                    |  Date: parsing fails              |
-//  |                                    |  # invalid zone designator        |
+//  |                                    |  # invalid timezone offset        |
 //  +------------------------------------+-----------------------------------+
 //  |  15:46:09.330+04:30                |  Time(11, 16, 09, 330)            |
 //  |                                    |  # converted to UTC               |
@@ -170,7 +170,7 @@ BSLS_IDENT("$Id: $")
 //  |                                    |         0)                        |
 //  |                                    |  # implied '+00:00'               |
 //  +------------------------------------+-----------------------------------+
-//  |  20020317-23:46:09.222-5:00        |  Datetime(Date(2002, 03, 18),     |
+//  |  20020317-23:46:09.222-05:00       |  Datetime(Date(2002, 03, 18),     |
 //  |                                    |           Time(04, 46, 09, 222))  |
 //  |                                    |  # carry into 'day' attribute     |
 //  |                                    |  # when converted to UTC          |
@@ -212,8 +212,8 @@ BSLS_IDENT("$Id: $")
 //  +--------------------------------------+---------------------------------+
 //..
 // Note that, for 'Datetime' and 'DatetimeTz', if a carry due to rounding of
-// the fractional second would cause an overflow at the extreme upper end of
-// the valid range of dates (i.e., 9999/12/31), then parsing would fail.
+// the fractional second causes an overflow at the extreme upper end of the
+// valid range of dates (i.e., 9999/12/31), then parsing fails.
 //
 ///Leap Seconds
 /// - - - - - -
@@ -236,64 +236,27 @@ BSLS_IDENT("$Id: $")
 //
 ///The Time 24:00
 /// - - - - - - -
-// According to the FIX specification, the time 24:00 is interpreted as
-// midnight, i.e., the last instant of a day.  However, this concept is not
-// supported by 'bdlt'.  Although 24:00 is *representable* by 'bdlt', i.e., as
-// the default value for 'bdlt::Time', 'Time(24, 0)' does *not* represent
-// midnight when it is the value for the "time" attribute of a 'Datetime' (or
-// 'DatetimeTz') object.  For example:
-//..
-//  bdlt::Datetime notMidnight =
-//              bdlt::Datetime(bdlt::Date(2002, 03, 17), bdlt::Time(24, 0, 0));
-//
-//  notMidnight.addSeconds(1);
-//  assert(notMidnight ==
-//              bdlt::Datetime(bdlt::Date(2002, 03, 17), bdlt::Time( 0, 0, 1));
-//..
-// It is important to be aware of this peculiarity of 'Datetime' (and
-// 'DatetimeTz') as it relates to FIX.
-//
-// The following table shows some examples of parsing a FIX string containing
-// "24:00".  Note that parsing fails if the zone designator is not equivalent
-// to "+00:00" when the time 24:00 is encountered:
-//..
-//  +------------------------------------+-----------------------------------+
-//  |         Parsed FIX String          |        Result Object Value        |
-//  +====================================+===================================+
-//  |  24:00:00.000                      |  Time(24, 0, 0, 0)                |
-//  |                                    |  # preserve default 'Time' value  |
-//  +------------------------------------+-----------------------------------+
-//  |  24:00:00.000-4:00                 |  TimeTz: parsing fails            |
-//  |                                    |  # zone designator not UTC        |
-//  +------------------------------------+-----------------------------------+
-//  |  00010101-24:00:00.000             |  Datetime(Date(0001, 01, 01),     |
-//  |                                    |           Time(24, 0, 0, 0))      |
-//  |                                    |  # preserve 'Datetime' default    |
-//  |                                    |  # value                          |
-//  +------------------------------------+-----------------------------------+
-//  |  20020317-24:00:00.000             |  Datetime(Date(2002, 03, 17),     |
-//  |                                    |           Time(24, 0, 0, 0))      |
-//  |                                    |  # preserve default 'Time' value  |
-//  +------------------------------------+-----------------------------------+
-//..
-// An 'hour' attribute value of 24 is also "preserved" by the generate
-// functions provided by this component:
+// Although 24:00 is *representable* by 'bdlt', i.e., as
+// the default value for 'bdlt::Time', '24:00:00.000' is *not* a valid string
+// in the FIX protocol.  As per other methods acting 24:00 within 'bdlt', an
+// 'hour' attribute value of 24 is mapped to 0 by the generate functions
+// provided by this component:
 //..
 //  +------------------------------------+-----------------------------------+
 //  |        Source Object Value         |       Generated FIX String        |
 //  +====================================+===================================+
-//  |  Time(24, 0, 0, 0)                 |  24:00:00.000                     |
+//  |  Time(24, 0, 0, 0)                 |  00:00:00.000                     |
 //  +------------------------------------+-----------------------------------+
-//  |  Datetime(Date(2002, 03, 17),      |  20020317-24:00:00.000            |
+//  |  Datetime(Date(2002, 03, 17),      |  20020317-00:00:00.000            |
 //  |           Time(24, 0, 0, 0))       |                                   |
 //  +------------------------------------+-----------------------------------+
 //..
 //
 ///Summary of Supported FIX Representations
-///- - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - -
 // The syntax description below summarizes the FIX string representations
 // supported by this component.  Although not quoted (for readability),
-// '[+-:.,TZ]' are literal characters that can occur in FIX strings.  The
+// '[+-:.Z]' are literal characters that can occur in FIX strings.  The
 // characters '[YMDhms]' each denote a decimal digit, '{}' brackets optional
 // elements, '()' is used for grouping, and '|' separates alternatives:
 //..
@@ -327,8 +290,9 @@ BSLS_IDENT("$Id: $")
 //
 // <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}
 //
-// <ZONE>                  ::=  ((+|-)hh{:}mm)|Z  # zone designator, the colon
-//                                                # is optional during parsing
+// <ZONE>                  ::=  ((+|-)hh{:mm})|Z  # timezone offset, the colon
+//                                                # and minute attribute is
+//                                                # optional during parsing
 //..
 //
 ///Usage
@@ -336,7 +300,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic 'bdlt::FixUtil' Usage
-/// - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - -
 // This example demonstrates basic use of one 'generate' function and two
 // 'parse' functions.
 //
@@ -404,7 +368,7 @@ BSLS_IDENT("$Id: $")
 // UTC.
 //
 ///Example 2: Configuring FIX String Generation
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates use of a 'bdlt::FixUtilConfiguration' object to
 // influence the format of the FIX strings that are generated by this component
 // by passing that configuration object to 'generate'.  We also take this
@@ -726,11 +690,11 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If the optional zone designator
+        // entire 'length' characters do not.  If the optional timezone offset
         // is present in 'string', it is parsed but ignored.  The behavior is
         // undefined unless '0 <= length'.
 
@@ -740,21 +704,21 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
         // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is present in 'string', the resulting 'Time' value is
-        // converted to the equivalent UTC time; if the zone designator is
+        // to the nearest value in milliseconds.  If the optional timezone
+        // offset is present in 'string', the resulting 'Time' value is
+        // converted to the equivalent UTC time; if the timezone offset is
         // absent, UTC is assumed.  If a leap second is detected (i.e., the
         // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
         // the 'second' attribute is taken to be 59, then an additional second
         // is added to 'result' at the end.  If the "hh:mm:ss" portion of
         // 'string' is "24:00:00", then the fractional second must be absent or
-        // 0, and the zone designator must be absent or indicate UTC.  The
+        // 0, and the timezone offset must be absent or indicate UTC.  The
         // behavior is undefined unless '0 <= length'.
 
     static int parse(Datetime *result, const char *string, int length);
@@ -763,22 +727,22 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is present in 'string', the resulting 'Datetime' value is
-        // converted to the equivalent UTC value; if the zone designator is
-        // absent, UTC is assumed.  If a leap second is detected (i.e., the
-        // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
-        // the 'second' attribute is taken to be 59, then an additional second
-        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
-        // 'string' is "24:00:00", then the fractional second must be absent or
-        // 0, and the zone designator must be absent or indicate UTC.  The
-        // behavior is undefined unless '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional timezone offset
+        // is present in 'string', the resulting 'Datetime' value is converted
+        // to the equivalent UTC value; if the timezone offset is absent, UTC
+        // is assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // timezone offset must be absent or indicate UTC.  The behavior is
+        // undefined unless '0 <= length'.
 
     static int parse(DateTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified FIX
@@ -786,11 +750,11 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
-        // entire 'length' characters do not.  If the optional zone designator
+        // entire 'length' characters do not.  If the optional timezone offset
         // is not present in 'string', UTC is assumed.  The behavior is
         // undefined unless '0 <= length'.
 
@@ -800,21 +764,20 @@ struct FixUtil {
         // 'result'.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
         // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  If a leap
-        // second is detected (i.e., the parsed value of the 'second' attribute
-        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
-        // 59, then an additional second is added to 'result' at the end.  If
-        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
-        // fractional second must be absent or 0, and the zone designator must
-        // be absent or indicate UTC.  The behavior is undefined unless
-        // '0 <= length'.
+        // to the nearest value in milliseconds.  If the optional timezone
+        // offset is not present in 'string', UTC is assumed.  If a leap second
+        // is detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the timezone offset must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
     static int parse(DatetimeTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified FIX
@@ -822,21 +785,20 @@ struct FixUtil {
         // specified 'result'.  Return 0 on success, and a non-zero value (with
         // no effect) otherwise.  'string' is assumed to be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  If a leap
-        // second is detected (i.e., the parsed value of the 'second' attribute
-        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
-        // 59, then an additional second is added to 'result' at the end.  If
-        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
-        // fractional second must be absent or 0, and the zone designator must
-        // be absent or indicate UTC.  The behavior is undefined unless
-        // '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional timezone offset
+        // is not present in 'string', UTC is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the timezone offset must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
     static int parse(Date *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'Date' value, and load the
@@ -844,13 +806,13 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If the optional zone
-        // designator is present in 'string', it is parsed but ignored.  The
-        // behavior is undefined unless 'string.data()' is non-null.
+        // entire 'string.length()' characters do not.  If the optional
+        // timezone offset is present in 'string', it is parsed but ignored.
+        // The behavior is undefined unless 'string.data()' is non-null.
 
     static int parse(Time *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'Time' value, and load the
@@ -858,21 +820,21 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
         // fractional second having more than three digits is present in
         // 'string', it is rounded to the nearest value in milliseconds.  If
-        // the optional zone designator is present in 'string', the resulting
-        // 'Time' value is converted to the equivalent UTC time; if the zone
-        // designator is absent, UTC is assumed.  If a leap second is detected
-        // (i.e., the parsed value of the 'second' attribute is 60; see {Leap
-        // Seconds}), the 'second' attribute is taken to be 59, then an
-        // additional second is added to 'result' at the end.  If the
+        // the optional timezone offset is present in 'string', the resulting
+        // 'Time' value is converted to the equivalent UTC time; if the
+        // timezone offset is absent, UTC is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
         // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the zone designator must be absent
+        // second must be absent or 0, and the timezone offset must be absent
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
@@ -882,21 +844,21 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
-        // the optional zone designator is present in 'string', the resulting
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
+        // the optional timezone offset is present in 'string', the resulting
         // 'Datetime' value is converted to the equivalent UTC value; if the
-        // zone designator is absent, UTC is assumed.  If a leap second is
+        // timezone offset is absent, UTC is assumed.  If a leap second is
         // detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
         // an additional second is added to 'result' at the end.  If the
         // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the zone designator must be absent
+        // second must be absent or 0, and the timezone offset must be absent
         // or indicate UTC.  The behavior is undefined unless 'string.data()'
         // is non-null.
 
@@ -906,13 +868,13 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
-        // entire 'string.length()' characters do not.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  The behavior
-        // is undefined unless 'string.data()' is non-null.
+        // entire 'string.length()' characters do not.  If the optional
+        // timezone offset is not present in 'string', UTC is assumed.  The
+        // behavior is undefined unless 'string.data()' is non-null.
 
     static int parse(TimeTz *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'TimeTz' value, and load the
@@ -920,20 +882,20 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
         // fractional second having more than three digits is present in
         // 'string', it is rounded to the nearest value in milliseconds.  If
-        // the optional zone designator is not present in 'string', UTC is
+        // the optional timezone offset is not present in 'string', UTC is
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
         // attribute is taken to be 59, then an additional second is added to
         // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
         // "24:00:00", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
+        // timezone offset must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
     static int parse(DatetimeTz *result, const bslstl::StringRef& string);
@@ -942,20 +904,20 @@ struct FixUtil {
         // non-zero value (with no effect) otherwise.  'string' is assumed to
         // be of the form:
         //..
-        //  YYYYMMDD-hh:mm:ss{(.|,)s+}{(+|-)hh{:}mm|Z}
+        //  YYYYMMDD-hh:mm:ss{.s+}{(+|-)hh{:mm}|Z}
         //..
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
-        // the optional zone designator is not present in 'string', UTC is
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
+        // the optional timezone offset is not present in 'string', UTC is
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
         // attribute is taken to be 59, then an additional second is added to
         // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
         // "24:00:00", then the fractional second must be absent or 0, and the
-        // zone designator must be absent or indicate UTC.  The behavior is
+        // timezone offset must be absent or indicate UTC.  The behavior is
         // undefined unless 'string.data()' is non-null.
 };
 

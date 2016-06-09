@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 //: o 'fractionalSecondPrecision': number of digits used to represent
 //:   fractional seconds; must be in the range '0 .. 6'.
 //:
-//: o 'useZAbbreviationForUtc': 'true' if 'Z' should be used for the zone
-//:   designator instead of '+00:00' (specific to UTC).
+//: o 'useZAbbreviationForUtc': 'true' if 'Z' should be used for the timezone
+//:   offset instead of '+00:00' (specific to UTC).
 //
 ///Default Configuration
 ///---------------------
@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //  assert(!configuration.useZAbbreviationForUtc());
 //..
 // Next, we modify 'configuration' to indicate that we want to output 'Z' when
-// the zone designator is UTC (i.e., instead of '+00:00'):
+// the timezone offset is UTC (i.e., instead of '+00:00'):
 //..
 //  configuration.setUseZAbbreviationForUtc(true);
 //  assert( configuration.fractionalSecondPrecision() == 3);

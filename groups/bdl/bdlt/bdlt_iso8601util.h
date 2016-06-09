@@ -819,17 +819,17 @@ struct Iso8601Util {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is present in 'string', the resulting 'Datetime' value is
-        // converted to the equivalent UTC value; if the zone designator is
-        // absent, UTC is assumed.  If a leap second is detected (i.e., the
-        // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
-        // the 'second' attribute is taken to be 59, then an additional second
-        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
-        // 'string' is "24:00:00", then the fractional second must be absent or
-        // 0, and the zone designator must be absent or indicate UTC.  The
-        // behavior is undefined unless '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional zone designator
+        // is present in 'string', the resulting 'Datetime' value is converted
+        // to the equivalent UTC value; if the zone designator is absent, UTC
+        // is assumed.  If a leap second is detected (i.e., the parsed value of
+        // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
+        // attribute is taken to be 59, then an additional second is added to
+        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
+        // "24:00:00", then the fractional second must be absent or 0, and the
+        // zone designator must be absent or indicate UTC.  The behavior is
+        // undefined unless '0 <= length'.
 
     static int parse(DateTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -878,16 +878,15 @@ struct Iso8601Util {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional zone
-        // designator is not present in 'string', UTC is assumed.  If a leap
-        // second is detected (i.e., the parsed value of the 'second' attribute
-        // is 60; see {Leap Seconds}), the 'second' attribute is taken to be
-        // 59, then an additional second is added to 'result' at the end.  If
-        // the "hh:mm:ss" portion of 'string' is "24:00:00", then the
-        // fractional second must be absent or 0, and the zone designator must
-        // be absent or indicate UTC.  The behavior is undefined unless
-        // '0 <= length'.
+        // having more than six digits is present in 'string', it is rounded to
+        // the nearest value in microseconds.  If the optional zone designator
+        // is not present in 'string', UTC is assumed.  If a leap second is
+        // detected (i.e., the parsed value of the 'second' attribute is 60;
+        // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
+        // an additional second is added to 'result' at the end.  If the
+        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
+        // second must be absent or 0, and the zone designator must be absent
+        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
 
     static int parse(Date *result, const bslstl::StringRef& string);
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
@@ -938,8 +937,8 @@ struct Iso8601Util {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional zone designator is present in 'string', the resulting
         // 'Datetime' value is converted to the equivalent UTC value; if the
         // zone designator is absent, UTC is assumed.  If a leap second is
@@ -998,8 +997,8 @@ struct Iso8601Util {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional zone designator is not present in 'string', UTC is
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'

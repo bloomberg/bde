@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
     ASSERT(!configuration.useZAbbreviationForUtc());
 //..
 // Next, we modify 'configuration' to indicate that we want to output 'Z' when
-// the zone designator is UTC (i.e., instead of '+00:00'):
+// the timezone offset is UTC (i.e., instead of '+00:00'):
 //..
     configuration.setUseZAbbreviationForUtc(true);
     ASSERT( configuration.fractionalSecondPrecision() == 3);

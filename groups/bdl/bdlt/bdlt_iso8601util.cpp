@@ -1207,7 +1207,7 @@ int Iso8601Util::parse(Datetime *result, const char *string, int length)
     // 2. Account for edge cases.
 
     if (datetimeTz.offset() > 0) {
-        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000);
+        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
 
         minDatetime.addMinutes(datetimeTz.offset());
 
@@ -1216,7 +1216,7 @@ int Iso8601Util::parse(Datetime *result, const char *string, int length)
         }
     }
     else if (datetimeTz.offset() < 0) {
-        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
 
         maxDatetime.addMinutes(datetimeTz.offset());
 

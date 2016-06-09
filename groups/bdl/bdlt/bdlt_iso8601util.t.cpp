@@ -714,7 +714,7 @@ int main(int argc, char *argv[])
 // following example:
 //..
     const bdlt::Date date(2005, 1, 31);     // 2005/01/31
-    const bdlt::Time time(8, 59, 59, 123);  // 08::59::59.123
+    const bdlt::Time time(8, 59, 59, 123);  // 08:59:59.123
     const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
 //..
 // Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding ISO
