@@ -338,8 +338,10 @@ int parseTimezoneOffset(const char **nextPos,
     if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
+
     if (':' == *p) {
         ++p;  // skip ':'
+
         if (end - p < 2) {
             return -1;                                                // RETURN
         }
