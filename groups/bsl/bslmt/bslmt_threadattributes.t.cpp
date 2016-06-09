@@ -68,6 +68,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+int verbose;
+int veryVerbose;
+
+typedef bslmt::ThreadAttributes Obj;
+
+// ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -107,6 +120,10 @@ void aSsErT(bool condition, const char *message, int line)
 
         // Perform some calculation that involves no subroutine calls or
         // additional automatic variables.
+
+if (verbose) {
+        (void) bufferLocal;    // silence unused warnings
+}
     }
 //..
 // Then, we define our main function, in which we demonstrate configuring a
@@ -183,8 +200,15 @@ void aSsErT(bool condition, const char *message, int line)
         int policy = attributes.schedulingPolicy();
         int priority = attributes.schedulingPriority();
 
+if (verbose) {
+        (void) policy;          // silence unused warnings
+        (void) priority;        // silence unused warnings
+        (void) threadHandle;    // silence unused warnings
+        (void) function;        // silence unused warnings
+}
+
         // the following is pseudo-code for actually creating the thread
-        /*
+#if 0
         if (bslmt::ThreadAttributes::e_UNSET_PRIORITY == priority) {
             priority = operatingSystemDefaultPriority(policy);
         }
@@ -197,20 +221,11 @@ void aSsErT(bool condition, const char *message, int line)
                                     priority,
                                     attributes.detachedState()
                                     function);
-        */
+#endif
     }
 //..
 // Notice that a new value derived from the 'stackSize' attribute is used so
 // that the meaning of the attribute is platform neutral.
-
-// ============================================================================
-//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-
-int verbose;
-int veryVerbose;
-
-typedef bslmt::ThreadAttributes Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -288,38 +303,41 @@ int main(int argc, char *argv[])
         }
 
         struct Parameters {
-            int                   d_line;
+            int                    d_line;
 
-            Obj::DetachedState    d_detachedState;
-            Obj::SchedulingPolicy d_schedulingPolicy;
-            int                   d_schedulingPriority;
-            bool                  d_inheritSchedule;
-            int                   d_stackSize;
-            int                   d_guardSize;
+            Obj::DetachedState     d_detachedState;
+            Obj::SchedulingPolicy  d_schedulingPolicy;
+            int                    d_schedulingPriority;
+            bool                   d_inheritSchedule;
+            int                    d_stackSize;
+            int                    d_guardSize;
+            const char            *d_threadName;
 
             int                   d_whichVerify;
         } PARAM[] = {
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_OTHER,
-                0, 0, 0, 0, 1 },
+                0, 0, 0, 0, "woof", 1 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                0, 0, 0, 0, 2 },
+                0, 0, 0, 0, "woof", 2 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                5, 0, 0, 0, 3 },
+                5, 0, 0, 0, "woof", 3 },
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                4, true, 0, 0, 4 },
+                4, true, 0, 0, "woof", 4 },
 #ifdef BSLS_PLATFORM_CPU_64_BIT
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 300000, 0, 5 },
+                3, 0, 300000, 0, "woof", 5 },
 #else
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                3, 0, 80000, 0, 5 },
+                3, 0, 80000, 0, "woof", 5 },
 #endif
            {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
-                2, 0, 0, 2000, 6 }
+                2, 0, 0, 2000, "woof", 6 },
+           {L_, Obj::e_CREATE_DETACHED, Obj::e_SCHED_FIFO,
+                2, 0, 0, 2000, "woof", 7 }
         };
 
-        int numParams = sizeof(PARAM) / sizeof(Parameters);
-        for (int i = 0; i < numParams; ++i) {
+        size_t numParams = sizeof(PARAM) / sizeof(Parameters);
+        for (unsigned i = 0; i < numParams; ++i) {
             Obj mX;
             mX.setDetachedState(PARAM[i].d_detachedState);
             mX.setSchedulingPolicy(PARAM[i].d_schedulingPolicy);
@@ -327,6 +345,7 @@ int main(int argc, char *argv[])
             mX.setInheritSchedule(PARAM[i].d_inheritSchedule);
             mX.setStackSize(PARAM[i].d_stackSize);
             mX.setGuardSize(PARAM[i].d_guardSize);
+            mX.setThreadName(PARAM[i].d_threadName);
 
             const Obj& X = mX;
 
@@ -365,6 +384,10 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(PARAM[i].d_line, PARAM[i].d_guardSize ==
                             Y.guardSize());
                 break;
+            case 7:
+                LOOP_ASSERT(PARAM[i].d_line,
+                            PARAM[i].d_threadName == Y.threadName());
+                break;
             }
         }
       } break;
@@ -389,24 +412,7 @@ int main(int argc, char *argv[])
         ASSERT(Obj::e_SCHED_DEFAULT == X.schedulingPolicy());
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
-
-#if 0
-        // 'Imp has been eliminated
-
-        typedef bslmt::ThreadAttributes::Imp Imp;
-
-        ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
-                                                   Imp::e_CREATE_JOINABLE);
-        ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
-                                                   Imp::e_CREATE_DETACHED);
-
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_OTHER ==
-                                                   Imp::e_SCHED_OTHER);
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_FIFO  ==
-                                                   Imp::e_SCHED_FIFO);
-        ASSERT(bslmt::ThreadAttributes::e_SCHED_RR    ==
-                                                   Imp::e_SCHED_RR);
-#endif
+        ASSERT("" == X.threadName());
       } break;
       case -1: {
         // --------------------------------------------------------------------

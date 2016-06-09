@@ -37,6 +37,7 @@ BSLS_IDENT("$Id: $")
 //  inheritSchedule     bool                   'true'
 //  schedulingPolicy    enum SchedulingPolicy  e_SCHED_DEFAULT
 //  schedulingPriority  int                    e_UNSET_PRIORITY
+//  threadName          bsl::string            ""
 //
 //  Name          Constraint
 //  ---------     ---------------------------------------------------
@@ -119,6 +120,17 @@ BSLS_IDENT("$Id: $")
 // 'bslmt_threadutil'.  This attribute is ignored unless 'inheritSchedule' is
 // 'false'.  See 'bslmt_threadutil' for information about support for this
 // attribute.
+//
+///'threadName' Attribute
+/// - - - - - - - - - - -
+// The 'threadName' attribute indicates the name the thread is to have.  Thread
+// names show up in debuggers on some platforms, and are unsupported on others.
+// Thread names have unlimited lengths in a thread attributes object, but the
+// thread names actually supported by specific platforms may have limited
+// length, depending upon the platform, so thread names may be truncated when
+// assigned to the actual thread.  At this time, only Linux and Darwin support
+// thread names, and there is a max thread name length of 15 on both of those
+// platforms.
 //
 ///Usage
 ///-----
@@ -264,6 +276,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_c_limits.h>
 #endif
 
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmt {
 
@@ -365,9 +381,12 @@ class ThreadAttributes {
 
     int              d_stackSize;           // size of the thread's stack
 
+    bsl::string      d_threadName;          // name of the thread
+
   public:
     // CREATORS
-    ThreadAttributes();
+    explicit
+    ThreadAttributes(bslma::Allocator *basicAllocator = 0);
         // Create a 'ThreadAttributes' object having the (default) attribute
         // values:
         //: o 'detachedState()      == e_CREATE_JOINABLE'
@@ -376,10 +395,17 @@ class ThreadAttributes {
         //: o 'schedulingPolicy()   == e_SCHED_DEFAULT'
         //: o 'schedulingPriority() == e_UNSET_PRIORITY'
         //: o 'stackSize()          == e_UNSET_STACK_SIZE'
+        //: o 'threadName           == ""'
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
-    ThreadAttributes(const ThreadAttributes& original);
+    ThreadAttributes(const ThreadAttributes&  original,
+                     bslma::Allocator        *basicAllocator = 0);
         // Create a 'ThreadAttributes' object having the same value as the
-        // specified 'original' object.
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     // MANIPULATORS
     ThreadAttributes& operator=(const ThreadAttributes& rhs);
@@ -436,6 +462,10 @@ class ThreadAttributes {
         // 'bslmt_configuration'.  The behavior is undefined unless
         // 'e_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 
+    void setThreadName(const bslstl::StringRef& value);
+        // Set the 'threadName' attribute of this object to the specified
+        // 'value'.
+
     // ACCESSORS
     DetachedState detachedState() const;
         // Return the value of the 'detachedState' attribute of this object.  A
@@ -480,6 +510,11 @@ class ThreadAttributes {
         // Return the value of the 'stackSize' attribute of this object.  If
         // 'stackSize' is 'e_UNSET_STACK_SIZE', thread creation should use the
         // default stack size value provided by 'bslmt_configuration'.
+
+    bslstl::StringRef threadName() const;
+        // Return the 'threadName' attribute of this object.  Note that the
+        // returned string will change if 'setThreadName' is subsequently
+        // called on this object.
 };
 
 // FREE OPERATORS
@@ -507,33 +542,7 @@ bool operator!=(const ThreadAttributes& lhs, const ThreadAttributes& rhs);
                           // class ThreadAttributes
                           // ----------------------
 
-// CREATORS
-inline
-bslmt::ThreadAttributes::ThreadAttributes(const ThreadAttributes& original)
-: d_detachedState(original.d_detachedState)
-, d_guardSize(original.d_guardSize)
-, d_inheritScheduleFlag(original.d_inheritScheduleFlag)
-, d_schedulingPolicy(original.d_schedulingPolicy)
-, d_schedulingPriority(original.d_schedulingPriority)
-, d_stackSize(original.d_stackSize)
-{
-}
-
 // MANIPULATORS
-inline
-bslmt::ThreadAttributes& bslmt::ThreadAttributes::operator=(
-                                                   const ThreadAttributes& rhs)
-{
-    d_detachedState       = rhs.d_detachedState;
-    d_guardSize           = rhs.d_guardSize;
-    d_inheritScheduleFlag = rhs.d_inheritScheduleFlag;
-    d_schedulingPolicy    = rhs.d_schedulingPolicy;
-    d_schedulingPriority  = rhs.d_schedulingPriority;
-    d_stackSize           = rhs.d_stackSize;
-
-    return *this;
-}
-
 inline
 void bslmt::ThreadAttributes::setDetachedState(
                                          ThreadAttributes::DetachedState value)
@@ -584,6 +593,12 @@ void bslmt::ThreadAttributes::setStackSize(int value)
     BSLS_ASSERT_SAFE(-1 <= value);
 
     d_stackSize = value;
+}
+
+inline
+bslstl::StringRef bslmt::ThreadAttributes::threadName() const
+{
+    return d_threadName;
 }
 
 // ACCESSORS
