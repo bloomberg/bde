@@ -8717,6 +8717,7 @@ int main(int argc, char *argv[])
         //   Reserved for BDEX streaming.
         // --------------------------------------------------------------------
 
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
