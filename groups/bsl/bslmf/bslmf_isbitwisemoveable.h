@@ -656,13 +656,14 @@ struct IsBitwiseMoveable_Imp<TYPE, false>
 
     typedef bsl::integral_constant<bool, value> type;
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) &&     \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
+    defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
     // In C++11 and beyond, we can accurately detect trivial-copiable types
     // without relying on the one-byte heuristic.  If we detect that this
     // trait yields true with the one-byte heuristic but false without it in
     // C++11 mode, trigger a static assert; 'IsBitwiseMoveable<TYPE>' should be
     // specialized to inherit from 'false_type'.
+
     static const bool k_ValueWithoutOnebyteHeuristic =
         !bsl::is_reference<TYPE>::value
             && (  bsl::is_trivially_copyable<TYPE>::value
