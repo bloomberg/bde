@@ -58,6 +58,7 @@ bslmf_nthparameter
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq
+bslmf_removeextent
 bslmf_removepointer
 bslmf_removereference
 bslmf_removevolatile
