@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // A FIX *timezone* *offset* corresponds to what other 'bdlt' components
 // commonly refer to as a timezone offset (or simply as an offset; e.g., see
 // 'bdlt_datetimetz').  For example, the FIX string '20020317-15:46:00+04:00'
-// has a timezone offset of '+4:00', indicating a timezone 4 hours ahead of
+// has a timezone offset of '+04:00', indicating a timezone 4 hours ahead of
 // UTC.
 //
 // A FIX *fractional* *second* corresponds to, for example, the 'millisecond'
@@ -186,21 +186,23 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - -
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
-// present, it can have one or more digits (i.e., it can contain more than
-// six).  For 'Time' and 'TimeTz', if more than three digits are included in
-// the fractional second, values are rounded to a full millisecond; i.e.,
-// values greater than or equal to .5 milliseconds are rounded up.  For
-// 'Datetime' and 'DatetimeTz', if more than six digits are included in the
-// fractional second, values are rounded to a full microsecond; i.e., values
-// greater than or equal to .5 microseconds are rounded up.  These roundings
-// may incur a carry of one second into the 'second' attribute:
+// present, it can have one or more digits.  Although FIX has provision for
+// picosecond (or finer) time resolution, be aware that 'bdlt' is limited to
+// either microsecond resolution ('Datetime' and 'DatetimeTz') or millisecond
+// resolution ('Time' and 'TimeTz').  For 'Time' and 'TimeTz', if more than
+// three digits are included in the fractional second, values are rounded to a
+// full millisecond; i.e., values greater than or equal to .5 milliseconds are
+// rounded up.  For 'Datetime' and 'DatetimeTz', if more than six digits are
+// included in the fractional second, values are rounded to a full microsecond;
+// i.e., values greater than or equal to .5 microseconds are rounded up.  These
+// roundings may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |          Parsed FIX String           |      Result Object Value        |
 //  +======================================+=================================+
 //  |  15:46:09.1                          |  Time(15, 46, 09, 100)          |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09-5:00                       |  TimeTz(Time(15, 46, 09, 000),  |
+//  |  15:46:09-05:00                      |  TimeTz(Time(15, 46, 09, 000),  |
 //  |                                      |         -300)                   |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
@@ -236,11 +238,11 @@ BSLS_IDENT("$Id: $")
 //
 ///The Time 24:00
 /// - - - - - - -
-// Although 24:00 is *representable* by 'bdlt', i.e., as
-// the default value for 'bdlt::Time', '24:00:00.000' is *not* a valid string
-// in the FIX protocol.  As per other methods acting 24:00 within 'bdlt', an
-// 'hour' attribute value of 24 is mapped to 0 by the generate functions
-// provided by this component:
+// Although 24:00 is *representable* by 'bdlt', i.e., as the default value for
+// 'bdlt::Time', "24:00:00.000" is *not* a valid string in the FIX protocol.
+// As per other methods acting upon 24:00 within 'bdlt', an 'hour' attribute
+// value of 24 is mapped to 0 by the generate functions provided by this
+// component:
 //..
 //  +------------------------------------+-----------------------------------+
 //  |        Source Object Value         |       Generated FIX String        |
@@ -251,6 +253,8 @@ BSLS_IDENT("$Id: $")
 //  |           Time(24, 0, 0, 0))       |                                   |
 //  +------------------------------------+-----------------------------------+
 //..
+// Finally, a string representing 24:00 is rejected by the 'bdlt::FixUtil'
+// parse methods.
 //
 ///Summary of Supported FIX Representations
 ///- - - - - - - - - - - - - - - - - - - -
@@ -291,7 +295,7 @@ BSLS_IDENT("$Id: $")
 // <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}
 //
 // <ZONE>                  ::=  ((+|-)hh{:mm})|Z  # timezone offset, the colon
-//                                                # and minute attribute is
+//                                                # and minute attribute are
 //                                                # optional during parsing
 //..
 //
@@ -716,10 +720,8 @@ struct FixUtil {
         // absent, UTC is assumed.  If a leap second is detected (i.e., the
         // parsed value of the 'second' attribute is 60; see {Leap Seconds}),
         // the 'second' attribute is taken to be 59, then an additional second
-        // is added to 'result' at the end.  If the "hh:mm:ss" portion of
-        // 'string' is "24:00:00", then the fractional second must be absent or
-        // 0, and the timezone offset must be absent or indicate UTC.  The
-        // behavior is undefined unless '0 <= length'.
+        // is added to 'result' at the end.  The behavior is undefined unless
+        // '0 <= length'.
 
     static int parse(Datetime *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified FIX
@@ -739,10 +741,8 @@ struct FixUtil {
         // is assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
         // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
-        // "24:00:00", then the fractional second must be absent or 0, and the
-        // timezone offset must be absent or indicate UTC.  The behavior is
-        // undefined unless '0 <= length'.
+        // 'result' at the end.  The behavior is undefined unless
+        // '0 <= length'.
 
     static int parse(DateTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified FIX
@@ -774,10 +774,8 @@ struct FixUtil {
         // offset is not present in 'string', UTC is assumed.  If a leap second
         // is detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the timezone offset must be absent
-        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
+        // an additional second is added to 'result' at the end.  The behavior
+        // is undefined unless '0 <= length'.
 
     static int parse(DatetimeTz *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified FIX
@@ -795,10 +793,8 @@ struct FixUtil {
         // is not present in 'string', UTC is assumed.  If a leap second is
         // detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the timezone offset must be absent
-        // or indicate UTC.  The behavior is undefined unless '0 <= length'.
+        // an additional second is added to 'result' at the end.  The behavior
+        // is undefined unless '0 <= length'.
 
     static int parse(Date *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'Date' value, and load the
@@ -832,11 +828,8 @@ struct FixUtil {
         // timezone offset is absent, UTC is assumed.  If a leap second is
         // detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the timezone offset must be absent
-        // or indicate UTC.  The behavior is undefined unless 'string.data()'
-        // is non-null.
+        // an additional second is added to 'result' at the end.  The behavior
+        // is undefined unless 'string.data()' is non-null.
 
     static int parse(Datetime *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'Datetime' value, and load the
@@ -856,11 +849,8 @@ struct FixUtil {
         // timezone offset is absent, UTC is assumed.  If a leap second is
         // detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
-        // an additional second is added to 'result' at the end.  If the
-        // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
-        // second must be absent or 0, and the timezone offset must be absent
-        // or indicate UTC.  The behavior is undefined unless 'string.data()'
-        // is non-null.
+        // an additional second is added to 'result' at the end.  The behavior
+        // is undefined unless 'string.data()' is non-null.
 
     static int parse(DateTz *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'DateTz' value, and load the
@@ -893,10 +883,8 @@ struct FixUtil {
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
         // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
-        // "24:00:00", then the fractional second must be absent or 0, and the
-        // timezone offset must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
+        // 'result' at the end.  The behavior is undefined unless
+        // 'string.data()' is non-null.
 
     static int parse(DatetimeTz *result, const bslstl::StringRef& string);
         // Parse the specified FIX 'string' as a 'DatetimeTz' value, and load
@@ -915,10 +903,8 @@ struct FixUtil {
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
         // attribute is taken to be 59, then an additional second is added to
-        // 'result' at the end.  If the "hh:mm:ss" portion of 'string' is
-        // "24:00:00", then the fractional second must be absent or 0, and the
-        // timezone offset must be absent or indicate UTC.  The behavior is
-        // undefined unless 'string.data()' is non-null.
+        // 'result' at the end.  The behavior is undefined unless
+        // 'string.data()' is non-null.
 };
 
 // ============================================================================

@@ -349,7 +349,7 @@ int parseTimezoneOffset(const char **nextPos,
         // Parse minute.
 
         if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
-          return -1;                                                  // RETURN
+            return -1;                                                // RETURN
         }
     }
 

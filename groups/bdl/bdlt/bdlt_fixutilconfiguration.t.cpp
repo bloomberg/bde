@@ -238,20 +238,21 @@ int main(int argc, char *argv[])
 // that may be used to influence the format of the output produced by a
 // hypothetical utility, 'my::FixUtil', that generates and parses FIX strings
 // for 'bdlt' vocabulary types (see 'bdlt_fixutil', which provides just such
-// functionality).  In particular, suppose that given a sample 'bdlt::TimeTz'
-// object:
+// functionality).  In particular, suppose that given a sample
+// 'bdlt::DatetimeTz' object:
 //..
-//  const bdlt::TimeTz timeTz(bdlt::Time(8, 59, 59, 123), 0);
+//  const bdlt::DatetimeTz datetimeTz(
+//                             bdlt::Datetime(2005, 1, 31, 8, 59, 59, 123), 0);
 //..
-// 'my::FixUtil' produces, by default, the following string (which, due to the
-// fractional second being displayed, is *not* a valid FIX string):
+// 'my::FixUtil' produces, by default, the following string (which is a valid
+// FIX string):
 //..
-//  08:59:59.123+00:00
+//  31JAN2005_08:59:59.123+00:00
 //..
-// However, we would like to produce the following (also invalid FIX) string
+// However, we would like to produce the following (also valid FIX) string
 // instead:
 //..
-//  08:59:59.123000Z
+//  31JAN2005_08:59:59.123000Z
 //..
 // 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
 // assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the

@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // An ISO 8601 *zone* *designator* corresponds to what other 'bdlt' components
 // commonly refer to as a timezone offset (or simply as an offset; e.g., see
 // 'bdlt_datetimetz').  For example, the ISO 8601 string
-// '2002-03-17T15:46:00+04:00' has a zone designator of '+4:00', indicating a
+// '2002-03-17T15:46:00+04:00' has a zone designator of '+04:00', indicating a
 // timezone 4 hours ahead of UTC.
 //
 // An ISO 8601 *fractional* *second* corresponds to, for example, the
@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //  |                                    |         0)                        |
 //  |                                    |  # implied '+00:00'               |
 //  +------------------------------------+-----------------------------------+
-//  |  2002-03-17T23:46:09.222-5:00      |  Datetime(Date(2002, 03, 18),     |
+//  |  2002-03-17T23:46:09.222-05:00     |  Datetime(Date(2002, 03, 18),     |
 //  |                                    |           Time(04, 46, 09, 222))  |
 //  |                                    |  # carry into 'day' attribute     |
 //  |                                    |  # when converted to UTC          |
@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //  +======================================+=================================+
 //  |  15:46:09.1                          |  Time(15, 46, 09, 100)          |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09-5:00                       |  TimeTz(Time(15, 46, 09, 000),  |
+//  |  15:46:09-05:00                      |  TimeTz(Time(15, 46, 09, 000),  |
 //  |                                      |         -300)                   |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
@@ -265,7 +265,7 @@ BSLS_IDENT("$Id: $")
 //  |  24:00:00.000                      |  Time(24, 0, 0, 0)                |
 //  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
-//  |  24:00:00.000-4:00                 |  TimeTz: parsing fails            |
+//  |  24:00:00.000-04:00                |  TimeTz: parsing fails            |
 //  |                                    |  # zone designator not UTC        |
 //  +------------------------------------+-----------------------------------+
 //  |  0001-01-01T24:00:00.000           |  Datetime(Date(0001, 01, 01),     |
