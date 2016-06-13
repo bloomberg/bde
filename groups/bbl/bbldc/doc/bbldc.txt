@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bbldc' package currently has 19 components having 2 levels of physical
+ The 'bbldc' package currently has 24 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -23,12 +23,16 @@
      bbldc_calendardaycountutil
      bbldc_perioddaterangedaycountadapter
      bbldc_perioddaycountutil
+     bbldc_terminatedbasicdaycountadapter
+     bbldc_terminateddaterangedaycountadapter
+     bbldc_terminateddaycountutil
 
   1. bbldc_basicactual360
      bbldc_basicactual365fixed
      bbldc_basicdaycount
      bbldc_basicisdaactualactual
      bbldc_basicisma30360
+     bbldc_basicnl365
      bbldc_basicpsa30360eom
      bbldc_basicsia30360eom
      bbldc_basicsia30360neom
@@ -36,6 +40,7 @@
      bbldc_daterangedaycount
      bbldc_daycountconvention
      bbldc_periodicmaactualactual
+     bbldc_terminatedisda30360eom
 ..
 
 /Component Synopsis
@@ -63,6 +68,9 @@
 :
 : 'bbldc_basicisma30360':
 :      Provide stateless functions for the ISMA 30/360 convention.
+:
+: 'bbldc_basicnl365':
+:      Provide stateless functions for the NL/365 convention.
 :
 : 'bbldc_basicpsa30360eom':
 :      Provide stateless functions for PSA 30/360 end-of-month convention.
@@ -96,3 +104,15 @@
 :
 : 'bbldc_periodicmaactualactual':
 :      Provide stateless functions for period-based ICMA Actual/Actual.
+:
+: 'bbldc_terminatedbasicdaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_terminateddaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_terminateddaycount':
+:      Provide a protocol for terminated day-count calculations.
+:
+: 'bbldc_terminatedisda30360eom':
+:      Provide stateless functions for ISDA 30/360 eom convention.
