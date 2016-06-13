@@ -1,3 +1,15 @@
+bsl-internal (2.27.15.0) unstable; urgency=low
+
+  * efb3c5e Update patch version from 2.27.14.0 to 2.27.15.0
+  * d1e6354 Merge pull request #456 from jmendelsohn4/pr/413-rebased
+  * 87a84a8 Merge pull request #444 from bcreech2/patch/unordered_map_test_ordering
+  * 5b81d53 Merge pull request #443 from bcreech2/patch/no_windows_abort_dialog
+  * 0d67b02 create 2.x based branch
+  * cea59dd Fix strict weak ordering error in unordered map test
+  * 1d74e3e In the exceptionutil test case, disable the Windows abort/retry/ignore dialog box so DEBUG builds can run the tests without manual intervention
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 13 Jun 2016 14:54:11 -0400
+
 bsl-internal (2.27.14.0) unstable; urgency=low
 
   * dc1c0c5 Merge pull request #457 from mgiroux/review/bump-patchversion-to-2.27.14
