@@ -1261,7 +1261,7 @@ class Calendar {
         // range and '1 <= nth' (or if every day of the week is a weekend day,
         // or if the resulting date would otherwise exceed the value
         // 'Date(9999, 12, 31)').
-    
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
 };

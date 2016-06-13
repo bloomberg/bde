@@ -27,18 +27,6 @@ Architecture: any
 Description: BDL
  groups/bdl development files
 
-Package: libbtl-dev
-Depends: libbsl-dev
-Architecture: any
-Description: BTL
- groups/btl development files
-
-Package: libbal-dev
-Depends: libbsl-dev, libbdl-dev
-Architecture: any
-Description: BAL
- groups/bal development files
-
 Package: libbbl-dev
 Depends: libbsl-dev, libbdl-dev
 Architecture: any

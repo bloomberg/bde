@@ -119,7 +119,7 @@ struct ObjectFileFormat {
 
     struct Windows {};    // format used on Microsoft Windows platform
 
-    struct Dladdr {};     // resulve using the 'dladdr' call
+    struct Dladdr {};     // resolve using the 'dladdr' call
 
     struct Dummy {};
 

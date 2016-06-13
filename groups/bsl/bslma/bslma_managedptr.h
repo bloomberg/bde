@@ -68,7 +68,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // (taking two 'void *' arguments) and invoking the function with two 'void *'
 // pointer arguments.  While this is undefined behavior, it is known to have
 // the desired effect on all platforms currently in use.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //
 ///Aliasing
 ///--------

@@ -195,7 +195,7 @@ struct DecimalConvertUtil_IntelDfp {
                                          const unsigned char *buffer);
     static void decimalFromDPD(Decimal128          *decimal,
                                          const unsigned char *buffer);
-        // Store, into the specified 'decimal', the native implmentation
+        // Store, into the specified 'decimal', the native implementation
         // representation of the value of the same size base-10 floating point
         // value represented in Densely Packed Decimal format, at the specified
         // 'buffer' address.  The behavior is undefined unless 'buffer' points

@@ -33,11 +33,11 @@ BSLS_IDENT("$Id$")
 //                       allocate
 //                       deallocate
 //..
-// The 'AligningAllocator' is supplied an allocator at contruction, and ensures
-// that memory returned by 'allocate' meets a minimum alignment requirement.
-// This may be useful in situations where a user needs to adapt an allocator
-// supplying only natural alignment to software expecting an allocator with a
-// higher alignment guarantee.  The allocator supplied to an
+// The 'AligningAllocator' is supplied an allocator at construction, and
+// ensures that memory returned by 'allocate' meets a minimum alignment
+// requirement.  This may be useful in situations where a user needs to adapt
+// an allocator supplying only natural alignment to software expecting an
+// allocator with a higher alignment guarantee.  The allocator supplied to an
 // 'AligningAllocator' at construction is held, not owned.
 //
 // The allocator supplied to the aligning allocator must employ at least the
@@ -206,7 +206,7 @@ class AligningAllocator : public bslma::Allocator {
         // rounded down to max alignment.  The behavior is undefined unless
         // 'alignment' is greater than 0 and a power of 2, unless the alignment
         // strategy of 'allocator' is 'BSLS_MAXIMUM' or 'BSLS_NATURAL'.  If no
-        // 'allocator' is passed, the currently installed default alloctor is
+        // 'allocator' is passed, the currently installed default allocator is
         // used.
 
     // MANIPULATORS

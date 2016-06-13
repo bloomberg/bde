@@ -241,7 +241,7 @@ class PublicationScheduler {
 
     Categories                  d_categories;   // map of category => schedule
 
-    Clocks                      d_clocks;       // map of interval => clock 
+    Clocks                      d_clocks;       // map of interval => clock
                                                 // info
 
     bsls::TimeInterval          d_defaultInterval;

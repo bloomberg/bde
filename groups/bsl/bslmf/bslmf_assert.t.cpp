@@ -15,9 +15,9 @@
 //                                --------
 //-----------------------------------------------------------------------------
 // [ 1] BSLMF_ASSERT(expr)i
-//
 // ----------------------------------------------------------------------------
 // [  ] USAGE EXAMPLE
+// [ 2] CONCERN: BSLMF_ASSERT in non-instantiated template classes
 
 //=============================================================================
 //
@@ -56,6 +56,28 @@ void aSsErT(bool b, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslmftest {
+
+                           // ======================
+                           // class SomeTemplateType
+                           // ======================
+
+template <class SOME_TYPE>
+class SomeTemplateType {
+    // This specialization of 'SomeTemplateType' defines an alias 'Type' for a
+    // functor that delegates to a function pointer matching the parameterized
+    // 'SOME_TYPE' type.
+
+    BSLMF_ASSERT(4 == sizeof(SOME_TYPE));
+        // This 'BSLMF_ASSERT' statement ensures that the parameter 'SOME_TYPE'
+        // must be a function pointer.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
 
 // namespace scope
 
@@ -120,6 +142,41 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // BSLMF_ASSERT MACRO WITHIN TEMPLATE CLASS
+        //   Sun Studio has historically required a special implementation of
+        //   'BSMF_ASSERT'.  According to DRQS 79918675, starting with Sun
+        //   Studio 12.4 the special implementation causes build failures by
+        //   its mere presence in a templatized class, even if that class is
+        //   never instantiated.  On the other hand, Sun Studio 12.4 has
+        //   improved template instantiation, and therefore does not need the
+        //   special implementation.  This test case checks that the case
+        //   reported in DRQS 79918675 is fixed by switching to the standard
+        //   implementation on versions 12.4 and better.
+        //
+        // Concerns:
+        //  1 Uses of BSLMF_ASSERT in non-instantiated templates does not cause
+        //    a build failure when the assertion depends on a template
+        //    parameter.
+        //
+        // Plan:
+        //  1 Create a template class having an assertion dependent on the
+        //    template parameter, but do not instantiate the class.  If the code
+        //    builds on Sun Studio 12.4, the test passes.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: BSLMF_ASSERT in non-instantiated template classes
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBSLMF_ASSERT MACRO WITHIN TEMPLATE CLASS"
+                            "\n========================================\n");
+
+        // Do nothing.  The test is entirely encapsulated in the definition of
+        // 'SomeTemplateType' above.
+
+        ASSERT(true);
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING BSLMF_ASSERT MACRO
@@ -137,13 +194,13 @@ int main(int argc, char *argv[])
         //   BSLMF_ASSERT(expr)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBSLMF_ASSERT Macro\n"
+        if (verbose) printf("\nBSLMF_ASSERT Macro"
                             "\n==================\n");
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(145 == __LINE__);
-        BSLMF_ASSERT(1);  ASSERT(146 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(202 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(203 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
@@ -153,8 +210,8 @@ int main(int argc, char *argv[])
     !defined(BSLS_PLATFORM_CMP_MSVC) &&                      \
     !defined(BSLS_PLATFORM_CMP_SUN)  &&                      \
     !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800)
-        bslmf_Assert_145 t1; // test typedef name creation; matches above line
-        bslmf_Assert_146 t2; // test typedef name creation; matches above line
+        bslmf_Assert_202 t1; // test typedef name creation; matches above line
+        bslmf_Assert_203 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
 #endif
 

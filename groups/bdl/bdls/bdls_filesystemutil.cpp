@@ -115,9 +115,7 @@ struct NameRec {
         // The file names match.  Exactly one of them will have been found as
         // a pattern, and we want that one to be sorted first.
 
-        BSLS_ASSERT_SAFE(d_foundAsPattern != rhs.d_foundAsPattern);
-
-        return d_foundAsPattern;    // found as pattern comes first
+        return d_foundAsPattern && !rhs.d_foundAsPattern;
     }
 };
 
@@ -1934,7 +1932,7 @@ int FilesystemUtil::createDirectories(const char *path,
         PathUtil::popLeaf(&workingPath);
     }
 
-    if (isDirectory(workingPath)) {
+    if (isDirectory(workingPath, true)) {
         return 0;                                                     // RETURN
     }
 
@@ -1950,7 +1948,7 @@ int FilesystemUtil::createDirectories(const char *path,
         PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
                              static_cast<int>(directoryStack.back().length()));
         if (0 != makeDirectory(workingPath.c_str(), false)) {
-            if (!isDirectory(workingPath)) {
+            if (!isDirectory(workingPath, true)) {
                 return -1;                                            // RETURN
             }
         }
@@ -2152,7 +2150,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
     bslh::DefaultHashAlgorithm hashee;
     hashAppend(hashee, now);
     hashAppend(hashee, prefix);
-    hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    hashAppend(hashee, *outPath);
     hashAppend(hashee, tid);
     hashAppend(hashee, getProcessId());
     bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();

@@ -10,11 +10,11 @@
 
 #include <ball_loggermanagerdefaults.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
 #include <bsl_string.h>
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -192,7 +192,8 @@ int main(int argc, char *argv[])
         // Programmatically verify the output format
         char buf[10000];
         {
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << lmd << ends;
             bsl::string s =
                 "[" NL
@@ -600,7 +601,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn a default object:" << endl;
         {
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << X1 << ends;
             bsl::string s =
                 "[" NL
@@ -618,7 +620,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tOn a non-default object:" << endl;
         {
-            ostrstream o(buf, sizeof buf);
+            bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+            bsl::ostream o(&obuf);
             o << Y1 << ends;
             bsl::string s =
                 "[" NL

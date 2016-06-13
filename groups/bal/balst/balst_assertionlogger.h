@@ -173,7 +173,7 @@ class AssertionLogger {
     static void assertionFailureHandler(const char *text,
                                         const char *file,
                                         int         line);
-        // Report the sepcified 'text', 'file', and 'line' of an assertion
+        // Report the specified 'text', 'file', and 'line' of an assertion
         // failure, and a stack trace pinpointing where the failure occurred,
         // via BAEL logging and return.  If a severity callback has been set,
         // it is invoked with the closure and 'text', 'file', and 'line' to get

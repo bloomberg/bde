@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concrete implementation of 'btlmt::AsyncChannel'
+//@PURPOSE: Provide a concrete implementation of 'btlmt::AsyncChannel'.
 //
 //@CLASSES:
 //  btlmt::ChannelPoolChannel: implementation of 'btlmt::AsyncChannel'

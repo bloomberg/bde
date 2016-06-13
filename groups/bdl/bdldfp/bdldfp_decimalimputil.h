@@ -250,7 +250,7 @@ class DecimalImpUtil {
                         // Literal Checking Functions
 
     struct This_is_not_a_floating_point_literal {};
-        // This 'struct' is a helper type used togenerate error messages for
+        // This 'struct' is a helper type used to generate error messages for
         // bad literals.
 
     template <class TYPE>

@@ -640,7 +640,7 @@ struct EventManagerTester {
                                        int           flags);
         // Test the performance of the 'mX->dispatch' function.  Specify
         // 'pollingMechName' which reflects the name of the type of event
-        // manager used.  4 paramters are read interactively from 'cin':
+        // manager used.  4 parameters are read interactively from 'cin':
         // 'numPairs', the number of socket pairs listened to, a double
         // specifying the fraction of those socket pairs that have data waiting
         // (a value of 0.0 means that one socket has data waiting), a double

@@ -461,6 +461,12 @@ struct Utf8 {
     };
 
     struct ZeroBasedEnd {
+        // CREATORS
+        ZeroBasedEnd()
+            // Create a 'ZeroBasedEnd' object.
+        {
+        }
+
         // ACCESSORS
         bool isFinished(const OctetType *position) const
             // Return 'true' if the specified 'position' is at the end of
@@ -748,6 +754,12 @@ struct Utf16 {
     struct ZeroBasedEnd {
         // The 'class' determines whether translation is at the end of input by
         // evaluating whether the next word of input is 0.
+
+        // CREATORS
+        ZeroBasedEnd()
+            // Create a 'ZeroBasedEnd' object.
+        {
+        }
 
         // ACCESSORS
         bool isFinished(const UTF16_WORD *u16Buf) const

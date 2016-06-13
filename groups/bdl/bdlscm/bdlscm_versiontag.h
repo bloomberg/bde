@@ -2,7 +2,7 @@
 #ifndef INCLUDED_BDLSCM_VERSIONTAG
 #define INCLUDED_BDLSCM_VERSIONTAG
 
-#ifndef INCLUDED_BDLS_IDENT
+#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")

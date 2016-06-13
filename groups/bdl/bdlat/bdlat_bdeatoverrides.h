@@ -41,6 +41,10 @@ BSLS_IDENT("$Id: $")
 #define bdeat_choiceSelectionId         bdlat_choiceSelectionId
 
 #define bdeat_CustomizedTypeFunctions bdlat_CustomizedTypeFunctions
+#define bdeat_customizedTypeConvertFromBaseType \
+                                        bdlat_customizedTypeConvertFromBaseType
+#define bdeat_customizedTypeConvertToBaseType \
+                                        bdlat_customizedTypeConvertToBaseType
 
 #define bdeat_EnumeratorInfo bdlat_EnumeratorInfo
 #define bdeat_EnumFunctions  bdlat_EnumFunctions

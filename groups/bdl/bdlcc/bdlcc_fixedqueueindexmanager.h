@@ -367,7 +367,6 @@ class FixedQueueIndexManager {
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
-        
     };
 
     // CREATORS

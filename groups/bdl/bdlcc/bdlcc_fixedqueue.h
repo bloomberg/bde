@@ -306,7 +306,8 @@ class FixedQueue {
         // Create a thread-enabled lock-free queue having the specified
         // 'capacity'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // allocator is used.  The behavior is undefined unless '0 < capacity'
+        // and 'capacity <= bdlcc::FixedQueueIndexManager::k_MAX_CAPACITY'.
 
     ~FixedQueue();
         // Destroy this object.

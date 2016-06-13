@@ -23,6 +23,90 @@ namespace btlso {
                         // class SocketOptUtil
                         // -------------------
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+int areAllBytesZero(const char *value, int valueLen)
+   // Return '1' if all bytes in the specified 'value' array of characters of
+   // the specified 'valueLen' are zero and 0 otherwise.
+{
+    for (int i = 0; i < valueLen; ++i) {
+        if (0 != value[i]) {
+            return 0;                                                 // RETURN
+        }
+    }
+    return 1;
+}
+
+// PRIVATE CLASS METHODS
+int SocketOptUtil::setReuseAddressOnWindows(
+                                        btlso::SocketHandle::Handle  handle,
+                                        int                          level,
+                                        const char                  *value,
+                                        int                          valueLen,
+                                        int                         *errorCode)
+{
+    // Earlier versions of Windows (prior to Windows Server 2003) allowed
+    // reusing the port number bound to a socket handle even if that handle
+    // set its 'SO_REUSEADDR' option value to 0.  This allowed subsequent
+    // applications to "hijack" ports bound to earlier applications.  To
+    // fix this security hole, Windows introduced another socket option,
+    // 'SO_EXCLUSIVEADDRUSE', that guaranteed that a port bound to an
+    // application could not be reused.
+    //
+    // Even though the 'SO_REUSEADDR' behavior was fixed in Windows starting
+    // from Windows Server 2003, it is still recommended to set the
+    // 'SO_EXCLUSIVEADDRUSE' option to guarantee that ports are not reused.
+    //
+    // For more information see:
+    //..
+    // https://msdn.microsoft.com/en-us/library/windows/
+    //                                          desktop/ms740621(v=vs.85).aspx.
+    //..
+    // In this method we assign both the 'SO_REUSEADDR' 'SO_REUSEADDR' and
+    // 'SO_EXCLUSIVEADDRUSE' options based on the supplied 'value'.
+
+    // When setting the 'SO_REUSEADDRESS' option, 'value' is expected to be an
+    // 'int' with 'valueLen' expected to equal 'sizeof(int)' (see
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/
+    //                                                 ms740476(v=vs.85).aspx))
+    // However, since this method is called from the templated 'setOption'
+    // method, we cannot assume that 'setOption' was called with 'value' of
+    // type 'int'.  Although unlikely, users may be calling 'setOption' with
+    // 'value' of some other integral types.  So we find the value of the
+    // 'SO_EXCLUSIVEADDRUSE' option by iterating over the bytes in 'value'.  If
+    // all bytes in 'value' are 0 then the user wants to disable 'SO_REUSEADDR'
+    // and we should enable 'SO_EXCLUSIVEADDRUSE'.  Otherwise, we should
+    // disable 'SO_EXCLUSIVEADDRUSE' and enable 'SO_REUSEADDR'.
+
+    int exclusiveAddrOptionValue = areAllBytesZero(value, valueLen);
+
+    int rc = setsockopt(
+                     handle,
+                     level,
+                     SO_EXCLUSIVEADDRUSE,
+                     reinterpret_cast<const char *>(&exclusiveAddrOptionValue),
+                     sizeof exclusiveAddrOptionValue);
+    if (0 != rc) {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+
+    rc = setsockopt(handle, level, k_REUSEADDRESS, value, valueLen);
+
+    if (0 != rc) {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+#endif
+
+// CLASS METHODS
 int SocketOptUtil::setSocketOptions(SocketHandle::Handle handle,
                                     const SocketOptions& options)
 {
