@@ -128,7 +128,7 @@ using namespace bsl;
 // [ 4] int second() const;
 // [ 4] int millisecond() const;
 // [ 4] int microsecond() const;
-// [ 5] int printToBuffer(char *result, int size) const;
+// [ 5] int printToBuffer(char *result, int size, int precision) const;
 //
 // [ 5] ostream& print(ostream& os, int level = 0, int spl = 4) const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -648,8 +648,10 @@ int main(int argc, char *argv[])
       case 39: {
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
 
+        const int PRECISION = 6;
+
         char buffer[64];
-        INVALID.printToBuffer(buffer, sizeof buffer);
+        INVALID.printToBuffer(buffer, sizeof buffer, PRECISION);
 
         // Note that 'printToBuffer' does 'getYearMonthDay' and 'getTime' so it
         // will log twice.
@@ -759,8 +761,13 @@ int main(int argc, char *argv[])
         ASSERT_SAFE_FAIL(INVALID.millisecond());
         ASSERT_SAFE_FAIL(INVALID.microsecond());
         {
+            const int PRECISION = 6;
+
             char buffer[64];  (void)buffer;
-            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer, sizeof buffer));
+            ASSERT_SAFE_FAIL(INVALID.printToBuffer(buffer,
+                                                   sizeof buffer,
+                                                   PRECISION));
+            (void)PRECISION;  // quash compiler warning in non-safe build modes
         }
 
         ASSERT_SAFE_FAIL(mInvalid += bsls::TimeInterval());
@@ -5487,7 +5494,7 @@ if (veryVerbose)
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
         //   ostream& operator<<(ostream &stream, const Datetime &object);
-        //   int printToBuffer(char *result, int size) const;
+        //   int printToBuffer(char *result, int size, int precision) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -5664,33 +5671,50 @@ if (veryVerbose)
                 int         d_second;
                 int         d_msec;
                 int         d_usec;
+                int         d_precision;
                 int         d_numBytes;
                 const char *d_expected_p;
             } DATA[] = {
 //--------------^
-//LINE YEAR MON DAY HR MIN SEC MSEC USEC LIMIT  EXPECTED
-//---- ---- --- --- -- --- --- ---- ---- -----  -------------------------
-{ L_,    1,  1,  1,  0,  0,  0,   0,   0,  100,  "01JAN0001_00:00:00.000000" },
-{ L_,    1,  1,  1,  0,  0,  0,   0,   7,  100,  "01JAN0001_00:00:00.000007" },
-{ L_,    1,  1,  1,  0,  0,  0,   0,  17,  100,  "01JAN0001_00:00:00.000017" },
-{ L_,    1,  1,  1,  0,  0,  0,   0, 317,  100,  "01JAN0001_00:00:00.000317" },
-{ L_,    1,  1,  1, 24,  0,  0,   0,   0,  100,  "01JAN0001_24:00:00.000000" },
-{ L_, 1999,  1,  1, 23, 22, 21, 209,   0,  100,  "01JAN1999_23:22:21.209000" },
-{ L_, 2000,  2,  1, 23, 22, 21, 210,   0,  100,  "01FEB2000_23:22:21.210000" },
-{ L_, 2001,  3,  1, 23, 22, 21, 211,   0,  100,  "01MAR2001_23:22:21.211000" },
-{ L_, 2001,  7,  9, 24,  0,  0,   0,   0,  100,  "09JUL2001_24:00:00.000000" },
-{ L_, 9999, 12, 31, 24,  0,  0,   0,   0,  100,  "31DEC9999_24:00:00.000000" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,  100,  "31DEC9999_23:59:59.999000" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   5,  100,  "31DEC9999_23:59:59.999005" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,  65,  100,  "31DEC9999_23:59:59.999065" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999, 765,  100,  "31DEC9999_23:59:59.999765" },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    0,  ""                          },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    1,  ""                          },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,    2,  "3"                         },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   10,  "31DEC9999"                 },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   22,  "31DEC9999_23:59:59.99"     },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   23,  "31DEC9999_23:59:59.999"    },
-{ L_, 9999, 12, 31, 23, 59, 59, 999,   0,   24,  "31DEC9999_23:59:59.9990"   },
+//LINE YEAR MON DAY HR MIN SEC MSEC USEC PREC LIMIT  EXPECTED
+//---- ---- --- --- -- --- --- ---- ---- ---- -----  ------------------------
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0, 0, 100, "01JAN0001_00:00:00"       },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0, 1, 100, "01JAN0001_00:00:00.0"     },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0, 3, 100, "01JAN0001_00:00:00.000"   },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   0, 6, 100, "01JAN0001_00:00:00.000000"},
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7, 0, 100, "01JAN0001_00:00:00"       },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7, 1, 100, "01JAN0001_00:00:00.0"     },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7, 3, 100, "01JAN0001_00:00:00.000"   },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7, 5, 100, "01JAN0001_00:00:00.00000" },
+{ L_,    1,  1,  1,  0,  0,  0,   0,   7, 6, 100, "01JAN0001_00:00:00.000007"},
+{ L_,    1,  1,  1,  0,  0,  0,   0,  17, 6, 100, "01JAN0001_00:00:00.000017"},
+{ L_,    1,  1,  1,  0,  0,  0,   0, 317, 3, 100, "01JAN0001_00:00:00.000"   },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 317, 4, 100, "01JAN0001_00:00:00.0003"  },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 317, 5, 100, "01JAN0001_00:00:00.00031" },
+{ L_,    1,  1,  1,  0,  0,  0,   0, 317, 6, 100, "01JAN0001_00:00:00.000317"},
+{ L_,    1,  1,  1, 24,  0,  0,   0,   0, 6, 100, "01JAN0001_24:00:00.000000"},
+{ L_, 1999,  1,  1, 23, 22, 21, 209,   0, 6, 100, "01JAN1999_23:22:21.209000"},
+{ L_, 2000,  2,  1, 23, 22, 21, 210,   0, 6, 100, "01FEB2000_23:22:21.210000"},
+{ L_, 2001,  3,  1, 23, 22, 21, 211,   0, 6, 100, "01MAR2001_23:22:21.211000"},
+{ L_, 2001,  7,  9, 24,  0,  0,   0,   0, 6, 100, "09JUL2001_24:00:00.000000"},
+{ L_, 9999, 12, 31, 24,  0,  0,   0,   0, 6, 100, "31DEC9999_24:00:00.000000"},
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6, 100, "31DEC9999_23:59:59.999000"},
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   5, 6, 100, "31DEC9999_23:59:59.999005"},
+{ L_, 9999, 12, 31, 23, 59, 59, 999,  65, 6, 100, "31DEC9999_23:59:59.999065"},
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 0, 100, "31DEC9999_23:59:59"       },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 1, 100, "31DEC9999_23:59:59.9"     },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 2, 100, "31DEC9999_23:59:59.99"    },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 3, 100, "31DEC9999_23:59:59.999"   },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 4, 100, "31DEC9999_23:59:59.9997"  },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 5, 100, "31DEC9999_23:59:59.99976" },
+{ L_, 9999, 12, 31, 23, 59, 59, 999, 765, 6, 100, "31DEC9999_23:59:59.999765"},
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,   0, ""                         },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,   1, ""                         },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,   2, "3"                        },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,  10, "31DEC9999"                },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,  22, "31DEC9999_23:59:59.99"    },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,  23, "31DEC9999_23:59:59.999"   },
+{ L_, 9999, 12, 31, 23, 59, 59, 999,   0, 6,  24, "31DEC9999_23:59:59.9990"  },
 //--------------v
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -5714,8 +5738,10 @@ if (veryVerbose)
                 const int         SECOND   = DATA[ti].d_second;
                 const int         MSEC     = DATA[ti].d_msec;
                 const int         USEC     = DATA[ti].d_usec;
+                const int         PREC     = DATA[ti].d_precision;
                 const int         LIMIT    = DATA[ti].d_numBytes;
                 const char *const EXPECTED = DATA[ti].d_expected_p;
+                const int         EXP_LEN  = 0 == PREC ? 18 : 19 + PREC;
 
                 if (veryVerbose) {
                     T_  P_(YEAR)
@@ -5725,6 +5751,7 @@ if (veryVerbose)
                         P_(MINUTE)
                         P_(SECOND)
                         P(MSEC)
+                    T_  P_(PREC)
                     T_  P_(LIMIT)
                     T_  P(EXPECTED)
                 }
@@ -5739,11 +5766,9 @@ if (veryVerbose)
                 x.setTime(HOUR, MINUTE, SECOND, MSEC, USEC);
 
                 char      *p = buf + sizeof(buf)/2;
-                const int  RC = X.printToBuffer(p, LIMIT);
+                const int  RC = X.printToBuffer(p, LIMIT, PREC);
 
-                LOOP2_ASSERT(LINE, RC, 25 == RC);  // Should always return 25
-                                                   // because size of datetime
-                                                   // format is fixed.
+                LOOP2_ASSERT(LINE, RC, EXP_LEN == RC);
 
                 const int LENGTH = 0 == LIMIT
                                    ? 0
@@ -5778,11 +5803,17 @@ if (veryVerbose)
 
                 const Obj X;
 
-                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE));
-                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  ));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  ));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  ));
+                const int PRECISION = 6;
+
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
+                ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
+
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
             }
         }
       } break;

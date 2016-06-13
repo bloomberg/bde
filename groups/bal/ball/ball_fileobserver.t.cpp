@@ -587,9 +587,8 @@ void getDatetimeField(bsl::string       *result,
     ASSERT(0            <= recordIndex);
     ASSERT(lines.size() >  recordIndex);
 
-    const bsl::size_t dateFieldLength =
-                                      bsl::strlen("23DEC2013_16:40:44.052000");
-    *result = lines[recordIndex].substr(0, dateFieldLength);
+    const bsl::string& s = lines[recordIndex];
+    *result = s.substr(0, s.find_first_of(' '));
 }
 
 }  // close unnamed namespace
@@ -884,29 +883,35 @@ int main(int argc, char *argv[])
 
         BALL_LOG_TRACE << "log 1" << BALL_LOG_END; ++logRecordCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        expectedDatetimeField.str("");
-        expectedDatetimeField << testUtcDatetime;
+
+        const int SIZE = 32;
+        char buffer[SIZE];
+        bsl::memset(buffer, 'X', SIZE);
+
+        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+        bsl::string EXP(buffer);
 
         if (veryVerbose) { T_
-                           P_(expectedDatetimeField.str())
+                           P_(EXP)
                            P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(),
-                datetimeField,
-                expectedDatetimeField.str() == datetimeField);
+        ASSERT(EXP == datetimeField);
         ASSERTV(expectedLoadCount ==
                 TestLocalTimeOffsetCallback::loadCount());
 
         BALL_LOG_TRACE << "log 2" << BALL_LOG_END; ++logRecordCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        expectedDatetimeField.str("");
-        expectedDatetimeField << testUtcDatetime;
-        if (veryVerbose) { T_
-                           P_(expectedDatetimeField.str())
-                           P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(),
-                datetimeField,
-                expectedDatetimeField.str() == datetimeField);
 
+        bsl::memset(buffer, 'X', SIZE);
+
+        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+        EXP.assign(buffer);
+
+        if (veryVerbose) { T_
+                           P_(EXP)
+                           P(datetimeField) }
+        ASSERT(EXP == datetimeField);
         ASSERTV(expectedLoadCount ==
                 TestLocalTimeOffsetCallback::loadCount());
 
@@ -925,18 +930,23 @@ int main(int argc, char *argv[])
         BALL_LOG_TRACE << "log 3" << BALL_LOG_END; ++logRecordCount;
                                                    ++expectedLoadCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        expectedDatetimeField.str("");
-        expectedDatetimeField << testUtcDatetime +
-                                 bdlt::DatetimeInterval(
-                                                  0,
+
+        bsl::memset(buffer, 'X', SIZE);
+
+        bdlt::Datetime DT = testUtcDatetime +
+                           bdlt::DatetimeInterval(0,
                                                   0,
                                                   0,
                                                   testLocalTimeOffsetInSeconds,
                                                   0);
+        DT.printToBuffer(buffer, SIZE, 3);
+
+        EXP.assign(buffer);
+
         if (veryVerbose) { T_
-                           P_(expectedDatetimeField.str())
+                           P_(EXP)
                            P(datetimeField) }
-        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(EXP == datetimeField);
         ASSERT(expectedLoadCount           ==
                                      TestLocalTimeOffsetCallback::loadCount());
 
@@ -949,18 +959,23 @@ int main(int argc, char *argv[])
         BALL_LOG_TRACE << "log 4" << BALL_LOG_END; ++logRecordCount;
                                                    ++expectedLoadCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        expectedDatetimeField.str("");
-        expectedDatetimeField << testUtcDatetime +
-                                 bdlt::DatetimeInterval(
-                                                  0,
+
+        bsl::memset(buffer, 'X', SIZE);
+
+        DT = testUtcDatetime +
+                           bdlt::DatetimeInterval(0,
                                                   0,
                                                   0,
                                                   testLocalTimeOffsetInSeconds,
                                                   0);
+        DT.printToBuffer(buffer, SIZE, 3);
+
+        EXP.assign(buffer);
+
         if (veryVerbose) { T_
-                           P_(expectedDatetimeField.str())
+                           P_(EXP)
                            P(datetimeField) }
-        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(EXP == datetimeField);
         ASSERT(expectedLoadCount           ==
                                      TestLocalTimeOffsetCallback::loadCount());
 
@@ -970,12 +985,16 @@ int main(int argc, char *argv[])
         BALL_LOG_TRACE << "log 5" << BALL_LOG_END; ++logRecordCount;
                                                 // ++expectedLoadCount;
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        expectedDatetimeField.str("");
-        expectedDatetimeField << testUtcDatetime;
+        bsl::memset(buffer, 'X', SIZE);
+
+        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+        EXP.assign(buffer);
+
         if (veryVerbose) { T_
-                           P_(expectedDatetimeField.str())
+                           P_(EXP)
                            P(datetimeField) }
-        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(EXP == datetimeField);
         ASSERT(expectedLoadCount           ==
                                      TestLocalTimeOffsetCallback::loadCount());
 

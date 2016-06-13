@@ -570,9 +570,34 @@ int main(int argc, char *argv[])
             oss2.str("");
             mX.setFormat("%d");
             X(oss1, record);
-            oss2 << record.fixedFields().timestamp();
-            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
-            ASSERT(oss1.str() == oss2.str());
+
+            const bdlt::Datetime& timestamp = record.fixedFields().timestamp();
+            const int SIZE = 32;
+            char buffer[SIZE];
+            timestamp.printToBuffer(buffer, SIZE, 3);
+
+            bsl::string EXP(buffer);
+
+            if (veryVerbose) { P_(oss1.str());  P(EXP) }
+            ASSERT(oss1.str() == EXP);
+        }
+
+        if (verbose) cout << "\n  Testing \"%D\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%D");
+            X(oss1, record);
+
+            const bdlt::Datetime& timestamp = record.fixedFields().timestamp();
+            const int SIZE = 32;
+            char buffer[SIZE];
+            timestamp.printToBuffer(buffer, SIZE, 6);
+
+            bsl::string EXP(buffer);
+
+            if (veryVerbose) { P_(oss1.str());  P(EXP) }
+            ASSERT(oss1.str() == EXP);
         }
 
         if (verbose) cout << "\n  Testing \"%i\"." << endl;
@@ -604,6 +629,7 @@ int main(int argc, char *argv[])
                                               bsl::strlen(oss1.str().c_str()));
             bdlt::Datetime adjustedTimestamp(timestamp);
             adjustedTimestamp.setMillisecond(0); // "%i" => no msecs printed
+            adjustedTimestamp.setMicrosecond(0); // "%i" => no usecs printed
 
             if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
             ASSERT(0                 == rc);
@@ -629,6 +655,45 @@ int main(int argc, char *argv[])
                 << bsl::setw(2) << bsl::setfill('0') << timestamp.second()
                 << '.'
                 << bsl::setw(3) << bsl::setfill('0') << timestamp.millisecond()
+                << 'Z';
+            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+            ASSERT(oss1.str() == oss2.str());
+
+            // Is the resulting string parseable?
+            bdlt::Datetime dt;
+            int           rc = bdlt::Iso8601Util::parse(
+                                              &dt,
+                                              oss1.str().c_str(),
+                                              bsl::strlen(oss1.str().c_str()));
+
+            bdlt::Datetime adjustedTimestamp(timestamp);
+            adjustedTimestamp.setMicrosecond(0); // "%I" => no usecs printed
+
+            if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
+            ASSERT(0                 == rc);
+            ASSERT(adjustedTimestamp == dt);
+        }
+
+        if (verbose) cout << "\n  Testing \"%O\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%O");
+            X(oss1, record);
+            oss2 << bsl::setw(4) << bsl::setfill('0') << timestamp.year()
+                << '-'
+                << bsl::setw(2) << bsl::setfill('0') << timestamp.month()
+                << '-'
+                << bsl::setw(2) << bsl::setfill('0') << timestamp.day()
+                << 'T'
+                << bsl::setw(2) << bsl::setfill('0') << timestamp.hour()
+                << ':'
+                << bsl::setw(2) << bsl::setfill('0') << timestamp.minute()
+                << ':'
+                << bsl::setw(2) << bsl::setfill('0') << timestamp.second()
+                << '.'
+                << bsl::setw(3) << bsl::setfill('0') << timestamp.millisecond()
+                << bsl::setw(3) << bsl::setfill('0') << timestamp.microsecond()
                 << 'Z';
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
             ASSERT(oss1.str() == oss2.str());
@@ -677,6 +742,7 @@ int main(int argc, char *argv[])
                                               bsl::strlen(oss1.str().c_str()));
             bdlt::Datetime adjustedTimestamp(localTime);
             adjustedTimestamp.setMillisecond(0); // "%i" => no msecs printed
+            adjustedTimestamp.setMicrosecond(0); // "%i" => no usecs printed
 
             if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
             ASSERT(0                 == rc);

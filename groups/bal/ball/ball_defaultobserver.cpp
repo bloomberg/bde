@@ -53,7 +53,17 @@ void DefaultObserver::publish(const Record&  record, const Context&)
 
     *d_stream << '\n';
 
-    *d_stream << fixedFields.timestamp()               << ' '
+    const int SIZE = 64;
+    char      buffer[SIZE];
+    const int fractionalSecondPrecision = 3;
+
+    const int numBytesWritten = fixedFields.timestamp().printToBuffer(
+                                                    buffer,
+                                                    SIZE,
+                                                    fractionalSecondPrecision);
+    d_stream->write(buffer, numBytesWritten);
+
+    *d_stream << ' '
               << fixedFields.processID()               << ' '
               << fixedFields.threadID()                << ' '
               << Severity::toAscii(severityLevel) << ' '

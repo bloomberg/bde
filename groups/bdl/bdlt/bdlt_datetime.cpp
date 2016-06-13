@@ -15,6 +15,95 @@ BSLS_IDENT_RCSID(bdlt_datetime_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
+namespace {
+
+int printToBufferFormatted(char       *result,
+                           int         numBytes,
+                           const char *spec,
+                           int         day,
+                           const char *asciiMonth,
+                           int         year,
+                           int         hour,
+                           int         minute,
+                           int         second,
+                           int         microsecond,
+                           int         fractionalSecondPrecision)
+{
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows uses a different variant of snprintf that does not necessarily
+    // null-terminate and returns -1 on overflow.
+
+    int numCharsWritten;
+    int rc;
+
+    if (0 == fractionalSecondPrecision) {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       asciiMonth,
+                       year,
+                       hour,
+                       minute,
+                       second);
+
+        // Format of 'bdlt::Datetime' has 18 characters if there are no
+        // fractional seconds.
+
+        numCharsWritten = 18;
+    }
+    else {
+        rc = _snprintf(result,
+                       numBytes,
+                       spec,
+                       day,
+                       asciiMonth,
+                       year,
+                       hour,
+                       minute,
+                       second,
+                       microsecond);
+
+        // Format of 'bdlt::Datetime' has 19 characters + fractional seconds.
+
+        numCharsWritten = 19 + fractionalSecondPrecision;
+    }
+
+    if ((0 > rc || rc == numBytes) && numBytes > 0) {
+        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
+                                      // overflow.
+    }
+
+    return numCharsWritten;
+
+#else
+
+    return 0 == fractionalSecondPrecision
+           ? snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      asciiMonth,
+                      year,
+                      hour,
+                      minute,
+                      second)
+           : snprintf(result,
+                      numBytes,
+                      spec,
+                      day,
+                      asciiMonth,
+                      year,
+                      hour,
+                      minute,
+                      second,
+                      microsecond);
+#endif
+}
+
+}  // close unnamed namespace
+
 // 'Datetime' is trivially copyable only if 'Date' and 'Time' are also
 // trivially copyable.  In the header we have stated unconditionally that
 // 'Datetime' is trivially copyable, so we assert our assumption about 'Date'
@@ -57,7 +146,9 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     const int k_BUFFER_SIZE = 128;   // Buffer sized to hold a *bad* date.
     char      buffer[k_BUFFER_SIZE];
 
-    int rc = printToBuffer(buffer, k_BUFFER_SIZE);
+    int rc = printToBuffer(buffer,
+                           k_BUFFER_SIZE,
+                           k_DEFAULT_FRACTIONAL_SECOND_PRECISION);
 
     (void)rc;
     BSLS_ASSERT(25 == rc);  // The datetime format contains 25 characters.
@@ -70,10 +161,14 @@ bsl::ostream& Datetime::print(bsl::ostream& stream,
     return stream;
 }
 
-int Datetime::printToBuffer(char *result, int numBytes) const
+int Datetime::printToBuffer(char *result,
+                            int   numBytes,
+                            int   fractionalSecondPrecision) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(0 <= numBytes);
+    BSLS_ASSERT(0 <= fractionalSecondPrecision);
+    BSLS_ASSERT(fractionalSecondPrecision <= 6);
 
     int year;
     int month;
@@ -98,40 +193,61 @@ int Datetime::printToBuffer(char *result, int numBytes) const
 
     getTime(&hour, &minute, &second, &millisecond, &microsecond);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-    // Windows uses a different variant of snprintf that does not necessarily
-    // null-terminate and returns -1 on overflow.
+    int value;
 
-    const int rc = _snprintf(result,
-                             numBytes,
-                             "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
-                             day,
-                             asciiMonth,
-                             year,
-                             hour,
-                             minute,
-                             second,
-                             millisecond,
-                             microsecond);
+    switch (fractionalSecondPrecision) {
+      case 0: {
+        char spec[] = "%02d%s%04d_%02d:%02d:%02d";
 
-    if ((0 > rc || rc == numBytes) && numBytes > 0) {
-        result[numBytes - 1] = '\0';  // Make sure to null-terminate on
-                                      // overflow.
+        return printToBufferFormatted(result,
+                                      numBytes,
+                                      spec,
+                                      day,
+                                      asciiMonth,
+                                      year,
+                                      hour,
+                                      minute,
+                                      second,
+                                      0,
+                                      0);                             // RETURN
+      } break;
+      case 1: {
+        value = millisecond / 100;
+      } break;
+      case 2: {
+        value = millisecond / 10 ;
+      } break;
+      case 3: {
+        value = millisecond;
+      } break;
+      case 4: {
+        value = millisecond * 10 + microsecond / 100;
+      } break;
+      case 5: {
+        value = millisecond * 100 + microsecond / 10;
+      } break;
+      default: {
+        value = millisecond * 1000 + microsecond;
+      } break;
     }
-    return 25;  // Format of 'bdlt::Datetime' always has 25 characters.
-#else
-    return snprintf(result,
-                    numBytes,
-                    "%02d%s%04d_%02d:%02d:%02d.%03d%03d",
-                    day,
-                    asciiMonth,
-                    year,
-                    hour,
-                    minute,
-                    second,
-                    millisecond,
-                    microsecond);
-#endif
+
+    char spec[] = "%02d%s%04d_%02d:%02d:%02d.%0Xd";
+
+    const int PRECISION_INDEX = sizeof spec - 3;
+
+    spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
+
+    return printToBufferFormatted(result,
+                                  numBytes,
+                                  spec,
+                                  day,
+                                  asciiMonth,
+                                  year,
+                                  hour,
+                                  minute,
+                                  second,
+                                  value,
+                                  fractionalSecondPrecision);
 }
 
 }  // close package namespace
