@@ -163,6 +163,14 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -180,6 +188,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_ALGORITHM
 #endif
 
+#ifndef INCLUDED_CLIMITS
+#include <climits>
+#define INCLUDED_CLIMITS
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -188,6 +201,11 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_IOSFWD
 #include <iosfwd>
 #define INCLUDED_IOSFWD
+#endif
+
+#ifndef INCLUDED_STRING_H
+#include <string.h>
+#define INCLUDED_STRING_H
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -209,15 +227,167 @@ namespace bsl {
 template <std::size_t N>
 class bitset;
 
+                          // ====================
+                          // class Bitset_ImpUtil
+                          // ====================
+struct Bitset_ImpUtil {
+  enum {
+        k_BYTES_PER_INT = sizeof(int),
+        k_BITS_PER_INT  = CHAR_BIT * sizeof(int),
+        k_INTS_IN_LONG = sizeof(long) / sizeof(int)
+    };
+
+    static void defaultInit(unsigned int* data, size_t size, unsigned long val = 0);
+        // Initialize the memory at the address specified by 'data' so that the
+        // the first 'M' bit positions correspond to the bit values in the
+        // specified 'val' where 'M' is the smaller of 'size * k_BITS_PER_INT'
+        // and 'CHAR_BIT * sizeof(unsigned long)'.  The remaining bits are
+        // initialized to zero '0'.
+};
+
+void Bitset_ImpUtil::defaultInit(unsigned int *data,
+                                 size_t size,
+                                 unsigned long val)
+{
+    ::memset(data, 0, size * k_BYTES_PER_INT);
+    if (val == 0) {
+      return;
+    }
+    if (1 == k_INTS_IN_LONG) {
+        data[0] = static_cast<unsigned int>(val);
+    }
+    else {
+        const unsigned int numInts = (unsigned int) k_INTS_IN_LONG
+                                                    < (unsigned int) size
+                                     ? (unsigned int) k_INTS_IN_LONG
+                                     : (unsigned int) size;
+
+        for (unsigned int i = 0; i < numInts; ++i) {
+            data[i] = static_cast<unsigned int>(val >> (k_BITS_PER_INT * i));
+        }
+    }
+}
+
+                          // ====================
+                          // class Bitset_ImpBase
+                          // ====================
+template <std::size_t BITSETSIZE,
+          std::size_t NUM_INIT =  (BITSETSIZE < sizeof(long) / sizeof(int))
+                                 ? BITSETSIZE : sizeof(long) / sizeof(int)>
+class Bitset_ImpBase;
+    // This component private 'class' template describes the basic data and
+    // initialization semantics needed in order to implement a C++11 'bitset'
+    // class.  The 'BITSETSIZE' template parameter specifies the size of the
+    // underlying data array, 'd_data'. The 'NUM_INIT' template parameter
+    // specifies the number of elements in 'd_data' needed to use when storing
+    // a value of type 'unsigned long'. Partial class template specializations
+    // of 'Bitset_ImpBase' are provided for 'NUM_INIT == 1' and
+    // 'NUM_INIT == 2'.  No other values of 'NUM_INIT' are supported.
+
+#if __cplusplus >= 201103L
+template <std::size_t BITSETSIZE, std::size_t NUM_INIT>
+class Bitset_ImpBase {
+  private:
+    static_assert(NUM_INIT != NUM_INIT,
+                  "bsl::bitset is not supported on this target because "
+                  "sizeof(long) / sizeof(int) is neither 1 nor 2.");
+};
+#endif
+
+
+template <std::size_t BITSETSIZE>
+class Bitset_ImpBase<BITSETSIZE, 1> {
+  public:
+
+    // DATA
+    unsigned int d_data[BITSETSIZE];
+
+    // CREATORS
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+        // Create a 'Bitset_ImpBase' with each bit in 'd_data' initialized to
+        // zero. In C++11 this constructor can be used in a constant expression.
+
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long val);
+        // Create a 'Bitset_ImpBase' with the first 'N' bit positions of 'd_data'
+        // corresponding to the first 'N' bit positions of the specified 'val'
+        // after conversion to 'unsigned int'. 'N' is 'CHAR_BIT * sizeof(int)'.
+        // The remaining bits in 'd_data' are initialized to zero.
+        // The behavior is undefined unless 'sizeof(long) / sizeof(int) == 1'
+        // or 'BITSETSIZE == 1'. In C++11 this constructor can be used in a
+        // constant expression.
+};
+
+
+template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
+  : d_data()
+{
+}
+
+template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long val)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+  : d_data{static_cast<unsigned int>(val)}
+{
+}
+#else
+{
+  Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE, val);
+}
+#endif
+
+template <std::size_t BITSETSIZE>
+class Bitset_ImpBase<BITSETSIZE, 2> {
+  public:
+    unsigned int d_data[BITSETSIZE];
+
+    // CREATORS
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+        // Create a Bitset_ImpBase with each bit in 'd_data' initialized to zero.
+        // In C++11 this constructor can be used in a constant expression.
+
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long);
+        // Create a 'Bitset_ImpBase' with the first 'N' bit positions of 'd_data'
+        // corresponding to the first 'N' bit positions of the specified 'val'
+        // after converting it to an 'unsigned int'. Where 'N' is
+        // 'CHAR_BIT * sizeof(int) * 2'. The remaining bits in 'd_data' are
+        // initialized to zero. The behavior is undefined unless
+        // 'sizeof(long) / sizeof(int) == 2' In C++11 this constructor can be
+        // used in a constant expression.
+};
+
+template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase()
+  : d_data()
+{
+}
+
+  template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long val)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+  : d_data{static_cast<unsigned int>(val),
+           static_cast<unsigned int>(val >> (sizeof(int) * CHAR_BIT))}
+{
+}
+#else
+{
+    Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE, val);
+}
+#endif
+
                         // =================
                         // class bsl::bitset
                         // =================
 
 template <std::size_t N>
-class bitset {
+class bitset : Bitset_ImpBase<N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1> {
     // This class template provides an STL-compliant 'bitset'.  For the
     // requirements of a 'bitset' class, consult the second revision of the
-    // ISO/IEC 14882 Programming Language c++ (2003).
+    // ISO/IEC 14882 Programming Language c++ (2011).
     //
     // In addition to the methods defined in the standard, this class also
     // provides an extra constructor that takes a 'bsl::basic_string'.  This
@@ -226,14 +396,13 @@ class bitset {
 
     // PRIVATE TYPES
     enum {
-        BYTESPERINT = sizeof(int),
-        BITSPERINT  = 8 * sizeof(int),
-        BITSETSIZE  = N ? (N - 1) / BITSPERINT + 1 : 1
+        k_BYTES_PER_INT = sizeof(int),
+        k_BITS_PER_INT  = 8 * sizeof(int),
+        BITSETSIZE  = N ? (N - 1) / (CHAR_BIT * sizeof(int)) + 1 : 1
     };
 
-    // DATA
-    unsigned int d_data[BITSETSIZE];  // storage for bitset, d_data[0] holds
-                                      // the least significant bit.
+    typedef Bitset_ImpBase<BITSETSIZE> Base;
+    using Base::d_data;
 
     // FRIENDS
     friend class reference;
@@ -248,24 +417,36 @@ class bitset {
         friend class bitset;
 
         // DATA
-        unsigned int *d_int_p;   // pointer to the int inside the bitset.
+        unsigned int *d_int_p;   // pointer to the 'int' inside the 'bitset'.
         unsigned int  d_offset;  // bit offset to 'd_int'.
 
         // PRIVATE CREATORS
         reference(unsigned int *i, unsigned int offset);
+            // Create a 'reference' object that refers to the bit at the
+            // specified 'offset' of the 'int' pointed to by 'i'.
+            // 'i' shall point to an 'int' inside a 'bsl::bitset'.
 
       public:
         // MANIPULATORS
         reference& operator=(bool x);
+            // Assign to the bit referenced by this object the specified value
+            // 'x' and return a modifiable reference to this object.
 
         reference& operator=(const reference& x);
+            // Assign this object to refer to the same bit as the specified 'x'
+            // and return a modifiable reference to this object.
 
         reference& flip();
+            // Invert the value of the bit referenced by this object and return
+            // a modifiable reference to this object.
 
         // ACCESSORS
         operator bool() const;
+            //  Return the value of the bit referenced by this object.
 
         bool operator~() const;
+            // Return the inverted value of the bit referenced by this object.
+            // Note the value of the specied bit remains unchanged.
     };
 
   private:
@@ -279,7 +460,8 @@ class bitset {
                                                    ALLOCATOR>::size_type pos,
                     typename native_std::basic_string<CHAR_TYPE,
                                                    TRAITS,
-                                                   ALLOCATOR>::size_type n);
+                                                   ALLOCATOR>::size_type n,
+                    CHAR_TYPE zeroChar, CHAR_TYPE oneChar);
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     void copyString(const     bsl::basic_string<CHAR_TYPE,
@@ -290,11 +472,20 @@ class bitset {
                                                    ALLOCATOR>::size_type pos,
                     typename  bsl::basic_string<CHAR_TYPE,
                                                    TRAITS,
-                                                   ALLOCATOR>::size_type n);
+                                                   ALLOCATOR>::size_type n,
+                   CHAR_TYPE zeroChar, CHAR_TYPE oneChar);
+        // Assign to the first 'M' bit of this object a value corresponding to
+        // the characters in the specified 'pos' of the specified 'str'. 'M' is
+        // the smaller of the specified 'N' and 'str.length()'. If
+        // 'M < N' the remaining bit positions are left unchanged.
+        // Characters with the value 'zeroChar' correspond to an unset bit and
+        // characters with the value 'oneChar' correspond to a set bit.
+        // The behavior is undefined if any characters in 'str' is neither the
+        // specified 'zeroChar' nor the specified 'oneChar'.
 
     void clearUnusedBits();
         // Clear the bits unused by the bitset in 'd_data', namely, bits
-        // 'BITSETSIZE * BITSPERINT - 1' to 'N' (where the bit count starts at
+        // 'BITSETSIZE * k_BITS_PER_INT - 1' to 'N' (where the bit count starts at
         // 0).
 
     void clearUnusedBits(bsl::false_type);
@@ -308,10 +499,10 @@ class bitset {
 
   public:
     // CREATORS
-    bitset();
-        // Create a bitset with all bits initialized to 0.
+    BSLS_CPP11_CONSTEXPR bitset();
+        // Create a 'bitset' with all bits initialized to '0'.
 
-    bitset(unsigned long val);
+    BSLS_CPP11_CONSTEXPR bitset(unsigned long val);
         // Create a bitset with its first 'M' bit positions correspond to bit
         // values in the specified 'val'.  'M' is the smaller of the
         // parameterized 'N' and '8 * sizeof(unsigned long)'.  If 'M < N', the
@@ -321,37 +512,39 @@ class bitset {
     explicit
     bitset(const native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
            typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type pos = 0);
-    template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-    bitset(const native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
+                      size_type pos = 0,
            typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type pos,
-           typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type n);
-        // Create a bitset with its first 'M' bit positions correspond to the
-        // characters in the specified 'pos' of the specified 'str'.  'M' is
-        // the smaller of the parameterized 'N' and 'str.length()'.  If
-        // 'M < N', the remaining bit positions are initialized to 0.  The
-        // behavior is undefined if the characters in the specified 'str' is
-        // not '0' and not '1'.
+                      size_type n = native_std::
+                          basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
+           CHAR_TYPE zeroChar = CHAR_TYPE('0'),
+           CHAR_TYPE oneChar = CHAR_TYPE('1'));
+        // Create a bitset with its first 'M' bit positions corresponding to the
+        // characters in the specified 'pos' of the specified 'str'. 'M' is
+        // the smaller of the parameterized 'N' and 'str.length()'. If
+        // 'M < N', the remaining bit positions are initialized to 0.
+        // Characters with the value 'zeroChar' correspond to an unset bit and
+        // characters with the value 'oneChar' correspond to a set bit.
+        // The behavior is undefined if any characters in 'str' is neither the
+        // specified 'zeroChar' nor the specified 'oneChar'.
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     explicit
     bitset(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
            typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type pos = 0);
-    template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-    bitset(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
+                      size_type pos = 0,
            typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type pos,
-           typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                      size_type n);
-        // Create a bitset with its first 'M' bit positions correspond to the
-        // characters in the specified 'pos' of the specified 'str'.  'M' is
-        // the smaller of the parameterized 'N' and 'str.length()'.  If
-        // 'M < N', the remaining bit positions are initialized to 0.  The
-        // behavior is undefined if the characters in the specified 'str' is
-        // not 0 and not 1.
+                      size_type n = bsl::
+                          basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
+           CHAR_TYPE zeroChar = CHAR_TYPE('0'),
+           CHAR_TYPE oneChar  = CHAR_TYPE('1'));
+        // Create a bitset with its first 'M' bit positions corresponding to 0 the
+        // characters in the specified 'pos' of the specified 'str'. 'M' is
+        // the smaller of the parameterized 'N' and 'str.length()'. If
+        // 'M < N', the remaining bit positions are initialized to 0.
+        // Characters with the value 'zeroChar' correspond to an unset bit and
+        // characters with the value 'oneChar' correspond to a set bit.
+        // The behavior is undefined if the characters in the specified 'str' is
+        // not the specified 'zeroChar' and not the specified 'oneChar'
 
     // MANIPULATORS
     bitset& operator&=(const bitset& rhs);
@@ -428,15 +621,23 @@ class bitset {
         // Toggle all bits of this bitset and return a reference to this
         // modifiable bitset.
 
+#if __cplusplus >= 201103L
+    template <class CHAR_TYPE = char,
+              class TRAITS = char_traits<CHAR_TYPE>,
+              class ALLOCATOR = allocator<CHAR_TYPE> >
+#else
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string() const;
-        // Return a 'basic_string' representation of this bitset, where bit
-        // value 1 is represented with '1' and bit value 0 is represented with
-        // '0'.  The most-significant bit is placed at the beginning of the
-        // string, and the least-significant bit is placed at the end of the
-        // string.
+#endif
+    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string(
+                                            CHAR_TYPE zero = CHAR_TYPE('0'),
+                                            CHAR_TYPE one = CHAR_TYPE('1')) const;
+        // Return a 'basic_string' representation of this bitset, where the
+        // zero-bits are represented by the specified 'zero' character and
+        // the one-bits are represented by the specified 'one' character.
+        // most-significant bit is placed at the beginning of the string, and
+        // the least-significant bit is placed at the end of the string.
 
-    bool operator[](std::size_t pos) const;
+    BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const;
         // Return the value of the bit position at the specified 'pos'.
 
     bool operator==(const bitset& rhs) const;
@@ -450,15 +651,21 @@ class bitset {
         // value when either the sequence or the value of bits they hold are
         // not the same.
 
+    bool all() const;
+        // Return 'true' if all of the bits in this bitset have the value of 1
+        // and 'false' otherwise. Note that 'all()' and 'none()' are both true
+        // for bitsets of size 0.
+
     bool any() const;
-        // Return 'true' if any of the bits in this bitset has the value of 1
-        // and 'false' otherwise.
+        // Return 'true' if one or more of the bits in this bitset has the
+        // value of 1 and 'false' otherwise.
 
     bool none() const;
         // Return 'true' if all the bits in this bitset has the value of 0 and
-        // 'false' otherwise.
+        // 'false' otherwise.  Note that 'all()' and 'none()' are both true
+        // for bitsets of size 0.
 
-    std::size_t size() const;
+    BSLS_CPP11_CONSTEXPR std::size_t size() const;
         // Return the number of bits this bitset holds.
 
     std::size_t count() const;
@@ -584,7 +791,8 @@ void bitset<N>::copyString(const native_std::basic_string<CHAR_TYPE,
                                                ALLOCATOR>::size_type pos,
                 typename native_std::basic_string<CHAR_TYPE,
                                                TRAITS,
-                                               ALLOCATOR>::size_type n)
+                                               ALLOCATOR>::size_type n,
+                CHAR_TYPE zeroChar, CHAR_TYPE oneChar)
 {
     typedef typename native_std::basic_string<CHAR_TYPE,
                                                TRAITS,
@@ -594,10 +802,10 @@ void bitset<N>::copyString(const native_std::basic_string<CHAR_TYPE,
         typename TRAITS::int_type bit = TRAITS::to_int_type(
                                                         str[pos + n  - i - 1]);
 
-        if (bit == '1') {
+        if (bit == oneChar) {
             set(i);
         }
-        else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != '0')) {
+        else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != zeroChar)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument(
                                              "string for bitset constructor "
@@ -616,7 +824,8 @@ void bitset<N>::copyString(const bsl::basic_string<CHAR_TYPE,
                                               ALLOCATOR>::size_type pos,
                 typename bsl::basic_string<CHAR_TYPE,
                                               TRAITS,
-                                              ALLOCATOR>::size_type n)
+                                              ALLOCATOR>::size_type n,
+               CHAR_TYPE zeroChar, CHAR_TYPE oneChar)
 {
     typedef typename bsl::basic_string<CHAR_TYPE,
                                           TRAITS,
@@ -626,10 +835,10 @@ void bitset<N>::copyString(const bsl::basic_string<CHAR_TYPE,
         typename TRAITS::int_type bit = TRAITS::to_int_type(
                                                         str[pos + n  - i - 1]);
 
-        if (bit == '1') {
+        if (bit == oneChar) {
             set(i);
         }
-        else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != '0')) {
+        else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != zeroChar)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument(
                                              "string for bitset constructor "
@@ -642,7 +851,7 @@ template <std::size_t N>
 inline
 void bitset<N>::clearUnusedBits()
 {
-    enum { VALUE = N % BITSPERINT ? 1 : 0 };
+    enum { VALUE = N % k_BITS_PER_INT ? 1 : 0 };
 
     clearUnusedBits(bsl::integral_constant<bool, VALUE>());
 }
@@ -657,7 +866,7 @@ template <std::size_t N>
 inline
 void bitset<N>::clearUnusedBits(bsl::true_type)
 {
-    const unsigned int offset = N % BITSPERINT;  // never 0
+    const unsigned int offset = N % k_BITS_PER_INT;  // never 0
 
     d_data[BITSETSIZE - 1] &= ~(~((unsigned int)0) << offset);
 }
@@ -699,55 +908,17 @@ std::size_t bitset<N>::numOneSet(unsigned int src) const
 
 // CREATORS
 template <std::size_t N>
-inline
-bitset<N>::bitset()
+inline BSLS_CPP11_CONSTEXPR
+bitset<N>::bitset() : Base()
 {
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
 }
 
 template <std::size_t N>
-bitset<N>::bitset(unsigned long val)
+BSLS_CPP11_CONSTEXPR
+bitset<N>::bitset(unsigned long val) : Base(val)
 {
-    enum {
-        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
-    };
-
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-
-    if (1 == BSLSTL_INTS_IN_LONG) {
-        d_data[0] = static_cast<unsigned int>(val);
-    }
-    else {
-        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
-                                                    < (unsigned int) BITSETSIZE
-                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
-                                     : (unsigned int) BITSETSIZE;
-
-        for (unsigned int i = 0; i < numInts; ++i) {
-            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
-        }
-    }
 }
 
-template <std::size_t N>
-template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-inline
-bitset<N>::
-bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
-       typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                              size_type pos)
-{
-    typedef native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> StringType;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                               "'pos > str.size()' for bitset "
-                                               "constructor");
-    }
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-    copyString(str, pos, StringType::npos);
-}
 
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
@@ -757,7 +928,8 @@ bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
        typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
                                                               size_type pos,
        typename native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                                size_type n)
+                                                                size_type n,
+      CHAR_TYPE zeroChar, CHAR_TYPE oneChar)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -765,29 +937,10 @@ bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-    copyString(str, pos, n);
+    std::memset(d_data, 0, BITSETSIZE * k_BYTES_PER_INT);
+    copyString(str, pos, n, zeroChar, oneChar);
 }
 
-template <std::size_t N>
-template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-inline
-bitset<N>::
-bitset(const    bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
-       typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                                 size_type pos)
-{
-    typedef bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> StringType;
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                               "'pos > str.size()' for bitset "
-                                               "constructor");
-    }
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-    copyString(str, pos, StringType::npos);
-}
 
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
@@ -797,7 +950,8 @@ bitset(const    bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
        typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
                                                                  size_type pos,
        typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
-                                                                   size_type n)
+                                                                   size_type n,
+      CHAR_TYPE zeroChar, CHAR_TYPE oneChar)
 
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
@@ -806,8 +960,8 @@ bitset(const    bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-    copyString(str, pos, n);
+    std::memset(d_data, 0, BITSETSIZE * k_BYTES_PER_INT);
+    copyString(str, pos, n, zeroChar, oneChar);
 }
 
 // MANIPULATORS
@@ -844,20 +998,20 @@ bitset<N>& bitset<N>::operator<<=(std::size_t pos)
     BSLS_ASSERT_SAFE(pos <= N);
 
     if (pos) {
-        const std::size_t shift  = pos / BITSPERINT;
-        const std::size_t offset = pos % BITSPERINT;
+        const std::size_t shift  = pos / k_BITS_PER_INT;
+        const std::size_t offset = pos % k_BITS_PER_INT;
 
         if (shift) {
             std::memmove(d_data + shift,
                          d_data,
-                         (BITSETSIZE - shift) * BYTESPERINT);
-            std::memset(d_data, 0, shift * BYTESPERINT);
+                         (BITSETSIZE - shift) * k_BYTES_PER_INT);
+            std::memset(d_data, 0, shift * k_BYTES_PER_INT);
         }
 
         if (offset) {
             for (std::size_t i = BITSETSIZE - 1; i > shift; --i) {
                 d_data[i] = (d_data[i] << offset) |
-                                        (d_data[i-1] >> (BITSPERINT - offset));
+                                        (d_data[i-1] >> (k_BITS_PER_INT - offset));
             }
             d_data[shift] <<= offset;
         }
@@ -873,20 +1027,20 @@ bitset<N>& bitset<N>::operator>>=(std::size_t pos)
     BSLS_ASSERT_SAFE(pos <= N);
 
     if (pos) {
-        const std::size_t shift  = pos / BITSPERINT;
-        const std::size_t offset = pos % BITSPERINT;
+        const std::size_t shift  = pos / k_BITS_PER_INT;
+        const std::size_t offset = pos % k_BITS_PER_INT;
 
         if (shift) {
             std::memmove(d_data,
                          d_data + shift,
-                         (BITSETSIZE - shift) * BYTESPERINT);
-            std::memset(d_data + BITSETSIZE - shift, 0, shift * BYTESPERINT);
+                         (BITSETSIZE - shift) * k_BYTES_PER_INT);
+            std::memset(d_data + BITSETSIZE - shift, 0, shift * k_BYTES_PER_INT);
         }
 
         if (offset) {
             for (std::size_t i = 0; i < BITSETSIZE - shift - 1; ++i) {
                 d_data[i] = (d_data[i] >> offset) |
-                                        (d_data[i+1] << (BITSPERINT - offset));
+                                        (d_data[i+1] << (k_BITS_PER_INT - offset));
             }
             d_data[BITSETSIZE - shift - 1] >>= offset;
         }
@@ -912,8 +1066,8 @@ bitset<N>& bitset<N>::flip(std::size_t pos)
 {
     BSLS_ASSERT_SAFE(pos < N);
 
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
+    const std::size_t shift  = pos / k_BITS_PER_INT;
+    const std::size_t offset = pos % k_BITS_PER_INT;
     d_data[shift] ^= (1 << offset);
     return *this;
 }
@@ -922,7 +1076,7 @@ template <std::size_t N>
 inline
 bitset<N>& bitset<N>::reset()
 {
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
+    std::memset(d_data, 0, BITSETSIZE * k_BYTES_PER_INT);
     return *this;
 }
 
@@ -932,8 +1086,8 @@ bitset<N>& bitset<N>::reset(std::size_t pos)
 {
     BSLS_ASSERT_SAFE(pos < N);
 
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
+    const std::size_t shift  = pos / k_BITS_PER_INT;
+    const std::size_t offset = pos % k_BITS_PER_INT;
     d_data[shift] &= ~(1 << offset);
     return *this;
 }
@@ -942,7 +1096,7 @@ template <std::size_t N>
 inline
 bitset<N>& bitset<N>::set()
 {
-    std::memset(d_data, 0xFF, BITSETSIZE * BYTESPERINT);
+    std::memset(d_data, 0xFF, BITSETSIZE * k_BYTES_PER_INT);
     clearUnusedBits();
     return *this;
 }
@@ -952,8 +1106,8 @@ bitset<N>& bitset<N>::set(std::size_t pos, int val)
 {
     BSLS_ASSERT_SAFE(pos < N);
 
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
+    const std::size_t shift  = pos / k_BITS_PER_INT;
+    const std::size_t offset = pos % k_BITS_PER_INT;
     if (val) {
         d_data[shift] |= (1 << offset);
     }
@@ -969,8 +1123,8 @@ typename bitset<N>::reference bitset<N>::operator[](std::size_t pos)
 {
     BSLS_ASSERT_SAFE(pos < N);
 
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
+    const std::size_t shift  = pos / k_BITS_PER_INT;
+    const std::size_t offset = pos % k_BITS_PER_INT;
     return typename bitset<N>::reference(&d_data[shift],
                                          static_cast<unsigned int>(offset));
 }
@@ -1005,21 +1159,18 @@ bitset<N> bitset<N>::operator~() const
 }
 
 template <std::size_t N>
-inline
+inline BSLS_CPP11_CONSTEXPR
 bool bitset<N>::operator[](std::size_t pos) const
 {
     BSLS_ASSERT_SAFE(pos < N);
-
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
-    return ((d_data[shift] & (1 << offset)) != 0);
+    return ((d_data[pos / k_BITS_PER_INT] & (1 << (pos % k_BITS_PER_INT))) != 0);
 }
 
 template <std::size_t N>
 inline
 bool bitset<N>::operator==(const bitset& rhs) const
 {
-    return std::memcmp(d_data, rhs.d_data, BITSETSIZE * BYTESPERINT) == 0;
+    return std::memcmp(d_data, rhs.d_data, BITSETSIZE * k_BYTES_PER_INT) == 0;
 }
 
 template <std::size_t N>
@@ -1027,6 +1178,17 @@ inline
 bool bitset<N>::operator!=(const bitset& rhs) const
 {
     return !operator==(rhs);
+}
+
+template <std::size_t N>
+bool bitset<N>::all() const
+{
+    for (std::size_t i = 0; i < BITSETSIZE; ++i) {
+        if (d_data[i] == 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template <std::size_t N>
@@ -1049,7 +1211,7 @@ bool bitset<N>::none() const
 
 template <std::size_t N>
 inline
-std::size_t bitset<N>::size() const
+BSLS_CPP11_CONSTEXPR std::size_t bitset<N>::size() const
 {
     return N;
 }
@@ -1066,13 +1228,13 @@ std::size_t bitset<N>::count() const
 
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> bitset<N>::to_string() const
+basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> bitset<N>::to_string(
+                                            CHAR_TYPE zero, CHAR_TYPE one) const
 {
-    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> str(N,
-                                                   TRAITS::to_char_type('0'));
+    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> str(N, zero);
     for (std::size_t i = 0; i < N; ++i) {
         if (this->operator[](i)) {
-            str[N - i - 1] = TRAITS::to_char_type('1');
+            str[N - i - 1] = one;
         }
     }
     return str;
@@ -1094,10 +1256,10 @@ template <std::size_t N>
 unsigned long bitset<N>::to_ulong() const
 {
     enum {
-        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
+        k_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
     };
 
-    for (std::size_t i = BSLSTL_INTS_IN_LONG; i < BITSETSIZE; ++i) {
+    for (std::size_t i = k_INTS_IN_LONG; i < BITSETSIZE; ++i) {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_data[i])) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             BloombergLP::bslstl::StdExceptUtil::throwOverflowError(
@@ -1106,13 +1268,13 @@ unsigned long bitset<N>::to_ulong() const
     }
 
     unsigned long      value   = 0;
-    const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
+    const unsigned int numInts = (unsigned int) k_INTS_IN_LONG
                                                     < (unsigned int) BITSETSIZE
-                               ? (unsigned int) BSLSTL_INTS_IN_LONG
+                               ? (unsigned int) k_INTS_IN_LONG
                                : (unsigned int) BITSETSIZE;
 
     for (unsigned int i = 0; i < numInts; ++i) {
-        value |= (unsigned long) d_data[i] << (BITSPERINT * i);
+        value |= (unsigned long) d_data[i] << (k_BITS_PER_INT * i);
     }
     return value;
 }
