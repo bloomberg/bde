@@ -341,7 +341,10 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
     // non-zero value otherwise.
 {
     char buf[bdlt::Iso8601Util::k_MAX_STRLEN];
-    int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value);
+    bdlt::Iso8601UtilConfiguration config;
+    config.setFractionalSecondPrecision(6);
+    int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value, config);
+
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
 }
 
