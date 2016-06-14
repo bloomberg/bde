@@ -12,7 +12,7 @@ namespace {
 enum InputType {
     TOK = 0,  // token character
     SFT = 1,  // soft delimiter character
-    HRD = 2,  // hard delimiter character
+    HRD = 2   // hard delimiter character
 };
 const int NUM_INPUTS = 3;
 
@@ -22,7 +22,7 @@ enum State {
                 // or soft delimiter characters seen.  Start state.
     DHEAD = 1,  // One or more soft delimiter characters seen after zero or
                 // more token characters have been seen.
-    DTAIL = 2,  // Exactly one hard delimiter character seen possibly followed
+    DTAIL = 2   // Exactly one hard delimiter character seen possibly followed
                 // by zero or more soft delimiter characters.
 };
 const int NUM_STATES = 3;
@@ -32,7 +32,7 @@ const int NUM_STATES = 3;
 enum Action {
     ACC_TOKEN = 0,  // accumulate token
     ACC_DELIM = 1,  // accumulate delimiter
-    STOP      = 2,  // stop parsing state machine and return result
+    STOP      = 2   // stop parsing state machine and return result
 };
 
 const State stateTable[NUM_INPUTS][NUM_STATES] = {
@@ -40,7 +40,7 @@ const State stateTable[NUM_INPUTS][NUM_STATES] = {
     // -----   -----   -----
     {  TOKEN,  TOKEN,  TOKEN },  // TOK
     {  DHEAD,  DHEAD,  DTAIL },  // SFT
-    {  DTAIL,  DTAIL,  DTAIL },  // HRD
+    {  DTAIL,  DTAIL,  DTAIL }   // HRD
 };
 
 const Action actionTable[NUM_INPUTS][NUM_STATES] = {
@@ -48,7 +48,7 @@ const Action actionTable[NUM_INPUTS][NUM_STATES] = {
     // ---------   ---------   ---------
     {  ACC_TOKEN,  STOP,       STOP      },  // TOK
     {  ACC_DELIM,  ACC_DELIM,  ACC_DELIM },  // SFT
-    {  ACC_DELIM,  ACC_DELIM,  STOP      },  // HRD
+    {  ACC_DELIM,  ACC_DELIM,  STOP      }   // HRD
 };
 
 }  // close unnamed namespace

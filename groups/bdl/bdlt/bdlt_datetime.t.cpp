@@ -3812,43 +3812,57 @@ if (veryVerbose)
             const int DAY    = 4;
             const int HOUR   = 5;
             const int MINUTE = 6;
-            const int SEC    = 7;
+            const int SECOND = 7;
             const int MSEC   = 8;
             const int USEC   = 9;
 
             Obj mA0;  const Obj& A0 = mA0;
             Obj mA1;  const Obj& A1 = mA1;
-            mA0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC, USEC);
-            mA1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC, USEC);
+            mA0.setDatetime(YEAR,
+                            MONTH,
+                            DAY,
+                            HOUR,
+                            MINUTE,
+                            SECOND,
+                            MSEC,
+                            USEC);
+            mA1.setDatetime(YEAR,
+                            MONTH,
+                            DAY,
+                            HOUR,
+                            MINUTE,
+                            SECOND,
+                            MSEC,
+                            USEC);
             ASSERT(A0 == A1);
 
             Obj mB0;  const Obj& B0 = mB0;
             Obj mB1;  const Obj& B1 = mB1;
-            mB0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC,    0);
-            mB1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC, MSEC);
+            mB0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC,   0);
+            mB1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
             ASSERT(B0 == B1);
 
             Obj mC0;  const Obj& C0 = mC0;
             Obj mC1;  const Obj& C1 = mC1;
-            mC0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC,    0,    0);
-            mC1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SEC);
+            mC0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND,    0,   0);
+            mC1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
             ASSERT(C0 == C1);
 
             Obj mD0;  const Obj& D0 = mD0;
             Obj mD1;  const Obj& D1 = mD1;
-            mD0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE,   0,    0,    0);
+            mD0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE,      0,    0,   0);
             mD1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE);
             ASSERT(D0 == D1);
 
             Obj mE0;  const Obj& E0 = mE0;
             Obj mE1;  const Obj& E1 = mE1;
-            mE0.setDatetime(YEAR, MONTH, DAY, HOUR,      0,   0,    0,    0);
+            mE0.setDatetime(YEAR, MONTH, DAY, HOUR,      0,      0,    0,   0);
             mE1.setDatetime(YEAR, MONTH, DAY, HOUR);
             ASSERT(E0 == E1);
 
             Obj mF0;  const Obj& F0 = mF0;
             Obj mF1;  const Obj& F1 = mF1;
-            mF0.setDatetime(YEAR, MONTH, DAY,    0,      0,   0,    0,    0);
+            mF0.setDatetime(YEAR, MONTH, DAY,    0,      0,      0,    0,   0);
             mF1.setDatetime(YEAR, MONTH, DAY);
             ASSERT(F0 == F1);
         }

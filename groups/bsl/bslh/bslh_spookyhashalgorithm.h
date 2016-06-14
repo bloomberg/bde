@@ -279,6 +279,7 @@ BSLS_IDENT("$Id: $")
 //      ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 //
 //..
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

@@ -8,9 +8,11 @@ BSLS_IDENT_RCSID(bbldc_basicdaycountutil_cpp,"$Id$ $CSID$")
 #include <bbldc_basicactual365fixed.h>
 #include <bbldc_basicisdaactualactual.h>
 #include <bbldc_basicisma30360.h>
+#include <bbldc_basicnl365.h>
 #include <bbldc_basicpsa30360eom.h>
 #include <bbldc_basicsia30360eom.h>
 #include <bbldc_basicsia30360neom.h>
+#include <bbldc_terminatedisda30360eom.h>
 
 #include <bdlt_date.h>
 
@@ -37,11 +39,17 @@ int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numDays = bbldc::BasicActual365Fixed::daysDiff(beginDate, endDate);
       } break;
+      case DayCountConvention::e_ISDA_30_360_EOM: {
+        numDays = bbldc::TerminatedIsda30360Eom::daysDiff(beginDate, endDate);
+      } break;
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL: {
         numDays = bbldc::BasicIsdaActualActual::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISMA_30_360: {
         numDays = bbldc::BasicIsma30360::daysDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_NL_365: {
+        numDays = bbldc::BasicNl365::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_PSA_30_360_EOM: {
         numDays = bbldc::BasicPsa30360Eom::daysDiff(beginDate, endDate);
@@ -68,8 +76,10 @@ bool BasicDayCountUtil::isSupported(DayCountConvention::Enum convention)
     switch (convention) {
       case DayCountConvention::e_ACTUAL_360:
       case DayCountConvention::e_ACTUAL_365_FIXED:
+      case DayCountConvention::e_ISDA_30_360_EOM:
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL:
       case DayCountConvention::e_ISMA_30_360:
+      case DayCountConvention::e_NL_365:
       case DayCountConvention::e_PSA_30_360_EOM:
       case DayCountConvention::e_SIA_30_360_EOM:
       case DayCountConvention::e_SIA_30_360_NEOM: {
@@ -95,11 +105,18 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
       case DayCountConvention::e_ACTUAL_365_FIXED: {
         numYears = bbldc::BasicActual365Fixed::yearsDiff(beginDate, endDate);
       } break;
+      case DayCountConvention::e_ISDA_30_360_EOM: {
+        numYears = bbldc::TerminatedIsda30360Eom::yearsDiff(beginDate,
+                                                            endDate);
+      } break;
       case DayCountConvention::e_ISDA_ACTUAL_ACTUAL: {
         numYears = bbldc::BasicIsdaActualActual::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_ISMA_30_360: {
         numYears = bbldc::BasicIsma30360::yearsDiff(beginDate, endDate);
+      } break;
+      case DayCountConvention::e_NL_365: {
+        numYears = bbldc::BasicNl365::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_PSA_30_360_EOM: {
         numYears = bbldc::BasicPsa30360Eom::yearsDiff(beginDate, endDate);
@@ -123,7 +140,7 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

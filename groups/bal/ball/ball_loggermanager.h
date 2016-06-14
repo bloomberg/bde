@@ -1301,7 +1301,7 @@ class LoggerManager {
                        bslma::Allocator                  *basicAllocator = 0);
         // Initialize (once!) the logger manager singleton.  Optionally specify
         // a 'configuration' describing how the singleton should be configured.
-        // If 'configuration' is not specified, a default constucted
+        // If 'configuration' is not specified, a default constructed
         // 'LoggerManagerConfiguration' object is used.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.  Return a

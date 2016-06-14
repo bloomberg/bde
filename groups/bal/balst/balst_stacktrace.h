@@ -192,9 +192,9 @@ namespace balst {
 
 class StackTrace {
     // This value-semantic class describes a function-call stack, represented
-    // as a sequence of randomly accesible 'StackTraceFrame' objects,
-    // each of which represents one function call on the stack.  Note that if
-    // no allocator is supplied at construction, an owned
+    // as a sequence of randomly accessible 'StackTraceFrame' objects, each of
+    // which represents one function call on the stack.  Note that if no
+    // allocator is supplied at construction, an owned
     // 'bdlma::HeapBypassAllocator' object is used to supply memory.
     //
     // This class:

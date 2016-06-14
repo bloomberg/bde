@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // the closure object and invoke it.  In order to do that, we must cast it to a
 // function pointer, but some compilers may not allow it.  We can use
 // 'bsls::PointerCastUtil::cast' to accomplish this:
-// ..
+//..
 //  struct MyHandler : Handler {
 //      void handle(void *closure) {
 //           bsls::PointerCastUtil::cast<void(*)()>(closure)();

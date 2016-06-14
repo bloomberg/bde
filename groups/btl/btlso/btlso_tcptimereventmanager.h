@@ -253,6 +253,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_eventtype.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include <btlso_sockethandle.h>
+#endif
+
 #ifndef INCLUDED_BTLSO_TIMEMETRICS
 #include <btlso_timemetrics.h>
 #endif

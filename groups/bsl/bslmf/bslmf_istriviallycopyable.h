@@ -93,6 +93,7 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_trivially_copyable<
 //                                         MyNonTriviallyCopyableType>::value);
 //..
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif

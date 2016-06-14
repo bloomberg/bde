@@ -9081,9 +9081,8 @@ int main(int argc, char *argv[])
             ASSERT(!in);
             ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
         }
-
-      } break;
 #endif
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR

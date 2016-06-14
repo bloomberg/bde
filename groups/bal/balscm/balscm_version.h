@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // The "0.01.0" portion of the string distinguishes different versions of the
 // 'bal' package group.
 //
-///Example 2: Accessing the Embedded Version informaiton
+///Example 2: Accessing the Embedded Version information
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The versioning information embedded into a binary file by this component can
 // be examined under UNIX using several well-known utilities.  For example:

@@ -170,7 +170,11 @@ enum { NAME_ASCII, NAME_UTF8, NAME_ANSI };
 static const char *const NAMES[] = {
     "name",                                      // ASCII
     "\x24\xc2\xa2\xe2\x82\xac\xf0\xa4\xad\xa2",  // utf-8
+#ifndef BSLS_PLATFORM_OS_DARWIN
+// 'NAME_ANSI' is not utf8, and the filesystem translates the name to
+// "%F1%E5m%EA".
     "\xf1\xe5m\xea",                             // not utf-8
+#endif
 };
 static const size_t NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
 
@@ -1173,21 +1177,24 @@ int main(int argc, char *argv[])
                              "========================\n";
 
         static const wchar_t *const filenames[] = {
+            L"\u00de\u0127\u2021\u20ac\u00b2\u2116",
+            L"\u03b6\u0434\u05d8\u0679\u0564\u0e3f",
+            L"a\u0303a\u030ae\u0300e\u0301i\u0302i\u0308o\u0302o\u0303u"
+                                                            L"\u0300u\u0301",
+#ifndef BSLS_PLATFORM_OS_DARWIN
+    // Darwin canonicalizes these into the above name.
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
             L"a\u0303\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
             L"\u00e3a\u030a\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
             L"\u00e3\u00e5e\u0300\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
             L"\u00e3\u00e5\u00e8e\u0301\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
-            L"\u00de\u0127\u2021\u20ac\u00b2\u2116",
-            L"\u03b6\u0434\u05d8\u0679\u0564\u0e3f",
             L"\u00e3\u00e5\u00e8\u00e9i\u0302\u00ef\u00f4\u00f5\u00f9\u00fa",
             L"\u00e3\u00e5\u00e8\u00e9\u00eei\u0308\u00f4\u00f5\u00f9\u00fa",
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00efo\u0302\u00f5\u00f9\u00fa",
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4o\u0303\u00f9\u00fa",
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5u\u0300\u00fa",
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9u\u0301",
-            L"a\u0303a\u030ae\u0300e\u0301i\u0302i\u0308o\u0302o\u0303u"
-                                                            L"\u0300u\u0301",
+#endif
         };
         static const size_t NUM_FILES = sizeof filenames / sizeof *filenames;
 

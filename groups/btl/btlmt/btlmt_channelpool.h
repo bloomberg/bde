@@ -595,15 +595,15 @@ BSLS_IDENT("$Id: $")
 #include <btlb_pooledblobbufferfactory.h>
 #endif
 
-#ifndef INCLUDED_bslmt_MUTEX
+#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_bslmt_THREADUTIL
+#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
@@ -617,6 +617,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
 #include <bslma_managedptrdeleter.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -1242,12 +1246,12 @@ class ChannelPool {
         // 'e_CHANNEL_LIMIT', or 'e_CAPACITY_LIMIT'), a pool state callback is
         // invoked with the event type, 'sourceId' and a platform-specific
         // error code if available.  Use the specified 'resolutionMode' to
-        // indicate whether the name resolution is performaed once (if
+        // indicate whether the name resolution is performed once (if
         // 'resolutionMode' is 'e_RESOLVE_ONCE'), or performed anew prior to
         // each attempt (if 'resolutionMode' is 'e_RESOLVE_AT_EACH_ATTEMPT'),
         // the specified 'readEnabledFlag' to indicate whether automatic
         // reading should be enabled on this channel immediately after
-        // creationo, and the specified 'halfCloseMode' in case the channel
+        // creation, and the specified 'halfCloseMode' in case the channel
         // created for this connection is half-closed.  Specify either
         // 'socketOptions' that will be used to provide the options that should
         // be set on the connecting socket and the specified 'localAddress' to
@@ -1921,7 +1925,7 @@ class ChannelPool {
         // performance reasons this *sequence* is not captured atomically: by
         // the time one of the values is captured, another may already have
         // changed.
-    
+
     int getChannelWriteQueueStatistics(int *recordedMaxWriteQueueSize,
                                        int *currentWriteQueueSize,
                                        int  channelId) const;
@@ -2051,7 +2055,7 @@ class ChannelPool {
     int setWriteCacheHiWatermark(int, int);
     int setWriteCacheLowWatermark(int, int);
     int setWriteCacheWatermarks(int, int, int);
-    int resetRecordedMaxWriteCacheSize(int); 
+    int resetRecordedMaxWriteCacheSize(int);
     int getChannelWriteCacheStatistics(int *, int *, int) const;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
