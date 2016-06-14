@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_sys_time
 #   endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 

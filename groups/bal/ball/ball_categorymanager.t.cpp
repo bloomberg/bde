@@ -15,6 +15,8 @@
 
 #include <bdlb_bitutil.h>
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -34,7 +36,6 @@
 #include <bsl_ostream.h>    // i2bs
 #include <bsl_string.h>
 #include <bsl_streambuf.h>  // i2bs
-#include <bsl_strstream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
@@ -593,7 +594,8 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         char buf[2048];
-        ostrstream out(buf, sizeof buf);
+        bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
+        bsl::ostream out(&obuf);
 
         const char *myCategories[] = {
             "EQUITY.MARKET.NYSE",

@@ -367,7 +367,7 @@
 # ifndef INCLUDED_BSLMF_REMOVECONST
 #   include <bslmf_removeconst.h>
 # endif
-# ifndef INCLUDED_BSLMF_REMOVEREFRENCE
+# ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #   include <bslmf_removereference.h>
 # endif
 # ifndef INCLUDED_BSLMF_REMOVEVOLATILE

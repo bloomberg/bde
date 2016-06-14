@@ -76,12 +76,13 @@ BSLS_IDENT("$Id: $")
 ///Design Note
 ///-----------
 // This component provides a BDE constrained-attribute type designed to be
-// *useful* to 'ball::LoggerManager'.  However, 'ball::LoggerManagerDefaults' is
-// not 'ball::LoggerManagerConfiguration', the actual configuration object used
-// by the logger manager.  'ball::LoggerManagerConfiguration' is not a value
-// semantic type, because it holds functors.  'ball::LoggerManagerDefaults',
-// which is used by 'ball::LoggerManagerConfiguration', may be regarded as a
-// factored detail of the actual configuration object.
+// *useful* to 'ball::LoggerManager'.  However, 'ball::LoggerManagerDefaults'
+// is not 'ball::LoggerManagerConfiguration', the actual configuration object
+// used by the logger manager.  'ball::LoggerManagerConfiguration' is not a
+// value semantic type, because it holds functors.
+// 'ball::LoggerManagerDefaults', which is used by
+// 'ball::LoggerManagerConfiguration', may be regarded as a factored detail of
+// the actual configuration object.
 //
 ///Usage
 ///-----

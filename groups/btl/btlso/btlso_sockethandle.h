@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a platform-independent socket handle type
+//@PURPOSE: Provide a platform-independent socket handle type.
 //
 //@CLASSES:
 //  btlso::SocketHandle: a namespace for socket handle's type definition

@@ -20,7 +20,9 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 
+#include <bdlt_timeunitratio.h>
 #include <bdlb_bitutil.h>
+#include <bdlf_bind.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>   // for 'CHAR_BIT'
@@ -49,6 +51,18 @@ int numBitsRequired(int value)
     return static_cast<int>(  (sizeof(value) * CHAR_BIT)
                             - bdlb::BitUtil::numLeadingUnsetBits(
                                            static_cast<bsl::uint32_t>(value)));
+}
+
+bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
+                                         bsls::SystemClockType::Enum clockType)
+{
+    // Must cast the pointer to 'now' to the correct signature so that the
+    // correct now function is passed to the bind template.
+
+    return bdlf::BindUtil::bind(
+              static_cast<bsls::TimeInterval (*)(bsls::SystemClockType::Enum)>(
+                                                       &bsls::SystemTime::now),
+              clockType);
 }
 
 }  // close unnamed namespace
@@ -93,8 +107,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
             ++scheduler->d_iterations;
 
             int newLengthClock = 0, newLengthEvent = 0;
-            bsls::TimeInterval now =
-                                 bsls::SystemTime::now(scheduler->d_clockType);
+            bsls::TimeInterval now = scheduler->d_currentTimeFunctor();
 
             // minTimeClock will be set only if newLengthClock > 0, similar
             // with minTimeEvent
@@ -242,7 +255,10 @@ void TimerEventScheduler::yieldToDispatcher()
 // CREATORS
 TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -254,6 +270,7 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
 
@@ -261,7 +278,9 @@ TimerEventScheduler::TimerEventScheduler(
                                    bsls::SystemClockType::Enum  clockType,
                                    bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(clockType)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -275,6 +294,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(clockType)
 {
 }
 
@@ -282,7 +302,10 @@ TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -294,6 +317,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
 }
 
@@ -302,7 +326,9 @@ TimerEventScheduler::TimerEventScheduler(
                      bsls::SystemClockType::Enum             clockType,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(clockType)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
 , d_clockTimeQueue(NUM_INDEX_BITS_DEFAULT, basicAllocator)
@@ -315,6 +341,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(clockType)
 {
 }
 
@@ -322,7 +349,10 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
                                          int               numClocks,
                                          bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
                    basicAllocator)
@@ -336,6 +366,7 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -347,7 +378,9 @@ TimerEventScheduler::TimerEventScheduler(
                                    bsls::SystemClockType::Enum  clockType,
                                    bslma::Allocator            *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(clockType)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
@@ -363,6 +396,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(clockType)
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -374,7 +408,10 @@ TimerEventScheduler::TimerEventScheduler(
                      const TimerEventScheduler::Dispatcher&  dispatcherFunctor,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(
+                                            bsls::SystemClockType::e_REALTIME))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData),
                        basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
@@ -389,6 +426,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -401,7 +439,9 @@ TimerEventScheduler::TimerEventScheduler(
                      bsls::SystemClockType::Enum             clockType,
                      bslma::Allocator                       *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_clockType(clockType)
+, d_currentTimeFunctor(bsl::allocator_arg_t(),
+                       bsl::allocator<CurrentTimeFunctor>(basicAllocator),
+                       createDefaultCurrentTimeFunctor(clockType))
 , d_clockDataAllocator(sizeof(TimerEventScheduler::ClockData), basicAllocator)
 , d_eventTimeQueue(bsl::max(NUM_INDEX_BITS_MIN, numBitsRequired(numEvents)),
                    basicAllocator)
@@ -416,6 +456,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_currentEventIndex(-1)
 , d_numEvents(0)
 , d_numClocks(0)
+, d_clockType(clockType)
 {
     BSLS_ASSERT(numEvents < (1 << 24) - 1);
     BSLS_ASSERT(numClocks < (1 << 24) - 1);
@@ -600,7 +641,7 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&    interval,
 
     bsls::TimeInterval stime(startTime);
     if (0 == stime) {
-        stime = bsls::SystemTime::now(d_clockType) + interval;
+        stime = d_currentTimeFunctor() + interval;
     }
 
     ClockData *pClockData =
@@ -675,8 +716,82 @@ void TimerEventScheduler::cancelAllClocks(bool wait)
         yieldToDispatcher();
     }
 }
-}  // close package namespace
 
+                  // ---------------------------------------
+                  // class TimerEventSchedulerTestTimeSource
+                  // ---------------------------------------
+
+// CREATORS
+TimerEventSchedulerTestTimeSource::TimerEventSchedulerTestTimeSource(
+                                                TimerEventScheduler *scheduler)
+: d_currentTime(bsls::SystemTime::now(scheduler->d_clockType)
+                + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY)
+, d_scheduler_p(scheduler)
+{
+    // The event scheduler is constructed with a "now" that is 1000 days in the
+    // future.  This point in time is arbitrary, but is chosen to ensure that
+    // in any reasonable test driver, the system clock (which controls the the
+    // scheduler's condition variable) will always lag behind the test time
+    // source.
+    //
+    // If the system clock were ever to catch up with the test time source, the
+    // 'TimerEventScheduler::dispatchEvents' could go into a tight loop waiting
+    // for the next event instead of sleeping until the next call to
+    // 'TimerEventSchedulerTestTimeSource::advanceTime'.  See the call to
+    // 'timedWait' in 'TimerEventScheduler::dispatchEvents'.
+
+    BSLS_ASSERT(0 != scheduler);
+
+    // Bind the member function 'now' to 'this', and let the scheduler call
+    // this binder as its current time callback.
+
+    d_scheduler_p->d_currentTimeFunctor = bdlf::MemFnUtil::memFn(
+                                  &TimerEventSchedulerTestTimeSource::now,
+                                  this);
+}
+
+// MANIPULATORS
+bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
+                                                     bsls::TimeInterval amount)
+{
+    BSLS_ASSERT(amount > 0);
+    bsls::TimeInterval ret;
+
+    {
+        // This scope limits how long we lock 'd_currentTimeMutex'
+
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+
+        d_currentTime += amount;
+
+        // Returning the new time allows an atomic 'advance' + 'now' operation.
+        // This feature may not be necessary.
+        ret = d_currentTime;
+    }
+
+
+    {
+        // This scope limits how long we lock the scheduler's mutex
+
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_scheduler_p->d_mutex);
+
+        // Now that the time has changed, signal the scheduler's condition
+        // variable so that the event dispatcher thread can be alerted to the
+        // change.
+        d_scheduler_p->d_condition.signal();
+    }
+
+    return ret;
+}
+
+// ACCESSORS
+bsls::TimeInterval TimerEventSchedulerTestTimeSource::now()
+{
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    return d_currentTime;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

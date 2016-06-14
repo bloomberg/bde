@@ -8,42 +8,9 @@
 
 using namespace BloombergLP;
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 static bool verbose = false;
 static bool veryVerbose = false;
-
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        bsl::fprintf(stderr, "Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-    }
-}
-
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::printf("%s: %d\n", #I, I); \
-                aSsErT(1, #X, __LINE__); } }
-
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) bsl::printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ bsl::printf("\t");             // Print a tab (w/o newline)
-
-//=============================================================================
-//                  USAGE EXAMPLE HELPER FUNCTIONS
-//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                              MAIN PROGRAM

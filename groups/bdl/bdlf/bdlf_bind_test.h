@@ -385,7 +385,7 @@ struct Bind_TestUtil {
 
     template <class T>
     static bool isBitwiseMoveableType(const T&);
-        // Return true if the specified paramter type 'T' has the
+        // Return true if the specified parameter type 'T' has the
         // 'bslmf::IsBitwiseMovable' trait and false otherwise.
 };
 

@@ -44,11 +44,11 @@
 //
 //      // ..
 //
-//      bslma::Allocator d_allocator_p;   // memory allocator (held, not owned)
+//      bslma::Allocator *d_allocator_p;   // memory allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      DatabaseConnection(bslma::Allocator basicAllocator = 0);
+//      DatabaseConnection(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'DatabaseConnection' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
