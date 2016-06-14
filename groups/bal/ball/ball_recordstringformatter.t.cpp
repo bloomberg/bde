@@ -360,11 +360,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest Fixed and Calculated Offsets" << endl;
         {
-            Obj mX("%i", bdlt::DatetimeInterval(10));
+            Obj mX("%i", bdlt::DatetimeInterval(0, 3, 47));
                                      ASSERT(!mX.isPublishInLocalTimeEnabled());
 
             bdlt::Datetime         dtUtc(2014, 2, 19);
-
 
             ball::RecordAttributes fixedFields(dtUtc,
                                               0,
@@ -377,7 +376,9 @@ int main(int argc, char *argv[])
             ball::Record           mRecord(fixedFields, ball::UserFields());
             const ball::Record&    record = mRecord;
 
-            bdlt::Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
+            bdlt::DatetimeInterval offset(0, 3, 47);
+            bdlt::Datetime dtWithOffset(dtUtc);
+            dtWithOffset += offset;
 
             if (veryVerbose) { P_(dtUtc) P(dtWithOffset); }
 
@@ -393,8 +394,13 @@ int main(int argc, char *argv[])
                  << ':'
                  << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.minute()
                  << ':'
-                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.second();
-
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.second()
+                 << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
+                 << bsl::setw(2) << bsl::setfill('0')
+                                                    << bsl::abs(offset.hours())
+                 << ':'
+                 << bsl::setw(2) << bsl::setfill('0')
+                                                 << bsl::abs(offset.minutes());
             ostringstream ossActual;
             mX(ossActual, record);
 
@@ -411,6 +417,7 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime dtWithLTO(dtUtc);
             dtWithLTO.addSeconds(localTimeOffsetInSeconds);
+            offset.setTotalSeconds(localTimeOffsetInSeconds);
 
             if (veryVerbose) { P_(dtUtc) P(dtWithLTO); }
 
@@ -425,7 +432,13 @@ int main(int argc, char *argv[])
                     << ':'
                     << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.minute()
                     << ':'
-                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.second();
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.second()
+                    << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
+                    << bsl::setw(2) << bsl::setfill('0')
+                                                    << bsl::abs(offset.hours())
+                    << ':'
+                    << bsl::setw(2) << bsl::setfill('0')
+                                                 << bsl::abs(offset.minutes());
 
             mX.enablePublishInLocalTime();
             ASSERT( mX.isPublishInLocalTimeEnabled());
@@ -730,19 +743,29 @@ int main(int argc, char *argv[])
                 << ':'
                 << bsl::setw(2) << bsl::setfill('0') << localTime.minute()
                 << ':'
-                << bsl::setw(2) << bsl::setfill('0') << localTime.second();
+                << bsl::setw(2) << bsl::setfill('0') << localTime.second()
+                << (offset < bdlt::DatetimeInterval(0) ? '-' : '+')
+                << bsl::setw(2) << bsl::setfill('0')
+                                                    << bsl::abs(offset.hours())
+                << ':'
+                << bsl::setw(2) << bsl::setfill('0')
+                                                 << bsl::abs(offset.minutes());
+
             if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
             ASSERT(oss1.str() == oss2.str());
 
             // Is the resulting string parseable?
-            bdlt::Datetime dt;
-            int           rc = bdlt::Iso8601Util::parse(
+            bdlt::DatetimeTz dt;
+            int              rc = bdlt::Iso8601Util::parse(
                                               &dt,
                                               oss1.str().c_str(),
                                               bsl::strlen(oss1.str().c_str()));
-            bdlt::Datetime adjustedTimestamp(localTime);
-            adjustedTimestamp.setMillisecond(0); // "%i" => no msecs printed
-            adjustedTimestamp.setMicrosecond(0); // "%i" => no usecs printed
+            bdlt::Datetime truncatedLocalTime = localTime;
+            truncatedLocalTime.setMillisecond(0);  // "%i" => no msecs printed
+            truncatedLocalTime.setMicrosecond(0);  // "%i" => no usecs printed
+
+            bdlt::DatetimeTz adjustedTimestamp(truncatedLocalTime,
+                                               offset.totalMinutes());
 
             if (veryVerbose) { P_(rc) P_(adjustedTimestamp) P(dt) }
             ASSERT(0                 == rc);
