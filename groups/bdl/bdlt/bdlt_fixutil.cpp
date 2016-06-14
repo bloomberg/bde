@@ -194,15 +194,15 @@ int parseTime(const char **nextPos,
               const char  *begin,
               const char  *end,
               int          roundMicroseconds)
-    // Parse the time, represented in the "hh:mm:ss[.s+]" FIX extended format,
-    // from the string starting at the specified 'begin' and ending before the
-    // specified 'end', load into the specified 'hour', 'minute', 'second',
-    // 'millisecond', and 'microsecond' their respective parsed values with the
-    // fractional second rounded to the closest multiple of the specified
-    // 'roundMicroseconds', set the specified 'hasLeapSecond' flag to 'true' if
-    // a leap second was indicated and 'false' otherwise, and set the specified
-    // '*nextPos' to the location one past the last parsed character.  Return 0
-    // on success, and a non-zero value (with no effect on '*nextPos')
+    // Parse the time, represented in the "hh:mm[:ss[.s+]]" FIX extended
+    // format, from the string starting at the specified 'begin' and ending
+    // before the specified 'end', load into the specified 'hour', 'minute',
+    // 'second', 'millisecond', and 'microsecond' their respective parsed
+    // values with the fractional second rounded to the closest multiple of the
+    // specified 'roundMicroseconds', set the specified 'hasLeapSecond' flag to
+    // 'true' if a leap second was indicated and 'false' otherwise, and set the
+    // specified '*nextPos' to the location one past the last parsed character.
+    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
     // otherwise.  The behavior is undefined unless 'begin <= end' and
     // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
     // time before 'end' is reached is not an error.
@@ -222,7 +222,7 @@ int parseTime(const char **nextPos,
 
     const char *p = begin;
 
-    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm" - 1 };
 
     if (end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -237,46 +237,57 @@ int parseTime(const char **nextPos,
 
     // 2. Parse minute.
 
-    if (0 != asciiToInt(&p, minute, p, p + 2) || ':' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;  // skip ':'
-
-    // 3. Parse second.
-
-    if (0 != asciiToInt(&p, second, p, p + 2)) {
+    if (0 != asciiToInt(&p, minute, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
-    // 4. Parse (optional) fractional second, in microseconds.
+    // 3. Parse (optional) second.
 
-    if (p < end && '.' == *p) {
-        // We have a fraction of a second.
+    if (p < end && ':' == *p) {
+        // We have seconds.
 
-        ++p;  // skip '.'
+        ++p;  // skip ':'
 
-        if (0 != parseFractionalSecond(&p,
-                                       microsecond,
-                                       p,
-                                       end,
-                                       roundMicroseconds)) {
+        if (0 != asciiToInt(&p, second, p, p + 2)) {
             return -1;                                                // RETURN
         }
-        *millisecond = *microsecond / 1000;
-        *microsecond %= 1000;
+
+        // 4. Parse (optional) fractional second, in microseconds.
+
+        if (p < end && '.' == *p) {
+            // We have a fraction of a second.
+
+            ++p;  // skip '.'
+
+            if (0 != parseFractionalSecond(&p,
+                                           microsecond,
+                                           p,
+                                           end,
+                                           roundMicroseconds)) {
+                return -1;                                            // RETURN
+            }
+            *millisecond = *microsecond / 1000;
+            *microsecond %= 1000;
+        }
+        else {
+            *millisecond = 0;
+            *microsecond = 0;
+        }
+
+        // 5. Handle leap second.
+
+        if (60 == *second) {
+            *hasLeapSecond = true;
+            *second        = 59;
+        }
+        else {
+            *hasLeapSecond = false;
+        }
     }
     else {
+        *second = 0;
         *millisecond = 0;
         *microsecond = 0;
-    }
-
-    // 5. Handle leap second.
-
-    if (60 == *second) {
-        *hasLeapSecond = true;
-        *second        = 59;
-    }
-    else {
         *hasLeapSecond = false;
     }
 
@@ -1083,7 +1094,7 @@ int FixUtil::parse(Time *result, const char *string, int length)
     //
     // The fractional second and timezone offset are independently optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -1246,7 +1257,7 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     //
     // The fractional second and timezone offset are independently optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
@@ -1315,7 +1326,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     //
     // The fractional second and timezone offset are independently optional.
 
-    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD-hh:mm:ss" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYYMMDD-hh:mm" - 1 };
 
     if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN

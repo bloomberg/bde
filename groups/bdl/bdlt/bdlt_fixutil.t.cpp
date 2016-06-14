@@ -554,8 +554,9 @@ void updateExpectedPerConfig(bsl::string   *expected,
                              const Config&  configuration,
                              int            maxPrecision)
     // Update the specified 'expected' FIX string as if it were generated using
-    // the specified 'configuration'.  The behavior is undefined unless the
-    // timezone offset within 'expected' (if any) is of the form "(+|-)dd:dd".
+    // the specified 'configuration' with the precision limited by the
+    // specified 'maxPrecision'.  The behavior is undefined unless the timezone
+    // offset within 'expected' (if any) is of the form "(+|-)dd:dd".
 {
     ASSERT(expected);
 
@@ -1383,8 +1384,10 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                          << endl;
+        if (verbose) {
+            cout << "\nTesting optional, leap, and fractional seconds."
+                 << endl;
+        }
         {
             const struct {
                 int         d_line;
@@ -1399,6 +1402,16 @@ if (veryVerbose)
                 int         d_usec;
                 int         d_offset;
             } DATA[] = {
+                // optional seconds
+                { L_, "00010101-00:00",
+                                     0001, 01, 01, 00, 00, 00, 000, 000,   0 },
+                { L_, "00010101-00:01",
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
+                { L_, "00010101-01:00",
+                                     0001, 01, 01, 01, 00, 00, 000, 000,   0 },
+                { L_, "00010101-01:01",
+                                     0001, 01, 01, 01, 01, 00, 000, 000,   0 },
+
                 // leap seconds
                 { L_, "00010101-00:00:60.000",
                                      0001, 01, 01, 00, 01, 00, 000, 000,   0 },
@@ -1448,6 +1461,8 @@ if (veryVerbose)
                                      9999, 01, 01, 00, 00, 01, 000, 000,   0 },
 
                 // omit fractional seconds
+                { L_, "00010101-00:00:60",
+                                     0001, 01, 01, 00, 01, 00, 000, 000,   0 },
                 { L_, "20141223-12:34:45",
                                      2014, 12, 23, 12, 34, 45, 000, 000,   0 },
                 { L_, "20141223-12:34:45Z",
@@ -2062,8 +2077,10 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
-                          << endl;
+        if (verbose) {
+            cout << "\nTesting optional, leap, and fractional seconds."
+                 << endl;
+        }
         {
             const struct {
                 int         d_line;
@@ -2074,6 +2091,12 @@ if (veryVerbose)
                 int         d_msec;
                 int         d_offset;
             } DATA[] = {
+                // optional seconds
+                { L_, "00:00",           00, 00, 00, 000,   0 },
+                { L_, "00:01",           00, 01, 00, 000,   0 },
+                { L_, "01:00",           01, 00, 00, 000,   0 },
+                { L_, "01:01",           01, 01, 00, 000,   0 },
+
                 // leap seconds
                 { L_, "00:00:60.000",    00, 01, 00, 000,   0 },
                 { L_, "22:59:60.999",    23, 00, 00, 999,   0 },
@@ -2093,6 +2116,7 @@ if (veryVerbose)
                 { L_, "22:59:60.9999",   23, 00, 01, 000,   0 },
 
                 // omit fractional seconds
+                { L_, "00:00:60",        00, 01, 00, 000,   0 },
                 { L_, "12:34:45",        12, 34, 45, 000,   0 },
                 { L_, "12:34:45Z",       12, 34, 45, 000,   0 },
                 { L_, "12:34:45+00:30",  12, 34, 45, 000,  30 },

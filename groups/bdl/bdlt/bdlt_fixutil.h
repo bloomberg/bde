@@ -138,7 +138,9 @@ BSLS_IDENT("$Id: $")
 // optional 'FixUtilConfiguration' argument).  Moreover, the process-wide
 // configuration has no effect on parsing either.  Instead, the parse methods
 // automatically treat '+00:00' and 'Z' as equivalent timezone offsets (both
-// denoting UTC).
+// denoting UTC).  Finally, the parsing allows seconds to be optionally
+// specified in all types, which is in contradiction to some of the types in
+// the referenced FIX protocol specification.
 //
 ///Timezone Offsets
 /// - - - - - - - -
@@ -186,7 +188,9 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - -
 // The fractional second is optional.  When the fractional second is absent, it
 // is treated as if '.0' were specified.  When the fractional second is
-// present, it can have one or more digits.  Although FIX has provision for
+// present, it can have one or more digits (in divergence with the referenced
+// FIX protocol document which indicates the fractional second may be
+// unspecified or have three or more digits).  Although FIX has provision for
 // picosecond (or finer) time resolution, be aware that 'bdlt' is limited to
 // either microsecond resolution ('Datetime' and 'DatetimeTz') or millisecond
 // resolution ('Time' and 'TimeTz').  For 'Time' and 'TimeTz', if more than
@@ -292,7 +296,7 @@ BSLS_IDENT("$Id: $")
 //
 // <TIME FIXED>            ::=  hh:mm:ss
 //
-// <TIME FLEXIBLE>         ::=  hh:mm:ss{.s+}
+// <TIME FLEXIBLE>         ::=  hh:mm{:ss{.s+}}
 //
 // <ZONE>                  ::=  ((+|-)hh{:mm})|Z  # timezone offset, the colon
 //                                                # and minute attribute are
