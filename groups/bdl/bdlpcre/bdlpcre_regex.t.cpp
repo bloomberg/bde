@@ -3085,8 +3085,9 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             const int INVALID_FLAG = Obj::k_FLAG_JIT + 1;
+            (void) INVALID_FLAG;
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             ASSERT_SAFE_PASS(mX.prepare(0, 0, PATTERN1, 0, 0));
             ASSERT_SAFE_FAIL(mX.prepare(0, 0, 0,        0, 0));
@@ -3402,7 +3403,7 @@ int main(int argc, char *argv[])
 
         const char *SIMPLE_PATTERN     = "(abc)*";
         const char *EMAIL_PATTERN      = "[A-Za-z0-9._-]+@[[A-Za-z0-9.-]+";
-        const char *IP_ADDRESS_PATTERN = "(?:[0-9]{1,3}\.){3}[0-9]{1,3}";
+        const char *IP_ADDRESS_PATTERN = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}";
 
         static const struct {
             int         d_lineNum;      // source line number
@@ -3442,9 +3443,9 @@ int main(int argc, char *argv[])
                                      PATTERN,
                                      0,
                                      0);
-            ASSERTV(errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
 
-            ASSERT(0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -3463,8 +3464,8 @@ int main(int argc, char *argv[])
                                  PATTERN,
                                  Obj::k_FLAG_JIT,
                                  0);
-            ASSERTV(errorMsg, errorOffset, 0 == retCode);
-            ASSERT(0 == X.match(SUBJECT, SUBJECT_LEN, 0));
+            ASSERTV(LINE, errorMsg, errorOffset, 0 == retCode);
+            ASSERTV(LINE, 0 == X.match(SUBJECT, SUBJECT_LEN, 0));
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -3478,7 +3479,7 @@ int main(int argc, char *argv[])
                      << "\t\t'match'          time: " << matchTime << endl
                      << "\t\t'match' with JIT time: " << matchJitTime << endl;
             }
-            ASSERTV(matchTime, matchJitTime, matchTime > matchJitTime);
+            ASSERTV(LINE, matchTime, matchJitTime, matchTime > matchJitTime);
         }
       } break;
       case -2: {

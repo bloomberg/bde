@@ -263,6 +263,7 @@ int RegEx::prepare(bsl::string *errorMessage,
                           | k_FLAG_MULTILINE
                           | k_FLAG_UTF8
                           | k_FLAG_JIT;
+    (void) VALID_FLAGS;
 
     BSLS_ASSERT(0 == (flags & ~VALID_FLAGS));
 
