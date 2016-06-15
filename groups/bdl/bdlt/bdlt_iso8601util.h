@@ -139,8 +139,8 @@ BSLS_IDENT("$Id: $")
 // optional 'Iso8601UtilConfiguration' argument).  Moreover, the process-wide
 // configuration has no effect on parsing either.  Instead, the parse methods
 // automatically accept '.' or ',' as the decimal sign in fractional seconds,
-// and treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
-// denoting UTC).
+// and treat '+00:00', '+0000', 'Z', and 'z' as equivalent zone designators
+// (all denoting UTC).
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -295,9 +295,11 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // The syntax description below summarizes the ISO 8601 string representations
 // supported by this component.  Although not quoted (for readability),
-// '[+-:.,TZ]' are literal characters that can occur in ISO 8601 strings.  The
-// characters '[YMDhms]' each denote a decimal digit, '{}' brackets optional
-// elements, '()' is used for grouping, and '|' separates alternatives:
+// '[+-:.,TtZz]' are literal characters that can occur in ISO 8601 strings.
+// Furthermore, for clarity, the lowercase 't' and 'z' are omitted from the
+// specifications below, including in the method documentation.  The characters
+// '[YMDhms]' each denote a decimal digit, '{}' brackets optional elements,
+// '()' is used for grouping, and '|' separates alternatives:
 //..
 // <Generated Date>        ::=  <DATE>
 //
