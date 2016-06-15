@@ -25,6 +25,15 @@ BSLS_IDENT("$Id: $")
 
 #include <typeinfo>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// We have traditionally imported names from <exception> under the assumption
+// that <typeinfo> must include <exception> because <typeinfo> defines classes
+// derived from std::exception.  But we have encountered runtimes where this is
+// not so, nor is this required by the standard, so we explicitly include
+// <exception> if we are going to import its names.
+#include <exception>
+#endif
+
 namespace bsl
 {
     // Import selected symbols into bsl namespace
