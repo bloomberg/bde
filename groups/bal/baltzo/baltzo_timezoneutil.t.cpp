@@ -16,9 +16,10 @@
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 
-#include <bdlt_iso8601util.h>
+#include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_iso8601util.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -63,8 +64,12 @@ using namespace bsl;
 // [ 3] loadLocalTimePeriod(LclTmPeriod *, const DatetmTz&, const ch *);
 // [ 2] loadLocalTimePeriodForUtc(LclTmPeriod *, const ch *, const Date...
 // [ 7] addInterval(LclDatetm *, const LclDatetm&, const TimeInterval&);
+// [10] now(DatetmTz *, const ch *);
+// [10] now(LclDatetm *, const ch *);
 // [ 9] validateLocalTime(bool * result, const LclDatetm& lcTime);
 // [ 9] validateLocalTime(bool * result, const DatetmTz&, const char *TZ);
+// ----------------------------------------------------------------------------
+// [11] USAGE EXAMPLE
 // ============================================================================
 
 // ============================================================================
@@ -928,7 +933,7 @@ int main(int argc, char *argv[])
     baltzo::DefaultZoneinfoCache::setDefaultCache(&testCache);
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -1190,6 +1195,94 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // CLASS METHOD 'now'
+        //
+        // Concerns:
+        //: 1 The method returns the current local time in the supplied time
+        //:   zone.
+        //:
+        //: 2 This method returns a non-zero value when given a bogus id.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Obtain a time from 'bdlt::CurrentTime', obtain test values from
+        //:   'now', then obtain a second time from 'bdlt::CurrentTime'.
+        //:   Verify that the test values have the same utc offset as returned
+        //:   by 'utcToLocalTime' for the current time, and that the 
+        //:   UTC value for the test times is between the first and second
+        //:   call to get the current time.  (C-1)
+        //: 
+        //: 2 Test that a non-zero value is returned with a time zone id that
+        //:   does not exist. (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
+        //:   macros). (C-3)
+        //
+        // Testing:
+        //   'now(DatetmTz *, const char *TZ);'
+        //   'now(LclDatetm *, const char *TZ);'
+        // --------------------------------------------------------------------
+        if (verbose) cout << "CLASS METHOD 'now.'" << endl
+                          << "===================" << endl;
+
+
+        if (verbose) cout << "\nTesting return value." << endl;
+        {
+            bdlt::Datetime start = bdlt::CurrentTime::utc();
+            bdlt::DatetimeTz startNY;
+            ASSERT(0 == Obj::convertUtcToLocalTime(&startNY, NY, start));
+
+            bdlt::DatetimeTz      x; const bdlt::DatetimeTz&      X = x;
+            baltzo::LocalDatetime y; const baltzo::LocalDatetime& Y = y;
+            ASSERT(0 == Obj::now(&x, NY));
+            ASSERT(0 == Obj::now(&y, NY));
+            
+            bdlt::Datetime end = bdlt::CurrentTime::utc();
+
+            ASSERT(startNY.offset() == X.offset());
+            ASSERT(startNY.offset() == Y.datetimeTz().offset());
+
+            ASSERT(start <= X.utcDatetime() && X.utcDatetime() <= end);
+
+            bdlt::Datetime utcY = Y.datetimeTz().utcDatetime();
+            ASSERT(start <= utcY && utcY <= end);            
+        }
+        
+        if (verbose) cout << "\nTesting an invalid time zone id." << endl;
+        {
+            // Test with an invalid time zone id.
+
+            LogVerbosityGuard guard;
+
+            bdlt::DatetimeTz result;
+            ASSERT(EUID == Obj::now(&result, "bogusId"));
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'now' class method" << endl;
+            {
+                baltzo::LocalDatetime LCL_TIME;
+                bdlt::DatetimeTz      TIME_TZ;
+                const char            TZ_ID[] = "America/New_York";
+
+                ASSERT_PASS(Obj::now(&LCL_TIME, TZ_ID));
+                ASSERT_FAIL(Obj::now((baltzo::LocalDatetime *)0, TZ_ID));
+                ASSERT_FAIL(Obj::now(&LCL_TIME, 0));
+
+                ASSERT_SAFE_PASS(Obj::now(&TIME_TZ, TZ_ID));
+                ASSERT_SAFE_FAIL(Obj::now((bdlt::DatetimeTz *)0, TZ_ID));
+                ASSERT_SAFE_FAIL(Obj::now(&TIME_TZ, 0));
+            }
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'validateLocalTime'
@@ -1229,10 +1322,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTest invalid 'timeZoneId'." << endl;
         {
-            const bdlt::DatetimeTz    TIME_TZ(bdlt::Datetime(2011, 1, 1), 0);
-            const char               BOGUS_ID[] = "bogusId";
+            const bdlt::DatetimeTz      TIME_TZ(bdlt::Datetime(2011, 1, 1), 0);
+            const char                  BOGUS_ID[] = "bogusId";
             const baltzo::LocalDatetime LCL_TIME(TIME_TZ, BOGUS_ID);
-            bool                     result;
+            bool                        result;
 
             ASSERT(EUID ==
                          Obj::validateLocalTime(&result, TIME_TZ, BOGUS_ID));
