@@ -1,8 +1,8 @@
-// bdlt_iso8601utilconfiguration.cpp                                  -*-C++-*-
-#include <bdlt_iso8601utilconfiguration.h>
+// bdlt_fixutilconfiguration.cpp                                      -*-C++-*-
+#include <bdlt_fixutilconfiguration.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_iso8601utilconfiguration_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlt_fixutilconfiguration_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
@@ -11,26 +11,16 @@ BSLS_IDENT_RCSID(bdlt_iso8601utilconfiguration_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-                      // ------------------------------
-                      // class Iso8601UtilConfiguration
-                      // ------------------------------
+                        // --------------------------
+                        // class FixUtilConfiguration
+                        // --------------------------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int
-Iso8601UtilConfiguration::s_defaultConfiguration = { 3 };
+FixUtilConfiguration::s_defaultConfiguration = { 3 };
 
 // MANIPULATORS
-void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
-    }
-    else {
-        d_configurationMask &= ~k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT;
-    }
-}
-
-void Iso8601UtilConfiguration::setFractionalSecondPrecision(int value)
+void FixUtilConfiguration::setFractionalSecondPrecision(int value)
 {
     BSLS_ASSERT(0 <= value);
     BSLS_ASSERT(6 >= value);
@@ -39,17 +29,7 @@ void Iso8601UtilConfiguration::setFractionalSecondPrecision(int value)
                               & (~k_FRACTIONAL_SECOND_PRECISION_MASK)) | value;
 }
 
-void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
-{
-    if (value) {
-        d_configurationMask |= k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
-    }
-    else {
-        d_configurationMask &= ~k_USE_COMMA_FOR_DECIMAL_SIGN_BIT;
-    }
-}
-
-void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(bool value)
+void FixUtilConfiguration::setUseZAbbreviationForUtc(bool value)
 {
     if (value) {
         d_configurationMask |= k_USE_Z_ABBREVIATION_FOR_UTC_BIT;
@@ -64,17 +44,14 @@ void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(bool value)
                                   // Aspects
 
 bsl::ostream&
-Iso8601UtilConfiguration::print(bsl::ostream& stream,
-                                int           level,
-                                int           spacesPerLevel) const
+FixUtilConfiguration::print(bsl::ostream& stream,
+                            int           level,
+                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("fractionalSecondPrecision",
                                                   fractionalSecondPrecision());
-    printer.printAttribute("omitColonInZoneDesignator",
-                                                  omitColonInZoneDesignator());
-    printer.printAttribute("useCommaForDecimalSign", useCommaForDecimalSign());
     printer.printAttribute("useZAbbreviationForUtc", useZAbbreviationForUtc());
     printer.end();
 
@@ -84,14 +61,12 @@ Iso8601UtilConfiguration::print(bsl::ostream& stream,
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& bdlt::operator<<(bsl::ostream&                   stream,
-                               const Iso8601UtilConfiguration& object)
+bsl::ostream& bdlt::operator<<(bsl::ostream&               stream,
+                               const FixUtilConfiguration& object)
 {
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
     printer.printValue(object.fractionalSecondPrecision());
-    printer.printValue(object.omitColonInZoneDesignator());
-    printer.printValue(object.useCommaForDecimalSign());
     printer.printValue(object.useZAbbreviationForUtc());
     printer.end();
 

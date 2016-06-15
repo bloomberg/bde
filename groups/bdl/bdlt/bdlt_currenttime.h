@@ -150,10 +150,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_epochutil.h>
 #endif
 
-#ifndef INCLUDED_BDLT_INTERVALCONVERSIONUTIL
-#include <bdlt_intervalconversionutil.h>
-#endif
-
 #ifndef INCLUDED_BDLT_LOCALTIMEOFFSET
 #include <bdlt_localtimeoffset.h>
 #endif
@@ -177,9 +173,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                             // ==================
-                             // struct CurrentTime
-                             // ==================
+                            // ==================
+                            // struct CurrentTime
+                            // ==================
 
 struct CurrentTime {
     // This 'struct' provides a namespace for current-time-retrieval procedures
@@ -245,7 +241,7 @@ struct CurrentTime {
 };
 
 // ============================================================================
-//                          INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                             // -----------------
@@ -275,8 +271,7 @@ bsls::TimeInterval CurrentTime::now()
 inline
 Datetime CurrentTime::utc()
 {
-    return EpochUtil::epoch() +
-           IntervalConversionUtil::convertToDatetimeInterval(now());
+    return EpochUtil::epoch() + now();
 }
 
                         // ** callback functions **
@@ -311,7 +306,7 @@ CurrentTime::setCurrentTimeCallback(CurrentTimeCallback callback)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

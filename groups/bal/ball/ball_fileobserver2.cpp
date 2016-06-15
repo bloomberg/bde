@@ -360,7 +360,11 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
     *ptr = '\n';
     ++ptr;
 
-    int length = timestamp.printToBuffer(ptr, sizeof(buffer) - 1);
+    const int fractionalSecondPrecision = 3;
+
+    int length = timestamp.printToBuffer(ptr,
+                                         sizeof(buffer) - 1,
+                                         fractionalSecondPrecision);
     ptr += length;
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)

@@ -20,26 +20,31 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 28 components having 7 levels of physical
+ The 'bdlt' package currently has 30 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdlt_currenttime
-     bdlt_defaultcalendarcache
+ 10. bdlt_defaultcalendarcache
+
+  9. bdlt_calendarcache
+
+  8. bdlt_currenttime
+
+  7. bdlt_localtimeoffset
+     bdlt_fixutil
      bdlt_iso8601util
 
-  6. bdlt_calendarcache
+  6. bdlt_datetimeutil
      bdlt_datetimetz
-     bdlt_localtimeoffset
 
   5. bdlt_calendar
      bdlt_calendarloader
-     bdlt_datetimeutil
+     bdlt_datetime
      bdlt_datetz
      bdlt_epochutil
 
-  4. bdlt_datetime
+  4. bdlt_datetimeimputil
      bdlt_dateutil
      bdlt_packedcalendar
      bdlt_timetz
@@ -54,6 +59,7 @@
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
+     bdlt_fixutilconfiguration
      bdlt_iso8601utilconfiguration
      bdlt_monthofyear
      bdlt_posixdateimputil                               !DEPRECATED!
@@ -84,6 +90,9 @@
 : 'bdlt_datetime':
 :      Provide a value-semantic type representing both date and time.
 :
+: 'bdlt_datetimeimputil':
+:      Provide constants useful for encoding datetimes.
+:
 : 'bdlt_datetimeinterval':
 :      Provide a representation of an interval of time.
 :
@@ -113,6 +122,12 @@
 :
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
+:
+: 'bdlt_fixutil':
+:      Provide conversions between date/time objects and FIX strings.
+:
+: 'bdlt_fixutilconfiguration':
+:      Provide an attribute class to configure FIX string generation.
 :
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
@@ -159,15 +174,15 @@
 / - - - - - - - - - - - - - - - - - - - - -
  The 'bdlt' package defines 'bdlt::Date' to represent date values, 'bdlt::Time'
  to represent time values (to millisecond resolution) within a day, and the
- combined 'bdlt::Datetime', to represent all points in time (to millisecond
+ combined 'bdlt::Datetime' to represent all points in time (to microsecond
  resolution) across the range of date values.  The ranges of each type are
  shown below.
 ..
   Type     Range
-  -------  ------------------------------------------------------
-  Date     [0001/01/01              ..  9999/12/31              ]
-  Time     [           00:00:00.000 ..             23:59:59.999 ]
-  Datetime [0001/01/01_00:00:00.000 ..  9999/12/31_23:59:59.999 ]
+  -------  ------------------------------------------------------------
+  Date     [0001/01/01                 ..  9999/12/31                 ]
+  Time     [           00:00:00.000    ..             23:59:59.999    ]
+  Datetime [0001/01/01_00:00:00.000000 ..  9999/12/31_23:59:59.999999 ]
 ..
  Further note that:
 : o The date values follow the Unix (POSIX) calendar (see {'bdlt_date'}.
@@ -207,9 +222,9 @@
 :   arithmetic operations using 'bdlt::Time' values.
 
  Similarly, the 'bdlt::Datetime' class defines one singular value,
- "0001/01/01_24:00:00.000", which happens to be the default constructed value.
- The restrictions and semantics of this value parallel those of the singular
- 'bdlt::Time' value.
+ "0001/01/01_24:00:00.000000", which happens to be the default constructed
+ value.  The restrictions and semantics of this value parallel those of the
+ singular 'bdlt::Time' value.
 
  Some applications use the singular values of these types as placeholders when
  a value must be provided but is not known.  (See 'bdetu_unset'.)
@@ -305,7 +320,7 @@
  provides functions that convert 'bdlt::Datetime' values (in UTC) -- understood
  to represent an absolute date and time in UTC -- to equivalent difference
  values measured from the start of the Unix standard epoch
- (1970/01/01_00:00:00.000 UTC).
+ (1970/01/01_00:00:00.000000 UTC).
 ..
   Component          Conversions
   -----------------  --------------------------------------------------------
@@ -363,7 +378,7 @@
 ..
  and find:
 ..
-  04OCT2024_00:00:00.000
+  04OCT2024_00:00:00.000000
 ..
  The above value represents UTC date and time values.  We, however, plan to
  celebrate the milestone in New York City.  Thus, we must obtain the local time
@@ -384,7 +399,7 @@
 ..
  which is one calendar day earlier:
 ..
-  03OCT2024_20:00:00.000-0400
+  03OCT2024_20:00:00.000000-0400
 ..
  Notice that the local time offset was expressed in units of minutes for the
  constructor of 'bdlt::DatetimeTz', but the class 'print' method shows that

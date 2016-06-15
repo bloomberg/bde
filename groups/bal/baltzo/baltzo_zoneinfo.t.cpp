@@ -2889,24 +2889,24 @@ int main(int argc, char *argv[])
         //LINE L SPL  SPEC   EXP
         //---- - ---  ----   ---
 
-        { L_,  0,  0, "yB",  "["                                  NL
-                             "time = 01JAN1970_00:33:20.000"      NL
+        { L_,  0,  0, "yB",  "["                                        NL
+                             "time = 01JAN1970_00:33:20.000000"         NL
                              "descriptor = "
                              + descriptorPrintOutput(DB, -1, 0) +
-                             "]"                                  NL
+                             "]"                                        NL
                                                                              },
 
-        { L_,  0,  1, "yB",  "["                                  NL
-                             " time = 01JAN1970_00:33:20.000"     NL
+        { L_,  0,  1, "yB",  "["                                        NL
+                             " time = 01JAN1970_00:33:20.000000"        NL
                              " descriptor = "
                              + descriptorPrintOutput(DB, -1, 1) +
-                             "]"                                  NL
+                             "]"                                        NL
                                                                              },
 
-        { L_,  0, -1, "yB",  "["                                   SP
-                             "time = 01JAN1970_00:33:20.000"       SP
+        { L_,  0, -1, "yB",  "["                                         SP
+                             "time = 01JAN1970_00:33:20.000000"          SP
                              "descriptor = "
-                             + descriptorPrintOutput(DB, -1, -1) + SP
+                             + descriptorPrintOutput(DB, -1, -1) +       SP
                              "]"
                                                                              },
 
@@ -2917,47 +2917,47 @@ int main(int argc, char *argv[])
         //LINE L SPL  SPEC   EXP
         //---- - ---  ----   ---
 
-        { L_,  3,  0, "yB",  "["                                      NL
-                             "time = 01JAN1970_00:33:20.000"          NL
+        { L_,  3,  0, "yB",  "["                                         NL
+                             "time = 01JAN1970_00:33:20.000000"          NL
                              "descriptor = "
                              + descriptorPrintOutput(DB, -4, 0) +
-                             "]"                                      NL
+                             "]"                                         NL
                                                                              },
 
-        { L_,  3,  2, "yB",  "      ["                                NL
-                             "        time = 01JAN1970_00:33:20.000"  NL
+        { L_,  3,  2, "yB",  "      ["                                   NL
+                             "        time = 01JAN1970_00:33:20.000000"  NL
                              "        descriptor = "
                              + descriptorPrintOutput(DB, -4, 2) +
-                             "      ]"                                NL
+                             "      ]"                                   NL
                                                                              },
 
-        { L_,  3, -2, "yB",  "      ["                                SP
-                             "time = 01JAN1970_00:33:20.000"          SP
+        { L_,  3, -2, "yB",  "      ["                                   SP
+                             "time = 01JAN1970_00:33:20.000000"          SP
                              "descriptor = "
-                             + descriptorPrintOutput(DB, -4, -2) +    SP
+                             + descriptorPrintOutput(DB, -4, -2) +       SP
                              "]"
                                                                              },
 
 
-        { L_, -3,  0, "yB",  "["                                      NL
-                             "time = 01JAN1970_00:33:20.000"          NL
+        { L_, -3,  0, "yB",  "["                                         NL
+                             "time = 01JAN1970_00:33:20.000000"          NL
                              "descriptor = "
                              + descriptorPrintOutput(DB, -4, 0) +
-                             "]"                                      NL
+                             "]"                                         NL
                                                                              },
 
 
-        { L_, -3,  2, "yB",  "["                                      NL
-                             "        time = 01JAN1970_00:33:20.000"  NL
+        { L_, -3,  2, "yB",  "["                                         NL
+                             "        time = 01JAN1970_00:33:20.000000"  NL
                              "        descriptor = "
                              + descriptorPrintOutput(DB, -4, 2) +
-                             "      ]"                                NL
+                             "      ]"                                   NL
                                                                              },
 
-        { L_, -3, -2, "yB",  "["                                      SP
-                             "time = 01JAN1970_00:33:20.000"          SP
+        { L_, -3, -2, "yB",  "["                                         SP
+                             "time = 01JAN1970_00:33:20.000000"          SP
                              "descriptor = "
-                             + descriptorPrintOutput(DB, -4, -2) +     SP
+                             + descriptorPrintOutput(DB, -4, -2) +       SP
                              "]"
                                                                              },
         // -----------------------------------------------------------------
@@ -2967,11 +2967,11 @@ int main(int argc, char *argv[])
         //LINE L SPL  SPEC   EXP
         //---- - ---  ----   ---
 
-        { L_,  2,  3, "xB",  "      ["                                 NL
-                             "         time = 01JAN1970_00:16:40.000"  NL
+        { L_,  2,  3, "xB",  "      ["                                    NL
+                             "         time = 01JAN1970_00:16:40.000000"  NL
                              "         descriptor = "
                              + descriptorPrintOutput(DB, -3, 3) +
-                             "      ]"                                 NL
+                             "      ]"                                    NL
                                                                              },
 
 
@@ -2983,19 +2983,19 @@ int main(int argc, char *argv[])
         //---- - ---  ----   ---
 
         {
-            L_,
-            -9,
-            -9,
-            "yB",
-            "[ 01JAN1970_00:33:20.000 " + descriptorOperatorOutput(DB) + " ]"
+        L_,
+        -9,
+        -9,
+        "yB",
+        "[ 01JAN1970_00:33:20.000000 " + descriptorOperatorOutput(DB) + " ]"
         },
 
         {
-            L_,
-            -9,
-            -9,
-            "nD",
-            "[ 01JAN1970_00:00:00.000 " + descriptorOperatorOutput(DD) + " ]"
+        L_,
+        -9,
+        -9,
+        "nD",
+        "[ 01JAN1970_00:00:00.000000 " + descriptorOperatorOutput(DD) + " ]"
         },
 
 #undef NL
