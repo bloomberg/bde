@@ -113,7 +113,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // of the setting of this option.
 //
 ///JIT Compiling optimization
-///----------------------------
+///--------------------------
 // Just-in-time compiling is a heavyweight optimization that can greatly speed
 // up pattern matching. However, it comes at the cost of extra processing
 // before the match is performed, so it is of most benefit when the same
@@ -160,6 +160,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Note that the test was run on Linux / Intel Xeon CPU (3.47GHz, 64-bit),
 // compiled with gcc-4.8.2 in optimized mode.
+//
+///Note on memory allocation exceptions
+///------------------------------------
+// PCRE2 library supports memory allocation/deallocation functions supplied by
+// the client.  'bdlpcre_regex' provides wrappers around bslma allocators which
+// are called from the context of the PCRE2 library (C linkage).  Any
+// exceptions thrown during memory allocation are catched by the wrapper
+// functions and are not propagated to the PCRE2 library.
 //
 ///Usage
 ///-----
