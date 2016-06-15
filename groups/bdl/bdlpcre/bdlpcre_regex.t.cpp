@@ -2411,8 +2411,8 @@ int main(int argc, char *argv[])
             const char  PATTERN[] = "(abc)*";
             const char  SUBJECT[] = "XXXabcZZZ";
 
-            bslstl::StringRef              p;
-            bsl::vector<bslstl::StringRef> v;
+            bslstl::StringRef              p, *zp = 0;
+            bsl::vector<bslstl::StringRef> v, *zv = 0;
 
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0));
 
@@ -2420,8 +2420,8 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(    0, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw( 0, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(   zp, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
@@ -2448,8 +2448,8 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(    0, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw( 0, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(   zv, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
@@ -2796,8 +2796,8 @@ int main(int argc, char *argv[])
             const char  PATTERN[] = "(abc)*";
             const char  SUBJECT[] = "XXXabcZZZ";
 
-            bsl::pair<size_t, size_t>               p;
-            bsl::vector<bsl::pair<size_t, size_t> > v;
+            bsl::pair<size_t, size_t>               p, *zp = 0;
+            bsl::vector<bsl::pair<size_t, size_t> > v, *zv = 0;
 
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0));
 
@@ -2828,8 +2828,8 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(    0, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw( 0, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(   zp, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
@@ -2856,8 +2856,8 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(    0, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw( 0, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.match(   zv, SUBJECT,  9,  1));
+                ASSERT_SAFE_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));

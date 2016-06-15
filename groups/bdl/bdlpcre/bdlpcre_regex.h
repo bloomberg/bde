@@ -166,7 +166,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // PCRE2 library supports memory allocation/deallocation functions supplied by
 // the client.  'bdlpcre_regex' provides wrappers around bslma allocators which
 // are called from the context of the PCRE2 library (C linkage).  Any
-// exceptions thrown during memory allocation are catched by the wrapper
+// exceptions thrown during memory allocation are caught by the wrapper
 // functions and are not propagated to the PCRE2 library.
 //
 ///Usage
