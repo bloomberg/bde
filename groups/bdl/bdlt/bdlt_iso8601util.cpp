@@ -316,7 +316,7 @@ int parseZoneDesignator(const char **nextPos,
 
     const char sign = *p++;  // store and skip '(+|-|Z)'
 
-    if ('Z' == sign) {
+    if ('Z' == sign || 'z' == sign) {
         *minuteOffset = 0;
         *nextPos      = p;
 
@@ -1371,13 +1371,13 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     int year, month, day;
 
-    if (0   != parseDate(&p, &year, &month, &day, p, end)
-     || p   == end
-     || 'T' != *p) {
+    if (0 != parseDate(&p, &year, &month, &day, p, end)
+     || p == end
+     || ('T' != *p && 't' != *p)) {
 
         return -1;                                                    // RETURN
     }
-    ++p;  // skip 'T'
+    ++p;  // skip 'T' or 't'
 
     // 2. Parse time.
 

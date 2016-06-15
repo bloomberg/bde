@@ -493,7 +493,6 @@ const BadZoneDataRow BAD_ZONE_DATA[] =
     { L_,   "+"                      },
     { L_,   "-"                      },
     { L_,   "T"                      },
-    { L_,   "z"                      },
 
     { L_,   "+0"                     },  // length = 2
     { L_,   "-0"                     },
@@ -1166,6 +1165,19 @@ if (veryVerbose)
             }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
 
+        {
+            // verify 't' and 'z' are accepted
+
+            bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
+            bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
+
+            ASSERT(0 == Util::parse(&mX, "0001-02-03t01:02:03z", 20));
+            ASSERT(X == bdlt::Datetime(1, 2, 3, 1, 2, 3));
+
+            ASSERT(0 == Util::parse(&mZ, "0001-02-03t01:02:03z", 20));
+            ASSERT(Z == bdlt::DatetimeTz(bdlt::Datetime(1, 2, 3, 1, 2, 3), 0));
+        }
+
         if (verbose) cout << "\nInvalid strings." << endl;
         {
             bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
@@ -1808,6 +1820,19 @@ if (veryVerbose)
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
 
+        {
+            // verify 'z' is accepted
+
+            bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
+            bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
+
+            ASSERT(0 == Util::parse(&mX, "01:02:03z", 9));
+            ASSERT(X == bdlt::Time(1, 2, 3));
+
+            ASSERT(0 == Util::parse(&mZ, "01:02:03z", 9));
+            ASSERT(Z == bdlt::TimeTz(bdlt::Time(1, 2, 3), 0));
+        }
+
         if (verbose) cout << "\nInvalid strings." << endl;
         {
             bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
@@ -2226,6 +2251,19 @@ if (veryVerbose)
                 }  // loop over 'CNFG_DATA'
             }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
+
+        {
+            // verify 'z' is accepted
+
+            bdlt::Date   mX(XX);  const bdlt::Date&   X = mX;
+            bdlt::DateTz mZ(ZZ);  const bdlt::DateTz& Z = mZ;
+
+            ASSERT(0 == Util::parse(&mX, "0001-02-03z", 11));
+            ASSERT(X == bdlt::Date(1, 2, 3));
+
+            ASSERT(0 == Util::parse(&mZ, "0001-02-03z", 11));
+            ASSERT(Z == bdlt::DateTz(bdlt::Date(1, 2, 3), 0));
+        }
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
