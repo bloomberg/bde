@@ -296,10 +296,11 @@ BSLS_IDENT("$Id: $")
 // The syntax description below summarizes the ISO 8601 string representations
 // supported by this component.  Although not quoted (for readability),
 // '[+-:.,TtZz]' are literal characters that can occur in ISO 8601 strings.
-// Furthermore, for clarity, the lowercase 't' and 'z' are omitted from the
-// specifications below, including in the method documentation.  The characters
-// '[YMDhms]' each denote a decimal digit, '{}' brackets optional elements,
-// '()' is used for grouping, and '|' separates alternatives:
+// Furthermore, for clarity, the (rarely used) lowercase 't' and 'z' characters
+// are omitted from the specifications below, as well as from the
+// function-level documentation.  The characters '[YMDhms]' each denote a
+// decimal digit, '{}' brackets optional elements, '()' is used for grouping,
+// and '|' separates alternatives:
 //..
 // <Generated Date>        ::=  <DATE>
 //
