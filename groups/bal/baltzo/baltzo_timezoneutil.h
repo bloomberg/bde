@@ -445,6 +445,10 @@ BSLS_IDENT("$Id: $")
 #include <baltzo_localdatetime.h>
 #endif
 
+#ifndef INCLUDED_BDLT_CURRENTTIME
+#include <bdlt_currenttime.h>
+#endif
+
 #ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
 #endif
@@ -489,6 +493,20 @@ struct TimeZoneUtil {
 
 
     // CLASS METHODS
+    static int addInterval(LocalDatetime             *result,
+                           const LocalDatetime&       originalTime,
+                           const bsls::TimeInterval&  interval);
+        // Load, into the specified 'result', the local time value that is the
+        // specified 'interval' in the future of the specified 'originalTime'
+        // (in the time zone 'originalTime.timeZoneId()').  Return 0 on
+        // success, and a non-zero value with no effect otherwise.  A return
+        // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
+        // was not recognized.  The resulting local-time is equivalent to
+        // adding 'interval' to 'originalTime.datetimeTz().utcDatetime()' and
+        // converting the result into the local time of
+        // 'originalTime.timeZoneId()'.
+
+
     static int convertUtcToLocalTime(LocalDatetime         *result,
                                      const char            *targetTimeZoneId,
                                      const bdlt::Datetime&  utcTime);
@@ -651,19 +669,13 @@ struct TimeZoneUtil {
         // otherwise.  A return value of 'ErrorCode::k_UNSUPPORTED_ID'
         // indicates that 'timeZoneId' was not recognized.
 
-
-    static int addInterval(LocalDatetime             *result,
-                           const LocalDatetime&       originalTime,
-                           const bsls::TimeInterval&  interval);
-        // Load, into the specified 'result', the local time value that is the
-        // specified 'interval' in the future of the specified 'originalTime'
-        // (in the time zone 'originalTime.timeZoneId()').  Return 0 on
-        // success, and a non-zero value with no effect otherwise.  A return
-        // value of 'ErrorCode::k_UNSUPPORTED_ID' indicates that 'timeZoneId'
-        // was not recognized.  The resulting local-time is equivalent to
-        // adding 'interval' to 'originalTime.datetimeTz().utcDatetime()' and
-        // converting the result into the local time of
-        // 'originalTime.timeZoneId()'.
+    static int now(bdlt::DatetimeTz *result, const char *timeZoneId);
+    static int now(LocalDatetime *result, const char  *timeZoneId);
+        // Load, into the specified 'result', the current local time value
+        // in the time zone indicated by the specified 'timeZoneId'.  Return 0
+        // on success, and a non-zero value with no effect otherwise.  A
+        // return value of 'ErrorCode::k_UNSUPPORTED_ID' indicates
+        // that 'timeZoneid' is not recognized.
 
     static int validateLocalTime(bool                    *result,
                                  const bdlt::DatetimeTz&  localTime,
@@ -838,6 +850,26 @@ int baltzo::TimeZoneUtil::loadLocalTimePeriod(
     return loadLocalTimePeriodForUtc(result,
                                      timeZoneId,
                                      localTime.utcDatetime());
+}
+
+inline
+int baltzo::TimeZoneUtil::now(bdlt::DatetimeTz *result, const char *timeZoneId)
+{
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(timeZoneId);
+
+    bdlt::Datetime utcNow = bdlt::CurrentTime::utc();
+    return convertUtcToLocalTime(result, timeZoneId, utcNow);
+}
+
+inline
+int baltzo::TimeZoneUtil::now(LocalDatetime *result, const char *timeZoneId)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(timeZoneId);
+
+    bdlt::Datetime utcNow = bdlt::CurrentTime::utc();
+    return convertUtcToLocalTime(result, timeZoneId, utcNow);
 }
 
 inline

@@ -23,6 +23,24 @@ namespace BloombergLP {
                              // ------------------
 
 // CLASS METHODS
+int baltzo::TimeZoneUtil::addInterval(LocalDatetime             *result,
+                                      const LocalDatetime&       originalTime,
+                                      const bsls::TimeInterval&  interval)
+{
+    BSLS_ASSERT(result);
+
+    bdlt::DatetimeInterval datetimeInterval;
+    datetimeInterval =
+        bdlt::IntervalConversionUtil::convertToDatetimeInterval(interval);
+
+    bdlt::Datetime utcTime = originalTime.datetimeTz().utcDatetime();
+    utcTime += datetimeInterval;
+
+    return convertUtcToLocalTime(result,
+                                 originalTime.timeZoneId().c_str(),
+                                 utcTime);
+}
+
 int baltzo::TimeZoneUtil::convertUtcToLocalTime(
                                        LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
@@ -208,26 +226,6 @@ int baltzo::TimeZoneUtil::loadLocalTimePeriodForUtc(
                                   utcTime,
                                   DefaultZoneinfoCache::defaultCache());
 }
-
-int baltzo::TimeZoneUtil::addInterval(LocalDatetime             *result,
-                                      const LocalDatetime&       originalTime,
-                                      const bsls::TimeInterval&  interval)
-{
-    BSLS_ASSERT(result);
-
-    bdlt::DatetimeInterval datetimeInterval;
-    datetimeInterval =
-        bdlt::IntervalConversionUtil::convertToDatetimeInterval(interval);
-
-    bdlt::Datetime utcTime = originalTime.datetimeTz().utcDatetime();
-    utcTime += datetimeInterval;
-
-    return convertUtcToLocalTime(result,
-                                 originalTime.timeZoneId().c_str(),
-                                 utcTime);
-}
-
-
 
 int baltzo::TimeZoneUtil::validateLocalTime(
                                            bool                    *result,
