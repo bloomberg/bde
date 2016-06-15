@@ -134,6 +134,101 @@ BSLS_IDENT("$Id$")
 // from this format.  Currently, only 64-bit decimal values are supported by
 // this encoding format.
 //
+///Conversion from Binary to Decimal
+///---------------------------------
+// The desire to convert numbers from binary to decimal format is fraught with
+// misunderstanding, and is often accompanied by ill-conceived flailing to
+// "correct rounding errors" and otherwise coerce results into aesthetically
+// pleasing forms.  In the Bloomberg environment, there is the additional
+// complication of IBM / Perkin-Elmer / Interdata floating point.  This is a
+// floating-point format that uses a base-16 rather than a base-2 underlying
+// representation, and the Bloomberg environment contains numbers that began as
+// decimals, were converted to IBM format, and then were converted from IBM
+// format to IEEE format.
+//
+// When a decimal is converted to floating-point, the result is the
+// representable binary number nearest in value to that decimal.  If there are
+// two such, the one whose least significant bit is 0 is generally chosen.
+// (This is also true for conversion to Perkin-Elmer format, but when the
+// Perkin-Elmer float is then converted to IEEE float, the resulting value is
+// not the same as converting the decimal to IEEE float directly, because the
+// Perkin-Elmer format can lose up to three bits of representation compared to
+// the IEEE format.)  Unless the decimal value is exactly a multiple of a power
+// of two (e.g., 3.4375 = 55 * 1/16), the converted binary value cannot equal
+// the decimal value, it can only be close.
+//
+// There is a maximum number of significant decimal digits such that every
+// decimal value in the representable range of the binary format with no more
+// than this number of digits converts to a unique binary floating-point value.
+// For example, that number is six for type 'float', meaning that there are
+// some pairs of seven-significant-digit decimal values that convert to the
+// same 'float' value, such as 8589973000 and 8589974000.  There are restricted
+// ranges over which that maximum can be higher - for example, every decimal
+// value with no more than seven significant digits between 1e-3 and 8.5e9 has
+// a unique nearest 'float' value.
+//
+// Because binary floating-point values are generally not equal to their
+// decimal progenitors, "converting from binary to decimal" does not have a
+// single meaning, and programmers who contemplate such operations often have
+// different meanings in mind.
+//
+// 1) Every binary floating-point value can be expressed exactly as a decimal.
+//    For example, the decimal value .1 converts to the 32-bit IEEE float value
+//    0x3DCCCCCD, which has the exact value .100000001490116119384765625.
+//
+// 2) Provided that conversion from decimal to binary is accurate as described
+//    above, every binary floating-point value has a corresponding shortest
+//    decimal value which converts to it exactly.  For example. given the
+//    binary value 0x3DCCCCCD above, that corresponding decimal value is
+//    (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the
+//    shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the
+//    shortest decimal .010000001.
+//
+// 3) Given a binary floating-point value and a number of significant digits,
+//    there is a decimal number with that many digits closest in value to the
+//    binary floating-point number.  (There may be two if the binary value is
+//    exactly halfway between them.) For example, using six significant digits,
+//    that decimal value is .1 for each of the values 0x3DCCCCCC-0x3DCCCCCE,
+//    while for seven digits that value remains .1 for 0x3DCCCCCD-0x3DCCCCCE
+//    but is .09999999 for 0x3DCCCCCC.
+//
+// 4) There is a smallest number of digits such that the closest corresponding
+//    decimal value with that number of digits is unique for every binary
+//    floating-point value.  For example, that number is nine for 'float',
+//    meaning that there are pairs of 'float' values which are each closest to
+//    some eight-significant-digit decimal value, such as 0x4131B848 and
+//    0x4131B849, each of which is closest to the eight-significant-digit value
+//    11.107491, while the former is closer to the nine-significant-digit value
+//    11.1074905 and the latter to 11.1074915.
+//
+// This utility offers two sets of conversion functions from binary to decimal,
+// both suitable when the binary value is known to have been converted from a
+// decimal value with a limited number of significant digits.
+
+// The first set, 'decimal{32,64,128}From{Float,Double}', is useful when it is
+// known that the binary floating-point value originated as a conversion from a
+// decimal value with no more significant digits that can be uniquely
+// represented as a value of the binary type.  When this condition holds, this
+// set of conversions provides conversion (2) above.  (The 'FromFloat' versions
+// implement an extended range permitting seven-significant-digit conversions
+// in that range to be uniquely converted back to decimal.  But that same
+// extended range makes the functions unsuitable for values that passed through
+// a Perkin-Elmer conversion; six-significant-digit values converted this way
+// may re-emerge with a seventh.)
+//
+// The second set.  'restoreDecimal{32,64,128}Digits', requires that the number
+// of significant digits be provided as a parameter.  This set provides
+// conversion (3) above.  For each function in the set, the value provided as
+// the default for the number of digits is the smaller of the one from
+// conversion (4) above or the number of digits that can be held by the result
+// type, (If a 'float' value is known to result from a Perkin-Elmer conversion,
+// the number of digits specified should be 5.)
+//
+// Plain conversion of a decimal floating-point number from a binary number
+// provides conversion (3) from the above set with the number of digits set to
+// the number of digits the destination type can hold.  (Equivalently, this may
+// be considered conversion (1) rounded to the destination size.)
+//
 ///Usage
 ///-----
 // This section shows the intended use of this component.
@@ -470,11 +565,11 @@ struct DecimalConvertUtil {
         // six or seven significant digits.  (This contract does not specify
         // when either is chosen.)
         //
-        // Note that decimal values which have gone through a conversion to IBM
-        // (Perkin-Elmer) floating-point before being converted to IEEE 754
-        // format do not necessarily match the definition of "converted from a
-        // decimal" as specified above, and therefore these functions may not
-        // return those original decimal values.
+        // Note that decimal values which have gone through a conversion to
+        // IBM / Perkin-Elmer / Interdata floating-point before being converted
+        // to IEEE 754 format do not necessarily match the definition of
+        // "converted from a decimal" as specified above, and therefore these
+        // functions may not return those original decimal values.
 
     static Decimal32  restoreDecimal32Digits (float  binary, int digits = 7);
     static Decimal64  restoreDecimal64Digits (float  binary, int digits = 9);
@@ -484,10 +579,10 @@ struct DecimalConvertUtil {
     static Decimal128 restoreDecimal128Digits(double binary, int digits = 17);
         // Return the decimal value with the optionally specified 'digits'
         // number of significant digits closest in value to the specified
-        // 'binary'.  If 'digits' is not specified or is not positive, an
-        // appropriate default is used based on how many digits the target type
-        // can hold and how many digits are necessary to uniquely represent the
-        // 'binary' value.
+        // 'binary'.  If 'digits' is not specified, not positive, or larger
+        // than can be represented in the result type, an appropriate default
+        // is used based on how many digits the target type can hold and how
+        // many digits are necessary to uniquely represent the 'binary' value.
         //
         // Singular values of 'binary' (infinity, NaN, and -0) are converted to
         // equivalent singular values of the destination type, and values of
@@ -495,12 +590,13 @@ struct DecimalConvertUtil {
         // to appropriately signed infinities.
         //
         // Note that if 'binary' originated as a decimal value which was
-        // converted to IBM (Perkin-Elmer / Interdata) floating-point before
+        // converted to IBM / Perkin-Elmer / Interdata floating-point before
         // being converted to IEEE 754, the original decimal value can be
         // recovered by specifying 'digits' to be 6.
         //
-        // Note that when circumstances permit, it is liklely that using the
-        // 'decimalNNFromFloat' functions above will be substantially faster.
+        // Note that when the circumstances described above for using the
+        // 'decimalNNFromFloat' functions hold, it is liklely that using those
+        // functions will be substantially faster.
 
                         // decimalToBID functions
 

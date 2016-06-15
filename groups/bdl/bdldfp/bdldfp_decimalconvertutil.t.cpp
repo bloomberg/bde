@@ -8336,14 +8336,14 @@ int main(int argc, char* argv[])
                 sscanf(s, "%f", &b);
                 Decimal64 d = Util::decimal64FromFloat(b);
                 float t = Util::decimalToFloat(d);
-                ASSERTV(s, d, b, t, b == t);
+                ASSERTV("float", s, d, b, t, b == t);
                 P_(s) P_(d) P_(b) Q("float")
             }
             {
                 double b = strtod(s, 0);
                 Decimal64 d = Util::decimal64FromDouble(b);
                 double t = Util::decimalToDouble(d);
-                ASSERTV(s, d, b, t, b == t);
+                ASSERTV("double", s, d, b, t, b == t);
                 P_(s) P_(d) P_(b) Q("double")
             }
         }
