@@ -1,4 +1,5 @@
 bdlb_arrayutil
+bdlb_bigendian
 bdlb_bitmaskutil
 bdlb_bitstringimputil
 bdlb_bitstringutil
@@ -12,6 +13,9 @@ bdlb_functionoutputiterator
 bdlb_guid
 bdlb_guidutil
 bdlb_hashutil
+bdlb_nullableallocatedvalue
+bdlb_nullablevalue
+bdlb_nulloutputiterator
 bdlb_print
 bdlb_printmethods
 bdlb_random
@@ -20,3 +24,4 @@ bdlb_string
 bdlb_stringrefutil
 bdlb_testinputiterator
 bdlb_tokenizer
+bdlb_variant
