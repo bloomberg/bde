@@ -1,7 +1,6 @@
 // bslstl_hashtableiterator.t.cpp                                     -*-C++-*-
 #include <bslstl_hashtableiterator.h>
 
-#include <bslstl_allocator.h>
 #include <bslstl_bidirectionalnodepool.h>
 
 #include <bslalg_bidirectionallinklistutil.h>
@@ -9,6 +8,7 @@
 #include <bslalg_hashtablebucket.h>
 #include <bslalg_hashtableimputil.h>
 
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -190,7 +190,7 @@ class NodePool {
     // MANIPULATORS
     Node *createNode(int value)
     {
-        return static_cast<Node *>(d_pool.createNode(
+        return static_cast<Node *>(d_pool.emplaceIntoNewNode(
                                                    Ttf::create<VALUE>(value)));
     }
 

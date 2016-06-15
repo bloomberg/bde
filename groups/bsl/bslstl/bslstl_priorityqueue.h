@@ -18,56 +18,58 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Shijin Kong (skong25)
 //
 //@DESCRIPTION: This component defines a class template, 'bsl::priority_queue',
-// holding a container (of a parameterized type 'CONTAINER' containing elements
-// of another parameterized type 'VALUE'), and adapting it to provide
-// highest-priority-first priority queue data structure.  The component takes a
-// third parameterized type 'COMPARATOR' for customized priorities comparison
-// between two elements.
+// holding a container (of a template parameter type, 'CONTAINER', containing
+// elements of another template parameter type, 'VALUE'), and adapting it to
+// provide highest-priority-first priority queue data structure.  The component
+// takes a third template parameter type, 'COMPARATOR', for customized
+// priorities comparison between two elements.
 //
 // An instantiation of 'priority_queue' is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of held elements) and the
 // sorted sequence of values (of held elements).  If 'priority_queue' is
-// instantiated with a parameterized type 'VALUE' that is not itself
-// value-semantic, then it will not retain all of its value-semantic qualities.
-// A 'priority_queue' cannot be tested for equality, but its parameterized type
-// 'VALUE' must be able to be tested for comparing less by its parameterized
-// type 'COMPARATOR'.
+// instantiated with a value type, that is not itself value-semantic, then it
+// will not retain all of its value-semantic qualities.  A 'priority_queue'
+// cannot be tested for equality, but its value type must be able to be tested
+// for comparing less by its comparator type.
 //
-// 'priority_queue' meets the requirements of a container adapter in the C++
-// standard [23.6].  The 'priority_queue' implemented here adheres to the C++11
-// standard, except that it does not have methods that take rvalue references
-// and 'initializer_lists'.  Note that excluded C++11 features are those that
-// require C++11 compiler support.
+// The 'priority_queue' implemented here adheres to the C++11 standard when
+// compiled with a C++11 compiler, and makes the best approximation when
+// compiled with a C++03 compiler.  In particular, for C++03 we emulate move
+// semantics, but limit forwarding (in 'emplace') to 'const' lvalues, and make
+// no effort to emulate 'noexcept' or initializer-lists.
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as 'ALLOCATOR' template parameter in some of
-// 'priority_queue' constructors determines how the held container (of
-// parameterized 'CONTAINER') will allocate memory.  A 'priority_queue'
-// supports allocators meeting the requirements of the C++11 standard
-// [17.6.3.5] as long as the held container does.  In addition it supports
-// scoped-allocators derived from the 'bslma_Allocator' memory allocation
-// protocol.  Clients intending to use 'bslma' style allocators should use
-// 'bsl::allocator' as the 'ALLOCATOR' template parameter,  providing a C++11
-// standard-compatible adapter for a 'bslma_Allocator' object.
+// The type supplied as an 'ALLOCATOR' template parameter in some of
+// 'priority_queue' constructors determines how the held container (of the
+// (template parameter) type 'CONTAINER') will allocate memory.  A
+// 'priority_queue' supports allocators meeting the requirements of the C++11
+// standard [17.6.3.5] as long as the held container does.  In addition it
+// supports scoped-allocators derived from the 'bslma::Allocator' memory
+// allocation protocol.  Clients intending to use 'bslma'-style allocators
+// should use 'bsl::allocator' as the 'ALLOCATOR' template parameter,
+// providing a C++11 standard-compatible adapter for a 'bslma::Allocator'
+// object.
 //
 ///Operations
 ///----------
 // The C++11 standard [23.6.4] declares any container type supporting
 // operations 'front', 'push_back', and 'pop_back' can be used to instantiate
-// the parameterized type 'CONTAINER'.  Below is a list of public methods of
-// 'priority_queue' class that are effectively implementated as calling the
-// corresponding operations in the held container (referenced as 'c').
-//  +--------------------------------------+---------------------------+
-//  | Public methods in 'priority_queue'   | Operation in 'CONTAINER'  |
-//  +======================================+===========================+
-//  | void push(const value_type& value);  | c.push_back(value);       |
-//  | void pop();                          | c.pop_back();             |
-//  +--------------------------------------+---------------------------+
-//  | bool empty() const;                  | c.empty();                |
-//  | size_type size() const;              | c.size();                 |
-//  | const_reference top() const;         | c.front();                |
-//  +--------------------------------------+---------------------------+
+// the (template parameter) type 'CONTAINER'.  Below is a list of public
+// methods of 'priority_queue' class that are effectively implemented as
+// calling the corresponding operations in the held container (referenced as
+// 'c').
+//  +--------------------------------------+--------------------------+
+//  | Public methods in 'priority_queue'   | Operation in 'CONTAINER' |
+//  +======================================+==========================+
+//  | void push(const value_type& value);  | c.push_back(value);      |
+//  | void pop();                          | c.pop_back();            |
+//  | void emplace(Args&&... args)         | c.emplace_back(...)      |
+//  +--------------------------------------+--------------------------+
+//  | bool empty() const;                  | c.empty();               |
+//  | size_type size() const;              | c.size();                |
+//  | const_reference top() const;         | c.front();               |
+//  +--------------------------------------+--------------------------+
 //
 ///Usage
 ///-----
@@ -314,16 +316,16 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_VECTOR
 #include <bslstl_vector.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ENABLEIF
@@ -369,47 +371,63 @@ template <class VALUE,
           class COMPARATOR = native_std::less<typename CONTAINER::value_type> >
 class priority_queue
     // This class is a value-semantic class template, adapting a container of
-    // the parameterized 'CONTAINER' type that holds elements of the
-    // parameterized 'VALUE' type, to provides a highest-priority-first
+    // the (template parameter) type 'CONTAINER', that holds elements of the
+    // (template parameter) type 'VALUE', to provide a highest-priority-first
     // priority queue data structure, where the priorities of elements are
-    // compared by a comparator of the parameterized 'COMPARATOR' type.  The
-    // container object held by a 'priority_queue' class object is referenced
-    // as 'c' in the following documentation.
+    // compared by a comparator of the template parameter type, 'COMPARATOR'.
+    // The container object held by a 'priority_queue' class object is
+    // referenced as 'c' in the following documentation.
 {
+  private:
+    // TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
   protected:
     // DATA
-    CONTAINER c;        // container for elements in the 'priority_queue',
-                        // protected as required by the C++11 Standard
-    COMPARATOR comp;    // comparator that defines the priority order of
-                        // elements in the 'priority_queue'
+    CONTAINER  c;     // container for elements in the 'priority_queue'.  This
+                      // data member exactly matches its definition in the
+                      // C++11 standard [23.6.4].
+
+    COMPARATOR comp;  // comparator that defines the priority order of elements
+                      // in the 'priority_queue'.  This data member exactly
+                      // matches its definition in the C++11 standard [23.6.4].
 
   public:
     // PUBLIC TYPES
+    typedef          CONTAINER                  container_type;
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;
     typedef typename CONTAINER::size_type       size_type;
-    typedef          CONTAINER                  container_type;
 
     // CREATORS
+    priority_queue();
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the (template parameter) type 'CONTAINER'.  Use a
+        // default-constructed comparator of the (template parameter) type
+        // 'COMPARATOR' to order elements in the priority queue.
+
+    explicit priority_queue(const COMPARATOR& comparator);
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the (template parameter) type 'CONTAINER', and having
+        // the specified 'comparator' of the (template parameter) type
+        // 'COMPARATOR' to order elements in the priority queue.
+
     priority_queue(const COMPARATOR& comparator,
                    const CONTAINER&  container);
         // Create a priority queue, adapting the specified 'container' of the
         // (template parameter) type 'CONTAINER', and having the specified
         // 'comparator' of the (template parameter) type 'COMPARATOR' to order
-        // priorities of elements held in 'container'.
+        // elements in the priority queue.
 
-    explicit priority_queue();
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the (template parameter) type 'CONTAINER'.  Use a
-        // default-constructed comparator of the (template parameter) type
-        // 'COMPARATOR' to order priorities of elements.
+    explicit priority_queue(
+           const COMPARATOR&                         comparator,
+           BloombergLP::bslmf::MovableRef<CONTAINER> container);
+        // Create a priority queue, adapting the specified 'container' of the
+        // (template parameter) type 'CONTAINER', and having the specified
+        // 'comparator' of the (template parameter) type 'COMPARATOR' to order
+        // elements in the priority queue.
 
-    explicit priority_queue(const COMPARATOR& comparator);
-        // Create an empty priority queue, adapting a default-constructed
-        // container of the parameterized 'CONTAINER' type, and having the
-        // specified 'comparator' of the (template parameter) type 'COMPARATOR'
-        // to order priorities of elements in 'container'.
 
     template <class INPUT_ITERATOR>
     priority_queue(INPUT_ITERATOR first,
@@ -418,8 +436,8 @@ class priority_queue
         // the (template parameter) type 'CONTAINER', and inserting into the
         // container a sequence of 'value_type' elements that starts at the
         // specified 'first' and ends immediately before the specified 'last'.
-        // Use a default-constructed comparator of the parameterized
-        // 'COMPARATOR' type to order the priorities of elements.
+        // Use a default-constructed comparator of the (template parameter)
+        // type 'COMPARATOR' to order elements in the priority queue.
 
     template <class INPUT_ITERATOR>
     priority_queue(INPUT_ITERATOR    first,
@@ -433,10 +451,28 @@ class priority_queue
         // elements starting at the specified 'first', and ending immediately
         // before the specified 'last'.
 
+    template <class INPUT_ITERATOR>
+    priority_queue(
+           INPUT_ITERATOR                            first,
+           INPUT_ITERATOR                            last,
+           const COMPARATOR&                         comparator,
+           BloombergLP::bslmf::MovableRef<CONTAINER> container);
+        // Create a priority queue, adapting the specified 'container', having
+        // the specified 'comparator' to order elements in the priority queue,
+        // including those originally existed in 'container', and those
+        // inserted into the 'container' from a sequence of 'value_type'
+        // elements starting at the specified 'first', and ending immediately
+        // before the specified 'last'.
+
     priority_queue(const priority_queue& original);
         // Create a priority queue having the same value as the specified
-        // 'original'.  Use the comparator from 'original' to order the
-        // priorities of elements.
+        // 'original' object.  Use a copy of the comparator from 'original' to
+        // order elements in the priority queue.
+
+    priority_queue(BloombergLP::bslmf::MovableRef<priority_queue> original);
+        // Create a priority queue having the same value as the specified
+        // 'original' object.  Use a copy of the comparator from 'original' to
+        // order elements in the priority queue.
 
     template <class ALLOCATOR>
     explicit priority_queue(
@@ -445,31 +481,27 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Create an empty priority queue that adapts a default-constructed
-        // container of the parameterized 'CONTAINER' type and will use the
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the (template parameter) type 'CONTAINER' that uses the
         // specified 'basicAllocator' to supply memory.  Use a
-        // default-constructed comparator of the parameterized 'COMPARATOR'
-        // type to order the priorities of elements.  Note that the 'ALLOCATOR'
-        // parameter type has to be convertible to the allocator of the
-        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
-        // this constructor is disabled.
+        // default-constructed object of the (template parameter) type
+        // 'COMPARATOR' to order elements in the priority queue.  Note that
+        // this constructor is only defined if the underlying container uses
+        // allocator.  Otherwise this constructor is disabled.
 
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
-                   const ALLOCATOR& basicAllocator,
+                   const ALLOCATOR&  basicAllocator,
                    typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Create an empty priority queue that adapts a default-constructed
-        // container of the parameterized 'CONTAINER'type and will use the
+        // Create an empty priority queue, adapting a default-constructed
+        // container of the (template parameter) type 'CONTAINER' that uses the
         // specified 'basicAllocator' to supply memory, and the specified
-        // 'comparator' to order priorities of elements in a
-        // default-constructed container of the parameterized 'CONTAINER' type.
-        // Note that the 'ALLOCATOR' parameter type has to be convertible to
-        // the allocator of the 'CONTAINER' parameter type,
-        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
-        // disabled.
+        // 'comparator' to order elements in the priority queue.  Note that
+        // this constructor is only defined if the underlying container uses
+        // allocator.  Otherwise this constructor is disabled.
 
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
@@ -479,42 +511,226 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Create a priority queue that will use the specified 'basicAllocator'
-        // to supply memory, and the specified 'comparator' to order priorities
-        // of elements in the specified 'container'.  Note that the 'ALLOCATOR'
-        // parameter type has to be convertible to the allocator of the
-        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
-        // this constructor is disabled.
+        // Create a priority queue, adapting the specified 'container' that
+        // uses the specified 'basicAllocator' to supply memory, and the
+        // specified 'comparator' to order elements in the priority queue.
+        // Note that this constructor is only defined if the underlying
+        // container uses allocator.  Otherwise this constructor is disabled.
+
+    template <class ALLOCATOR>
+    priority_queue(const COMPARATOR&                         comparator,
+                   BloombergLP::bslmf::MovableRef<CONTAINER> container,
+                   const ALLOCATOR&                          basicAllocator,
+                   typename enable_if<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
+        // Create a priority queue, adapting the specified 'container' that
+        // uses the specified 'basicAllocator' to supply memory, and the
+        // specified 'comparator' to order elements in the priority queue.
+        // Note that this constructor is only defined if the underlying
+        // container uses allocator.  Otherwise this constructor is disabled.
 
     template <class ALLOCATOR>
     priority_queue(const priority_queue& original,
-                   const ALLOCATOR& basicAllocator,
+                   const ALLOCATOR&      basicAllocator,
                    typename enable_if<
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
         // Create a priority queue having the same value as the specified
-        // 'original' that will use the specified 'basicAllocator' to supply
-        // memory.  Use the comparator from 'original' to order the priorities
-        // of elements.  Note that the 'ALLOCATOR' parameter type has to be
-        // convertible to the allocator of the 'CONTAINER' parameter type,
-        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
-        // disabled.
+        // 'original' object and using the specified 'basicAllocator' to supply
+        // memory.  Use a copy of the comparator from 'original' to order
+        // elements in the priority queue.  Note that this constructor is only
+        // defined if the underlying container uses allocator.  Otherwise this
+        // constructor is disabled.
+
+    template <class ALLOCATOR>
+    priority_queue(
+                 BloombergLP::bslmf::MovableRef<priority_queue> original,
+                 const ALLOCATOR&                               basicAllocator,
+                 typename enable_if<
+                           BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                               CONTAINER,
+                                               ALLOCATOR>::VALUE>::type * = 0);
+        // Create a priority queue having the same value as the specified
+        // 'original' object and using the specified 'basicAllocator' to supply
+        // memory.  Use a copy of the comparator from 'original' to order
+        // elements in the priority queue.  Note that this constructor is only
+        // defined if the underlying container uses allocator.  Otherwise this
+        // constructor is disabled.
 
     // MANIPULATORS
+    priority_queue& operator=(const priority_queue& rhs);
+        // Assign to this object the value and comparator of the specified
+        // 'rhs' object and return a reference providing modifiable access to
+        // this object.
+
+    priority_queue& operator=(
+                           BloombergLP::bslmf::MovableRef<priority_queue> rhs);
+        // Assign to this object the value and comparator of the specified
+        // 'rhs' object and return a reference providing modifiable access to
+        // this object.  'rhs' is left in a valid but unspecified state.
+
     void push(const value_type& value);
-        // Insert a new element having the specified priority 'value' into this
-        // 'priority_queue' object.  In effect, performs 'c.push_back(value);'.
+        // Insert the specified 'value' into this priority queue.  In effect,
+        // performs 'c.push_back(value);'.
+
+    void push(BloombergLP::bslmf::MovableRef<value_type> value);
+        // Insert the specified 'value' into this priority queue.  In effect,
+        // performs 'c.push_back(value);'.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    void emplace(Args&&... args);
+        // Insert into this priority queue a newly created 'value_type' object,
+        // constructed by forwarding the specified (variable number of) 'args'
+        // to the corresponding constructor of 'value_type'.  In effect,
+        // performs 'c.emplace_back(FORWARD(Args,args)...);'.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_priorityqueue.h
+    void emplace();
+
+    template <class Args_01>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
 
     void pop();
         // Remove the top element from this 'priority_queue' object that has
-        // the highest priority.  In effect, performs 'c.pop();'.  The behavior
-        // is undefined if there is currently no elements in this object.
+        // the highest priority.  In effect, performs 'c.pop_back();'.  The
+        // behavior is undefined if there is currently no elements in this
+        // object.
 
     void swap(priority_queue& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  In effect, performs
-        // 'using bsl::swap; swap(c, other.c);'.
+        // specified 'other' object.  In effect, performs 'using bsl::swap;
+        // swap(c, other.c);'.
 
     // ACCESSORS
     bool empty() const;
@@ -526,17 +742,18 @@ class priority_queue
         // effect, performs 'return c.size()'.
 
     const_reference top() const;
-        // Return the immutable element having the highest priority in this
-        // 'priority_queue' object.  In effect, performs 'return c.front()'.
-        // The behavior is undefined if there is currently no elements in this
-        // object.
+        // Return a reference providing non-modifiable access to the element
+        // having the highest priority in this 'priority_queue' object.  In
+        // effect, performs 'return c.front()'.  The behavior is undefined if
+        // the priority queue is empty.
 };
 
 // FREE FUNCTIONS
-
 template <class VALUE, class CONTAINER, class COMPARATOR>
-void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
-          priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs);
+void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
+          priority_queue<VALUE, CONTAINER, COMPARATOR>& b);
+    // Exchange the container and comparator of the specified 'a' object with
+    // the container and comparator of the specified 'b' object.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -547,6 +764,20 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
                          // --------------------
 
 // CREATORS
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
+{
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                                                  const COMPARATOR& comparator)
+: comp(comparator)
+{
+}
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
@@ -560,16 +791,13 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
-{
-}
-
-template <class VALUE, class CONTAINER, class COMPARATOR>
-inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
-                                                  const COMPARATOR& comparator)
-: comp(comparator)
+                          const COMPARATOR&                         comparator,
+                          BloombergLP::bslmf::MovableRef<CONTAINER> container)
+: c(MoveUtil::move(container))
+, comp(comparator)
 {
+    native_std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -599,11 +827,35 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class INPUT_ITERATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                         INPUT_ITERATOR                             first,
+                         INPUT_ITERATOR                             last,
+                         const COMPARATOR&                          comparator,
+                         BloombergLP::bslmf::MovableRef<CONTAINER>  container)
+: c(MoveUtil::move(container))
+, comp(comparator)
+{
+    c.insert(c.end(), first, last);
+    native_std::make_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                 const priority_queue& original)
 : c(original.c)
 , comp(original.comp)
+{
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                       BloombergLP::bslmf::MovableRef<priority_queue> original)
+: c(MoveUtil::move(MoveUtil::access(original).c))
+, comp(MoveUtil::access(original).comp)
 {
 }
 
@@ -653,6 +905,22 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
     native_std::make_heap(c.begin(), c.end(), comp);
 }
 
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class ALLOCATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                     const COMPARATOR&                         comparator,
+                     BloombergLP::bslmf::MovableRef<CONTAINER> container,
+                     const ALLOCATOR&                          basicAllocator,
+                     typename enable_if<
+                     BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                   CONTAINER,
+                                                   ALLOCATOR>::VALUE>::type *)
+: c(MoveUtil::move(container), basicAllocator)
+, comp(comparator)
+{
+    native_std::make_heap(c.begin(), c.end(), comp);
+}
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
@@ -669,8 +937,45 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 {
 }
 
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class ALLOCATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                 BloombergLP::bslmf::MovableRef<priority_queue> original,
+                 const ALLOCATOR&                               basicAllocator,
+                 typename enable_if<
+                         BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
+                                                    CONTAINER,
+                                                    ALLOCATOR>::VALUE>::type *)
+: c(MoveUtil::move(MoveUtil::access(original).c),
+              basicAllocator)
+, comp(MoveUtil::access(original).comp)
+{
+}
 
 // MANIPULATORS
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>&
+priority_queue<VALUE, CONTAINER, COMPARATOR>::operator=(
+                                                     const priority_queue& rhs)
+{
+    c = rhs.c;
+    comp = rhs.comp;
+    return *this;
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>&
+priority_queue<VALUE, CONTAINER, COMPARATOR>::operator=(
+                            BloombergLP::bslmf::MovableRef<priority_queue> rhs)
+{
+    c = MoveUtil::move(MoveUtil::access(rhs).c);
+    comp = MoveUtil::access(rhs).comp;
+    return *this;
+}
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
@@ -679,6 +984,287 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
     c.push_back(value);
     native_std::push_heap(c.begin(), c.end(), comp);
 }
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
+                              BloombergLP::bslmf::MovableRef<value_type> value)
+{
+    c.push_back(MoveUtil::move(value));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class... Args>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(Args&&... args)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_priorityqueue.h
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                               )
+{
+    c.emplace_back();
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class... Args>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::emplace(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    native_std::push_heap(c.begin(), c.end(), comp);
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
@@ -692,7 +1278,7 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(priority_queue& other)
 {
-    BloombergLP::bslalg::SwapUtil::swap(&c   , &other.c   );
+    BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
     BloombergLP::bslalg::SwapUtil::swap(&comp, &other.comp);
 }
 
@@ -722,10 +1308,10 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::top() const
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER, class COMPARATOR>
-void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
-          priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs)
+void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
+          priority_queue<VALUE, CONTAINER, COMPARATOR>& b)
 {
-    lhs.swap(rhs);
+    a.swap(b);
 }
 
 }  // close namespace bsl

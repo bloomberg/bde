@@ -707,8 +707,7 @@ int main(int argc, char *argv[]) {
             char *ZCHARPTR = static_cast<char *>(0);
             T    *ZTPTR    = static_cast<T *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayFloat32(ZCHARPTR, VALUES, 3));
@@ -956,8 +955,7 @@ int main(int argc, char *argv[]) {
             char *ZCHARPTR = static_cast<char *>(0);
             T    *ZTPTR    = static_cast<T *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayFloat64(ZCHARPTR, VALUES, 3));
@@ -1200,8 +1198,7 @@ int main(int argc, char *argv[]) {
             S    *ZSPTR    = static_cast<S *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, TV, 3));
@@ -1429,8 +1426,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(ZCHARPTR, TV, 3));
@@ -1663,8 +1659,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(ZCHARPTR, TV, 3));
@@ -1893,8 +1888,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(ZCHARPTR, TV, 3));
@@ -2134,8 +2128,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(ZCHARPTR, TV, 3));
@@ -2375,8 +2368,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(ZCHARPTR, TV, 3));
@@ -2616,8 +2608,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(ZCHARPTR, TV, 3));
@@ -2853,8 +2844,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             U    *ZUPTR    = static_cast<U *>(0);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(ZCHARPTR, TV, 3));
@@ -3108,8 +3098,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             T     TV       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putFloat32(ZCHARPTR, TV));
@@ -3353,8 +3342,7 @@ int main(int argc, char *argv[]) {
             T    *ZTPTR    = static_cast<T *>(0);
             T     TV       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putFloat64(ZCHARPTR, TV));
@@ -3540,8 +3528,7 @@ int main(int argc, char *argv[]) {
             U     TU       = 0;
             S     TS       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt8(ZCHARPTR, V));
@@ -3692,8 +3679,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt16(ZCHARPTR, V));
@@ -3846,8 +3832,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt24(ZCHARPTR, V));
@@ -3997,8 +3982,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt32(ZCHARPTR, V));
@@ -4153,8 +4137,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt40(ZCHARPTR, V));
@@ -4310,8 +4293,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt48(ZCHARPTR, V));
@@ -4467,8 +4449,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt56(ZCHARPTR, V));
@@ -4620,8 +4601,7 @@ int main(int argc, char *argv[]) {
             T     TV       = 0;
             U     TU       = 0;
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             // invalid 'buffer'
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt64(ZCHARPTR, V));

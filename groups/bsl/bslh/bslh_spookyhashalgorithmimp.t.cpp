@@ -119,48 +119,48 @@ static const struct {
 } DATA[] = {
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
 //LINE         DATA                   HASH1               HASH2
- {L_,                    "1", 0x612d8c9b675009f2LL, 0xcd3314880c9a9aa0LL,},
- {L_,                   "12", 0xe967e8b6395e6782LL, 0xce5d87cde404a8d7LL,},
- {L_,                  "123", 0xcfa6ecd463cc4a83LL, 0x5775b241699a59a2LL,},
- {L_,                 "1234", 0xc0160cf616434e0fLL, 0xf74a249bc3eb094eLL,},
- {L_,                "12345", 0x3a85d1d65047e444LL, 0x61be6127e909350cLL,},
- {L_,               "123456", 0xd5cfafa3081a22e8LL, 0xede555af1cb9f339LL,},
- {L_,              "1234567", 0x83298ef41b0686a2LL, 0x481b12c0bbe69f3eLL,},
- {L_,             "12345678", 0x95523fb668af544dLL, 0x9ccccd0a86f1cb8eLL,},
- {L_,            "123456789", 0x0d7ef6cdd1e36f52LL, 0x67a5803f214892e0LL,},
- {L_,           "1234567890", 0x4ebaf9a6220603bfLL, 0x7e2b78b551260231LL,},
- {L_,          "12345678901", 0xc061aea37169d1c4LL, 0xf7fee6d149f2d44eLL,},
- {L_,         "123456789012", 0xd99d4151893fb02cLL, 0x80671ad783b63b82LL,},
- {L_,        "1234567890123", 0x7eb6309f17d458f7LL, 0x2d551c3efa5f681aLL,},
- {L_,       "12345678901234", 0xfb4d4ec8048c4a82LL, 0x711721576df73490LL,},
- {L_,      "123456789012345", 0xcbdf3e9e0b34e18eLL, 0x583b606b5af867b2LL,},
- {L_,     "1234567890123456", 0x8b075d4175f50658LL, 0x7591726bc5e46e48LL,},
- {L_,    "12345678901234567", 0xff5e9188d483d1b2LL, 0xaa41ee0595b4410aLL,},
- {L_,   "123456789012345678", 0xe0923d0da7fc6adeLL, 0x76b72d2f794115a5LL,},
- {L_,  "1234567890123456789", 0xe23d476408fb578eLL, 0xc75c131145990dc9LL,},
- {L_, "12345678901234567890", 0x6e621ce4363d6a05LL, 0x0d0dacb9301bababLL,},
+ {L_,                    "1", 0x612d8c9b675009f2ULL, 0xcd3314880c9a9aa0ULL },
+ {L_,                   "12", 0xe967e8b6395e6782ULL, 0xce5d87cde404a8d7ULL },
+ {L_,                  "123", 0xcfa6ecd463cc4a83ULL, 0x5775b241699a59a2ULL },
+ {L_,                 "1234", 0xc0160cf616434e0fULL, 0xf74a249bc3eb094eULL },
+ {L_,                "12345", 0x3a85d1d65047e444ULL, 0x61be6127e909350cULL },
+ {L_,               "123456", 0xd5cfafa3081a22e8ULL, 0xede555af1cb9f339ULL },
+ {L_,              "1234567", 0x83298ef41b0686a2ULL, 0x481b12c0bbe69f3eULL },
+ {L_,             "12345678", 0x95523fb668af544dULL, 0x9ccccd0a86f1cb8eULL },
+ {L_,            "123456789", 0x0d7ef6cdd1e36f52ULL, 0x67a5803f214892e0ULL },
+ {L_,           "1234567890", 0x4ebaf9a6220603bfULL, 0x7e2b78b551260231ULL },
+ {L_,          "12345678901", 0xc061aea37169d1c4ULL, 0xf7fee6d149f2d44eULL },
+ {L_,         "123456789012", 0xd99d4151893fb02cULL, 0x80671ad783b63b82ULL },
+ {L_,        "1234567890123", 0x7eb6309f17d458f7ULL, 0x2d551c3efa5f681aULL },
+ {L_,       "12345678901234", 0xfb4d4ec8048c4a82ULL, 0x711721576df73490ULL },
+ {L_,      "123456789012345", 0xcbdf3e9e0b34e18eULL, 0x583b606b5af867b2ULL },
+ {L_,     "1234567890123456", 0x8b075d4175f50658ULL, 0x7591726bc5e46e48ULL },
+ {L_,    "12345678901234567", 0xff5e9188d483d1b2ULL, 0xaa41ee0595b4410aULL },
+ {L_,   "123456789012345678", 0xe0923d0da7fc6adeULL, 0x76b72d2f794115a5ULL },
+ {L_,  "1234567890123456789", 0xe23d476408fb578eULL, 0xc75c131145990dc9ULL },
+ {L_, "12345678901234567890", 0x6e621ce4363d6a05ULL, 0x0d0dacb9301bababULL },
 #else
  //LINE         DATA                   HASH1               HASH2
- {L_,                    "1", 0x612d8c9b675009f2LL, 0xcd3314880c9a9aa0LL,},
- {L_,                   "12", 0xe967e8b6395e6782LL, 0xce5d87cde404a8d7LL,},
- {L_,                  "123", 0xcfa6ecd463cc4a83LL, 0x5775b241699a59a2LL,},
- {L_,                 "1234", 0x5cf924ef45f9d230LL, 0xceb1f0b41cb8347eLL,},
- {L_,                "12345", 0x7868854e01d25200LL, 0x5a05c0bda46e16f3LL,},
- {L_,               "123456", 0x3f2628ed9531e9e2LL, 0x51e9f1e709607593LL,},
- {L_,              "1234567", 0xe9068cb0e8324f6aLL, 0x4c578f47d96f0febLL,},
- {L_,             "12345678", 0xe3f15e6f1811bbceLL, 0x5a0ff1e9222f059dLL,},
- {L_,            "123456789", 0x485d93342e7ec4c3LL, 0xb79c7e8027bfa6f8LL,},
- {L_,           "1234567890", 0xaa2839c8deb77e93LL, 0x2a0e25297b071d45LL,},
- {L_,          "12345678901", 0x1e16e0179ee1a7f2LL, 0xf986d8175c510726LL,},
- {L_,         "123456789012", 0xb100680daac30142LL, 0x18a3ddfdbedc6e5dLL,},
- {L_,        "1234567890123", 0xc66a7648d4c3a0a4LL, 0x9957b1255feb3c81LL,},
- {L_,       "12345678901234", 0xea71b094ce76f5caLL, 0x79bb75c8cf3250fdLL,},
- {L_,      "123456789012345", 0x82f097ae5f44cb64LL, 0x67583e9aa71dafdbLL,},
- {L_,     "1234567890123456", 0x88de1445a9eaf46eLL, 0x9a1229f888cd48a5LL,},
- {L_,    "12345678901234567", 0x18d3932ab34d2abeLL, 0x8f6829e038462b0fLL,},
- {L_,   "123456789012345678", 0x4177ac8b3ddf6bbbLL, 0x1b1a4c3205eb81e5LL,},
- {L_,  "1234567890123456789", 0xf7385269c6e0c0bcLL, 0x8198aaf48b47a35bLL,},
- {L_, "12345678901234567890", 0x90e8d7464a51b42aLL, 0x5f9b9ced6c8dfc10LL,},
+ {L_,                    "1", 0x612d8c9b675009f2ULL, 0xcd3314880c9a9aa0ULL },
+ {L_,                   "12", 0xe967e8b6395e6782ULL, 0xce5d87cde404a8d7ULL },
+ {L_,                  "123", 0xcfa6ecd463cc4a83ULL, 0x5775b241699a59a2ULL },
+ {L_,                 "1234", 0x5cf924ef45f9d230ULL, 0xceb1f0b41cb8347eULL },
+ {L_,                "12345", 0x7868854e01d25200ULL, 0x5a05c0bda46e16f3ULL },
+ {L_,               "123456", 0x3f2628ed9531e9e2ULL, 0x51e9f1e709607593ULL },
+ {L_,              "1234567", 0xe9068cb0e8324f6aULL, 0x4c578f47d96f0febULL },
+ {L_,             "12345678", 0xe3f15e6f1811bbceULL, 0x5a0ff1e9222f059dULL },
+ {L_,            "123456789", 0x485d93342e7ec4c3ULL, 0xb79c7e8027bfa6f8ULL },
+ {L_,           "1234567890", 0xaa2839c8deb77e93ULL, 0x2a0e25297b071d45ULL },
+ {L_,          "12345678901", 0x1e16e0179ee1a7f2ULL, 0xf986d8175c510726ULL },
+ {L_,         "123456789012", 0xb100680daac30142ULL, 0x18a3ddfdbedc6e5dULL },
+ {L_,        "1234567890123", 0xc66a7648d4c3a0a4ULL, 0x9957b1255feb3c81ULL },
+ {L_,       "12345678901234", 0xea71b094ce76f5caULL, 0x79bb75c8cf3250fdULL },
+ {L_,      "123456789012345", 0x82f097ae5f44cb64ULL, 0x67583e9aa71dafdbULL },
+ {L_,     "1234567890123456", 0x88de1445a9eaf46eULL, 0x9a1229f888cd48a5ULL },
+ {L_,    "12345678901234567", 0x18d3932ab34d2abeULL, 0x8f6829e038462b0fULL },
+ {L_,   "123456789012345678", 0x4177ac8b3ddf6bbbULL, 0x1b1a4c3205eb81e5ULL },
+ {L_,  "1234567890123456789", 0xf7385269c6e0c0bcULL, 0x8198aaf48b47a35bULL },
+ {L_, "12345678901234567890", 0x90e8d7464a51b42aULL, 0x5f9b9ced6c8dfc10ULL },
 #endif
 };
 const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -384,47 +384,47 @@ int main(int argc, char *argv[])
         } SMALLDATA[] = {
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
        //LINE           VALUE                  HASH
-         { L_,                    "1", 0x6c59c5ba0f1773fbLL,},
-         { L_,                   "12", 0xd8e4618d7714e777LL,},
-         { L_,                  "123", 0x05bf2c12cb95f510LL,},
-         { L_,                 "1234", 0x8b674e6d5a0ac743LL,},
-         { L_,                "12345", 0xd484bc82cad3e69aLL,},
-         { L_,               "123456", 0x94b89813238c7cb6LL,},
-         { L_,              "1234567", 0x23697c16fdf58beaLL,},
-         { L_,             "12345678", 0xa417b6b27de7737fLL,},
-         { L_,            "123456789", 0x05061321ab5a25c5LL,},
-         { L_,           "1234567890", 0xca4f2f5e0cf6e52bLL,},
-         { L_,          "12345678901", 0x01bd8be90282c58fLL,},
-         { L_,         "123456789012", 0x68e036c29482b92dLL,},
-         { L_,        "1234567890123", 0xe9b009b4b7decfdbLL,},
-         { L_,       "12345678901234", 0x80c7bb4dfc682d3eLL,},
-         { L_,      "123456789012345", 0x8baacc9114f4be61LL,},
-         { L_,     "1234567890123456", 0x6d991592bc5cdf78LL,},
-         { L_,    "12345678901234567", 0x2f64988185dae0f6LL,},
-         { L_,   "123456789012345678", 0x7e19bf4284f64decLL,},
-         { L_,  "1234567890123456789", 0x8b371c674099f6d2LL,},
-         { L_, "12345678901234567890", 0x0d9b5acbdb0ef6a5LL,},
+         { L_,                    "1", 0x6c59c5ba0f1773fbULL },
+         { L_,                   "12", 0xd8e4618d7714e777ULL },
+         { L_,                  "123", 0x05bf2c12cb95f510ULL },
+         { L_,                 "1234", 0x8b674e6d5a0ac743ULL },
+         { L_,                "12345", 0xd484bc82cad3e69aULL },
+         { L_,               "123456", 0x94b89813238c7cb6ULL },
+         { L_,              "1234567", 0x23697c16fdf58beaULL },
+         { L_,             "12345678", 0xa417b6b27de7737fULL },
+         { L_,            "123456789", 0x05061321ab5a25c5ULL },
+         { L_,           "1234567890", 0xca4f2f5e0cf6e52bULL },
+         { L_,          "12345678901", 0x01bd8be90282c58fULL },
+         { L_,         "123456789012", 0x68e036c29482b92dULL },
+         { L_,        "1234567890123", 0xe9b009b4b7decfdbULL },
+         { L_,       "12345678901234", 0x80c7bb4dfc682d3eULL },
+         { L_,      "123456789012345", 0x8baacc9114f4be61ULL },
+         { L_,     "1234567890123456", 0x6d991592bc5cdf78ULL },
+         { L_,    "12345678901234567", 0x2f64988185dae0f6ULL },
+         { L_,   "123456789012345678", 0x7e19bf4284f64decULL },
+         { L_,  "1234567890123456789", 0x8b371c674099f6d2ULL },
+         { L_, "12345678901234567890", 0x0d9b5acbdb0ef6a5ULL },
 #else
-          {L_,                    "1", 0x6c59c5ba0f1773fbLL,},
-          {L_,                   "12", 0xd8e4618d7714e777LL,},
-          {L_,                  "123", 0x05bf2c12cb95f510LL,},
-          {L_,                 "1234", 0xf801826e2579d4e0LL,},
-          {L_,                "12345", 0x0c501c63194193b2LL,},
-          {L_,               "123456", 0xbe99156e83dd1d84LL,},
-          {L_,              "1234567", 0x136b56f84fc2ead5LL,},
-          {L_,             "12345678", 0x0a18d2ab074863e1LL,},
-          {L_,            "123456789", 0x1bedfd4d45b95a6dLL,},
-          {L_,           "1234567890", 0x92c3bf97c1cae0e0LL,},
-          {L_,          "12345678901", 0xc3b4bbac31be7a66LL,},
-          {L_,         "123456789012", 0xd9705ad4d11507a9LL,},
-          {L_,        "1234567890123", 0x0b410618f3d95e93LL,},
-          {L_,       "12345678901234", 0x73a3c801de0eaabaLL,},
-          {L_,      "123456789012345", 0xd2b700388b94107bLL,},
-          {L_,     "1234567890123456", 0xe0c5d5306dc2d204LL,},
-          {L_,    "12345678901234567", 0x8be79e229794ed65LL,},
-          {L_,   "123456789012345678", 0x99560c0388ae969aLL,},
-          {L_,  "1234567890123456789", 0xc3985eb8fcd4afe4LL,},
-          {L_, "12345678901234567890", 0x01f9f6f7dd1aeab8LL,},
+          {L_,                    "1", 0x6c59c5ba0f1773fbULL },
+          {L_,                   "12", 0xd8e4618d7714e777ULL },
+          {L_,                  "123", 0x05bf2c12cb95f510ULL },
+          {L_,                 "1234", 0xf801826e2579d4e0ULL },
+          {L_,                "12345", 0x0c501c63194193b2ULL },
+          {L_,               "123456", 0xbe99156e83dd1d84ULL },
+          {L_,              "1234567", 0x136b56f84fc2ead5ULL },
+          {L_,             "12345678", 0x0a18d2ab074863e1ULL },
+          {L_,            "123456789", 0x1bedfd4d45b95a6dULL },
+          {L_,           "1234567890", 0x92c3bf97c1cae0e0ULL },
+          {L_,          "12345678901", 0xc3b4bbac31be7a66ULL },
+          {L_,         "123456789012", 0xd9705ad4d11507a9ULL },
+          {L_,        "1234567890123", 0x0b410618f3d95e93ULL },
+          {L_,       "12345678901234", 0x73a3c801de0eaabaULL },
+          {L_,      "123456789012345", 0xd2b700388b94107bULL },
+          {L_,     "1234567890123456", 0xe0c5d5306dc2d204ULL },
+          {L_,    "12345678901234567", 0x8be79e229794ed65ULL },
+          {L_,   "123456789012345678", 0x99560c0388ae969aULL },
+          {L_,  "1234567890123456789", 0xc3985eb8fcd4afe4ULL },
+          {L_, "12345678901234567890", 0x01f9f6f7dd1aeab8ULL },
 #endif
         };
 
@@ -456,8 +456,7 @@ int main(int argc, char *argv[])
             Uint64       h64 = 1ULL;
             unsigned int h32 = 2ULL;
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj::hash64(   0, 5, h64));
             ASSERT_PASS(Obj::hash64(data, 5, h64));
@@ -525,8 +524,7 @@ int main(int argc, char *argv[])
             Uint64 h1 = 1ULL;
             Uint64 h2 = 2ULL;
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj::hash128(   0, 5, &h1, &h2));
             ASSERT_FAIL(Obj::hash128(data, 5,   0, &h2));
@@ -669,8 +667,7 @@ int main(int argc, char *argv[])
             const char data[5] = {'a', 'b', 'c', 'd', 'e'};
             Obj hash(0, 1);
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(hash.update(0, 5));
             ASSERT_PASS(hash.update(data, 5));
@@ -733,28 +730,28 @@ int main(int argc, char *argv[])
             Uint64 d_expectedHash1;
             Uint64 d_expectedHash2;
         } DATA[] = {
-       //LINE  SEED1        SEED2          HASH1                HASH2
-     {L_,0x1ea510b7, 0x616d1a49, 0xd5ba52d10c82bac7LL, 0x1c4cfb86447fd4d7LL, },
-     {L_,0x1656bae7, 0x68e2e2ff, 0xb899c5b97fce265aLL, 0xf0a107f782a50387LL, },
-     {L_,0x041b063c, 0x523c0b0b, 0x251e1e53d514a5e0LL, 0xa56701db799193bfLL, },
-     {L_,0x2a0c0f95, 0x711f13b1, 0xe783588309036565LL, 0x011ebe5b2c0234b3LL, },
-     {L_,0x2288f3c4, 0x4c8d1ea0, 0x4d29dcd5b5166a20LL, 0xaeffb446aaeccf94LL, },
-     {L_,0x27f331e0, 0x39a90b6b, 0xd52120fb51e9097aLL, 0xb50a9e06bec2cbaeLL, },
-     {L_,0x674fe63b, 0x2f685346, 0x873f2a409db2943aLL, 0x2e817a5f2b0ace75LL, },
-     {L_,0x522edc8b, 0x7a8e2d06, 0x5ff29023ce5000dcLL, 0x29777612702b233dLL, },
-     {L_,0x15409676, 0x5c58e2df, 0xa6487995d6549300LL, 0x86abc447512a1fb1LL, },
-     {L_,0x4bd025f2, 0x766b6e72, 0xffc72ae31c2b8466LL, 0x69aa1d3dd209a0dfLL, },
-     {L_,0x4e150ca9, 0x58510977, 0xc6234210eedd789eLL, 0x7e5e41a3f0a0e47aLL, },
-     {L_,0x3706b831, 0x13540a09, 0x3209e96eb6205572LL, 0xf5493459096db176LL, },
-     {L_,0x754cb5e5, 0x12c17a8f, 0xa2daaaf5a0f32c31LL, 0x00b5fee8c39fe7f4LL, },
-     {L_,0x152437c5, 0x51e69d62, 0x336b49a348305c3aLL, 0x1614bbe7995f7659LL, },
-     {L_,0x68dff5a0, 0x7f9e9eee, 0x6dfdb34de52c5856LL, 0x2e1649d249a21f9eLL, },
-     {L_,0x171fdb15, 0x07850657, 0x62e20c5d4cfa4e71LL, 0x6e68da4556daa4e9LL, },
-     {L_,0x610bb937, 0x2d7695fc, 0x1eaeac87d1aad224LL, 0x8225a6cee81e06fdLL, },
-     {L_,0x7067e957, 0x6526bf73, 0x811e14af46de5575LL, 0x2aee9e7113b8a20fLL, },
-     {L_,0x7fb2a108, 0x1a73f8ec, 0x2a5ee77b71838a72LL, 0x30e15a2e12fffe30LL, },
-     {L_,0x5645d325, 0x223b94cc, 0xbc2543d1a4afc192LL, 0x343895f8eeb8cf01LL, },
-     {L_,0x6701178d, 0x7e390505, 0xe67281e302349273LL, 0x9ecc924e1d487eefLL, },
+    //LINE  SEED1        SEED2          HASH1                HASH2
+    {L_,0x1ea510b7, 0x616d1a49, 0xd5ba52d10c82bac7ULL, 0x1c4cfb86447fd4d7ULL },
+    {L_,0x1656bae7, 0x68e2e2ff, 0xb899c5b97fce265aULL, 0xf0a107f782a50387ULL },
+    {L_,0x041b063c, 0x523c0b0b, 0x251e1e53d514a5e0ULL, 0xa56701db799193bfULL },
+    {L_,0x2a0c0f95, 0x711f13b1, 0xe783588309036565ULL, 0x011ebe5b2c0234b3ULL },
+    {L_,0x2288f3c4, 0x4c8d1ea0, 0x4d29dcd5b5166a20ULL, 0xaeffb446aaeccf94ULL },
+    {L_,0x27f331e0, 0x39a90b6b, 0xd52120fb51e9097aULL, 0xb50a9e06bec2cbaeULL },
+    {L_,0x674fe63b, 0x2f685346, 0x873f2a409db2943aULL, 0x2e817a5f2b0ace75ULL },
+    {L_,0x522edc8b, 0x7a8e2d06, 0x5ff29023ce5000dcULL, 0x29777612702b233dULL },
+    {L_,0x15409676, 0x5c58e2df, 0xa6487995d6549300ULL, 0x86abc447512a1fb1ULL },
+    {L_,0x4bd025f2, 0x766b6e72, 0xffc72ae31c2b8466ULL, 0x69aa1d3dd209a0dfULL },
+    {L_,0x4e150ca9, 0x58510977, 0xc6234210eedd789eULL, 0x7e5e41a3f0a0e47aULL },
+    {L_,0x3706b831, 0x13540a09, 0x3209e96eb6205572ULL, 0xf5493459096db176ULL },
+    {L_,0x754cb5e5, 0x12c17a8f, 0xa2daaaf5a0f32c31ULL, 0x00b5fee8c39fe7f4ULL },
+    {L_,0x152437c5, 0x51e69d62, 0x336b49a348305c3aULL, 0x1614bbe7995f7659ULL },
+    {L_,0x68dff5a0, 0x7f9e9eee, 0x6dfdb34de52c5856ULL, 0x2e1649d249a21f9eULL },
+    {L_,0x171fdb15, 0x07850657, 0x62e20c5d4cfa4e71ULL, 0x6e68da4556daa4e9ULL },
+    {L_,0x610bb937, 0x2d7695fc, 0x1eaeac87d1aad224ULL, 0x8225a6cee81e06fdULL },
+    {L_,0x7067e957, 0x6526bf73, 0x811e14af46de5575ULL, 0x2aee9e7113b8a20fULL },
+    {L_,0x7fb2a108, 0x1a73f8ec, 0x2a5ee77b71838a72ULL, 0x30e15a2e12fffe30ULL },
+    {L_,0x5645d325, 0x223b94cc, 0xbc2543d1a4afc192ULL, 0x343895f8eeb8cf01ULL },
+    {L_,0x6701178d, 0x7e390505, 0xe67281e302349273ULL, 0x9ecc924e1d487eefULL },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -866,8 +863,7 @@ int main(int argc, char *argv[])
             Uint64 h2;
             Obj hash(0, 1);
 
-            bsls::AssertFailureHandlerGuard
-                                           g(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(hash.finalize(0, &h2));
             ASSERT_FAIL(hash.finalize(&h1, 0));

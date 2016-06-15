@@ -67,8 +67,7 @@ BSLS_IDENT("$: $")
 //
 //   public:
 //     // TRAITS
-//     BSLALG_DECLARE_NESTED_TRAITS(WordCountJob,
-//                                  bslalg::TypeTraitUsesBslmaAllocator);
+//     BSLMF_NESTED_TRAIT_DECLARATION(WordCountJob, bslma::UsesBslmaAllocator);
 //
 //     // CREATORS
 //     WordCountJob(const bslstl::StringRef&  message,

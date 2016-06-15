@@ -103,7 +103,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter) : d_counter_p(counter) {}
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
         // Create this object and optionally specify the address of the
         // 'counter' to be held.
 
@@ -123,7 +123,7 @@ class my_Class {
 // Workaround for optimization issue in xlC that mishandles pointer aliasing.
 //   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
 //   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
-// Place this macro following each use of placment new.  Alternatively,
+// Place this macro following each use of placement new.  Alternatively,
 // compile with xlC_r -qalias=noansi, which reduces optimization opportunities
 // across entire translation unit instead of simply across optimization fence.
 // Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
@@ -136,53 +136,53 @@ class my_Class {
 #endif
 
 
-// Suppose we have a situation where one of the two constructors will be
-// called to create an object on the stack for performance reasons.  The
-// construction thus occurs within either of the branches of an 'if'
-// statement, so the object itself, to survive the end of the "then" or "else"
-// block, must be constructed in a 'bsls::ObjectBuffer'.  Once constructed, the
-// object would not be destroyed automatically, so to make sure it will be
-// destroyed, we place it under the management of a 'bslma::DestructorGuard'.
-// After that, we know that however the routine exits -- either by a return
-// or as a result of an exception being thrown -- the object will be destroyed.
+// Suppose we have a situation where one of the two constructors will be called
+// to create an object on the stack for performance reasons.  The construction
+// thus occurs within either of the branches of an 'if' statement, so the
+// object itself, to survive the end of the "then" or "else" block, must be
+// constructed in a 'bsls::ObjectBuffer'.  Once constructed, the object would
+// not be destroyed automatically, so to make sure it will be destroyed, we
+// place it under the management of a 'bslma::DestructorGuard'.  After that, we
+// know that however the routine exits -- either by a return or as a result of
+// an exception being thrown -- the object will be destroyed.
+//..
+    double usageExample(double startValue)
+    {
+        bsls::ObjectBuffer<std::vector<double> > buffer;
+        std::vector<double>& myVec = buffer.object();
 
-double usageExample(double startValue)
-{
-    bsls::ObjectBuffer<std::vector<double> > buffer;
-    std::vector<double>& myVec = buffer.object();
+        if (startValue >= 0) {
+            new (&myVec) std::vector<double>(100, startValue);
+        }
+        else {
+            new (&myVec) std::vector<double>();
+        }
+        BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX;
 
-    if (startValue >= 0) {
-        new (&myVec) std::vector<double>(100, startValue);
+        //***********************************************************
+        // Note the use of the destructor guard on 'myVec' (below). *
+        //***********************************************************
+
+        bslma::DestructorGuard<std::vector<double> > guard(&myVec);
+            // Note that regardless of how this routine terminates, 'myVec'
+            // will be destroyed.
+
+        myVec.push_back(3.0);
+            // Note that 'push_back' could allocate memory and therefore may
+            // throw.  However, if it does, 'myVec' will be destroyed
+            // automatically along with 'guard'.
+
+        if (myVec[0] >= 5.0) {
+            return 5.0;                                               // RETURN
+                // Note that 'myVec' is automatically destroyed as the function
+                // returns.
+        }
+
+        return myVec[myVec.size() / 2];
+            // Note that 'myVec' is destroyed after the temporary containing
+            // the return value is created.
     }
-    else {
-        new (&myVec) std::vector<double>();
-    }
-    BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX;
-
-    //***********************************************************
-    // Note the use of the destructor guard on 'myVec' (below). *
-    //***********************************************************
-
-    bslma::DestructorGuard<std::vector<double> > guard(&myVec);
-        // Note that regardless of how this routine terminates, 'myVec'
-        // will be destroyed.
-
-    myVec.push_back(3.0);
-        // Note that 'push_back' could allocate memory and therefore may
-        // throw.  However, if it does, 'myVec' will be destroyed
-        // automatically along with 'guard'.
-
-    if (myVec[0] >= 5.0) {
-        return 5.0;                                                   // RETURN
-            // Note that 'myVec' is automatically destroyed as the
-            // function returns.
-    }
-
-    return myVec[myVec.size() / 2];
-        // Note that 'myVec' is destroyed after the temporary containing
-        // the return value is created.
-}
-
+//
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -207,8 +207,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //   That the usage example compiles and produces the expected
-        //   results given different inputs.
+        //   That the usage example compiles and produces the expected results
+        //   given different inputs.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -269,10 +272,10 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   That the destructor for the helper class 'my_Class' increments
-        //   the object's counter appropriately, and that there are no ill
-        //   effects from calling the destructor on a given instance of
-        //   my_Class multiple times.
+        //   That the destructor for the helper class 'my_Class' increments the
+        //   object's counter appropriately, and that there are no ill effects
+        //   from calling the destructor on a given instance of 'my_Class'
+        //   multiple times.
         //
         // Plan:
         //   Several times, create an instance of 'my_Class' referring to

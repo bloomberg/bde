@@ -45,31 +45,78 @@ BSLS_IDENT("$Id: $")
 // template parameters.  Note that excluded C++11 features are those that
 // require (or are greatly simplified by) C++11 compiler support.
 //
-///Requirements on 'KEY' and 'VALUE'
-///---------------------------------
-// An 'unordered_map' instantiation is a fully "Value-Semantic Type" (see
-// {'bsldoc_glossary'}) only if the supplied 'KEY' and 'VALUE' template
-// parameters are fully value-semantic.  It is possible to instantiate an
-// 'unordered_map' with 'KEY' and 'VALUE' parameter arguments that do not
-// provide a full set of value-semantic operations, but then some methods of
-// the container may not be instantiable.  The following terminology, adopted
-// from the C++11 standard, is used in the function documentation of
-// 'unordered_map' to describe a function's requirements for the 'KEY' and
-// 'VALUE' template parameters.  These terms are also defined in section
-// [utility.arg.requirements] of the C++11 standard.  Note that, in the context
-// of an 'unordered_map' instantiation, the requirements apply specifically to
-// the 'unordered_map's element type, 'value_type', which is an alias for
-// 'std::pair<const KEY, VALUE>'.
+///Requirements on 'value_type'
+///----------------------------
+// A 'map' is a fully Value-Semantic Type (see {'bsldoc_glossary'}) only if the
+// supplied 'KEY' and 'MAPPED' template parameters are themselves fully
+// value-semantic.  The alias 'value_type' is defined as
+// 'pair<const KEY, MAPPED>'.  It is possible to instantiate a 'map' with 'KEY'
+// and 'MAPPED' parameter arguments that do not provide a full set of
+// value-semantic operations, but then some methods of the container may not be
+// instantiable.  The following terminology, adopted from the C++11 standard,
+// is used in the function documentation of 'map' to describe a function's
+// requirements for the 'KEY' and 'MAPPED' template parameters.  These terms
+// are also defined in section [17.6.3.1] of the C++11 standard.
 //
-//: "default-constructible":
-//:     The type provides an accessible default constructor.
+// Legend
+// ------
+// 'X'    - denotes an allocator-aware container type (e.g., 'map')
+// 'T'    - 'value_type' associated with 'X'
+// 'A'    - type of the allocator used by 'X'
+// 'm'    - lvalue of type 'A' (allocator)
+// 'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
+// 'rv'   - rvalue of type (non-'const') 'T'
+// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+// 'args' - 0 or more arguments
+//
+// The following terms are used to more precisely specify the requirements on
+// template parameter types in function-level documentation.
 //:
-//: "copy-constructible":
-//:     The type provides an accessible copy constructor.
+//: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
+//:     is 'default-insertable' into 'X' means that the following expression is
+//:     well-formed:
 //:
-//: "equality-comparable":
-//:     The type provides an equality-comparison operator that defines an
-//:     equivalence relationship and is both reflexive and transitive.
+//:      'allocator_traits<A>::construct(m, p)'
+//:
+//: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
+//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:     means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, rv)'
+//:
+//:     Note that since the 'first' field of 'T' is 'const', 'T' is not
+//:     *move-insertable* unless 'key_type' is *copy-insertable*.
+//:
+//: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
+//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:     'copy-insertable' into 'X' means that the following expression is
+//:     well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, v)'
+//:
+//: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
+//:     of type (non-'const') 'T'.  Note that since the 'first' element of
+//:     'value_type' is 'const', 'value_type' is not "move-assignable".
+//:
+//:     Note that since the 'first' field of 'T' is 'const', 'T' is not
+//:     *move-assignable* unless 'key_type' is *copy-assignable*.
+//:
+//: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
+//:     or rvalue of type (possibly 'const') 'T'.
+//:
+//: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
+//:     'args' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, args)'
+//:
+//: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
+//:     from 'X' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::destroy(m, p)'
+//:
+//: *equality-comparable*: The type provides an equality-comparison operator
+//:     that defines an equivalence relationship and is both reflexive and
+//:     transitive.
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
@@ -130,7 +177,7 @@ BSLS_IDENT("$Id: $")
 // construction (see 'bslma_default').  In addition to directly allocating
 // memory from the indicated 'bslma::Allocator', an 'unordered_map' supplies
 // that allocator's address to the constructors of contained objects of the
-// (template parameter) types 'KEY' and 'VALUE' having the
+// (template parameter) types 'KEY' and 'MAPPED' having the
 // 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 //
 ///Operations
@@ -140,50 +187,82 @@ BSLS_IDENT("$Id: $")
 //..
 //  Legend
 //  ------
-//  'K'               - template parameter type 'KEY' of the unordered map
-//  'V'               - template parameter type 'VALUE' of the unordered map
-//  'a', 'b'          - two distinct objects of type 'unordered_map<K, V>'
-//  'n', 'm'          - number of elements in 'a' and 'b', respectively
-//  'w'               - number of buckets of 'a'
-//  'value_type'      - 'unordered_map<K, V>::value_type'
-//  'hf'              - hash functor hashing objects of type 'K'
-//  'eq'              - equality functor comparing objects of type 'K'
-//  'al               - an STL-style memory allocator
-//  'i1', 'i2'        - two iterators defining a sequence of 'value_type'
-//                      objects
-//  'k'               - an object of type 'K'
-//  'v'               - an object of type 'value_type'
-//  'p1', 'p2'        - two iterators belonging to 'a'
-//  'distance(i1,i2)' - the number of elements in the range [i1, i2)
-//  'distance(p1,p2)' - the number of elements in the range [p1, p2)
-//  'z'               - a floating point value representing a load factor
+//  'K'                 - template parameter type 'KEY' of the unordered map
+//  'M'                 - template parameter type 'MAPPED' of the unordered map
+//  'a', 'b'            - two distinct objects of type 'unordered_map<K, V>'
+//  'n', 'm'            - number of elements in 'a' and 'b', respectively
+//  'w'                 - number of buckets of 'a'
+//  'hf'                - hash functor hashing objects of type 'K'
+//  'eq'                - equality functor comparing objects of type 'K'
+//  'A'                 - an STL-style memory allocator
+//  'i1', 'i2'          - two iterators defining a sequence of 'value_type'
+//                        objects
+//  'k'                 - an object of type 'K'
+//  'm'                 - an object of type 'M'
+//  'vt'                - an object of type 'bsl::pair<const K, M>'
+//  'Args&&...'         - variable number of arguments
+//  't&&'               - movable reference to variable 't'
+//  'ai1', 'ai2'        - two iterators belonging to 'a'
+//  'idx'               - bucket index
+//  '{*}'               - C++11 std::initializer_list
+//  'distance(i1, i2)'  - the number of elements in the range '[i1, i2)'
+//  'distance(ai1,ai2)' - the number of elements in the range '[ai1, ai2)'
+//  'distance({*})'     - the number of elements in the initializer list
+//  'z'                 - a floating point value representing a load factor
 //
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
 //  +====================================================+====================+
-//  | unordered_map<K, V> a;    (default construction)   | O[1]               |
-//  | unordered_map<K, V> a(al);                         |                    |
+//  | unordered_map<K, M> a;    (default construction)   | O[1]               |
+//  | unordered_map<K, M> a(A);                          |                    |
 //  +----------------------------------------------------+--------------------+
-//  | unordered_map<K, V> a(b); (copy construction)      | Average: O[m]      |
-//  | unordered_map<K, V> a(b, al);                      | Worst:   O[m^2]    |
+//  | unordered_map<K, M> a(b); (copy construction)      | Average: O[m]      |
+//  | unordered_map<K, M> a(b, A);                       | Worst:   O[m^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | unordered_map<K, V> a(w);                          | O[n]               |
-//  | unordered_map<K, V> a(w, hf);                      |                    |
-//  | unordered_map<K, V> a(w, hf, eq);                  |                    |
-//  | unordered_map<K, V> a(w, hf, eq, al);              |                    |
+//  | unordered_map<K, M> a(b&&); (move construction)    | O[1]
 //  +----------------------------------------------------+--------------------+
-//  | unordered_map<K, V> a(i1, i2);                     | Average: O[N]      |
-//  | unordered_map<K, V> a(i1, i2, w)                   | Worst:   O[N^2]    |
-//  | unordered_map<K, V> a(i1, i2, w, hf);              | where N =          |
-//  | unordered_map<K, V> a(i1, i2, w, hf, eq);          |  distance(i1, i2)] |
-//  | unordered_map<K, V> a(i1, i2, w, hf, eq, al);      |                    |
+//  | unordered_map<K, M> a(b&&, A); (move construction) | Best:    O[1]
+//  |                                                    | Worst:   O[m^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | a.~unordered_map<K, V>(); (destruction)            | O[n]               |
+//  | unordered_map<K, M> a(w);                          | O[n]               |
+//  | unordered_map<K, M> a(w, A);                       |                    |
+//  | unordered_map<K, M> a(w, hf);                      |                    |
+//  | unordered_map<K, M> a(w, hf, A);                   |                    |
+//  | unordered_map<K, M> a(w, hf, eq);                  |                    |
+//  | unordered_map<K, M> a(w, hf, eq, A);               |                    |
 //  +----------------------------------------------------+--------------------+
-//  | a = b;          (assignment)                       | Average: O[n]      |
-//  |                                                    | Worst:   O[n^2]    |
+//  | unordered_map<K, M> a(i1, i2);                     | Average: O[N]      |
+//  | unordered_map<K, M> a(i1, i2, A);                  | Worst:   O[N^2]    |
+//  | unordered_map<K, M> a(i1, i2, w);                  | where N =          |
+//  | unordered_map<K, M> a(i1, i2, w, A);               |  distance(i1, i2)] |
+//  | unordered_map<K, M> a(i1, i2, w, hf);              |                    |
+//  | unordered_map<K, M> a(i1, i2, w, hf, A);           |                    |
+//  | unordered_map<K, M> a(i1, i2, w, hf, eq);          |                    |
+//  | unordered_map<K, M> a(i1, i2, w, hf, eq, A);       |                    |
 //  +----------------------------------------------------+--------------------+
-//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  | unordered_map<K, M> a({*});                        | Average: O[N]      |
+//  | unordered_map<K, M> a({*}, A);                     | Worst:   O[N^2]    |
+//  | unordered_map<K, M> a({*}, w);                     | where N =          |
+//  | unordered_map<K, M> a({*}, w, A);                  |       'distance{*}'|
+//  | unordered_map<K, M> a({*}, w, hf);                 |                    |
+//  | unordered_map<K, M> a({*}, w, hf, A);              |                    |
+//  | unordered_map<K, M> a({*}, w, hf, eq);             |                    |
+//  | unordered_map<K, M> a({*}, w, hf, eq, A);          |                    |
+//  +----------------------------------------------------+--------------------+
+//  | a.~unordered_map<K, M>(); (destruction)            | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;          (assignment)                       | Average: O[n+m]    |
+//  |                                                    | Worst:   O[n+m^2]  |
+//  +----------------------------------------------------+--------------------+
+//  | a = {*};        (assignment)                       | Average: O[n+N]    |
+//  |                                                    | Worst:   O[n+N^2]  |
+//  |                                                    | where N =          |
+//  |                                                    |       distance({*})|
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(), a.end(), a.cbegin(), a.cend()           | O[1]               |
+//  +----------------------------------------------------+--------------------+
+//  | a.begin(idx), a.end(idx), a.cbegin(idx),           | O[1]               |
+//  | a.cend(idx)                                        |                    |
 //  +----------------------------------------------------+--------------------+
 //  | a == b, a != b                                     | Best:  O[n]        |
 //  |                                                    | Worst: O[n^2]      |
@@ -211,10 +290,10 @@ BSLS_IDENT("$Id: $")
 //  | a.at(k)                                            | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(v)                                        | Average: O[1]      |
-//  |                                                    | Worst:   O[n]      |
+//  | a.insert(vt), a.insert(ai1, vt)                    | Average: O[1]      |
+//  | a.emplace(Args&&...), a.emplace(ai1, Args&&...)    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(p1, v)                                    | Average: O[1]      |
+//  | a.insert(vt&&), a.insert(ai1, vt&&)                | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(i1, i2)                                   | Average: O[        |
@@ -222,7 +301,12 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | Worst:   O[n *     |
 //  |                                                    |   distance(i1, i2)]|
 //  +----------------------------------------------------+--------------------+
-//  | a.erase(p1)                                        | Average: O[1]      |
+//  | a.insert({*})                                      | Average: O[        |
+//  |                                                    |      distance({*})]|
+//  |                                                    | Worst:   O[        |
+//  |                                                    |  (n+distance{*})^2]|
+//  +----------------------------------------------------+--------------------+
+//  | a.erase(ai1)                                       | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(k)                                         | Average:           |
@@ -230,8 +314,8 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | Worst:             |
 //  |                                                    |       O[n]         |
 //  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | Average: O[        |
-//  |                                                    |   distance(p1, p2)]|
+//  | a.erase(ai1, ai2)                                  | Average: O[        |
+//  |                                                    | distance(ai1, ai2)]|
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.clear()                                          | O[n]               |
@@ -242,8 +326,7 @@ BSLS_IDENT("$Id: $")
 //  | a.count(k)                                         | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
-//  | a.equal_range(k)                                   | Average: O[        |
-//  |                                                    |         a.count(k)]|
+//  | a.equal_range(k)                                   | Average: O[1]      |
 //  |                                                    | Worst:   O[n]      |
 //  +----------------------------------------------------+--------------------+
 //  | a.bucket_count()                                   | O[1]               |
@@ -252,7 +335,8 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //  | a.bucket(k)                                        | O[1]               |
 //  +----------------------------------------------------+--------------------+
-//  | a.bucket_size(k)                                   | O[a.bucket_size(k)]|
+//  | a.bucket_size(idx)                                 | O[a.bucket_size(   |
+//  |                                                    |               idx)]|
 //  +----------------------------------------------------+--------------------+
 //  | a.load_factor()                                    | O[1]               |
 //  +----------------------------------------------------+--------------------+
@@ -865,14 +949,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
-#include <bslstl_allocatortraits.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_EQUALTO
 #include <bslstl_equalto.h>
 #endif
@@ -917,12 +993,40 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
+#include <bslma_destructorguard.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
@@ -933,9 +1037,28 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifndef INCLUDED_INITIALIZER_LIST
+#include <initializer_list>
+#define INCLUDED_INITIALIZER_LIST
+#endif
 #endif
 
 namespace bsl {
@@ -944,15 +1067,15 @@ namespace bsl {
                         // =======================
 
 template <class KEY,
-          class VALUE,
+          class MAPPED,
           class HASH      = bsl::hash<KEY>,
           class EQUAL     = bsl::equal_to<KEY>,
-          class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE> > >
+          class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, MAPPED> > >
 class unordered_map {
     // This class template implements a value-semantic container type holding
     // an unordered set of key-value pairs having unique keys that provide a
     // mapping from keys (of template parameter type 'KEY') to their associated
-    // values (of template parameter type 'VALUE').
+    // values (of template parameter type 'MAPPED').
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -967,7 +1090,7 @@ class unordered_map {
         // This 'typedef' is an alias for the allocator traits type associated
         // with this container.
 
-    typedef bsl::pair<const KEY, VALUE>  ValueType;
+    typedef bsl::pair<const KEY, MAPPED>  ValueType;
         // This 'typedef' is an alias for the type of key-value pair objects
         // maintained by this unordered map.
 
@@ -992,15 +1115,19 @@ class unordered_map {
         // This typedef is an alias for the type of nodes that hold the values
         // in this unordered map.
 
+    typedef BloombergLP::bslmf::MovableRefUtil    MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+
     // FRIENDS
     template <class KEY2,
-              class VALUE2,
+              class MAPPED2,
               class HASH2,
               class EQUAL2,
               class ALLOCATOR2>
     friend bool operator==(
-                const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&,
-                const unordered_map<KEY2, VALUE2, HASH2, EQUAL2, ALLOCATOR2>&);
+               const unordered_map<KEY2, MAPPED2, HASH2, EQUAL2, ALLOCATOR2>&,
+               const unordered_map<KEY2, MAPPED2, HASH2, EQUAL2, ALLOCATOR2>&);
 
   public:
     // TRAITS
@@ -1011,8 +1138,8 @@ class unordered_map {
 
     // PUBLIC TYPES
     typedef KEY                                        key_type;
-    typedef VALUE                                      mapped_type;
-    typedef bsl::pair<const KEY, VALUE>                value_type;
+    typedef MAPPED                                     mapped_type;
+    typedef bsl::pair<const KEY, MAPPED>               value_type;
     typedef HASH                                       hasher;
     typedef EQUAL                                      key_equal;
     typedef ALLOCATOR                                  allocator_type;
@@ -1026,11 +1153,11 @@ class unordered_map {
     typedef typename AllocatorTraits::const_pointer    const_pointer;
 
     typedef BloombergLP::bslstl::HashTableIterator<
-                                         value_type, difference_type> iterator;
+                             value_type, difference_type> iterator;
     typedef BloombergLP::bslstl::HashTableIterator<
-                             const value_type, difference_type> const_iterator;
+                       const value_type, difference_type> const_iterator;
     typedef BloombergLP::bslstl::HashTableBucketIterator<
-                                   value_type, difference_type> local_iterator;
+                             value_type, difference_type> local_iterator;
     typedef BloombergLP::bslstl::HashTableBucketIterator<
                        const value_type, difference_type> const_local_iterator;
 
@@ -1041,10 +1168,18 @@ class unordered_map {
   public:
     // CREATORS
     explicit unordered_map(
-                   size_type             initialNumBuckets = 0,
-                   const hasher&         hashFunction      = hasher(),
-                   const key_equal&      keyEqual          = key_equal(),
-                   const allocator_type& basicAllocator    = allocator_type());
+                  size_type             initialNumBuckets,
+                  const hasher&         hashFunction      = hasher(),
+                  const key_equal&      keyEqual          = key_equal(),
+                  const allocator_type& basicAllocator    = allocator_type());
+    unordered_map(size_type             initialNumBuckets,
+                  const hasher&         hashFunction,
+                  const allocator_type& basicAllocator);
+    unordered_map(size_type             initialNumBuckets,
+                  const allocator_type& basicAllocator);
+    explicit unordered_map(
+                  const allocator_type& basicAllocator);
+    unordered_map();
         // Create an empty unordered map having a 'max_load_factor' of 1.0.
         // Optionally specify an 'initialNumBuckets' indicating the minimum
         // initial size of the array of buckets of this unordered map.  If
@@ -1067,33 +1202,6 @@ class unordered_map {
         // be created in order to preserve the bucket allocation strategy of
         // the hash-table (but never fewer).
 
-    explicit unordered_map(const allocator_type& basicAllocator);
-        // Create an empty unordered map, having a 'max_load_factor' of 1.0,
-        // that uses the specified 'basicAllocator' to supply memory.  Use a
-        // default-constructed object of type 'hasher' to generate hash values
-        // for the key-value pairs contained in this unordered map, and use a
-        // default-constructed object of type 'key_equal' to determine whether
-        // two keys have the same value.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.
-
-    unordered_map(const unordered_map& original);
-        // Create an unordered map having the same value, hasher, key-equality
-        // comparator, and 'max_load_factor' as the specified 'original'.  Use
-        // the allocator returned by 'bsl::allocator_traits<allocator_type>::
-        // select_on_container_copy_construction(original.get_allocator())' to
-        // supply memory.  If the 'allocator_type' is 'bsl::allocator' (the
-        // default), the currently installed default allocator is used to
-        // supply memory.
-
-    unordered_map(const unordered_map&  original,
-                  const allocator_type& basicAllocator);
-        // Create an unordered map having the same value, hasher, key-equality
-        // comparator, and 'max_load_factor' as the specified 'original', and
-        // using the specified 'basicAllocator' to supply memory.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then
-        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
-
     template <class INPUT_ITERATOR>
     unordered_map(INPUT_ITERATOR        first,
                   INPUT_ITERATOR        last,
@@ -1101,6 +1209,21 @@ class unordered_map {
                   const hasher&         hashFunction      = hasher(),
                   const key_equal&      keyEqual          = key_equal(),
                   const allocator_type& basicAllocator    = allocator_type());
+    template <class INPUT_ITERATOR>
+    unordered_map(INPUT_ITERATOR        first,
+                  INPUT_ITERATOR        last,
+                  size_type             initialNumBuckets,
+                  const hasher&         hashFunction,
+                  const allocator_type& basicAllocator);
+    template <class INPUT_ITERATOR>
+    unordered_map(INPUT_ITERATOR        first,
+                  INPUT_ITERATOR        last,
+                  size_type             initialNumBuckets,
+                  const allocator_type& basicAllocator);
+    template <class INPUT_ITERATOR>
+    unordered_map(INPUT_ITERATOR        first,
+                  INPUT_ITERATOR        last,
+                  const allocator_type& basicAllocator);
         // Create an empty unordered map, having a 'max_load_factor' of 1.0,
         // and then create a 'value_type' object for each iterator in the range
         // starting at the specified 'first' iterator and ending immediately
@@ -1134,6 +1257,86 @@ class unordered_map {
         // order to preserve the bucket allocation strategy of the hash-table
         // (but never fewer).
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    explicit unordered_map(
+       std::initializer_list<value_type> values,
+       size_type                         initialNumBuckets = 0,
+       const hasher&                     hashFunction      = hasher(),
+       const key_equal&                  keyEqual          = key_equal(),
+       const allocator_type&             basicAllocator    = allocator_type());
+    unordered_map(std::initializer_list<value_type> values,
+                  size_type                         initialNumBuckets,
+                  const hasher&                     hashFunction,
+                  const allocator_type&             basicAllocator);
+    unordered_map(std::initializer_list<value_type> values,
+                  size_type                         initialNumBuckets,
+                  const allocator_type&             basicAllocator);
+    unordered_map(std::initializer_list<value_type> values,
+                  const allocator_type&             basicAllocator);
+        // Create an empty unordered map, having a 'max_load_factor' of 1.0,
+        // and then create a 'value_type' object for each in the range
+        // specified by 'values' argument, ignoring elements having a key that
+        // appears earlier in the sequence.  Optionally specify a minimum
+        // 'initialNumBuckets' indicating the minimum initial size of the array
+        // of buckets of this unordered map.  If 'initialNumBuckets' is not
+        // supplied, and 'first' and 'last' denote an empty range, a single
+        // empty bucket shall be created.  Optionally specify a 'hashFunction'
+        // used to generate hash values associated with the key-value pairs
+        // contained in this unordered map.  If 'hashFunction' is not supplied,
+        // a default-constructed object of type 'hasher' is used.  Optionally
+        // specify a key-equality functor 'keyEqual' used to verify that two
+        // key values are the same.  If 'keyEqual' is not supplied, a
+        // default-constructed object of type 'key_equal' is used.  Optionally
+        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'allocator_type' is used.  If the 'allocator_type' is
+        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
+        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // installed default allocator is used to supply memory.  Note that
+        // more than 'initialNumBuckets' buckets may be created in order to
+        // preserve the bucket allocation strategy of the hash-table (but never
+        // fewer).
+#endif
+
+    unordered_map(const unordered_map& original);
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator, and 'max_load_factor' as the specified 'original'.  Use
+        // the allocator returned by 'bsl::allocator_traits<allocator_type>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // supply memory.  If the 'allocator_type' is 'bsl::allocator' (the
+        // default), the currently installed default allocator is used to
+        // supply memory.
+
+    unordered_map(const unordered_map&  original,
+                  const allocator_type& basicAllocator);
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator, and 'max_load_factor' as the specified 'original', and
+        // using the specified 'basicAllocator' to supply memory.  If the
+        // 'allocator_type' is 'bsl::allocator' (the default), then
+        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
+
+    unordered_map(
+          BloombergLP::bslmf::MovableRef<unordered_map> original);  // IMPLICIT
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator, 'max_load_factor', and allocator as the specified
+        // 'original'.  No copy or move constructors are called for individual
+        // elements.  After the construction, the value of 'original' is valid,
+        // but unspecified.  Note that this constructor may allocate memory and
+        // may, therefore, throw an allocation-related exception.
+
+    unordered_map(
+                 BloombergLP::bslmf::MovableRef<unordered_map> original,
+                 const allocator_type&                         basicAllocator);
+        // Create an unordered map having the same value, hasher, key-equality
+        // comparator, and 'max_load_factor' as the specified 'original'.  Use
+        // the specified 'basicAllocator' to supply memory.  This method
+        // requires that the (template parameter) type 'value_type' be
+        // 'move-insertable' into this 'unordered_map' (see {Requirements on
+        // 'value_type'}).  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
+
     ~unordered_map();
         // Destroy this object and each of its elements.
 
@@ -1144,23 +1347,58 @@ class unordered_map {
         // object the allocator of 'rhs' if 'allocator_type' has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this object.  Note that this method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // requires that the (template parameter) types 'KEY' and 'MAPPED' both
+        // be "copy-constructible" (see {Requirements on 'value_type'}).
+
+    unordered_map&
+    operator=(BloombergLP::bslmf::MovableRef<unordered_map> rhs);
+        // Assign to this object the value, hash function, and key-equality
+        // comparator of the specified 'rhs' object, propagate to this object
+        // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
+        // 'propagate_on_container_move_assignment', and return a reference
+        // providing modifiable access to this object.  The contents of 'rhs'
+        // are moved (in constant time) to this set if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait); otherwise, all elements in this set are
+        // either destroyed or move-assigned to and each additional element in
+        // 'rhs' is move-inserted into this set.  'rhs' is left in a valid but
+        // unspecified state, and if an exception is thrown, '*this' is left in
+        // a valid but unspecified state.  This method requires that the type
+        // 'value_type' be "move-constructible" (see {Requirements on
+        // 'value_type'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    unordered_map& operator=(std::initializer_list<value_type> rhs);
+        // Assign to this unordered map the value of the of the specified
+        // initializer list 'rhs', and return a reference providing modifiable
+        // access to this object.  This method requires that the (template
+        // parameter) type 'value_type' be 'copy-insertable' into this list.
+#endif
 
     mapped_type& operator[](const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key' in this unordered map; if this
         // unordered map does not already contain a 'value_type' object with
         // 'key', first insert a new 'value_type' object having 'key' and a
-        // default-constructed 'VALUE' object.  Note that this method requires
+        // default-constructed 'MAPPED' object.  Note that this method requires
         // that the (template parameter) type 'KEY' is "copy-constructible" and
-        // the (template parameter) 'VALUE' is "default-constructible" (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // the (template parameter) 'MAPPED' is "default-constructible" (see
+        // {Requirements on 'value_type'}).
+
+    mapped_type& operator[](BloombergLP::bslmf::MovableRef<key_type> key);
+        // Return a reference providing modifiable access to the mapped-value
+        // associated with the specified 'key' in this unordered map; if this
+        // unordered map does not already contain a 'value_type' object with
+        // 'key', first insert a new 'value_type' object having 'key' and a
+        // default-constructed 'MAPPED' object.  Note that this method requires
+        // that the (template parameter) 'MAPPED' is "default-constructible"
+        // (see {Requirements on 'value_type'}).  Note that 'key' may be
+        // modified; it is guaranteed to be left in a valid state.
 
     mapped_type& at(const key_type& key);
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
-        // otherwise throw a 'std::out_of_range' exception.  Note that this
+        // otherwise throw 'std::out_of_range' exception.  Note that this
         // method is not exception-neutral.
 
     iterator begin();
@@ -1194,6 +1432,325 @@ class unordered_map {
         // unordered map will be empty after calling this method, but allocated
         // memory may be retained for future use.
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    pair<iterator, bool> emplace(Args&&... args);
+        // Insert into this unordered map a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type', if a key equivalent to such a value
+        // does not already exist in this map; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return a pair whose 'first' member is an iterator
+        // referring to the (possibly newly created and inserted) object in
+        // this map whose key is equivalent to that of an object constructed
+        // from 'args', and whose 'second' member is 'true' if a new value was
+        // inserted, and 'false' if an equivalent key was already present.
+        // This method requires that the (template parameter) types 'KEY' and
+        // 'MAPPED' both be 'emplace-constructible' from 'args' (see
+        // {Requirements on 'value_type'}).
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint, Args&&... args);
+        // Insert into this unordered map a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type' (in amortized constant time if the
+        // specified 'hint' is a valid immediate successor to the 'value_type'
+        // object constructed from 'args'), if a key equivalent to such a value
+        // does not already exist in this map; otherwise, this method has no
+        // effect (other than possibly creating a temporary 'value_type'
+        // object).  Return an iterator referring to the (possibly newly
+        // created and inserted) object in this map whose key is equivalent to
+        // that of an object constructed from 'args'.  If 'hint' is not a valid
+        // immediate successor to the 'value_type' object implied by 'args',
+        // this operation has 'O[log(N)]' complexity where 'N' is the size of
+        // this map.  This method requires that the (template parameter) types
+        // 'KEY' and 'MAPPED' both be 'emplace-constructible' from 'args' (see
+        // {Requirements on 'value_type'}).
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+    pair<iterator, bool> emplace(
+                              );
+
+    template <class Args_01>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    pair<iterator, bool> emplace(
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+
+    iterator emplace_hint(const_iterator hint);
+
+    template <class Args_01>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    pair<iterator, bool> emplace(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
+
     iterator erase(const_iterator position);
         // Remove from this unordered map the 'value_type' object at the
         // specified 'position', and return an iterator referring to the
@@ -1224,35 +1781,40 @@ class unordered_map {
         // entry exists, and the past-the-end iterator ('end') otherwise.
 
     template <class SOURCE_TYPE>
-    pair<iterator, bool> insert(const SOURCE_TYPE& value);
+    pair<iterator, bool> insert(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
         // Insert the specified 'value' into this unordered map if the key (the
-        // 'first' element) of a 'value_type' object constructed from 'value'
-        // does not already exist in this unordered map; otherwise, this method
-        // has no effect (a 'value_type' object having the same key as the
-        // converted 'value' already exists in this unordered map) .  Return a
-        // 'pair' whose 'first' member is an iterator referring to the
-        // (possibly newly inserted) 'value_type' object in this unordered map
-        // whose key is the same as that of 'value', and whose 'second' member
+        // 'first' element) of the object referred to by 'value' does not
+        // already exist in this unordered map; otherwise, this method has no
+        // effect (a 'value_type' object having the same key as the converted
+        // 'value' already exists in this unordered map) .  Return a 'pair'
+        // whose 'first' member is an iterator referring to the (possibly newly
+        // inserted) 'value_type' object in this unordered map whose key is the
+        // same as that of the object to be inserted, and whose 'second' member
         // is 'true' if a new value was inserted, and 'false' if the value was
         // already present.  Note that this method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be "copy-constructible" (see
-        // {Requirements on 'KEY' and 'VALUE'}).  Also note that this one
-        // template stands in for two 'insert' functions in the C++11 standard.
+        // parameter) types 'KEY' and 'MAPPED' both be "move-constructible"
+        // (see {Requirements on 'value_type'}).  Also note that this one
+        // template stands in for three 'insert' functions in the C++11
+        // standard.
 
     template <class SOURCE_TYPE>
-    iterator insert(const_iterator hint, const SOURCE_TYPE& value);
+    iterator insert(const_iterator                                 hint,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
         // Insert the specified 'value' into this unordered map if the key (the
-        // 'first' element) of a 'value_type' object constructed from 'value'
-        // does not already exist in this unordered map.  Return an iterator
-        // referring to the (possibly newly inserted) 'value_type' object in
-        // this unordered map whose key is the same as that of the converted
-        // 'value'.  The behavior is undefined unless the specified 'hint' is a
-        // valid iterator into this unordered map.  Note that this method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
-        // Also note that 'hint' is not used by this method template, and this
-        // one template stands in for two 'insert' functions in the C++11
-        // standard.
+        // 'first' element) of the object referred to by 'value' does not
+        // already exist in this unordered map; otherwise, this method has no
+        // effect (a 'value_type' object having the same key as the converted
+        // 'value' already exists in this unordered map) .  Return a 'pair'
+        // whose 'first' member is an iterator referring to the (possibly newly
+        // inserted) 'value_type' object in this unordered map whose key is the
+        // same as that of the object to be inserted, and whose 'second' member
+        // is 'true' if a new value was inserted, and 'false' if the value was
+        // already present.  Note that the specified 'hint' is ignored.  Also
+        // note that this method requires that the (template parameter) types
+        // 'KEY' and 'MAPPED' both be "move-constructible" (see {Requirements
+        // on 'KEY' and 'MAPPED'}).  Also note that this one template stands in
+        // for three 'insert' functions in the C++11 standard.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1266,8 +1828,22 @@ class unordered_map {
         // a type convertible to 'value_type'.  The behavior is undefined
         // unless 'first' and 'last' refer to a sequence of valid values where
         // 'first' is at a position at or before 'last'.  Note that this method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // requires that the (template parameter) types 'KEY' and 'MAPPED' both
+        // be "copy-constructible" (see {Requirements on 'value_type'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void insert(std::initializer_list<value_type> values);
+        // Create a 'value_type' object for each element in the specified
+        // 'values'.  Insert into this unordered map each such object whose key
+        // is not already contained.  The (template parameter) type
+        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to 'value_type'.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'MAPPED' both
+        // be "copy-constructible" (see {Requirements on 'value_type'}).
+#endif
 
     pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
@@ -1446,34 +2022,34 @@ class unordered_map {
 };
 
 // FREE OPERATORS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-bool operator==(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-                const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+bool operator==(const unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
+                const unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'unordered_map' objects have the
     // same value if they have the same number of key-value pairs, and for each
     // key-value pair that is contained in 'lhs' there is a key-value pair
     // contained in 'rhs' having the same value, and vice versa.  Note that
     // this method requires that the (template parameter) types 'KEY' and
-    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
-    // 'VALUE'}).
+    // 'MAPPED' both be "equality-comparable" (see {Requirements on
+    // 'value_type'}).
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-bool operator!=(const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-                const unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs);
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+bool operator!=(const unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
+                const unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'unordered_map' objects do not
     // have the same value if they do not have the same number of key-value
     // pairs, or for some key-value pair that is contained in 'lhs' there is
     // not a key-value pair in 'rhs' having the same value or vice-versa.  Note
     // that this method requires that the (template parameter) types 'KEY' and
-    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
-    // 'VALUE'}).
+    // 'MAPPED' both be "equality-comparable" (see {Requirements on
+    // 'value_type'}).
 
 // FREE FUNCTIONS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
-          unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b);
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+void swap(unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
+          unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b);
     // Exchange the value, the hasher, the key-equality functor, and the
     // 'max_load_factor' of the specified 'a' object with those of the
     // specified 'b' object.  If the (template parameter) type 'ALLOCATOR' has
@@ -1498,9 +2074,9 @@ namespace bsl
                         //--------------------
 
 // CREATORS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::
 unordered_map(size_type             initialNumBuckets,
               const hasher&         hashFunction,
               const key_equal&      keyEqual,
@@ -1509,9 +2085,44 @@ unordered_map(size_type             initialNumBuckets,
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                       size_type             initialNumBuckets,
+                                       const hasher&         hashFunction,
+                                       const allocator_type& basicAllocator)
+: d_impl(hashFunction, key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                       size_type             initialNumBuckets,
+                                       const allocator_type& basicAllocator)
+: d_impl(hasher(), key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                          const allocator_type& basicAllocator)
+: d_impl(basicAllocator)
+{
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map()
+: d_impl()
+{
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 template <class INPUT_ITERATOR>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
@@ -1523,9 +2134,96 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
     this->insert(first, last);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
 inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                       INPUT_ITERATOR        first,
+                                       INPUT_ITERATOR        last,
+                                       size_type             initialNumBuckets,
+                                       const hasher&         hashFunction,
+                                       const allocator_type& basicAllocator)
+: d_impl(hashFunction, key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                       INPUT_ITERATOR        first,
+                                       INPUT_ITERATOR        last,
+                                       size_type             initialNumBuckets,
+                                       const allocator_type& basicAllocator)
+: d_impl(hasher(), key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    this->insert(first, last);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                                       INPUT_ITERATOR        first,
+                                       INPUT_ITERATOR        last,
+                                       const allocator_type& basicAllocator)
+: d_impl(basicAllocator)
+{
+    this->insert(first, last);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                           std::initializer_list<value_type> values,
+                           size_type                         initialNumBuckets,
+                           const hasher&                     hashFunction,
+                           const key_equal&                  keyEqual,
+                           const allocator_type&             basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+{
+    insert(values.begin(), values.end());
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                           std::initializer_list<value_type> values,
+                           size_type                         initialNumBuckets,
+                           const hasher&                     hashFunction,
+                           const allocator_type&             basicAllocator)
+: d_impl(hashFunction, key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    insert(values.begin(), values.end());
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                           std::initializer_list<value_type> values,
+                           size_type                         initialNumBuckets,
+                           const allocator_type&             basicAllocator)
+: d_impl(hasher(), key_equal(), initialNumBuckets, 1.0f, basicAllocator)
+{
+    insert(values.begin(), values.end());
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                           std::initializer_list<value_type> values,
+                           const allocator_type&             basicAllocator)
+: d_impl(basicAllocator)
+{
+    insert(values.begin(), values.end());
+}
+#endif
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                  const unordered_map& original)
 : d_impl(original.d_impl,
          AllocatorTraits::select_on_container_copy_construction(
@@ -1533,55 +2231,136 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                          const allocator_type& basicAllocator)
-: d_impl(basicAllocator)
-{
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                           const unordered_map&  original,
                                           const allocator_type& basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::~unordered_map()
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                        BloombergLP::bslmf::MovableRef<unordered_map> original)
+: d_impl(MoveUtil::access(original).get_allocator())
+{
+    unordered_map& lvalue = original;
+
+    this->swap(lvalue);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::unordered_map(
+                  BloombergLP::bslmf::MovableRef<unordered_map> original,
+                  const allocator_type&                         basicAllocator)
+: d_impl(MoveUtil::move(MoveUtil::access(original).d_impl), basicAllocator)
+{
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::~unordered_map()
 {
     // All memory management is handled by the base 'd_impl' member.
 }
 
 // MANIPULATORS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator=(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator=(
                                                       const unordered_map& rhs)
 {
+    // We don't have access to assign to the 'allocator' field of 'd_impl'.
+    // When this trait is no longer always hard-wired to be 'false', we will
+    // have to change 'bslstl::HashTable' to give us such access and change
+    // this function.
+
+    BSLMF_ASSERT(
+              !AllocatorTraits::propagate_on_container_copy_assignment::value);
+
     unordered_map(rhs, this->get_allocator()).swap(*this);
     return *this;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator=(
+                             BloombergLP::bslmf::MovableRef<unordered_map> rhs)
+{
+    unordered_map& lvalue = rhs;
+
+    d_impl = MoveUtil::move(lvalue.d_impl);
+
+    return *this;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator=(
+                                         std::initializer_list<value_type> rhs)
+{
+    unordered_map tmp(rhs.begin(), rhs.end(), d_impl.allocator());
+
+    this->swap(tmp);
+
+    return *this;
+}
+#endif
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator[](
                                                            const key_type& key)
 {
     HashTableLink *node = d_impl.insertIfMissing(key);
     return static_cast<HashTableNode *>(node)->value().second;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::operator[](
+                                  BloombergLP::bslmf::MovableRef<key_type> key)
+{
+    key_type& lkey = key;
+
+    // Don't bother creating 'defaultMapped' until after we've made sure the
+    // key isn't found.
+
+    iterator it = this->find(lkey);
+    if (this->end() != it) {
+        return it->second;                                            // RETURN
+    }
+
+    ALLOCATOR alloc = d_impl.allocator();    // TBD: 'd_impl.allocator()'
+                                             // should return a modifiable
+                                             // allocator.
+
+    BloombergLP::bsls::ObjectBuffer<mapped_type> defaultMapped;
+    AllocatorTraits::construct(alloc, defaultMapped.address());
+    BloombergLP::bslma::DestructorGuard<mapped_type> mappedGuard(
+                                                      defaultMapped.address());
+
+    pair<iterator, bool> pr = this->emplace(
+                                       MoveUtil::move(lkey),
+                                       MoveUtil::move(defaultMapped.object()));
+    BSLS_ASSERT_SAFE(pr.second);
+
+    return pr.first->second;
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
 {
     HashTableLink *node = d_impl.find(key);
 
@@ -1593,55 +2372,802 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(const key_type& key)
     return static_cast<HashTableNode *>(node)->value().second;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin()
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin()
 {
     return iterator(d_impl.elementListRoot());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end()
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end()
 {
     return iterator();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
 
     return local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
 
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::clear()
 {
     d_impl.removeAll();
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(Args&&... args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator, Args&&... args)
+{
+    // There is no realistic use-case for the 'hint' in an 'unordered_map' of
+    // unique values.  We could quickly test for a duplicate key, and have a
+    // fast return path for when the method fails, but in the typical use case
+    // where a new element is inserted, we are adding an extra key check for no
+    // benefit.  In order to insert an element into a bucket, we need to walk
+    // the whole bucket looking for duplicates, and the hint is no help in
+    // finding the start of a bucket.
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                               )
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag);
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+
+    return iterator(result);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                              BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+
+    return iterator(result);
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    typedef bsl::pair<iterator, bool> ResultType;
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return ResultType(iterator(result), isInsertedFlag);
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+template <class... Args>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::emplace_hint(
+                                                const_iterator,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+
+    bool isInsertedFlag = false;
+
+    HashTableLink *result = d_impl.emplaceIfMissing(
+                                 &isInsertedFlag,
+                                 BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+
+    return iterator(result);
+}
+// }}} END GENERATED CODE
+#endif
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::erase(
                                                        const_iterator position)
 {
     BSLS_ASSERT_SAFE(position != this->end());
@@ -1649,11 +3175,12 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(
     return iterator(d_impl.remove(position.node()));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
 {
-    if (HashTableLink *target = d_impl.find(key)) {
+    HashTableLink *target = d_impl.find(key);
+    if (target) {
         d_impl.remove(target);
         return 1;                                                     // RETURN
     }
@@ -1662,10 +3189,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
-                                                         const_iterator last)
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
+                                                          const_iterator last)
 {
 
 #if defined BDE_BUILD_TARGET_SAFE_2
@@ -1689,36 +3216,41 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::erase(const_iterator first,
     return iterator(first.node()); // convert from const_iterator
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::find(const key_type& key)
 {
     return iterator(d_impl.find(key));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 template <class SOURCE_TYPE>
-bsl::pair<typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-          bool>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                      const SOURCE_TYPE& value)
+inline
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         bool>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::insert(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
 {
     typedef bsl::pair<iterator, bool> ResultType;
 
     bool isInsertedFlag = false;
 
-    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+    HashTableLink *result = d_impl.insertIfMissing(
+                            &isInsertedFlag,
+                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
 
     return ResultType(iterator(result), isInsertedFlag);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 template <class SOURCE_TYPE>
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
-                                                      const_iterator,
-                                                      const SOURCE_TYPE& value)
+inline
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::insert(
+                          const_iterator,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value)
 {
     // There is no realistic use-case for the 'hint' in an 'unordered_map' of
     // unique values.  We could quickly test for a duplicate key, and have a
@@ -1730,34 +3262,50 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
 
     bool isInsertedFlag;  // not used
 
-    HashTableLink *result = d_impl.insertIfMissing(&isInsertedFlag, value);
+    HashTableLink *result = d_impl.insertIfMissing(
+                            &isInsertedFlag,
+                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
 
     return iterator(result);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 template <class INPUT_ITERATOR>
-void unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
+void unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::insert(
                                                           INPUT_ITERATOR first,
                                                           INPUT_ITERATOR last)
 {
-    size_type maxInsertions =
-            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-    if (maxInsertions) {
+    difference_type maxInsertions =
+              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+    if (0 < maxInsertions) {
         this->reserve(this->size() + maxInsertions);
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 == maxInsertions);
     }
 
     bool isInsertedFlag;  // not used
     while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        d_impl.emplaceIfMissing(&isInsertedFlag, *first);
         ++first;
     }
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-bsl::pair<typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator,
-          typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::iterator>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+void unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::insert(
+                                      std::initializer_list<value_type> values)
+{
+    insert(values.begin(), values.end());
+}
+#endif
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+bsl::pair<
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator,
+         typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::iterator>
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::equal_range(
                                                            const key_type& key)
 {
     typedef bsl::pair<iterator, iterator> ResultType;
@@ -1768,48 +3316,54 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
          : ResultType(iterator(0),     iterator(0));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_load_factor(
                                                         float newMaxLoadFactor)
-
 {
     d_impl.setMaxLoadFactor(newMaxLoadFactor);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::rehash(size_type numBuckets)
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::rehash(
+                                                          size_type numBuckets)
 {
     d_impl.rehashForNumBuckets(numBuckets);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::reserve(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::reserve(
                                                          size_type numElements)
 {
     d_impl.reserveForNumElements(numElements);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 {
     BSLS_ASSERT_SAFE(this->get_allocator() == other.get_allocator());
+
+    // 'bslstl::HashTable' does not expose its allocator field for write
+    // access after construction.  When this trait is no longer hard wired to
+    // false, both 'bslstl::HashTable' and this method will need to change.
+
+    BSLMF_ASSERT(!AllocatorTraits::propagate_on_container_swap::value);
 
     d_impl.swap(other.d_impl);
 }
 
 // ACCESSORS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 const typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::mapped_type&
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::mapped_type&
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::at(
                                                      const key_type& key) const
 {
     HashTableLink *target = d_impl.find(key);
@@ -1820,66 +3374,43 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::at(
     return static_cast<HashTableNode *>(target)->value().second;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin() const
 {
     return const_iterator(d_impl.elementListRoot());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end() const
 {
     return const_iterator();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cbegin() const
 {
     return const_iterator(d_impl.elementListRoot());
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cend() const
 {
     return const_iterator();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename
-        unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::begin(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(&d_impl.bucketAtIndex(index));
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
-{
-    BSLS_ASSERT_SAFE(index < this->bucket_count());
-
-    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
-}
-
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-inline
-typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::begin(
                                                          size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
@@ -1887,46 +3418,70 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cbegin(
     return const_local_iterator(&d_impl.bucketAtIndex(index));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_local_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
 
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket(
+typename
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cbegin(
+                                                         size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(&d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_local_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::cend(size_type index) const
+{
+    BSLS_ASSERT_SAFE(index < this->bucket_count());
+
+    return const_local_iterator(0, &d_impl.bucketAtIndex(index));
+}
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+inline
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::bucket(
                                                      const key_type& key) const
 {
     return d_impl.bucketIndexForKey(key);
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_count() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::bucket_count() const
 {
     return d_impl.numBuckets();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
     return d_impl.maxNumBuckets();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::bucket_size(
                                                          size_type index) const
 {
     BSLS_ASSERT_SAFE(index < this->bucket_count());
@@ -1935,35 +3490,35 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::bucket_size(
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::count(
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::count(
                                                      const key_type& key) const
 {
     return d_impl.find(key) != 0;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::empty() const
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::empty() const
 {
     return 0 == d_impl.size();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 bsl::pair<typename unordered_map<KEY,
-                                 VALUE,
+                                 MAPPED,
                                  HASH,
                                  EQUAL,
                                  ALLOCATOR>::const_iterator,
           typename unordered_map<KEY,
-                                 VALUE,
+                                 MAPPED,
                                  HASH,
                                  EQUAL,
                                  ALLOCATOR>::const_iterator>
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::equal_range(
                                                      const key_type& key) const
 {
     typedef bsl::pair<const_iterator, const_iterator> ResultType;
@@ -1974,69 +3529,69 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::equal_range(
          : ResultType(const_iterator(0),     const_iterator(0));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename
-       unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::const_iterator
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
+       unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::const_iterator
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::find(
                                                      const key_type& key) const
 {
     return const_iterator(d_impl.find(key));
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 ALLOCATOR
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::get_allocator() const
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::get_allocator() const
 {
     return d_impl.allocator();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hasher
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::hash_function() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::hasher
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::hash_function() const
 {
     return d_impl.hasher();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_equal
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::key_eq() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::key_equal
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::key_eq() const
 {
     return d_impl.comparator();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::load_factor() const
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::load_factor() const
 {
     return d_impl.loadFactor();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
 {
     return d_impl.maxLoadFactor();
 }
 
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size() const
 {
     return d_impl.size();
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
-typename unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::size_type
-unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
+typename unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::size_type
+unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>::max_size() const
 {
     return d_impl.maxSize();
 }
@@ -2044,30 +3599,30 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
 }  // close namespace bsl
 
 // FREE OPERATORS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
-             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
+            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return lhs.d_impl == rhs.d_impl;
 }
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
-             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& lhs,
+            const bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
 }
 
 // FREE FUNCTIONS
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
-          bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b)
+bsl::swap(bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& a,
+          bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR>& b)
 {
     a.swap(b);
 }
@@ -2087,8 +3642,9 @@ bsl::swap(bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
 namespace BloombergLP {
 namespace bslalg {
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
-struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
+struct HasStlIterators<
+                      bsl::unordered_map<KEY, MAPPED, HASH, EQUAL, ALLOCATOR> >
      : bsl::true_type
 {};
 
@@ -2096,9 +3652,9 @@ struct HasStlIterators<bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR> >
 
 namespace bslma {
 
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOCATOR>
 struct UsesBslmaAllocator<bsl::unordered_map<KEY,
-                                             VALUE,
+                                             MAPPED,
                                              HASH,
                                              EQUAL,
                                              ALLOCATOR> >

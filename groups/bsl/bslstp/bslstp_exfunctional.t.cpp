@@ -3,6 +3,18 @@
 
 #include <bslstp_exfunctional.h>
 
+#include <bslstl_pair.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_istriviallycopyable.h>
+
+typedef bsl::pair<int, int> pair_type;
+
+BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::identity<int> >::value));
+BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::select1st<pair_type> >::value));
+BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::select2nd<pair_type> >::value));
+BSLMF_ASSERT((bsl::is_trivially_copyable<bsl::StringComparator>::value));
+
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 int main() { return -1; }   // empty test driver

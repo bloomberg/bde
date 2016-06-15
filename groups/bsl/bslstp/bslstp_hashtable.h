@@ -55,10 +55,6 @@
 #include <bslstp_alloc.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_HASH
-#include <bslstl_hash.h>
-#endif
-
 #ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h> // const and nonconst traits for iterator
 #endif
@@ -67,24 +63,8 @@
 #include <bslstp_util.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
-#include <bslstl_pair.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_VECTOR
-#include <bslstl_vector.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
@@ -93,6 +73,22 @@
 
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include <bslstl_pair.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_VECTOR
+#include <bslstl_vector.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -109,7 +105,6 @@
 #include <functional>
 #define INCLUDED_FUNCTIONAL
 #endif
-
 
 // Hashtable class, used to implement the hashed associative containers
 // hash_set, hash_map, hash_multiset, and hash_multimap.

@@ -481,7 +481,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                               bslma::Allocator *basicAllocator)
 {
     ScalarPrimitives::defaultConstruct(
-                                  BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                  d_objectBuffer.address(),
                                   basicAllocator);
 }
 
@@ -492,7 +492,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                           bslma::Allocator                     *basicAllocator)
 {
     ScalarPrimitives::copyConstruct(
-                                  BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+                                  d_objectBuffer.address(),
                                   original.object(),
                                   basicAllocator);
 }
@@ -504,7 +504,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                           const ConstructorProxy<SOURCE_TYPE>&  original,
                           bslma::Allocator                     *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 original.object(),
                                 basicAllocator);
 }
@@ -515,7 +515,7 @@ inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                               const ARG1& a1, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1,
                                 basicAllocator);
 }
@@ -526,7 +526,7 @@ inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
               const ARG1& a1, const ARG2& a2, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2,
                                 basicAllocator);
 }
@@ -538,7 +538,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                 const ARG1& a1, const ARG2& a2, const ARG3& a3,
                                 bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3,
                                 basicAllocator);
 }
@@ -550,7 +550,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
                 bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4,
                                 basicAllocator);
 }
@@ -563,7 +563,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
                 const ARG5& a5, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5,
                                 basicAllocator);
 }
@@ -576,7 +576,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
               const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
               const ARG5& a5, const ARG6& a6, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6,
                                 basicAllocator);
 }
@@ -590,7 +590,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG5& a5, const ARG6& a6, const ARG7& a7,
                 bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7,
                                 basicAllocator);
 }
@@ -604,7 +604,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
                 bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8,
                                 basicAllocator);
 }
@@ -619,7 +619,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
                 const ARG9& a9, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9,
                                 basicAllocator);
 }
@@ -634,7 +634,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
             const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
             const ARG9& a9, const ARG10& a10, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
                                 basicAllocator);
 }
@@ -650,7 +650,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                 const ARG9& a9, const ARG10& a10, const ARG11& a11,
                 bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                                 basicAllocator);
 }
@@ -666,7 +666,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
           bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                                 a12, basicAllocator);
 }
@@ -683,7 +683,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
           const ARG13& a13, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                                 a12, a13, basicAllocator);
 }
@@ -700,7 +700,7 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
           const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
           const ARG13& a13, const ARG14& a14, bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::construct(BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()),
+    ScalarPrimitives::construct(d_objectBuffer.address(),
                                 a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
                                 a12, a13, a14, basicAllocator);
 }
@@ -709,8 +709,7 @@ template <class OBJECT_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::~ConstructorProxy()
 {
-    ScalarDestructionPrimitives::destroy(
-                                 BSLS_UTIL_ADDRESSOF(d_objectBuffer.object()));
+    ScalarDestructionPrimitives::destroy(d_objectBuffer.address());
 }
 
 // MANIPULATORS

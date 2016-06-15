@@ -1,18 +1,20 @@
-// bslma_allocatoradaptor.t.cpp                  -*-C++-*-
+// bslma_allocatoradaptor.t.cpp                                       -*-C++-*-
 
-#include "bslma_allocatoradaptor.h"
+#include <bslma_allocatoradaptor.h>
 
 #include <bslma_testallocator.h>
+
 #include <bsls_alignment.h>
+#include <bsls_bsltestutil.h>
 
 #include <new>
-#include <cstdio>
-#include <cstdlib>
-#include <climits>
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
-using namespace bsl;
+
 
 //=============================================================================
 //                             TEST PLAN
@@ -22,95 +24,48 @@ using namespace bsl;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-int verbose = 0;
-int veryVerbose = 0;
-int veryVeryVerbose = 0;
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");     // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n")  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
-#define L_ __LINE__                        // current Line number
-#define T_ putchar('\t');                  // Print a tab (w/o newline)
-
-//=============================================================================
-//                      GLOBAL HELPER FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%hd", val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {printf("%hu", val); fflush(stdout);}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%lu", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) { printf("%lu", val); fflush(stdout);}
-// inline void dbg_print(Int64 val) { printf("%lld", val); fflush(stdout); }
-// inline void dbg_print(Uint64 val) { printf("%llu", val); fflush(stdout); }
-inline void dbg_print(float val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -324,24 +279,37 @@ public:
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // USAGE TEST
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-	//
-        // Testing:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -354,6 +322,14 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //
+        // Concerns:
+        //: 1 Exercise basic functionality of component
+        //
+        // Plan:
+        //: 1
+        //
+        // Testing:
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -367,7 +343,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         void *p = adaptor.allocate(sizeof(TestObj));
         ASSERT(1 == ta.numBlocksInUse());
-        ASSERT(sizeof(TestObj) <= ta.numBytesInUse());
+        ASSERT(sizeof(TestObj) <= static_cast<size_t>(ta.numBytesInUse()));
         ASSERT(ta.numBytesInUse() <=
                sizeof(TestObj) + sizeof(bsls::AlignmentUtil::MaxAlignedType));
         TestObj *tp = ::new(p) TestObj;

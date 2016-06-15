@@ -175,6 +175,10 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)        veryVerbose;  // unused variable warning
+    (void)    veryVeryVerbose;  // unused variable warning
+    (void)veryVeryVeryVerbose;  // unused variable warning
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:

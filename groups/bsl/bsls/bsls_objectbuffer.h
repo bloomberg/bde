@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide raw buffer with size and alignment of user-specified type.
 //
+//@REVIEW_FOR_MASTER: review 'address' doc, test 'address'
+//
 //@CLASSES:
 //  bsls::ObjectBuffer: templatized buffer aligned to hold specified type
 //
@@ -256,24 +258,33 @@ union ObjectBuffer {
     // operator or copy constructor.
 
     // MANIPULATORS
-    TYPE& object();
-        // Return a modifiable reference to the 'TYPE' object occupying this
-        // buffer.  The referenced object has undefined state unless a valid
-        // 'T' object has been constructed in this buffer.
+    TYPE *address();
+        // Return a the address of the first byte of this object, cast to a
+        // 'TYPE*' pointer.
 
     char *buffer();
         // Return a the address of the first byte of this object, cast to a
         // 'char*' pointer.
 
-    // ACCESSORS
-    const TYPE& object() const;
-        // Return a const reference to the 'TYPE' object occupying this
+    TYPE& object();
+        // Return a modifiable reference to the 'TYPE' object occupying this
         // buffer.  The referenced object has undefined state unless a valid
         // 'T' object has been constructed in this buffer.
+
+    // ACCESSORS
+    const TYPE *address() const;
+        // Return a the address of the first byte of this object, cast to a
+        // 'const TYPE*' pointer.
+
 
     const char *buffer() const;
         // Return a the address of the first byte of this object, cast to a
         // 'const char*' pointer.
+
+    const TYPE& object() const;
+        // Return a const reference to the 'TYPE' object occupying this
+        // buffer.  The referenced object has undefined state unless a valid
+        // 'T' object has been constructed in this buffer.
 };
 
 // ============================================================================
@@ -283,9 +294,12 @@ union ObjectBuffer {
 // MANIPULATORS
 template <class TYPE>
 inline
-TYPE& ObjectBuffer<TYPE>::object()
+TYPE *ObjectBuffer<TYPE>::address()
 {
-    return *reinterpret_cast<TYPE*>(this);
+    // A redundant cast to 'void *' persuades gcc/Solaris that there are no
+    // alignment issues to warn about.
+
+    return reinterpret_cast<TYPE *>(static_cast<void *>(d_buffer));
 }
 
 template <class TYPE>
@@ -295,12 +309,22 @@ char *ObjectBuffer<TYPE>::buffer()
     return d_buffer;
 }
 
+template <class TYPE>
+inline
+TYPE& ObjectBuffer<TYPE>::object()
+{
+    return *reinterpret_cast<TYPE*>(this);
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
-const TYPE& ObjectBuffer<TYPE>::object() const
+const TYPE *ObjectBuffer<TYPE>::address() const
 {
-    return *reinterpret_cast<const TYPE*>(this);
+    // A redundant cast to 'const void *' persuades gcc/Solaris that there are
+    // no alignment issues to warn about.
+
+    return reinterpret_cast<const TYPE *>(static_cast<const void *>(d_buffer));
 }
 
 template <class TYPE>
@@ -308,6 +332,13 @@ inline
 const char *ObjectBuffer<TYPE>::buffer() const
 {
     return d_buffer;
+}
+
+template <class TYPE>
+inline
+const TYPE& ObjectBuffer<TYPE>::object() const
+{
+    return *reinterpret_cast<const TYPE*>(this);
 }
 
 }  // close package namespace

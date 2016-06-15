@@ -18,16 +18,16 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //
-//@DESCRIPTION: This component implements a memory pool that dispenses memory
-// blocks of any requested size from an internal buffer or an optional
-// user-supplied buffer.  If an allocation request exceeds the remaining free
-// memory space in the pool, the pool either replenishes its buffer with new
-// memory to satisfy the request, or returns a separate memory block, depending
-// on whether the request size exceeds an optionally specified maximum buffer
-// size.  By default, buffer growth is not capped.  The 'release' method
-// releases all memory allocated through this pool, as does the destructor.
-// Note, however, that individual allocated blocks of memory cannot be
-// separately deallocated.
+//@DESCRIPTION: This component implements a memory pool,
+// 'bslma::SequentialPool', that dispenses memory blocks of any requested size
+// from an internal buffer or an optional user-supplied buffer.  If an
+// allocation request exceeds the remaining free memory space in the pool, the
+// pool either replenishes its buffer with new memory to satisfy the request,
+// or returns a separate memory block, depending on whether the request size
+// exceeds an optionally specified maximum buffer size.  By default, buffer
+// growth is not capped.  The 'release' method releases all memory allocated
+// through this pool, as does the destructor.  Note, however, that individual
+// allocated blocks of memory cannot be separately deallocated.
 //
 ///Alignment Strategy
 ///------------------
@@ -101,19 +101,19 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The 'bslma::SequentialPool' can be used to allocate memory for containers of
-// non-homogeneous elements, such as 'my_List' below.  Note that the use of a
+// non-homogeneous elements, such as 'MyList' below.  Note that the use of a
 // sequential pool allows the 'operator=' and 'removeAll' methods to quickly
 // deallocate memory of all elements by calling the 'release' method of the
-// pool.  Similarly, the destructor of 'my_List' simply allows the pool's
+// pool.  Similarly, the destructor of 'MyList' simply allows the pool's
 // destructor to deallocate memory for all elements:
 //..
-//  // my_list.h
+//  // MyList.h
 //  #include <bsls_types.h>
 //  #include <bslma_sequentialpool.h>
 //
 //  namespace bslma { class Allocator; }
 //
-//  class my_List {
+//  class MyList {
 //      char                   *d_typeArray_p;
 //      void                  **d_list_p;
 //      int                     d_length;
@@ -122,19 +122,19 @@ BSLS_IDENT("$Id: $")
 //      bslma::SequentialPool   d_pool;
 //
 //      // NOT IMPLEMENTED
-//      my_List(const my_List&);
+//      MyList(const MyList&);
 //
 //    private:
-//      my_List(char* buffer, int bufferSize, bslma::Allocator *basicAllocator);
+//      MyList(char* buffer, int bufferSize, bslma::Allocator *basicAllocator);
 //      void increaseSize();
 //
 //    public:
 //      enum Type { INT, DOUBLE, INT64 };
 //
-//      my_List(bslma::Allocator *basicAllocator);
+//      MyList(bslma::Allocator *basicAllocator);
 //
-//      ~my_List();
-//      my_List& operator=(const my_List& rhs);
+//      ~MyList();
+//      MyList& operator=(const MyList& rhs);
 //      void append(int value);
 //      void append(double value);
 //      void append(bsls::Types::Int64 value);
@@ -148,52 +148,52 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  inline
-//  void my_List::removeAll()
+//  void MyList::removeAll()
 //  {
 //      d_pool.release();
 //      d_length = 0;
 //  }
 //
 //  inline
-//  const int *my_List::theInt(int index) const
+//  const int *MyList::theInt(int index) const
 //  {
 //      return (int *) d_list_p[index];
 //  }
 //
 //  inline
-//  const double *my_List::theDouble(int index) const
+//  const double *MyList::theDouble(int index) const
 //  {
 //      return (double *) d_list_p[index];
 //  }
 //
 //  inline
-//  const bsls::Types::Int64 *my_List::theInt64(int index) const
+//  const bsls::Types::Int64 *MyList::theInt64(int index) const
 //  {
 //      return (bsls::Types::Int64 *) d_list_p[index];
 //  }
 //
 //  inline
-//  const my_List::Type my_List::type(int index) const
+//  const MyList::Type MyList::type(int index) const
 //  {
 //      return (Type) d_typeArray_p[index];
 //  }
 //
 //  inline
-//  int my_List::length() const
+//  int MyList::length() const
 //  {
 //      return d_length;
 //  }
 //
 //  // ...
 //
-//  // my_list.cpp
-//  #include <my_list.h>
+//  // MyList.cpp
+//  #include <MyList.h>
 //  #include <bslma_allocator.h>
 //
 //  enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 //
 //  static
-//  void copyElement(void **list, my_List::Type type, int index,
+//  void copyElement(void **list, MyList::Type type, int index,
 //                   void *srcElement, bslma::SequentialPool *pool)
 //      // Copy the value of the specified 'srcElement' of the specified 'type'
 //      // to the specified 'index' position in the specified 'list'.  Use the
@@ -207,20 +207,20 @@ BSLS_IDENT("$Id: $")
 //      typedef bsls::Types::Int64 Int64;
 //
 //      switch (type) {
-//        case my_List::INT:
+//        case MyList::INT:
 //          list[index] = new(pool->allocate(sizeof(int)))
 //                        int(*((int *) srcElement));
 //          break;
-//        case my_List::DOUBLE:
+//        case MyList::DOUBLE:
 //          list[index] = new(pool->allocate(sizeof(double)))
 //                        double(*((double *) srcElement));
 //          break;
-//        case my_List::INT64:
+//        case MyList::INT64:
 //          list[index] = new(pool->allocate(sizeof(Int64)))
 //                        Int64(*((Int64 *) srcElement));
 //          break;
 //        default:
-//          assert(0 && "ERROR (my_List): Invalid element type.");
+//          assert(0 && "ERROR (MyList): Invalid element type.");
 //      }
 //  }
 //
@@ -259,14 +259,14 @@ BSLS_IDENT("$Id: $")
 //      *size = newSize;
 //  }
 //
-//  void my_List::increaseSize()
+//  void MyList::increaseSize()
 //  {
 //       int newSize = d_size * GROW_FACTOR;
 //       reallocate(&d_list_p, &d_typeArray_p, &d_size, newSize,
 //                  d_length, d_allocator_p);
 //  }
 //
-//  my_List::my_List(char* buffer, int bufferSize,
+//  MyList::MyList(char* buffer, int bufferSize,
 //                   bslma::Allocator *basicAllocator)
 //  : d_length()
 //  , d_size(MY_INITIAL_SIZE)
@@ -281,7 +281,7 @@ BSLS_IDENT("$Id: $")
 //          (void **) d_allocator_p->allocate(d_size * sizeof *d_list_p);
 //  }
 //
-//  my_List::my_List(bslma::Allocator *basicAllocator)
+//  MyList::MyList(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
 //  , d_pool(basicAllocator)
@@ -295,7 +295,7 @@ BSLS_IDENT("$Id: $")
 //          (void **) d_allocator_p->allocate(d_size * sizeof *d_list_p);
 //  }
 //
-//  my_List::~my_List()
+//  MyList::~MyList()
 //  {
 //      assert(d_typeArray_p);
 //      assert(d_list_p);
@@ -307,7 +307,7 @@ BSLS_IDENT("$Id: $")
 //      d_allocator_p->deallocate(d_list_p);
 //  }
 //
-//  my_List& my_List::operator=(const my_List& rhs)
+//  MyList& MyList::operator=(const MyList& rhs)
 //  {
 //      if (&rhs != this) {
 //          // not aliased
@@ -329,29 +329,29 @@ BSLS_IDENT("$Id: $")
 //      return *this;
 //  }
 //
-//  void my_List::append(int value)
+//  void MyList::append(int value)
 //  {
 //      if (d_length >= d_size) {
 //          increaseSize();
 //      }
 //      int *item = (int *) d_pool.allocate(sizeof *item);
 //      *item = value;
-//      d_typeArray_p[d_length] = (char) my_List::INT;
+//      d_typeArray_p[d_length] = (char) MyList::INT;
 //      d_list_p[d_length++] = item;
 //  }
 //
-//  void my_List::append(double value)
+//  void MyList::append(double value)
 //  {
 //      if (d_length >= d_size) {
 //          increaseSize();
 //      }
 //      double *item = (double *) d_pool.allocate(sizeof *item);
 //      *item = value;
-//      d_typeArray_p[d_length] = (char) my_List::DOUBLE;
+//      d_typeArray_p[d_length] = (char) MyList::DOUBLE;
 //      d_list_p[d_length++] = item;
 //  }
 //
-//  void my_List::append(bsls::Types::Int64 value)
+//  void MyList::append(bsls::Types::Int64 value)
 //  {
 //      typedef bsls::Types::Int64 Int64;
 //
@@ -360,7 +360,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //      Int64 *item = (Int64 *) d_pool.allocate(sizeof *item);
 //      *item = value;
-//      d_typeArray_p[d_length] = (char) my_List::INT64;
+//      d_typeArray_p[d_length] = (char) MyList::INT64;
 //      d_list_p[d_length++] = item;
 //  }
 //..
@@ -586,17 +586,17 @@ class SequentialPool {
         // '0 <= *size <= maxNumBytes'.
 
     template <class TYPE>
-    void deleteObjectRaw(const TYPE *object);
-        // Destroy the specified 'object'.  Note that the memory is not
-        // deallocated because there is no 'deallocate' method in a
-        // 'bslma_sequentialpool'.
-
-    template <class TYPE>
     void deleteObject(const TYPE *object);
         // Destroy the specified 'object'.  Note that this method is exactly
         // the same as the the 'deleteObjectRaw' method since no deallocation
         // is involved.  This method exists purely for consistency across
         // pools.
+
+    template <class TYPE>
+    void deleteObjectRaw(const TYPE *object);
+        // Destroy the specified 'object'.  Note that the memory is not
+        // deallocated because there is no 'deallocate' method in a
+        // 'bslma_sequentialpool'.
 
     int expand(void *address, int originalNumBytes);
         // Increase the amount of memory allocated at the specified 'address'
@@ -639,9 +639,78 @@ class SequentialPool {
         // allocations since the allocation for 'originalNumBytes'.
 };
 
+}  // close package namespace
+}  // close enterprise namespace
+
+// FREE OPERATORS
+
+// Note that the operators 'new' and 'delete' are declared outside the
+// 'BloombergLP' namespace so that they do not hide the standard placement
+// 'new' and 'delete' operators (i.e., 'void *operator new(size_t, void *)' and
+// 'void operator delete(void *)').
+//
+// Note also that only the scalar versions of operators 'new' and 'delete' are
+// provided, because overloading 'new' (and 'delete') with their array versions
+// would cause dangerous ambiguity.  Consider what would have happened had we
+// overloaded the array version of operator 'new':
+//..
+//  void *operator new[](std::size_t size,
+//                       BloombergLP::bslma::Pool& pool)
+//..
+// The user of the pool class would have expected to be able to use
+// 'new-expression':
+//..
+//  new (*pool) my_Type[...];
+//..
+// The problem is that this expression returns an array that cannot be safely
+// deallocated.  On the one hand there is no syntax in C++ to invoke an
+// overloaded operator delete; on the other hand the pointer returned by the
+// 'new-expression' cannot be passed to the 'deallocate' method directly
+// because the pointer is different from the one returned by the 'allocate'
+// method.  The compiler offsets the value of this pointer by an extra header,
+// which the compiler uses to maintain the number of the objects in the array
+// (so that the 'delete-expression' knows how many objects it needs to
+// destroy).
+
+inline
+void *operator new(std::size_t size, BloombergLP::bslma::SequentialPool& pool);
+    // Return the memory allocated from the specified 'pool'.  The behavior is
+    // undefined unless 'size' is the same as 'objectSize' that 'pool' has been
+    // constructed with.  Note that an object may allocate additional memory
+    // internally, requiring the allocator to be passed in as a constructor
+    // argument:
+    //..
+    //  my_Type *newMyType(bslma::Pool *pool, bslma::Allocator *basicAllocator)
+    //  {
+    //      return new (*pool) my_Type(..., basicAllocator);
+    //  }
+    //..
+    // Note also that the analogous version of operator 'delete' should not be
+    // called directly.  Instead, this component provides a static template
+    // member function 'deleteObject' parameterized by 'TYPE' that performs the
+    // following:
+    //..
+    //  void deleteMyType(bslma::Pool *pool, my_Type *t)
+    //  {
+    //      t->~my_Type();
+    //      pool->deallocate(t);
+    //  }
+    //..
+
+inline
+void operator delete(void *address, BloombergLP::bslma::SequentialPool& pool);
+    // Use the specified 'pool' to deallocate the memory at the specified
+    // 'address'.  The behavior is undefined unless 'address' was allocated
+    // using 'pool' and has not already been deallocated.  This operator is
+    // supplied solely to allow the compiler to arrange for it to be called in
+    // case of an exception.
+
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
 
                              // --------------
                              // SequentialPool
@@ -688,69 +757,6 @@ typedef bslma::SequentialPool bslma_SequentialPool;
 }  // close enterprise namespace
 
 // FREE OPERATORS
-
-// Note that the operators 'new' and 'delete' are declared outside the
-// 'BloombergLP' namespace so that they do not hide the standard placement
-// 'new' and 'delete' operators (i.e., 'void *operator new(size_t, void *)' and
-// 'void operator delete(void *)').
-//
-// Note also that only the scalar versions of operators 'new' and 'delete' are
-// provided, because overloading 'new' (and 'delete') with their array versions
-// would cause dangerous ambiguity.  Consider what would have happened had we
-// overloaded the array version of operator 'new':
-//..
-//  void *operator new[](std::size_t size,
-//                       BloombergLP::bslma::Pool& pool)
-//..
-// The user of the pool class would have expected to be able to use
-// 'new-expression':
-//..
-//  new (*pool) my_Type[...];
-//..
-// The problem is that this expression returns an array that cannot be safely
-// deallocated.  On the one hand there is no syntax in C++ to invoke an
-// overloaded operator delete; on the other hand the pointer returned by the
-// 'new-expression' cannot be passed to the 'deallocate' method directly
-// because the pointer is different from the one returned by the 'allocate'
-// method.  The compiler offsets the value of this pointer by an extra header,
-// which the compiler uses to maintain the number of the objects in the array
-// (so that the 'delete-expression' knows how many objects it needs to
-// destroy).
-
-inline
-void *operator new(std::size_t size, BloombergLP::bslma::SequentialPool& pool);
-    // Return the memory allocated from the specified 'pool'.  The behavior is
-    // undefined unless 'size' is the same as 'objectSize' that 'pool' has been
-    // constructed with.  Note that an object may allocate additional memory
-    // internally, requiring the allocator to be passed in as a constructor
-    // argument:
-    //..
-    //  my_Type *newMyType(bslma::Pool *pool, bslma::Allocator *basicAllocator) {
-    //      return new (*pool) my_Type(..., basicAllocator);
-    //  }
-    //..
-    // Note also that the analogous version of operator 'delete' should not be
-    // called directly.  Instead, this component provides a static template
-    // member function 'deleteObject' parameterized by 'TYPE' that performs the
-    // following:
-    //..
-    //  void deleteMyType(bslma::Pool *pool, my_Type *t) {
-    //      t->~my_Type();
-    //      pool->deallocate(t);
-    //  }
-    //..
-
-inline
-void operator delete(void *address, BloombergLP::bslma::SequentialPool& pool);
-    // Use the specified 'pool' to deallocate the memory at the specified
-    // 'address'.  The behavior is undefined unless 'address' was allocated
-    // using 'pool' and has not already been deallocated.  This operator is
-    // supplied solely to allow the compiler to arrange for it to be called in
-    // case of an exception.
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
 
 inline
 void *operator new(std::size_t size, BloombergLP::bslma::SequentialPool& pool)

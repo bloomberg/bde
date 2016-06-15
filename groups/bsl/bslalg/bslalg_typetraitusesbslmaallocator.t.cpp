@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraitusesbslmaallocator.h>
 
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -68,6 +70,22 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslalg::TypeTraitUsesBslmaAllocator  Obj;
 
+struct AllocatorAware {
+    AllocatorAware(bslma::Allocator * = 0) {}
+    AllocatorAware(const AllocatorAware&, bslma::Allocator * = 0) {}
+};
+
+class NotAllocating {
+};
+
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<AllocatorAware> : bsl::true_type {};
+}  // close namespace bslma
+}  // close enterprise namespace
+
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -128,6 +146,9 @@ int main(int argc, char *argv[])
         Obj mX;
 
         (void) mX;
+
+        ASSERT(( bslalg::HasTrait<AllocatorAware, Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotAllocating,  Obj>::VALUE));
 
       } break;
 

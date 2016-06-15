@@ -4,12 +4,16 @@
 
 #include <bslma_managedallocator.h>
 
-#include <cstdlib>     // 'atoi'
-#include <cstring>
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'memcpy'
+
 #include <iostream>
 
 using namespace BloombergLP;
-using namespace std;
+using std::endl;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -43,29 +47,49 @@ using namespace std;
 // [2] ALLOCATING DERIVED CLASS TEST - Implement concrete subclass that
 //       actually does allocate & provide memory (for use by usage example.)
 // [3] USAGE TEST - Ensure main usage example compiles and works properly.
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      CONCRETE DERIVED CLASS FOR TESTING
@@ -82,18 +106,21 @@ class TestAllocator : public bslma::ManagedAllocator {
   public:
     enum { ALLOCATE = 1, DEALLOCATE = 2, RELEASE = 3 };
 
+    // CREATORS
     TestAllocator() : d_fun(0) { globalTestAllocatorDtorCalled = 0; }
     ~TestAllocator() { globalTestAllocatorDtorCalled = 1; }
 
+    // MANIPULATORS
     void *allocate(size_type s) { d_fun = ALLOCATE; d_arg = s; return this; }
     void deallocate(void *)     { d_fun = DEALLOCATE; }
     void release()              { d_fun = RELEASE;    }
 
-    int fun() const { return d_fun; }
-    // Return descriptive code for the function called.
-
+    // ACCESSORS
     size_type arg() const { return d_arg; }
     // Return last argument value for 'allocate'.
+
+    int fun() const { return d_fun; }
+    // Return descriptive code for the function called.
 };
 
 //=============================================================================
@@ -129,15 +156,15 @@ class LinkedListMA : public bslma::ManagedAllocator {
     void deallocate(void *address);
     void release(void);
 
-    friend ostream& operator<<(ostream& stream, const LinkedListMA& allctr);
+    friend std::ostream& operator<<(std::ostream& stream,
+                                    const LinkedListMA& allctr);
 };
 
 // Private helper function 'changeLists' moves an item from one list to
-// another; it is used by the class to move items from the free list to
-// the used list or vice-versa.
-// We expect the implementation never to incorrectly call this helper,
-// i.e., if it says to move an item from a particular list, then the item
-// is in fact on that list.
+// another; it is used by the class to move items from the free list to the
+// used list or vice-versa.  We expect the implementation never to incorrectly
+// call this helper, i.e., if it says to move an item from a particular list,
+// then the item is in fact on that list.
 
 void LinkedListMA::changeLists(Node *moveItem, Node **from, Node **to)
 {
@@ -174,6 +201,19 @@ void LinkedListMA::changeLists(Node *moveItem, Node **from, Node **to)
     *to = item;
 }
 
+void LinkedListMA::removeAll(Node **list)
+{
+    Node *forward = *list;
+    Node *item    = *list;
+
+    while ((item = forward) != 0) {
+        forward = item->d_next;
+        delete [] item;
+    }
+    *list = 0;
+}
+
+// CREATORS
 LinkedListMA::LinkedListMA()
 {
     d_freeList = d_usedList = 0;
@@ -188,6 +228,7 @@ LinkedListMA::~LinkedListMA()
     d_freeList = d_usedList = 0;
 }
 
+// MANIPULATORS
 void * LinkedListMA::allocate(size_type size)
 {
     // Search the free list -- cheap "first-fit" strategy.
@@ -201,8 +242,8 @@ void * LinkedListMA::allocate(size_type size)
         localNext = localNext->d_next;
     }
 
-    // If we got here, there were no blocks that could satisfy
-    // the requirement.  Get truly new memory.
+    // If we got here, there were no blocks that could satisfy the requirement.
+    // Get truly new memory.
     char *newMem = new char[sizeof(Node) + size];
     ((Node *)newMem)->d_dataSize = size;
     ((Node *)newMem)->d_next = d_usedList;
@@ -217,28 +258,16 @@ void LinkedListMA::deallocate(void *address)
                 &d_usedList, &d_freeList);
 }
 
-void LinkedListMA::removeAll(Node **list)
-{
-    Node *forward = *list;
-    Node *item    = *list;
-
-    while ((item = forward) != 0) {
-        forward = item->d_next;
-        delete [] item;
-    }
-    *list = 0;
-}
-
-void LinkedListMA::release(void)
+void LinkedListMA::release()
 {
     removeAll(&d_usedList);
 
-    // Another alternative is to thread the usedList onto the freeList
-    // by maintaining a freeListHead, and then setting
-    // freeListHead->d_next = usedList, and setting usedList = 0.
+    // Another alternative is to thread the usedList onto the 'freeList' by
+    // maintaining a 'freeListHead', and then setting
+    // 'freeListHead->d_next = usedList', and setting 'usedList = 0'.
 }
 
-ostream& operator<<(ostream& stream, const LinkedListMA& allctr)
+std::ostream& operator<<(std::ostream& stream, const LinkedListMA& allctr)
 {
     stream << "The allocator holds allocated blocks:" << endl;
     LinkedListMA::Node *list = allctr.d_usedList;
@@ -279,25 +308,24 @@ ostream& operator<<(ostream& stream, const LinkedListMA& allctr)
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 // A logging subsystem allows applications to generate messages which are
-// handled with some sophistication without requiring programming complexity
-// on the part of the application.
+// handled with some sophistication without requiring programming complexity on
+// the part of the application.
 //
-// This usage example creates a simple implementation for a logger which
-// can store messages, output single messages, or output a sequence of
-// messages, depending on the severity level specified for a given message.
-// A message passed in with severity RECORD is stored, pending further
-// instructions.  A message passed in with severity PASS is both recorded as
-// part of a historical archive, and immediately output.  A message passed
-// in with severity TRIGGER causes immediate output of all currently-stored
-// messages.
+// This usage example creates a simple implementation for a logger which can
+// store messages, output single messages, or output a sequence of messages,
+// depending on the severity level specified for a given message.  A message
+// passed in with severity RECORD is stored, pending further instructions.  A
+// message passed in with severity PASS is both recorded as part of a
+// historical archive, and immediately output.  A message passed in with
+// severity TRIGGER causes immediate output of all currently-stored messages.
 //
 // Clients can directly instruct the logger to output everything it holds.
-// They can also instruct the logger to delete all messages it currently
-// holds, without outputting.
+// They can also instruct the logger to delete all messages it currently holds,
+// without outputting.
 //
 // To simplify this example, messages are simple ASCII strings.  To further
-// simplify, we assume client maintains ownership of their strings so that
-// we are compelled to copy in order to store.
+// simplify, we assume client maintains ownership of their strings so that we
+// are compelled to copy in order to store.
 
 class Logger {
 
@@ -313,8 +341,8 @@ class Logger {
     int d_verbose;
 
     // Stack functions.  In "Real Life", it would be separate component.
-    void reallocStack(void);
     void push(char *ptr);
+    void reallocStack(void);
     void reset(void) { d_stackBottom = 0; }
 
   public:
@@ -346,7 +374,7 @@ void Logger::reallocStack(void)
 {
     char *temp = (char *)d_stack;
     d_stack = (char **)d_stackMem.allocate(d_stackSize * 2);
-    std::memcpy((char *)d_stack, temp, d_stackSize);
+    memcpy((char *)d_stack, temp, d_stackSize);
     d_stackSize *= 2;
     d_stackMem.deallocate(temp);
 }
@@ -355,12 +383,12 @@ void Logger::logMsg(enum Severity sev, const char *msg)
 {
     // In "Real Life", we would skip the next 3 statements for TRIGGER
     // messages; but we'll not do that here, to exercise allocator more.
-    char *newMem = (char *)d_msgMem.allocate(std::strlen(msg) + 1);
-    std::strcpy(newMem, msg);
+    char *newMem = (char *)d_msgMem.allocate(strlen(msg) + 1);
+    strcpy(newMem, msg);
     push(newMem);
 
     if (sev == PASS) {
-        if (d_verbose) cout << msg << endl;
+        if (d_verbose) puts(msg);
     }
     if (sev == TRIGGER) {
        publish(1);
@@ -370,11 +398,11 @@ void Logger::logMsg(enum Severity sev, const char *msg)
 void Logger::publish(int remove)
 {
     if (d_stackBottom == -1) {
-        if (d_verbose) cout << "[there are no messages in the logger]" << endl;
+        if (d_verbose) puts("[there are no messages in the logger]");
         return;                                                       // RETURN
     }
     for (int i = d_stackBottom; i >= 0; --i) {
-        if (d_verbose) cout << d_stack[i] << endl;
+        if (d_verbose) std::cout << d_stack[i] << endl;
     }
     if (remove) {
         removeAll();
@@ -393,11 +421,16 @@ void Logger::removeAll(void)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    (void)veryVeryVerbose;       // suppress unused variable warning
+    (void)veryVeryVeryVerbose;   // suppress unused variable warning
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
       case 3: {
@@ -411,61 +444,60 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
-                                  << "==================" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE TEST"
+                            "\n==================\n");;
 
-        if (verbose) cout <<
-            "\nTesting the Logger, a client of Linked List Managed Allocator."
-            << endl;
+        if (verbose) puts(
+           "\nTesting the Logger, a client of Linked List Managed Allocator.");
 
         Logger myLogger(veryVerbose);
 
         if (veryVerbose) {
-            cout << "\tDisplaying empty logger." << endl;
+            puts("\tDisplaying empty logger.");
             myLogger.publish();
-            cout << "\n\tInserting a message of RECORD severity." << endl;
-            cout << "\t(Should not display immediately.)"           << endl;
+            puts("\n\tInserting a message of RECORD severity."
+                 "\n\t(Should not display immediately.)");
         }
 
         myLogger.logMsg(Logger::RECORD, "String number one, severity RECORD.");
 
         if (veryVerbose) {
-            cout << "\n\tInserting a message of PASS severity." << endl;
-            cout << "\t(Should see its output immediately, by itself.)"
-                 << endl;
+            puts("\n\tInserting a message of PASS severity."
+                 "\n\t(Should see its output immediately, by itself.)");
         }
 
         myLogger.logMsg(Logger::PASS, "String number two, severity PASS.");
 
         if (veryVerbose) {
-            cout << "\n\tInserting a message of TRIGGER severity.\n"
-                    "\t(This will force printing and removal of all msgs.)\n"
-                    "\tThis particular insertion will also force a memory "
-                    "reallocation\n\tand then the 'Trigger' level forces "
-                    "immediate deallocation.\n";
+            puts("\n\tInserting a message of TRIGGER severity."
+                 "\n\t(This will force printing and removal of all msgs.)"
+                 "\n\tThis particular insertion will also force a memory "
+                     "reallocation"
+                 "\n\tand then the 'Trigger' level forces immediate "
+                     "deallocation.");
         }
         myLogger.logMsg(Logger::TRIGGER,
                         "String number three, severity TRIGGER.");
 
         if (veryVerbose) {
-            cout << "\n\tNow log two new ones, after having deallocated msg "
-                    "memory.\n\tThey are messages of RECORD severity.\n"
-                    "\t(Should not display immediately.)\n";
+            puts("\n\tNow log two new ones, after having deallocated msg "
+                     "memory."
+                 "\n\tThey are messages of RECORD severity."
+                 "\n\t(Should not display immediately.)");
         }
 
         myLogger.logMsg(Logger::RECORD, "Hello. (RECORD)");
         myLogger.logMsg(Logger::RECORD, "How are you? (RECORD)");
 
         if (veryVerbose) {
-            cout << "\n\tInserting a message of PASS severity." << endl;
-            cout << "\t(Should see its output immediately, by itself.)"
-                 << endl;
+            puts("\n\tInserting a message of PASS severity."
+                 "\n\t(Should see its output immediately, by itself.)");
         }
         myLogger.logMsg(Logger::PASS, "Still here? (PASS)");
 
         if (veryVerbose) {
-            cout << "\n\tInserting a message of TRIGGER severity.\n"
-                    "\t(This will force printing and removal of all msgs.)\n";
+            puts("\n\tInserting a message of TRIGGER severity."
+                 "\n\t(This will force printing and removal of all msgs.)");
         }
         myLogger.logMsg(Logger::TRIGGER,
                         "Despite these boring messages? (TRIGGER)");
@@ -492,24 +524,25 @@ int main(int argc, char *argv[])
         const int NUMBER_OF_STRINGS =
                                   sizeof sampleStrings / sizeof *sampleStrings;
 
-        if (verbose) cout << endl << "DERIVED ALLOCATING CLASS TEST" << endl
-                                  << "=============================" << endl;
+        if (verbose) printf("\nDERIVED ALLOCATING CLASS TEST\n"
+                            "\n=============================\n");
 
-        if (verbose) cout << "\nTesting the Linked List Managed Allocator.\n";
+        if (verbose) puts("\nTesting the Linked List Managed Allocator.");
 
         // Create the allocator and check that it is empty, with
         // proper-looking infrastructure.
         LinkedListMA mommy;
         if (verbose) {
-            cout << "\nOUTPUTTING AN EMPTY MANAGED ALLOCATOR AS TEXT:" << endl
-                 << mommy;
+            std::cout << "\nOUTPUTTING AN EMPTY MANAGED ALLOCATOR AS TEXT:"
+                      << endl
+                      << mommy;
         }
 
         const int NUMBER_OF_ALLOCATIONS = 15; // magic number, change at will
         char *allocatedAddress[NUMBER_OF_ALLOCATIONS];
 
         if (verbose) {
-            cout << "\nUSING ALLOCATOR TO OBTAIN SPACE FOR AND ADD "
+            std::cout << "\nUSING ALLOCATOR TO OBTAIN SPACE FOR AND ADD "
                  << NUMBER_OF_ALLOCATIONS << " STRINGS RANDOMLY:";
         }
 
@@ -518,29 +551,29 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUMBER_OF_ALLOCATIONS; ++i) {
             int nextStrIdx;
             char *newMem = (char *)mommy.allocate(
-                           std::strlen(sampleStrings[
+                           strlen(sampleStrings[
                            (nextStrIdx = rand() % NUMBER_OF_STRINGS)]) + 1);
-            std::strcpy(newMem, sampleStrings[nextStrIdx]);
+            strcpy(newMem, sampleStrings[nextStrIdx]);
             allocatedAddress[i] = newMem;
-            if (verbose) { cout << "\nAdding line: " << newMem; }
+            if (verbose) { std::cout << "\nAdding line: " << newMem; }
             if (veryVerbose) {
-                cout << "\n>>>>>>>>>>>>>>>>>>>\n" << mommy
-                     <<   ">>>>>>>>>>>>>>>>>>>\n";
+                std::cout << "\n>>>>>>>>>>>>>>>>>>>\n" << mommy
+                          <<   ">>>>>>>>>>>>>>>>>>>\n";
             }
         }
         if (verbose) {
-            cout << "\n\nOUTPUTTING ALLOCATOR AFTER "
+            std::cout << "\n\nOUTPUTTING ALLOCATOR AFTER "
                  << NUMBER_OF_ALLOCATIONS << " ALLOCATIONS:" << endl << mommy;
         }
 
         // Now deallocate half the items, and recheck infrastructure.
-        if (verbose) cout << "\nWILL NOW DELETE ROUGHLY HALF THE ITEMS:\n";
+        if (verbose) puts("\nWILL NOW DELETE ROUGHLY HALF THE ITEMS:");
         int upperLimit = NUMBER_OF_ALLOCATIONS;
         for (int i = 0; i < NUMBER_OF_ALLOCATIONS / 2; ++i) {
              upperLimit -= 1;
              int NODEindex = rand() % upperLimit;
              if (verbose) {
-                 cout << "Deleting block at address "
+                 std::cout << "Deleting block at address "
                       << (void *)((char *)(allocatedAddress[NODEindex]) - 8)
                       << endl;
              }
@@ -548,13 +581,14 @@ int main(int argc, char *argv[])
              allocatedAddress[NODEindex] = allocatedAddress[upperLimit];
 
              if (veryVerbose) {
-                cout << "\n>>>>>>>>>>>>>>>>>>>\n" << mommy
-                     <<   ">>>>>>>>>>>>>>>>>>>\n";
+                 std::cout << "\n>>>>>>>>>>>>>>>>>>>\n" << mommy
+                           <<   ">>>>>>>>>>>>>>>>>>>\n";
              }
         }
 
         if (verbose) {
-            cout << "\nOUTPUTTING ALLOCATOR AFTER DEALLOCATING ROUGHLY HALF:\n"
+            std::cout
+                 << "\nOUTPUTTING ALLOCATOR AFTER DEALLOCATING ROUGHLY HALF:\n"
                  << mommy;
         }
 
@@ -575,32 +609,34 @@ int main(int argc, char *argv[])
         };
 
         if (verbose) {
-            cout << "WILL NOW ALLOCATE NEW SMALL AND LARGE STRINGS\n";
+            puts("WILL NOW ALLOCATE NEW SMALL AND LARGE STRINGS");
         }
 
         char *newMem;
         newMem = (char *)mommy.allocate(strlen(smallStrings[0]) + 1);
-        std::strcpy(newMem, smallStrings[0]);
+        strcpy(newMem, smallStrings[0]);
         newMem = (char *)mommy.allocate(strlen(smallStrings[1]) + 1);
-        std::strcpy(newMem, smallStrings[1]);
+        strcpy(newMem, smallStrings[1]);
         newMem = (char *)mommy.allocate(strlen(smallStrings[2]) + 1);
-        std::strcpy(newMem, smallStrings[2]);
+        strcpy(newMem, smallStrings[2]);
 
         newMem = (char *)mommy.allocate(strlen(largeStrings[0]) + 1);
-        std::strcpy(newMem, largeStrings[0]);
+        strcpy(newMem, largeStrings[0]);
         newMem = (char *)mommy.allocate(strlen(largeStrings[1]) + 1);
-        std::strcpy(newMem, largeStrings[1]);
+        strcpy(newMem, largeStrings[1]);
 
         if (verbose) {
-            cout << "\nOUTPUTTING ALLOCATOR AFTER INSERTING NEW SMALL & LARGE:"
+            std::cout
+                 << "\nOUTPUTTING ALLOCATOR AFTER INSERTING NEW SMALL & LARGE:"
                  << endl << mommy;
         }
 
-        // Finally, test releasing all memory & checking that an
-        // allocate after that release works.
+        // Finally, test releasing all memory & checking that an allocate after
+        // that release works.
         mommy.release();
         if (verbose) {
-            cout << "\nAFTER RELEASING ALL MEMORY, ALLOCATOR HAS:\n" << mommy;
+            std::cout << "\nAFTER RELEASING ALL MEMORY, ALLOCATOR HAS:\n"
+                      << mommy;
         }
       }
       break;
@@ -627,11 +663,11 @@ int main(int argc, char *argv[])
         //   virtual void release() = 0;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "PROTOCOL TEST" << endl
-                                  << "=============" << endl;
+        if (verbose) printf("\nPROTOCOL TEST"
+                            "\n=============\n");
 
-        if (verbose) cout << "\nTesting 'allocate', 'deallocate', 'release'"
-                          << " and destructor." << endl;
+        if (verbose) puts("\nTesting 'allocate', 'deallocate', 'release'"
+                            " and destructor.");
         {
             TestAllocator myA;
             ASSERT(0 == globalTestAllocatorDtorCalled);
@@ -652,14 +688,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-          testStatus = -1;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

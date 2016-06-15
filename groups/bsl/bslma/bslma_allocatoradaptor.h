@@ -1,4 +1,4 @@
-// bslma_allocatoradaptor.h                  -*-C++-*-
+// bslma_allocatoradaptor.h                                           -*-C++-*-
 #ifndef INCLUDED_BSLMA_ALLOCATORADAPTOR
 #define INCLUDED_BSLMA_ALLOCATORADAPTOR
 

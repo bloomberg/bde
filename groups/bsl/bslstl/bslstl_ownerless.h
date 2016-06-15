@@ -38,7 +38,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <class POINTER_TYPE>
+template <class POINTER_TYPE = void>
 struct owner_less;
 
 template <class ELEMENT_TYPE>
@@ -46,6 +46,9 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> >;
 
 template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> >;
+
+template <>
+struct owner_less<void>;
 
                         // C++11 Compatibility
 
@@ -61,8 +64,8 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
         // Create an 'owner_less' object.
 
     //! owner_less(const owner_less& original) = default;
-        // Create an 'owner_less' object.  Note that as 'hash' is an empty
-        // (stateless) type, this operation has no observable effect.
+        // Create an 'owner_less' object.  Note that as 'owner_less' is an
+        // empty (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -102,8 +105,8 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
         // Create an 'owner_less' object.
 
     //! owner_less(const owner_less& original) = default;
-        // Create an 'owner_less' object.  Note that as 'hash' is an empty
-        // (stateless) type, this operation has no observable effect.
+        // Create an 'owner_less' object.  Note that as 'owner_less' is an
+        // empty (stateless) type, this operation has no observable effect.
 
     //! ~owner_less() = default;
         // Destroy this object.
@@ -131,6 +134,45 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
         // otherwise.
 };
 
+template<>
+struct owner_less<void> {
+    //! owner_less() = default;
+        // Create an 'owner_less' object.
+
+    //! owner_less(const owner_less& original) = default;
+        // Create an 'owner_less' object.  Note that as 'owner_less' is an
+        // empty (stateless) type, this operation has no observable effect.
+
+    //! ~owner_less() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! owner_less& operator=(const owner_less& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'owner_less' is an empty (stateless) type, this operation
+        // has no observable effect.
+
+    template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+    bool operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
+                    const shared_ptr<ELEMENT_TYPE_B> &b) const;
+    template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+    bool operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
+                    const weak_ptr<  ELEMENT_TYPE_B> &b) const;
+    template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+    bool operator()(const weak_ptr<  ELEMENT_TYPE_A> &a,
+                    const shared_ptr<ELEMENT_TYPE_B> &b) const;
+    template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+    bool operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
+                    const weak_ptr<ELEMENT_TYPE_B> &b) const;
+        // Return 'true' if the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
+        // is ordered before the address of the
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
+        // under the total ordering supplied by
+        // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
+        // otherwise.
+};
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -198,6 +240,41 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
+                        // -----------------------
+                        // struct owner_less<void>
+                        // -----------------------
+
+template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+inline
+bool owner_less<void>::operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
+                                  const shared_ptr<ELEMENT_TYPE_B> &b) const
+{
+    return a.owner_before(b);
+}
+
+template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+inline
+bool owner_less<void>::operator()(const shared_ptr<ELEMENT_TYPE_A> &a,
+                                  const weak_ptr<  ELEMENT_TYPE_B> &b) const
+{
+    return a.owner_before(b);
+}
+
+template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+inline
+bool owner_less<void>::operator()(const weak_ptr<  ELEMENT_TYPE_A> &a,
+                                  const shared_ptr<ELEMENT_TYPE_B> &b) const
+{
+    return a.owner_before(b);
+}
+
+template<class ELEMENT_TYPE_A, class ELEMENT_TYPE_B>
+inline
+bool owner_less<void>::operator()(const weak_ptr<ELEMENT_TYPE_A> &a,
+                                  const weak_ptr<ELEMENT_TYPE_B> &b) const
+{
+    return a.owner_before(b);
+}
 
 // ============================================================================
 //                                TYPE TRAITS

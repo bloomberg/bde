@@ -60,6 +60,10 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+//=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -146,7 +150,7 @@ int main(int argc, char *argv[])
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
 
-    setbuf(stdout, NULL);    // Use unbuffered output
+    setbuf(stdout, NULL);        // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

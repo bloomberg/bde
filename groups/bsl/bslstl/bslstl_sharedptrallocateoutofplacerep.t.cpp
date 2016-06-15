@@ -273,8 +273,8 @@ class MyAllocTestDeleter {
     void             *d_someMemory;
 
   public:
-//    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-//                                 bslalg::TypeTraitUsesBslmaAllocator);
+//    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocTestDeleter,
+//                                   bslma::UsesBslmaAllocator);
 
   public:
     // CREATORS
@@ -527,7 +527,7 @@ TYPE *StdAllocator<TYPE>::allocate(size_t numObjects)
 
 template <class TYPE>
 inline
-void StdAllocator<TYPE>::deallocate(TYPE *ptr, size_t numObjects)
+void StdAllocator<TYPE>::deallocate(TYPE *ptr, size_t /* numObjects */)
 {
     free(ptr);
 }
@@ -566,9 +566,11 @@ int main(int argc, char *argv[])
     // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
+#if 0
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bsls::Types::Int64   numDeallocations;
     bsls::Types::Int64   numAllocations;
+#endif
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -674,8 +676,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
                             "\n=========================================\n");
 
-        numAllocations = ta.numAllocations();
+#if 0
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
+#endif
         {
 #if 0
             TObj *t = new (ta) TObj();
@@ -722,8 +726,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == TObj::getNumDeletes());
 #if 0
             numDeallocations += 2;
-#endif
             ASSERT(numDeallocations == ta.numDeallocations());
+#endif
         }
 
         if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
@@ -794,8 +798,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING BASIC OPERATIONS"
                             "\n========================\n");
 
-        numAllocations = ta.numAllocations();
+#if 0
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
+#endif
         {
 #if 0
             TObj *t = new (ta) TObj();
@@ -842,8 +848,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        numAllocations = ta.numAllocations();
+#if 0
+        numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
+#endif
         {
 #if 0
             TObj *t = new (ta) TObj();
@@ -887,8 +895,8 @@ int main(int argc, char *argv[])
 
 #if 0
             numDeallocations += 2;
-#endif
             ASSERT(numDeallocations == ta.numDeallocations());
+#endif
         }
       } break;
       default: {

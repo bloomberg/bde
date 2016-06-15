@@ -94,9 +94,13 @@ class my_Allocator : public bslma::Allocator {
     // CREATORS
     my_Allocator() : d_allocationLimit(-1) {}
     ~my_Allocator() {}
+
+    // MANIPULATORS
     void *allocate(size_type size);
     void deallocate(void *address) { free(address); }
     void setAllocationLimit(int limit) { d_allocationLimit = limit; }
+
+    // ACCESSORS
     int allocationLimit() const { return d_allocationLimit; }
     // ...
 };
@@ -131,10 +135,10 @@ class my_ShortArray {
 
   public:
     // CREATORS
-    my_ShortArray(bslma::Allocator *basicAllocator = 0);
-        // Create a empty array.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, global
-        // operators 'new' and 'delete' are used.
+    explicit my_ShortArray(bslma::Allocator *basicAllocator = 0);
+        // Create a empty array.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, global operators 'new' and
+        // 'delete' are used.
      // ...
 
     ~my_ShortArray();
@@ -194,9 +198,9 @@ void reallocate(short            **array,
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of
-    // leading elements are preserved.  Since the class invariant requires
-    // that the physical capacity of the container may grow but never shrink;
-    // the behavior is undefined unless length <= newSize.
+    // leading elements are preserved.  Since the class invariant requires that
+    // the physical capacity of the container may grow but never shrink; the
+    // behavior is undefined unless 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);

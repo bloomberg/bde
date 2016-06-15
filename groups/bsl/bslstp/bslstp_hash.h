@@ -60,8 +60,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -76,6 +80,16 @@ BSLS_IDENT("$Id: $")
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {
 namespace bslstp {
@@ -198,9 +212,7 @@ struct HashCString {
     // string.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                HashCString,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(HashCString, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(const char *s) const
@@ -225,9 +237,7 @@ struct Hash<char> {
     // Specialization of 'Hash' for 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(char x) const
@@ -242,9 +252,7 @@ struct Hash<unsigned char> {
     // Specialization of 'Hash' for 'unsigned' 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned char x) const
@@ -259,9 +267,7 @@ struct Hash<signed char> {
     // Specialization of 'Hash' for 'signed' 'char' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(signed char x) const
@@ -276,9 +282,7 @@ struct Hash<short> {
     // Specialization of 'Hash' for 'short' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(short x) const
@@ -293,9 +297,7 @@ struct Hash<unsigned short> {
     // Specialization of 'Hash' for 'unsigned' 'short' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned short x) const
@@ -310,9 +312,7 @@ struct Hash<int> {
     // Specialization of 'Hash' for 'int' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(int x) const
@@ -327,9 +327,7 @@ struct Hash<unsigned int> {
     // Specialization of 'Hash' for 'unsigned' 'int' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned int x) const
@@ -344,9 +342,7 @@ struct Hash<long> {
     // Specialization of 'Hash' for 'long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(long x) const
@@ -361,9 +357,7 @@ struct Hash<unsigned long> {
     // Specialization of 'Hash' for 'unsigned' 'long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned long x) const
@@ -379,9 +373,7 @@ struct Hash<long long> {
     // Specialization of 'Hash' for 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(long long x) const
@@ -396,9 +388,7 @@ struct Hash<unsigned long long> {
     // Specialization of 'Hash' for 'unsigned' 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
@@ -415,9 +405,7 @@ struct Hash<long long> {
     // Specialization of 'Hash' for 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const
@@ -432,9 +420,7 @@ struct Hash<unsigned long long> {
     // Specialization of 'Hash' for 'unsigned' 'long long' values.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                Hash,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Hash, bsl::is_trivially_copyable);
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const

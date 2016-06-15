@@ -81,6 +81,21 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consquently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180) // cv-qualifiers meaningless on function types
+#endif
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -174,6 +189,8 @@ int main(int argc, char *argv[])
     (void) veryVerbose;          // eliminate unused variable warning
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

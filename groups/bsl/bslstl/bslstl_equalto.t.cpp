@@ -2,7 +2,7 @@
 
 #include <bslstl_equalto.h>
 
-#include <bslalg_scalarprimitives.h>
+#include <bslma_constructionutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -179,9 +179,9 @@ class ListSet {
         }
 
         Node *node = (Node *) d_allocator_p->allocate(sizeof(Node));
-        bslalg::ScalarPrimitives::copyConstruct(&node->d_value,
-                                                value,
-                                                d_allocator_p);
+        bslma::ConstructionUtil::construct(&node->d_value,
+                                           d_allocator_p,
+                                           value);
         node->d_next = d_nodeList;
         d_nodeList = node;
 

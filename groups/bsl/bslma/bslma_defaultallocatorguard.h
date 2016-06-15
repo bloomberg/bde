@@ -172,10 +172,6 @@ class DefaultAllocatorGuard {
 
 }  // close package namespace
 
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================
 //                           BACKWARD COMPATIBILITY

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide namespace for functions used to delete objects.
 //
 //@CLASSES:
-//  bslma::DeleterHelper: non-primitive pure procedures for deleting objects
+//  bslma::DeleterHelper: non-primitive functions for deleting objects
 //
 //@SEE_ALSO: bslma_rawdeleterguard, bslmf_ispolymporphic
 //
@@ -102,28 +102,6 @@ namespace BloombergLP {
 
 namespace bslma {
 
-             // =================================
-             // local struct DeleterHelper_Helper
-             // =================================
-
-template <int IS_POLYMORPHIC>
-struct DeleterHelper_Helper {
-    template <class TYPE>
-    static void *caster(const TYPE *object)
-    {
-        return static_cast<void *>(const_cast<TYPE *>(object));
-    }
-};
-
-template <>
-struct DeleterHelper_Helper<1> {
-    template <class TYPE>
-    static void *caster(const TYPE *object)
-    {
-        return dynamic_cast<void *>(const_cast<TYPE *>(object));
-    }
-};
-
                            // ====================
                            // struct DeleterHelper
                            // ====================
@@ -156,8 +134,30 @@ struct DeleterHelper {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
+
+             // =================================
+             // local struct DeleterHelper_Helper
+             // =================================
+
+template <int IS_POLYMORPHIC>
+struct DeleterHelper_Helper {
+    template <class TYPE>
+    static void *caster(const TYPE *object)
+    {
+        return static_cast<void *>(const_cast<TYPE *>(object));
+    }
+};
+
+template <>
+struct DeleterHelper_Helper<1> {
+    template <class TYPE>
+    static void *caster(const TYPE *object)
+    {
+        return dynamic_cast<void *>(const_cast<TYPE *>(object));
+    }
+};
 
                            // --------------------
                            // struct DeleterHelper
@@ -166,8 +166,7 @@ struct DeleterHelper {
 // CLASS METHODS
 template <class TYPE, class ALLOCATOR>
 inline
-void DeleterHelper::deleteObject(const TYPE *object,
-                                 ALLOCATOR  *allocator)
+void DeleterHelper::deleteObject(const TYPE *object, ALLOCATOR  *allocator)
 {
     BSLS_ASSERT_SAFE(allocator);
 
@@ -188,8 +187,7 @@ void DeleterHelper::deleteObject(const TYPE *object,
 
 template <class TYPE, class ALLOCATOR>
 inline
-void DeleterHelper::deleteObjectRaw(const TYPE *object,
-                                    ALLOCATOR  *allocator)
+void DeleterHelper::deleteObjectRaw(const TYPE *object, ALLOCATOR  *allocator)
 {
     BSLS_ASSERT_SAFE(allocator);
 

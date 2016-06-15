@@ -89,15 +89,18 @@
 #include <bslstp_hashtable.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
+#include <bslalg_typetraithasstliterators.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
 #endif
-
 
 namespace bsl {
 
@@ -530,22 +533,6 @@ struct HasStlIterators<bsl::hash_set<_Value, _HashFcn, _EqualKey, _Alloc> >
     : bsl::true_type
 {};
 
-}  // close namespace bslalg
-
-namespace bslma {
-
-template <class _Value,
-          class _HashFcn,
-          class _EqualKey,
-          class _Alloc>
-struct UsesBslmaAllocator<bsl::hash_set<_Value, _HashFcn, _EqualKey, _Alloc> >
-    : bsl::is_convertible<Allocator*, _Alloc>
-{};
-
-}  // close namespace bslma
-
-namespace bslalg {
-
 template <class _Value,
           class _HashFcn,
           class _EqualKey,
@@ -557,6 +544,14 @@ struct HasStlIterators<bsl::hash_multiset<_Value, _HashFcn, _EqualKey, _Alloc> >
 }  // close namespace bslalg
 
 namespace bslma {
+
+template <class _Value,
+          class _HashFcn,
+          class _EqualKey,
+          class _Alloc>
+struct UsesBslmaAllocator<bsl::hash_set<_Value, _HashFcn, _EqualKey, _Alloc> >
+    : bsl::is_convertible<Allocator*, _Alloc>
+{};
 
 template <class _Value,
           class _HashFcn,

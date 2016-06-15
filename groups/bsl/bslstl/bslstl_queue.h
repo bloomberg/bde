@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
 //
-//@AUTHOR: Shijin Kong (skong25)
+//@AUTHOR: Shijin Kong (skong25), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component defines a class template, 'bsl::queue', holding
 // a container (of a parameterized type 'CONTAINER' containing elements of
@@ -29,31 +29,33 @@ BSLS_IDENT("$Id: $")
 // is not itself value-semantic, then it will not retain all of its
 // value-semantic qualities.
 //
-// 'queue' meets the requirements of a container adapter in the C++ standard
-// [23.6].  The 'queue' implemented here adheres to the C++11 standard, except
-// that it does not have methods that take rvalue references and
-// 'initializer_lists'.  Note that excluded C++11 features are those that
-// require C++11 compiler support.
+// A queue meets the requirements of a container adaptor as described in the
+// C++ standard [queue].  The 'queue' implemented here adheres to the C++11
+// standard when compiled with a C++11 compiler, and makes the best
+// approximation when compiled with a C++03 compiler.  In particular, for C++03
+// we emulate move semantics, but limit forwarding (in 'emplace') to 'const'
+// lvalues, and make no effort to emulate 'noexcept' or initializer-lists.
 //
 ///Memory Allocation
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
 // constructors determines how the held container (of parameterized
 // 'CONTAINER') will allocate memory.  A 'queue' supports allocators meeting
-// the requirements of the C++11 standard [17.6.3.5] as long as the held
-// container does.  In addition it supports scoped-allocators derived from the
-// 'bslma_Allocator' memory allocation protocol.  Clients intending to use
-// 'bslma' style allocators should use 'bsl::allocator' as the 'ALLOCATOR'
-// template parameter, providing a C++11 standard-compatible adapter for a
-// 'bslma_Allocator' object.
+// the requirements of the C++11 standard [allocator.requirements] as long as
+// the held container does.  In addition it supports scoped-allocators derived
+// from the 'bslma::Allocator' memory allocation protocol.  Clients intending
+// to use 'bslma' style allocators should use 'bsl::allocator' as the
+// 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
+// adapter for a 'bslma::Allocator' object.
 //
 ///Operations
 ///----------
-// The C++11 standard [23.6.3.1] declares any container type supporting
+// The C++11 standard [queue.defn] declares any container type supporting
 // operations 'front', 'back', 'push_back' and 'pop_front' can be used to
 // instantiate the parameterized type 'CONTAINER'.  Below is a list of public
 // methods of 'queue' class that effectively forward their implementations to
 // corresponding operations in the held container (referenced as 'c').
+//..
 //  +--------------------------------------+---------------------------+
 //  | Public methods in 'queue'            | Operation in 'CONTAINER'  |
 //  +======================================+===========================+
@@ -67,6 +69,7 @@ BSLS_IDENT("$Id: $")
 //  | const_reference front() const;       | c.front();                |
 //  | const_reference back()  const;       | c.back();                 |
 //  +--------------------------------------+---------------------------+
+//..
 //
 ///Usage
 ///-----
@@ -175,10 +178,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_DEQUE
 #include <bslstl_deque.h>
 #endif
@@ -191,34 +190,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #endif
 
-#ifndef INCLUDED_FUNCTIONAL
-#include <functional>
-#define INCLUDED_FUNCTIONAL
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLMF_USESALLOCATOR
+#include <bslmf_usesallocator.h>
+#endif
 
-namespace bslstl {
-
-template <class CONTAINER, class ALLOCATOR>
-struct Queue_HasAllocatorType {
-  private:
-    typedef char YesType;
-    struct NoType { char a[2]; };
-
-  public:
-    template <class TYPE>
-    static YesType match(const typename TYPE::allocator_type *);
-    template <class TYPE>
-    static NoType match(...);
-
-    enum { VALUE = (sizeof(YesType) == sizeof(match<CONTAINER>(0))) };
-};
-
-}  // close package namespace
-
-}  // close enterprise namespace
-
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
 namespace bsl {
 
@@ -227,13 +209,13 @@ namespace bsl {
                              // ===========
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
-class queue
+class queue {
     // This class is a value-semantic class template, having a container of the
     // parameterized 'CONTAINER' type that holds elements of the parameterized
     // 'VALUE' type, to provide a first-in-first-out queue data structure.  The
     // container object held by a 'queue' class object is referenced as 'c' in
-    // the following documentation.
-{
+    // the following function-level documentation.
+
     // FRIENDS
     template <class VALUE2, class CONTAINER2>
     friend bool operator==(const queue<VALUE2, CONTAINER2>&,
@@ -258,6 +240,10 @@ class queue
     template <class VALUE2, class CONTAINER2>
     friend bool operator>=(const queue<VALUE2, CONTAINER2>&,
                            const queue<VALUE2, CONTAINER2>&);
+    // PRIVATE TYPES
+    typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
 
   public:
     // TYPES
@@ -269,73 +255,269 @@ class queue
 
   protected:
     // DATA
-    CONTAINER c;    // container of elements that the queue holds, protected as
-                    // required by C++11
+    CONTAINER c;  // Contains the elements of this queue.
+                  // 'protected' and named ('c') per the C++11 standard.
 
   public:
     // CREATORS
     explicit queue();
-        // Construct an empty queue having a container of the parameterized
+        // Create an empty queue having a container of the parameterized
         // 'CONTAINER' type.
 
     explicit queue(const CONTAINER& container);
-        // Construct a queue having the specified 'container' that holds
-        // elements of the parameterized 'VALUE' type.
+        // Create a queue having the specified 'container' that holds elements
+        // of the parameterized 'VALUE' type.
 
     queue(const queue& original);
-        // Construct a queue having the same value as that of the specified
-        // 'original'.
+        // Create a queue having the value of the specified 'original'.
 
     template <class ALLOCATOR>
     explicit
     queue(const ALLOCATOR& basicAllocator,
-          typename enable_if<
-              BloombergLP::bslstl::Queue_HasAllocatorType<
-                           CONTAINER,
-                           ALLOCATOR>::VALUE>::type * = 0);
-        // Construct an empty queue that holds a default-constructed container
-        // of the parameterized 'CONTAINER' type, and will use the specified
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+        // Create an empty queue.  This queue object uses the specified
         // 'basicAllocator' to supply memory.  Note that the 'ALLOCATOR'
         // parameter type has to be convertible to the allocator of the
-        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
+        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'; otherwise,
         // this constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
           const ALLOCATOR& basicAllocator,
-          typename enable_if<
-              BloombergLP::bslstl::Queue_HasAllocatorType<
-                           CONTAINER,
-                           ALLOCATOR>::VALUE>::type * = 0);
-        // Construct an empty queue that holds the specified 'container', and
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+        // Create a queue having the same sequence of values as the specified
+        // 'container'.  The queue object uses the specified 'basicAllocator'
+        // to obtain memory.  Note that the 'ALLOCATOR' parameter type has to
+        // be convertible to the allocator of the 'CONTAINER' parameter type,
+        // 'CONTAINER::allocator_type'; otherwise, this constructor is
+        // disabled.
+
+    template <class ALLOCATOR>
+    queue(const queue&     original,
+          const ALLOCATOR& basicAllocator,
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+        // Create a queue having the value of the specified 'original' that
         // will use the specified 'basicAllocator' to supply memory.  Note that
         // the 'ALLOCATOR' parameter type has to be convertible to the
         // allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
         // disabled.
 
+    explicit queue(BloombergLP::bslmf::MovableRef<CONTAINER> container);
+        // Create a queue having the same sequence of values as the specified
+        // 'container'.  The allocator associated with 'container' (if any) is
+        // propagated for use in the new queue.  'container' is left in valid
+        // but unspecified state.
+
+    queue(BloombergLP::bslmf::MovableRef<queue> original);
+        // Create a queue having the value of the specified 'original'.  The
+        // allocator associated with 'original' (if any) is propagated for use
+        // in the new queue.  'original' is left in valid but unspecified
+        // state.
+
     template <class ALLOCATOR>
-    queue(const queue& original,
-          const ALLOCATOR& basicAllocator,
-          typename enable_if<
-              BloombergLP::bslstl::Queue_HasAllocatorType<
-                           CONTAINER,
-                           ALLOCATOR>::VALUE>::type * = 0);
-        // Construct a queue having the same value as that of the specified
-        // 'original' that will use the specified 'basicAllocator' to supply
-        // memory.  Note that the 'ALLOCATOR' parameter type has to be
-        // convertible to the allocator of the 'CONTAINER' parameter type,
-        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
+    queue(BloombergLP::bslmf::MovableRef<CONTAINER> container,
+          const ALLOCATOR&                          basicAllocator,
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+        // Create a queue whose underlying container has the value of the
+        // specified 'container' (on entry) and uses 'basicAllocator' to supply
+        // memory.  The allocated-extended move constructor of 'CONTAINER' is
+        // used to create the new queue.  'container' is left in a valid but
+        // unspecified state.  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).  Also note that this method assumes
+        // that 'CONTAINER' has a move constructor.  Finally note that if
+        // 'CONTAINER::allocator_type' does not exist, this constructor is
+        // disabled.
+
+    template <class ALLOCATOR>
+    queue(BloombergLP::bslmf::MovableRef<queue> original,
+          const ALLOCATOR&                      basicAllocator,
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+        // Create a queue having the value of the specified 'original' (on
+        // entry), that uses 'basicAllocator' to supply memory.  The
+        // allocator-extended move constructor of 'CONTAINER' is used to create
+        // the new queue.  'original' is left in a valid but unspecified state.
+        // Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).  Also note that this method assumes
+        // that 'CONTAINER' has a move constructor.  Finally note that if
+        // 'CONTAINER::allocator_type' does not exist, this constructor is
         // disabled.
 
     // MANIPULATORS
+    queue& operator=(const queue& rhs);
+        // Assign to this queue the value of the specified 'rhs' and return a
+        // reference providing modifiable access to this queue.
+
+    queue& operator=(BloombergLP::bslmf::MovableRef<queue> rhs);
+        // Assign to this queue the value as the specified 'rhs' and return a
+        // reference providing modifiable access to this queue.  The
+        // move-assignment operator of 'CONTAINER' is used to set the value of
+        // this queue.  'rhs' is left in a valid but unspecified state, and if
+        // an exception is thrown, '*this' is left in a valid but unspecified
+        // state.
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    void emplace(Args&&... args);
+        // Push onto this queue a newly created 'value_type' object constructed
+        // by forwarding 'get_allocator()' (if required) and the specified
+        // (variable number of) 'args' to the corresponding constructor of
+        // 'value_type'.
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_queue.h
+    void emplace();
+
+    template <class Args_01>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
+#endif
+
     void push(const value_type& value);
-        // Insert a new element having the specified 'value' to the back of
-        // this 'queue' object.  In effect, performs 'c.push_back(value);'.
+        // Push onto the back of this queue a 'value_type' object having the
+        // specified 'value'.
+
+    void push(BloombergLP::bslmf::MovableRef<value_type> value);
+        // Push onto the back of this queue a 'value_type' object having the
+        // value of the specified 'value' (on entry) by moving the
+        // contents of 'value' to the new object on this queue.  'value' is
+        // left in a valid but unspecified state.
 
     void pop();
         // Remove the front (the earliest pushed) element from this 'queue'
-        // object.  In effect, performs 'c.pop_front();'.
+        // object.
 
     void swap(queue& other);
         // Efficiently exchange the value of this object with the value of the
@@ -343,14 +525,12 @@ class queue
         // 'using bsl::swap; swap(c, other.c);'.
 
     reference front();
-        // Return the mutable reference to the front (the earliest pushed)
-        // element from this 'queue' object.  In effect, performs
-        // 'return c.front();'.
+        // Return a reference providing modifiable access to the front (the
+        // earliest pushed) element from this 'queue' object.
 
     reference back();
-        // Return the mutable reference to the back (the latest pushed) element
-        // of this 'queue' object.  In effect, performs 'return c.back();'.
-
+        // Return a reference providing modifiable access to the back (the
+        // latest pushed) element of this 'queue' object.
 
     // ACCESSORS
     bool empty() const;
@@ -358,8 +538,8 @@ class queue
         // 'false' otherwise.  In effect, performs 'return c.empty();'.
 
     size_type size() const;
-        // Return 'true' if this 'queue' object contains no elements, and
-        // 'false' otherwise.  In effect, performs 'return c.size();'.
+        // Return the number of elements in this queue.  In effect, performs
+        // 'return c.size();'.
 
     const_reference front() const;
         // Return the immutable front (the earliest pushed) element from this
@@ -372,62 +552,52 @@ class queue
 
 // FREE FUNCTIONS
 template <class VALUE, class CONTAINER>
-inline
 bool operator==(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'queue' objects have the same value
-    // if the containers they adapt are compared equal.
+    // if the containers they adapt have the same value.
 
 template <class VALUE, class CONTAINER>
-inline
 bool operator!=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'queue' objects do not have the
-    // same value if the containers they adapt are not compared equal.
+    // same value if the containers they adapt do not have the same value.
 
 template <class VALUE, class CONTAINER>
-inline
 bool operator< (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is lexicographically less
-    // than the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs'
-    // is lexicographically less than another queue 'rhs' if the container
-    // adapted by 'lhs' is lexicographically less than that adapted by 'rhs'.
+    // Return 'true' if the specified 'lhs' queue is less than the specified
+    // 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is less than queue
+    // 'rhs' if the container adapted by 'lhs' is less than the container
+    // adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
-inline
 bool operator> (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is lexicographically greater
-    // than the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs'
-    // is lexicographically greater than another queue 'rhs' if the container
-    // adapted by 'lhs' is lexicographically greater than that adapted by
-    // 'rhs'.
+    // Return 'true' if the specified 'lhs' queue is greater than the specified
+    // 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is greater than 'rhs'
+    // if the container adapted by 'lhs' is greater than the container adapted
+    // by 'rhs'.
 
 template <class VALUE, class CONTAINER>
-inline
 bool operator>=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is lexicographically
-    // greater-than or equal-to the specified 'rhs' queue, and 'false'
-    // otherwise.  A queue 'lhs' is lexicographically greater-than or equal-to
-    // another queue 'rhs' if the container adapted by 'lhs' is
-    // lexicographically greater-than or equal-to that adapted by 'rhs'.
+    // Return 'true' if the specified 'lhs' queue is greater-than or equal-to
+    // the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is
+    // greater-than or equal-to queue 'rhs' if the container adapted by 'lhs'
+    // is greater-than or equal-to that adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
-inline
 bool operator<=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // Return 'true' if the specified 'lhs' queue is lexicographically
-    // less-than or equal-to the specified 'rhs' queue, and 'false' otherwise.
-    // A queue 'lhs' is lexicographically less-than or equal-to another queue
-    // 'rhs' if the container adapted by 'lhs' is lexicographically less-than
-    // or equal-to that adapted by 'rhs'.
+    // Return 'true' if the specified 'lhs' queue is less-than or equal-to the
+    // specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs' is
+    // lexicographically less-than or equal-to queue 'rhs' if the container
+    // adapted by 'lhs' is less-than or equal-to that adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
-inline
 void swap(queue<VALUE, CONTAINER>& lhs,
           queue<VALUE, CONTAINER>& rhs);
     // Swap the value of the specified 'lhs' queue with the value of the
@@ -465,11 +635,10 @@ queue<VALUE, CONTAINER>::queue(const queue& original)
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const ALLOCATOR& basicAllocator,
-                               typename enable_if<
-                                   BloombergLP::bslstl::Queue_HasAllocatorType<
-                                                    CONTAINER,
-                                                    ALLOCATOR>::VALUE>::type *)
+queue<VALUE, CONTAINER>::queue(
+           const ALLOCATOR& basicAllocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
 : c(basicAllocator)
 {
 }
@@ -477,12 +646,11 @@ queue<VALUE, CONTAINER>::queue(const ALLOCATOR& basicAllocator,
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
-                               const ALLOCATOR& basicAllocator,
-                               typename enable_if<
-                                   BloombergLP::bslstl::Queue_HasAllocatorType<
-                                                    CONTAINER,
-                                                    ALLOCATOR>::VALUE>::type *)
+queue<VALUE, CONTAINER>::queue(
+           const CONTAINER& container,
+           const ALLOCATOR& basicAllocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
 : c(container, basicAllocator)
 {
 }
@@ -490,22 +658,344 @@ queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const queue&     queue,
-                               const ALLOCATOR& basicAllocator,
-                               typename enable_if<
-                                   BloombergLP::bslstl::Queue_HasAllocatorType<
-                                                    CONTAINER,
-                                                    ALLOCATOR>::VALUE>::type *)
+queue<VALUE, CONTAINER>::queue(
+           const queue&     queue,
+           const ALLOCATOR& basicAllocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
 : c(queue.c, basicAllocator)
+{
+}
+
+template <class VALUE, class CONTAINER>
+inline
+queue<VALUE, CONTAINER>::queue(BloombergLP::bslmf::MovableRef<CONTAINER>
+                                                                     container)
+: c(MoveUtil::move(container))
+{
+}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+queue<VALUE, CONTAINER>::queue(
+           BloombergLP::bslmf::MovableRef<CONTAINER> container,
+           const ALLOCATOR&                          basicAllocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
+: c(MoveUtil::move(container), basicAllocator)
+{
+}
+
+template <class VALUE, class CONTAINER>
+inline
+queue<VALUE, CONTAINER>::queue(BloombergLP::bslmf::MovableRef<queue> original)
+: c(MoveUtil::move(MoveUtil::access(original).c))
+{
+}
+
+template <class VALUE, class CONTAINER>
+template <class ALLOCATOR>
+inline
+queue<VALUE, CONTAINER>::queue(
+           BloombergLP::bslmf::MovableRef<queue> original,
+           const ALLOCATOR&                      basicAllocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
+: c(MoveUtil::move(MoveUtil::access(original).c), basicAllocator)
 {
 }
 
 // MANIPULATORS
 template <class VALUE, class CONTAINER>
 inline
+queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(const queue& rhs)
+{
+    c = rhs.c;
+    return *this;
+}
+
+template <class VALUE, class CONTAINER>
+inline
+queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(
+                                     BloombergLP::bslmf::MovableRef<queue> rhs)
+{
+    c = MoveUtil::move(MoveUtil::access(rhs).c);
+    return *this;
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class VALUE, class CONTAINER>
+template <class... Args>
+inline
+void queue<VALUE, CONTAINER>::emplace(Args&&... args)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_queue.h
+template <class VALUE, class CONTAINER>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                               )
+{
+    c.emplace_back();
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+}
+
+template <class VALUE, class CONTAINER>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                   BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class VALUE, class CONTAINER>
+template <class... Args>
+inline
+void queue<VALUE, CONTAINER>::emplace(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+}
+// }}} END GENERATED CODE
+#endif
+
+template <class VALUE, class CONTAINER>
+inline
 void queue<VALUE, CONTAINER>::push(const value_type& value)
 {
     c.push_back(value);
+}
+
+template <class VALUE, class CONTAINER>
+inline
+void queue<VALUE, CONTAINER>::push(BloombergLP::bslmf::MovableRef<value_type>
+                                                                         value)
+{
+    c.push_back(MoveUtil::move(value));
 }
 
 template <class VALUE, class CONTAINER>

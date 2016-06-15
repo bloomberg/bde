@@ -273,6 +273,9 @@ int main(int argc, char *argv[])
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
+    (void)    veryVerbose;  // unused variable warning
+    (void)veryVeryVerbose;  // unused variable warning
+
     setbuf(stdout, 0);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);

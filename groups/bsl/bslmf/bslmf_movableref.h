@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
 //
+//@REVIEW_FOR_MASTER: update component-level doc, test driver
+//
 //@CLASSES:
 //  bslmf::MovableRef: a template indicating that an object can be moved from
 //  bslmf::MovableRefUtil: a namespace for functions dealing with movables
@@ -470,6 +472,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCOPYCONSTRUCTIBLE
+#include <bslmf_iscopyconstructible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
+#include <bslmf_isnothrowmoveconstructible.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
@@ -480,6 +494,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -565,7 +583,7 @@ struct MovableRefUtil {
     // objects and the C++11 'TYPE&&' r-value references.
 
     template <class TYPE>
-    static TYPE& access(TYPE& lvalue);
+    static TYPE& access(TYPE& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a reference to the specified 'lvalue'.  This overload of
         // access is used when accessing an argument passed by
         // 'bslma::MovableRef<TYPE>' with a C++11 implementation: the 'TYPE&&'
@@ -575,7 +593,7 @@ struct MovableRefUtil {
         // this function.
 
     template <class TYPE>
-    static TYPE& access(MovableRef<TYPE>& lvalue);
+    static TYPE& access(MovableRef<TYPE>& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a reference to the object referenced by the specified
         // 'lvalue' object.  This reference might be obtained by a conversion
         // of 'lvalue' to 'TYPE&' in contexts where a conversion is viable.
@@ -591,7 +609,7 @@ struct MovableRefUtil {
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class TYPE>
-    static MovableRef<TYPE> move(TYPE& lvalue);
+    static MovableRef<TYPE> move(TYPE& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a movable reference of type 'MovableRef<TYPE>' from the
         // specified 'lvalue'.  For a C++03 implementation this function
         // behaves like a factory for 'MovableRef<TYPE> objects.  For a C++11
@@ -602,12 +620,51 @@ struct MovableRefUtil {
     template <class TYPE>
     static MovableRef<typename bsl::remove_reference<TYPE>::type>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        move(TYPE&& reference);
+        move(TYPE&& reference) BSLS_CPP11_NOEXCEPT;
 #else  // support r-value references and alias templates
-        move(MovableRef<TYPE> reference);
+        move(MovableRef<TYPE> reference) BSLS_CPP11_NOEXCEPT;
 #endif // support r-value references and alias templates
         // Return a movable reference to the object referred to by the
         // specified 'reference'.
+
+    template <class TYPE>
+    static
+    typename bsl::enable_if<!bsl::is_nothrow_move_constructible<TYPE>::value
+                          && bsl::is_copy_constructible<TYPE>::value,
+                            const TYPE& >::type
+    move_if_noexcept(TYPE& lvalue) BSLS_CPP11_NOEXCEPT
+    {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
+        return lvalue;
+    }
+    template <class TYPE>
+    static
+    typename bsl::enable_if<!bsl::is_copy_constructible<TYPE>::value
+                          || bsl::is_nothrow_move_constructible<TYPE>::value,
+                            MovableRef<TYPE> >::type
+    move_if_noexcept(TYPE& lvalue) BSLS_CPP11_NOEXCEPT
+    {
+        // The implementation is placed here in the class definition to work
+        // around a Microsoft C++ compiler (version 16) bug where the
+        // definition cannot be matched to the declaration when an 'enable_if'
+        // is used.
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
+								       lvalue);
+#else
+        return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
+#endif
+    }
+        // TBD: fix comment
+        // Return a movable reference to the object referred to by the
+        // specified 'reference' if (template parameter) 'TYPE" has a move
+        // constructor that does not throw or does not have a copy constructor
+        // (i.e., is a move-only type); otherwise return an lvalue reference to
+        // non-modifiable object.  This function uses traits to custom traits
+        // in C++03 mode to create the same concepts as are present in C++11.
 };
 
 // ============================================================================
@@ -641,20 +698,20 @@ MovableRef<TYPE>::operator TYPE&() const {
 
 template <class TYPE>
 inline
-TYPE& MovableRefUtil::access(TYPE& lvalue) {
+TYPE& MovableRefUtil::access(TYPE& lvalue) BSLS_CPP11_NOEXCEPT {
     return lvalue;
 }
 
 template <class TYPE>
 inline
-TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) {
+TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) BSLS_CPP11_NOEXCEPT {
     return lvalue;
 }
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class TYPE>
 inline
-MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) {
+MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) BSLS_CPP11_NOEXCEPT {
     return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 }
 #endif // support r-value references and alias templates
@@ -663,7 +720,7 @@ template <class TYPE>
 inline
 MovableRef<typename bsl::remove_reference<TYPE>::type>
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-MovableRefUtil::move(TYPE&& rvalue) {
+MovableRefUtil::move(TYPE&& rvalue) BSLS_CPP11_NOEXCEPT {
     return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
 #else  // support r-value references and alias templates
 MovableRefUtil::move(MovableRef<TYPE> rvalue) {

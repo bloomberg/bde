@@ -112,7 +112,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter) : d_counter_p(counter) {}
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
         // Create this object using the address of the specified 'counter' to
         // be held.
 
@@ -136,11 +136,11 @@ class my_Class {
 //
 // First, suppose we have a pair class:
 //..
-// my_pair.h
+// MyPair.h
 // ...
 
 template <class TYPE1, class TYPE2>
-class my_Pair {
+class MyPair {
     // This class provides a pair container to pair two different objects,
     // one of parameterized 'TYPE1', and the other of parameterized
     // 'TYPE2'.
@@ -157,15 +157,17 @@ class my_Pair {
     // DATA
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
-    // Declare trait 'my_PairTrait'.
+    // Declare trait 'MyPairTrait'.
     // ...
 
   public:
     // CREATORS
-    my_Pair(const TYPE1&      iFirst,
-            const TYPE2&      iSecond,
-            bslma::Allocator *basic_Allocator = 0)
-        // Create a 'my_Pair' object that holds a copy of the specified
+    // ...
+
+    MyPair(const TYPE1&      iFirst,
+           const TYPE2&      iSecond,
+           bslma::Allocator *basic_Allocator = 0)
+        // Create a 'MyPair' object that holds a copy of the specified
         // 'iFirst' and 'iSecond'.  Optionally specify 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is zero,  the global default
         // allocator will be used to supply memory.
@@ -179,8 +181,8 @@ class my_Pair {
 
 };
 //..
-// Note that parts of the implementation, including the 'my_PairTrait'
-// declaration, are elided.  The 'my_PairTrait' will be used by the primitive
+// Note that parts of the implementation, including the 'MyPairTrait'
+// declaration, are elided.  The 'MyPairTrait' will be used by the primitive
 // helper to customize implementations for objects that are pairs.
 //
 // We now implement the primitive helper:
@@ -193,10 +195,10 @@ template <class TYPE>
 struct my_HasPairTrait : bsl::false_type { };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// my_primitives.h
+// MyPrimitives.h
 // ...
 
-struct my_Primitives {
+struct MyPrimitives {
     // This struct provides a namespace for pure procedure primitive
     // functions used to construct, destroy, insert, append and remove
     // objects.
@@ -238,9 +240,9 @@ struct my_Primitives {
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE             *address,
-                                  const TYPE&       original,
-                                  bslma::Allocator *basicAllocator)
+void MyPrimitives::copyConstruct(TYPE             *address,
+                                 const TYPE&       original,
+                                 bslma::Allocator *basicAllocator)
 {
     copyConstruct(address,
                   original,
@@ -250,10 +252,10 @@ void my_Primitives::copyConstruct(TYPE             *address,
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE                       *address,
-                                  const TYPE&                 original,
-                                  bslma::Allocator           *basicAllocator,
-                                  bsl::integral_constant<bool, PAIR_TRAIT> *)
+void MyPrimitives::copyConstruct(TYPE                       *address,
+                                 const TYPE&                 original,
+                                 bslma::Allocator           *basicAllocator,
+                                 bsl::integral_constant<bool, PAIR_TRAIT> *)
 {
     copyConstruct(&address->first, original.first, basicAllocator);
 
@@ -275,10 +277,10 @@ void my_Primitives::copyConstruct(TYPE                       *address,
 
 template <class TYPE>
 inline
-void my_Primitives::copyConstruct(TYPE                      *address,
-                                  const TYPE&                original,
-                                  bslma::Allocator          *basicAllocator,
-                                  bsl::integral_constant<bool, NIL_TRAIT> *)
+void MyPrimitives::copyConstruct(TYPE                      *address,
+                                 const TYPE&                original,
+                                 bslma::Allocator          *basicAllocator,
+                                 bsl::integral_constant<bool, NIL_TRAIT> *)
 {
     new(address)TYPE(original, basicAllocator);
 }
@@ -311,8 +313,8 @@ class my_AllocatingClass {
 
   public:
     // CREATORS
-    my_AllocatingClass(int              *counter,
-                       bslma::Allocator *basicAllocator = 0)
+    explicit my_AllocatingClass(int              *counter,
+                                bslma::Allocator *basicAllocator = 0)
         // Create a 'my_AllocatingClass' using the (global) 'counter'.
         // Optionally specified 'basicAllocator'.  If 'basicAllocator' is zero,
         // the global default allocator will be used to supply memory.  Create
@@ -345,7 +347,7 @@ class my_AllocatingClass {
 };
 
 template <>
-struct my_HasPairTrait<my_Pair<my_AllocatingClass, my_AllocatingClass> >
+struct my_HasPairTrait<MyPair<my_AllocatingClass, my_AllocatingClass> >
     : bsl::true_type { };
 
 //=============================================================================
@@ -367,7 +369,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -375,7 +377,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Pair' and 'my_Primitives' using a 'bslma::TestAllocator' to
+        //   of 'MyPair' and 'MyPrimitives' using a 'bslma::TestAllocator' to
         //   verify that memory is allocated and deallocated properly.
         //
         // Testing:
@@ -398,7 +400,7 @@ int main(int argc, char *argv[])
         ASSERT(counter2 == 0);
         ASSERT(z.numBytesInUse() == 0);
 
-        typedef my_Pair<my_AllocatingClass, my_AllocatingClass> PairType;
+        typedef MyPair<my_AllocatingClass, my_AllocatingClass> PairType;
 
         if (verbose) printf("\nTesting without exception\n");
         {
@@ -413,7 +415,7 @@ int main(int argc, char *argv[])
 
                 const PairType& P = mp;
 
-                my_Primitives::copyConstruct(memory, P, &z);
+                MyPrimitives::copyConstruct(memory, P, &z);
                 ASSERT(1         == counter1);
                 ASSERT(1         == counter2);
             }
@@ -450,7 +452,7 @@ int main(int argc, char *argv[])
                 z.setAllocationLimit(1);
 
                 try {
-                    my_Primitives::copyConstruct(memory, P, &z);
+                    MyPrimitives::copyConstruct(memory, P, &z);
 
                     ASSERT(0);  // should never get here
                 }
@@ -619,7 +621,7 @@ int main(int argc, char *argv[])
         //   ~bslma::DestructorProctor<TYPE>();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCTOR / DOTR TEST"
+        if (verbose) printf("\nCTOR / DTOR TEST"
                             "\n================\n");
 
         if (verbose) printf("\nTesting CTOR and DTOR\n");

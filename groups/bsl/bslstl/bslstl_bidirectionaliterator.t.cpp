@@ -71,16 +71,22 @@ using namespace std;
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
+
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -714,7 +720,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nConstruct basic iterator values" << endl;
         iterator it1 = testData;
-        iterator it2 = it1;
+        const_iterator it2 = it1;
         iterator it3 = it1;
         ++it2;
 

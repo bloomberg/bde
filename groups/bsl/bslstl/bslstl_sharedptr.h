@@ -9,6 +9,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a generic reference-counted shared pointer wrapper.
 //
+//@REVIEW_FOR_MASTER:
+// review doc for make_shared/allocate_shared, test movable weak_ptr,
+// test diamond owner_less, rely on bsltf to test forwarding
+//
 //@CLASSES:
 //  bsl::shared_ptr: shared pointer
 //  bsl::weak_ptr: "weak" reference to reference-counted shared object
@@ -1457,10 +1461,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
 #endif
@@ -1481,6 +1481,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -1499,6 +1503,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
@@ -1597,8 +1605,8 @@ BSL_OVERRIDES_STD mode"
         // Here and throughout the file wherever 'auto_ptr' is used, suspend
         // GCC reporting of deprecated declarations since the use of 'auto_ptr'
         // in this standard interface is required.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 namespace BloombergLP {
@@ -2080,10 +2088,10 @@ class shared_ptr {
         // as 'other' to destroy the shared object, and refers to
         // '(ELEMENT_TYPE*)other.get()'.  If 'COMPATIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
-        // diagnostic will be emitted indicating the error.
-        // Note that if 'other' is empty, then an empty shared pointer is
-        // created, which may still point to an un-managed object if 'other'
-        // were constructed through an aliasing constructor.
+        // diagnostic will be emitted indicating the error.  Note that if
+        // 'other' is empty, then an empty shared pointer is created, which may
+        // still point to an un-managed object if 'other' were constructed
+        // through an aliasing constructor.
 #else
     template <class COMPATIBLE_TYPE>
     shared_ptr(
@@ -2095,10 +2103,10 @@ class shared_ptr {
         // as 'other' to destroy the shared object, and refers to
         // '(ELEMENT_TYPE*)other.get()'.  If 'COMPATIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
-        // diagnostic will be emitted indicating the error.
-        // Note that if 'other' is empty, then an empty shared pointer is
-        // created, which may still point to an un-managed object if 'other'
-        // were constructed through an aliasing constructor.
+        // diagnostic will be emitted indicating the error.  Note that if
+        // 'other' is empty, then an empty shared pointer is created, which may
+        // still point to an un-managed object if 'other' were constructed
+        // through an aliasing constructor.
 #endif
 
     template<class COMPATIBLE_TYPE>
@@ -3027,16 +3035,16 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
     // emitted indicating the error.
 
 // STANDARD FACTORY FUNCTIONS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-#   if defined(BSLS_PLATFORM_CMP_GNU)
-    // work-around for gcc variadic template bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#   else
-bsl::shared_ptr<ELEMENT_TYPE>
-#   endif
+# if defined(BSLS_PLATFORM_CMP_GNU)
+    // work-around for gcc variadic template bug - confirm not fixed by 4.9?
+typename enable_if<!is_pointer<ALLOC>::value,
+                   shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
 allocate_shared(ALLOC a, ARGS&&... args);
     // Return a 'shared_ptr' object referring to and managing a new
     // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
@@ -3073,297 +3081,259 @@ shared_ptr<ELEMENT_TYPE> make_shared(ARGS&&... args);
     // specified arguments 'std::forward<ARGS>(args)...'.  If 'ELEMENT_TYPE'
     // uses 'blsma' allocators, then the default allocator is passed as an
     // extra argument in the final position.
-# else
 
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC a, const ARGS&... args);
-    // Return a 'shared_ptr' object referring to and managing a new
-    // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
-    // supply a single contiguous region of memory holding the returned shared
-    // pointer's internal representation and the new 'ELEMENT_TYPE' object,
-    // which is initialized by calling 'allocator_traits<ALLOC>::construct'
-    // passing 'basicAllocator', an 'ELEMENT_TYPE *' pointer to space for the
-    // new shared object, and the specified arguments 'args...'.  Note that the
-    // allocator argument is *not* implicitly passed to the constructor for
-    // 'ELEMENT_TYPE'; typically, to construct an object of 'ELEMENT_TYPE' with
-    // an allocator, pass the allocator as one of the arguments (frequently the
-    // last argument), but note that some allocators will perform this
-    // customization in their 'construct' implementation.
-
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, const ARGS&... args);
-    // Return a 'shared_ptr' object referring to and managing a new
-    // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
-    // supply a single contiguous region of memory holding the returned shared
-    // pointer's internal representation and the new 'ELEMENT_TYPE' object,
-    // which is initialized using the 'ELEMENT_TYPE' constructor that takes the
-    // specified arguments 'args...'.  If 'ELEMENT_TYPE' uses 'blsma'
-    // allocators, then the default allocator is passed as an extra argument in
-    // the final position.
-
-template<class ELEMENT_TYPE, class... ARGS>
-shared_ptr<ELEMENT_TYPE> make_shared(const ARGS&... args);
-    // Return a 'shared_ptr' object referring to and managing a new
-    // 'ELEMENT_TYPE' object.  The default allocator will be used to supply a
-    // single contiguous region of memory holding the returned shared pointer's
-    // internal representation and the new 'ELEMENT_TYPE' object, which is
-    // initialized using the 'ELEMENT_TYPE' constructor that takes the
-    // specified arguments 'args...'.  If 'ELEMENT_TYPE' uses 'blsma'
-    // allocators, then the default allocator is passed as an extra argument in
-    // the final position.
-
-# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #else
+
 template <class ELEMENT_TYPE, class ALLOC>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC basicAllocator);
 
-template <class ELEMENT_TYPE, class ALLOC, class A1>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+template <class ELEMENT_TYPE, class ALLOC, class A01>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4,
-                const A5& a5);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4,
-                const A5& a5,
-                const A6& a6);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4,
-                const A5& a5,
-                const A6& a6,
-                const A7& a7);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4,
-                const A5& a5,
-                const A6& a6,
-                const A7& a7,
-                const A8& a8);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
-allocate_shared(ALLOC     basicAllocator,
-                const A1& a1,
-                const A2& a2,
-                const A3& a3,
-                const A4& a4,
-                const A5& a5,
-                const A6& a6,
-                const A7& a7,
-                const A8& a8,
-                const A9& a9);
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
-          class A10>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
-shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC      basicAllocator,
-                const A1&  a1,
-                const A2&  a2,
-                const A3&  a3,
-                const A4&  a4,
-                const A5&  a5,
-                const A6&  a6,
-                const A7&  a7,
-                const A8&  a8,
-                const A9&  a9,
+                const A01& a01);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09);
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
+          class A10>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
+shared_ptr<ELEMENT_TYPE>
+# endif
+allocate_shared(ALLOC      basicAllocator,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09,
                 const A10& a10);
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC      basicAllocator,
-                const A1&  a1,
-                const A2&  a2,
-                const A3&  a3,
-                const A4&  a4,
-                const A5&  a5,
-                const A6&  a6,
-                const A7&  a7,
-                const A8&  a8,
-                const A9&  a9,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09,
                 const A10& a10,
                 const A11& a11);
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC      basicAllocator,
-                const A1&  a1,
-                const A2&  a2,
-                const A3&  a3,
-                const A4&  a4,
-                const A5&  a5,
-                const A6&  a6,
-                const A7&  a7,
-                const A8&  a8,
-                const A9&  a9,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09,
                 const A10& a10,
                 const A11& a11,
                 const A12& a12);
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC      basicAllocator,
-                const A1&  a1,
-                const A2&  a2,
-                const A3&  a3,
-                const A4&  a4,
-                const A5&  a5,
-                const A6&  a6,
-                const A7&  a7,
-                const A8&  a8,
-                const A9&  a9,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09,
                 const A10& a10,
                 const A11& a11,
                 const A12& a12,
                 const A13& a13);
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13, class A14>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        shared_ptr<ELEMENT_TYPE> >::type
-#else
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename enable_if<!is_pointer<ALLOC>::value,
+                    shared_ptr<ELEMENT_TYPE> >::type
+# else
 shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 allocate_shared(ALLOC      basicAllocator,
-                const A1&  a1,
-                const A2&  a2,
-                const A3&  a3,
-                const A4&  a4,
-                const A5&  a5,
-                const A6&  a6,
-                const A7&  a7,
-                const A8&  a8,
-                const A9&  a9,
+                const A01& a01,
+                const A02& a02,
+                const A03& a03,
+                const A04& a04,
+                const A05& a05,
+                const A06& a06,
+                const A07& a07,
+                const A08& a08,
+                const A09& a09,
                 const A10& a10,
                 const A11& a11,
                 const A12& a12,
@@ -3385,155 +3355,155 @@ allocate_shared(ALLOC      basicAllocator,
 
 template <class ELEMENT_TYPE, class ALLOC>
 shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator);
-template <class ELEMENT_TYPE, class ALLOC, class A1>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09>
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9,
-                                         const A10& a10);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09,
+                                         const A10&  a10);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9,
-                                         const A10& a10,
-                                         const A11& a11);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09,
+                                         const A10&  a10,
+                                         const A11&  a11);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9,
-                                         const A10& a10,
-                                         const A11& a11,
-                                         const A12& a12);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09,
+                                         const A10&  a10,
+                                         const A11&  a11,
+                                         const A12&  a12);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9,
-                                         const A10& a10,
-                                         const A11& a11,
-                                         const A12& a12,
-                                         const A13& a13);
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09,
+                                         const A10&  a10,
+                                         const A11&  a11,
+                                         const A12&  a12,
+                                         const A13&  a13);
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13, class A14>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
-                                         const A1&  a1,
-                                         const A2&  a2,
-                                         const A3&  a3,
-                                         const A4&  a4,
-                                         const A5&  a5,
-                                         const A6&  a6,
-                                         const A7&  a7,
-                                         const A8&  a8,
-                                         const A9&  a9,
-                                         const A10& a10,
-                                         const A11& a11,
-                                         const A12& a12,
-                                         const A13& a13,
-                                         const A14& a14);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC      *basicAllocator,
+                                         const A01&  a01,
+                                         const A02&  a02,
+                                         const A03&  a03,
+                                         const A04&  a04,
+                                         const A05&  a05,
+                                         const A06&  a06,
+                                         const A07&  a07,
+                                         const A08&  a08,
+                                         const A09&  a09,
+                                         const A10&  a10,
+                                         const A11&  a11,
+                                         const A12&  a12,
+                                         const A13&  a13,
+                                         const A14&  a14);
     // Return a 'shared_ptr' object referring to and managing a new
     // 'ELEMENT_TYPE' object.  The specified 'basicAllocator' will be used to
     // supply a single contiguous region of memory holding the returned shared
@@ -3546,129 +3516,133 @@ shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE> make_shared();
-template <class ELEMENT_TYPE, class A1>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1);
-template <class ELEMENT_TYPE, class A1, class A2>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1, const A2& a2);
-template <class ELEMENT_TYPE, class A1, class A2, class A3>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1, const A2& a2, const A3& a3);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4,
-                                     const A5& a5);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4,
-                                     const A5& a5,
-                                     const A6& a6);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4,
-                                     const A5& a5,
-                                     const A6& a6,
-                                     const A7& a7);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4,
-                                     const A5& a5,
-                                     const A6& a6,
-                                     const A7& a7,
-                                     const A8& a8);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1& a1,
-                                     const A2& a2,
-                                     const A3& a3,
-                                     const A4& a4,
-                                     const A5& a5,
-                                     const A6& a6,
-                                     const A7& a7,
-                                     const A8& a8,
-                                     const A9& a9);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1&  a1,
-                                     const A2&  a2,
-                                     const A3&  a3,
-                                     const A4&  a4,
-                                     const A5&  a5,
-                                     const A6&  a6,
-                                     const A7&  a7,
-                                     const A8&  a8,
-                                     const A9&  a9,
+template <class ELEMENT_TYPE,   class A01>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01);
+template <class ELEMENT_TYPE,   class A01, class A02>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01, const A02& a02);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09);
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09,
                                      const A10& a10);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1&  a1,
-                                     const A2&  a2,
-                                     const A3&  a3,
-                                     const A4&  a4,
-                                     const A5&  a5,
-                                     const A6&  a6,
-                                     const A7&  a7,
-                                     const A8&  a8,
-                                     const A9&  a9,
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09,
                                      const A10& a10,
                                      const A11& a11);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1&  a1,
-                                     const A2&  a2,
-                                     const A3&  a3,
-                                     const A4&  a4,
-                                     const A5&  a5,
-                                     const A6&  a6,
-                                     const A7&  a7,
-                                     const A8&  a8,
-                                     const A9&  a9,
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09,
                                      const A10& a10,
                                      const A11& a11,
                                      const A12& a12);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1&  a1,
-                                     const A2&  a2,
-                                     const A3&  a3,
-                                     const A4&  a4,
-                                     const A5&  a5,
-                                     const A6&  a6,
-                                     const A7&  a7,
-                                     const A8&  a8,
-                                     const A9&  a9,
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12, class A13>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09,
                                      const A10& a10,
                                      const A11& a11,
                                      const A12& a12,
                                      const A13& a13);
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13, class A14>
-shared_ptr<ELEMENT_TYPE> make_shared(const A1&  a1,
-                                     const A2&  a2,
-                                     const A3&  a3,
-                                     const A4&  a4,
-                                     const A5&  a5,
-                                     const A6&  a6,
-                                     const A7&  a7,
-                                     const A8&  a8,
-                                     const A9&  a9,
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12, class A13, class A14>
+shared_ptr<ELEMENT_TYPE> make_shared(const A01& a01,
+                                     const A02& a02,
+                                     const A03& a03,
+                                     const A04& a04,
+                                     const A05& a05,
+                                     const A06& a06,
+                                     const A07& a07,
+                                     const A08& a08,
+                                     const A09& a09,
                                      const A10& a10,
                                      const A11& a11,
                                      const A12& a12,
@@ -3706,7 +3680,6 @@ class weak_ptr {
                                                // shared object (held, not
                                                // owned)
 
-
     // PRIVATE MANIPULATORS
     void privateAssign(BloombergLP::bslma::SharedPtrRep *rep,
                        ELEMENT_TYPE                     *target);
@@ -3740,6 +3713,20 @@ class weak_ptr {
         // Create a weak pointer in the empty state and referring to no object,
         // i.e., a weak pointer having no representation.
 
+    weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr> original)
+                                                           BSLS_CPP11_NOEXCEPT;
+        // Create a weak pointer that refers to the same object (if any) as the
+        // specified 'original' weak pointer, and reset 'original' to an empty
+        // state.
+
+    template <class COMPATIBLE_TYPE>
+    weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > other)
+                                                           BSLS_CPP11_NOEXCEPT;
+        // TBD
+        // Create a weak pointer that refers to the same object (if any) as the
+        // specified 'other' weak pointer, and reset 'original' to an empty
+        // state.
+
     weak_ptr(const weak_ptr& original) BSLS_CPP11_NOEXCEPT;
         // Create a weak pointer that refers to the same object (if any) as the
         // specified 'original' weak pointer, and increment the number of weak
@@ -3767,6 +3754,10 @@ class weak_ptr {
         // (possibly shared) object, release the weak reference to that object.
 
     // MANIPULATORS
+    weak_ptr& operator=(BloombergLP::bslmf::MovableRef<weak_ptr> rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+        // TBD
+
     weak_ptr& operator=(const weak_ptr& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this weak pointer refer to the same object (if any) as the
         // specified 'rhs' weak pointer.  Decrement the number of weak
@@ -3775,6 +3766,12 @@ class weak_ptr {
         // 'rhs' (if any).  Return a reference providing modifiable access to
         // this weak pointer.  Note that if 'rhs' is in the empty state, this
         // weak pointer will be set to the empty state.
+
+    template <class COMPATIBLE_TYPE>
+    weak_ptr&
+    operator=(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > rhs)
+                                                           BSLS_CPP11_NOEXCEPT;
+        // TBD
 
     template <class COMPATIBLE_TYPE>
     weak_ptr& operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
@@ -3889,7 +3886,7 @@ class enable_shared_from_this {
     mutable bsl::weak_ptr<ELEMENT_TYPE> d_weakThis;
 
   protected:
-    // CREATORS
+    // PROTECTED CREATORS
     enable_shared_from_this();
         // Create an 'enable_shared_from_this' object that is not owned by any
         // 'shared_ptr' object.
@@ -3902,7 +3899,7 @@ class enable_shared_from_this {
     ~enable_shared_from_this();
         // Destroy this 'enable_shared_form_this'.
 
-    // MANIPULATORS
+    // PROTECTED MANIPULATORS
     enable_shared_from_this& operator=(const enable_shared_from_this& rhs);
         // Return '*this'. This object is unchanged.  Note that the specified
         // 'rhs' is not used.
@@ -4136,6 +4133,12 @@ struct SharedPtr_ImpUtil {
     static void *voidify(TYPE *address);
         // Return the specified 'address' cast as a pointer to 'void', even if
         // (the template parameter) 'TYPE' is cv-qualified.
+
+    template <class TYPE>
+    static TYPE *unqualify(const volatile TYPE *address);
+        // Return the specified 'address' of a potentially 'cv'-qualified
+        // object of the given (template parameter) 'TYPE', cast as a pointer
+        // to a modifiable non-volatile object of the given 'TYPE'.
 };
 
                         // ==========================
@@ -5476,6 +5479,7 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
         return BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>(d_ptr_p,
                                                             d_rep_p,
                          &BloombergLP::bslma::SharedPtrRep::managedPtrDeleter);
+                                                                      // RETURN
     }
 
     return BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE>(
@@ -5519,6 +5523,28 @@ weak_ptr<ELEMENT_TYPE>::weak_ptr() BSLS_CPP11_NOEXCEPT
 : d_ptr_p(0)
 , d_rep_p(0)
 {
+}
+
+template <class ELEMENT_TYPE>
+weak_ptr<ELEMENT_TYPE>::weak_ptr(
+         BloombergLP::bslmf::MovableRef<weak_ptr> original) BSLS_CPP11_NOEXCEPT
+: d_ptr_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_ptr_p)
+, d_rep_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_rep_p)
+{
+    BloombergLP::bslmf::MovableRefUtil::access(original).d_rep_p = 0;
+//    original.d_ptr_p = 0; // this seems overkill for a /weak/ pointer
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>::weak_ptr(
+           BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > original)
+                                                            BSLS_CPP11_NOEXCEPT
+: d_ptr_p(original.d_ptr_p)
+, d_rep_p(original.d_rep_p)
+{
+    original.d_rep_p = 0;
+//    original.d_ptr_p = 0; // this seems overkill for a /weak/ pointer
 }
 
 template <class ELEMENT_TYPE>
@@ -5584,11 +5610,37 @@ void weak_ptr<ELEMENT_TYPE>::privateAssign(
 // MANIPULATORS
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
+                                  BloombergLP::bslmf::MovableRef<weak_ptr> rhs)
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    weak_ptr tmp(BloombergLP::bslmf::MovableRefUtil::move(rhs));
+    tmp.swap(*this);
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+template <class COMPATIBLE_TYPE>
+weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
+                BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > rhs)
+                                                            BSLS_CPP11_NOEXCEPT
+{
+    weak_ptr tmp(BloombergLP::bslmf::MovableRefUtil::move(rhs));
+    tmp.swap(*this);
+    return *this;
+}
+
+template <class ELEMENT_TYPE>
+weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                              const weak_ptr<ELEMENT_TYPE>& rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+#if 1
+    weak_ptr tmp(rhs);
     tmp.swap(*this);
+#else
+    // needs friendship, or use the cheating util class.
+    privateAssign(rhs.d_rep_p, rhs.d_ptr_p);
+#endif
     return *this;
 }
 
@@ -5598,8 +5650,13 @@ weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                         const shared_ptr<COMPATIBLE_TYPE>& rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+#if 1
+    weak_ptr tmp(rhs);
     tmp.swap(*this);
+#else
+    // needs friendship, or use the cheating util class.
+    privateAssign(rhs.d_rep_p, rhs.d_ptr_p);
+#endif
     return *this;
 }
 
@@ -5609,8 +5666,13 @@ weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                           const weak_ptr<COMPATIBLE_TYPE>& rhs)
                                                             BSLS_CPP11_NOEXCEPT
 {
-    weak_ptr<ELEMENT_TYPE> tmp(rhs);
+#if 1
+    weak_ptr tmp(rhs);
     tmp.swap(*this);
+#else
+    // needs friendship, or use the cheating util class.
+    privateAssign(rhs.d_rep_p, rhs.d_ptr_p);
+#endif
     return *this;
 }
 
@@ -5772,6 +5834,13 @@ inline
 void *SharedPtr_ImpUtil::voidify(TYPE *address) {
     return static_cast<void *>(
             const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
+}
+
+template <class TYPE>
+inline
+TYPE *SharedPtr_ImpUtil::unqualify(const volatile TYPE *address)
+{
+    return const_cast<typename bsl::remove_cv<TYPE>::type *>(address);
 }
 
                             // --------------------
@@ -6110,25 +6179,30 @@ bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 }
 
 // STANDARD FACTORY FUNCTIONS
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+// C++11, PERFECT FORWARDING THROUGH A VARIADIC TEMPLATE
+
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-#if defined(BSLS_PLATFORM_CMP_GNU)
+# if defined(BSLS_PLATFORM_CMP_GNU)
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC a, ARGS&&... args)
+# endif
+bsl::allocate_shared(ALLOC basicAllocator, ARGS&&... args)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
 
     typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
                                                              ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(a);
+    Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
+    bsl::allocator_traits<ALLOC>::construct(
+                                  basicAllocator,
+                                  ImpUtil::unqualify(rep_p->ptr()),
                                   BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
@@ -6136,10 +6210,11 @@ bsl::allocate_shared(ALLOC a, ARGS&&... args)
 
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC *a, ARGS&&... args)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC     *basicAllocator,
+                                                   ARGS&&...  args)
 {
     return bsl::allocate_shared<ELEMENT_TYPE>(
-                                  bsl::allocator<char>(a),
+                                  bsl::allocator<char>(basicAllocator),
                                   BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 }
 
@@ -6151,50 +6226,26 @@ bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
                                   BloombergLP::bslma::Default::allocator(),
                                   BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
 }
-# else
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC a, const ARGS&... args)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
 
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(a);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(args...);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, const ARGS&... args)
-{
-    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<char>(a),
-                                              args...);
-}
-
-template<class ELEMENT_TYPE, class... ARGS>
-inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const ARGS&... args)
-{
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                              BloombergLP::bslma::Default::allocator(),
-                              args...);
-}
-# endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #else
+
+// C++03, OVERLOADS OF UP TO 14 ARGUMENTS, PLUS ALLOCATORS.
+
+// Note that we implement each of the three (variadic) forms directly as we
+// cannot be sure in a C++03 build that the return value optimization will kick
+// in and avoid the atomic operations of a 'shared_ptr' copy constructor.  We
+// are much less concerned in C++11 where move elision is guaranteed if the
+// compiler fails to support copy elision.
+
+// 'allocate_shared' with a C++11-conforming allocator
+
 template <class ELEMENT_TYPE, class ALLOC>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC basicAllocator)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -6204,41 +6255,20 @@ bsl::allocate_shared(ALLOC basicAllocator)
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE();
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()));
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+template <class ELEMENT_TYPE, class ALLOC, class A01>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC basicAllocator, const A1& a1)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(ImpUtil::forward(a1));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC basicAllocator, const A1& a1, const A2& a2)
+# endif
+bsl::allocate_shared(ALLOC basicAllocator, const A01& a01)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
 
@@ -6247,24 +6277,21 @@ bsl::allocate_shared(ALLOC basicAllocator, const A1& a1, const A2& a2)
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2));
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01));
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3)
+# endif
+bsl::allocate_shared(ALLOC basicAllocator, const A01& a01, const A02& a02)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
 
@@ -6273,243 +6300,277 @@ bsl::allocate_shared(ALLOC     basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3));
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02));
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4,
-                     const A5& a5)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4,
-                     const A5& a5,
-                     const A6& a6)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4,
-                     const A5& a5,
-                     const A6& a6,
-                     const A7& a7)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4,
-                     const A5& a5,
-                     const A6& a6,
-                     const A7& a7,
-                     const A8& a8)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
-bsl::allocate_shared(ALLOC     basicAllocator,
-                     const A1& a1,
-                     const A2& a2,
-                     const A3& a3,
-                     const A4& a4,
-                     const A5& a5,
-                     const A6& a6,
-                     const A7& a7,
-                     const A8& a8,
-                     const A9& a9)
-{
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-
-    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
-                                                             ALLOC> Rep;
-    Rep *rep_p = Rep::makeRep(basicAllocator);
-
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9));
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-}
-
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
-          class A10>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
-typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
-bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC      basicAllocator,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09)
+{
+    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
+
+    typedef BloombergLP::bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE,
+                                                             ALLOC> Rep;
+    Rep *rep_p = Rep::makeRep(basicAllocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+}
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
+          class A10>
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
+bsl::shared_ptr<ELEMENT_TYPE>
+# endif
+bsl::allocate_shared(ALLOC      basicAllocator,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09,
                      const A10& a10)
 {
     typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
@@ -6519,40 +6580,41 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9),
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
                                             ImpUtil::forward(a10));
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC      basicAllocator,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09,
                      const A10& a10,
                      const A11& a11)
 {
@@ -6563,41 +6625,42 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9),
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
                                             ImpUtil::forward(a10),
                                             ImpUtil::forward(a11));
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC      basicAllocator,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09,
                      const A10& a10,
                      const A11& a11,
                      const A12& a12)
@@ -6609,16 +6672,17 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9),
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
                                             ImpUtil::forward(a10),
                                             ImpUtil::forward(a11),
                                             ImpUtil::forward(a12));
@@ -6626,25 +6690,25 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC      basicAllocator,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09,
                      const A10& a10,
                      const A11& a11,
                      const A12& a12,
@@ -6657,16 +6721,17 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9),
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
                                             ImpUtil::forward(a10),
                                             ImpUtil::forward(a11),
                                             ImpUtil::forward(a12),
@@ -6675,25 +6740,26 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13, class A14>
-#if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
+# if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
-                        bsl::shared_ptr<ELEMENT_TYPE> >::type
-#else
+                         bsl::shared_ptr<ELEMENT_TYPE> >::type
+# else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+# endif
 bsl::allocate_shared(ALLOC      basicAllocator,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9,
+                     const A01& a01,
+                     const A02& a02,
+                     const A03& a03,
+                     const A04& a04,
+                     const A05& a05,
+                     const A06& a06,
+                     const A07& a07,
+                     const A08& a08,
+                     const A09& a09,
                      const A10& a10,
                      const A11& a11,
                      const A12& a12,
@@ -6707,16 +6773,17 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     Rep *rep_p = Rep::makeRep(basicAllocator);
 
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    ::new (ImpUtil::voidify(rep_p->ptr())) ELEMENT_TYPE(
-                                            ImpUtil::forward(a1),
-                                            ImpUtil::forward(a2),
-                                            ImpUtil::forward(a3),
-                                            ImpUtil::forward(a4),
-                                            ImpUtil::forward(a5),
-                                            ImpUtil::forward(a6),
-                                            ImpUtil::forward(a7),
-                                            ImpUtil::forward(a8),
-                                            ImpUtil::forward(a9),
+    bsl::allocator_traits<ALLOC>::construct(basicAllocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
                                             ImpUtil::forward(a10),
                                             ImpUtil::forward(a11),
                                             ImpUtil::forward(a12),
@@ -6726,767 +6793,1056 @@ bsl::allocate_shared(ALLOC      basicAllocator,
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
+// 'allocate_shared' with a 'bslma::Allocator *'-derived allocator
+
 template <class ELEMENT_TYPE, class ALLOC>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a)
+bsl::allocate_shared(ALLOC *basicAllocator)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1>
+template <class ELEMENT_TYPE, class ALLOC, class A01>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, const A1& a1)
+bsl::allocate_shared(ALLOC *basicAllocator, const A01&  a01)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2)
+bsl::allocate_shared(ALLOC *basicAllocator, const A01&  a01, const A02&  a02)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2, const A3& a3)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9>
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC     *a,
-                     const A1&  a1,
-                     const A2&  a2,
-                     const A3&  a3,
-                     const A4&  a4,
-                     const A5&  a5,
-                     const A6&  a6,
-                     const A7&  a7,
-                     const A8&  a8,
-                     const A9&  a9)
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC      *a,
-                     const A1&   a1,
-                     const A2&   a2,
-                     const A3&   a3,
-                     const A4&   a4,
-                     const A5&   a5,
-                     const A6&   a6,
-                     const A7&   a7,
-                     const A8&   a8,
-                     const A9&   a9,
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09,
                      const A10&  a10)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9),
-                                           ImpUtil::forward(a10));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC      *a,
-                     const A1&   a1,
-                     const A2&   a2,
-                     const A3&   a3,
-                     const A4&   a4,
-                     const A5&   a5,
-                     const A6&   a6,
-                     const A7&   a7,
-                     const A8&   a8,
-                     const A9&   a9,
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09,
                      const A10&  a10,
                      const A11&  a11)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9),
-                                           ImpUtil::forward(a10),
-                                           ImpUtil::forward(a11));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC      *a,
-                     const A1&   a1,
-                     const A2&   a2,
-                     const A3&   a3,
-                     const A4&   a4,
-                     const A5&   a5,
-                     const A6&   a6,
-                     const A7&   a7,
-                     const A8&   a8,
-                     const A9&   a9,
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09,
                      const A10&  a10,
                      const A11&  a11,
                      const A12&  a12)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9),
-                                           ImpUtil::forward(a10),
-                                           ImpUtil::forward(a11),
-                                           ImpUtil::forward(a12));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC      *a,
-                     const A1&   a1,
-                     const A2&   a2,
-                     const A3&   a3,
-                     const A4&   a4,
-                     const A5&   a5,
-                     const A6&   a6,
-                     const A7&   a7,
-                     const A8&   a8,
-                     const A9&   a9,
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09,
                      const A10&  a10,
                      const A11&  a11,
                      const A12&  a12,
                      const A13&  a13)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9),
-                                           ImpUtil::forward(a10),
-                                           ImpUtil::forward(a11),
-                                           ImpUtil::forward(a12),
-                                           ImpUtil::forward(a13));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12),
+                                            ImpUtil::forward(a13));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
-          class A4, class A5, class A6, class A7, class A8, class A9,
+template <class ELEMENT_TYPE, class ALLOC, class A01, class A02, class A03,
+          class A04, class A05, class A06, class A07, class A08, class A09,
           class A10, class A11, class A12, class A13, class A14>
 inline
 bsl::shared_ptr<ELEMENT_TYPE>
-bsl::allocate_shared(ALLOC      *a,
-                     const A1&   a1,
-                     const A2&   a2,
-                     const A3&   a3,
-                     const A4&   a4,
-                     const A5&   a5,
-                     const A6&   a6,
-                     const A7&   a7,
-                     const A8&   a8,
-                     const A9&   a9,
+bsl::allocate_shared(ALLOC      *basicAllocator,
+                     const A01&  a01,
+                     const A02&  a02,
+                     const A03&  a03,
+                     const A04&  a04,
+                     const A05&  a05,
+                     const A06&  a06,
+                     const A07&  a07,
+                     const A08&  a08,
+                     const A09&  a09,
                      const A10&  a10,
                      const A11&  a11,
                      const A12&  a12,
                      const A13&  a13,
                      const A14&  a14)
 {
-    typedef BloombergLP::bslstl::SharedPtr_ImpUtil ImpUtil;
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
+    using namespace BloombergLP;
 
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator,
-                                           ImpUtil::forward(a1),
-                                           ImpUtil::forward(a2),
-                                           ImpUtil::forward(a3),
-                                           ImpUtil::forward(a4),
-                                           ImpUtil::forward(a5),
-                                           ImpUtil::forward(a6),
-                                           ImpUtil::forward(a7),
-                                           ImpUtil::forward(a8),
-                                           ImpUtil::forward(a9),
-                                           ImpUtil::forward(a10),
-                                           ImpUtil::forward(a11),
-                                           ImpUtil::forward(a12),
-                                           ImpUtil::forward(a13),
-                                           ImpUtil::forward(a14));
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator(basicAllocator);
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12),
+                                            ImpUtil::forward(a13),
+                                            ImpUtil::forward(a14));
+    proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
+
+// 'make_shared' using the default allocator
 
 template <class ELEMENT_TYPE>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared()
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                     BloombergLP::bslma::Default::allocator());
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1>
+template <class ELEMENT_TYPE, class A01>
 inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2>
+template <class ELEMENT_TYPE, class A01, class A02>
 inline
-bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1, const A2& a2)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3>
+template <class ELEMENT_TYPE, class A01, class A02, class A03>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1, const A2& a2, const A3& a3)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
+template <class ELEMENT_TYPE, class A01, class A02, class A03, class A04>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1,
-                 const A2& a2,
-                 const A3& a3,
-                 const A4& a4,
-                 const A5& a5)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1,
-                 const A2& a2,
-                 const A3& a3,
-                 const A4& a4,
-                 const A5& a5,
-                 const A6& a6)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1,
-                 const A2& a2,
-                 const A3& a3,
-                 const A4& a4,
-                 const A5& a5,
-                 const A6& a6,
-                 const A7& a7)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1,
-                 const A2& a2,
-                 const A3& a3,
-                 const A4& a4,
-                 const A5& a5,
-                 const A6& a6,
-                 const A7& a7,
-                 const A8& a8)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1& a1,
-                 const A2& a2,
-                 const A3& a3,
-                 const A4& a4,
-                 const A5& a5,
-                 const A6& a6,
-                 const A7& a7,
-                 const A8& a8,
-                 const A9& a9)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1&  a1,
-                 const A2&  a2,
-                 const A3&  a3,
-                 const A4&  a4,
-                 const A5&  a5,
-                 const A6&  a6,
-                 const A7&  a7,
-                 const A8&  a8,
-                 const A9&  a9,
-                 const A10& a10)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09,
+                                               const A10&  a10)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9,
-                                      a10);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1&  a1,
-                 const A2&  a2,
-                 const A3&  a3,
-                 const A4&  a4,
-                 const A5&  a5,
-                 const A6&  a6,
-                 const A7&  a7,
-                 const A8&  a8,
-                 const A9&  a9,
-                 const A10& a10,
-                 const A11& a11)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09,
+                                               const A10&  a10,
+                                               const A11&  a11)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9,
-                                      a10,
-                                      a11);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1&  a1,
-                 const A2&  a2,
-                 const A3&  a3,
-                 const A4&  a4,
-                 const A5&  a5,
-                 const A6&  a6,
-                 const A7&  a7,
-                 const A8&  a8,
-                 const A9&  a9,
-                 const A10& a10,
-                 const A11& a11,
-                 const A12& a12)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09,
+                                               const A10&  a10,
+                                               const A11&  a11,
+                                               const A12&  a12)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9,
-                                      a10,
-                                      a11,
-                                      a12);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12, class A13>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1&  a1,
-                 const A2&  a2,
-                 const A3&  a3,
-                 const A4&  a4,
-                 const A5&  a5,
-                 const A6&  a6,
-                 const A7&  a7,
-                 const A8&  a8,
-                 const A9&  a9,
-                 const A10& a10,
-                 const A11& a11,
-                 const A12& a12,
-                 const A13& a13)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09,
+                                               const A10&  a10,
+                                               const A11&  a11,
+                                               const A12&  a12,
+                                               const A13&  a13)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9,
-                                      a10,
-                                      a11,
-                                      a12,
-                                      a13);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12),
+                                            ImpUtil::forward(a13));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
-template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
-          class A6, class A7, class A8, class A9, class A10, class A11,
-          class A12, class A13, class A14>
+template <class ELEMENT_TYPE,   class A01, class A02, class A03, class A04,
+          class A05, class A06, class A07, class A08, class A09, class A10,
+          class A11, class A12, class A13, class A14>
 inline
-bsl::shared_ptr<ELEMENT_TYPE>
-bsl::make_shared(const A1&  a1,
-                 const A2&  a2,
-                 const A3&  a3,
-                 const A4&  a4,
-                 const A5&  a5,
-                 const A6&  a6,
-                 const A7&  a7,
-                 const A8&  a8,
-                 const A9&  a9,
-                 const A10& a10,
-                 const A11& a11,
-                 const A12& a12,
-                 const A13& a13,
-                 const A14& a14)
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A01&  a01,
+                                               const A02&  a02,
+                                               const A03&  a03,
+                                               const A04&  a04,
+                                               const A05&  a05,
+                                               const A06&  a06,
+                                               const A07&  a07,
+                                               const A08&  a08,
+                                               const A09&  a09,
+                                               const A10&  a10,
+                                               const A11&  a11,
+                                               const A12&  a12,
+                                               const A13&  a13,
+                                               const A14&  a14)
 {
-    return bsl::allocate_shared<ELEMENT_TYPE>(
-                                      BloombergLP::bslma::Default::allocator(),
-                                      a1,
-                                      a2,
-                                      a3,
-                                      a4,
-                                      a5,
-                                      a6,
-                                      a7,
-                                      a8,
-                                      a9,
-                                      a10,
-                                      a11,
-                                      a12,
-                                      a13,
-                                      a14);
+    using namespace BloombergLP;
+
+    typedef bsl::allocator<typename remove_cv<ELEMENT_TYPE>::type>   Alloc;
+    typedef bslstl::SharedPtrAllocateInplaceRep<ELEMENT_TYPE, Alloc> Rep;
+    typedef bslstl::SharedPtr_ImpUtil                                ImpUtil;
+
+    Alloc  allocator;
+    Rep   *rep_p = Rep::makeRep(allocator);
+
+    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
+    bsl::allocator_traits<Alloc>::construct(allocator,
+                                            ImpUtil::unqualify(rep_p->ptr()),
+                                            ImpUtil::forward(a01),
+                                            ImpUtil::forward(a02),
+                                            ImpUtil::forward(a03),
+                                            ImpUtil::forward(a04),
+                                            ImpUtil::forward(a05),
+                                            ImpUtil::forward(a06),
+                                            ImpUtil::forward(a07),
+                                            ImpUtil::forward(a08),
+                                            ImpUtil::forward(a09),
+                                            ImpUtil::forward(a10),
+                                            ImpUtil::forward(a11),
+                                            ImpUtil::forward(a12),
+                                            ImpUtil::forward(a13),
+                                            ImpUtil::forward(a14));
+    proctor.release();
+    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -7540,7 +7896,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 }  // close enterprise namespace
 
 #ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic pop
+# pragma GCC diagnostic pop
 #endif
 
 #endif

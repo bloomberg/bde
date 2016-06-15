@@ -16,16 +16,16 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: This component provides a proctor class template to
-// conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'
-// supplied at construction.  If not explicitly released, the managed object is
-// deleted automatically when the proctor object goes out of scope by first
-// calling the (managed) object's destructor, and then freeing the memory using
-// the parameterized 'ALLOCATOR' (allocator or pool) also supplied at
-// construction.  Note that after a proctor object releases its managed object,
-// the same proctor can be reused to conditionally manage another object
-// (allocated from the same allocator or pool that was supplied at
-// construction) by invoking the 'reset' method.
+//@DESCRIPTION: This component provides a proctor class template,
+// 'bslma::RawDeleterProctor', to conditionally manage an (otherwise-unmanaged)
+// object of parameterized 'TYPE' supplied at construction.  If not explicitly
+// released, the managed object is deleted automatically when the proctor
+// object goes out of scope by first calling the (managed) object's destructor,
+// and then freeing the memory using the parameterized 'ALLOCATOR' (allocator
+// or pool) also supplied at construction.  Note that after a proctor object
+// releases its managed object, the same proctor can be reused to conditionally
+// manage another object (allocated from the same allocator or pool that was
+// supplied at construction) by invoking the 'reset' method.
 //
 ///"Raw" Warning
 ///-------------
@@ -252,7 +252,7 @@ class RawDeleterProctor {
 };
 
 // ============================================================================
-//                       TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // -----------------------

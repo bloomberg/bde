@@ -100,7 +100,6 @@ namespace bsl
 #if !defined(BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS)
     using native_std::is_constructible;
     using native_std::is_default_constructible;
-    using native_std::is_copy_constructible;
     using native_std::is_move_constructible;
     using native_std::is_assignable;
     using native_std::is_copy_assignable;
@@ -120,7 +119,6 @@ namespace bsl
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
     using native_std::is_nothrow_copy_constructible;
-    using native_std::is_nothrow_move_constructible;
     using native_std::is_nothrow_assignable;
     using native_std::is_nothrow_copy_assignable;
     using native_std::is_nothrow_move_assignable;
@@ -234,6 +232,7 @@ namespace bsl
 #include <bslmf_isclass.h>
 #include <bslmf_isconst.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_iscopyconstructible.h>
 #include <bslmf_isempty.h>
 #include <bslmf_isenum.h>
 #include <bslmf_isfloatingpoint.h>
@@ -244,6 +243,7 @@ namespace bsl
 #include <bslmf_ismemberfunctionpointer.h>
 #include <bslmf_ismemberobjectpointer.h>
 #include <bslmf_ismemberpointer.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_ispolymorphic.h>
 #include <bslmf_isreference.h>

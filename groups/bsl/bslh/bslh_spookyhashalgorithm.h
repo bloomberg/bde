@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //      size_t            d_numValues;          // Length of 'd_values'.
 //      const TYPE      **d_bucketArray;        // Contains ptrs into
 //                                              // 'd_values'
-//      unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
+//      size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
 //      HASHER            d_hasher;
 //
 //    private:

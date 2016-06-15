@@ -455,6 +455,11 @@ class TestAllocatorMonitor {
         // construction, prior to that address being dereferenced to initialize
         // the 'const' data members of this type.
 
+  private:
+    // NOT IMPLEMENTED
+    TestAllocatorMonitor(const TestAllocatorMonitor&);             // = delete
+    TestAllocatorMonitor& operator=(const TestAllocatorMonitor&);  // = delete
+
   public:
     // CREATORS
     explicit TestAllocatorMonitor(const TestAllocator *testAllocator);
@@ -523,7 +528,7 @@ class TestAllocatorMonitor {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------------

@@ -240,6 +240,10 @@ struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 }  // close namespace bsl
 
 
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
@@ -251,6 +255,8 @@ int main(int argc, char *argv[])
     (void) veryVerbose;          // eliminate unused variable warning
     (void) veryVeryVerbose;      // eliminate unused variable warning
     (void) veryVeryVeryVerbose;  // eliminate unused variable warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

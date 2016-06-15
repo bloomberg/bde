@@ -198,7 +198,7 @@ class InfrequentDeleteBlockList {
 
   public:
     // CREATORS
-    InfrequentDeleteBlockList(Allocator *basicAllocator = 0);
+    explicit InfrequentDeleteBlockList(Allocator *basicAllocator = 0);
         // Create a memory manager.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.

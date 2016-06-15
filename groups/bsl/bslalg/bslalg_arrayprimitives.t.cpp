@@ -7,13 +7,10 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bsls_bsltestutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_alignmentutil.h>
-#include <bsls_objectbuffer.h>
-
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -1417,7 +1414,7 @@ class Attrib5 {
     int  d_c;
     int  d_d;
     int  d_e;
-    
+
   public:
     static int ctor0Count() { return d_ctor0Count; }
     static int ctor1Count() { return d_ctor1Count; }
@@ -1749,40 +1746,12 @@ static const struct {
 } DATA_9DV[] = {
     //line spec            ne  dst    end  expected            ordered by ne
     //---- ----            --  ---    ---  --------            -------------
-    { L_,  "___",          0,  1,     1,   "___"           },  // 0
-    { L_,  "a_c",          0,  1,     1,   "a_c"           },
-    { L_,  "abc",          0,  1,     2,   "abc"           },
-
     { L_,  "___",          1,  1,     1,   "_?_"           },  // 1
     { L_,  "a_c",          1,  1,     1,   "a?c"           },
     { L_,  "ab_d",         1,  1,     2,   "a?bd"          },
     { L_,  "abc_e",        1,  1,     3,   "a?bce"         },
     { L_,  "abcd_f",       1,  1,     4,   "a?bcdf"        },
     { L_,  "abcde_g",      1,  1,     5,   "a?bcdeg"       },
-
-    { L_,  "a__d",         2,  1,     1,   "a??d"          },  // 2
-    { L_,  "ab__e",        2,  1,     2,   "a??be"         },
-    { L_,  "abc__f",       2,  1,     3,   "a??bcf"        },
-    { L_,  "abcd__g",      2,  1,     4,   "a??bcdg"       },
-    { L_,  "abcde__h",     2,  1,     5,   "a??bcdeh"      },
-    { L_,  "abcdef__i",    2,  1,     6,   "a??bcdefi"     },
-
-    { L_,  "a___e",        3,  1,     1,   "a???e"         },  // 3
-    { L_,  "ab___f",       3,  1,     2,   "a???bf"        },
-    { L_,  "abc___g",      3,  1,     3,   "a???bcg"       },
-    { L_,  "abcd___h",     3,  1,     4,   "a???bcdh"      },
-    { L_,  "abcde___i",    3,  1,     5,   "a???bcdei"     },
-    { L_,  "abcdef___j",   3,  1,     6,   "a???bcdefj"    },
-    { L_,  "abcdefg___k",  3,  1,     7,   "a???bcdefgk"   },
-
-    { L_,  "a____f",       4,  1,     1,   "a????f"        },  // 4
-    { L_,  "ab____g",      4,  1,     2,   "a????bg"       },
-    { L_,  "abc____h",     4,  1,     3,   "a????bch"      },
-    { L_,  "abcd____i",    4,  1,     4,   "a????bcdi"     },
-    { L_,  "abcde____j",   4,  1,     5,   "a????bcdej"    },
-    { L_,  "abcdef____k",  4,  1,     6,   "a????bcdefk"   },
-    { L_,  "abcdefg____l", 4,  1,     7,   "a????bcdefgl"  },
-    { L_,  "abcdefgh____m",4,  1,     8,   "a????bcdefghm" },
 };
 const int NUM_DATA_9DV = sizeof DATA_9DV / sizeof *DATA_9DV;
 
@@ -1807,16 +1776,15 @@ void testEmplaceDefaultValueN(bool bitwiseMoveableFlag,
         for (int ti = 0; ti < NUM_DATA_9DV; ++ti) {
             const int         LINE = DATA_9DV[ti].d_lineNum;
             const char *const SPEC = DATA_9DV[ti].d_spec;
-            const int         NE   = DATA_9DV[ti].d_ne;
             const int         DST  = DATA_9DV[ti].d_dst;
             const int         END  = DATA_9DV[ti].d_end;
             const char *const EXP  = DATA_9DV[ti].d_expected;
             LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
-                printf("LINE = %d, SPEC = %s, NE = %d, "
+                printf("LINE = %d, SPEC = %s, "
                         "DST = %d, END = %d, EXP = %s\n",
-                        LINE, SPEC, NE, DST, END, EXP);
+                        LINE, SPEC, DST, END, EXP);
             }
 
             TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
@@ -1826,7 +1794,7 @@ void testEmplaceDefaultValueN(bool bitwiseMoveableFlag,
                     gg(buf, SPEC);  verify(buf, SPEC);
                     CleanupGuard<TYPE> cleanup(buf, SPEC);
 
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                    Obj::emplace(&buf[DST], &buf[END], Z);
 
                     verify(buf, EXP);
                     cleanup.release(EXP);
@@ -1838,14 +1806,14 @@ void testEmplaceDefaultValueN(bool bitwiseMoveableFlag,
                 const int NUM_DEFAULT = numDefaultCtorCalls;
                 const int NUM_DESTRUCTIONS = numDestructorCalls;
 
-                Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                Obj::emplace(&buf[DST], &buf[END], Z);
 
                 if (bitwiseCopyableFlag) {
                     //ASSERT(NUM_DEFAULT + NE == numDefaultCtorCalls);
                     ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
                 }
                 else if (bitwiseMoveableFlag) {
-                    ASSERT(NUM_DEFAULT + NE == numDefaultCtorCalls);
+                    ASSERT(NUM_DEFAULT + 1 == numDefaultCtorCalls);
                     ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
                 }
                 verify(buf, EXP);
@@ -1870,40 +1838,12 @@ static const struct {
 } DATA_9V[] = {
     //line spec            ne  dst    end  expected        eN    ordered by ne
     //---- ----            --  ---    ---  --------        --    -------------
-    { L_,  "___",          0,  1,     1,   "___",           0 },  // 0
-    { L_,  "a_c",          0,  1,     1,   "a_c",           0 },
-    { L_,  "abc",          0,  1,     2,   "abc",           0 },
-
     { L_,  "___",          1,  1,     1,   "_V_",           1 },  // 1
     { L_,  "a_c",          1,  1,     1,   "aVc",           1 },
     { L_,  "ab_d",         1,  1,     2,   "aVbd",          1 },
     { L_,  "abc_e",        1,  1,     3,   "aVbce",         1 },
     { L_,  "abcd_f",       1,  1,     4,   "aVbcdf",        1 },
     { L_,  "abcde_g",      1,  1,     5,   "aVbcdeg",       1 },
-
-    { L_,  "a__d",         2,  1,     1,   "aVVd",          2 },  // 2
-    { L_,  "ab__e",        2,  1,     2,   "aVVbe",         1 },
-    { L_,  "abc__f",       2,  1,     3,   "aVVbcf",        1 },
-    { L_,  "abcd__g",      2,  1,     4,   "aVVbcdg",       1 },
-    { L_,  "abcde__h",     2,  1,     5,   "aVVbcdeh",      1 },
-    { L_,  "abcdef__i",    2,  1,     6,   "aVVbcdefi",     1 },
-
-    { L_,  "a___e",        3,  1,     1,   "aVVVe",         3 },  // 3
-    { L_,  "ab___f",       3,  1,     2,   "aVVVbf",        2 },
-    { L_,  "abc___g",      3,  1,     3,   "aVVVbcg",       1 },
-    { L_,  "abcd___h",     3,  1,     4,   "aVVVbcdh",      1 },
-    { L_,  "abcde___i",    3,  1,     5,   "aVVVbcdei",     1 },
-    { L_,  "abcdef___j",   3,  1,     6,   "aVVVbcdefj",    1 },
-    { L_,  "abcdefg___k",  3,  1,     7,   "aVVVbcdefgk",   1 },
-
-    { L_,  "a____f",       4,  1,     1,   "aVVVVf",        4 },  // 4
-    { L_,  "ab____g",      4,  1,     2,   "aVVVVbg",       3 },
-    { L_,  "abc____h",     4,  1,     3,   "aVVVVbch",      2 },
-    { L_,  "abcd____i",    4,  1,     4,   "aVVVVbcdi",     1 },
-    { L_,  "abcde____j",   4,  1,     5,   "aVVVVbcdej",    1 },
-    { L_,  "abcdef____k",  4,  1,     6,   "aVVVVbcdefk",   1 },
-    { L_,  "abcdefg____l", 4,  1,     7,   "aVVVVbcdefgl",  1 },
-    { L_,  "abcdefgh____m",4,  1,     8,   "aVVVVbcdefghm", 1 },
 };
 const int NUM_DATA_9V = sizeof DATA_9V / sizeof *DATA_9V;
 
@@ -1934,16 +1874,15 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
         for (int ti = 0; ti < NUM_DATA_9V; ++ti) {
             const int         LINE = DATA_9V[ti].d_lineNum;
             const char *const SPEC = DATA_9V[ti].d_spec;
-            const int         NE   = DATA_9V[ti].d_ne;
             const int         DST  = DATA_9V[ti].d_dst;
             const int         END  = DATA_9V[ti].d_end;
             const char *const EXP  = DATA_9V[ti].d_expected;
             LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
-                printf("LINE = %d, SPEC = %s, NE = %d, "
+                printf("LINE = %d, SPEC = %s, "
                         "DST = %d, END = %d, EXP = %s\n",
-                        LINE, SPEC, NE, DST, END, EXP);
+                        LINE, SPEC, DST, END, EXP);
             }
 
             TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
@@ -1953,7 +1892,7 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
                     gg(buf, SPEC);  verify(buf, SPEC);
                     CleanupGuard<TYPE> cleanup(buf, SPEC);
 
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, V);
+                    Obj::emplace(&buf[DST], &buf[END], Z, V);
 
                     verify(buf, EXP);
                     cleanup.release(EXP);
@@ -1965,14 +1904,14 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
                 const int NUM_COPIES = numCopyCtorCalls;
                 const int NUM_DESTRUCTIONS = numDestructorCalls;
 
-                Obj::emplace(&buf[DST], &buf[END], NE, Z, V);
+                Obj::emplace(&buf[DST], &buf[END], Z, V);
 
                 if (bitwiseCopyableFlag) {
                     ASSERT(NUM_COPIES == numCopyCtorCalls);
                     ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
                 }
                 else if (bitwiseMoveableFlag) {
-                    ASSERT(NUM_COPIES + NE == numCopyCtorCalls);
+                    ASSERT(NUM_COPIES + 1 == numCopyCtorCalls);
                     ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
                 }
                 verify(buf, EXP);
@@ -2009,7 +1948,6 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
         for (int ti = 0; ti < NUM_DATA_9V; ++ti) {
             const int         LINE   = DATA_9V[ti].d_lineNum;
             const char *const SPEC   = DATA_9V[ti].d_spec;
-            const int         NE     = DATA_9V[ti].d_ne;
             const int         DST    = DATA_9V[ti].d_dst;
             const int         END    = DATA_9V[ti].d_end;
             const char *const EXP    = DATA_9V[ti].d_expected;
@@ -2017,9 +1955,9 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
             LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
-                printf("LINE = %d, SPEC = %s, NE = %d, "
+                printf("LINE = %d, SPEC = %s, "
                         "DST = %d, END = %d, EXP = %s\n",
-                        LINE, SPEC, NE, DST, END, EXP);
+                        LINE, SPEC, DST, END, EXP);
             }
 
             Attrib5 *buf = static_cast<Attrib5 *>(
@@ -2033,7 +1971,6 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     if (e) {
                         Obj::emplace(&buf[DST],
                                      &buf[END],
-                                     NE,
                                      Z,
                                      a,
                                      b,
@@ -2042,19 +1979,19 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                                      e);
                     }
                     else if (d) {
-                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d);
+                        Obj::emplace(&buf[DST], &buf[END], Z, a, b, c, d);
                     }
                     else if (c) {
-                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c);
+                        Obj::emplace(&buf[DST], &buf[END], Z, a, b, c);
                     }
                     else if (b) {
-                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b);
+                        Obj::emplace(&buf[DST], &buf[END], Z, a, b);
                     }
                     else if (a) {
-                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a);
+                        Obj::emplace(&buf[DST], &buf[END], Z, a);
                     }
                     else {
-                        Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                        Obj::emplace(&buf[DST], &buf[END], Z);
                     }
 
                     for (int i = 0; EXP[i]; ++i) {
@@ -2133,9 +2070,9 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                 // needed and then copy-construct it into place.
 
                 const int N = EXPNUM;
-                
+
                 if (e) {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d, e);
+                    Obj::emplace(&buf[DST], &buf[END], Z, a, b, c, d, e);
                     LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
@@ -2144,7 +2081,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_5 + N == Attrib5::ctor5Count());
                 }
                 else if (d) {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d);
+                    Obj::emplace(&buf[DST], &buf[END], Z, a, b, c, d);
                     LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
@@ -2153,7 +2090,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (c) {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c);
+                    Obj::emplace(&buf[DST], &buf[END], Z, a, b, c);
                     LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
@@ -2162,7 +2099,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (b) {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b);
+                    Obj::emplace(&buf[DST], &buf[END], Z, a, b);
                     LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2 + N == Attrib5::ctor2Count());
@@ -2171,7 +2108,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (a) {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a);
+                    Obj::emplace(&buf[DST], &buf[END], Z, a);
                     LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1 + N == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
@@ -2180,7 +2117,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else {
-                    Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                    Obj::emplace(&buf[DST], &buf[END], Z);
                     LOOP_ASSERT(LINE, NUM_0 + N == Attrib5::ctor0Count());
                     LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
                     LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());

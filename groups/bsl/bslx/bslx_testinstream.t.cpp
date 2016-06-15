@@ -573,7 +573,7 @@ void testGetArray(const ArrayTestTable *data,
 
     {
         // negative test
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         const int SIZE = 5;                   // temporary array size
         ElemType arr[SIZE];                   // array of read values
@@ -1719,8 +1719,7 @@ int main(int argc, char *argv[]) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Obj mX;
             ASSERT_SAFE_PASS(mX.reset(0, 0));
@@ -4774,8 +4773,7 @@ int main(int argc, char *argv[]) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_PASS(Obj mX(0, 0));
             ASSERT_SAFE_FAIL(Obj mX(0, 1));

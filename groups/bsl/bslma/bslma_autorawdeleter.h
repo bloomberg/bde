@@ -16,18 +16,18 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: This component provides a range proctor class template to
-// manage a sequence of (otherwise-unmanaged) objects of parameterized 'TYPE'
-// supplied at construction.  If not explicitly released, the sequence of
-// managed objects are deleted automatically when the range proctor goes out of
-// scope by iterating over each object, first calling the (managed) object's
-// destructor, and then freeing its memory footprint by invoking the
-// 'deallocate' method of an allocator (or pool) of parameterized 'ALLOCATOR'
-// type also supplied at construction.  Note that after a range proctor
-// releases its sequence of managed objects, the same proctor can be reused to
-// conditionally manage another sequence of objects (allocated from the same
-// allocator or pool that was supplied at construction) by invoking the 'reset'
-// method.
+//@DESCRIPTION: This component provides a range proctor class template,
+// 'bslma::AutoRawDeleter', to manage a sequence of (otherwise-unmanaged)
+// objects of parameterized 'TYPE' supplied at construction.  If not explicitly
+// released, the sequence of managed objects are deleted automatically when the
+// range proctor goes out of scope by iterating over each object, first calling
+// the (managed) object's destructor, and then freeing its memory footprint by
+// invoking the 'deallocate' method of an allocator (or pool) of parameterized
+// 'ALLOCATOR' type also supplied at construction.  Note that after a range
+// proctor releases its sequence of managed objects, the same proctor can be
+// reused to conditionally manage another sequence of objects (allocated from
+// the same allocator or pool that was supplied at construction) by invoking
+// the 'reset' method.
 //
 ///"Raw" Warning
 ///-------------
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // templatized, "out-of-place" array of parameterized 'TYPE' objects during the
 // array's insertion operation.
 //
-// First we define a 'myArray' class which stores an array of parameterized
+// First we define a 'myArray' class that stores an array of parameterized
 // 'TYPE' objects:
 //..
 //  template <class TYPE>
@@ -471,7 +471,7 @@ class AutoRawDeleter {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // --------------------

@@ -67,16 +67,39 @@ namespace bsl {
                          // struct is_reference
                          // ===================
 
-template <class TYPE>
-struct is_reference : integral_constant<bool,
-                                        is_lvalue_reference<TYPE>::value
-                                     || is_rvalue_reference<TYPE>::value> {
+// IMPLEMENTATION NOTE:  We originally implemented this trait in terms of
+// 'is_lvalue_reference' and 'is_rvalue_reference' but ran into an issue on
+// Sun where the compiler was reporting that the maximum depth of template
+// expansion was being exceeded.
+
+template <class TYPE> struct is_reference : false_type {
     // This 'struct' template implements the 'is_reference' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
-    // This 'struct' derives from 'bsl::true_type' if the 'TYPE' is a reference
-    // type, and from 'bsl::false_type' otherwise.
+    //
+    // This 'struct' derives from 'bsl::false_type' with specializations to
+    // follow for lvalue and rvalue references.
 };
+
+template <class TYPE> 
+struct is_reference<TYPE&> : true_type { 
+    // This 'struct' template implements the 'is_reference' meta-function
+    // defined in the C++11 standard [meta.unary.comp] to determine if the
+    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    //
+    // This specialization for lvalue references derives from 'bsl::true_type'.
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+struct is_reference<TYPE&&> : true_type {
+    // This 'struct' template implements the 'is_reference' meta-function
+    // defined in the C++11 standard [meta.unary.comp] to determine if the
+    // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.
+    //
+    // This specialization for rvalue references derives from 'bsl::true_type.
+};
+#endif
 
 }  // close namespace bsl
 

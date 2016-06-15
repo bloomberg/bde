@@ -13,6 +13,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
+//  BSLS_CPP11_CONSTEXPR: C++11 '= delete' function definition
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword
@@ -33,6 +34,10 @@ BSLS_IDENT("$Id: $")
 //
 //: 'BSLS_CPP11_CONSTEXPR':
 //:     This macro inserts the keyword 'constexpr' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_DELETED':
+//:     This macro inserts the text '= delete' when compiling with C++11
 //:     mode and inserts nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_EXPLICIT':
@@ -224,6 +229,12 @@ BSLS_IDENT("$Id: $")
 #define BSLS_CPP11_CONSTEXPR constexpr
 #else
 #define BSLS_CPP11_CONSTEXPR
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#define BSLS_CPP11_DELETED = delete
+#else
+#define BSLS_CPP11_DELETED
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT

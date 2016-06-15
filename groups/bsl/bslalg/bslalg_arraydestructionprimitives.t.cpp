@@ -1,20 +1,21 @@
 // bslalg_arraydestructionprimitives.t.cpp                            -*-C++-*-
 
 #include <bslalg_arraydestructionprimitives.h>
-
-#include <bslalg_scalarprimitives.h>             // for testing only
-
-#include <bslmf_istriviallycopyable.h>           // for testing only
 #include <bslma_allocator.h>                     // for testing only
+#include <bslma_allocatortraits.h>               // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
+#include <bslma_usesbslmaallocator.h>            // for testing only
+#include <bslmf_istriviallycopyable.h>           // for testing only
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>                   // for testing only
 #include <bsls_assert.h>                         // for testing only
 #include <bsls_asserttest.h>                     // for testing only
 #include <bsls_types.h>                          // for testing only
+#include <bsltf_stdstatefulallocator.h>          // for testing only
 
+#include <new>
 #include <ctype.h>      // 'isalpha'
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -40,8 +41,10 @@ using namespace BloombergLP;
 // not have those traits.
 //-----------------------------------------------------------------------------
 // bslalg::ArrayPrimitives public interface:
-// [ 2] void destroy(T *dstB, T *dstE);
+// [ 2] template <class T, class A> void destroy(T *dstB, T *dstE, A *alloc);
+// [ 3] template <class T> void destroy(T *dstB, T *dstE);
 //-----------------------------------------------------------------------------
+// [ 4] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -343,7 +346,7 @@ template <> struct is_trivially_copyable<BitwiseCopyableTestType>
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <class TYPE>
+template <class TYPE, class ALLOCATOR>
 class CleanupGuard {
     // This proctor is responsible to create, in an array specified at
     // construction, a sequence according to some specification.  Upon
@@ -355,20 +358,25 @@ class CleanupGuard {
     // different (un)initialized elements.
 
     // DATA
-    TYPE        *d_array_p;
-    const char  *d_spec_p;
-    TYPE       **d_endPtr_p;
-    TYPE        *d_initialEndPtr_p;
-    size_t       d_length;
+    TYPE       *d_array_p;
+    const char *d_spec_p;
+    TYPE      **d_endPtr_p;
+    TYPE       *d_initialEndPtr_p;
+    size_t      d_length;
+    ALLOCATOR   d_allocator;
 
   public:
     // CREATORS
-    CleanupGuard(TYPE *array, const char *spec, TYPE**endPtr = 0)
+    CleanupGuard(TYPE        *array,
+                 const char  *spec,
+                 ALLOCATOR    alloc,
+                 TYPE       **endPtr = 0)
     : d_array_p(array)
     , d_spec_p(spec)
     , d_endPtr_p(endPtr)
     , d_initialEndPtr_p(endPtr ? *endPtr : 0)
     , d_length(strlen(spec))
+    , d_allocator(alloc)
     {
     }
 
@@ -381,7 +389,7 @@ class CleanupGuard {
                                            i < d_initialEndPtr_p - d_array_p) {
                     continue; // those elements have already been moved
                 }
-                Obj::destroy(d_array_p + i, d_array_p + i + 1);
+                Obj::destroy(d_array_p + i, d_array_p + i + 1, d_allocator);
             }
             else {
                 LOOP_ASSERT(i, '_' == c);
@@ -403,8 +411,8 @@ class CleanupGuard {
     }
 };
 
-template <class TYPE>
-void cleanup(TYPE *array, const char *spec)
+template <class TYPE, class ALLOCATOR>
+void cleanup(TYPE *array, const char *spec, ALLOCATOR alloc)
     // Destroy elements in the specified 'array' according to the specified
     // 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if and
     // only if '1 == isalpha(spec[i])'.
@@ -413,7 +421,7 @@ void cleanup(TYPE *array, const char *spec)
         char c = spec[i];
         if (isalpha(c)) {
             LOOP_ASSERT(i, array[i].datum() == c);
-            Obj::destroy(array + i, array + i + 1);
+            Obj::destroy(array + i, array + i + 1, alloc);
         }
         else {
             LOOP_ASSERT(i, '_' == c);
@@ -483,8 +491,8 @@ void fillWithJunk(void *buf, int size)
 // "a"          ...
 //-----------------------------------------------------------------------------
 
-template <class TYPE>
-int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
+template <class TYPE, class ALLOCATOR>
+int ggg(TYPE *array, const char *spec, ALLOCATOR alloc, int verboseFlag = 1)
     // Configure the specified 'array' of objects of the parameterized 'TYPE'
     // (assumed to be uninitialized) according to the specified 'spec'.
     // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
@@ -495,7 +503,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
     // Note that this generator is used in exception tests, and thus need to be
     // exception-safe.
 {
-    CleanupGuard<TYPE> guard(array, spec);
+    CleanupGuard<TYPE, ALLOCATOR> guard(array, spec, alloc);
     guard.setLength(0);
 
     enum { SUCCESS = -1 };
@@ -503,7 +511,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         char c = spec[i];
         guard.setLength(i);
         if (isalpha(c)) {
-            bslalg::ScalarPrimitives::construct(array, c, Z);
+            bsl::allocator_traits<ALLOCATOR>::construct(alloc, array, c);
         }
         else if ('_' == c) {
             continue;
@@ -523,13 +531,13 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
     return SUCCESS;
 }
 
-template <class TYPE>
-TYPE& gg(TYPE *array, const char *spec)
+template <class TYPE, class ALLOCATOR>
+TYPE& gg(TYPE *array, const char *spec, ALLOCATOR alloc)
     // Return a reference to the modifiable first element of the specified
     // 'array' after the value of 'array' has been adjusted according to the
     // specified 'spec'.
 {
-    ASSERT(ggg(array, spec) < 0);
+    ASSERT(ggg(array, spec, alloc) < 0);
     return *array;
 }
 
@@ -576,6 +584,7 @@ void testDestroy(bool bitwiseCopyableFlag)
     } u;
     T *buf = (T*)&u.d_raw[0];
 
+    bsltf::StdStatefulAllocator<TYPE> alloc(Z);
     for (int ti = 0; ti < NUM_DATA_2; ++ti) {
         const int         LINE  = DATA_2[ti].d_lineNum;
         const char *const SPEC  = DATA_2[ti].d_spec;
@@ -589,17 +598,17 @@ void testDestroy(bool bitwiseCopyableFlag)
                    "BEGIN = %d, NE = %d, EXP = %s\n",
                    LINE, SPEC, BEGIN, NE, EXP);
         }
-        gg(buf, SPEC);  verify(buf, SPEC);
+        gg(buf, SPEC, alloc);  verify(buf, SPEC);
 
         const int NUM_DESTRUCTIONS = numDestructorCalls;
 
-        Obj::destroy(&buf[BEGIN], &buf[BEGIN + NE]);
+        Obj::destroy(&buf[BEGIN], &buf[BEGIN + NE], alloc);
 
         if (bitwiseCopyableFlag) {
             ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
         }
         verify(buf, EXP);
-        cleanup(buf, EXP);
+        cleanup(buf, EXP, alloc);
     }
 }
 
@@ -694,7 +703,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -711,7 +720,7 @@ int main(int argc, char *argv[])
     bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
     MyInteger *myIntegers = &arrayBuffer[0].object();
     for (int i = 0;i < 5; ++i) {
-        new (myIntegers + i) MyInteger(i);
+        new (static_cast<void *>(myIntegers + i)) MyInteger(i);
     }
 //..
 // Now, we define a primitive integer array:
@@ -726,9 +735,9 @@ int main(int argc, char *argv[])
                                                 scalarIntegers + 5);
 //..
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING destroy
+        // TESTING [deprecated] destroy
         //
         // Concerns:
         //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
@@ -779,6 +788,60 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(Obj::destroy(begin, end));
         }
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING destroy
+        //
+        // Concerns:
+        //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
+        //:    objects of different types as expected.
+        //
+        // Plan:
+        //: 1. Construct arrays of objects of types that have different type
+        //:    traits declared.  Call the 'destroy' method on them and verify
+        //:    they are destroyed as expected.  (C-1)
+        //
+        // Testing:
+        //   void destroy(T *b, T *e, A *a);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting 'destroy'\n");
+
+        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
+        testDestroy<TNA>(false);
+
+        if (verbose) printf("\n\t...with TestType.\n");
+        testDestroy<T>(false);
+
+        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
+        testDestroy<BCT>(false);
+
+
+        bsltf::StdStatefulAllocator<int> za(Z);
+        if(verbose) printf("\nNegative testing\n");
+        {
+            bsls::AssertFailureHandlerGuard g(
+                    bsls::AssertTest::failTestDriver);
+
+            int * null = 0;
+            ASSERT_SAFE_PASS(Obj::destroy(null, null, za));
+            int simpleArray[] = { 0, 1, 2, 3, 4 };
+            int * begin = simpleArray;
+            int * end = begin;
+            ASSERT_SAFE_FAIL(Obj::destroy(null, begin, za));
+            ASSERT_SAFE_FAIL(Obj::destroy(begin, null, za));
+            ASSERT_SAFE_PASS(Obj::destroy(begin, begin, za));
+
+            ++begin; ++begin;  // Advance begin by two to form an invalid range
+            ++end;
+            ASSERT_SAFE_FAIL(Obj::destroy(begin, end, za));
+            ++end;
+            ASSERT(begin == end);
+            ASSERT_SAFE_PASS(Obj::destroy(begin, end, za));
+            ++end;
+            ASSERT_SAFE_PASS(Obj::destroy(begin, end, za));
+        }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -798,6 +861,8 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         bslma::TestAllocator ta(veryVerbose);
+        typedef bsltf::StdStatefulAllocator<T> A;
+        A sta(&ta);
 
         numDestructorCalls = 0;
         {
@@ -808,12 +873,10 @@ int main(int argc, char *argv[])
             T *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
-                                                        VALUE,
-                                                        &ta);
+                bsl::allocator_traits<A>::construct(sta, buffer + i, VALUE);
             }
 
-            Obj::destroy(buffer, buffer + NUM_OBJECTS);
+            Obj::destroy(buffer, buffer + NUM_OBJECTS, sta);
 
             ASSERT(NUM_OBJECTS == numDestructorCalls);
         }
@@ -829,12 +892,10 @@ int main(int argc, char *argv[])
             TNA *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
-                                                        VALUE,
-                                                        &ta);
+                bsl::allocator_traits<A>::construct(sta, buffer + i, VALUE);
             }
 
-            Obj::destroy(buffer, buffer + NUM_OBJECTS);
+            Obj::destroy(buffer, buffer + NUM_OBJECTS, sta);
 
             ASSERT(NUM_OBJECTS == numDestructorCalls);
         }
@@ -849,12 +910,10 @@ int main(int argc, char *argv[])
             BCT *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
-                                                        VALUE,
-                                                        &ta);
+                bsl::allocator_traits<A>::construct(sta, buffer + i, VALUE);
             }
 
-            Obj::destroy(buffer, buffer + NUM_OBJECTS);
+            Obj::destroy(buffer, buffer + NUM_OBJECTS, sta);
         }
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());

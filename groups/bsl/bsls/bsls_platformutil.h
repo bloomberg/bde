@@ -148,7 +148,7 @@ struct PlatformUtil {
         // number of elements in either 'bslma' allocators or container types.
         // Note that this type is signed, as negative values may make sense in
         // certain contexts.  Also note that the standard-compliant allocators
-        // (e.g., 'bslstl_allocator' and 'std::allocator') use an *unsigned*
+        // (e.g., 'bsl::allocator' and 'std::allocator') use an *unsigned*
         // size type, but that is fine because they also have a mechanism
         // ('max_size') to determine overflows resulting from converting from
         // one size type to the other.

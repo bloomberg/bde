@@ -18,10 +18,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shao-wei Hung (shung)
 //
-//@DESCRIPTION: This component extends the base-level protocol (pure abstract
-// interface) class, 'bslma::Allocator', providing the ability to 'release'
-// all memory currently allocated through the protocol back to the memory
-// supplier of the derived concrete allocator object.
+//@DESCRIPTION: This component provides a protocol (pure abstract interface)
+//  class, 'bslma::ManagedAllocator', which extends the base-level protocol
+//  class, 'bslma::Allocator', providing the ability to 'release' all memory
+//  currently allocated through the protocol back to the memory supplier of the
+//  derived concrete allocator object.
 //..
 //   ,-----------------------.
 //  ( bslma::ManagedAllocator )

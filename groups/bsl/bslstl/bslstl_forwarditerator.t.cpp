@@ -2,14 +2,14 @@
 
 #include <bslstl_forwarditerator.h>
 
-#include <bslstl_iterator.h>   // for testing only
+#include <bslstl_iterator.h>
+
 #include <bslmf_issame.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_unspecifiedbool.h>
 
-#include <climits>
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
 using namespace std;
@@ -61,81 +61,67 @@ using namespace std;
 // [  ] USAGE EXAMPLE is informative only, and does not compile independently
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS/VARIABLES FOR TESTING
 //-----------------------------------------------------------------------------
-bool assertFailed = false;
-
-void testAssertionFailedHandler(const char * /* text */,
-                                const char * /* file */,
-                                int          /* line */)
-    // A handler that sets the global flag 'assertFailed' when an assertion
-    // fails.  Due to its simplicity, it isn't tested in test case 3.
-{
-    assertFailed = true;
-}
 
 //=============================================================================
 //                ALGORITHMS FOR TESTING USAGE EXAMPLES
@@ -368,18 +354,18 @@ class my_List
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    (void) veryVeryVerbose;
-    (void) veryVeryVeryVerbose;
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
         // --------------------------------------------------------------------
         // TESTING POST-INCREMENT OPERATOR
@@ -396,14 +382,13 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING POST-INCREMENT OPERATOR" << endl
-                                  << "===============================" << endl;
+        if (verbose) printf("\nTESTING POST-INCREMENT OPERATOR"
+                            "\n===============================\n");
 
         int testData[4] = { 0, 1, 2, 3 };
         typedef bslstl::ForwardIterator<int, int*> iterator;
-        typedef bslstl::ForwardIterator<const int, int*> const_iterator;
 
-        if (verbose) cout << "\nConstruct a basic iterator value" << endl;
+        if (verbose) printf("\nConstruct a basic iterator value\n");
         iterator it1 = testData;
         iterator it2 = it1;
         iterator it3 = it1;
@@ -427,12 +412,12 @@ int main(int argc, char *argv[])
         //    T *operator->() const
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING OPERATOR->" << endl
-                                  << "==================" << endl;
+        if (verbose) printf("\nTESTING OPERATOR->"
+                            "\n==================\n");
 
         {
-        if (verbose) cout << "\nVerify iterator properties with a"
-                             " directly examinable container" << endl;
+        if (verbose) printf("\nVerify iterator properties with a"
+                             " directly examinable container\n");
 
         //  Declare test data and types
         Wrap testData[2] = { {13}, {99} };
@@ -448,8 +433,8 @@ int main(int argc, char *argv[])
         ASSERT(&itWritable->data == &testData[0].data);
         ASSERT(&itReadable->data == &testData[0].data);
 
-        if (verbose) cout << "\nVerify can observe new value written through"
-                          << " the iterator" << endl;
+        if (verbose) printf("\nVerify can observe new value written through"
+                             " the iterator\n");
         itWritable->data = 42;
 
         //  Test itReadable before itWritable to be sure the update is not a
@@ -490,10 +475,10 @@ int main(int argc, char *argv[])
         //   bslstl::ForwardIterator& operator=(const bslstl::ForwardIterator&)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
-                                  << "===========================" << endl;
+        if (verbose) printf("\nTESTING ASSIGNMENT OPERATOR"
+                            "\n===========================\n");
 
-        if (verbose) cout << "\nTesting assignment u = v" << endl;
+        if (verbose) printf("\nTesting assignment u = v\n");
 
         typedef my_List<int> TestContainer;
         typedef TestContainer::iterator iterator;
@@ -549,8 +534,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING VALUE CONSTRUCTOR" << endl
-                                  << "=========================" << endl;
+        if (verbose) printf("\nTESTING VALUE CONSTRUCTOR"
+                            "\n=========================\n");
 
         //  Declare test data and types
         int testData[1] = { 13 };
@@ -573,8 +558,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING COPY CONSTRUCTOR" << endl
-                                  << "========================" << endl;
+        if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
+                            "\n========================\n");
 
         //  Declare test data and types
         int testData[1] = { 13 };
@@ -625,8 +610,9 @@ int main(int argc, char *argv[])
         //   bool operator!=(const bslstl::ForwardIterator&,
         //                   const bslstl::ForwardIterator&);
         // --------------------------------------------------------------------
-        if (verbose) cout << endl << "TESTING EQUALITY OPERATOR" << endl
-                                  << "=========================" << endl;
+
+        if (verbose) printf("\nTESTING EQUALITY OPERATOR"
+                            "\n=========================\n");
 
         typedef my_List<int> TestContainer;
         typedef TestContainer::iterator iterator;
@@ -636,26 +622,26 @@ int main(int argc, char *argv[])
         testContainer.push(42);
         testContainer.push(13);
 
-        if (verbose) cout << "\nvalidate self-equality" << endl;
+        if (verbose) printf("\nvalidate self-equality\n");
         const iterator itBegin = testContainer.begin();
         ASSERT(itBegin == itBegin);
         ASSERT(!(itBegin != itBegin));
         ASSERT(testContainer.begin() == itBegin);
 
-        if (verbose) cout << "\nvalidate inequality" << endl;
+        if (verbose) printf("\nvalidate inequality\n");
         const iterator itEnd = testContainer.end();
         ASSERT(itBegin != itEnd);
         ASSERT(!(itBegin == itEnd));
         ASSERT(itEnd == itEnd);
         ASSERT(!(itEnd != itEnd));
 
-        if (verbose) cout << "\nvalidate interoperability of types" << endl;
+        if (verbose) printf("\nvalidate interoperability of types\n");
         const const_iterator citBegin = testContainer.begin();
         const_iterator citEnd   = testContainer.end();
         ASSERT(citBegin == itBegin);
         ASSERT(citEnd == itEnd);
 
-        if (verbose) cout << "\nvalidate transition to expected value" << endl;
+        if (verbose) printf("\nvalidate transition to expected value\n");
         iterator itCursor = testContainer.begin();
         ASSERT(itBegin == itCursor);
         ASSERT(citEnd != itCursor);
@@ -675,9 +661,10 @@ int main(int argc, char *argv[])
         //   N/A for this component, although a debug printer might be
         //   considered in the future.
         // --------------------------------------------------------------------
-        if (verbose) cout <<"\nThis is trivially satisfied for iterator types."
+
+        if (verbose) printf("\nThis is trivially satisfied for iterator types."
                             "\nIterators do not support printing or streaming."
-                          << endl;
+                            "\n");
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -705,74 +692,72 @@ int main(int argc, char *argv[])
         //   T& operator*() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING BASIC ACCESSORS" << endl
-                                  << "=======================" << endl;
+        if (verbose) printf("\nTESTING BASIC ACCESSORS"
+                            "\n=======================\n");
 
-
+        if (verbose) printf("\nVerify iterator properties with a"
+                             " directly examinable container\n");
         {
-        if (verbose) cout << "\nVerify iterator properties with a"
-                             " directly examinable container" << endl;
+            //  Declare test data and types
+            int testData[1] = { 13 };
+            typedef bslstl::ForwardIterator<int, int*> iterator;
+            typedef bslstl::ForwardIterator<const int, int*> const_iterator;
 
-        //  Declare test data and types
-        int testData[1] = { 13 };
-        typedef bslstl::ForwardIterator<int, int*> iterator;
-        typedef bslstl::ForwardIterator<const int, int*> const_iterator;
+            const iterator itWritable = testData;
+            // Obtain a fresh copy of an equivalent constant iterator
+            const_iterator itReadable = testData;
 
-        const iterator itWritable = testData;
-        // Obtain a fresh copy of an equivalent constant iterator
-        const_iterator itReadable = testData;
+            ASSERT(13 == *itWritable);
+            ASSERT(13 == *itReadable);
+            ASSERT(&*itWritable == testData);
+            ASSERT(&*itReadable == testData);
 
-        ASSERT(13 == *itWritable);
-        ASSERT(13 == *itReadable);
-        ASSERT(&*itWritable == testData);
-        ASSERT(&*itReadable == testData);
+            if (verbose) printf("\nVerify can observe new value written"
+                                 " through the iterator\n");
+            *itWritable = 42;
 
-        if (verbose) cout << "\nVerify can observe new value written through"
-                          << " the iterator" << endl;
-        *itWritable = 42;
+            //  Test itReadable before itWritable to be sure the update is not
+            //  a side effect of the reading!
+            ASSERT(42 == *itReadable);
+            ASSERT(42 == *itWritable);
+            ASSERT(42 == testData[0]);
 
-        //  Test itReadable before itWritable to be sure the update is not a
-        //  side effect of the reading!
-        ASSERT(42 == *itReadable);
-        ASSERT(42 == *itWritable);
-        ASSERT(42 == testData[0]);
+            testData[0] = 13;
 
-        testData[0] = 13;
-
-        ASSERT(13 == *itWritable);
-        ASSERT(13 == *itReadable);
-        ASSERT(&*itWritable == testData);
-        ASSERT(&*itReadable == testData);
+            ASSERT(13 == *itWritable);
+            ASSERT(13 == *itReadable);
+            ASSERT(&*itWritable == testData);
+            ASSERT(&*itReadable == testData);
         }
 
+        if (verbose) printf(
+                           "\nRepeat tests with a minimal adapted iterator\n");
         {
-        if (verbose) cout << "\nRepeat tests with a minimal adapted iterator"
-                          << endl;
 
-        typedef my_List<int> test_container_type;
-        typedef test_container_type::iterator iterator;
-        typedef test_container_type::const_iterator const_iterator;
+            typedef my_List<int> test_container_type;
+            typedef test_container_type::iterator iterator;
+            typedef test_container_type::const_iterator const_iterator;
 
-        test_container_type testContainer;
-        testContainer.push(13);
+            test_container_type testContainer;
+            testContainer.push(13);
 
-        const iterator itWritable = testContainer.begin();
-        // Obtain a fresh copy of an equivalent constant iterator
-        const_iterator itReadable = testContainer.begin();
+            const iterator itWritable = testContainer.begin();
+            // Obtain a fresh copy of an equivalent constant iterator
+            const_iterator itReadable = testContainer.begin();
 
-        ASSERT(13 == *itWritable);
-        ASSERT(13 == *itReadable);
-        ASSERT(&*itWritable == &*itReadable);
+            ASSERT(13 == *itWritable);
+            ASSERT(13 == *itReadable);
+            ASSERT(&*itWritable == &*itReadable);
 
-        if (verbose) cout << "\nVerify can observe new value written through"
-                          << " the iterator" << endl;
-        *itWritable = 42;
+            if (verbose) printf("\nVerify can observe new value written"
+                                 " through the iterator\n");
+            *itWritable = 42;
 
-        //  Test itReadable before itWritable to be sure the update is not a
-        //  side effect of the reading!
-        ASSERT(&*itWritable == &*itReadable);
-        ASSERT(42 == *itReadable);
-        ASSERT(42 == *itWritable);
+            //  Test itReadable before itWritable to be sure the update is not
+            //  a side effect of the reading!
+            ASSERT(&*itWritable == &*itReadable);
+            ASSERT(42 == *itReadable);
+            ASSERT(42 == *itWritable);
         }
       } break;
       case 3: {
@@ -806,12 +791,12 @@ int main(int argc, char *argv[])
         //   bslstl::ForwardIterator(IMPL);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING (PRIMITIVE) GENERATORS" << endl
-                                  << "==============================" << endl;
+        if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
+                            "\n==============================\n");
 
-        if (verbose) cout << "\nValidating primitive test machinery" << endl;
+        if (verbose) printf("\nValidating primitive test machinery\n");
 
-        if (verbose) cout << "\nTesting class my_List<int>" << endl;
+        if (verbose) printf("\nTesting class my_List<int>\n");
 
         typedef my_List<int> TestContainer;
         typedef TestContainer::iterator iterator;
@@ -833,7 +818,7 @@ int main(int argc, char *argv[])
         testContainer.push(2);
         testContainer.push(1);
 
-        if (verbose) cout << "\nCheck iterator range has right length" << endl;
+        if (verbose) printf("\nCheck iterator range has right length\n");
         int length = 0;
         itBegin = testContainer.begin();
         while(itBegin != itEnd) {
@@ -842,13 +827,13 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(length, 3 == length);
 
-        if (verbose) cout << "\nCheck iterators refer to right values" << endl;
+        if (verbose) printf("\nCheck iterators refer to right values\n");
         itBegin = testContainer.begin();
         ASSERT(1 == *(itBegin++));
         ASSERT(2 == *(itBegin++));
         ASSERT(3 == *(itBegin++));
 
-        if (verbose) cout << "\nRepeat the tests for const_iterators" << endl;
+        if (verbose) printf("\nRepeat the tests for const_iterators\n");
         const TestContainer& constContainer = testContainer;
         const_iterator itcBegin = constContainer.begin();
         const const_iterator itcEnd = constContainer.end();
@@ -878,11 +863,11 @@ int main(int argc, char *argv[])
         //   bslstl::ForwardIterator& operator++();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
-                                  << "============================" << endl;
+        if (verbose) printf("\nTESTING PRIMARY MANIPULATORS"
+                            "\n============================\n");
 
-        if (verbose) cout << "\nTesting default constructor, destructor, "
-                             "and 'operator++'." << endl;
+        if (verbose) printf("\nTesting default constructor, destructor, "
+                             "and 'operator++'.\n");
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
@@ -941,24 +926,24 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BREATHING TEST" << endl
-                                  << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         int testData[4] = { 0, 1, 2, 3 };
         typedef bslstl::ForwardIterator<int, int*> iterator;
         typedef bslstl::ForwardIterator<const int, int*> const_iterator;
 
-        if (verbose) cout << "\nConstruct a basic iterator value" << endl;
+        if (verbose) printf("\nConstruct a basic iterator value\n");
         iterator it1 = testData;
         LOOP_ASSERT( *it1, 0 == *it1);
 
-        if (verbose) cout << "\nMake a copy of that iterator" << endl;
+        if (verbose) printf("\nMake a copy of that iterator\n");
         iterator it2 = it1;
         LOOP_ASSERT(  *it2,            0 ==  *it2);
         LOOP2_ASSERT(&*it1, &*it2,   it1 ==   it2);
         LOOP2_ASSERT(&*it1, &*it2, &*it1 == &*it2);
 
-        if (verbose) cout << "\nIncrement an iterator" << endl;
+        if (verbose) printf("\nIncrement an iterator\n");
         ++it2;
         LOOP_ASSERT(  *it2,             1 == *it2);
         LOOP2_ASSERT(&*it1, &*it2,   it1 !=   it2);
@@ -966,33 +951,33 @@ int main(int argc, char *argv[])
 
         //  Increment the other iterator iterator,
         //  verify both iterators have the same value again
-        if (verbose) cout << "\nVerify multipass property of forward iterator"
-                          << endl;
+        if (verbose) printf(
+                          "\nVerify multipass property of forward iterator\n");
         ++it1;
         LOOP_ASSERT(  *it1,            1 ==  *it1);
         LOOP2_ASSERT(&*it1, &*it2,   it1 ==   it2);
         LOOP2_ASSERT(&*it1, &*it2, &*it1 == &*it2);
 
-        if (verbose) cout << "\nConstruct a const_iterator" << endl;
+        if (verbose) printf("\nConstruct a const_iterator\n");
         const_iterator itEnd = testData + 4;
 
         //  Verify const_iterator and iterator interoperate
         //  Verify the expected number of iterations are required to traverse
         //  the array.
-        if (verbose) cout << "\nVerify multipass property of forward iterator"
-                          << endl;
+        if (verbose) printf(
+                          "\nVerify multipass property of forward iterator\n");
 
         const_iterator itBegin = it1;
         int distance = testDistance( itBegin, itEnd );
         LOOP_ASSERT(distance, 3 == distance);
 
-        if (verbose) cout << "\nVerify writing through a dereferenced iterator"
-                          << endl;
+        if (verbose) printf(
+                         "\nVerify writing through a dereferenced iterator\n");
         *it1 = 42;
         LOOP_ASSERT( *it1, 42 == *it1);
 
-        if (verbose) cout << "\nVerify that writes through one iterator are"
-                          << "  visible through another" << endl;
+        if (verbose) printf("\nVerify that writes through one iterator are"
+                             " visible through another\n");
         LOOP_ASSERT( *it2,         42 == *it2);
         LOOP2_ASSERT(*it1, *it2, *it1 == *it2);
 
@@ -1057,8 +1042,8 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "(ORIGINAL BREATHING TEST)" << endl
-                                  << "=========================" << endl;
+        if (verbose) printf("\n(ORIGINAL BREATHING TEST)"
+                            "\n=========================\n");
 
         static const int DATA[] = { 1, 2, 3, 4, 5 };
         static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
@@ -1090,7 +1075,7 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<ConstIterTraits::iterator_category,
                 std::forward_iterator_tag>::value));
 
-        if (verbose) cout << "\nPopulate the test list." << std::endl;
+        if (verbose) printf("\nPopulate the test list.\n");
         int i;
         for (i = 0; i < DATA_LEN; ++i) {
             if(veryVerbose) { T_ P_(i) P(DATA[i]) }
@@ -1100,8 +1085,7 @@ int main(int argc, char *argv[])
         ASSERT(A.begin() == a.begin());
         ASSERT(A.end()   == a.end());
 
-        if (verbose) cout << "\nCompare iterated values to original source."
-                          << std::endl;
+        if (verbose) printf("\nCompare iterated values to original source.\n");
         i = DATA_LEN;
         for (my_List<int>::const_iterator it = A.begin(); it != A.end(); ++it){
             // Note that we assume we can dereference without changing the
@@ -1141,16 +1125,15 @@ int main(int argc, char *argv[])
             // my_List<int>::iterator it2 = itc;
         }
 
-
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;
 }

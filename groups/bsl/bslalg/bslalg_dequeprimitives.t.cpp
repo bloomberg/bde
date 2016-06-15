@@ -3,11 +3,9 @@
 #include <bslalg_dequeprimitives.h>
 #include <bslalg_dequeiterator.h>
 
-#include <bslalg_scalarprimitives.h>
-#include <bslalg_scalardestructionprimitives.h>
-
 #include <bslma_allocator.h>              // for testing only
 #include <bslma_default.h>                // for testing only
+#include <bslma_stdallocator.h>           // for testing only
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
 #include <bsls_alignmentutil.h>           // for testing only
@@ -219,23 +217,45 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestDeque
                                // ===============
 
-template <class VALUE_TYPE, int BLOCK_LENGTH>
-class TestDeque {
+template <class ALLOCATOR>
+struct TestDeque_Type {
+    // This 'struct' provides a namespace for a set of types used to define the
+    // base-class of a 'TestDeque'.  The parameterized 'ALLOCATOR' is bound to
+    // 'Block' type defined in 'bslalg_dequeimputil'.
+
+    typedef typename bsl::allocator_traits<ALLOCATOR>::template
+            rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
+        // Alias for the allocator traits rebound to 'Block' in 'Imp'.
+
+    typedef typename AllocatorTraits::allocator_type AllocatorType;
+        // Alias for the allocator type for
+        // 'bsls::AlignmentUtil::MaxAlignedType'.
+};
+
+template <class VALUE_TYPE,
+          int BLOCK_LENGTH,
+          class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
+class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
+{
     // This test deque is created to allow testing of the
     // 'bslalg::DequePrimitives' on a data structure that is modeled after
     // 'bslstl_Deque'.  It has a block length of 3 and a total of 5 blocks for
     // holding a total of 15 objects of type "VALUE_TYPE".
 
+    typedef TestDeque_Type<ALLOCATOR>  Types;
   public:
     // PUBLIC TYPES
     enum {
         NOMINAL_BLOCK_BYTES = sizeof(VALUE_TYPE) * BLOCK_LENGTH
     };
 
-    typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>       Imp;
-    typedef typename Imp::Block                                  Block;
-    typedef typename Imp::BlockPtr                               BlockPtr;
-    typedef bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>      Iterator;
+    typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>   Imp;
+    typedef typename Imp::Block                              Block;
+    typedef typename Imp::BlockPtr                           BlockPtr;
+    typedef bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>  Iterator;
+    typedef typename Types::AllocatorType                    AllocatorType;
+    typedef typename Types::AllocatorTraits                  AllocatorTraits;
+    typedef typename AllocatorTraits::size_type              size_type;
 
   private:
     // DATA
@@ -247,19 +267,30 @@ class TestDeque {
 
   public:
     // CREATORS
-    TestDeque(int n, int blockNum, bslma::Allocator *ba = 0)
-    : d_blocks_p(0)
+    TestDeque(int              n,
+              int              blockNum,
+              const ALLOCATOR& basicAllocator = ALLOCATOR())
+    : AllocatorType(basicAllocator)
+    , d_blocks_p(0)
     , d_blockNum(blockNum)
-    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ASSERT(n <= BLOCK_LENGTH * d_blockNum);
         ASSERT(n >= 0);
 
-        d_blocks_p = (BlockPtr *)d_allocator_p->allocate(
-                                                sizeof(BlockPtr) * d_blockNum);
+        size_type numBytes = static_cast<size_type>(sizeof(BlockPtr))
+                                                                  * d_blockNum;
+        size_type numMaxAlignedType =
+                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        d_blocks_p = (BlockPtr *)
+                     AllocatorTraits::allocate(allocator(), numMaxAlignedType);
 
         for (int i = 0; i < d_blockNum; ++i) {
-            d_blocks_p[i] = (Block *) d_allocator_p->allocate(sizeof(Block));
+            numMaxAlignedType =
+                  (sizeof(Block) + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            d_blocks_p[i] = (Block *)
+                     AllocatorTraits::allocate(allocator(), numMaxAlignedType);
         }
 
         int offset = (d_blockNum * BLOCK_LENGTH - n) / 2;
@@ -274,9 +305,21 @@ class TestDeque {
     ~TestDeque()
     {
         for (int i = 0; i < d_blockNum; ++i) {
-            d_allocator_p->deallocate(d_blocks_p[i]);
+            size_type numMaxAlignedType =
+                  (sizeof(Block) + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+            AllocatorTraits::deallocate(allocator(),
+                         (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p[i],
+                                        numMaxAlignedType);
         }
-        d_allocator_p->deallocate(d_blocks_p);
+        size_type numBytes = static_cast<size_type>(sizeof(BlockPtr))
+                                                                  + d_blockNum;
+        size_type numMaxAlignedType =
+                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        AllocatorTraits::deallocate(allocator(),
+                            (bsls::AlignmentUtil::MaxAlignedType *) d_blocks_p,
+                                    numMaxAlignedType);
     }
 
     // MANIPULATORS
@@ -305,10 +348,20 @@ class TestDeque {
         return *(begin() + i);
     }
 
+    AllocatorType& allocator()
+    {
+        return *this;
+    }
+
     // ACCESSOR
     BlockPtr *getBlockPtr()
     {
         return d_blocks_p;
+    }
+
+    const AllocatorType& allocator() const
+    {
+        return *this;
     }
 };
 
@@ -563,8 +616,10 @@ template <> struct is_trivially_copyable<BitwiseCopyableTestType>
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-template <class TYPE, int BLOCK_LENGTH>
-void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
+template <class TYPE, int BLOCK_LENGTH, class ALLOCATOR>
+void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque,
+             const char *spec,
+             ALLOCATOR   ba)
     // Destroy elements in the specified 'deque' according to the specified
     // 'spec'.  For '0 <= i < strlen(spec)', 'deque[i]' is destroyed if and
     // only if '1 == isalpha(spec[i])'.
@@ -572,7 +627,7 @@ void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            bslalg::ScalarDestructionPrimitives::destroy(&(*deque)[i]);
+            bsl::allocator_traits<ALLOCATOR>::destroy(ba, &(*deque)[i]);
         }
     }
 }
@@ -593,23 +648,23 @@ void verify(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
     }
 }
 
-template <class TYPE>
-void generateAry(TYPE *ary, const char *spec)
+template <class TYPE, class ALLOCATOR>
+void generateAry(TYPE *ary, const char *spec, ALLOCATOR ba)
     // Generate an array of objects of 'TYPE' in the specified memory location
     // 'ary' according to the specified 'SPEC'.
 {
     for (int i = 0; spec[i]; ++i) {
-        bslalg::ScalarPrimitives::construct(&ary[i], spec[i], Z);
+        bsl::allocator_traits<ALLOCATOR>::construct(ba, &ary[i], spec[i]);
     }
 }
 
-template <class TYPE>
-void destroyAry(TYPE *ary, const char *spec)
+template <class TYPE, class ALLOCATOR>
+void destroyAry(TYPE *ary, const char *spec, ALLOCATOR ba)
     // Destroy an array of objects of 'TYPE' in the specified memory location
     // 'ary' according to the specified 'SPEC.'
 {
     for (int i = 0; spec[i]; ++i) {
-        bslalg::ScalarDestructionPrimitives::destroy(&ary[i]);
+        bsl::allocator_traits<ALLOCATOR>::destroy(ba, &ary[i]);
     }
 }
 
@@ -633,9 +688,11 @@ void setInitPos(TestDeque<TYPE, BLOCK_LENGTH> *deque,
     deque->setEnd(start);
 }
 
-template <class TYPE, int BLOCK_LENGTH>
-class CleanupGuard {
-
+template <class TYPE,
+          int BLOCK_LENGTH,
+          class ALLOCATOR = bsl::allocator<TYPE> >
+class CleanupGuard
+{
     // PRIVATE TYPES
     typedef TestDeque<TYPE, BLOCK_LENGTH> Deque;
     typedef typename Deque::Iterator      Iterator;
@@ -647,6 +704,7 @@ class CleanupGuard {
     const char *d_spec_p;
     bool        d_isFront;  // whether the guard is guarding new elements added
                             // in front
+    ALLOCATOR   d_allocator;
 
   public:
     // CREATORS
@@ -654,12 +712,14 @@ class CleanupGuard {
                  Iterator                      *start,
                  const Iterator&                stop,
                  const char                    *spec,
-                 bool                           isFront)
+                 bool                           isFront,
+                 ALLOCATOR                      ba)
     : d_deque_p(deque)
     , d_start(start)
     , d_stop(stop)
     , d_spec_p(spec)
     , d_isFront(isFront)
+    , d_allocator(ba)
     {
     }
 
@@ -671,19 +731,21 @@ class CleanupGuard {
         }
 
         // First clean up according to the spec
-        cleanup(d_deque_p, d_spec_p);
+        cleanup(d_deque_p, d_spec_p, d_allocator);
 
         // Then clean up any other constructions
         if (d_isFront) {
             Iterator itr = *d_start;
             for (; itr != d_stop; ++itr) {
-                bslalg::ScalarDestructionPrimitives::destroy(itr.valuePtr());
+                bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator,
+                                                          itr.valuePtr());
             }
         }
         else {
             Iterator itr = d_stop;
             for (; itr != *d_start; ++itr) {
-                bslalg::ScalarDestructionPrimitives::destroy(itr.valuePtr());
+                bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator,
+                                                          itr.valuePtr());
             }
         }
     }
@@ -730,8 +792,8 @@ class CleanupGuard {
 
 template <class TYPE, int BLOCK_LENGTH>
 int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
-        const char                    *spec,
-        int                            verboseFlag = 1)
+        const char *spec,
+        int         verboseFlag = 1)
     // Configure the specified 'deque' of objects of the parameterized 'TYPE'
     // (assumed to be uninitialized) according to the specified 'spec'.
     // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
@@ -742,11 +804,14 @@ int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
     enum { SUCCESS = -1 };
     typedef typename TestDeque<TYPE, BLOCK_LENGTH>::Iterator Iterator;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     Iterator itr = deque->begin();
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            bslalg::ScalarPrimitives::construct(itr.valuePtr(), c, Z);
+            bsl::allocator_traits<A>::construct(za, itr.valuePtr(), c);
             ++itr;
             deque->setEnd(itr);
         }
@@ -844,12 +909,15 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const char *INPUTREF = "tuvwxyz";
     const int   MAX_SIZE = 15;
 
     ASSERT(std::strlen(INPUTREF) < 8);
     bsls::ObjectBuffer<TYPE> input[8];
-    generateAry(&(input[0].object()), INPUTREF);
+    generateAry(&(input[0].object()), INPUTREF, za);
 
     const TYPE *INPUT = &(input[0].object());
 
@@ -904,7 +972,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                         // 'SPEC'.  'insertAndMoveToBack' will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
-                                     guard(&deque, &begin, begin, SPEC, false);
+                                  guard(&deque, &begin, begin, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -914,14 +982,14 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                                                   INPUT,
                                                   INPUT + NE,
                                                   NE,
-                                                  Z);
+                                                  za);
 
                         guard.release();
 
                         ASSERT(deque.begin() + EB == begin);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -937,17 +1005,17 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                                               INPUT,
                                               INPUT + NE,
                                               NE,
-                                              Z);
+                                              za);
 
                     ASSERT(deque.begin() + EB == begin);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    destroyAry(&input[0].object(), INPUTREF);
+    destroyAry(&input[0].object(), INPUTREF, za);
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1021,12 +1089,15 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const char *INPUTREF = "tuvwxyz";
     const int   MAX_SIZE = 15;
 
     ASSERT(std::strlen(INPUTREF) < 8);
     bsls::ObjectBuffer<TYPE> input[8];
-    generateAry(&(input[0].object()), INPUTREF);
+    generateAry(&(input[0].object()), INPUTREF, za);
 
     const TYPE *INPUT = &(input[0].object());
 
@@ -1080,7 +1151,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                         // 'SPEC'.  'insertAndMoveToBack' will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
-                                         guard(&deque, &end, end, SPEC, false);
+                                      guard(&deque, &end, end, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1090,13 +1161,13 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                                                  INPUT,
                                                  INPUT + NE,
                                                  NE,
-                                                 Z);
+                                                 za);
                         guard.release();
 
                         ASSERT(deque.begin() + EE == end);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1112,17 +1183,17 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                                              INPUT,
                                              INPUT + NE,
                                              NE,
-                                             Z);
+                                             za);
 
                     ASSERT(deque.begin() + EE == end);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    destroyAry(&input[0].object(), INPUTREF);
+    destroyAry(&input[0].object(), INPUTREF, za);
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1196,10 +1267,13 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const int MAX_SIZE = 15;
 
     bsls::ObjectBuffer<TYPE> mV;
-    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsl::allocator_traits<A>::construct(za, &mV.object(), 'V');
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1253,7 +1327,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                         // 'SPEC'.  'insertAndMovetoBack' will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
-                                     guard(&deque, &begin, begin, SPEC, false);
+                                  guard(&deque, &begin, begin, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1262,14 +1336,14 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                                                   deque.begin() + DST,
                                                   NE,
                                                   V,
-                                                  Z);
+                                                  za);
 
                         guard.release();
 
                         ASSERT(deque.begin() + EB == begin);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1284,17 +1358,17 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                                               deque.begin() + DST,
                                               NE,
                                               V,
-                                              Z);
+                                              za);
 
                     ASSERT(deque.begin() + EB == begin);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+    bsl::allocator_traits<A>::destroy(za, &mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1371,10 +1445,13 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
             TYPE,
             BLOCK_LENGTH>                                                Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const int MAX_SIZE = 15;
 
     bsls::ObjectBuffer<TYPE> mV;
-    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsl::allocator_traits<A>::construct(za, &mV.object(), 'V');
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1429,7 +1506,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                         // 'SPEC'.  'insertAndMovetoBack' will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
-                                         guard(&deque, &end, end, SPEC, false);
+                                      guard(&deque, &end, end, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1438,13 +1515,13 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                                                  deque.begin() + DST,
                                                  NE,
                                                  V,
-                                                 Z);
+                                                 za);
                         guard.release();
 
                         ASSERT(deque.begin() + EE == end);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1459,17 +1536,17 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                                              deque.begin() + DST,
                                              NE,
                                              V,
-                                             Z);
+                                             za);
 
                     ASSERT(deque.begin() + EE == end);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+    bsl::allocator_traits<A>::destroy(za, &mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1523,10 +1600,14 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
     typedef bslalg::DequePrimitives<
             TYPE,
             BLOCK_LENGTH>                                                  Obj;
+
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const int MAX_SIZE = 15;
 
     bsls::ObjectBuffer<TYPE> mV;
-    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsl::allocator_traits<A>::construct(za, &mV.object(), 'V');
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1574,9 +1655,13 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
 
                         typename Deque::Iterator begin = deque.begin() + BEGIN;
 
-                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(
-                                            &deque, &begin,
-                                            deque.begin() + BEGIN, SPEC, true);
+                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(&deque,
+                                                               &begin,
+                                                               deque.begin() +
+                                                                   BEGIN,
+                                                               SPEC,
+                                                               true,
+                                                               Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1585,13 +1670,13 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
                                                      deque.begin() + BEGIN,
                                                      NE,
                                                      V,
-                                                     Z);
+                                                     za);
                         guard.release();
 
                         ASSERT(deque.begin() + EB == begin);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1605,17 +1690,17 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
                                                  deque.begin() + BEGIN,
                                                  NE,
                                                  V,
-                                                 Z);
+                                                 za);
 
                     ASSERT(deque.begin() + EB == begin);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+    bsl::allocator_traits<A>::destroy(za, &mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1667,10 +1752,13 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const int MAX_SIZE = 15;
 
     bsls::ObjectBuffer<TYPE> mV;
-    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsl::allocator_traits<A>::construct(za, &mV.object(), 'V');
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1720,8 +1808,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator end(deque.begin() + END);
 
                         CleanupGuard<TYPE, BLOCK_LENGTH> guard(
-                                             &deque, &end,
-                                             deque.begin() + END, SPEC, false);
+                            &deque, &end, deque.begin() + END, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1729,14 +1816,14 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
                                                     deque.begin() + END,
                                                     NE,
                                                     V,
-                                                    Z);
+                                                    za);
 
                         guard.release();
 
                         ASSERT(deque.begin() + EE == end);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1751,17 +1838,17 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
                                                 deque.begin() + END,
                                                 NE,
                                                 V,
-                                                Z);
+                                                za);
 
                     ASSERT(deque.begin() + EE == end);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
     }
-    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+    bsl::allocator_traits<A>::destroy(za, &mV.object());
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
 }
@@ -1885,6 +1972,9 @@ void testErase(bool exceptionSafetyFlag = false)
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     const int MAX_SIZE = 15;
 
     for (int numBlocks  = CONFIG[BLOCK_LENGTH].d_blockNumMin;
@@ -1943,8 +2033,7 @@ void testErase(bool exceptionSafetyFlag = false)
                         // 'SPEC'.  'erase' will not modify the existing range
                         // of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH> guard(
-                                                           &deque, &begin,
-                                                           begin, SPEC, false);
+                                        &deque, &begin, begin, SPEC, false, Z);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -1954,7 +2043,7 @@ void testErase(bool exceptionSafetyFlag = false)
                                          deque.begin() + FIRST,
                                          deque.begin() + LAST,
                                          deque.begin() + END,
-                                         Z);
+                                         za);
 
                         guard.release();
 
@@ -1963,7 +2052,7 @@ void testErase(bool exceptionSafetyFlag = false)
                         ASSERT(deque.begin() + EI == ret);
 
                         verify(&deque, EXP);
-                        cleanup(&deque, EXP);
+                        cleanup(&deque, EXP, za);
 
                     } END_bslma_EXCEPTION_TEST
                 }
@@ -1982,14 +2071,14 @@ void testErase(bool exceptionSafetyFlag = false)
                                      deque.begin() + FIRST,
                                      deque.begin() + LAST,
                                      deque.begin() + END,
-                                     Z);
+                                     za);
 
                     ASSERT(deque.begin() + EB == begin);
                     ASSERT(deque.begin() + EE == end);
                     ASSERT(deque.begin() + EI == ret);
 
                     verify(&deque, EXP);
-                    cleanup(&deque, EXP);
+                    cleanup(&deque, EXP, za);
                 }
             }
         }
@@ -2037,6 +2126,9 @@ void testDestruct()
     typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
     typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
+    typedef bsl::allocator<TYPE> A;
+    A za(Z);
+
     for (int numBlocks  = CONFIG[BLOCK_LENGTH].d_blockNumMin;
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
            ++numBlocks) {
@@ -2073,10 +2165,10 @@ void testDestruct()
                 gg(&deque, SPEC);  verify(&deque, SPEC);
 
                 Obj::destruct(deque.begin() + BEGIN,
-                              deque.begin() + BEGIN + NE);
+                              deque.begin() + BEGIN + NE, za);
 
                 verify(&deque, EXP);
-                cleanup(&deque, EXP);
+                cleanup(&deque, EXP, za);
             }
         }
     }

@@ -9,6 +9,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a suite of primitive algorithms on red-black trees.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bslalg::RbTreeUtil: namespace for red-black tree functions
 //  bslalg::RbTreeUtilTreeProctor: proctor to manage all nodes in a tree
@@ -689,6 +691,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslalg_rbtreenode.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
+#include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -853,6 +863,24 @@ struct RbTreeUtil {
         // The behavior is undefined unless 'result' is an empty tree,
         // 'original' is a well-formed (see 'isWellFormed'), and
         // 'nodeFactory->deleteNode' does not throw.
+
+    template <class FACTORY>
+    static void moveTree(RbTreeAnchor *result,
+                         RbTreeAnchor *original,
+                         FACTORY      *nodeFactory,
+                         FACTORY      *originalNodeFactory);
+        // Load into the specified 'result', using the specified 'nodeFactory'
+        // to create and delete nodes, a collection of newly created nodes with
+        // the same (red-black) tree structure as that of the specified
+        // 'original' tree, which uses the specified 'originalNodeFactory' to
+        // create and delete nodes, where the 'value' attribute of each node in
+        // 'result' is constructed from explicitly moving the 'value' attribute
+        // of the corresponding node in 'original'.  'original' is left in a
+        // valid but unspecified state.  If an exception occurs, both 'result'
+        // and 'original' are left in a valid but unspecified state.  The
+        // behavior is undefined unless 'result' is an empty tree,  'original'
+        // is well-formed (see 'isWellFormed'), and 'nodeFactory->deleteNode'
+        // and 'originalNodeFactory->deleteNode' do not throw.
 
     template <class FACTORY>
     static void deleteTree(RbTreeAnchor *tree, FACTORY *nodeFactory);
@@ -1381,7 +1409,7 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
 
     const RbTreeNode *originalNode = original.rootNode();
 
-    RbTreeNode   *copiedRoot = nodeFactory->createNode(*originalNode);
+    RbTreeNode   *copiedRoot = nodeFactory->cloneNode(*originalNode);
     RbTreeAnchor  tree(copiedRoot, 0, 1);
 
     RbTreeUtilTreeProctor<FACTORY> proctor(&tree, nodeFactory);
@@ -1395,7 +1423,7 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
     do {
         if (0 != originalNode->leftChild() && 0 == copiedNode->leftChild()) {
             originalNode = originalNode->leftChild();
-            RbTreeNode *newNode = nodeFactory->createNode(*originalNode);
+            RbTreeNode *newNode = nodeFactory->cloneNode(*originalNode);
             copiedNode->setLeftChild(newNode);
             newNode->setColor(originalNode->color());
             newNode->setParent(copiedNode);
@@ -1407,7 +1435,7 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
         else if (0 != originalNode->rightChild() &&
                  0 == copiedNode->rightChild()) {
             originalNode = originalNode->rightChild();
-            RbTreeNode *newNode = nodeFactory->createNode(*originalNode);
+            RbTreeNode *newNode = nodeFactory->cloneNode(*originalNode);
             copiedNode->setRightChild(newNode);
             newNode->setColor(originalNode->color());
             newNode->setParent(copiedNode);
@@ -1427,6 +1455,81 @@ void RbTreeUtil::copyTree(RbTreeAnchor        *result,
     result->reset(copiedRoot,
                   leftmost(copiedRoot),
                   original.numNodes());
+}
+
+template <class FACTORY>
+void RbTreeUtil::moveTree(RbTreeAnchor *result,
+                          RbTreeAnchor *original,
+                          FACTORY      *nodeFactory,
+                          FACTORY      *originalNodeFactory)
+{
+    BSLS_ASSERT_SAFE(result);
+    BSLS_ASSERT_SAFE(0 == result->rootNode());
+    BSLS_ASSERT_SAFE(nodeFactory);
+    BSLS_ASSERT_SAFE(originalNodeFactory);
+
+    if (!original->rootNode()) {
+        result->reset(0, result->sentinel(), 0);
+        return;                                                       // RETURN
+    }
+
+    // Perform an pre-order traversal of the nodes of the tree, invoking
+    // 'nodeFactory->createNode()' on each node.
+
+    RbTreeNode *originalNode = original->rootNode();
+
+    RbTreeNode *copiedRoot = nodeFactory->moveIntoNewNode(originalNode);
+
+    RbTreeAnchor  tree(copiedRoot, 0, 1);
+
+    RbTreeUtilTreeProctor<FACTORY> proctor(&tree, nodeFactory);
+    RbTreeUtilTreeProctor<FACTORY> oproctor(original, originalNodeFactory);
+
+    RbTreeNode *copiedNode = copiedRoot;
+
+    copiedNode->setColor(originalNode->color());
+    copiedNode->setParent(result->sentinel());
+    copiedNode->setLeftChild(0);
+    copiedNode->setRightChild(0);
+    do {
+        if (0 != originalNode->leftChild() && 0 == copiedNode->leftChild()) {
+            originalNode = originalNode->leftChild();
+            RbTreeNode *newNode = nodeFactory->moveIntoNewNode(originalNode);
+            copiedNode->setLeftChild(newNode);
+            newNode->setColor(originalNode->color());
+            newNode->setParent(copiedNode);
+            newNode->setLeftChild(0);
+            newNode->setRightChild(0);
+
+            copiedNode = newNode;
+        }
+        else if (0 != originalNode->rightChild() &&
+                 0 == copiedNode->rightChild()) {
+            originalNode = originalNode->rightChild();
+            RbTreeNode *newNode = nodeFactory->moveIntoNewNode(originalNode);
+            copiedNode->setRightChild(newNode);
+            newNode->setColor(originalNode->color());
+            newNode->setParent(copiedNode);
+            newNode->setLeftChild(0);
+            newNode->setRightChild(0);
+
+            copiedNode = newNode;
+        }
+        else {
+            originalNode = originalNode->parent();
+            copiedNode   = copiedNode->parent();
+        }
+    } while (original->sentinel() != originalNode);
+
+    proctor.release();
+
+    result->reset(copiedRoot,
+                  leftmost(copiedRoot),
+                  original->numNodes());
+
+    // 'oproctor' takes care of clearing 'original', even when an exception is
+    // not thrown, since the tree is no longer valid if the elements have been
+    // moved from.
 }
 
 template <class FACTORY>

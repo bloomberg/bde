@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // First, we verify that calling 'operator new' will result in an
 // assertion:
 //..
-//  bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+//  bsls::AssertTestHandlerGuard guard;
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(new NonTypicalOverloadsTestType());
 //..
 // Finally, we verify that calling 'operator delete' will result in an
@@ -57,6 +57,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -107,8 +111,12 @@ class NonTypicalOverloadsTestType {
 
     static void* operator new(std::size_t size, void *ptr);
         // Overload in place 'new' and assert this method is not called.
-
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
     static void operator delete(void *ptr);
+#else
+    static void operator delete(void *ptr)
+                                      BSLS_CPP11_NOEXCEPT_SPECIFICATION(false);
+#endif
         // Overload 'operator delete' and assert this method is not called.
 
     // CREATORS
@@ -184,7 +192,12 @@ void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
 }
 
 inline
+#if !defined(BSLTF_NONTYPICALOVERLOADSTESTTYPE_TEST_DRIVER)
 void NonTypicalOverloadsTestType::operator delete(void *)
+#else
+void NonTypicalOverloadsTestType::operator delete(void *)
+                                       BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)
+#endif
 {
     BSLS_ASSERT_OPT(0);
 }

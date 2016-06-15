@@ -18,16 +18,16 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a guard object to ensure that, when the guard object goes
-// out of scope, it deallocates the correct memory address with the allocator
-// it holds.  We use two allocators in this module: 'bslma::TestAllocator', and
-// a local 'TestAllocator', used to verify that the guard object can work with
-// an ALLOCATOR type that is not derived from 'bslma::Allocator'.  The
-// local 'TestAllocator' allocator has a 'deallocate' method which is
-// instrumented to record the most recent memory address used to invoke the
-// method.  We initialize the 'bslma::DeallocatorGuard' guard object with this
-// allocator and verify that when the guard object is destroyed the expected
-// memory address is recorded in the allocator.
+// We are testing a guard object to ensure that, when the guard object goes out
+// of scope, it deallocates the correct memory address with the allocator it
+// holds.  We use two allocators in this module: 'bslma::TestAllocator', and a
+// local 'TestAllocator', used to verify that the guard object can work with an
+// ALLOCATOR type that is not derived from 'bslma::Allocator'.  The local
+// 'TestAllocator' allocator has a 'deallocate' method which is instrumented to
+// record the most recent memory address used to invoke the method.  We
+// initialize the 'bslma::DeallocatorGuard' guard object with this allocator
+// and verify that when the guard object is destroyed the expected memory
+// address is recorded in the allocator.
 //-----------------------------------------------------------------------------
 // [2] bslma::DeallocatorGuard<ALLOCATOR>();    // with TestAllocator
 // [2] ~bslma::DeallocatorGuard<ALLOCATOR>();   // with TestAllocator
@@ -136,8 +136,8 @@ void TestAllocator::deallocate(void *address)
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 // A 'bslma::DeallocatorGuard' can be used to ensure that a dynamically
-// allocated raw memory resource is safely deallocated in the presense of
-// multiple return satements or exceptions in an exception-neutral way (i.e.,
+// allocated raw memory resource is safely deallocated in the presence of
+// multiple return statements or exceptions in an exception-neutral way (i.e.,
 // without the need for 'try'/'catch' blocks).  In this simple example,
 // consider the function 'evaluatePassword' which attempts to determine how
 // secure a given password might be:
@@ -352,8 +352,8 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   That the local 'TestAllocator' class correctly recoders the
-        //   memory addresses it deallocates, and correctly records whether
+        //   That the local 'TestAllocator' class correctly records the memory
+        //   addresses it deallocates, and correctly records whether
         //   'deallocate' has been called.
         //
         // Plan:

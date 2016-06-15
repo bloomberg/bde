@@ -20,13 +20,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //@SEE_ALSO: bslstl_sharedptr, bslma_sharedptrrep_inplace,
 //           bslma_sharedptrrep_outofplace
 //
-//@DESCRIPTION: This component provides a partially implemented abstract class
-// for managing the lifetime of a shared object.  'bslma::SharedPtrRep'
-// provides a count of both shared and weak references to a shared object
-// (described in more detail in the next section).  In addition,
-// 'bslma::SharedPtrRep' provides protocol methods that allows a concrete
-// implementation to specify what action should be taken when these reference
-// counts reach zero.
+//@DESCRIPTION: This component provides a partially implemented abstract class,
+// 'bslma::SharedPtrRep', for managing the lifetime of a shared object.
+// 'bslma::SharedPtrRep' provides a count of both shared and weak references to
+// a shared object (described in more detail in the next section).  In
+// addition, 'bslma::SharedPtrRep' provides protocol methods that allows a
+// concrete implementation to specify what action should be taken when these
+// reference counts reach zero.
 //
 ///Shared and Weak References
 ///--------------------------
@@ -323,6 +323,11 @@ class SharedPtrRep {
                               // 2 * number of weak references, plus 1 if there
                               // are any *outstanding* shared references.
 
+  private:
+    // NOT IMPLEMENTED
+    SharedPtrRep(const SharedPtrRep&);             // = delete
+    SharedPtrRep& operator=(const SharedPtrRep&);  // = delete
+
   protected:
     // PROTECTED CREATORS
     virtual ~SharedPtrRep();
@@ -334,11 +339,11 @@ class SharedPtrRep {
     // CLASS METHODS
     static void managedPtrDeleter(void *, void *rep);
         // Release the shared reference to an object held by the 'SharedPtrRep'
-        // object which is pointed to be by specified 'rep'.  The behavior is
+        // object that is pointed to be by specified 'rep'.  The behavior is
         // undefined unless 'rep' points to an object whose complete type
         // publicly and unambiguously derives from 'SharedPtrRep'.  Note that
         // the first argument is ignored.  Also note that this function serves
-        // as the managed ptr deleter when converting a 'bsl::shared_ptr' to a
+        // as the 'ManagedPtr' deleter when converting a 'bsl::shared_ptr' to a
         // 'bslma::ManagedPtr'.
 
     static void managedPtrEmptyDeleter(void *, void *rep);
@@ -455,7 +460,7 @@ class SharedPtrRep {
 };
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ------------------

@@ -345,6 +345,8 @@ int main(int argc, char *argv[])
     const bool     veryVerbose = argc > 3;
     const bool veryVeryVerbose = argc > 4;
 
+    (void)veryVeryVerbose;  // unused variable warning
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:

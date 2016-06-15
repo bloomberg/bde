@@ -281,11 +281,9 @@ void MyAllocTestDeleter::operator()(TYPE *ptr) const
 class MyTestFactory {
   public:
     // MANIPULATORS
-    MyTestObject *createObject(bslma::Allocator *basicAllocator = 0)
+    MyTestObject *createObject()
     {
-        // Create a 'MyTestObject' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Dynamically allocate a new 'MyTestObject'.
         return new MyTestObject();
     }
 
@@ -410,17 +408,18 @@ int main(int argc, char *argv[])
 #if 0  // TBD Need an appropriately levelized usage example
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
-        // Concern:
-        //   Usage example described in header doc compiles and run.
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //   Copy the usage example and strip the comments.  Then create simple
-        //   test case to use the implementation described in doc.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
-        // Testing:
-        //   Usage example
+        // Testing: USAGE EXAMPLE
         // --------------------------------------------------------------------
         {
             ASSERT(0 == ta.numAllocations());
@@ -446,13 +445,14 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //   Object is properly initialized, and can be properly destructed
-        //   when the last reference is released.
+        //: 1 Object is properly initialized, and can be properly destroyed
+        //:   when the last reference is released.
         //
         // Plan:
-        //   Construct bslma::SharedPtrOutofplaceRep using each of the
-        //   constructor and call releaseRef() to remove the last reference and
-        //   check the that destructor for the object is called.
+        //: 1 Construct a 'bslma::SharedPtrOutofplaceRep' using each
+        //:   constructor overload, calling 'releaseRef' to remove the last
+        //:   reference.  Then check the deleter is called to destroy the
+        //:   object.
         //
         // Testing:
         //   bslma::SharedPtrOutofplaceRep(
@@ -480,6 +480,7 @@ int main(int argc, char *argv[])
         //                                const DELETER&    deleter,
         //                                bslma::Allocator *basicAllocator=0);
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nTESTING CREATORS"
                             "\n================\n");
 
@@ -508,13 +509,13 @@ int main(int argc, char *argv[])
                                                         MyTestFactory *>::VALUE
             };
 
-            MyTestFactory *factory = new(ta) MyTestFactory();
+            MyTestFactory factory = MyTestFactory();
 
 
             typedef bslma::SharedPtrOutofplaceRep<MyTestObject,
                                                   MyTestFactory *> TestRep;
-            TObj     *t    = factory->createObject();
-            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, factory, &ta);
+            TObj     *t    = factory.createObject();
+            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, &factory, &ta);
             TestRep&  x    = *xPtr;   const TestRep& X = x;
 
             ASSERT(1 == X.numReferences());
@@ -523,7 +524,6 @@ int main(int argc, char *argv[])
 
             x.releaseRef();
             ASSERT(2 == TObj::getNumDeletes());
-            ta.deleteObject(factory);
         }
 
         if (verbose) printf("\nTesting Function Deleter"
@@ -603,32 +603,31 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' and 'releaseWeakRef'
+        // TESTING 'releaseRef' AND 'releaseWeakRef'
         //
         // Concerns:
-        //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
-        //      count correctly.
-        //   2) disposeObject() is called when there is no shared reference.
-        //   3) disposeRep() is called only when there is no shared reference
-        //      and no weak reference.
+        //: 1 'releaseRef' and 'releaseWeakRef' decrement the reference count
+        //:   correctly.
+        //: 2 'disposeObject' is called when there is no shared reference.
+        //: 3 'disposeRep' is called only when there is no shared reference
+        //:   and no weak reference.
         //
         // Plan:
-        //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
-        //      and verify 'numWeakReference' did not change.
-        //   2) Call 'releaseRef' when there is only one reference remaining.
-        //      Then verify that both 'disposeObject' and 'disposeRep' is
-        //      called.
-        //   3) Create another object and call 'acquireWeakRef' before calling
-        //      'releaseRef'.  Verify that only 'disposeObject' is called.
-        //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
-        //      called.
+        //: 1 Call 'acquireRef' then 'releaseRef' and verify 'numReference' did
+        //:   not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
+        //:   verify 'numWeakReference' did not change.
+        //: 2 Call 'releaseRef' when there is only one reference remaining.
+        //:   Then verify that both 'disposeObject' and 'disposeRep' is called.
+        //: 3 Create another object and call 'acquireWeakRef' before calling
+        //:   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
+        //:   call 'releaseWeakRef' and verify that 'disposeRep' is called.
         //
         // Testing:
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
+
+        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -701,13 +700,13 @@ int main(int argc, char *argv[])
         // TESTING BASIC CONSTRUCTOR
         //
         // Concerns:
-        //   Object is properly initialized, and can be properly destructed
-        //   when the last reference is released.
+        //: 1 Object is properly initialized, and can be properly destroyed
+        //:   when the last reference is released.
         //
         // Plan:
-        //   Construct bslma::SharedPtrOutofplaceRep using each of the
-        //   constructor and call releaseRef() to remove the last reference and
-        //   check the that destructor for the object is called.
+        //: 1 Construct a 'bslma::SharedPtrOutofplaceRep' using the preferred
+        //:   constructor.  Then call 'releaseRef' to remove the last reference
+        //:   and check the that the destructor for the held object is called.
         //
         // Testing:
         //   bslma::SharedPtrOutofplaceRep(
@@ -755,7 +754,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   This test exercises basic functionality but tests nothing.
+        //: 1 This test exercises basic functionality but tests nothing.
         //
         // Testing:
         //   BREATHING TEST

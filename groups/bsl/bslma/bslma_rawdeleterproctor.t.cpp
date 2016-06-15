@@ -223,7 +223,7 @@ class my_List {
 
   public:
     // CREATORS
-    my_List(bslma::Allocator *basicAllocator = 0);
+    explicit my_List(bslma::Allocator *basicAllocator = 0);
         // Create a 'my_List' object having an initial length of 0.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must

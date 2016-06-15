@@ -1,17 +1,17 @@
 // bslstl_treenodepool.t.cpp                                          -*-C++-*-
 #include <bslstl_treenodepool.h>
 
-#include <bslstl_allocator.h>
-
 #include <bslalg_rbtreenode.h>
 #include <bslalg_rbtreeanchor.h>
 #include <bslalg_rbtreeutil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_default.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -46,13 +46,19 @@ using namespace bslstl;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] explicit TreeNodePool(const ALLOCATOR& allocator);
+// [ 9] explicit TreeNodePool(MovableRef<TreeNodePool> original);
 //
 // MANIPULATORS
+// [10] TreeNodePool& operator=(MovableRef<TreeNodePool> rhs);
 // [ 4] AllocatorType& allocator();
-// [ 2] bslalg::RbTreeNode *createNode();
-// [ 7] bslalg::RbTreeNode *createNode(const bslalg::RbTreeNode& original);
-// [ 7] bslalg::RbTreeNode *createNode(const VALUE& value);
+// [ 2] bslalg::RbTreeNode *emplaceIntoNewNode();
+// [ 7] bslalg::RbTreeNode *cloneNode(const bslalg::RbTreeNode& original);
+// [ 7] bslalg::RbTreeNode *emplaceIntoNewNode(const VALUE& value);
+// [11] bslalg::RbTreeNode *emplaceIntoNewNode(MovableRef<VALUE> value);
+// [12] bslalg::RbTreeNode *emplaceIntoNewNode(Args&&...);
+// [13] template <class P> bslalg::RbTreeNode *emplaceIntoNewNode(P&&);
 // [ 5] void deleteNode(bslalg::RbTreeNode *node);
+// [  ] bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
 // [ 6] void reserveNodes(std::size_t numNodes);
 // [ 8] void swap(TreeNodePool<VALUE, ALLOCATOR>& other);
 //
@@ -60,6 +66,7 @@ using namespace bslstl;
 // [ 4] const AllocatorType& allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -196,6 +203,70 @@ struct UsesBslmaAllocator<AllocatingIntType> : bsl::true_type {};
 //                               TEST FACILITIES
 //-----------------------------------------------------------------------------
 
+template <class TYPE>
+class Wrapper {
+    TYPE d_value;
+  public:
+
+    // CREATORS
+    Wrapper(const TYPE& value, bslma::Allocator *alloc)
+    : d_value(value, alloc)
+    {
+    }
+
+    Wrapper(bslmf::MovableRef<TYPE> value, bslma::Allocator *alloc)
+    : d_value(bslmf::MovableRefUtil::move(value), alloc)
+    {
+    }
+
+    template <class P>
+    Wrapper(BSLS_COMPILERFEATURES_FORWARD_REF(P) value,bslma::Allocator *alloc)
+    : d_value(BSLS_COMPILERFEATURES_FORWARD(P, value), alloc)
+    {
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class P>
+    Wrapper(Wrapper<P>&& other, bslma::Allocator *alloc)
+    : d_value(bslmf::MovableRefUtil::move(other.value()), alloc)
+    {
+    }
+#else
+    template <class P>
+    Wrapper(bslmf::MovableRef<Wrapper<P> > other, bslma::Allocator *alloc)
+    : d_value(bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::access(other)
+                                              .value()), alloc)
+    {
+    }
+#endif
+
+    //! Wrapper(const Wrapper&) = default;
+    //! Wrapper(Wrapper&&) = default;
+    //! Wrapper& operator=(Wrapper&&) = default;
+    //! ~Wrapper() = default;
+
+    // MANIPULATORS
+    TYPE& value()
+    {
+        return d_value;
+    }
+
+    // ACCESSORS
+    const TYPE& value() const
+    {
+        return d_value;
+    }
+};
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator<Wrapper<TYPE> > : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
 class Stack
 {
     enum { CAPACITY = 128 };
@@ -277,11 +348,26 @@ class TestDriver {
 
   public:
     // TEST CASES
-    // static void testCase10();
+    // static void testCase14();
         // Reserved for BSLX.
 
-    static void testCase9();
+    static void testCase14();
         // Test usage example.
+
+    static void testCase13();
+        // Test 'emplaceIntoNewNode(P&&)'.
+
+    static void testCase12();
+        // Test 'emplaceIntoNewNode'.
+
+    static void testCase11();
+        // Test 'emplaceIntoNewNode<MovableRef<VALUE> value)'.
+
+    static void testCase10();
+        // Test move assignment operator.
+
+    static void testCase9();
+        // Test move constructor.
 
     static void testCase8();
         // Test 'swap' member.
@@ -320,7 +406,7 @@ TestDriver<VALUE>::init(Obj   *result,
 
 
     for (int i = 0; i < numAllocs; ++i) {
-        RbNode *ptr = result->createNode();
+        RbNode *ptr = result->emplaceIntoNewNode();
         usedBlocks->push(ptr);
     }
 
@@ -342,14 +428,14 @@ void TestDriver<VALUE>::createFreeBlocks(Obj   *result,
     // Allocate blocks.
 
     for (int i = 0; i < numBlocks; ++i) {
-        RbNode *ptr = result->createNode();
+        RbNode *ptr = result->emplaceIntoNewNode();
         usedBlocks->push(ptr);
     }
 
     // Use up all the free blocks.
 
     while (!expectToAllocate(usedBlocks->size() + 1)) {
-        RbNode *ptr = result->createNode();
+        RbNode *ptr = result->emplaceIntoNewNode();
         usedBlocks->push(ptr);
     }
 
@@ -359,6 +445,85 @@ void TestDriver<VALUE>::createFreeBlocks(Obj   *result,
         result->deleteNode(usedBlocks->back());
         usedBlocks->pop();
     }
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase13()
+{
+    // --------------------------------------------------------------------
+    // MANIPULATOR emplaceIntoNewNode
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nMANIPULATOR emplaceIntoNewNode(P&&)"
+                        "\n===================================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase12()
+{
+    // --------------------------------------------------------------------
+    // MANIPULATOR emplaceIntoNewNode
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nMANIPULATOR emplaceIntoNewNode"
+                        "\n==============================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase11()
+{
+    // --------------------------------------------------------------------
+    // MANIPULATOR emplaceIntoNewNode(MovableRef<VALUE> value);
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nMANIPULATOR emplaceIntoNewNode(MR<VALUE> value)"
+                        "\n===============================================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase10()
+{
+    // --------------------------------------------------------------------
+    // MOVE ASSIGNMENT OPERATOR
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
+                       "\n========================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase9()
+{
+    // ------------------------------------------------------------------------
+    // MOVE CONSTRUCTOR
+    //   Ensure that we can use the move constructor to create an object that
+    //   takes ownership of all currently active memory allocations associated
+    //   with the source tree node allocator parameter and propagates the
+    //   source allocator for future allocations.
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING MOVE CONSTRUCTOR"
+                       "\n=========================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
 }
 
 template<class VALUE>
@@ -476,14 +641,14 @@ void TestDriver<VALUE>::testCase8()
                 // Verify the free lists are swapped
 
                 while(!freeX.empty()) {
-                    RbNode *ptr = mY.createNode();
+                    RbNode *ptr = mY.emplaceIntoNewNode();
                     ASSERTV(LINE1, LINE2, freeX.back() == ptr);
                     freeX.pop();
                     usedX.push(ptr);
                 }
 
                 while(!freeY.empty()) {
-                    RbNode *ptr = mX.createNode();
+                    RbNode *ptr = mX.emplaceIntoNewNode();
                     ASSERTV(LINE1, LINE2, freeY.back() == ptr);
                     freeY.pop();
                     usedY.push(ptr);
@@ -541,10 +706,11 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase7()
 {
     // -----------------------------------------------------------------------
-    // MANIPULATOR 'createNode'
+    // MANIPULATOR 'emplaceIntoNewNode'
     //
     // Concerns:
-    //: 1 'createNode' invokes the copy constructor of the parameterized 'TYPE'
+    //: 1 'emplaceIntoNewNode' taking a single lvalue argument invokes the copy
+    //:   constructor of the parameterized 'TYPE'
     //:
     //: 2 Any memory allocation is from the object allocator.
     //:
@@ -555,7 +721,7 @@ void TestDriver<VALUE>::testCase7()
     // Plan:
     //: 1 Create an array of distinct object.  For each object in the array:
     //:
-    //:   1 Invoke 'createNode' on the object.
+    //:   1 Invoke 'emplaceIntoNewNode' on the object.
     //:
     //:   2 Verify memory is allocated only when expected.  (C-2..3)
     //:
@@ -565,7 +731,7 @@ void TestDriver<VALUE>::testCase7()
     //:
     //: 3 For each node that was created:
     //:
-    //:   1 Invoke 'createNode' on the node that was created previously
+    //:   1 Invoke 'emplaceIntoNewNode' on the node that was created previously
     //:
     //:   2 Verify the newly created node has the same value as the old one.
     //:     (C-1)
@@ -573,11 +739,11 @@ void TestDriver<VALUE>::testCase7()
     //: 4 Verify all memory is released on destruction.  (C-4)
     //
     // Testing:
-    //   bslalg::RbTreeNode *createNode(const bslalg::RbTreeNode& original);
-    //   bslalg::RbTreeNode *createNode(const VALUE& value);
+    //   bslalg::RbTreeNode *cloneNode(const bslalg::RbTreeNode& original);
+    //   bslalg::RbTreeNode *emplaceIntoNewNode(const VALUE& value);
     // -----------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'createNode'"
+    if (verbose) printf("\nMANIPULATOR 'emplaceIntoNewNode'"
                         "\n========================\n");
 
 
@@ -596,7 +762,7 @@ void TestDriver<VALUE>::testCase7()
         for (int i = 0; i < 16; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
-            RbNode *ptr = mX.createNode(VALUES[i]);
+            RbNode *ptr = mX.emplaceIntoNewNode(VALUES[i]);
 
             if (expectToAllocate(i + 1)) {
                 ASSERTV(1 + TYPE_ALLOC == oam.numBlocksTotalChange());
@@ -619,7 +785,7 @@ void TestDriver<VALUE>::testCase7()
         for (int i = 0; i < 16; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
-            RbNode *ptr = mY.createNode(*usedX[i]);
+            RbNode *ptr = mY.cloneNode(*usedX[i]);
 
             if (expectToAllocate(i + 1)) {
                 ASSERTV(1 + TYPE_ALLOC == oam.numBlocksTotalChange());
@@ -681,11 +847,11 @@ void TestDriver<VALUE>::testCase6()
     //:
     //:     2 Call 'reserveNode' for 'i' blocks.
     //:
-    //:     3 Invoke 'createNode' 'i + j' times, and verify no memory is
-    //:       allocated.
+    //:     3 Invoke 'emplaceIntoNewNode' 'i + j' times, and verify no memory
+    //:       is allocated.
     //:
-    //:     4 Invoke 'createNode' again and verify memory is allocated from the
-    //:       heap.  (C-1..3)
+    //:     4 Invoke 'emplaceIntoNewNode' again and verify memory is allocated
+    //:       from the heap.  (C-1..3)
     //:
     //: 2 Verify all memory is deallocated on destruction.  (C-4)
     //:
@@ -718,14 +884,14 @@ void TestDriver<VALUE>::testCase6()
 
             for (int tk = 0; tk < ti + tj; ++tk) {
                 bslma::TestAllocatorMonitor oam(&oa);
-                usedBlocks.push(mX.createNode());
+                usedBlocks.push(mX.emplaceIntoNewNode());
                 ASSERTV(ti, tj, tk, TYPE_ALLOC == oam.numBlocksTotalChange());
                 ASSERTV(ti, tj, tk, TYPE_ALLOC == oam.numBlocksInUseChange());
             }
 
             {
                 bslma::TestAllocatorMonitor oam(&oa);
-                usedBlocks.push(mX.createNode());
+                usedBlocks.push(mX.emplaceIntoNewNode());
                 ASSERTV(ti, tj, 1 + TYPE_ALLOC == oam.numBlocksInUseChange());
             }
 
@@ -762,10 +928,10 @@ void TestDriver<VALUE>::testCase5()
     // Concerns:
     //: 1 'deleteNode' invokes the destructor of the value in the node.
     //:
-    //: 2 'createNode' does not allocate from the heap when there are still
-    //:   blocks in the free list.
+    //: 2 'emplaceIntoNewNode()' does not allocate from the heap when there are
+    //:   still blocks in the free list.
     //:
-    //: 3 'createNode' retrieve the last block that was deallocated.
+    //: 3 'emplaceIntoNewNode()' retrieve the last block that was deallocated.
     //:
     //: 4 'allocate' will retrieve memory from the heap once so that the next
     //:   allocation will not allocate from the heap.
@@ -779,7 +945,8 @@ void TestDriver<VALUE>::testCase5()
     //: 1 Create a list of sequences to allocate and deallocate memory.  For
     //:   each sequence:
     //:
-    //:   1 Invoke 'createNode' and 'deleteNode' according to the sequence.
+    //:   1 Invoke 'emplaceIntoNewNode()' and 'deleteNode' according to the
+    //:     sequence.
     //:
     //:   2 Verify that each allocate returns the last block that was
     //:     deallocated if 'deleteNode' was called.  (C-1..3)
@@ -787,8 +954,8 @@ void TestDriver<VALUE>::testCase5()
     //:   3 Verify no memory was allocated from the heap on 'deleteNode'.
     //:     (C-5)
     //:
-    //:   4 Verify 'createNode' will get memory from the heap only when
-    //:     expected.
+    //:   4 Verify 'emplaceIntoNewNode()' will get memory from the heap only
+    //:     when expected.
     //:
     //: 2 Verify that, in appropriate build modes, defensive checks are
     //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
@@ -836,7 +1003,7 @@ void TestDriver<VALUE>::testCase5()
             bslma::TestAllocatorMonitor oam(&oa);
 
             if (SEQUENCE[tj] == 'A') {
-                RbNode *ptr = mX.createNode();
+                RbNode *ptr = mX.emplaceIntoNewNode();
 
                 usedBlocks.push(ptr);
 
@@ -886,7 +1053,7 @@ void TestDriver<VALUE>::testCase5()
         {
             Obj mX(0);
 
-            RbNode *ptr = mX.createNode();
+            RbNode *ptr = mX.emplaceIntoNewNode();
 
             ASSERT_SAFE_FAIL(mX.deleteNode(0));
             ASSERT_SAFE_PASS(mX.deleteNode(ptr));
@@ -1035,7 +1202,7 @@ void TestDriver<VALUE>::testCase2()
     // Testing:
     //   explicit TreeNodePool(const ALLOCATOR& allocator);
     //   ~TreeNodePool();
-    //   VALUE *createNode();
+    //   VALUE *emplaceIntoNewNode();
     // --------------------------------------------------------------------
 
     if (verbose) printf(
@@ -1094,7 +1261,7 @@ void TestDriver<VALUE>::testCase2()
         for (int i = 0; i < 96; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
-            RbNode *ptr = mX.createNode();
+            RbNode *ptr = mX.emplaceIntoNewNode();
 
             if (expectToAllocate(i + 1)) {
                 ASSERTV(1 + TYPE_ALLOC == oam.numBlocksTotalChange());
@@ -1252,7 +1419,7 @@ void TestDriver<VALUE>::testCase2()
 // was inserted into the set.
 //..
         if (0 != comparisonResult) {
-            bslalg::RbTreeNode *node = d_nodePool.createNode(value);
+            bslalg::RbTreeNode *node = d_nodePool.emplaceIntoNewNode(value);
             bslalg::RbTreeUtil::insertAt(&d_tree,
                                          parent,
                                          comparisonResult < 0,
@@ -1309,7 +1476,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 9: {
+      case 14: {
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
@@ -1343,6 +1510,67 @@ int main(int argc, char *argv[])
     ASSERT(0 == defaultAllocator.numBytesInUse());
     ASSERT(0 <  objectAllocator.numBytesInUse());
 //..
+      } break;
+      case 13: {
+        TestDriver<bsltf::AllocTestType>::testCase13();
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   bslalg::RbTreeNode *emplaceIntoNewNode(MovableRef<VALUE>);
+        // --------------------------------------------------------------------
+        {
+            typedef bslmf::MovableRefUtil                       MovUtil;
+            typedef bsltf::TemplateTestFacility                 TstFacility;
+
+            typedef bsltf::MoveOnlyAllocTestType                TYPE;
+            typedef Wrapper<const TYPE>                         ValueType;
+            typedef bsl::allocator<ValueType>                   Alloc;
+
+            typedef TreeNodePool<ValueType, Alloc>              Obj;
+            typedef TreeNode<ValueType>                         Node;
+
+            const int TYPE_ALLOC = bslma::UsesBslmaAllocator<ValueType>::value;
+
+            bslma::TestAllocator da;
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            Obj mX(&oa); const Obj& X = mX;
+
+            {
+
+                TYPE m1(1, &oa);
+                Wrapper<TYPE> v(MovUtil::move(m1), &oa);
+                Node *node = static_cast<Node *>(
+                                      mX.emplaceIntoNewNode(MovUtil::move(v)));
+
+                ASSERT(node);
+                ASSERT(1 == TstFacility::getIdentifier(node->value().value()));
+
+                ASSERTV(TYPE_ALLOC, oa.numBlocksInUse(),
+                        1 + TYPE_ALLOC == oa.numBlocksInUse());
+
+                mX.deleteNode(node);
+            }
+
+            ASSERT(dam.isTotalSame());
+            ASSERT(0 == da.numBlocksInUse());
+            ASSERT(1 == oa.numBlocksInUse());
+        }
+      } break;
+      case 12: {
+        TestDriver<bsltf::AllocTestType>::testCase12();
+      } break;
+      case 11: {
+        TestDriver<bsltf::AllocTestType>::testCase11();
+      } break;
+      case 10: {
+        TestDriver<bsltf::AllocTestType>::testCase10();
+      } break;
+      case 9: {
+        TestDriver<bsltf::AllocTestType>::testCase9();
       } break;
       case 8: {
         TestDriver<bsltf::AllocTestType>::testCase8();
@@ -1392,7 +1620,7 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard daGuard(&da);
 
             Obj x(&ta);
-            Node *value = (Node *)x.createNode();
+            Node *value = (Node *)x.emplaceIntoNewNode();
             ASSERT(0 != value);
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(1 == ta.numBlocksInUse());
@@ -1400,7 +1628,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(1 == ta.numBlocksInUse());
 
-            value = (Node *)x.createNode(0xabcd);
+            value = (Node *)x.emplaceIntoNewNode(0xabcd);
             ASSERT(0 != value);
             ASSERT(0xabcd == value->value());
             ASSERT(0 == da.numBlocksInUse());
@@ -1424,7 +1652,7 @@ int main(int argc, char *argv[])
 
             Obj x(&ta);
 
-            Node *value = (Node *)x.createNode();
+            Node *value = (Node *)x.emplaceIntoNewNode();
             ASSERT(0 != value);
             ASSERT(0xabcd == value->value().value());
             ASSERT(0 == da.numBlocksInUse());
@@ -1440,7 +1668,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksInUse());
             ASSERT(1 == ta.numBlocksInUse());
 
-            value = (Node *)x.createNode(myInt);
+            value = (Node *)x.emplaceIntoNewNode(myInt);
             ASSERT(0 != value);
             ASSERT(0xdbca == value->value().value());
             ASSERT(0 == da.numBlocksInUse());

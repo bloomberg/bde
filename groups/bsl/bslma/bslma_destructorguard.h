@@ -16,23 +16,23 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a guard class template to
-// unconditionally manage an (otherwise-unmanaged) object of parameterized
-// 'TYPE' supplied at construction.  The managed object is destroyed
-// automatically when the guard object goes out of scope by calling the
-// (managed) object's destructor.
+//@DESCRIPTION: This component provides a guard class template,
+// 'bslma::DestructorGuard', to unconditionally manage an (otherwise-unmanaged)
+// object of parameterized 'TYPE' supplied at construction.  The managed object
+// is destroyed automatically when the guard object goes out of scope by
+// calling the (managed) object's destructor.
 //
 ///Usage
 ///-----
-// Suppose we have a situation where one of the two constructors will be
-// called to create an object on the stack for performance reasons.  The
-// construction thus occurs within either of the branches of an 'if'
-// statement, so the object itself, to survive the end of the "then" or "else"
-// block, must be constructed in a 'bsls::ObjectBuffer'.  Once constructed, the
-// object would not be destroyed automatically, so to make sure it will be
-// destroyed, we place it under the management of a 'bslma::DestructorGuard'.
-// After that, we know that however the routine exits -- either by a return
-// or as a result of an exception being thrown -- the object will be destroyed.
+// Suppose we have a situation where one of the two constructors will be called
+// to create an object on the stack for performance reasons.  The construction
+// thus occurs within either of the branches of an 'if' statement, so the
+// object itself, to survive the end of the "then" or "else" block, must be
+// constructed in a 'bsls::ObjectBuffer'.  Once constructed, the object would
+// not be destroyed automatically, so to make sure it will be destroyed, we
+// place it under the management of a 'bslma::DestructorGuard'.  After that, we
+// know that however the routine exits -- either by a return or as a result of
+// an exception being thrown -- the object will be destroyed.
 //..
 //  double usageExample(double startValue)
 //  {
@@ -108,19 +108,19 @@ class DestructorGuard {
 
   public:
     // CREATORS
-    DestructorGuard(TYPE *object);
+    explicit DestructorGuard(TYPE *object);
         // Create a destructor guard that unconditionally manages the specified
         // 'object', and invokes the destructor of 'object' upon the
         // destruction of this guard.  The behavior is undefined unless
         // 'object' is non-zero.
 
     ~DestructorGuard();
-        // Destroy this destructor guard and the object it manages by
-        // invoking the destructor of the (managed) object.
+        // Destroy this destructor guard and the object it manages by invoking
+        // the destructor of the (managed) object.
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------------

@@ -134,16 +134,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_IOSTREAM
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 namespace bsl {
 
                           // ========================

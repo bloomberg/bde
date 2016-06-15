@@ -1,8 +1,6 @@
 // bslstl_setcomparator.t.cpp                                         -*-C++-*-
 #include <bslstl_setcomparator.h>
 
-#include <bslstl_allocatortraits.h>
-#include <bslstl_allocator.h>
 #include <bslstl_treenode.h>
 
 #include <bslalg_rbtreeanchor.h>
@@ -12,8 +10,10 @@
 #include <bsltf_templatetestfacility.h>
 
 #include <bslma_allocator.h>
+#include <bslma_allocatortraits.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -59,7 +59,7 @@
 // [ 2] COMPARATOR keyComparator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 // [ *] CONCERN: All accessor methods are declared 'const'.
 // [ *] CONCERN: Pointer/reference parameters are declared 'const'.
 // [ *] CONCERN: In no case does memory come from the global allocator.
@@ -205,6 +205,82 @@ class LessThanFunctor {
     }
 };
 
+// FREE OPERATORS
+template <class TYPE>
+bool operator== (const LessThanFunctor<TYPE>& lhs,
+                 const LessThanFunctor<TYPE>& rhs)
+{
+    return lhs.id() == rhs.id();
+}
+
+template <class TYPE>
+bool operator!= (const LessThanFunctor<TYPE>& lhs,
+                 const LessThanFunctor<TYPE>& rhs)
+{
+    return lhs.id() != rhs.id();
+}
+
+                       // ============================
+                       // class LessThanFunctorMovable
+                       // ============================
+
+template <class TYPE>
+class LessThanFunctorMovable {
+    // This test class provides a mechanism that defines a const function-call
+    // operator that compares two objects of the parameterized 'TYPE' and has
+    // a move constructor.  The function-call operator is implemented with
+    // integer comparison using integers converted from objects of 'TYPE' by
+    // the class method 'bsltf::TemplateTestFacility::getIdentifier'.  As a
+    // side effect, the function-call operator also increments a counter
+    // 'd_numCalls' used to keep track the method call count.  Object of this
+    // class can be identified by an id passed on construction.
+
+    // DATA
+    int d_id;
+    mutable int d_numCalls;
+
+  public:
+
+    // CREATORS
+    LessThanFunctorMovable()
+    : d_id(0), d_numCalls(0)
+    {
+    }
+
+    explicit LessThanFunctorMovable(int id)
+    : d_id(id), d_numCalls(0)
+    {
+    }
+
+    explicit LessThanFunctorMovable(
+                            bslmf::MovableRef<LessThanFunctorMovable> original)
+    : d_id(bslmf::MovableRefUtil::access(original).d_id)
+    , d_numCalls(bslmf::MovableRefUtil::access(original).d_numCalls)
+    {
+        LessThanFunctorMovable& lvalue = original;
+        lvalue.d_id = 0;
+        lvalue.d_numCalls = 0;
+    }
+
+    // ACCESSORS
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+    {
+        ++d_numCalls;
+        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+            < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+    }
+
+    int numCalls() const
+    {
+        return d_numCalls;
+    }
+
+    int id() const
+    {
+        return d_id;
+    }
+};
+
                        // =============================
                        // class LessThanFunctorNonConst
                        // =============================
@@ -256,21 +332,6 @@ class LessThanFunctorNonConst {
     }
 };
 
-// FREE OPERATORS
-template <class TYPE>
-bool operator== (const LessThanFunctor<TYPE>& lhs,
-                 const LessThanFunctor<TYPE>& rhs)
-{
-    return lhs.id() == rhs.id();
-}
-
-template <class TYPE>
-bool operator!= (const LessThanFunctor<TYPE>& lhs,
-                 const LessThanFunctor<TYPE>& rhs)
-{
-    return lhs.id() != rhs.id();
-}
-
 template <class TYPE>
 bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 {
@@ -295,6 +356,7 @@ struct TestDriver {
     typedef bsl::allocator_traits<Alloc>  AllocTraits;
 
     typedef LessThanFunctor<Key>         FunctorType;
+    typedef LessThanFunctorMovable<Key>  MovableFunctorType;
     typedef LessThanFunctorNonConst<Key> NonConstFunctorType;
     typedef bool (*FunctionType) (const TYPE&, const TYPE&);
 

@@ -1,11 +1,10 @@
 // bslstl_sharedptrallocateinplacerep.t.cpp                           -*-C++-*-
 #include <bslstl_sharedptrallocateinplacerep.h>
 
-#include <bslstl_allocator.h>
-#include <bslstl_allocatortraits.h>
-
 #include <bslma_allocator.h>
+#include <bslma_allocatortraits.h>
 #include <bslma_default.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>

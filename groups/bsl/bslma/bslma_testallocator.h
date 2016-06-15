@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // mode is set for the purpose of testing the test allocator itself).  A
 // 'bslma::TestAllocator' also supports a buffer overrun / underrun feature --
 // each allocation has "pads", areas of extra memory before and after the
-// segment which are initialized to a particular value and checked upon
+// segment that are initialized to a particular value and checked upon
 // deallocation to see if they have been modified.  If they have, a message is
 // printed and the allocator aborts, unless it is in quiet mode.
 //
@@ -343,8 +343,8 @@ class TestAllocator : public Allocator {
 
                         // Control Points
 
-    const char *d_name_p;                // optionally specified name of
-                                         // this test allocator object (or 0)
+    const char *d_name_p;                // optionally specified name of this
+                                         // test allocator object (or 0)
 
     bsls::AtomicInt
                 d_noAbortFlag;           // whether or not to suppress
@@ -733,7 +733,7 @@ class TestAllocator_Proxy: public TestAllocator_ProxyBase {
 
   public:
     // CREATORS
-    TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
+    explicit TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
     : d_allocator_p(allocator)
     {
     }
@@ -838,7 +838,7 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 namespace bslma {
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // -------------------
@@ -932,12 +932,6 @@ bsls::Types::Int64 TestAllocator::numAllocations() const
 }
 
 inline
-bsls::Types::Int64 TestAllocator::numBoundsErrors() const
-{
-    return d_numBoundsErrors.loadRelaxed();
-}
-
-inline
 bsls::Types::Int64 TestAllocator::numBlocksInUse() const
 {
     return d_numBlocksInUse.loadRelaxed();
@@ -953,6 +947,12 @@ inline
 bsls::Types::Int64 TestAllocator::numBlocksTotal() const
 {
     return d_numBlocksTotal.loadRelaxed();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBoundsErrors() const
+{
+    return d_numBoundsErrors.loadRelaxed();
 }
 
 inline

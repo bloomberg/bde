@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   Developers' Sandbox.
         //
         // Plan:

@@ -1,4 +1,4 @@
-// bsls_macrorepeat.cpp                  -*-C++-*-
+// bsls_macrorepeat.cpp                                               -*-C++-*-
 
 #include <bsls_macrorepeat.h>
 

@@ -115,8 +115,8 @@ void *operator new(size_t size) throw(std::bad_alloc)
 #else
 void *operator new(size_t size)
 #endif
-    // Trace use of global operator new.  Note that we must use printf
-    // to avoid recursion.
+    // Trace use of global operator new.  Note that we must use 'printf' to
+    // avoid recursion.
 {
     void *addr = malloc(size);
 
@@ -171,56 +171,56 @@ void operator delete(void *address)
 // The following example demonstrates the use of this component for a user
 // defined allocator instead of using the default allocator:
 //..
-//  // my_allocator.h
-//  // ...
-//
+    // my_allocator.h
+    // ...
+
     class my_Allocator : public bslma::Allocator {
-//      // This class provides a mechanism for allocation and deallocation.
-//
-//      // DATA
+        // This class provides a mechanism for allocation and deallocation.
+
+        // DATA
         bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
-//
+
       public:
-//      // CREATORS
-        my_Allocator(bslma::Allocator *basicAllocator = 0);
-//          // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
-//          // supply memory.  If 'basicAllocator' is 0, the
-//          // 'bslma::MallocFreeAllocator' will be used.
-//
+        // CREATORS
+        explicit my_Allocator(bslma::Allocator *basicAllocator = 0);
+            // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
+            // supply memory.  If 'basicAllocator' is 0, the
+            // 'bslma::MallocFreeAllocator' will be used.
+
         ~my_Allocator();
-//          // Destroy this allocator.  Note that the behavior of destroying an
-//          // allocator while memory is allocated from it is not specified.
-//          // (Unless you *know* that it is valid to do so, don't!)
-//
-//      // MANIPULATORS
+            // Destroy this allocator.  Note that the behavior of destroying an
+            // allocator while memory is allocated from it is not specified.
+            // (Unless you *know* that it is valid to do so, don't!)
+
+        // MANIPULATORS
         void *allocate(size_type size);
-//          // Return a newly allocated block of memory of (at least) the
-//          // specified positive 'size' (bytes).  If 'size' is 0, a null
-//          // pointer is returned with no effect.  Note that the alignment of
-//          // the address returned is the maximum alignment for any
-//          // fundamental type defined for this platform.
-//
+            // Return a newly allocated block of memory of (at least) the
+            // specified positive 'size' (bytes).  If 'size' is 0, a null
+            // pointer is returned with no effect.  Note that the alignment of
+            // the address returned is the maximum alignment for any
+            // fundamental type defined for this platform.
+
         void deallocate(void *address);
-//          // Return the memory at the specified 'address' back to this
-//          // allocator.  If 'address' is 0, this function has no effect.  The
-//          // behavior is undefined if 'address' was not allocated using this
-//          // allocator, or has already been deallocated.
+            // Return the memory at the specified 'address' back to this
+            // allocator.  If 'address' is 0, this function has no effect.  The
+            // behavior is undefined if 'address' was not allocated using this
+            // allocator, or has already been deallocated.
     };
 //..
 // The constructor is implemented using 'bslma::MallocFreeAllocator'.
 //..
-//  // my_allocator.cpp
-//  // ...
-//
-//  // CREATORS
+    // my_allocator.cpp
+    // ...
+
+    // CREATORS
     my_Allocator::my_Allocator(bslma::Allocator *basicAllocator)
     : d_allocator_p(basicAllocator
                     ? basicAllocator
                     : &bslma::MallocFreeAllocator::singleton())
     {
     }
-//
-//  // ...
+
+    // ...
 //..
 // When the 'basicAllocator' is not specified, the 'bslma::MallocFreeAllocator'
 // will be used - which then calls 'std::malloc' and 'std::free' for allocating
@@ -263,7 +263,6 @@ int main(int argc, char *argv[])
     (void)veryVeryVeryVerbose;   // suppress unused variable warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
-
 
     switch (test) { case 0:
       case 4: {
@@ -429,7 +428,7 @@ int main(int argc, char *argv[])
         //   void deallocate((void *address)  // deallocate 0
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nALLOCATE / DEALLCOATE NULL TEST"
+        if (verbose) printf("\nALLOCATE / DEALLOCATE NULL TEST"
                             "\n===============================\n");
 
         if (verbose) printf("\nCreating allocator\n");
@@ -449,7 +448,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // -----------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //
         // Concerns:
         //   That 'new' and 'delete' are not invoked by the

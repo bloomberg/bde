@@ -176,7 +176,7 @@ void aSsErT(bool condition, const char *message, int line)
                                              // hold
         size_t            d_numValues;       // Length of 'd_values'.
         const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
-        unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+        size_t            d_bucketArrayMask; // Will always be '2^N - 1'.
         HASHER            d_hasher;          // User supplied hashing algorithm
 
       private:
@@ -244,8 +244,8 @@ HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
     size_t bucketArrayLength = 4;
     while (bucketArrayLength < numValues * 4) {
         bucketArrayLength *= 2;
-
     }
+
     d_bucketArrayMask = bucketArrayLength - 1;
     d_bucketArray = new const TYPE *[bucketArrayLength];
     memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
         {
             Obj alg1;
             Obj alg2 = alg1;
-            alg2 = alg2 = alg1;
+            ASSERT(&alg2 == &(alg2 = alg1));
             (void) alg2;
         }
 

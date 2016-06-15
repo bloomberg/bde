@@ -682,20 +682,20 @@ int main(int argc, char *argv[])
                 Uint64 d_input;     // test vector input
                 Uint64 d_expected;  // expected output
             } DATA[] = {
-                //LINE  INPUT                 EXPECTED
-                //----  ----------            ----------
-                { L_,   0x0000000000000000LL, 0x0000000000000000LL },
-                { L_,   0xFFFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFFLL },
-                { L_,   0x1234567890ABCDEFLL, 0xEFCDAB9078563412LL },
-                { L_,   0xEFCDAB9078563412LL, 0x1234567890ABCDEFLL },
-                { L_,   0x8000000000000000LL, 0x0000000000000080LL },
-                { L_,   0x1000000000000000LL, 0x0000000000000010LL },
-                { L_,   0x0800000000000000LL, 0x0000000000000008LL },
-                { L_,   0x0100000000000000LL, 0x0000000000000001LL },
-                { L_,   0x7FFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFF7FLL },
-                { L_,   0xFEFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFFELL },
-                { L_,   0xEFFFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFEFLL },
-                { L_,   0xF7FFFFFFFFFFFFFFLL, 0xFFFFFFFFFFFFFFF7LL },
+                //LINE  INPUT                  EXPECTED
+                //----  ----------             ----------
+                { L_,   0x0000000000000000ULL, 0x0000000000000000ULL },
+                { L_,   0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL },
+                { L_,   0x1234567890ABCDEFULL, 0xEFCDAB9078563412ULL },
+                { L_,   0xEFCDAB9078563412ULL, 0x1234567890ABCDEFULL },
+                { L_,   0x8000000000000000ULL, 0x0000000000000080ULL },
+                { L_,   0x1000000000000000ULL, 0x0000000000000010ULL },
+                { L_,   0x0800000000000000ULL, 0x0000000000000008ULL },
+                { L_,   0x0100000000000000ULL, 0x0000000000000001ULL },
+                { L_,   0x7FFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFF7FULL },
+                { L_,   0xFEFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFEULL },
+                { L_,   0xEFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFEFULL },
+                { L_,   0xF7FFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFF7ULL },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -908,32 +908,32 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LINE  VALUE                 EXPECTED
                 //----  --------------------  --------------------
-                { L_,                      0,                    0 },
-                { L_,   0xff00000000000000LL, 0x00000000000000ffLL },
-                { L_,   0x00ff000000000000LL, 0x000000000000ff00LL },
-                { L_,   0x0000ff0000000000LL, 0x0000000000ff0000LL },
-                { L_,   0x000000ff00000000LL, 0x00000000ff000000LL },
-                { L_,   0x00000000ff000000LL, 0x000000ff00000000LL },
-                { L_,   0x0000000000ff0000LL, 0x0000ff0000000000LL },
-                { L_,   0x000000000000ff00LL, 0x00ff000000000000LL },
-                { L_,   0x00000000000000ffLL, 0xff00000000000000LL },
-                { L_,   0xffffffffffffffffLL, 0xffffffffffffffffLL },
-                { L_,   0x8000000000000000LL, 0x0000000000000080LL },
-                { L_,   0x0100000000000000LL, 0x0000000000000001LL },
-                { L_,   0x0080000000000000LL, 0x0000000000008000LL },
-                { L_,   0x0001000000000000LL, 0x0000000000000100LL },
-                { L_,   0x0000800000000000LL, 0x0000000000800000LL },
-                { L_,   0x0000010000000000LL, 0x0000000000010000LL },
-                { L_,   0x0000008000000000LL, 0x0000000080000000LL },
-                { L_,   0x0000000100000000LL, 0x0000000001000000LL },
-                { L_,   0x0000000080000000LL, 0x0000008000000000LL },
-                { L_,   0x0000000001000000LL, 0x0000000100000000LL },
-                { L_,   0x0000000000800000LL, 0x0000800000000000LL },
-                { L_,   0x0000000000010000LL, 0x0000010000000000LL },
-                { L_,   0x0000000000008000LL, 0x0080000000000000LL },
-                { L_,   0x0000000000000100LL, 0x0001000000000000LL },
-                { L_,   0x0000000000000080LL, 0x8000000000000000LL },
-                { L_,   0x0000000000000001LL, 0x0100000000000000LL },
+                { L_,                    0ULL,                  0ULL },
+                { L_,   0xff00000000000000ULL, 0x00000000000000ffULL },
+                { L_,   0x00ff000000000000ULL, 0x000000000000ff00ULL },
+                { L_,   0x0000ff0000000000ULL, 0x0000000000ff0000ULL },
+                { L_,   0x000000ff00000000ULL, 0x00000000ff000000ULL },
+                { L_,   0x00000000ff000000ULL, 0x000000ff00000000ULL },
+                { L_,   0x0000000000ff0000ULL, 0x0000ff0000000000ULL },
+                { L_,   0x000000000000ff00ULL, 0x00ff000000000000ULL },
+                { L_,   0x00000000000000ffULL, 0xff00000000000000ULL },
+                { L_,   0xffffffffffffffffULL, 0xffffffffffffffffULL },
+                { L_,   0x8000000000000000ULL, 0x0000000000000080ULL },
+                { L_,   0x0100000000000000ULL, 0x0000000000000001ULL },
+                { L_,   0x0080000000000000ULL, 0x0000000000008000ULL },
+                { L_,   0x0001000000000000ULL, 0x0000000000000100ULL },
+                { L_,   0x0000800000000000ULL, 0x0000000000800000ULL },
+                { L_,   0x0000010000000000ULL, 0x0000000000010000ULL },
+                { L_,   0x0000008000000000ULL, 0x0000000080000000ULL },
+                { L_,   0x0000000100000000ULL, 0x0000000001000000ULL },
+                { L_,   0x0000000080000000ULL, 0x0000008000000000ULL },
+                { L_,   0x0000000001000000ULL, 0x0000000100000000ULL },
+                { L_,   0x0000000000800000ULL, 0x0000800000000000ULL },
+                { L_,   0x0000000000010000ULL, 0x0000010000000000ULL },
+                { L_,   0x0000000000008000ULL, 0x0080000000000000ULL },
+                { L_,   0x0000000000000100ULL, 0x0001000000000000ULL },
+                { L_,   0x0000000000000080ULL, 0x8000000000000000ULL },
+                { L_,   0x0000000000000001ULL, 0x0100000000000000ULL },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

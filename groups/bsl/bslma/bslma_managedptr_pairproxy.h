@@ -16,13 +16,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_managedptr
 //
-//@DESCRIPTION: This component provides a class that can be used to create a
-// 'bsl::pair' with the same arguments.  It is provided in order to support a
-// (deprecated) legacy API in 'ManagedPtr' as part of the transition from the
-// 'bdema' package to 'bslma'.  After the transition, the component is lower in
-// the package group levelization than 'bsl::pair', so we instead return a type
-// that will be implicitly convertible to 'pair'.  Note that this implies
-// adding an implicit constructor to 'bsl::pair'.
+//@DESCRIPTION: This component provides a class, 'bslma::ManagedPtr_PairProxy',
+// that can be used to create a 'bsl::pair' with the same arguments.  It is
+// provided in order to support a (deprecated) legacy API in 'ManagedPtr' as
+// part of the transition from the 'bdema' package to 'bslma'.  After the
+// transition, the component is lower in the package group levelization than
+// 'bsl::pair', so we instead return a type that will be implicitly convertible
+// to 'pair'.  Note that this implies adding an implicit constructor to
+// 'bsl::pair'.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -57,7 +58,7 @@ struct ManagedPtr_PairProxy {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                     // --------------------------

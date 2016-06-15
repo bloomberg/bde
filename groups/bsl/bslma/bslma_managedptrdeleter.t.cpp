@@ -300,13 +300,13 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static intialization locekd the global allocator
+    // Confirm no static initialization locked the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    // Confirm no static intialization locked the default allocator
+    // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
@@ -1132,8 +1132,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative Testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             //if (veryVerbose) printf("\t'timeout'\n");
             //{
@@ -1267,8 +1266,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative Testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Obj obj;
 

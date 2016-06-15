@@ -22,10 +22,13 @@ const std::size_t bsl::Function_Rep::k_NON_SOO_SMALL_SIZE;
 #endif
 
 void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
-                                 Allocator        *alloc,
+                                 Allocator        *basicAllocator,
                                  integral_constant<AllocCategory,
                                                    e_BSLMA_ALLOC_PTR>)
 {
+    // If 'alloc' is null, use the default allocator.
+    Allocator *alloc = BloombergLP::bslma::Default::allocator(basicAllocator);
+
     void *function_p;
     if (sooFuncSize <= sizeof(InplaceBuffer)) {
         function_p = &d_objbuf;
@@ -154,7 +157,8 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
-void bsl::Function_Rep::assign(Function_Rep *rhs_p, ManagerOpCode moveOrCopy)
+void bsl::Function_Rep::assignRep(ManagerOpCode  moveOrCopy, 
+                                  Function_Rep  *rhs_p)
 {
     Function_Rep tempRep;
 

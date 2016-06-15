@@ -1,8 +1,7 @@
 // bsltf_templatetestfacility.t.cpp                                   -*-C++-*-
 #include <bsltf_templatetestfacility.h>
 
-#include <bslalg_scalardestructionprimitives.h>
-
+#include <bslma_destructionutil.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -43,6 +42,8 @@ using namespace BloombergLP::bsltf;
 // [ 7] void debugprint(const UnionTestType& obj);
 // [ 7] void debugprint(const SimpleTestType& obj);
 // [ 7] void debugprint(const AllocTestType& obj);
+// [ 7] void debugprint(const MovableAllocTestType& obj);
+// [ 7] void debugprint(const MoveOnlyAllocTestType& obj);
 // [ 7] void debugprint(const BitwiseMoveableTestType& obj);
 // [ 7] void debugprint(const AllocBitwiseMoveableTestType& obj);
 // [ 7] void debugprint(const NonTypicalOverloadsTestType& obj);
@@ -343,7 +344,7 @@ void MyTestDriver<TYPE>::testCase2()
 
     if (verbose) printf("\nTesting primary manipulators.\n");
 
-    for (size_t ti = 0; ti < 10; ++ti) {
+    for (int ti = 0; ti != 10; ++ti) {
 
         if (veryVerbose) { T_ P(ti) }
 
@@ -587,6 +588,8 @@ BSLTF_TTF_TEST4_SPECIALIZE(EnumeratedTestType::Enum, 5)
 BSLTF_TTF_TEST4_SPECIALIZE(UnionTestType, 6)
 BSLTF_TTF_TEST4_SPECIALIZE(SimpleTestType, 7)
 BSLTF_TTF_TEST4_SPECIALIZE(AllocTestType, 8)
+BSLTF_TTF_TEST4_SPECIALIZE(MovableAllocTestType, 8)
+BSLTF_TTF_TEST4_SPECIALIZE(MoveOnlyAllocTestType, 8)
 BSLTF_TTF_TEST4_SPECIALIZE(BitwiseMoveableTestType, 9)
 BSLTF_TTF_TEST4_SPECIALIZE(AllocBitwiseMoveableTestType, 10)
 BSLTF_TTF_TEST4_SPECIALIZE(NonTypicalOverloadsTestType, 11)
@@ -651,7 +654,7 @@ void TestHelper<TYPE>::test6Helper()
 
         ASSERTV(ti, value, ti == value);
 
-        bslalg::ScalarDestructionPrimitives::destroy(address);
+        bslma::DestructionUtil::destroy(address);
     }
 
     ASSERTV(defaultAllocator.numBlocksTotal(),
@@ -770,6 +773,8 @@ int main(int argc, char *argv[])
         //   void debugprint(const UnionTestType& obj);
         //   void debugprint(const SimpleTestType& obj);
         //   void debugprint(const AllocTestType& obj);
+        //   void debugprint(const MovableAllocTestType& obj);
+        //   void debugprint(const MoveOnlyAllocTestType& obj);
         //   void debugprint(const BitwiseMoveableTestType& obj);
         //   void debugprint(const AllocBitwiseMoveableTestType& obj);
         //   void debugprint(const NonTypicalOverloadsTestType& obj);
@@ -797,6 +802,12 @@ int main(int argc, char *argv[])
         NonDefaultConstructibleTestType o8 =
               TemplateTestFacility::create<NonDefaultConstructibleTestType>(8);
 
+        MovableAllocTestType o9 =
+                         TemplateTestFacility::create<MovableAllocTestType>(9);
+
+        // MoveOnlyAllocTestType o10 =
+                     // TemplateTestFacility::create<MoveOnlyAllocTestType>(10);
+
         debugprint(o1);
         debugprint(o2);
         debugprint(o3);
@@ -805,6 +816,7 @@ int main(int argc, char *argv[])
         debugprint(o6);
         debugprint(o7);
         debugprint(o8);
+        debugprint(o9);
 
         BSLS_BSLTESTUTIL_P(o1);
         BSLS_BSLTESTUTIL_P(o2);

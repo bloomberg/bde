@@ -1537,8 +1537,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -1691,8 +1690,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -1944,8 +1942,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt64(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -1973,8 +1970,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint64(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2224,8 +2220,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt56(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2253,8 +2248,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint56(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2505,8 +2499,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt48(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2534,8 +2527,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint48(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2786,8 +2778,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt40(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -2815,8 +2806,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint40(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3066,8 +3056,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt32(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3094,8 +3083,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint32(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3346,8 +3334,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt24(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3374,8 +3361,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint24(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3626,8 +3612,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt16(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -3654,8 +3639,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint16(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -4099,8 +4083,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -4127,8 +4110,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -4156,8 +4138,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -4184,8 +4165,7 @@ if (veryVerbose) {
             Out o(&b, VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             {
                 Obj mX(&b);
@@ -5988,8 +5968,7 @@ if (veryVerbose) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             ASSERT_SAFE_PASS(Obj mX(&mB));

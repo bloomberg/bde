@@ -74,8 +74,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -94,6 +98,14 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_CSTRING
 #include <cstring>
 #define INCLUDED_CSTRING
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #endif
 
 namespace bsl {
@@ -197,9 +209,7 @@ template <class TYPE>
 struct identity : public std::unary_function<TYPE, TYPE>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                identity,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(identity, bsl::is_trivially_copyable);
 
     // ACCESSORS
     const TYPE& operator()(const TYPE& x) const
@@ -216,9 +226,7 @@ template <class PAIR>
 struct select1st : public std::unary_function<PAIR, typename PAIR::first_type>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                select1st,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(select1st, bsl::is_trivially_copyable);
 
     // ACCESSORS
     const typename PAIR::first_type& operator()(const PAIR& x) const
@@ -235,9 +243,7 @@ template <class PAIR>
 struct select2nd : public std::unary_function<PAIR, typename PAIR::second_type>
 {
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                select2nd,
-                                BloombergLP::bslalg::TypeTraitBitwiseCopyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(select2nd, bsl::is_trivially_copyable);
 
     // ACCESSORS
     const typename PAIR::second_type& operator()(const PAIR& x) const
@@ -282,6 +288,10 @@ struct StringComparator
     // This class is a functor that provides comparison between two
     // 'const char *' strings.
 {
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StringComparator,
+                                   bsl::is_trivially_copyable);
+
     // ACCESSORS
     bool operator()(const char *a, const char *b) const
         // Return 'true' if the specified strings 'a' and 'b' have the same

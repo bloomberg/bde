@@ -16,10 +16,11 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_managedptr
 //
-//@DESCRIPTION: This component provides a class to store and manage the
-// internal state of a 'bslma::ManagedPtr' object.  It enforces the rules for
-// correct transfer of ownership from one 'bslma::ManagedPtr_Members' object to
-// another.  A 'bslma::ManagedPtr' object has two attributes:
+//@DESCRIPTION: This component provides a class, 'bslma::ManagedPtr_Members',
+// to store and manage the internal state of a 'bslma::ManagedPtr' object.  It
+// enforces the rules for correct transfer of ownership from one
+// 'bslma::ManagedPtr_Members' object to another.  A
+// 'bslma::ManagedPtr_Members' object has two attributes:
 //..
 //  pointer   The address of the object being managed
 //  deleter   The address of a function used to destroy the object at 'pointer'
@@ -159,7 +160,7 @@ class ManagedPtr_Members {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                     // ------------------------

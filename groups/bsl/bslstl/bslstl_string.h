@@ -34,10 +34,10 @@ BSLS_IDENT("$Id: $")
 // random access iterators as specified in the [basic.string] section of the
 // C++ standard [21.4].  The 'basic_string' implemented here adheres to the
 // C++11 standard, except that it does not have interfaces that take rvalue
-// references or 'initializer_lists', the 'shrink_to_fit' method,and template
-// specializations 'std::u16string' and 'std::u32string'.  Note that excluded
-// C++11 features are those that require (or are greatly simplified by) C++11
-// compiler support.
+// references, the 'shrink_to_fit' method, and template specializations
+// 'std::u16string' and 'std::u32string'.  Note that excluded C++11 features
+// are those that require (or are greatly simplified by) C++11 compiler
+// support.
 //
 ///Memory Allocation
 ///-----------------
@@ -576,10 +576,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
 #endif
@@ -614,6 +610,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -687,6 +687,13 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifndef INCLUDED_INITIALIZER_LIST
+#include <initializer_list>
+#define INCLUDED_INITIALIZER_LIST
+#endif
 #endif
 
 #ifndef INCLUDED_ISTREAM
@@ -1454,6 +1461,16 @@ class basic_string
         // used to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    basic_string(std::initializer_list<CHAR_TYPE> values,
+                 const ALLOCATOR&                 basicAllocator =
+                                                                  ALLOCATOR());
+        // Create a string and insert (in order) each 'CHAR_TYPE' object in the
+        // specified 'values' initializer list.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, then a default-constructed allocator is used.
+#endif
+
     ~basic_string();
         // Destroy this string object.
 
@@ -1480,6 +1497,13 @@ class basic_string
         // Assign to this string the value of the string of length one
         // consisting of the specified 'character', and return a reference
         // providing modifiable access to this object.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    basic_string& operator=(std::initializer_list<CHAR_TYPE> values);
+        // Assign to this string the value resulting from first clearing this
+        // string and then inserting (in order) each 'CHAR_TYPE' object in the
+        // specified 'values' initializer list.
+#endif
 
                           // *** 21.3.4 capacity: ***
 
@@ -1671,6 +1695,14 @@ class basic_string
         // behavior is undefined unless 'first' and 'last' refer to a sequence
         // of valid values where 'first' is at a position at or before 'last'.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    basic_string& assign(std::initializer_list<CHAR_TYPE> values);
+        // Assign to this string the value resulting from first clearing this
+        // string and then inserting (in order) each 'CHAR_TYPE' object in the
+        // specified 'values' initializer list.  Return a reference providing
+        // modifiable access to this string.
+#endif
+
     basic_string& insert(size_type position, const basic_string& other);
         // Insert at the specified 'position' in this string a copy of the
         // specified 'other' string, and return a reference providing
@@ -1742,6 +1774,19 @@ class basic_string
         // valid iterator on this string, and 'first' and 'last' refer to a
         // sequence of valid values where 'first' is at a position at or before
         // 'last'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    iterator insert(const_iterator                   position,
+                    std::initializer_list<CHAR_TYPE> values);
+        // Insert at the specified 'position' in this string each 'CHAR_TYPE'
+        // object in the specified 'values' initializer list and return an
+        // iterator to the first newly inserted element.  If an exception is
+        // thrown (other than by the copy constructor, move constructor,
+        // assignment operator, and move assignment operator of 'CHAR_TYPE'),
+        // '*this' is unaffected.  The behavior is undefined unless 'position'
+        // is an iterator in the range '[begin() .. end()]' (both endpoints
+        // included).
+#endif
 
     basic_string& erase(size_type position = 0, size_type numChars = npos);
         // Erase from this string the substring of length the optionally
@@ -2170,7 +2215,7 @@ class basic_string
 
     basic_string substr(size_type position = 0,
                         size_type numChars = npos) const;
-        // Return a string whose value is the substring  starting at the
+        // Return a string whose value is the substring starting at the
         // optionally specified 'position' in this string, of length the
         // optionally specified 'numChars' or 'length() - position', whichever
         // is smaller.  If 'position' is not specified, 0 is used (i.e., the
@@ -2522,87 +2567,87 @@ long double stold(const wstring& str, std::size_t* pos =0);
     // and interprets as many characters possible to form a valid floating
     // point number.  If no conversion could be performed, then an
     // 'invalid_argument' exception is thrown.  If the value read is out of
-    // range of the return type, then an out_of_range exception is thrown.
+    // range of the return type, then an 'out_of_range' exception is thrown.
 
 string to_string(int value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%d", value)' would produce with a sufficiently large
+    // 'std::sprintf(buf, "%d", value)' would produce with a sufficiently large
     // buffer.
 string to_string(long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%ld", value)' would produce with a sufficiently large
-    // buffer.
+    // 'std::sprintf(buf, "%ld", value)' would produce with a sufficiently
+    // large buffer.
 string to_string(long long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%lld", value)' would produce with a sufficiently
+    // 'std::sprintf(buf, "%lld", value)' would produce with a sufficiently
     // large buffer.
 string to_string(unsigned value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%u", value)' would produce with a sufficiently large
+    // 'std::sprintf(buf, "%u", value)' would produce with a sufficiently large
     // buffer.
 string to_string(unsigned long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%lu", value)' would produce with a sufficiently large
-    // buffer.
+    // 'std::sprintf(buf, "%lu", value)' would produce with a sufficiently
+    // large buffer.
 string to_string(unsigned long long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::sprintf(buf,"%llu", value)' would produce with a sufficiently
+    // 'std::sprintf(buf, "%llu", value)' would produce with a sufficiently
     // large buffer.
 string to_string(float value);
 string to_string(double value);
     // converts a floating point value to a string with the same contents as
-    // what 'std::sprintf(buf, "%f", value)' would produce for a suficiently
+    // what 'std::sprintf(buf, "%f", value)' would produce for a sufficiently
     // large buffer.
 string to_string(long double value);
     // converts a floating point value to a string with the same contents as
-    // what 'std::sprintf(buf, "%Lf", value)' would produce for a suficiently
+    // what 'std::sprintf(buf, "%Lf", value)' would produce for a sufficiently
     // large buffer.
 
 wstring to_wstring(int value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%d", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%d", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%ld", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%ld", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(long long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%lld", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%lld", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(unsigned value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%u", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%u", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(unsigned long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%lu", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%lu", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(unsigned long long value);
-    // Constructs a string with contents equal to the specified 'value'. The
+    // Constructs a string with contents equal to the specified 'value'.  The
     // contents of the string will be the same as what
-    // 'std::swprintf(buf,L"%llu", value)' would produce with a sufficiently
+    // 'std::swprintf(buf, L"%llu", value)' would produce with a sufficiently
     // large buffer.
 wstring to_wstring(float value);
 wstring to_wstring(double value);
     // converts a floating point value to a string with the same contents as
     // what 'std::sprintf(buf, sz, L"%f", value)' would produce for a
-    // suficiently large buffer.
+    // sufficiently large buffer.
 wstring to_wstring(long double value);
     // converts a floating point value to a string with the same contents as
     // 'what std::sprintf(buf, sz, L"%Lf", value)' would produce for a
-    // suficiently large buffer.
+    // sufficiently large buffer.
 
 enum MaxDecimalStringLengths{
     // This 'enum' give upper bounds on the maximum string lengths storing each
@@ -3580,7 +3625,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     if (!this->isShortString()) {
-        // Copy out-of-plsce string into either short buffer or new long
+        // Copy out-of-place string into either short buffer or new long
         // buffer, according to size.
 
         privateCopyFromOutOfPlaceBuffer(original);
@@ -3710,6 +3755,19 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(strRef.begin(), strRef.end());
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+                               std::initializer_list<CHAR_TYPE> values,
+                               const ALLOCATOR&                 basicAllocator)
+: Imp()
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+{
+    privateInitDispatch(values.begin(), values.end());
+}
+#endif
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
@@ -3761,6 +3819,22 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 {
     return assign(1, character);
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
+                                       std::initializer_list<CHAR_TYPE> values)
+{
+    return privateReplaceDispatch(0,
+                                  this->d_length,
+                                  values.begin(),
+                                  values.end(),
+                                  values.begin(),
+                                  BloombergLP::bslmf::Nil());
+}
+#endif
 
                       // *** 21.3.4 capacity: ***
 
@@ -4166,6 +4240,21 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                   first,
                                   BloombergLP::bslmf::Nil());
 }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
+                                       std::initializer_list<CHAR_TYPE> values)
+{
+    return privateReplaceDispatch(0,
+                                  this->d_length,
+                                  values.begin(),
+                                  values.end(),
+                                  values.begin(),
+                                  BloombergLP::bslmf::Nil());
+}
+#endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -4319,6 +4408,23 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     insert(pos, numChars, character);
     return begin() + pos;
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
+                                     const_iterator                   position,
+                                     std::initializer_list<CHAR_TYPE> values)
+{
+    BSLS_ASSERT_SAFE(position >= cbegin());
+    BSLS_ASSERT_SAFE(position <= cend());
+
+    size_type pos = position - cbegin();
+    privateInsertDispatch(position, values.begin(), values.end());
+    return begin() + pos;
+}
+#endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&

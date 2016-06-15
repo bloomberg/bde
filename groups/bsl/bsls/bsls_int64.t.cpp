@@ -566,8 +566,6 @@ int main(int argc, char *argv[]) {
             << "Testing ." << endl
             << "====================================================" << endl;
 
-        typedef bsls_Int64 I64;
-
         if (verbose) cout << " " << endl;
 
       } break;

@@ -185,7 +185,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter) : d_counter_p(counter) {}
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
         // Create this object and initialize it with the address of the
         // specified 'counter' to be held.
 
@@ -307,9 +307,9 @@ class my_Array2 {
                           // 'd_size'
     };
 
-    static int nextSize(int size);
-
     static int calculateSufficientSize(int minLength, int size);
+
+    static int nextSize(int size);
 
     static void reallocate(TYPE             ***array,
                            int                *size,
@@ -320,14 +320,14 @@ class my_Array2 {
     void increaseSize();
 
   public:
-    my_Array2(bslma::Allocator *basicAllocator = 0);
+    explicit my_Array2(bslma::Allocator *basicAllocator = 0);
     ~my_Array2();
 
     void append(const TYPE& item);
     void insert(int dstIndext, const my_Array2<TYPE>& srcArray);
 
-    int length() const                      { return d_length; }
     const TYPE& operator[](int index) const { return *d_array_p[index];}
+    int length() const                      { return d_length; }
 };
 
 // DEBUG SUPPORT
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 5: {
         // --------------------------------------------------------------------
-        // USAGE TEST
+        // USAGE EXAMPLE
         //   Create a 'my_Array2' array parameterized with 'my_String' and
         //   initialized with a 'my_MallocFreeAllocator'.  Invoke its 'append'
         //   method with varying values and verify that the resulting array
@@ -699,8 +699,8 @@ int main(int argc, char *argv[])
         //   behavior when one or more proctored elements are null
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nNULL-ELEMENT TEST"
-                            "\n=================\n");
+        if (verbose) printf("\nEXPLICIT NULL-ELEMENT TEST"
+                            "\n==========================\n");
 
         const int NUM_ELEM = 5;
 
@@ -1166,11 +1166,11 @@ int main(int argc, char *argv[])
 
             const int NUM_TEST = sizeof DATA / sizeof *DATA;
             for (int i = 0; i < NUM_TEST; ++i) {
-                const int  LINE = DATA[i].d_line;
-                const int *A1   = DATA[i].d_array1;
-                const int *A2   = DATA[i].d_array2;
-                const int  LEN  = DATA[i].d_length;
-                const int  EXP  = DATA[i].d_exp;
+                const int   LINE = DATA[i].d_line;
+                const int  *A1   = DATA[i].d_array1;
+                const int  *A2   = DATA[i].d_array2;
+                const int   LEN  = DATA[i].d_length;
+                const bool  EXP  = DATA[i].d_exp;
                 if (veryVerbose) {
                     T_ P_(i); P_(LEN); PA_(A1, SZ); PA(A2, SZ);
                 }

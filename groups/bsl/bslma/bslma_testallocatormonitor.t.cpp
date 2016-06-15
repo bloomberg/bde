@@ -49,7 +49,7 @@ using namespace BloombergLP;
 // [ 2] ~bslma::TestAllocatorMonitor();
 //
 // MANIPULATORS
-// [ 4] void reset(const bslma::TestAllocator *);
+// [ 4] void reset(const TestAllocator *testAllocator = 0);
 //
 // ACCESSORS
 // [ 3] bool isInUseDown() const;
@@ -542,7 +542,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING: reset
+        // TESTING 'reset'
         //   This case tests that the state of the monitor can be correctly
         //   updated with the 'reset' function.
         //
@@ -556,11 +556,11 @@ int main(int argc, char *argv[])
         //:   'reset' is called.
         //
         // Testing:
-        //   void reset();
+        //   void reset(const TestAllocator *testAllocator = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING: reset"
-                            "\n==============\n");
+        if (verbose) printf("\nTESTING 'reset'"
+                            "\n===============\n");
 
         Ta oa;
         void *ptrs[10];
@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // ACCESSORS
+        // TESTING ACCESSORS
         //   This case tests that the monitor captures the correct allocator
         //   statistics on construction and compares those to the correct
         //   allocator statistics over its lifetime.
@@ -709,8 +709,8 @@ int main(int argc, char *argv[])
         //   bool isTotalUp() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nACCESSORS"
-                            "\n=========\n");
+        if (verbose) printf("\nTESTING ACCESSORS"
+                            "\n=================\n");
 
         if (veryVerbose) printf("\tSetup Test Allocator and Monitor.\n");
 
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CTOR and DTOR
+        // TESTING CONSTRUCTOR AND DESTRUCTOR
         //   Ensure that we can use the constructor to create a object that
         //   monitors the intended test allocator, and use the destructor to
         //   destroy it safely.
@@ -943,8 +943,8 @@ int main(int argc, char *argv[])
         //   ~bslma::TestAllocatorMonitor();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCTOR & DTOR"
-                            "\n===========\n");
+        if (verbose) printf("\nTESTING CONSTRUCTOR AND DESTRUCTOR"
+                            "\n==================================\n");
 
         if (verbose) printf("\nCtor, Associated Ta, & Dtor.\n");
         {
@@ -1023,8 +1023,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative Testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             if (veryVerbose) printf("\t'constructor'\n");
             {

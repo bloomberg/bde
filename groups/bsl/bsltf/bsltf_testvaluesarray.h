@@ -148,12 +148,12 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_templatetestfacility.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
-#include <bslma_mallocfreeallocator.h>
+#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
+#include <bsls_alignmentutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -181,7 +181,7 @@ namespace BloombergLP
 namespace bsltf
 {
 
-template <class VALUE>
+template <class VALUE, class ALLOCATOR>
 struct TestValuesArray_DefaultConverter;
 
 template <class VALUE>
@@ -305,15 +305,18 @@ bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
                        // ====================
 
 template <class VALUE,
-          class CONVERTER = TestValuesArray_DefaultConverter<VALUE> >
-class TestValuesArray {
+          class ALLOCATOR = bsl::allocator<VALUE>,
+          class CONVERTER =
+              TestValuesArray_DefaultConverter<VALUE, ALLOCATOR> >
+class TestValuesArray
+{
     // This class provide a container to store values of the parameterized
     // 'VALUE', and also provide the iterators to access the values.  The
     // iterators are designed to conform to a standard input iterator, and will
     // report any misuse of the iterator.
 
     // DATA
-    bslma::Allocator *d_allocator_p;      // allocator (held, not owned)
+    ALLOCATOR         d_allocator;        // allocator (held, not owned)
 
     VALUE            *d_data;             // pointer to memory storing the
                                           // values (owned)
@@ -334,8 +337,15 @@ class TestValuesArray {
     TestValuesArray& operator=(const TestValuesArray&);
 
   private:
+    // TYPES
+    typedef typename bsl::allocator_traits<ALLOCATOR>::template
+            rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
+    typedef typename AllocatorTraits::allocator_type AllocatorType;
+    typedef typename AllocatorTraits::size_type size_type;
+
     // PRIVATE MANIPULATOR
-    void initialize(const char *spec, bslma::Allocator *basicAllocator);
+    void initialize(const char *spec);
+        // TBD: fix comment
         // Initialize this object with the specified 'spec' using the specified
         // 'basicAllocator' to supply memory.
 
@@ -345,9 +355,10 @@ class TestValuesArray {
 
   public:
     // CREATORS
-    explicit TestValuesArray(bslma::Allocator *basicAllocator = 0);
-    explicit TestValuesArray(const char      *spec,
-                             bslma::Allocator *basicAllocator = 0);
+    explicit TestValuesArray();
+    explicit TestValuesArray(ALLOCATOR basicAllocator);
+    explicit TestValuesArray(const char *spec);
+    explicit TestValuesArray(const char *spec, ALLOCATOR basicAllocator);
         // Create a 'TestValuesArray' object.  Optionally, specify 'spec' to
         // indicate the values this object should contain, where the values are
         // created by invoking the 'bsltf::TemplateTestFacility::create' method
@@ -389,11 +400,11 @@ class TestValuesArray {
                        // class TestValuesArray_DefaultConverter
                        // ======================================
 
-template <class VALUE>
+template <class VALUE, class ALLOCATOR>
 struct TestValuesArray_DefaultConverter {
     // CLASS METHODS
     static
-    void createInplace(VALUE *objPtr, char value, bslma::Allocator *allocator);
+    void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
 };
 
                        // ======================================
@@ -573,12 +584,12 @@ namespace bsltf
                        // class TestValuesArray_DefaultConverter
                        // --------------------------------------
 
-template <class VALUE>
+template <class VALUE, class ALLOCATOR>
 inline
-void TestValuesArray_DefaultConverter<VALUE>::createInplace(
-                                                   VALUE            *objPtr,
-                                                   char              value,
-                                                   bslma::Allocator *allocator)
+void TestValuesArray_DefaultConverter<VALUE, ALLOCATOR>::createInplace(
+                                                          VALUE     *objPtr,
+                                                          char       value,
+                                                          ALLOCATOR  allocator)
 {
     bsltf::TemplateTestFacility::emplace(objPtr, value, allocator);
 }
@@ -588,61 +599,92 @@ void TestValuesArray_DefaultConverter<VALUE>::createInplace(
                        // --------------------
 
 // CREATORS
-template <class VALUE, class CONVERTER>
-TestValuesArray<VALUE, CONVERTER>::TestValuesArray(
-                                              bslma::Allocator *basicAllocator)
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray()
+: d_allocator(bsl::allocator<VALUE>(&bslma::MallocFreeAllocator::singleton()))
 {
     static const char DEFAULT_SPEC[] =
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-    initialize(DEFAULT_SPEC, basicAllocator);
+    initialize(DEFAULT_SPEC);
 }
-
-template <class VALUE, class CONVERTER>
-inline
-TestValuesArray<VALUE, CONVERTER>::TestValuesArray(
-                                              const char       *spec,
-                                              bslma::Allocator *basicAllocator)
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
+                                                      ALLOCATOR basicAllocator)
+: d_allocator(basicAllocator)
 {
-    initialize(spec, basicAllocator);
+    static const char DEFAULT_SPEC[] =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    initialize(DEFAULT_SPEC);
 }
 
-template <class VALUE, class CONVERTER>
-TestValuesArray<VALUE, CONVERTER>::~TestValuesArray()
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+inline
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(const char *spec)
+: d_allocator(bsl::allocator<VALUE>(&bslma::MallocFreeAllocator::singleton()))
+{
+    initialize(spec);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+inline
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
+                                                    const char *spec,
+                                                    ALLOCATOR   basicAllocator)
+: d_allocator(basicAllocator)
+{
+    initialize(spec);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::~TestValuesArray()
 {
     // Optimization - we should run the loop only if the VALUE type has a
     // non-trivial destructor.  Surely we have code for this in 'bslalg'?
 
     for (size_t i = 0; i < d_size; ++i) {
-        d_data[i].~VALUE();
+        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_data + i);
     }
-    d_allocator_p->deallocate(d_data);
+    size_type numBytes = static_cast<size_type>(
+                     d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
+    size_type numMaxAlignedType =
+                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    AllocatorType alignAlloc(d_allocator);
+    AllocatorTraits::deallocate(
+        alignAlloc,
+        reinterpret_cast<bsls::AlignmentUtil::MaxAlignedType *>(
+                                             reinterpret_cast<void *>(d_data)),
+        numMaxAlignedType);
+        // The redundant cast to 'void *' persuades gcc/Solaris that there are
+        // no alignment issues to warn about.
 }
 
 // PRIVATE MANIPULATORS
-template <class VALUE, class CONVERTER>
-void TestValuesArray<VALUE, CONVERTER>::initialize(
-                                              const char       *spec,
-                                              bslma::Allocator *basicAllocator)
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::initialize(const char *spec)
 {
     BSLS_ASSERT_OPT(spec);
 
     d_size = strlen(spec);
 
-    d_allocator_p = basicAllocator
-                  ? basicAllocator
-                  : &bslma::MallocFreeAllocator::singleton();
-
     // Allocate all memory in one go.
 
-    d_data = reinterpret_cast<VALUE *>(d_allocator_p->allocate(
-                    d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool)));
+    size_type numBytes = static_cast<size_type>(
+                     d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
+    size_type numMaxAlignedType =
+                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+    AllocatorType alignAlloc(d_allocator);
+    d_data = reinterpret_cast<VALUE *>(AllocatorTraits::allocate(
+        alignAlloc, numMaxAlignedType));
 
     d_dereferenceable = reinterpret_cast<bool *>(d_data + d_size);
     d_validIterator = d_dereferenceable + d_size + 1;
 
     for (int i = 0; '\0' != spec[i]; ++i) {
-        CONVERTER::createInplace(d_data + i, spec[i], d_allocator_p);
+        CONVERTER::createInplace(d_data + i, spec[i], d_allocator);
     }
 
     memset(d_dereferenceable, true, d_size * sizeof(bool));
@@ -651,10 +693,10 @@ void TestValuesArray<VALUE, CONVERTER>::initialize(
 }
 
 // MANIPULATORS
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-typename TestValuesArray<VALUE, CONVERTER>::iterator
-TestValuesArray<VALUE, CONVERTER>::begin()
+typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::begin()
 {
     return iterator(data(),
                     data() + d_size,
@@ -662,10 +704,10 @@ TestValuesArray<VALUE, CONVERTER>::begin()
                     d_validIterator);
 }
 
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-typename TestValuesArray<VALUE, CONVERTER>::iterator
-TestValuesArray<VALUE, CONVERTER>::index(size_t value)
+typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::index(size_t value)
 {
     BSLS_ASSERT_OPT(value <= size());
 
@@ -675,10 +717,10 @@ TestValuesArray<VALUE, CONVERTER>::index(size_t value)
                     d_validIterator + value);
 }
 
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-typename TestValuesArray<VALUE, CONVERTER>::iterator
-TestValuesArray<VALUE, CONVERTER>::end()
+typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::end()
 {
     return iterator(data() + d_size,
                     data() + d_size,
@@ -686,8 +728,8 @@ TestValuesArray<VALUE, CONVERTER>::end()
                     d_validIterator + d_size);
 }
 
-template <class VALUE, class CONVERTER>
-void TestValuesArray<VALUE, CONVERTER>::resetIterators()
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::resetIterators()
 {
     memset(d_dereferenceable, 1, d_size * sizeof(bool));
     d_dereferenceable[d_size] = false;
@@ -695,23 +737,24 @@ void TestValuesArray<VALUE, CONVERTER>::resetIterators()
 }
 
 // ACCESSORS
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-const VALUE *TestValuesArray<VALUE, CONVERTER>::data() const
+const VALUE *TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::data() const
 {
     return d_data;
 }
 
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-const VALUE& TestValuesArray<VALUE, CONVERTER>::operator[](size_t index) const
+const VALUE& TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::
+operator[](size_t index) const
 {
     return data()[index];
 }
 
-template <class VALUE, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER>
 inline
-size_t TestValuesArray<VALUE, CONVERTER>::size() const
+size_t TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::size() const
 {
     return d_size;
 }

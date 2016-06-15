@@ -1,28 +1,38 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
-
 #include <bslstl_pair.h>
 
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_isbitwisemoveable.h>
-#include <bslmf_isbitwiseequalitycomparable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslma_usesbslmaallocator.h>
 #include <bslma_allocator.h>
+#include <bslma_allocatortraits.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_managedptr.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_isintegral.h>
 #include <bslmf_issame.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_usesallocatorargt.h>
 
-#include <stdio.h>       // printf
-#include <stdlib.h>      // atoi
-#include <string.h>      // strcmp
+#include <bsls_bsltestutil.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movestate.h>
+#include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
 
-#include <algorithm>
+#include <stddef.h>
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strcmp'
+
+#include <algorithm>    // 'std::swap'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -46,81 +56,124 @@ using namespace bsl;
 // to do more exhaustive tests on the relationship operators because they are
 // simple pass-through operations and the only thing we are protecting against
 // are typos.
+//
+// TBD: we need to add test cases for a bunch of new methods that were added
+//      for the cpp11 project -- have added them to the plan below but have
+//      not yet created the test cases.
 //-----------------------------------------------------------------------------
-// [2] typedef T1 first_type;
-// [2] typedef T2 second_type;
-// [2] T1 first;
-// [2] T1 second;
-// [2] pair();
-// [2] pair(bslma::Allocator *alloc);
-// [2] pair(const T1& a, const T2& b);
-// [2] pair(const T1& a, const T2& b, bslma::Allocator *alloc);
-// [2] pair(const pair& rhs);
-// [2] pair(const pair& rhs, bslma::Allocator *alloc);
-// [2] ~pair();
-// [2] pair& operator=(const pair& rhs);
-// [2] bool operator==(const pair& x, const pair& y);
-// [2] bool operator!=(const pair& x, const pair& y);
-// [2] bool operator<(const pair& x, const pair& y);
-// [2] bool operator>(const pair& x, const pair& y);
-// [2] bool operator<=(const pair& x, const pair& y);
-// [2] bool operator>=(const pair& x, const pair& y);
-// [3] Type Traits
-// [4] template <typename U1, typename U2>
-//     pair(const pair<U1, U2>& rhs);
-// [4] template <typename U1, typename U2>
-//     pair(const pair<U1, U2>& rhs, bslma::Allocator *alloc);
-// [5] void pair::swap(pair& rhs);
-// [5] void swap(pair& lhs, pair& rhs);
-// [7] Pointer to member test
-// [8] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
+// [ 2] typedef T1 first_type;
+// [ 2] typedef T2 second_type;
+// [ 2] T1 first;
+// [ 2] T1 second;
+// [ 2] pair();
+// [ 2] pair(AllocatorPtr basicAllocator);
+// [ 2] pair(const T1& a, const T2& b);
+// [ 2] pair(const T1& a, const T2& b, AllocatorPtr basicAllocator);
+// [11] template <class U1, class U2> pair(U1&& a, U2&& b);
+// [11] template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
+// [11] template <class U1, class U2> pair(const U1&, const U2&);
+// [11] template <class U1, class U2> pair(const U1&, const U2&, AllocatorPtr);
+// [11] template <class U1, class U2> pair(U1&, const U2&);
+// [11] template <class U1, class U2> pair(U1&, const U2&, AllocatorPtr);
+// [11] template <class U1, class U2> pair(const U1&, U2&);
+// [11] template <class U1, class U2> pair(const U1&, U2&, AllocatorPtr);
+// [11] template <class U1, class U2> pair(U1&, U2&);
+// [11] template <class U1, class U2> pair(U1&, U2&, AllocatorPtr);
+// [14] pair(piecewise_construct_t, tuple aArgs, tuple bArgs)
+// [14] pair(piecewise_construct_t, tuple aArgs, tuple bArgs, basicAllocator)
+// [ 2] pair(const pair& original);
+// [ 2] pair(const pair& original, AllocatorPtr basicAllocator);
+// [10] pair(pair&& original)
+// [10] pair(pair&& original, AllocatorPtr basicAllocator)
+// [ 4] pair(const pair<U1, U2>& rhs);
+// [ 4] pair(const pair<U1, U2>& rhs, AllocatorPtr basicAllocator);
+// [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other)
+// [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other, AllocatorPtr)
+// [  ] pair(const native_std::pair<U1, U2>& rhs);
+// [  ] pair(const native_std::pair<U1, U2>&, BloombergLP::bslma::Allocator *);
+// [ 2] ~pair();
+// [ 2] pair& operator=(const pair& rhs);
+// [13] pair& operator=(pair&& rhs);
+// [ 8] pair& operator=(const pair<U1, U2>& rhs)
+// [12] pair& operator=(pair<U1, U2>&& rhs)
+// [  ] pair& operator=(const native_std::pair<U1, U2>& rhs);
+// [ 2] bool operator==(const pair& x, const pair& y);
+// [ 2] bool operator!=(const pair& x, const pair& y);
+// [ 2] bool operator<(const pair& x, const pair& y);
+// [ 2] bool operator>(const pair& x, const pair& y);
+// [ 2] bool operator<=(const pair& x, const pair& y);
+// [ 2] bool operator>=(const pair& x, const pair& y);
+// [ 5] void pair::swap(pair& rhs);
+// [ 5] void swap(pair& lhs, pair& rhs);
+// [ 6] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
 //-----------------------------------------------------------------------------
-// [1] BREATHING TEST
-// [6] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [15] USAGE EXAMPLE
+// [ 3] Type Traits
+// [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
+// [ 8] Concern: Can assign to a 'pair' of references
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
-    // Namespace, because of the error on AIX/xlC:
-    // "Static declarations are not considered for a function call if the
-    // function is not qualified."
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+// Pragmas to silence format warnings, should be cleaned up before final commit
+// BDE_VERIFY pragma: -AC01  // bde_verify does not recognise generic allocator
+// BDE_VERIFY pragma: -AL01  // Strict aliasing concerns should be addressed
+// BDE_VERIFY pragma: -AT01  // bde_verify does not recognise generic allocator
+// BDE_VERIFY pragma: -CC01  // C style casts
+// BDE_VERIFY pragma: -FD01  // Lots of functions need a clear contract
+// BDE_VERIFY pragma: -IND01 // Indent issues
+// BDE_VERIFY pragma: -IND03 // Text-alignment issues
+// BDE_VERIFY pragma: -IND04 // Text-alignment issues
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-static int verbose = 0;
-static int veryVerbose = 0;
-// static int veryVeryVerbose = 0;
+static bool             verbose = false;
+static bool         veryVerbose = false;
+static bool     veryVeryVerbose = false;
+static bool veryVeryVeryVerbose = false;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -135,14 +188,16 @@ static int veryVerbose = 0;
 // A 'bsl::pair' is a very simple object when used without allocators.  Our
 // usage example concentrates on the use of allocators with 'bsl::pair'.
 // First, we create a utility function that copies a null-terminated string
-// into memory allocated from a supplied allocator:
+// into memory allocated from a supplied allocator.  The allocator can conform
+// to either the 'bslma::Allocator' protocol or the STL allocator concept:
 //..
-    char *myStrDup(const char *s, bslma::Allocator *alloc)
+    template <class ALLOC>
+    char *myStrDup(const char *s, ALLOC *basicAllocator)
         // Copy the specified null-terminated string 's' into memory allocated
-        // from 'alloc'
+        // from the specified '*basicAllocator'
     {
-        char *result = (char*) alloc->allocate(std::strlen(s) + 1);
-        return std::strcpy(result, s);
+        char *result = (char*) basicAllocator->allocate(strlen(s) + 1);
+        return strcpy(result, s);
     }
 //..
 // We create a simple string class that holds strings allocated from a
@@ -161,7 +216,7 @@ static int veryVerbose = 0;
             // Construct an empty string using the optionally-specified
             // allocator 'alloc'.
 
-        my_String(const char* s, bslma::Allocator *alloc = 0);
+        my_String(const char* s, bslma::Allocator *alloc = 0);      // IMPLICIT
             // Construct a string with contents specified in 's' using the
             // optionally-specified allocator 'alloc'.
 
@@ -186,12 +241,12 @@ static int veryVerbose = 0;
 
     bool operator==(const my_String& lhs, const my_String& rhs)
     {
-        return 0 == std::strcmp(lhs.c_str(), rhs.c_str());
+        return 0 == strcmp(lhs.c_str(), rhs.c_str());
     }
 
     bool operator==(const my_String& lhs, const char *rhs)
     {
-        return 0 == std::strcmp(rhs, lhs.c_str());
+        return 0 == strcmp(rhs, lhs.c_str());
     }
 
     bool operator==(const char *lhs, const my_String& rhs)
@@ -216,25 +271,25 @@ static int veryVerbose = 0;
 
     bool operator<(const my_String& lhs, const my_String& rhs)
     {
-        return std::strcmp(lhs.c_str(), rhs.c_str()) < 0;
+        return strcmp(lhs.c_str(), rhs.c_str()) < 0;
     }
 
     my_String::my_String(bslma::Allocator *alloc)
-    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
+        : d_allocator_p(bslma::Default::allocator(alloc))
+        , d_data(myStrDup("", d_allocator_p))
     {
-        d_data = myStrDup("", d_allocator_p);
     }
 
     my_String::my_String(const char *s, bslma::Allocator *alloc)
-    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
+        : d_allocator_p(bslma::Default::allocator(alloc))
+        , d_data(myStrDup(s, d_allocator_p))
     {
-        d_data = myStrDup(s, d_allocator_p);
     }
 
     my_String::my_String(const my_String& rhs, bslma::Allocator *alloc)
-    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
+        : d_allocator_p(bslma::Default::allocator(alloc))
+        , d_data(myStrDup(rhs.d_data, d_allocator_p))
     {
-        d_data = myStrDup(rhs.d_data, d_allocator_p);
     }
 
     my_String::~my_String()
@@ -304,25 +359,287 @@ static int veryVerbose = 0;
     }
 //..
 
+                           // =======================
+                           // class my_AllocArgString
+                           // =======================
+
+template <class ALLOC>
+class my_AllocArgString
+{
+    // Another simple string class that uses a user-supplied STL-style
+    // allocator that is provided to the constructor as the second argument,
+    // following an 'bsl::allocator_arg_t' tag argument.  The behavior is
+    // undefined unless 'ALLOC::value_type' is identical to 'char'.
+
+    ALLOC  d_alloc;
+    char  *d_data;
+
+  public:
+    typedef ALLOC allocator_type;
+
+    my_AllocArgString();
+    my_AllocArgString(const char* s);                               // IMPLICIT
+    my_AllocArgString(const my_AllocArgString& rhs);
+        // Construct a string without supplying an allocator.
+
+    my_AllocArgString(bsl::allocator_arg_t, const ALLOC& a);
+    my_AllocArgString(bsl::allocator_arg_t, const ALLOC& a, const char* s);
+    my_AllocArgString(bsl::allocator_arg_t,
+                      const ALLOC&             a,
+                      const my_AllocArgString& rhs);
+        // Construct a string using the specified 'a' allocator, following the
+        // 'allocator_arg_t' construction protocol.
+
+    ~my_AllocArgString();
+        // Destroy this string.
+
+    my_AllocArgString& operator=(const my_AllocArgString& rhs);
+        // Copy the specified 'rhs' to this string.
+
+    size_t length() const;
+        // Return the length of this string, excluding the null terminator.
+
+    const char* c_str() const;
+        // Return the null-terminated character array for this string. Never
+        // returns a null pointer.
+
+    allocator_type get_allocator() const;
+        // Return the allocator used to construct this object.
+
+    bslma::Allocator* allocator() const;
+        // Return the bslma mechanism within the STL allocator.
+};
+
+template <class ALLOC>
+bool operator==(const my_AllocArgString<ALLOC>& lhs,
+                const my_AllocArgString<ALLOC>& rhs)
+{
+    return 0 == strcmp(lhs.c_str(), rhs.c_str());
+}
+
+template <class ALLOC>
+bool operator==(const my_AllocArgString<ALLOC>& lhs, const char *rhs)
+{
+    return 0 == strcmp(rhs, lhs.c_str());
+}
+
+template <class ALLOC>
+bool operator==(const char *lhs, const my_AllocArgString<ALLOC>& rhs)
+{
+    return rhs == lhs;
+}
+
+template <class ALLOC>
+bool operator!=(const my_AllocArgString<ALLOC>& lhs,
+                const my_AllocArgString<ALLOC>& rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template <class ALLOC>
+bool operator!=(const my_AllocArgString<ALLOC>& lhs, const char *rhs)
+{
+    return ! (lhs == rhs);
+}
+
+template <class ALLOC>
+bool operator!=(const char *lhs, const my_AllocArgString<ALLOC>& rhs)
+{
+    return ! (rhs == lhs);
+}
+
+template <class ALLOC>
+bool operator<(const my_AllocArgString<ALLOC>& lhs,
+               const my_AllocArgString<ALLOC>& rhs)
+{
+    return strcmp(lhs.c_str(), rhs.c_str()) < 0;
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString()
+    : d_alloc(), d_data(myStrDup("", &d_alloc))
+{
+    // class invariant: 'd_data' is not null
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString(const char *s)
+    : d_alloc(), d_data(myStrDup(s, &d_alloc))
+{
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString(
+    const my_AllocArgString& rhs)
+    : d_alloc(), d_data(myStrDup(rhs.c_str(), &d_alloc))
+{
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString(bsl::allocator_arg_t,
+                                                    const ALLOC& a)
+    : d_alloc(a), d_data(myStrDup("", &d_alloc))
+{
+    // class invariant: 'd_data' is not null
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString(bsl::allocator_arg_t,
+                                                    const ALLOC&  a,
+                                                    const char   *s)
+    : d_alloc(a), d_data(myStrDup(s, &d_alloc))
+{
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::my_AllocArgString(
+                                    bsl::allocator_arg_t,
+                                    const ALLOC&                        a,
+                                    const my_AllocArgString<ALLOC>& rhs)
+    : d_alloc(a), d_data(myStrDup(rhs.c_str(), &d_alloc))
+{
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>::~my_AllocArgString()
+{
+    d_alloc.deallocate(d_data, length() + 1);
+}
+
+template <class ALLOC>
+my_AllocArgString<ALLOC>&
+my_AllocArgString<ALLOC>::operator=(const my_AllocArgString<ALLOC>& rhs)
+{
+    if (this != &rhs) {
+        d_alloc.deallocate(d_data, length() + 1);
+        d_data = myStrDup(rhs.c_str(), &d_alloc);
+    }
+    return *this;
+}
+
+template <class ALLOC>
+bslma::Allocator *my_AllocArgString<ALLOC>::allocator() const
+{
+    return d_alloc.mechanism();
+}
+
+template <class ALLOC>
+const char *my_AllocArgString<ALLOC>::c_str() const
+{
+    return d_data;
+}
+
+template <class ALLOC>
+ALLOC my_AllocArgString<ALLOC>::get_allocator() const
+{
+    return d_alloc;
+}
+
+template <class ALLOC>
+size_t my_AllocArgString<ALLOC>::length() const
+{
+    return strlen(d_data);
+}
+
+namespace BloombergLP {
+namespace bslmf {
+template <class ALLOC>
+struct UsesAllocatorArgT<my_AllocArgString<ALLOC> > : bsl::true_type {};
+}  // close namespace bslmf
+
+namespace bslma {
+template <class ALLOC>
+struct UsesBslmaAllocator<my_AllocArgString<ALLOC> > :
+        bslmf::IsConvertible<Allocator*, ALLOC>::type {};
+}  // close namespace bslma
+}  // close enterprise namespace
+
+                           // =====================
+                           // class my_STLCharAlloc
+                           // =====================
+
+class my_STLCharAlloc
+{
+    // STL-conforming allocator for 'char' elements.  Cannot be rebound to
+    // allocate other types.
+
+    bslma::Allocator *d_bslmaAlloc_p;
+
+  public:
+    typedef char    value_type;
+    typedef char   *pointer_type;
+    typedef size_t  size_type;
+
+    static bslma::TestAllocator *defaultMechanism();
+
+    my_STLCharAlloc();
+    explicit my_STLCharAlloc(bslma::Allocator *bslmaAlloc_p);
+        // Not convertible from 'bslma::Allocator*'.
+
+    //! my_STLCharAlloc(const my_STLCharAlloc&) = default;
+    //! ~my_STLCharAlloc() = default;
+    //! my_STLCharAlloc& operator=(const my_STLCharAlloc&) = default;
+
+    char *allocate(size_type n);
+    void deallocate(char *p, size_type n);
+
+    bslma::Allocator *mechanism() const;
+};
+
+bslma::TestAllocator *my_STLCharAlloc::defaultMechanism()
+{
+    static bslma::TestAllocator singleton(veryVeryVerbose);
+    return &singleton;
+}
+
+inline
+my_STLCharAlloc::my_STLCharAlloc()
+    : d_bslmaAlloc_p(defaultMechanism())
+{
+}
+
+inline
+my_STLCharAlloc::my_STLCharAlloc(bslma::Allocator *bslmaAlloc_p)
+    : d_bslmaAlloc_p(bslmaAlloc_p)
+{
+}
+
+inline
+char *my_STLCharAlloc::allocate(size_type n)
+{
+    return static_cast<char*>(d_bslmaAlloc_p->allocate(n));
+}
+
+inline
+void my_STLCharAlloc::deallocate(char* p, size_type /* n */)
+{
+    d_bslmaAlloc_p->deallocate(p);
+}
+
+inline
+bslma::Allocator *my_STLCharAlloc::mechanism() const {
+    return d_bslmaAlloc_p;
+}
+
+typedef my_AllocArgString<my_STLCharAlloc>       my_STLAllocArgStr;
+typedef my_AllocArgString<bsl::allocator<char> > my_BslmaAllocArgStr;
+
                            // ======================
                            // class my_NoAllocString
                            // ======================
 
-class my_NoAllocString
+class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
 {
     // Another simple string class that does not use a user-supplied
     // allocator.  All memory is allocated from a shared test allocator.  Will
     // compile and run if an attempt is made to use a constructor that takes
     // an allocator argument, but will report an assert failure.
 
-    char *d_data;
+    typedef my_AllocArgString<bsl::allocator<char> > Base;
 
   public:
-    static bslma::TestAllocator *allocator();
-        // Return pointer to singleton test allocator.
-
     my_NoAllocString();
-    my_NoAllocString(const char* s);
+    my_NoAllocString(const char* s);                                // IMPLICIT
     my_NoAllocString(const my_NoAllocString& rhs);
         // Construct a string the normal way.
 
@@ -335,115 +652,72 @@ class my_NoAllocString
         // bslstl_pair attempted to construct a 'my_NoAllocString'
         // incorrectly.
 
-    ~my_NoAllocString();
-        // Destroy this string.
-
-    my_NoAllocString& operator=(const my_NoAllocString& rhs);
-        // Copy 'rhs' to this string.
-
-    const char* c_str() const;
-        // Return the null-terminated character array for this string.
+    //! ~my_NoAllocString() = default;
+    //! my_NoAllocString& operator=(const my_NoAllocString& rhs) = default;
 };
 
-bool operator==(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
-{
-    return 0 == strcmp(lhs.c_str(), rhs.c_str());
-}
-
-bool operator==(const my_NoAllocString& lhs, const char *rhs)
-{
-    return 0 == strcmp(rhs, lhs.c_str());
-}
-
-bool operator==(const char *lhs, const my_NoAllocString& rhs)
-{
-    return rhs == lhs;
-}
-
-bool operator!=(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
-{
-    return ! (lhs == rhs);
-}
-
-bool operator!=(const my_NoAllocString& lhs, const char *rhs)
-{
-    return ! (lhs == rhs);
-}
-
-bool operator!=(const char *lhs, const my_NoAllocString& rhs)
-{
-    return ! (rhs == lhs);
-}
-
-bool operator<(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
-{
-    return strcmp(lhs.c_str(), rhs.c_str()) < 0;
-}
-
-bslma::TestAllocator *my_NoAllocString::allocator()
-{
-    static bslma::TestAllocator singleton(veryVerbose);
-    return &singleton;
-}
-
 my_NoAllocString::my_NoAllocString()
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism())
 {
-    d_data = myStrDup("", allocator());
 }
 
 my_NoAllocString::my_NoAllocString(bslma::Allocator * /*alloc*/)
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism())
 {
     ASSERT("Shouldn't get here" && 0);
-    d_data = myStrDup("", allocator());
 }
 
 my_NoAllocString::my_NoAllocString(const char *s)
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), s)
 {
-    d_data = myStrDup(s, allocator());
 }
 
 my_NoAllocString::my_NoAllocString(const char *s, bslma::Allocator * /*alloc*/)
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), s)
 {
     ASSERT("Shouldn't get here" && 0);
-    d_data = myStrDup(s, allocator());
 }
 
 my_NoAllocString::my_NoAllocString(const my_NoAllocString& rhs)
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), rhs)
 {
-    d_data = myStrDup(rhs.d_data, allocator());
 }
 
 my_NoAllocString::my_NoAllocString(const my_NoAllocString&  rhs,
                                    bslma::Allocator         * /*alloc*/)
-: d_data(0)
+    : Base(bsl::allocator_arg, my_STLCharAlloc::defaultMechanism(), rhs)
 {
     ASSERT("Shouldn't get here" && 0);
-    d_data = myStrDup(rhs.d_data, allocator());
 }
 
-my_NoAllocString::~my_NoAllocString()
-{
-    allocator()->deallocate(d_data);
-}
+                           // ============
+                           // class Values
+                           // ============
 
-my_NoAllocString& my_NoAllocString::operator=(const my_NoAllocString& rhs)
+template <class TYPE, bool = bsl::is_integral<TYPE>::value>
+struct Values
 {
-    if (this != &rhs) {
-        allocator()->deallocate(d_data);
-        d_data = myStrDup(rhs.d_data, allocator());
-    }
-    return *this;
-}
+    // Namespace for sample values of non-integral 'TYPE'
 
-const char *my_NoAllocString::c_str() const
+    typedef TYPE Type;
+
+    static Type null() { return ""; }
+    static Type first() { return "Hello"; }
+    static Type second() { return "World"; };
+};
+
+template <class TYPE>
+struct Values<TYPE, true>
 {
-    return d_data;
-}
+    // Namespace for sample values of integral 'TYPE'
+
+    typedef TYPE Type;
+
+    static Type null() { return 0; }
+    static Type first() { return 1; }
+    static Type second() { return 2; };
+};
+
 
                            // =====================
                            // struct my_(Traits...)
@@ -515,7 +789,24 @@ struct IsBitwiseMoveable<my_NoTraits> : bsl::false_type {};
 
 
 //=============================================================================
-//                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
+//              HELPER CLASS TO TEST FORWARDING MANAGEDPTR TO CONSTRUCTORS
+//-----------------------------------------------------------------------------
+
+template <class TARGET>
+class ManagedWrapper {
+  private:
+    void *d_ptr;
+
+  public:
+    ManagedWrapper(bslma::ManagedPtr<TARGET> source)                // IMPLICIT
+        : d_ptr(source.get())
+    {
+    }
+
+};
+
+//=============================================================================
+//              HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
 //-----------------------------------------------------------------------------
 
                            // ===================
@@ -549,8 +840,8 @@ namespace TypeWithSwapNamespace {
         }
     };
 
-    void swap(TypeWithSwap& lhs, TypeWithSwap& rhs) {
-        lhs.swap(rhs);
+    void swap(TypeWithSwap& a, TypeWithSwap& b) {
+        a.swap(b);
     }
 }  // close namespace TypeWithSwapNamespace
 
@@ -635,8 +926,557 @@ template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const my_String& input)
 {
     using bslh::hashAppend;
-    hashAlg(input.c_str(), std::strlen(input.c_str()));
+    hashAlg(input.c_str(), strlen(input.c_str()));
 }
+
+template <class STRING>
+void testBslmaStringConversionCtor()
+{
+    bslma::TestAllocator ta1(veryVeryVerbose);
+    bslma::TestAllocator ta2(veryVeryVerbose);
+    bslma::TestAllocator& ta3 = *my_STLCharAlloc::defaultMechanism();
+
+    bslma::DefaultAllocatorGuard allocGuard(&ta2);
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
+    {
+        bsl::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta2 == P2.first.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(1 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, explicit allocator\n");
+    {
+        bsl::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1, &ta1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta1 == P2.first.allocator());
+        ASSERT(1 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, no explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta2 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(1 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1, &ta1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta1 == P2.second.allocator());
+        ASSERT(1 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
+    {
+        bsl::pair<const char*, const char*> p1("Hello", "World"), &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta2 == P2.first.allocator());
+        ASSERT(&ta2 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(2 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, explicit allocator\n");
+    {
+        bsl::pair<const char*, const char*> p1("Hello", "World"), &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1, &ta1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta1 == P2.first.allocator());
+        ASSERT(&ta1 == P2.second.allocator());
+        ASSERT(2 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVerbose) printf("Conversion from native 'std::pair'\n");
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
+    {
+        native_std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta2 == P2.first.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(1 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, explicit allocator\n");
+    {
+        native_std::pair<const char*, short> p1("Hello", 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1, &ta1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta1 == P2.first.allocator());
+        ASSERT(1 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, no explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta2 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(1 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1, &ta1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta1 == P2.second.allocator());
+        ASSERT(1 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
+    {
+        native_std::pair<const char*, const char*> p1("Hello", "World"),
+            &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta2 == P2.first.allocator());
+        ASSERT(&ta2 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(1 <= ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, explicit allocator\n");
+    {
+        native_std::pair<const char*, const char*> p1("Hello", "World"),
+            &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1, &ta1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta1 == P2.first.allocator());
+        ASSERT(&ta1 == P2.second.allocator());
+        ASSERT(2 <= ta1.numBlocksInUse());
+        ASSERT(0 == ta2.numBlocksInUse());
+        ASSERT(0 == ta3.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+}
+
+template <class STRING>
+void testNonBslmaStringConversionCtor()
+{
+    bslma::TestAllocator ta1(veryVeryVerbose);  // explicit allocator
+    bslma::TestAllocator ta2(veryVeryVerbose);  // global default allocator
+    // Default mechanism for 'my_STLCharAlloc'
+    bslma::TestAllocator& ta3 = *my_STLCharAlloc::defaultMechanism();
+
+    bslma::DefaultAllocatorGuard allocGuard(&ta2);
+
+    bslma::TestAllocator *ta4_p;
+    {
+        STRING dummy;  // Default-constructed string with defaulted allocator
+        // Default allocator when not supplied:
+        ta4_p = dynamic_cast<bslma::TestAllocator *>(dummy.allocator());
+    }
+    bslma::TestAllocator& ta4 = *ta4_p; // 'STRING's default allocator
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
+    {
+        bsl::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta4 == P2.first.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(1 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, no explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta4 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(1 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
+    {
+        bsl::pair<const char*, const char*> p1("Hello", "World"), &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta4 == P2.first.allocator());
+        ASSERT(&ta4 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(2 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVerbose) printf("Conversion from native 'std::pair'\n");
+
+    if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
+    {
+        native_std::pair<const char*, short> p1("Hello", (short) 5), &P1 = p1;
+        bsl::pair<STRING, int> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT(5 == P2.second);
+        ASSERT(&ta4 == P2.first.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(1 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<int,STRING>, no explicit allocator\n");
+    {
+        bsl::pair<short, const char*> p1((short) 5, "Hello"), &P1 = p1;
+        bsl::pair<int, STRING> p2(P1), &P2 = p2;
+        ASSERT(5 == P2.first);
+        ASSERT("Hello" == P2.second);
+        ASSERT(&ta4 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(1 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+
+    if (veryVeryVerbose) printf("\tpair<STRING,STRING>, no explicit alloc\n");
+    {
+        native_std::pair<const char*, const char*> p1("Hello", "World"),
+            &P1 = p1;
+        bsl::pair<STRING, STRING> p2(P1), &P2 = p2;
+        ASSERT("Hello" == P2.first);
+        ASSERT("World" == P2.second);
+        ASSERT(&ta4 == P2.first.allocator());
+        ASSERT(&ta4 == P2.second.allocator());
+        ASSERT(0 == ta1.numBlocksInUse());
+        ASSERT(&ta4 == &ta2 || 0 == ta2.numBlocksInUse());
+        ASSERT(&ta4 == &ta3 || 0 == ta3.numBlocksInUse());
+        ASSERT(2 <= ta4.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+    ASSERT(0 == ta4.numBlocksInUse());
+}
+
+template <class TYPE, bool = bslma::UsesBslmaAllocator<TYPE>::value>
+struct AllocatorMatcher
+{
+    static bool match(const TYPE&, bslma::Allocator *) { return true; }
+        // Return true (for types that don't take a bslma::Allocator).
+};
+
+template <class TYPE>
+struct AllocatorMatcher<TYPE, true>
+{
+    static bool match(const TYPE& v, bslma::Allocator *a)
+        // Return true if the specified 'v' was constructed with the specified
+        // allocator 'a'; otherwise false.
+        { return v.allocator() == a; }
+};
+
+template <class TYPE>
+inline
+bool matchAllocator(const TYPE& v, bslma::Allocator *a)
+    // Return true if the specified 'v' was constructed with the specified
+    // allocator 'a'; otherwise false.  If 'TYPE' is not constructed with a
+    // 'bslma::Allocator', then always return true.
+{
+    return AllocatorMatcher<TYPE>::match(v, a);
+}
+
+template <class T1, class T2>
+void testFunctionality(bsl::false_type /* UsesBslmaAllocator */)
+    // Test functionality of 'bsl::pair<T1,T2>', using only constructors that
+    // don't taken a 'bslma::Allocator*' argument.
+{
+    typedef bsl::pair<T1, T2> Obj;
+    ASSERT((bsl::is_same<T1, typename Obj::first_type>::value));
+    ASSERT((bsl::is_same<T2, typename Obj::second_type>::value));
+
+    const T1 NULL_FIRST   = Values<T1>::null();
+    const T2 NULL_SECOND  = Values<T2>::null();
+    const T1 VALUE_FIRST  = Values<T1>::first();
+    const T2 VALUE_SECOND = Values<T2>::second();
+
+    // Test traits
+    ASSERT(bslmf::IsBitwiseMoveable<Obj>::value ==
+           (bslmf::IsBitwiseMoveable<T1>::value &&
+            bslmf::IsBitwiseMoveable<T2>::value));
+    ASSERT(bsl::is_trivially_copyable<Obj>::value ==
+           (bsl::is_trivially_copyable<T1>::value &&
+            bsl::is_trivially_copyable<T2>::value));
+    ASSERT(bsl::is_trivially_default_constructible<Obj>::value ==
+           (bsl::is_trivially_default_constructible<T1>::value &&
+            bsl::is_trivially_default_constructible<T2>::value));
+    ASSERT(bslma::UsesBslmaAllocator<Obj>::value ==
+           (bslma::UsesBslmaAllocator<T1>::value ||
+            bslma::UsesBslmaAllocator<T2>::value));
+
+    bslma::TestAllocator ta0(veryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard allocGuard(&ta0);
+
+    ASSERT(0 == ta0.numBlocksInUse());
+
+    {
+        // Default construct using default allocator
+        Obj p1; const Obj& P1 = p1;
+        ASSERT(NULL_FIRST  == P1.first);
+        ASSERT(NULL_SECOND == P1.second);
+        ASSERT(matchAllocator(P1.first, &ta0));
+        ASSERT(matchAllocator(P1.second, &ta0));
+
+        // Construct with two values and default allocator
+        Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
+        ASSERT(VALUE_FIRST  == P2.first);
+        ASSERT(VALUE_SECOND == P2.second);
+        ASSERT(matchAllocator(P2.first, &ta0));
+        ASSERT(matchAllocator(P2.second, &ta0));
+
+        // Copy construct
+        Obj p3(p2); const Obj& P3 = p3;
+        ASSERT(VALUE_FIRST == P3.first);
+        ASSERT(VALUE_SECOND == P3.second);
+        ASSERT(matchAllocator(P3.first, &ta0));
+        ASSERT(matchAllocator(P3.second, &ta0));
+
+        // Test use of default allocator
+        int minAllocations = 0;  // Allocations from default allocator
+        if (bslma::UsesBslmaAllocator<T1>::value)
+            minAllocations += 3;
+        if (bslma::UsesBslmaAllocator<T2>::value)
+            minAllocations += 3;
+        ASSERT(minAllocations <= ta0.numBlocksInUse());
+
+        // Test equality and relational operators
+        ASSERT(P2 == P3);
+        ASSERT(P1 != P2);
+        ASSERT(P1 < P2);
+        ASSERT(P2 > P1);
+        ASSERT(P1 <= P2);
+        ASSERT(P2 >= P1);
+        ASSERT(P3 <= P2);
+        ASSERT(P2 >= P3);
+
+        ASSERT(! (P1 == P2));
+        ASSERT(! (P3 != P2));
+        ASSERT(! (P2 < P1));
+        ASSERT(! (P1 > P2));
+        ASSERT(! (P2 < P3));
+        ASSERT(! (P3 > P2));
+        ASSERT(! (P2 <= P1));
+        ASSERT(! (P1 >= P2));
+
+        // Test assignment
+        p1 = P2;
+        ASSERT(P1 == P2);
+        ASSERT(matchAllocator(P1.first, &ta0));
+        ASSERT(matchAllocator(P1.second, &ta0));
+        ASSERT(minAllocations <= ta0.numBlocksInUse());
+    }
+
+    // Test the any memory allocated was deallocated
+    ASSERT(0 == ta0.numBlocksInUse());
+}
+
+template <class T1, class T2>
+void testFunctionality(bsl::true_type /* UsesBslmaAllocator */)
+    // Test functionality of 'bsl::pair<T1,T2>', with and without
+    // explicitly-supplied 'bslma::Allocator*' constructor arguments.
+{
+    // Test without explicit allocator
+    testFunctionality<T1,T2>(false_type());
+
+    typedef bsl::pair<T1, T2> Obj;
+
+    const T1 NULL_FIRST   = Values<T1>::null();
+    const T2 NULL_SECOND  = Values<T2>::null();
+    const T1 VALUE_FIRST  = Values<T1>::first();
+    const T2 VALUE_SECOND = Values<T2>::second();
+
+    bslma::TestAllocator ta0(veryVeryVerbose);
+    bslma::TestAllocator ta1(veryVeryVerbose);
+    bslma::TestAllocator ta2(veryVeryVerbose);
+    bslma::TestAllocator ta3(veryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard allocGuard(&ta0);
+
+    ASSERT(0 == ta0.numBlocksInUse());
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+
+    {
+        // Compute number of allocations per constructor from supplied
+        // allocator.
+        int numAllocations = 0;  // Allocations from default allocator
+        if (bslma::UsesBslmaAllocator<T1>::value)
+            numAllocations += 1;
+        if (bslma::UsesBslmaAllocator<T2>::value)
+            numAllocations += 1;
+
+        // Test default construction with allocator
+        Obj p4(&ta1); const Obj& P4 = p4;
+        ASSERT(NULL_FIRST  == P4.first);
+        ASSERT(NULL_SECOND == P4.second);
+        ASSERT(matchAllocator(P4.first, &ta1));
+        ASSERT(matchAllocator(P4.second, &ta1));
+        ASSERT(0 == ta0.numBlocksInUse());
+        ASSERT(numAllocations <= ta1.numBlocksInUse());
+
+        Obj p5(VALUE_FIRST, VALUE_SECOND, &ta2); const Obj& P5 = p5;
+        ASSERT(VALUE_FIRST  == P5.first);
+        ASSERT(VALUE_SECOND == P5.second);
+        ASSERT(matchAllocator(P5.first, &ta2));
+        ASSERT(matchAllocator(P5.second, &ta2));
+        ASSERT(0 == ta0.numBlocksInUse());
+        ASSERT(numAllocations <= ta2.numBlocksInUse());
+
+        Obj p6(P5, &ta3); const Obj& P6 = p6;
+        ASSERT(VALUE_FIRST == P6.first);
+        ASSERT(VALUE_SECOND == P6.second);
+        ASSERT(matchAllocator(P6.first, &ta3));
+        ASSERT(matchAllocator(P6.second, &ta3));
+        ASSERT(0 == ta0.numBlocksInUse());
+        ASSERT(numAllocations <= ta3.numBlocksInUse());
+
+        p4 = P5;
+        ASSERT(P4 == P5);
+        ASSERT(matchAllocator(P4.first, &ta1));
+        ASSERT(matchAllocator(P4.second, &ta1));
+        ASSERT(0 == ta0.numBlocksInUse());
+    }
+
+    ASSERT(0 == ta0.numBlocksInUse());
+    ASSERT(0 == ta1.numBlocksInUse());
+    ASSERT(0 == ta2.numBlocksInUse());
+    ASSERT(0 == ta3.numBlocksInUse());
+}
+
+class Base { };
+class Derived : public Base { };
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -648,19 +1488,1141 @@ void hashAppend(HASHALG& hashAlg, const my_String& input)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    // veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     setbuf(stdout, 0);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 15: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        usageExample();
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   pair(piecewise_construct_t, tuple aArgs, tuple bArgs);
+        //   pair(piecewise_construct_t, tuple aArgs, tuple bArgs, alloc);
+        // --------------------------------------------------------------------
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_LIBRARYFEATURES_SUPPORT_PIECEWISE_CONSTRUCT)
+        typedef bsl::pair<int, bsltf::MovableAllocTestType>        ObjA1;
+
+        typedef bsltf::TemplateTestFacility TstFacility;
+        {
+            ObjA1 a1(std::piecewise_construct,
+                     std::forward_as_tuple(2),
+                     std::forward_as_tuple(4));
+            ASSERT(2 == a1.first);
+            ASSERT(4 == TstFacility::getIdentifier(a1.second));
+        }
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            ObjA1 a1(std::piecewise_construct,
+                     std::forward_as_tuple(2),
+                     std::forward_as_tuple(4),
+                     &oa);
+            ASSERT(2 == a1.first);
+            ASSERT(4 == TstFacility::getIdentifier(a1.second));
+            ASSERT(&oa == a1.second.allocator());
+
+            ASSERT(dam.isTotalSame());
+        }
+        {
+            typedef bsl::pair<int, int> Obj;
+            typedef bsl::allocator<Obj> A;
+
+            bsls::ObjectBuffer<Obj> buffer;
+            Obj *p = (Obj *) buffer.buffer();
+
+            bslma::TestAllocator testAlloc;
+            A m(&testAlloc);
+
+            bsl::allocator_traits<A>::construct(m, p,
+                                                std::piecewise_construct,
+                                                std::forward_as_tuple(1),
+                                                std::forward_as_tuple(2));
+            const Obj& X = buffer.object();
+            ASSERTV(X.first , 1 == X.first );
+            ASSERTV(X.second, 2 == X.second);
+        }
+#endif
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   pair& operator=(pair&& rhs);
+        // --------------------------------------------------------------------
+
+        typedef bsl::pair<int, bsltf::MovableAllocTestType>        ObjA1;
+        typedef bsl::pair<bsltf::MovableAllocTestType, int>        ObjA2;
+
+        typedef bsltf::MoveState            MovState;
+        typedef bslmf::MovableRefUtil       MovUtil;
+        typedef bsltf::TemplateTestFacility TstFacility;
+
+        bsltf::MoveState::Enum miState, mfState;
+        {
+            bsltf::MovableAllocTestType t;
+            ObjA1 s1(1, t);
+            mfState = TstFacility::getMovedFromState(s1.second);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 d1(0, t);
+            miState = TstFacility::getMovedIntoState(d1.second);
+            ASSERT(MovState::e_NOT_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            d1 = MovUtil::move(s1);
+
+            ASSERT(1 == d1.first);
+            mfState = TstFacility::getMovedFromState(s1.second);
+            miState = TstFacility::getMovedIntoState(d1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+        {
+            bsltf::MovableAllocTestType t;
+            ObjA2 s2(t, 1);
+            mfState = TstFacility::getMovedFromState(s2.first);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA2 d2(t, 0);
+            miState = TstFacility::getMovedIntoState(d2.first);
+            ASSERT(MovState::e_NOT_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            d2 = MovUtil::move(s2);
+
+            ASSERT(1 == d2.second);
+            mfState = TstFacility::getMovedFromState(s2.first);
+            miState = TstFacility::getMovedIntoState(d2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   template <class U1, class U2> pair& operator=(pair<U1, U2>&& rhs);
+        // --------------------------------------------------------------------
+
+        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType> ObjA1;
+        typedef bsl::pair<Derived *, bsltf::MovableAllocTestType> ObjB1;
+
+        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>    ObjA2;
+        typedef bsl::pair<bsltf::MovableAllocTestType, Derived *> ObjB2;
+
+        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
+        typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
+
+        typedef bsltf::MoveState            MovState;
+        typedef bslmf::MovableRefUtil       MovUtil;
+        typedef bsltf::TemplateTestFacility TstFacility;
+
+        bsltf::MoveState::Enum miState, mfState;
+        {
+            bsltf::MovableAllocTestType t;
+            ObjB1 b1((Derived *) 0, t);
+            mfState = TstFacility::getMovedFromState(b1.second);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 a1((Base *) 0, t);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_NOT_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            a1 = MovUtil::move(b1);
+
+            mfState = TstFacility::getMovedFromState(b1.second);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+        {
+            bsltf::MovableAllocTestType t;
+            ObjB2 b2(t, (Derived *) 0);
+            mfState = TstFacility::getMovedFromState(b2.first);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA2 a2(t, (Base *) 0);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_NOT_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            a2 = MovUtil::move(b2);
+
+            mfState = TstFacility::getMovedFromState(b2.first);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+        {
+            bsltf::MoveOnlyAllocTestType t(3);
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            bsltf::MoveOnlyAllocTestType t2(3);
+            ObjB3 b3(MovUtil::move(t2), 3);
+
+            ObjA3 a3(MovUtil::move(t), 3);
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            miState = TstFacility::getMovedIntoState(a3.first);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            // The following does not (and should not) compile because the
+            // dest pair has a 'first' type that is 'const' so you can't
+            // assign to it.  Left here because of the educational value.
+            // a3 = MovUtil::move(b3);
+
+            // mfState = TstFacility::getMovedFromState(b3.first);
+            // miState = TstFacility::getMovedIntoState(a3.first);
+            // ASSERT(MovState::e_MOVED == mfState
+            //    || MovState::e_UNKNOWN == mfState);
+            // ASSERT(MovState::e_MOVED == miState
+            //    || MovState::e_UNKNOWN == miState);
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        // template <class U1, class U2> pair(U1&& a, U2&& b);
+        // template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
+        // --------------------------------------------------------------------
+        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType>  ObjA1;
+        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>     ObjA2;
+        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
+        typedef bsl::pair<int, const bsltf::MoveOnlyAllocTestType> ObjA4;
+
+        typedef bsltf::MoveState            MovState;
+        typedef bslmf::MovableRefUtil       MovUtil;
+        typedef bsltf::TemplateTestFacility TstFacility;
+
+        bsltf::MoveState::Enum miState, mfState;
+
+        // Without allocator
+        {
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA1 a1(d, m);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a1.second);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_NOT_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA2 a2(m, d);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a2.first);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_NOT_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA1 a1(d, MovUtil::move(m));
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a1.second);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA2 a2(MovUtil::move(m), d);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a2.first);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+            }
+            {
+                bsltf::MoveOnlyAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA3 a3(MovUtil::move(m), 1);
+
+                // The following should fail to compile.
+                // ObjA3 a3(m, 1);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a3.first);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+                ASSERT(1 == TstFacility::getIdentifier(a3.first));
+            }
+            {
+                bsltf::MoveOnlyAllocTestType m(1);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA4 a4(1, MovUtil::move(m));
+
+                // The following should fail to compile.
+                // ObjA4 a4(1, m);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a4.second);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+                ASSERT(1 == TstFacility::getIdentifier(a4.first));
+            }
+        }
+
+        // With allocator
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA1 a1(d, m, &oa);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a1.second);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_NOT_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+
+                ASSERT(&oa == a1.second.allocator());
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA2 a2(m, d, &oa);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a2.first);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_NOT_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+
+                ASSERT(&oa == a2.first.allocator());
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA1 a1(d, MovUtil::move(m), &oa);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a1.second);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+
+                ASSERT(&oa == a1.second.allocator());
+            }
+            {
+                Derived *d = (Derived *) 0;
+
+                bsltf::MovableAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA2 a2(MovUtil::move(m), d, &oa);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a2.first);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+                ASSERT(&oa == a2.first.allocator());
+            }
+            {
+                bsltf::MoveOnlyAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA3 a3(MovUtil::move(m), 1, &oa);
+
+                // The following should fail to compile.
+                // ObjA3 a3(m, 1);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a3.first);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+
+                ASSERT(&oa == a3.first.allocator());
+                ASSERT(1 == TstFacility::getIdentifier(a3.first));
+            }
+            {
+                bsltf::MoveOnlyAllocTestType m(1, &oa);
+                mfState = TstFacility::getMovedFromState(m);
+                ASSERT(MovState::e_NOT_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+
+                ObjA4 a4(1, MovUtil::move(m), &oa);
+
+                // The following should fail to compile.
+                // ObjA4 a4(1, m);
+
+                mfState = TstFacility::getMovedFromState(m);
+                miState = TstFacility::getMovedIntoState(a4.second);
+                ASSERT(MovState::e_MOVED == mfState
+                    || MovState::e_UNKNOWN == mfState);
+                ASSERT(MovState::e_MOVED == miState
+                    || MovState::e_UNKNOWN == miState);
+
+                ASSERT(&oa == a4.second.allocator());
+                ASSERT(1 == TstFacility::getIdentifier(a4.second));
+            }
+            // TBD: clearly the following is just a breathing test to ensure
+            // that the lvalue references to const and non-const values are
+            // begin processed correctly.
+            {
+                typedef ManagedWrapper<bsltf::SimpleTestType>  WrappedType;
+                typedef bsl::pair<WrappedType, int>            ManagedType;
+                bslma::ManagedPtr<bsltf::SimpleTestType> mp;
+                ManagedType mt(mp, 0);
+            }
+            {
+                typedef ManagedWrapper<bsltf::SimpleTestType>  WrappedType;
+                typedef bsl::pair<int, WrappedType>            ManagedType;
+                bslma::ManagedPtr<bsltf::SimpleTestType> mp;
+                ManagedType mt(0, mp);
+            }
+            {
+                typedef ManagedWrapper<bsltf::SimpleTestType>  WrappedType;
+                typedef bsl::pair<WrappedType, WrappedType>    ManagedType;
+                bslma::ManagedPtr<bsltf::SimpleTestType> mp1;
+                bslma::ManagedPtr<bsltf::SimpleTestType> mp2;
+                ManagedType mt(mp1, mp2);
+            }
+            ASSERT(dam.isTotalSame());
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   pair(pair&&)
+        //   pair(pair&&, AllocatorPtr)
+        // --------------------------------------------------------------------
+        typedef bsl::pair<int, bsltf::MovableAllocTestType>        ObjA1;
+        typedef bsl::pair<bsltf::MovableAllocTestType, int>        ObjA2;
+        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
+
+        typedef bsltf::TemplateTestFacility TstFacility;
+        typedef bsltf::MoveState           MovState;
+
+        bsltf::MoveState::Enum miState, mfState;
+        // Without allocator
+        {
+            bsltf::MovableAllocTestType t1(1);
+            bsltf::MovableAllocTestType t2(2);
+            ObjA1 s1(1, t1);
+            ObjA2 s2(t2, 2);
+
+            mfState = TstFacility::getMovedFromState(t1);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            mfState = TstFacility::getMovedFromState(t2);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 d1(bslmf::MovableRefUtil::move(s1));
+            mfState = TstFacility::getMovedFromState(s1.second);
+            miState = TstFacility::getMovedIntoState(d1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+            ASSERT(1 == s1.first); ASSERT(1 == d1.first);
+            ASSERT(1 == TstFacility::getIdentifier(d1.second));
+
+            ObjA2 d2(bslmf::MovableRefUtil::move(s2));
+            mfState = TstFacility::getMovedFromState(s2.first);
+            miState = TstFacility::getMovedIntoState(d2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+            ASSERT(2 == s2.second); ASSERT(2 == d2.second);
+            ASSERT(2 == TstFacility::getIdentifier(d2.first));
+
+            bsltf::MoveOnlyAllocTestType m(3);
+            ObjA3 s3(bslmf::MovableRefUtil::move(m), 3);
+            mfState = TstFacility::getMovedFromState(m);
+            miState = TstFacility::getMovedIntoState(s3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+            ASSERT(3 == s3.second);
+            ASSERT(3 == TstFacility::getIdentifier(s3.first));
+
+            // The following does not (and should not) compile because the
+            // source pair has a 'first' type that is 'const' so you can't
+            // move from it.  Left here because of the educational value.
+
+            // ObjA3 d3(bslmf::MovableRefUtil::move(s3));
+            // mfState = TstFacility::getMovedFromState(s3.first);
+            // miState = TstFacility::getMovedIntoState(d3.first);
+            // ASSERT(MovState::e_MOVED == mfState
+            //     || MovState::e_UNKNOWN == mfState);
+            // ASSERT(MovState::e_MOVED == miState
+            //     || MovState::e_UNKNOWN == miState);
+            // ASSERT(3 == s3.second); ASSERT(3 == d3.second);
+            // ASSERT(3 == TstFacility::getIdentifier(d3.first));
+        }
+        // With allocator
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            bsltf::MovableAllocTestType t1(1, &oa);
+            bsltf::MovableAllocTestType t2(2, &oa);
+            ObjA1 s1(1, t1, &oa);
+            ObjA2 s2(t2, 2, &oa);
+
+            mfState = TstFacility::getMovedFromState(t1);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            mfState = TstFacility::getMovedFromState(t2);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 d1(bslmf::MovableRefUtil::move(s1), &oa);
+            mfState = TstFacility::getMovedFromState(s1.second);
+            miState = TstFacility::getMovedIntoState(d1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+            ASSERT(1 == s1.first); ASSERT(1 == d1.first);
+            ASSERT(1 == TstFacility::getIdentifier(d1.second));
+            ASSERT(&oa == d1.second.allocator());
+
+            ObjA2 d2(bslmf::MovableRefUtil::move(s2), &oa);
+            mfState = TstFacility::getMovedFromState(s2.first);
+            miState = TstFacility::getMovedIntoState(d2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+            ASSERT(2 == s2.second); ASSERT(2 == d2.second);
+            ASSERT(2 == TstFacility::getIdentifier(d2.first));
+            ASSERT(&oa == d2.first.allocator());
+
+            ASSERT(dam.isTotalSame());
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST for
+        //
+        //   template <class U1, class U2> pair(pair<U1, U2>&&)
+        //   template <class U1, class U2> pair(pair<U1, U2>&&, AllocatorPtr)
+        // --------------------------------------------------------------------
+
+        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType>  ObjA1;
+        typedef bsl::pair<Derived *, bsltf::MovableAllocTestType>  ObjB1;
+
+        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>     ObjA2;
+        typedef bsl::pair<bsltf::MovableAllocTestType, Derived *>  ObjB2;
+
+        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
+        typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
+
+        typedef bsl::pair<int, const bsltf::MoveOnlyAllocTestType> ObjA4;
+        typedef bsl::pair<int, bsltf::MoveOnlyAllocTestType>       ObjB4;
+
+        typedef bsltf::TemplateTestFacility TstFacility;
+        typedef bsltf::MoveState           MovState;
+
+        bsltf::MoveState::Enum miState, mfState;
+        // Without allocator
+        {
+            bsltf::MovableAllocTestType t;
+            ObjB1 b1((Derived *) 0, t);
+            ObjB2 b2(t, (Derived *) 0);
+
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 a1(bslmf::MovableRefUtil::move(b1));
+            mfState = TstFacility::getMovedFromState(b1.second);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA2 a2(bslmf::MovableRefUtil::move(b2));
+            mfState = TstFacility::getMovedFromState(b2.first);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m1(1);
+            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1);
+            mfState = TstFacility::getMovedFromState(m1);
+            miState = TstFacility::getMovedIntoState(b3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA3 a3(bslmf::MovableRefUtil::move(b3));
+            ASSERT(1 == a3.second);
+            ASSERT(1 == TstFacility::getIdentifier(a3.first));
+            mfState = TstFacility::getMovedFromState(b3.first);
+            miState = TstFacility::getMovedIntoState(a3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m2(2);
+            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2));
+            mfState = TstFacility::getMovedFromState(m2);
+            miState = TstFacility::getMovedIntoState(b4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
+            ASSERT(2 == a4.first);
+            ASSERT(2 == TstFacility::getIdentifier(a4.second));
+            mfState = TstFacility::getMovedFromState(b4.second);
+            miState = TstFacility::getMovedIntoState(a4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+        // With allocator
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            bsltf::MovableAllocTestType t(&oa);
+            ObjB1 b1((Derived *) 0, t, &oa);
+            ObjB2 b2(t, (Derived *) 0, &oa);
+
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 a1(bslmf::MovableRefUtil::move(b1), &oa);
+            mfState = TstFacility::getMovedFromState(b1.second);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA2 a2(bslmf::MovableRefUtil::move(b2), &oa);
+            mfState = TstFacility::getMovedFromState(b2.first);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m1(1, &oa);
+            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1, &oa);
+
+            ObjA3 a3(bslmf::MovableRefUtil::move(b3), &oa);
+            ASSERT(1 == a3.second);
+            mfState = TstFacility::getMovedFromState(b3.first);
+            miState = TstFacility::getMovedIntoState(a3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m2(2, &oa);
+            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2), &oa);
+            mfState = TstFacility::getMovedFromState(m2);
+            miState = TstFacility::getMovedIntoState(b4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
+            ASSERT(2 == a4.first);
+            ASSERT(2 == TstFacility::getIdentifier(a4.second));
+            mfState = TstFacility::getMovedFromState(b4.second);
+            miState = TstFacility::getMovedIntoState(a4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ASSERT(dam.isTotalSame());
+        }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
-        // hashAppend
+        // TESTING ASSIGNMENT TO 'pair' OF REFERENCES
+        //
+        // Concerns:
+        //: 1 The assignment operator for a 'pair' of references is well-formed
+        //:   and assigns to the original objects referred to by the 'pair'.
+        //
+        // Plan:
+        //: 1 Create a target 'pair' holding:
+        //:   a) a reference in 'first' and a value for 'second'
+        //:   b) a reference in 'second' and a value for 'first'
+        //:   c) a reference in both 'first' and 'second'
+        //:
+        //: 2 Create a value pair of values corresponding to the types used by
+        //:   the target pairs above.
+        //:
+        //: 3 Assign from the value pair to the target pair, and confirm:
+        //:   a) the address of any reference members of the target pair does
+        //:      not change.
+        //:   b) the value of any object referred to by the target pair has
+        //:      changed
+        //:   c) the values held by the value-pair have not changed
+        //:
+        //: 4 Repeat step (3) with a reference pair, holding two references
+        //:   rather than two values.
+        //
+        // Testing:
+        //   pair& operator=(const pair<U1, U2>& rhs)
+        //   Concern: Can assign to a 'pair' of references
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING ASSIGNMENT TO 'pair' OF REFERENCES"
+                            "\n==========================================\n");
+
+        // data for pairs
+
+        int    i1 = 13;
+        int    i2 = 42;
+        int    i3 = 91;
+        double d1 = 3.14159;
+        double d2 = 2.71828;
+        double d3 = 1.61803;
+
+        const int    ORIGINAL_I1 = i1;
+        const int    ORIGINAL_I2 = i2;
+        const int    ORIGINAL_I3 = i3;
+        const double ORIGINAL_D1 = d1;
+        const double ORIGINAL_D2 = d2;
+        const double ORIGINAL_D3 = d3;
+
+        // Construct the pairs to assign-from
+
+        bsl::pair<int, double> value(i1, d1);
+        bsl::pair<int, double> reference(i2, d2);
+
+        // test assign from 'value'
+
+        {
+            bsl::pair<int&, double > target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&i3,  pi, &i3 == pi);
+
+            target = value;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+
+            ASSERTV(ORIGINAL_I1, i1, ORIGINAL_I1 == i1);
+            ASSERTV(ORIGINAL_D1, d1, ORIGINAL_D1 == d1);
+            ASSERTV(ORIGINAL_I1, i3, ORIGINAL_I1 == i3);
+            ASSERTV(ORIGINAL_D3, d3, ORIGINAL_D3 == d3);
+
+            target = target;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+        }
+
+        i1 = ORIGINAL_I1;
+        i2 = ORIGINAL_I2;
+        i3 = ORIGINAL_I3;
+        d1 = ORIGINAL_D1;
+        d2 = ORIGINAL_D2;
+        d3 = ORIGINAL_D3;
+
+        {
+            bsl::pair<int,  double&> target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&d3,  pd, &d3 == pd);
+
+            target = value;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+
+            ASSERTV(ORIGINAL_I1, i1, ORIGINAL_I1 == i1);
+            ASSERTV(ORIGINAL_D1, d1, ORIGINAL_D1 == d1);
+            ASSERTV(ORIGINAL_I3, i3, ORIGINAL_I3 == i3);
+            ASSERTV(ORIGINAL_D1, d3, ORIGINAL_D1 == d3);
+
+            target = target;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+        }
+
+        i1 = ORIGINAL_I1;
+        i2 = ORIGINAL_I2;
+        i3 = ORIGINAL_I3;
+        d1 = ORIGINAL_D1;
+        d2 = ORIGINAL_D2;
+        d3 = ORIGINAL_D3;
+
+        {
+            bsl::pair<int&, double&> target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&i3,  pi, &i3 == pi);
+            ASSERTV(&d3,  pd, &d3 == pd);
+
+            target = value;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+
+            ASSERTV(ORIGINAL_I1, i1, ORIGINAL_I1 == i1);
+            ASSERTV(ORIGINAL_D1, d1, ORIGINAL_D1 == d1);
+            ASSERTV(ORIGINAL_I1, i3, ORIGINAL_I1 == i3);
+            ASSERTV(ORIGINAL_D1, d3, ORIGINAL_D1 == d3);
+
+            target = target;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I1, target.first,  ORIGINAL_I1 == target.first );
+            ASSERTV(ORIGINAL_D1, target.second, ORIGINAL_D1 == target.second);
+
+            ASSERTV(ORIGINAL_I1, value.first,  ORIGINAL_I1 == value.first );
+            ASSERTV(ORIGINAL_D1, value.second, ORIGINAL_D1 == value.second);
+        }
+
+        i1 = ORIGINAL_I1;
+        i2 = ORIGINAL_I2;
+        i3 = ORIGINAL_I3;
+        d1 = ORIGINAL_D1;
+        d2 = ORIGINAL_D2;
+        d3 = ORIGINAL_D3;
+
+
+        // test assign from 'reference'
+
+        {
+            bsl::pair<int&, double > target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&i3,  pi, &i3 == pi);
+
+            target = reference;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I2, target.first,  ORIGINAL_I2 == target.first );
+            ASSERTV(ORIGINAL_D2, target.second, ORIGINAL_D2 == target.second);
+
+            ASSERTV(ORIGINAL_I2,   reference.first,
+                    ORIGINAL_I2 == reference.first );
+            ASSERTV(ORIGINAL_D2,   reference.second,
+                    ORIGINAL_D2 == reference.second);
+
+            ASSERTV(ORIGINAL_I2, i2, ORIGINAL_I2 == i2);
+            ASSERTV(ORIGINAL_D2, d2, ORIGINAL_D2 == d2);
+            ASSERTV(ORIGINAL_I2, i3, ORIGINAL_I2 == i3);
+            ASSERTV(ORIGINAL_D3, d3, ORIGINAL_D3 == d3);
+        }
+
+        i1 = ORIGINAL_I1;
+        i2 = ORIGINAL_I2;
+        i3 = ORIGINAL_I3;
+        d1 = ORIGINAL_D1;
+        d2 = ORIGINAL_D2;
+        d3 = ORIGINAL_D3;
+
+        {
+            bsl::pair<int,  double&> target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&d3,  pd, &d3 == pd);
+
+            target = reference;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I2, target.first,  ORIGINAL_I2 == target.first );
+            ASSERTV(ORIGINAL_D2, target.second, ORIGINAL_D2 == target.second);
+
+            ASSERTV(ORIGINAL_I2,   reference.first,
+                    ORIGINAL_I2 == reference.first );
+            ASSERTV(ORIGINAL_D2,   reference.second,
+                    ORIGINAL_D2 == reference.second);
+
+            ASSERTV(ORIGINAL_I2, i2, ORIGINAL_I2 == i2);
+            ASSERTV(ORIGINAL_D2, d2, ORIGINAL_D2 == d2);
+            ASSERTV(ORIGINAL_I3, i3, ORIGINAL_I3 == i3);
+            ASSERTV(ORIGINAL_D2, d3, ORIGINAL_D2 == d3);
+        }
+
+        i1 = ORIGINAL_I1;
+        i2 = ORIGINAL_I2;
+        i3 = ORIGINAL_I3;
+        d1 = ORIGINAL_D1;
+        d2 = ORIGINAL_D2;
+        d3 = ORIGINAL_D3;
+
+        {
+            bsl::pair<int&, double&> target(i3, d3);
+
+            int    *pi = &target.first;
+            double *pd = &target.second;
+
+            ASSERTV(&i3,  pi, &i3 == pi);
+            ASSERTV(&d3,  pd, &d3 == pd);
+
+            target = reference;
+
+            ASSERTV(&target.first,  pi, &target.first  == pi);
+            ASSERTV(&target.second, pd, &target.second == pd);
+
+            ASSERTV(ORIGINAL_I2, target.first,  ORIGINAL_I2 == target.first );
+            ASSERTV(ORIGINAL_D2, target.second, ORIGINAL_D2 == target.second);
+
+            ASSERTV(ORIGINAL_I2,   reference.first,
+                    ORIGINAL_I2 == reference.first );
+            ASSERTV(ORIGINAL_D2,   reference.second,
+                    ORIGINAL_D2 == reference.second);
+
+            ASSERTV(ORIGINAL_I2, i2, ORIGINAL_I2 == i2);
+            ASSERTV(ORIGINAL_D2, d2, ORIGINAL_D2 == d2);
+            ASSERTV(ORIGINAL_I2, i3, ORIGINAL_I2 == i3);
+            ASSERTV(ORIGINAL_D2, d3, ORIGINAL_D2 == d3);
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TEST FORMING A POINTER-TO-DATA-MEMBER
+        //
+        // Concerns:
+        //: 1 We can use pointer to members to access both 'first' and 'second'
+        //
+        // Plan:
+        //: 1 Create pointer to member to both 'first' and 'second' and check
+        //:   that the behavior is as expected
+        //
+        // Testing:
+        //   Concern: Can create a pointer-to-member for 'first' and 'second'
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTEST FORMING A POINTER-TO-DATA-MEMBER"
+                            "\n=====================================\n");
+
+        {
+            typedef bsl::pair<int,const char*> PairType;
+
+            int         PairType::*pfirst  = &PairType::first;
+            const char *PairType::*psecond = &PairType::second;
+
+            PairType p(10, "test7");
+
+            ASSERTV(&p.first,  &(p.*pfirst),  p.first   == (p.*pfirst));
+            ASSERTV(&p.second, &(p.*psecond), p.second  == (p.*psecond));
+        }
+
+        {
+            typedef bsl::pair<char, long double> PairType;
+
+            char        PairType::*pfirst  = &PairType::first;
+            long double PairType::*psecond = &PairType::second;
+
+            PairType p('c', 3.14l);
+
+            ASSERTV(&p.first,  &(p.*pfirst),  p.first   == (p.*pfirst));
+            ASSERTV(&p.second, &(p.*psecond), p.second  == (p.*psecond));
+        }
+
+        {
+            typedef bsl::pair<long double, char> PairType;
+
+            long double PairType::*pfirst  = &PairType::first;
+            char        PairType::*psecond = &PairType::second;
+
+            PairType p(2.78l, 'd');
+
+            ASSERTV(&p.first,  &(p.*pfirst),  p.first   == (p.*pfirst));
+            ASSERTV(&p.second, &(p.*psecond), p.second  == (p.*psecond));
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'hashAppend'
         //
         // Concerns:
         //: 1 Hashes different inputs differently
@@ -683,10 +2645,11 @@ int main(int argc, char *argv[])
         //:   'my_String' value produce the same hash code. (C-4)
         //
         // Testing:
-        //     hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
+        //   hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
         // --------------------------------------------------------------------
-        verbose && puts("\nTESTING 'hashAppend'"
-                        "\n====================");
+
+        if (verbose) printf("\nTESTING 'hashAppend'"
+                            "\n====================\n");
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
         typedef Hasher::result_type         HashType;
@@ -818,56 +2781,9 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // Pointer to member
-        //
-        // Concerns:
-        // - We can use pointer to members to access both 'first' and 'second'
-        //
-        // Plan
-        // - Create pointer to member to both 'first' and 'second' and check
-        //   that the behavior is as expected
-        //
-        // Testing:
-        //     Pointer to member
-        // --------------------------------------------------------------------
-        if (verbose) printf("\nPOINTER TO MEMBER TEST"
-                            "\n======================\n");
-
-        int bsl::pair<int,const char*>::*pfirst
-                                        = &bsl::pair<int,const char*>::first;
-        const char* bsl::pair<int,const char*>::*psecond
-                                        = &bsl::pair<int,const char*>::second;
-        bsl::pair<int,const char*> p(10, "test7");
-        ASSERT(p.first == (p.*pfirst));
-        ASSERT(p.second == (p.*psecond));
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        // - The usage example in the header documentation compiles and runs.
-        //
-        // Plan
-        // - Copy the usage example from the header documentation.
-        // - Replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //     Usage Example
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-
-        usageExample();
-
-      } break;
-
       case 5: {
         // --------------------------------------------------------------------
-        // SWAP TEST
+        // TESTING 'swap'
         //
         // Concerns:
         // - 'swap' free function correctly swaps the values of 'pair::first'
@@ -888,120 +2804,90 @@ int main(int argc, char *argv[])
         //   instantiations of 'pair' described above.
         //
         // Testing:
-        //     // free function
-        //     template <typename T1, typename T2>
-        //     void bsl::swap(pair<T1, T2>& lhs, pair<T1, T2>& rhs);
-        //
-        //     // member function
-        //     template <typename T1, typename T2>
-        //     void pair<T1, T2>::swap(pair& rhs);
+        //   void pair::swap(pair& rhs);
+        //   void swap(pair& lhs, pair& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nSWAP TEST"
-                            "\n=========\n");
+        if (verbose) printf("\nTESTING 'swap'"
+                            "\n==============\n");
 
         swapTestHelper<TypeWithSwapNamespace::TypeWithSwap, TypeWithoutSwap>();
         swapTestHelper<TypeWithoutSwap, TypeWithSwapNamespace::TypeWithSwap>();
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
-        // CONVERSION CONSTRUCTOR TEST
+        // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
         // - Can construct a 'bsl::pair' from a different instantiation of
         //   'pair' where each type is convertible.
-        // - If either type uses an allocator, then an allocator can be passed
-        //   to the conversion constructor and is used to construct that
-        //   member.
+        // - If either type uses a 'bslma::Allocator', then an allocator can
+        //   be passed to the conversion constructor and is used to construct
+        //   that member.
+        // - If neither type uses a 'bslma::allocator', then any allocator
+        //   argument is ignored.
         //
         // Plan:
         // - Construct 'pair<int, double>' from 'pair<char, int>'
-        // - Construct 'pair<my_String, int>' from
-        //             'pair<const char*, int>'.
-        // - Construct 'pair<my_String, int>' from
-        //             'pair<const char*, int>' using an allocator.
-        // - Construct 'pair<my_NoAllocString, my_String>' from
-        //             'pair<const char*, const char*>' using an allocator.
-        // - When an allocator is used, verify that result has correct
-        //   allocator.
-        // - When an allocator is used, verify no memory leaks.
+        // - For each 'STRING' type in the list, 'my_String',
+        //   'my_BslmaAllocArgStr', 'my_STLAllocArgStr', 'my_NoAllocStr':
+        //   * Construct 'pair<STRING, int>' from 'pair<const char*, short>',
+        //     without supplying an allocator on construction.
+        //   * Construct 'pair<STRING, int>' from 'pair<const char*, short>',
+        //     supplying a 'bslma::Allocator*' on construction.
+        //   * Construct 'pair<int, STRING>' from 'pair<short, const char*>',
+        //     without supplying an allocator on construction.
+        //   * Construct 'pair<int, STRING>' from 'pair<short, const char*>',
+        //     supplying a 'bslma::Allocator*' on construction.
+        //   * Construct 'pair<STRING, STRING>' from 'pair<char*,const char*>',
+        //     without supplying an allocator on construction.
+        //   * Construct 'pair<STRING, STRING>' from 'pair<char*,const char*>',
+        //     supplying a 'bslma::Allocator*' on construction.
+        //   * Repeat the above except constructing 'bsl::pair from
+        //     'native_std::pair'.
+        // - When an allocator is not supplied on construction, verify that
+        //   the correct default is used by the STRING in the constructed pair.
+        // - When 'STRING' does not use a 'bslma::Allocator' and an allocator
+        //   is supllied on construction, verify that the 'STRING' value
+        //   in the constructed pair uses the appropriate default allocator.
+        // - When 'STRING' does use a 'bslma::Allocator' and an allocator
+        //   is supllied on construction, verify that the 'STRING' value
+        //   in the constructed pair uses the supplied allocator.
+        // - Verify that there are no memory leaks.
         //
         // Testing:
-        //     template <typename U1, typename U2>
-        //     pair(const pair<U1, U2>& rhs);
-        //
-        //     template <typename U1, typename U2>
-        //     pair(const pair<U1, U2>&  rhs,
-        //          bslma::Allocator    *alloc);
+        //   pair(const pair<U1, U2>& rhs);
+        //   pair(const pair<U1, U2>& rhs, AllocatorPtr basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONVERSION CONSTRUCTOR TEST"
-                            "\n===========================\n");
+        if (verbose) printf("\nTESTING CONVERSION CONSTRUCTORS"
+                            "\n===============================\n");
 
-        bslma::TestAllocator ta1(veryVerbose);
-        bslma::TestAllocator ta2(veryVerbose);
-        bslma::TestAllocator& ta3 = *my_NoAllocString::allocator();
-
-        bslma::DefaultAllocatorGuard allocGuard(&ta2);
+        bslma::TestAllocator ta1(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
+        bslma::TestAllocator& ta3 = *my_STLCharAlloc::defaultMechanism();
 
         {
-            bsl::pair<char, int> p1(9, 8), &P1 = p1;
+            bslma::DefaultAllocatorGuard allocGuard(&ta2);
+
+            bsl::pair<char, int> p1('A', 8), &P1 = p1;
             bsl::pair<int, double> p2(P1), &P2 = p2;
-            ASSERT(9 == P2.first);
+            ASSERT('A' == P2.first);
             ASSERT(8 == P2.second);
-        }
 
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-
-        {
-            bsl::pair<const char*, int> p1("Hello", 5), &P1 = p1;
-            bsl::pair<my_String, int> p2(P1), &P2 = p2;
-            ASSERT("Hello" == P2.first);
-            ASSERT(5 == P2.second);
-            ASSERT(&ta2 == P2.first.allocator());
             ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(1 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-
-        {
-            bsl::pair<const char*, int> p1("Hello", 5), &P1 = p1;
-            bsl::pair<my_String, int> p2(P1, &ta1), &P2 = p2;
-            ASSERT("Hello" == P2.first);
-            ASSERT(5 == P2.second);
-            ASSERT(&ta1 == P2.first.allocator());
-            ASSERT(1 <= ta1.numBlocksInUse());
             ASSERT(0 == ta2.numBlocksInUse());
             ASSERT(0 == ta3.numBlocksInUse());
         }
 
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-
-        {
-            bsl::pair<const char*, const char*> p1("Hello", "Goodbye"),
-                &P1 = p1;
-            bsl::pair<my_NoAllocString, my_String> p2(P1, &ta1), &P2 = p2;
-            ASSERT("Hello" == P2.first);
-            ASSERT("Goodbye" == P2.second);
-            ASSERT(&ta3 == P2.first.allocator());
-            ASSERT(&ta1 == P2.second.allocator());
-            ASSERT(1 <= ta1.numBlocksInUse());
-            ASSERT(0 == ta2.numBlocksInUse());
-            ASSERT(1 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
+        if (veryVerbose) printf("Convert to 'my_String'\n");
+        testBslmaStringConversionCtor<my_String>();
+        if (veryVerbose) printf("Convert to 'my_BslmaAllocArgStr'\n");
+        testBslmaStringConversionCtor<my_BslmaAllocArgStr>();
+        if (veryVerbose) printf("Convert to 'my_STLAllocArgStr'\n");
+        testNonBslmaStringConversionCtor<my_STLAllocArgStr>();
+        if (veryVerbose) printf("Convert to 'my_NoAllocString'\n");
+        testNonBslmaStringConversionCtor<my_NoAllocString>();
 
       } break;
       case 3: {
@@ -1026,7 +2912,7 @@ int main(int argc, char *argv[])
         //   this trait.
         //
         // Testing:
-        //     Type Traits
+        //   Type Traits
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTRAITS TEST"
@@ -1208,25 +3094,28 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        // 1. Can construct a 'pair' using the default constructor,
-        //    constructor with two arguments and copy constructor with no
-        //    allocator.
-        // 2. If and only if one or both members of the 'pair' have
-        //    the 'bslma::UsesBslmaAllocator' trait, then the
-        //    'pair' also has that trait.
-        // 3. If 'pair' has the 'bslma::UsesBslmaAllocator'
-        //    trait, then each constructor can be passed a 'bslma::Allocator'
-        //    pointer and that pointer is passed through to the member(s) that
-        //    take it.
-        // 4. Assignment works as designed.
-        // 5. Operators ==, !=, <, >, <=, and >= work as designed.
+        //: 1 Can construct a 'pair' using the default constructor, constructor
+        //:   with two arguments and copy constructor with no allocator.
+        //: 2 If and only if one or both members of the 'pair' have the
+        //:   'bslma::UsesBslmaAllocator' trait, then the 'pair' also has that
+        //:   trait.
+        //: 3 If 'pair' has the 'bslma::UsesBslmaAllocator' trait, then each
+        //:   constructor can be passed a 'bslma::Allocator' pointer and that
+        //:   pointer is passed through to the member(s) that take it.
+        //: 4 Assignment works as designed.
+        //: 5 Operators ==, !=, <, >, <=, and >= work as designed.
         //
         // Plan:
         // - Select a small set of interesting types:
-        //   'short'            - Fundamental type
-        //   'my_String'        - Uses 'bslma::Allocator' in constructor
-        //   'my_NoAllocString' - Doesn't use 'bslma::Allocator' in constructor
-        // - Instantiate 'pair' with each combination (9 total) of the
+        //   'short'              - Fundamental type
+        //   'my_String'          - Uses 'bslma::Allocator' in constructor
+        //   'my_BslmaAllocArgStr - Uses 'bslma::Allocator' in constructor by
+        //                          means of the 'allocator_arg' idiom.
+        //   'my_STLAllocArgStr   - Uses an STL-style allocator in constructor
+        //                          by means of the 'allocator_arg' idiom.
+        //   'my_NoAllocString'   - Doesn't use 'bslma::Allocator' in
+        //                          constructor.
+        // - Instantiate 'pair' with each combination (25 total) of the
         //   above types.
         // - For each instantiation, do the following:
         //   * Verify that the 'first_type' and 'second_type' typedefs are the
@@ -1249,665 +3138,101 @@ int main(int argc, char *argv[])
         //   * Test assignment among the new objects
         //
         // Testing:
-        //     typedef T1 first_type;
-        //     typedef T2 second_type;
-        //     T1 first;
-        //     T1 second;
-        //     pair();
-        //     pair(bslma::Allocator *alloc);
-        //     pair(const T1& a, const T2& b);
-        //     pair(const T1& a, const T2& b, bslma::Allocator *alloc);
-        //     pair(const pair& rhs);
-        //     pair(const pair& rhs, bslma::Allocator *alloc);
-        //     ~pair();
-        //     pair& operator=(const pair& rhs);
-        //     bool operator==(const pair& x, const pair& y);
-        //     bool operator!=(const pair& x, const pair& y);
-        //     bool operator<(const pair& x, const pair& y);
-        //     bool operator>(const pair& x, const pair& y);
-        //     bool operator<=(const pair& x, const pair& y);
-        //     bool operator>=(const pair& x, const pair& y);
+        //   typedef T1 first_type;
+        //   typedef T2 second_type;
+        //   T1 first;
+        //   T1 second;
+        //   pair();
+        //   pair(AllocatorPtr basicAllocator);
+        //   pair(const T1& a, const T2& b);
+        //   pair(const T1& a, const T2& b, AllocatorPtr basicAllocator);
+        //   pair(const pair& original);
+        //   pair(const pair& original, AllocatorPtr basicAllocator);
+        //   ~pair();
+        //   pair& operator=(const pair& rhs);
+        //   bool operator==(const pair& x, const pair& y);
+        //   bool operator!=(const pair& x, const pair& y);
+        //   bool operator<(const pair& x, const pair& y);
+        //   bool operator>(const pair& x, const pair& y);
+        //   bool operator<=(const pair& x, const pair& y);
+        //   bool operator>=(const pair& x, const pair& y);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
                             "\n==================\n");
 
-        bslma::TestAllocator ta1(veryVerbose);
-        bslma::TestAllocator ta2(veryVerbose);
-        bslma::TestAllocator& ta3 = *my_NoAllocString::allocator();
-
-        bslma::DefaultAllocatorGuard allocGuard(&ta2);
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-
-        if (verbose) printf("testing bsl::pair<short, short>\n");
-        {
-            typedef bsl::pair<short, short> Obj;
-            ASSERT((bsl::is_same<short, Obj::first_type>::value));
-            ASSERT((bsl::is_same<short, Obj::second_type>::value));
-
-            const short NULL_FIRST   = 0;
-            const short NULL_SECOND  = 0;
-            const short VALUE_FIRST  = 3;
-            const short VALUE_SECOND = 4;
-
-            ASSERT(  (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(  (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(  (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(0 == ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-        }
-        // End test bslstl::Pair<short, short>
-
-        if (verbose) printf("testing bsl::pair<short, my_String>\n");
-        {
-            typedef bsl::pair<short, my_String> Obj;
-            ASSERT((bsl::is_same<short, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
-
-            const short        NULL_FIRST   = 0;
-            const char  *const NULL_SECOND  = "";
-            const short        VALUE_FIRST  = 4;
-            const char  *const VALUE_SECOND = "Hello";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            ASSERT(&ta2 == P1.second.allocator());
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            ASSERT(&ta2 == P2.second.allocator());
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-            ASSERT(&ta2 == P3.second.allocator());
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-
-            Obj p4(&ta1); const Obj& P4 = p4;
-            ASSERT(NULL_FIRST == P4.first && NULL_SECOND == P4.second);
-            ASSERT(&ta1 == P4.second.allocator());
-            Obj p5(VALUE_FIRST, VALUE_SECOND, &ta1); const Obj& P5 = p5;
-            ASSERT(VALUE_FIRST == P5.first && VALUE_SECOND == P5.second);
-            ASSERT(&ta1 == P5.second.allocator());
-            Obj p6(p2, &ta1); const Obj& P6 = p6;
-            ASSERT(VALUE_FIRST == P6.first && VALUE_SECOND == P6.second);
-            ASSERT(&ta1 == P6.second.allocator());
-
-            p4 = p5;
-            ASSERT(P4 == P5);
-
-            ASSERT(3 <= ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End test bsl::pair<short, my_String>
-
-        if (verbose) {
-            printf("testing bsl::pair<short, my_NoAllocString>\n");
-        }
-        {
-            typedef bsl::pair<short, my_NoAllocString> Obj;
-            ASSERT((bsl::is_same<short, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
-
-            const short        NULL_FIRST   = 0;
-            const char  *const NULL_SECOND  = "";
-            const short        VALUE_FIRST  = 4;
-            const char  *const VALUE_SECOND = "Hello";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(0 == ta2.numBlocksInUse());
-            ASSERT(3 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // end test bsl::pair<short, my_NoAllocString>
-
-        if (verbose) printf("testing bsl::pair<my_String, short>\n");
-        {
-            typedef bsl::pair<my_String, short> Obj;
-            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
-            ASSERT((bsl::is_same<short, Obj::second_type>::value));
-
-            const char  *const NULL_FIRST   = "";
-            const short        NULL_SECOND  = 0;
-            const char  *const VALUE_FIRST  = "Hello";
-            const short        VALUE_SECOND = 4;
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            ASSERT(&ta2 == P1.first.allocator());
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            ASSERT(&ta2 == P2.first.allocator());
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-            ASSERT(&ta2 == P3.first.allocator());
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-
-            Obj p4(&ta1); const Obj& P4 = p4;
-            ASSERT(NULL_FIRST == P4.first && NULL_SECOND == P4.second);
-            ASSERT(&ta1 == P4.first.allocator());
-            Obj p5(VALUE_FIRST, VALUE_SECOND, &ta1); const Obj& P5 = p5;
-            ASSERT(VALUE_FIRST == P5.first && VALUE_SECOND == P5.second);
-            ASSERT(&ta1 == P5.first.allocator());
-            Obj p6(p2, &ta1); const Obj& P6 = p6;
-            ASSERT(VALUE_FIRST == P6.first && VALUE_SECOND == P6.second);
-            ASSERT(&ta1 == P6.first.allocator());
-
-            p4 = p5;
-            ASSERT(P4 == P5);
-
-            ASSERT(3 <= ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bsl::pair<my_String, short>
-
-        if (verbose) {
-            printf("testing bsl::pair<my_String, my_String>\n");
-        }
-        {
-            typedef bsl::pair<my_String, my_String> Obj;
-            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
-
-            const char *const NULL_FIRST   = "";
-            const char *const NULL_SECOND  = "";
-            const char *const VALUE_FIRST  = "Hello";
-            const char *const VALUE_SECOND = "Goodbye";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            ASSERT(&ta2 == P1.first.allocator() &&
-                   &ta2 == P1.second.allocator());
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            ASSERT(&ta2 == P2.first.allocator() &&
-                   &ta2 == P2.second.allocator());
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-            ASSERT(&ta2 == P3.first.allocator() &&
-                   &ta2 == P3.second.allocator());
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(6 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-
-            Obj p4(&ta1); const Obj& P4 = p4;
-            ASSERT(NULL_FIRST == P4.first && NULL_SECOND == P4.second);
-            ASSERT(&ta1 == P4.first.allocator() &&
-                   &ta1 == P4.second.allocator());
-            Obj p5(VALUE_FIRST, VALUE_SECOND, &ta1); const Obj& P5 = p5;
-            ASSERT(VALUE_FIRST == P5.first && VALUE_SECOND == P5.second);
-            ASSERT(&ta1 == P5.first.allocator() &&
-                   &ta1 == P5.second.allocator());
-            Obj p6(p2, &ta1); const Obj& P6 = p6;
-            ASSERT(VALUE_FIRST == P6.first && VALUE_SECOND == P6.second);
-            ASSERT(&ta1 == P5.first.allocator() &&
-                   &ta1 == P5.second.allocator());
-
-            p4 = p5;
-            ASSERT(P4 == P5);
-
-            ASSERT(6 <= ta1.numBlocksInUse());
-            ASSERT(6 <= ta2.numBlocksInUse());
-            ASSERT(0 == ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bsl::pair<my_String, my_String>
-
-        if (verbose) {
-            printf("testing bsl::pair<my_String, my_NoAllocString>\n");
-        }
-        {
-            typedef bsl::pair<my_String, my_NoAllocString> Obj;
-            ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
-
-            const char  *const NULL_FIRST   = "";
-            const char  *const NULL_SECOND  = "";
-            const char  *const VALUE_FIRST  = "Hello";
-            const char  *const VALUE_SECOND = "Goodbye";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            ASSERT(&ta2 == P1.first.allocator());
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            ASSERT(&ta2 == P2.first.allocator());
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-            ASSERT(&ta2 == P3.first.allocator());
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(3 <= ta3.numBlocksInUse());
-
-            Obj p4(&ta1); const Obj& P4 = p4;
-            ASSERT(NULL_FIRST == P4.first && NULL_SECOND == P4.second);
-            ASSERT(&ta1 == P4.first.allocator());
-            Obj p5(VALUE_FIRST, VALUE_SECOND, &ta1); const Obj& P5 = p5;
-            ASSERT(VALUE_FIRST == P5.first && VALUE_SECOND == P5.second);
-            ASSERT(&ta1 == P5.first.allocator());
-            Obj p6(p2, &ta1); const Obj& P6 = p6;
-            ASSERT(VALUE_FIRST == P6.first && VALUE_SECOND == P6.second);
-            ASSERT(&ta1 == P6.first.allocator());
-
-            p4 = p5;
-            ASSERT(P4 == P5);
-
-            ASSERT(3 <= ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(6 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bslstl::Pair<my_String, my_NoAllocString>
-
-        if (verbose) {
-            printf("testing bsl::pair<my_NoAllocString, short>\n");
-        }
-        {
-            typedef bsl::pair<my_NoAllocString, short> Obj;
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
-            ASSERT((bsl::is_same<short, Obj::second_type>::value));
-
-            const char  *const NULL_FIRST   = "";
-            const short        NULL_SECOND  = 0;
-            const char  *const VALUE_FIRST  = "Hello";
-            const short        VALUE_SECOND = 4;
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(0 == ta2.numBlocksInUse());
-            ASSERT(3 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bsl::pair<my_NoAllocString, short>
-
-        if (verbose) {
-            printf("testing bsl::pair<my_NoAllocString, my_String>\n");
-        }
-        {
-            typedef bsl::pair<my_NoAllocString, my_String> Obj;
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_String, Obj::second_type>::value));
-
-            const char  *const NULL_FIRST   = "";
-            const char  *const NULL_SECOND  = "";
-            const char  *const VALUE_FIRST  = "Hello";
-            const char  *const VALUE_SECOND = "Goodbye";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(  (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            ASSERT(&ta2 == P1.second.allocator());
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            ASSERT(&ta2 == P2.second.allocator());
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-            ASSERT(&ta2 == P3.second.allocator());
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(3 <= ta3.numBlocksInUse());
-
-            Obj p4(&ta1); const Obj& P4 = p4;
-            ASSERT(NULL_FIRST == P4.first && NULL_SECOND == P4.second);
-            ASSERT(&ta1 == P4.second.allocator());
-            Obj p5(VALUE_FIRST, VALUE_SECOND, &ta1); const Obj& P5 = p5;
-            ASSERT(VALUE_FIRST == P5.first && VALUE_SECOND == P5.second);
-            ASSERT(&ta1 == P5.second.allocator());
-            Obj p6(p2, &ta1); const Obj& P6 = p6;
-            ASSERT(VALUE_FIRST == P6.first && VALUE_SECOND == P6.second);
-            ASSERT(&ta1 == P6.second.allocator());
-
-            p4 = p5;
-            ASSERT(P4 == P5);
-
-            ASSERT(3 <= ta1.numBlocksInUse());
-            ASSERT(3 <= ta2.numBlocksInUse());
-            ASSERT(6 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bsl::pair<my_NoAllocString, my_String>
-
-        if (verbose) {
-            printf("testing bsl::pair<my_NoAllocString, "
-                        "my_NoAllocString>\n");
-        }
-        {
-            typedef bsl::pair<my_NoAllocString, my_NoAllocString> Obj;
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::first_type>::value));
-            ASSERT((bsl::is_same<my_NoAllocString, Obj::second_type>::value));
-
-            const char  *const NULL_FIRST   = "";
-            const char  *const NULL_SECOND  = "";
-            const char  *const VALUE_FIRST  = "Hello";
-            const char  *const VALUE_SECOND = "Goodbye";
-
-            ASSERT(! (bslmf::IsBitwiseMoveable<               Obj>::value));
-            ASSERT(! (bsl::is_trivially_copyable<             Obj>::value));
-            ASSERT(! (bsl::is_trivially_default_constructible<Obj>::value));
-            ASSERT(! (bslma::UsesBslmaAllocator<              Obj>::value));
-
-            Obj p1; const Obj& P1 = p1;
-            ASSERT(NULL_FIRST == P1.first && NULL_SECOND == P1.second);
-            Obj p2(VALUE_FIRST, VALUE_SECOND); const Obj& P2 = p2;
-            ASSERT(VALUE_FIRST == P2.first && VALUE_SECOND == P2.second);
-            Obj p3(p2); const Obj& P3 = p3;
-            ASSERT(VALUE_FIRST == P3.first && VALUE_SECOND == P3.second);
-
-            ASSERT(P2 == P3);
-            ASSERT(P1 != P2);
-            ASSERT(P1 < P2);
-            ASSERT(P2 > P1);
-            ASSERT(P1 <= P2);
-            ASSERT(P2 >= P1);
-            ASSERT(P3 <= P2);
-            ASSERT(P2 >= P3);
-
-            ASSERT(! (P1 == P2));
-            ASSERT(! (P3 != P2));
-            ASSERT(! (P2 < P1));
-            ASSERT(! (P1 > P2));
-            ASSERT(! (P2 < P3));
-            ASSERT(! (P3 > P2));
-            ASSERT(! (P2 <= P1));
-            ASSERT(! (P1 >= P2));
-
-            p1 = p2;
-            ASSERT(P1 == P2);
-
-            ASSERT(0 == ta1.numBlocksInUse());
-            ASSERT(0 <= ta2.numBlocksInUse());
-            ASSERT(6 <= ta3.numBlocksInUse());
-        }
-
-        ASSERT(0 == ta1.numBlocksInUse());
-        ASSERT(0 == ta2.numBlocksInUse());
-        ASSERT(0 == ta3.numBlocksInUse());
-        // End testing bsl::pair<my_NoAllocString, my_NoAllocString>
+        ASSERT(! bslma::UsesBslmaAllocator<short              >::value);
+        ASSERT(  bslma::UsesBslmaAllocator<my_String          >::value);
+        ASSERT(  bslma::UsesBslmaAllocator<my_BslmaAllocArgStr>::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_STLAllocArgStr  >::value);
+        ASSERT(! bslma::UsesBslmaAllocator<my_NoAllocString   >::value);
+
+#define TEST(T1, T2) do {                                               \
+            if (veryVerbose) printf("Testing pair<%s,%s>\n", #T1, #T2); \
+            testFunctionality<T1, T2>(                                  \
+                bslma::UsesBslmaAllocator<bsl::pair<T1,T2> >());        \
+        } while (false)
+
+        TEST(short              , short              );
+        TEST(short              , my_String          );
+        TEST(short              , my_BslmaAllocArgStr);
+        TEST(short              , my_STLAllocArgStr  );
+        TEST(short              , my_NoAllocString   );
+
+        TEST(my_String          , short              );
+        TEST(my_String          , my_String          );
+        TEST(my_String          , my_BslmaAllocArgStr);
+        TEST(my_String          , my_STLAllocArgStr  );
+        TEST(my_String          , my_NoAllocString   );
+
+        TEST(my_BslmaAllocArgStr, short              );
+        TEST(my_BslmaAllocArgStr, my_String          );
+        TEST(my_BslmaAllocArgStr, my_BslmaAllocArgStr);
+        TEST(my_BslmaAllocArgStr, my_STLAllocArgStr  );
+        TEST(my_BslmaAllocArgStr, my_NoAllocString   );
+
+        TEST(my_STLAllocArgStr  , short              );
+        TEST(my_STLAllocArgStr  , my_String          );
+        TEST(my_STLAllocArgStr  , my_BslmaAllocArgStr);
+        TEST(my_STLAllocArgStr  , my_STLAllocArgStr  );
+        TEST(my_STLAllocArgStr  , my_NoAllocString   );
+
+        TEST(my_NoAllocString   , short              );
+        TEST(my_NoAllocString   , my_String          );
+        TEST(my_NoAllocString   , my_BslmaAllocArgStr);
+        TEST(my_NoAllocString   , my_STLAllocArgStr  );
+        TEST(my_NoAllocString   , my_NoAllocString   );
+
+#undef TEST
 
       } break;
 
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        // - Can construct a 'pair' with allocator.
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        // - Instantiate 'pair' with a simple string class that uses
-        //   'bslma::Allocator'.
-        // - Construct a objects using the test allocator.
-        // - Verify that object members have the correct value.
-        // - Verify that that the correct allocator was used.
-        // - Verify that there are no memory leaks.
+        //: 1 Instantiate 'pair' with a simple string class that uses
+        //:    'bslma::Allocator'.
+        //: 2 Construct a objects using the test allocator.
+        //: 3 Verify that object members have the correct value.
+        //: 4 Verify that that the correct allocator was used.
+        //: 5 Verify that there are no memory leaks.
         //
         // Testing:
-        //   Breathing test only.  Exercises basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bslma::TestAllocator ta1(veryVerbose);
-        bslma::TestAllocator ta2(veryVerbose);
+        bslma::TestAllocator ta1(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
 
         bslma::DefaultAllocatorGuard allocGuard(&ta2);
 

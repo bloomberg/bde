@@ -96,14 +96,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
-#include <bsls_atomic.h>
-#endif
-
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
@@ -116,12 +108,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -160,10 +160,6 @@ class ThreadGroup {
     ThreadGroup& operator=(const ThreadGroup&);
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ThreadGroup,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-
     // CREATORS
     explicit
     ThreadGroup(bslma::Allocator *basicAllocator = 0);
@@ -289,6 +285,17 @@ int bslmt::ThreadGroup::numThreads() const
    return d_numThreads.loadRelaxed();
 }
 
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<bslmt::ThreadGroup> : bsl::true_type {};
+
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

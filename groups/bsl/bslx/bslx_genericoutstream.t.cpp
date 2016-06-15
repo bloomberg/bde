@@ -1015,8 +1015,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1134,8 +1133,7 @@ int main(int argc, char *argv[])
         {
             const double DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1254,8 +1252,7 @@ int main(int argc, char *argv[])
         {
             const float DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1447,8 +1444,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1460,8 +1456,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1653,8 +1648,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1666,8 +1660,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1859,8 +1852,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -1872,8 +1864,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2065,8 +2056,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2078,8 +2068,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2270,8 +2259,7 @@ int main(int argc, char *argv[])
         {
             const int DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2283,8 +2271,7 @@ int main(int argc, char *argv[])
         {
             const unsigned int DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2475,8 +2462,7 @@ int main(int argc, char *argv[])
         {
             const int DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2488,8 +2474,7 @@ int main(int argc, char *argv[])
         {
             const unsigned int DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2669,8 +2654,7 @@ int main(int argc, char *argv[])
         {
             const short DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2682,8 +2666,7 @@ int main(int argc, char *argv[])
         {
             const unsigned short DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2928,8 +2911,7 @@ int main(int argc, char *argv[])
         {
             const char DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2941,8 +2923,7 @@ int main(int argc, char *argv[])
         {
             const signed char DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2954,8 +2935,7 @@ int main(int argc, char *argv[])
         {
             const char DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -2967,8 +2947,7 @@ int main(int argc, char *argv[])
         {
             const unsigned char DATA[] = {1, 2, 3};
 
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
@@ -4409,8 +4388,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             Buf mB;
             ASSERT_SAFE_PASS(Obj mX(&mB, VERSION_SELECTOR));

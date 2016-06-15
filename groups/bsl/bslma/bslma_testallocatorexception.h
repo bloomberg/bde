@@ -233,7 +233,7 @@ class TestAllocatorException {
 
   public:
     // CREATORS
-    TestAllocatorException(size_type numBytes);
+    explicit TestAllocatorException(size_type numBytes);
         // Create an exception object initialized with the specified 'numBytes'
         // that indicates an allocation request size.
 

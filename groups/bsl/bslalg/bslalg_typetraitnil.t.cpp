@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraitnil.h>
 
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -128,6 +130,9 @@ int main(int argc, char *argv[])
         Obj mX;
         (void) mX;
 
+        ASSERT((bslalg::HasTrait<void,           Obj>::VALUE));
+        ASSERT((bslalg::HasTrait<volatile int&,  Obj>::VALUE));
+        ASSERT((bslalg::HasTrait<double(int...), Obj>::VALUE));
       } break;
 
       default: {

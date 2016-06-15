@@ -2,7 +2,6 @@
 
 #include <bslstl_string.h>
 
-#include <bslstl_allocator.h>
 #include <bslstl_forwarditerator.h>
 #include <bslstl_stringrefdata.h>
 
@@ -10,17 +9,21 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslmf_issame.h>
 #include <bsls_alignmentutil.h>
-#include <bsls_platform.h>
-#include <bsls_types.h>
-#include <bsls_objectbuffer.h>
-#include <bsls_stopwatch.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
+#include <bsls_objectbuffer.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
+#include <bsls_macrorepeat.h>
 
 #include <algorithm>    // 'adjacent_find', 'sort'
 #include <iomanip>
@@ -49,6 +52,8 @@
 #endif
 
 using namespace BloombergLP;
+using bsls::NameOf;
+using bsls::nameOfType;
 
 //=============================================================================
 //                             TEST PLAN
@@ -96,10 +101,12 @@ using namespace BloombergLP;
 // Abbreviations:
 // --------------
 // Throughout this test driver, we use
+//..
 //     C               VALUE_TYPE (template argument, no default)
 //     A               ALLOC (template argument, dflt: bsl::allocator<T>)
 //     basic_string    basic_string<C,CT,A> if template arguments not specified
 //     string<C,CT,A>  basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
+//..
 // In the signatures, to keep one-liners, the arguments 'pos', 'pos1', pos'2',
 // 'n', 'n1', and 'n2', are always of 'size_type', and 'a' is always of type
 // 'const A&'.
@@ -121,6 +128,7 @@ using namespace BloombergLP;
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
 // [26] basic_string(const native_std::basic_string<CHAR, TRAITS, A2>&);
 // [  ] basic_string(const StringRefData& strRefData, a = A());
+// [33] basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
 // [ 2] ~basic_string();
 //
 /// MANIPULATORS:
@@ -128,6 +136,7 @@ using namespace BloombergLP;
 // [ 9] basic_string& operator=(MovableRef<basic_string> rhs);
 // [  ] basic_string& operator=(const CHAR_TYPE *s);
 // [  ] basic_string& operator=(CHAR_TYPE c);
+// [33] basic_string& operator=(initializer_list<CHAR_TYPE> values);
 // [  ] basic_string& operator+=(const basic_string& rhs);
 // [  ] basic_string& operator+=(const CHAR_TYPE *s);
 // [17] basic_string& operator+=(CHAR_TYPE c);
@@ -152,6 +161,7 @@ using namespace BloombergLP;
 // [  ] basic_string& assign(const bslstl::StringRefData<CHAR_TYPE>& strRef);
 // [13] basic_string& assign(size_type n, CHAR_TYPE c);
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
+// [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
 // [17] basic_string& append(const basic_string& str);
 // [17] basic_string& append(const basic_string& str, pos, n);
 // [17] basic_string& append(const CHAR_TYPE *s, size_type n);
@@ -167,6 +177,7 @@ using namespace BloombergLP;
 // [18] iterator insert(const_iterator pos, CHAR_TYPE value);
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
 // [18] template <class Iter> iterator insert(const_iterator, Iter, Iter);
+// [33] iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
 // [19] void pop_back();
 // [19] iterator erase(size_type pos = 0, size_type n = npos);
 // [19] iterator erase(const_iterator position);
@@ -298,7 +309,7 @@ using namespace BloombergLP;
 // [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [33] USAGE EXAMPLE
+// [34] USAGE EXAMPLE
 // [11] ALLOCATOR-RELATED CONCERNS
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -378,6 +389,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
+// ============================================================================
+//                         OTHER MACROS
+// ----------------------------------------------------------------------------
+
+#define MACROREPEAT_COMMA BSLS_MACROREPEAT_COMMA
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -390,6 +407,8 @@ typedef bsls::Types::Uint64     Uint64;
 typedef char                                             Element;
 typedef bsl::basic_string<char, bsl::char_traits<char> > Obj;
 typedef bsl::String_Imp<char, size_t>                    Imp;
+
+typedef bslma::TestAllocatorMonitor                      Tam;
 
 // CONSTANTS
 const int MAX_ALIGN      = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
@@ -480,7 +499,6 @@ template <>
 struct ExpectedShortBufferCapacity<wchar_t>
     : bsl::integral_constant<size_t, k_SHORT_BUFFER_CAPACITY_WCHAR_T> {};
 
-
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -517,7 +535,6 @@ void debugprint(const bsl::basic_string<wchar_t, TRAITS, ALLOC>& v)
     }
     fflush(stdout);
 }
-
 }  // close namespace bsl
 
 // Legacy debug print support.
@@ -541,8 +558,6 @@ void dbg_print(const char *s, const TYPE& val, const char *nl)
     printf("%s", nl);
     fflush(stdout);
 }
-
-
 
 // String utilities
 inline
@@ -593,12 +608,50 @@ size_t computeNewCapacity(size_t newLength,
     return capacity > maxSize ? maxSize : capacity;                   // RETURN
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+namespace std {
+void debugprint(const std::initializer_list<char>& v)
+{
+    if (0 == v.size()) {
+        printf("<empty>");
+    }
+    else {
+        for (std::initializer_list<char>::iterator itr  = v.begin(),
+                                                   end  = v.end();
+                                                   end != itr;
+                                                   ++itr) {
+            printf("'%c'", *itr);
+        }
+    }
+    fflush(stdout);
+}
+
+void debugprint(const std::initializer_list<wchar_t>& v)
+{
+    if (0 == v.size()) {
+        printf("<empty>");
+    }
+    else {
+        for (std::initializer_list<wchar_t>::iterator itr  = v.begin(),
+                                                      end  = v.end();
+                                                      end != itr;
+                                                      ++itr) {
+            printf("'l%c'", *itr);
+        }
+    }
+    fflush(stdout);
+}
+}  // close namespace std
+
+#endif
+
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 // STATIC DATA
 static bool verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
+
 static bslma::TestAllocator *globalAllocator_p,
                             *defaultAllocator_p,
                             *objectAllocator_p;
@@ -869,7 +922,6 @@ inline
 bool isNativeString(const native_std::basic_string<TYPE,TRAITS,ALLOC>&)
     { return true; }
 
-
 namespace BloombergLP {
 namespace bslma {
 // Specialize trait to clarify for bde_verify that 'LimitAllocator' does not
@@ -894,7 +946,7 @@ struct TestDriver {
     // values to be appended to the 'string' object.  A tilde ('~') indicates
     // that the logical (but not necessarily physical) state of the object is
     // to be set to its initial, empty state (via the 'clear' method).
-    //
+    //..
     // LANGUAGE SPECIFICATION:
     // -----------------------
     //
@@ -924,6 +976,7 @@ struct TestDriver {
     // "ABC~DE"     Append three values corresponding to A, B, and C; empty
     //              the object; and append values corresponding to D and E.
     //-------------------------------------------------------------------------
+    //..
 
     // TYPES
     typedef bsl::basic_string<TYPE,TRAITS,ALLOC>  Obj;
@@ -1047,6 +1100,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase33();
+        // Test the 'initializer_list' functions where supported.
+
     static void testCase29();
         // Test the hash append specialization.
 
@@ -1351,6 +1407,850 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
+{
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    // --------------------------------------------------------------------
+    // TESTING 'initializer_list' FUNCTIONS
+    //   Throughout this test, there are three categories of string lengths
+    //   to be considered:
+    //
+    //: o Zero length
+    //: o A length below the maximum length for short string optimization
+    //: o A length above the short-string optimization limit (i.e., a string
+    //:   that requires allocated memory)
+    //
+    // Concerns:
+    //
+    //: 1 Construction
+    //:
+    //:   1 The created string has the specified value and uses the specified
+    //:     allocator.
+    //:
+    //:   2 There is no allocation when the initial string is less than or
+    //:     equal to the short-string optimization limit.
+    //:
+    //:   3 The created strings can be of any of the three length categories
+    //:
+    //:   4 The constructor is exception-safe.
+    //:
+    //: 2 Assignment
+    //:
+    //:   1 The 'assign' and 'operator=' methods behave identically.
+    //:
+    //:   2 The 'lhs' value is set to the 'rhs' value.
+    //:
+    //:   3 The 'lhs' and 'rhs' can each be in any of the three string length
+    //:     categories.
+    //:
+    //:   4 The assignment methods are exception-safe.
+    //:
+    //: 3 Insertion
+    //:
+    //:   1 The insertion point can be at the beginning, middle, or end of the
+    //:     target string.
+    //:
+    //:   2 The insertion argument must be 'const'.
+    //:
+    //:   3 The target string and source initialization list can be of any of
+    //:     the three string length categories.
+    //:
+    //:   4 The target string is set to the expected value.
+    //:
+    //:   5 The returned iterator has the expected value.
+    //:
+    //:   6 The returned iterator provided modifiable access to the string.
+    //:
+    //:   7 The insertion method is exception safe.
+    //
+    // Plan:
+    //: 1 Construction (C-1.1..4)
+    //:
+    //:   1 For an initialization list at the boundaries between the three
+    //:     string length categories, create a test object (string) that uses a
+    //:     test allocator.
+    //:
+    //:   2 Confirm that the created object has the expected value.
+    //:
+    //:   3 Confirm that the object's expected allocator is reported the
+    //:     accessor and shows allocation when expected and the default
+    //:     allocator shows no use.
+    //:
+    //:   4 Wrap the construction with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+    //:     macros so that so that each allocation experiences an injected
+    //:     exception at some point.
+    //:
+    //:   5 Repeat P-1.1 to P-1.4 for an object created to use the currently
+    //:     installed default constructor and tests adjusted to expect use of
+    //:     the default constructor.
+    //:
+    //: 2 Assignment (C-2.1..4)
+    //:
+    //:   1 Using a table-drive approach create a lhs object (a string) and a
+    //:     rhs object (an initialization list) so that we at least one data
+    //:     point in the cross product of the boundaries between the three
+    //:     string length categories.
+    //:
+    //:   2 Confirm that the 'lhs' is set to the expected value.
+    //:
+    //:   3 Confirm that the 'lhs' allocator shows use when expected.
+    //:
+    //:   4 Wrap the assignments with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+    //:     macros so that so that each allocation experiences an injected
+    //:     exception at some point.
+    //:
+    //:   5 For each step P-2.1 to P-2.4, shadow each use of the 'assign'
+    //:     method with an analogous use of 'operator=' on an equivalent 'lhs'
+    //:     object.
+    //:
+    //: 3 Insertion (C-3.1..7)
+    //:
+    //:   1 Using a table-drive approach create a target object (a string) and
+    //:     a source object (an initialization list) so that we at least one
+    //:     data point in the cross product of of the boundaries between the
+    //:     three string length categories.  The table also defines insertion
+    //:     points corresponding the beginning, middle, and end of the target
+    //:     string.
+    //:
+    //:   2 Supply the position argument to the 'insert' method as a
+    //:     'const_iterator' object.
+    //:
+    //:   2 Confirm that the target string is set to the expected value.
+    //:
+    //:   3 Confirm that the allocator of the target string shows use when
+    //:     expected.
+    //:
+    //:   4 Confirm that the return value can be assigned to a (non-'const')
+    //:     'iterator' object.
+    //:
+    //:   4 Wrap the assignments with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+    //:     macros so that so that each allocation experiences an injected
+    //:     exception at some point.
+    //
+    // Testing:
+    //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
+    //   basic_string& operator=(initializer_list<CHAR_TYPE> values);
+    //   basic_string& assign(initializer_list<CHAR_TYPE> values);
+    //   iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
+    // --------------------------------------------------------------------
+
+    if (verbose) {
+        printf("\nTesting parameters: TYPE = %s.\n", NameOf<TYPE>().name());
+        P(sizeof(TYPE))
+    }
+
+    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<TYPE>::value;
+
+    if (verbose)
+        printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
+
+    // Define values that require allocations.
+
+    typedef std::initializer_list<TYPE> IList;
+
+#define LET_A0
+#define LET_A1  'A'
+#define LET_A2  'A', 'A'
+#define LET_A3  'A', 'A', 'A'
+#define LET_A4  'A', 'A', 'A', 'A'
+#define LET_A5  'A', 'A', 'A', 'A', 'A'
+#define LET_A6  'A', 'A', 'A', 'A', 'A', 'A'
+#define LET_A7  'A', 'A', 'A', 'A', 'A', 'A', 'A'
+#define LET_A8  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'
+#define LET_A9  'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'
+
+#define LET_A10 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'
+#define LET_A20 LET_A10, LET_A10
+#define LET_A30 LET_A10, LET_A10, LET_A10
+#define LET_A40 LET_A10, LET_A10, LET_A10, LET_A10
+#define LET_A50 LET_A10, LET_A10, LET_A10, LET_A10, LET_A10
+
+    const IList iListBySize[] = {
+        {          LET_A0 }
+      , {          LET_A1 }
+      , {          LET_A2 }
+      , {          LET_A3 }
+      , {          LET_A4 }
+      , {          LET_A5 }
+      , {          LET_A6 }
+      , {          LET_A7 }
+      , {          LET_A8 }
+      , {          LET_A9 }
+
+      , { LET_A10, LET_A0 }
+      , { LET_A10, LET_A1 }
+      , { LET_A10, LET_A2 }
+      , { LET_A10, LET_A3 }
+      , { LET_A10, LET_A4 }
+      , { LET_A10, LET_A5 }
+      , { LET_A10, LET_A6 }
+      , { LET_A10, LET_A7 }
+      , { LET_A10, LET_A8 }
+      , { LET_A10, LET_A9 }
+
+      , { LET_A20, LET_A0 }
+      , { LET_A20, LET_A1 }
+      , { LET_A20, LET_A2 }
+      , { LET_A20, LET_A3 }
+      , { LET_A20, LET_A4 }
+      , { LET_A20, LET_A5 }
+      , { LET_A20, LET_A6 }
+      , { LET_A20, LET_A7 }
+      , { LET_A20, LET_A8 }
+      , { LET_A20, LET_A9 }
+
+      , { LET_A30, LET_A0 }
+      , { LET_A30, LET_A1 }
+      , { LET_A30, LET_A2 }
+      , { LET_A30, LET_A3 }
+      , { LET_A30, LET_A4 }
+      , { LET_A30, LET_A5 }
+      , { LET_A30, LET_A6 }
+      , { LET_A30, LET_A7 }
+      , { LET_A30, LET_A8 }
+      , { LET_A30, LET_A9 }
+
+      , { LET_A40, LET_A0 }
+      , { LET_A40, LET_A1 }
+      , { LET_A40, LET_A2 }
+      , { LET_A40, LET_A3 }
+      , { LET_A40, LET_A4 }
+      , { LET_A40, LET_A5 }
+      , { LET_A40, LET_A6 }
+      , { LET_A40, LET_A7 }
+      , { LET_A40, LET_A8 }
+      , { LET_A40, LET_A9 }
+
+      , { LET_A50, LET_A0 }
+    };
+    const size_t NUM_iListBySize = sizeof iListBySize / sizeof *iListBySize;
+
+    // Check table correctness
+
+    for (size_t i = 0; i < NUM_iListBySize; ++i) {
+        IList LIST = iListBySize[i];
+        LOOP_ASSERT(i, i == LIST.size())
+        for (typename IList::const_iterator cur  = LIST.begin(),
+                                            end  = LIST.end();
+                                            end != cur;
+                                            ++cur) {
+            LOOP_ASSERT(i, 'A' == *cur);
+        }
+    }
+
+#define STR_A0  ""
+#define STR_A1  "A"
+#define STR_A2  "A"  "A"
+#define STR_A3  "A"  "A"  "A"
+#define STR_A4  "A"  "A"  "A"  "A"
+#define STR_A5  "A"  "A"  "A"  "A"  "A"
+#define STR_A6  "A"  "A"  "A"  "A"  "A"  "A"
+#define STR_A7  "A"  "A"  "A"  "A"  "A"  "A"  "A"
+#define STR_A8  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"
+#define STR_A9  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"
+
+#define STR_A10 "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"  "A"
+#define STR_A20 STR_A10  STR_A10
+#define STR_A30 STR_A10  STR_A10  STR_A10
+#define STR_A40 STR_A10  STR_A10  STR_A10  STR_A10
+#define STR_A50 STR_A10  STR_A10  STR_A10  STR_A10  STR_A10
+
+    const char *iSpecBySize[] = {
+                   STR_A0
+      ,            STR_A1
+      ,            STR_A2
+      ,            STR_A3
+      ,            STR_A4
+      ,            STR_A5
+      ,            STR_A6
+      ,            STR_A7
+      ,            STR_A8
+      ,            STR_A9
+
+      ,   STR_A10  STR_A0
+      ,   STR_A10  STR_A1
+      ,   STR_A10  STR_A2
+      ,   STR_A10  STR_A3
+      ,   STR_A10  STR_A4
+      ,   STR_A10  STR_A5
+      ,   STR_A10  STR_A6
+      ,   STR_A10  STR_A7
+      ,   STR_A10  STR_A8
+      ,   STR_A10  STR_A9
+
+      ,   STR_A20  STR_A0
+      ,   STR_A20  STR_A1
+      ,   STR_A20  STR_A2
+      ,   STR_A20  STR_A3
+      ,   STR_A20  STR_A4
+      ,   STR_A20  STR_A5
+      ,   STR_A20  STR_A6
+      ,   STR_A20  STR_A7
+      ,   STR_A20  STR_A8
+      ,   STR_A20  STR_A9
+
+      ,   STR_A30  STR_A0
+      ,   STR_A30  STR_A1
+      ,   STR_A30  STR_A2
+      ,   STR_A30  STR_A3
+      ,   STR_A30  STR_A4
+      ,   STR_A30  STR_A5
+      ,   STR_A30  STR_A6
+      ,   STR_A30  STR_A7
+      ,   STR_A30  STR_A8
+      ,   STR_A30  STR_A9
+
+      ,   STR_A40  STR_A0
+      ,   STR_A40  STR_A1
+      ,   STR_A40  STR_A2
+      ,   STR_A40  STR_A3
+      ,   STR_A40  STR_A4
+      ,   STR_A40  STR_A5
+      ,   STR_A40  STR_A6
+      ,   STR_A40  STR_A7
+      ,   STR_A40  STR_A8
+      ,   STR_A40  STR_A9
+
+      ,   STR_A50  STR_A0
+    };
+    const size_t NUM_iSpecBySize = sizeof iSpecBySize / sizeof *iSpecBySize;
+
+    // Check table correctness
+
+    ASSERT(NUM_iListBySize == NUM_iSpecBySize);
+
+    for (size_t i = 0; i < NUM_iSpecBySize; ++i) {
+        const char * const SPEC = iSpecBySize[i];
+
+        LOOP_ASSERT(i, i == strlen(SPEC))
+
+        for (const char *       cur  = SPEC,
+                        * const end  = SPEC + i;
+                                end != cur;
+                                ++cur) {
+            LOOP_ASSERT(i, 'A' == *cur);
+        }
+    }
+
+    const size_t k_SHORT_BUFFER_CAPACITY = ExpectedShortBufferCapacity<TYPE>
+                                                                       ::value;
+
+    const size_t     maxShortStrLen   = k_SHORT_BUFFER_CAPACITY;
+    const size_t exceedsShortStrLen   = maxShortStrLen + 1;
+
+    ASSERT(2 * exceedsShortStrLen < NUM_iListBySize);
+
+    IList                        emptyList = iListBySize[0];
+    const char * const           emptySpec = iSpecBySize[0];
+
+    IList                  maxShortStrList = iListBySize[    maxShortStrLen];
+    const char * const     maxShortStrSpec = iSpecBySize[    maxShortStrLen];
+
+    IList              exceedsShortStrList = iListBySize[exceedsShortStrLen];
+    const char * const exceedsShortStrSpec = iSpecBySize[exceedsShortStrLen];
+
+    if (verbose) printf(
+  "\nTesting constructor: initializer lists and specified object allocator\n");
+    {
+        const struct {
+            int                         d_line;       // source line number
+            std::initializer_list<TYPE> d_list;       // source list
+            const char                 *d_specResult; // expected result
+        } DATA[] = {
+                //line  list                   result
+                //----  -------------------    -------------------
+                { L_,     {               },                    "" },
+                { L_,     { 'A'           },                   "A" },
+                { L_,     { 'A', 'A'      },                  "AA" },
+                { L_,     { 'B', 'A'      },                  "BA" },
+                { L_,     { 'A', 'B', 'C' },                 "ABC" },
+                { L_,     { 'A', 'B', 'A' },                 "ABA" },
+
+                { L_,             emptyList,             emptySpec },
+                { L_,       maxShortStrList,       maxShortStrSpec },
+                { L_,   exceedsShortStrList,   exceedsShortStrSpec }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        Tam dam(defaultAllocator_p);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE        = DATA[ti].d_line;
+            IList              LIST        = DATA[ti].d_list;
+            const char * const SPEC_RESULT = DATA[ti].d_specResult;
+
+            if (veryVerbose) { P_(LINE) P_(LIST) P(SPEC_RESULT) }
+
+            if (veryVeryVerbose) { P_(Obj().capacity()) P(LIST.size()) }
+
+            ASSERT(strlen(SPEC_RESULT) == LIST.size()); // table sanity check
+
+            Tam oam(objectAllocator_p);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mY(&scratch); const Obj& Y = gg(&mY, SPEC_RESULT);
+
+            Obj mX(LIST, objectAllocator_p); const Obj& X = mX;
+
+            ASSERT(Y                 == X);
+            ASSERT(objectAllocator_p == X.get_allocator());
+            ASSERT(&scratch          == Y.get_allocator());
+
+            if (Obj().capacity() < LIST.size()) {
+                ASSERT(oam.isTotalUp());
+            } else {
+                ASSERT(oam.isTotalSame());
+            }
+        }
+
+        ASSERT(dam.isTotalSame());
+    }
+
+    if (verbose) printf(
+           "\nTesting constructor: initializer lists and default allocator\n");
+    {
+        const struct {
+            int                         d_line;       // source line number
+            std::initializer_list<TYPE> d_list;       // source list
+            const char                 *d_specResult; // expected result
+        } DATA[] = {
+                //line  list                  result
+                //----  -------------------   -------------------
+                { L_,     {               },                   "" },
+                { L_,     { 'A'           },                  "A" },
+                { L_,     { 'A', 'A'      },                 "AA" },
+                { L_,     { 'B', 'A'      },                 "BA" },
+                { L_,     { 'A', 'B', 'C' },                "ABC" },
+                { L_,     { 'A', 'B', 'A' },                "ABA" },
+
+                { L_,             emptyList,            emptySpec },
+                { L_,       maxShortStrList,      maxShortStrSpec },
+                { L_,   exceedsShortStrList,  exceedsShortStrSpec }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE        = DATA[ti].d_line;
+            IList              LIST        = DATA[ti].d_list;
+            const char * const SPEC_RESULT = DATA[ti].d_specResult;
+
+            if (veryVerbose) { P_(LINE) P_(LIST) P(SPEC_RESULT) }
+
+            ASSERT(strlen(SPEC_RESULT) == LIST.size()); // table sanity check
+
+            Tam dam(defaultAllocator_p);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mY(&scratch); const Obj& Y = gg(&mY, SPEC_RESULT);
+
+            Obj mX(LIST); const Obj& X = mX;
+
+            ASSERT(Y                  == X);
+            ASSERT(defaultAllocator_p == X.get_allocator());
+            ASSERT(&scratch           == Y.get_allocator());
+
+            if (Obj().capacity() < LIST.size()) {
+                ASSERT(dam.isTotalUp());
+            } else {
+                ASSERT(dam.isTotalSame());
+            }
+        }
+    }
+
+    if (verbose) printf("\nTesting constructor: exception-safety\n");
+    {
+        const size_t LENGTHS[] = {                  0,
+                                       maxShortStrLen,
+                                   exceedsShortStrLen
+                                 };
+        const size_t NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+        Tam oam(objectAllocator_p);
+
+        for (size_t length = 0; length < NUM_LENGTHS; ++length) {
+
+            if (veryVerbose) { T_ P(length) }
+
+            LOOP_ASSERT(length, length < NUM_iListBySize);
+            IList              LIST = iListBySize[length];
+            const char * const SPEC = iSpecBySize[length];
+
+            Obj mY(objectAllocator_p); const Obj& Y = gg(&mY, SPEC);
+
+            int        exceptionLoopCount         = 0;
+            const bool allocationExpected         = k_SHORT_BUFFER_CAPACITY
+                                                    < length;
+            const int  expectedExceptionLoopCount = allocationExpected
+                                                    ? 2
+                                                    : 1;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
+                ++exceptionLoopCount;
+
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody)
+                                             P(exceptionLoopCount)
+                                     }
+                Tam oem(objectAllocator_p);
+
+                Obj mX(LIST, objectAllocator_p); const Obj& X = mX;
+
+                if (allocationExpected) {
+                    ASSERT(oem.isTotalUp());
+                } else {
+                    ASSERT(oem.isTotalSame());
+                }
+
+                ASSERTV(length, Y                 == X);
+                ASSERTV(length, objectAllocator_p == X.get_allocator());
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(length,
+                    expectedExceptionLoopCount == exceptionLoopCount);
+        }
+        ASSERT(oam.isTotalSame());
+    }
+
+    if (verbose)
+        printf("\nTesting 'assign' and 'operator=' with initializer lists\n");
+    {
+        const struct {
+            int                         d_line;        // source line number
+            const char                 *d_specLhs;     // target string
+            std::initializer_list<TYPE> d_list;        // source list
+            const char                 *d_specResult;  // expected result
+        } DATA[] = {
+       //-------^
+       //line  lhs                  list                 result
+       //----  -------------------- -------------------- -------------------
+       { L_,                    "",   {               },                  "" },
+       { L_,                    "",   { 'A'           },                 "A" },
+       { L_,                   "A",   {               },                 ""  },
+       { L_,                   "A",   { 'B'           },                "B"  },
+       { L_,                   "A",   { 'A', 'B'      },               "AB"  },
+       { L_,                   "A",   { 'B', 'C'      },               "BC"  },
+       { L_,                  "AB",   {               },                 ""  },
+       { L_,                  "AB",   { 'A', 'B', 'C' },              "ABC"  },
+       { L_,                  "AB",   { 'C', 'D', 'E' },              "CDE"  },
+
+       { L_,             emptySpec,           emptyList,           emptySpec },
+       { L_,             emptySpec,     maxShortStrList,     maxShortStrSpec },
+       { L_,             emptySpec, exceedsShortStrList, exceedsShortStrSpec },
+
+       { L_,       maxShortStrSpec,           emptyList,           emptySpec },
+       { L_,       maxShortStrSpec,     maxShortStrList,     maxShortStrSpec },
+       { L_,       maxShortStrSpec, exceedsShortStrList, exceedsShortStrSpec },
+
+       { L_,   exceedsShortStrSpec,           emptyList,           emptySpec },
+       { L_,   exceedsShortStrSpec,     maxShortStrList,     maxShortStrSpec },
+       { L_,   exceedsShortStrSpec, exceedsShortStrList, exceedsShortStrSpec }
+       //-------V
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        Tam dam(defaultAllocator_p);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE        = DATA[ti].d_line;
+            const char * const SPEC_LHS    = DATA[ti].d_specLhs;
+            IList              LIST        = DATA[ti].d_list;
+            const char * const SPEC_RESULT = DATA[ti].d_specResult;
+
+            if (veryVerbose) { P_(LINE)
+                               P_(LIST)
+                               P_(SPEC_LHS)
+                               P(SPEC_RESULT) }
+
+            ASSERT(strlen(SPEC_RESULT) == LIST.size()); // table sanity check
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mX(objectAllocator_p); const Obj& X = gg(&mX, SPEC_LHS);
+            Obj mY(objectAllocator_p); const Obj& Y = gg(&mY, SPEC_LHS);
+            Obj mZ(&scratch);          const Obj& Z = gg(&mZ, SPEC_RESULT);
+
+            Tam          oam(objectAllocator_p);
+            const size_t capacity = X.capacity();
+
+            mX.assign(LIST);
+            ASSERTV(Z, X, Z == X);
+
+            mY = LIST;
+            ASSERTV(Z, Y, Z == Y);
+
+            if (capacity < LIST.size()) {
+                ASSERT(oam.isTotalUp());
+            } else {
+                ASSERT(oam.isTotalSame());
+            }
+        }
+        ASSERT(dam.isTotalSame());
+    }
+
+    if (verbose)
+        printf("\nTesting 'assign' and 'operator=': exception-safety\n");
+    {
+        const size_t LENGTHS[] = {                  0,
+                                       maxShortStrLen,
+                                   exceedsShortStrLen,
+                                   exceedsShortStrLen + 1
+                                 };
+        const size_t NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+        Tam oam(objectAllocator_p);
+
+        for (size_t dstLength = 0; dstLength < NUM_LENGTHS; ++dstLength) {
+
+            if (veryVerbose) { T_ P(dstLength) }
+
+            LOOP_ASSERT(dstLength, dstLength < NUM_iSpecBySize);
+
+            const char * const SPEC = iSpecBySize[dstLength];
+
+            Obj mY(objectAllocator_p); const Obj& Y = gg(&mY, SPEC);
+
+            for (size_t srcLength = 0; srcLength < NUM_LENGTHS; ++srcLength) {
+                if (veryVerbose) { T_ T_ P(srcLength) }
+
+                LOOP_ASSERT(srcLength, srcLength < NUM_iListBySize);
+
+                IList LIST  = iListBySize[srcLength];
+
+                const bool allocationExpected = max(Y.capacity(),
+                                                    k_SHORT_BUFFER_CAPACITY)
+                                              < srcLength;
+
+                int                   allocationCount = 0;
+                const int     expectedAllocationCount = allocationExpected
+                                                        ? 2  // two methods
+                                                        : 0;
+                int                exceptionLoopCount = 0;
+                const int  expectedExceptionLoopCount = expectedAllocationCount
+                                                      + 1;
+
+                Obj        mX(LIST, objectAllocator_p);
+                const Obj&  X = mX;
+
+                Obj        mYmethod(Y, objectAllocator_p);
+                const Obj&  Ymethod = mYmethod;
+
+                Obj        mYoperator(Y, objectAllocator_p);
+                const Obj&  Yoperator = mYoperator;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
+                    ++exceptionLoopCount;
+
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody)
+                                                 P(exceptionLoopCount)
+                                         }
+                    Tam oem(objectAllocator_p);
+
+                    mYmethod.assign(LIST);  // test 'assign'    method
+                    if (allocationExpected) ++allocationCount;
+
+                    mYoperator = LIST;      // test 'operator=' method
+                    if (allocationExpected) ++allocationCount;
+
+                    ASSERTV(X == Ymethod);
+                    ASSERTV(X == Yoperator);
+
+                    if (allocationExpected) {
+                        ASSERT(oem.isTotalUp());
+                    } else {
+                        ASSERT(oem.isTotalSame());
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(srcLength,
+                         expectedExceptionLoopCount ==  exceptionLoopCount);
+                ASSERTV(srcLength,
+                            expectedAllocationCount ==     allocationCount);
+            }
+        }
+        ASSERT(oam.isTotalSame());
+    }
+
+    if (verbose) printf("\nTesting 'insert' with initializer lists\n");
+    {
+        const char * const            maxShortStrSpec2 = iSpecBySize[
+                                                           2 * maxShortStrLen];
+        const char * const        exceedsShortStrSpec2 = iSpecBySize[
+                                                       2 * exceedsShortStrLen];
+        const char * const maxPlusExceedsShortStrSpec = iSpecBySize[
+                                          maxShortStrLen + exceedsShortStrLen];
+
+        const size_t M = maxShortStrLen / 2;
+        const size_t E = maxShortStrLen;
+
+        const struct {
+            int                         d_line;        // source line number
+            const char                 *d_specInitial; // initial state
+            int                         d_position;    // position to insert
+            std::initializer_list<TYPE> d_list;        // source list
+            const char                 *d_specResult;  // expected result
+        } DATA[] = {
+   //-----------^
+   //line  source              pos  list                result
+   //----  ------------------  ---  ------------------  -------------------
+   { L_,                   "", -1,   {                },                  "" },
+   { L_,                   "", 99,   { 'A'            },                 "A" },
+   { L_,                  "A",  0,   {                },                 "A" },
+   { L_,                  "A",  0,   { 'B'            },                "BA" },
+   { L_,                  "A",  1,   { 'B'            },                "AB" },
+   { L_,                 "AB",  0,   {                },                "AB" },
+   { L_,                 "AB",  0,   { 'A', 'B'       },              "ABAB" },
+   { L_,                 "AB",  1,   { 'B', 'C'       },              "ABCB" },
+   { L_,                 "AB",  2,   { 'A', 'B', 'C'  },             "ABABC" },
+   { L_,                "ABC",  0,   { 'D'            },              "DABC" },
+
+   { L_,            emptySpec,  0,           emptyList,           emptySpec  },
+   { L_,            emptySpec,  0,     maxShortStrList,     maxShortStrSpec  },
+   { L_,            emptySpec,  0, exceedsShortStrList, exceedsShortStrSpec  },
+
+   { L_,      maxShortStrSpec,  0,           emptyList,     maxShortStrSpec  },
+   { L_,      maxShortStrSpec,  0,     maxShortStrList,     maxShortStrSpec2 },
+   { L_,      maxShortStrSpec,  0, exceedsShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+
+   { L_,      maxShortStrSpec,  M,           emptyList,     maxShortStrSpec  },
+   { L_,      maxShortStrSpec,  M,     maxShortStrList,     maxShortStrSpec2 },
+   { L_,      maxShortStrSpec,  M, exceedsShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+
+   { L_,      maxShortStrSpec,  E,           emptyList,     maxShortStrSpec  },
+   { L_,      maxShortStrSpec,  E,     maxShortStrList,     maxShortStrSpec2 },
+   { L_,      maxShortStrSpec,  E, exceedsShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+
+   { L_,  exceedsShortStrSpec,  0,           emptyList, exceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  0,     maxShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  0, exceedsShortStrList, exceedsShortStrSpec2 },
+
+   { L_,  exceedsShortStrSpec,  M,           emptyList, exceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  M,     maxShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  M, exceedsShortStrList, exceedsShortStrSpec2 },
+
+   { L_,  exceedsShortStrSpec,  E,           emptyList, exceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  E,     maxShortStrList,
+                                                 maxPlusExceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  E, exceedsShortStrList, exceedsShortStrSpec2 }
+   //-----------V
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        Tam dam(defaultAllocator_p);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE         = DATA[ti].d_line;
+            const char * const SPEC_INITIAL = DATA[ti].d_specInitial;
+            const int          POSITION     = DATA[ti].d_position;
+            IList              LIST         = DATA[ti].d_list;
+            const char * const SPEC_RESULT  = DATA[ti].d_specResult;
+
+            if (veryVerbose) { P_(LINE)
+                               P_(LIST)
+                               P_(SPEC_INITIAL)
+                               P_(POSITION)
+                               P(SPEC_RESULT) }
+
+            ASSERT(strlen(SPEC_INITIAL) + LIST.size()
+                == strlen(SPEC_RESULT));  // table sanity check
+
+            Obj mX(objectAllocator_p); const Obj& X = gg(&mX, SPEC_INITIAL);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj mY(&scratch); const Obj& Y = gg(&mY, SPEC_RESULT);
+
+            Tam oam(objectAllocator_p);
+
+            size_t index = POSITION == -1 ? 0
+                         : POSITION == 99 ? X.size()
+                         : /* else */       POSITION;
+
+            bool  expectAllocation = X.capacity() - X.length() < LIST.size();
+
+            const_iterator position =  X.begin() + index;
+            iterator       result   = mX.insert(position, LIST);
+
+            ASSERTV(LINE,       result == X.begin() + index);
+            ASSERTV(LINE, X, Y, X      == Y);
+
+            if (expectAllocation) {
+                ASSERT(oam.isTotalUp());
+            } else {
+                ASSERT(oam.isTotalSame());
+            }
+        }
+        ASSERT(dam.isTotalSame());
+    }
+
+    if (verbose) printf("\nTesting 'insert': exception-safety\n");
+    {
+        const size_t LENGTHS[] = {                  0,
+                                       maxShortStrLen,
+                                   exceedsShortStrLen,
+                                 };
+        const size_t NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+        Tam oam(objectAllocator_p);
+
+        for (size_t dstLength = 0; dstLength < NUM_LENGTHS; ++dstLength) {
+
+            if (veryVerbose) { T_ P(dstLength) }
+
+            LOOP_ASSERT(dstLength, dstLength < NUM_iSpecBySize);
+
+            const char * const SPEC = iSpecBySize[dstLength];
+
+            Obj mY(objectAllocator_p); const Obj& Y = gg(&mY, SPEC);
+
+            const size_t srcLength = Y.capacity() - Y.length() + 1;
+            ASSERTV(dstLength, srcLength, srcLength < NUM_iListBySize);
+
+            IList LIST = iListBySize[srcLength];
+
+            const size_t expectedLength = Y.length() + srcLength;
+            ASSERTV(dstLength, srcLength, expectedLength < NUM_iSpecBySize);
+
+            const char * const expectedSPEC = iSpecBySize[expectedLength];
+
+            Obj mX(objectAllocator_p); const Obj& X = gg(&mX, expectedSPEC);
+
+            int                exceptionLoopCount = 0;
+            const int  expectedExceptionLoopCount = 2;
+            int                   allocationCount = 0;
+            const int     expectedAllocationCount = 1;
+
+            Tam oem(objectAllocator_p);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
+                ++exceptionLoopCount;
+
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody)
+                                             P(exceptionLoopCount) }
+
+                mY.insert(Y.size(), LIST);
+                ++allocationCount;  // 'LIST' calculated to allocate.
+
+                ASSERTV(srcLength, X == Y);
+                ASSERTV(srcLength, oem.isInUseUp());
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(srcLength,
+                     expectedExceptionLoopCount ==  exceptionLoopCount);
+            ASSERTV(srcLength,
+                        expectedAllocationCount ==     allocationCount);
+        }
+        ASSERT(oam.isInUseSame());
+    }
+#else
+    // Empty test.
+#endif
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
 {
     // --------------------------------------------------------------------
@@ -1388,8 +2288,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
     int       collisions[PRIME]       = {};
     int       nativeCollisions[PRIME] = {};
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
     Hasher    hasher;
     size_t    prevHash                = 0;
     HashType  hash                    = 0;
@@ -1503,7 +2413,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         ASSERT(hasher(small1) == hasher(small2));
     }
 }
-
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
@@ -2945,7 +3854,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     //   bool operator>=(const string<C,CT,A>& str, const C *s);
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
@@ -2980,37 +3889,37 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     if (veryVerbose) printf("\toperator<\n");
 
     {
-        ASSERT_SAFE_FAIL(X < nullStr);
-        ASSERT_SAFE_FAIL(nullStr < X);
-        ASSERT_SAFE_PASS(X < X.c_str());
-        ASSERT_SAFE_PASS(X.c_str() < X);
+        ASSERT_SAFE_FAIL(if(X < nullStr){});
+        ASSERT_SAFE_FAIL(if(nullStr < X){});
+        ASSERT_SAFE_PASS(if(X < X.c_str()){});
+        ASSERT_SAFE_PASS(if(X.c_str() < X){});
     }
 
     if (veryVerbose) printf("\toperator>\n");
 
     {
-        ASSERT_SAFE_FAIL(X > nullStr);
-        ASSERT_SAFE_FAIL(nullStr > X);
-        ASSERT_SAFE_PASS(X > X.c_str());
-        ASSERT_SAFE_PASS(X.c_str() > X);
+        ASSERT_SAFE_FAIL(if(X > nullStr){});
+        ASSERT_SAFE_FAIL(if(nullStr > X){});
+        ASSERT_SAFE_PASS(if(X > X.c_str()){});
+        ASSERT_SAFE_PASS(if(X.c_str() > X){});
     }
 
     if (veryVerbose) printf("\toperator<=\n");
 
     {
-        ASSERT_SAFE_FAIL(X <= nullStr);
-        ASSERT_SAFE_FAIL(nullStr >= X);
-        ASSERT_SAFE_PASS(X <= X.c_str());
-        ASSERT_SAFE_PASS(X.c_str() <= X);
+        ASSERT_SAFE_FAIL(if(X <= nullStr){});
+        ASSERT_SAFE_FAIL(if(nullStr >= X){});
+        ASSERT_SAFE_PASS(if(X <= X.c_str()){});
+        ASSERT_SAFE_PASS(if(X.c_str() <= X){});
     }
 
     if (veryVerbose) printf("\toperator>=\n");
 
     {
-        ASSERT_SAFE_FAIL(X >= nullStr);
-        ASSERT_SAFE_FAIL(nullStr >= X);
-        ASSERT_SAFE_PASS(X >= X.c_str());
-        ASSERT_SAFE_PASS(X.c_str() >= X);
+        ASSERT_SAFE_FAIL(if(X >= nullStr){});
+        ASSERT_SAFE_FAIL(if(nullStr >= X){});
+        ASSERT_SAFE_PASS(if(X >= X.c_str()){});
+        ASSERT_SAFE_PASS(if(X.c_str() >= X){});
     }
 }
 
@@ -3218,7 +4127,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
     //   size_type copy(char *s, n, pos = 0) const;
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tcopy(s, n, pos)\n");
 
@@ -3948,7 +4857,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     //   size_type find_last_not_of(const C *s, pos = 0) const;
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
@@ -5542,7 +6451,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
     //   replace(const_iterator first, const_iterator last, const C *s, n2);
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\treplase(first, last, n, c)\n");
 
@@ -6389,7 +7298,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19Negative()
     //   iterator erase(const_iterator first, iterator last);
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tnegative testing pop_back\n");
 
@@ -7586,7 +8495,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     //     iterator insert(const_iterator p, InputIter first, InputIter last);
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tnegative testing insert(pos, s)\n");
 
@@ -8673,7 +9582,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
     //   operator+(const CHAR_TYPE *lhs, const string& rhs);
     // --------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tappend/operator+/+= with NULL\n");
 
@@ -9028,7 +9937,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
     //   const T& back() const;
     // --------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -9769,7 +10678,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 
         bsls::Types::Int64 oldLimit = testAllocator.allocationLimit();
 
-
         {
             // make the allocator throw on the next allocation
             testAllocator.setAllocationLimit(0);
@@ -10427,7 +11335,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Negative()
     //     assign(InputIter first, InputIter last, const A& a = A());
     // --------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tnegative test assign with NULL C-string\n");
 
@@ -11283,7 +12191,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
     //     string(InputIter first, InputIter last, a = A());
     // --------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     ASSERT_SAFE_FAIL_RAW(Obj(0));
 
@@ -11320,7 +12228,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase11()
     //
     // TBD: We do not yet implement the allocator propagation traits for
     //      'std::allocator_traits', so defer testing generic allocator
-    //      propagation, limitting ourselves to the BDE model where allocators
+    //      propagation, limiting ourselves to the BDE model where allocators
     //      never propagate on copy or swap.
     // --------------------------------------------------------------------
 
@@ -11768,7 +12676,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
     // Concerns:
     //   1) The value represented by any object can be assigned to any other
     //      object regardless of how either value is represented internally.
-    //   2) The 'rhs' value is left useable after the move.
+    //   2) The 'rhs' value is left usable after the move.
     //   3) 'rhs' going out of scope has no effect on the value of 'lhs' after
     //      the assignment.
     //   4) Aliasing ('x = x'): The assignment operator must always work --
@@ -12338,7 +13246,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
     //   basic_string& operator=(const CHAR_TYPE *);
     // --------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     Obj X;
 
@@ -12810,7 +13718,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
     //           the correct capacity.
     //       1b) All internal representations of a given value can be used to
     //            create a new object of equivalent value.
-    //       1c) The value of the original object remains useable.
+    //       1c) The value of the original object remains usable.
     //       1d) Subsequent changes in or destruction of the source object have
     //            no effect on the move-constructed object.
     //       1e) Subsequent changes ('push_back's) on the created object have
@@ -13004,7 +13912,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
                                       Y0.get_allocator() != X.get_allocator());
                     LOOP2_ASSERT(SPEC, N,
                                          Y0.get_allocator() == &testAllocator);
-
 
                     // Check that 'X' is left unchanged because it does not
                     // have the same allocator as 'Y0'.
@@ -13570,7 +14477,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
     //   operator!=(const string<C,CT,A>& str, const C *s);
     // -----------------------------------------------------------------------
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     Obj mX(g("ABCDE"));
     const Obj& X = mX;
@@ -13584,29 +14491,29 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
     if (veryVerbose) printf("\toperator==(s, str)\n");
 
     {
-        ASSERT_SAFE_FAIL(nullStr == X);
-        ASSERT_SAFE_PASS(X.c_str() == X);
+        ASSERT_SAFE_FAIL(if(nullStr == X){});
+        ASSERT_SAFE_PASS(if(X.c_str() == X){});
     }
 
     if (veryVerbose) printf("\toperator==(str, s)\n");
 
     {
-        ASSERT_SAFE_FAIL(X == nullStr);
-        ASSERT_SAFE_PASS(X == X.c_str());
+        ASSERT_SAFE_FAIL(if(X == nullStr){});
+        ASSERT_SAFE_PASS(if(X == X.c_str()){});
     }
 
     if (veryVerbose) printf("\toperator!=(s, str)\n");
 
     {
-        ASSERT_SAFE_FAIL(nullStr != X);
-        ASSERT_SAFE_PASS(X.c_str() != X);
+        ASSERT_SAFE_FAIL(if(nullStr != X){});
+        ASSERT_SAFE_PASS(if(X.c_str() != X){});
     }
 
     if (veryVerbose) printf("\toperator==(str, s)\n");
 
     {
-        ASSERT_SAFE_FAIL(X != nullStr);
-        ASSERT_SAFE_PASS(X != X.c_str());
+        ASSERT_SAFE_FAIL(if(X != nullStr){});
+        ASSERT_SAFE_PASS(if(X != X.c_str()){});
     }
 }
 
@@ -15937,7 +16844,6 @@ class StringRef {
 
 namespace UsageExample {
 
-
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -16291,7 +17197,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -16502,6 +17408,30 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == os.str());
             }
         }
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING 'initializer_list' FUNCTIONS
+        //
+        // Plan:
+        //: See 'TestDriver<CHAR_TYPE>::testCase33' for details.
+        //
+        // Testing:
+        //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
+        //   basic_string& operator=(initializer_list<CHAR_TYPE> values);
+        //   basic_string& assign(initializer_list<CHAR_TYPE> values);
+        //   iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'initializer_list' FUNCTIONS"
+                            "\n====================================\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        TestDriver<char   >::testCase33();
+        TestDriver<wchar_t>::testCase33();
+#else
+        if (verbose) printf("\nSkip %d: Requires C++11 Initializers\n", test);
+#endif
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -16781,8 +17711,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numMismatches());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
 
-
-
         if (verbose) printf("\nTesting extreme integer values.\n");
         {
             const Int64 BB = defaultAllocator.numBlocksTotal();
@@ -16926,7 +17854,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 Malformed strings report errors correctly.
         //:
-        //: 7 The functions are overloaded to convert from 'bsl::stirng' and
+        //: 7 The functions are overloaded to convert from 'bsl::string' and
         //:   'bsl::wstring' objects.
         //
         // Plan:
@@ -17357,7 +18285,7 @@ int main(int argc, char *argv[])
         enum ErrType {
             e_PASS,
             e_INVALID,
-            e_RANGE,
+            e_RANGE
         };
 
         static const struct {
@@ -18035,7 +18963,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                if (verbose) printf("negative testing");
+                if (veryVerbose) printf("negative testing");
                 {
                     bsls::AssertTestHandlerGuard guard;
 
@@ -18236,7 +19164,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                if (verbose) printf("negative testing");
+                if (veryVerbose) printf("negative testing");
                 {
                     bsls::AssertTestHandlerGuard guard;
 
@@ -18429,7 +19357,7 @@ int main(int argc, char *argv[])
         // TESTING COMPARISONS
         //
         // Concerns:
-        //: 1 The 'compere' member function and comparison operators return the
+        //: 1 The 'compare' member function and comparison operators return the
         //:   canonical ordering of two string values.
         //
         // Plan:
@@ -19382,6 +20310,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The class is sufficiently functional to enable comprehensive
         //:    testing in subsequent test cases.
+        //: 2 That 'bsls::NameOf' can properly represent the 'bsl::string' as
+        //:   "bsl::string".
         //
         // Plan:
         //: See 'TestDriver<CHAR_TYPE>::testCase1' for details.
@@ -19476,6 +20406,33 @@ int main(int argc, char *argv[])
         istrm.clear();
         istrm >> std::setw(-10) >> myStr;
         LOOP_ASSERT(myStr.c_str(), myStr == "setw");
+
+        // Does 'bsls::NameOf' succeed in shortening the string name from the
+        // 'bsl::basic_string<...' monstrosity?
+
+        bsl::string strName = NameOf<bsl::string>().name();
+        if ("unknown_type" != strName) {
+            ASSERTV(strName, "bsl::string" == strName);
+            ASSERTV(nameOfType(strName), strName,
+                                               nameOfType(strName) == strName);
+
+            strName = NameOf<std::string>();
+            ASSERTV(strName, "std::string" == strName);
+            ASSERTV(nameOfType(strName), strName,
+                                               nameOfType(strName) != strName);
+            ASSERT(nameOfType(std::string("woof")) == strName);
+        }
+#if !defined(BSLS_PLATFORM_CMP_SUN) || BSLS_PLATFORM_CMP_VERSION >= 20768
+        else {
+            ASSERT(0 && "'NameOf' should work everywhere but old Sun CC");
+        }
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        if (verbose) printf("\nAdditional tests: initializer list.\n");
+        bsl::string hello = { 'H', 'e', 'l', 'l', 'o' };
+        ASSERTV("Hello" == hello);
+#endif
 
       } break;
       case -1: {

@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_set, bslstl_multimap
 //
-//@AUTHOR:  Henry Verschell (hverschell)
+//@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component defines a single class template 'bsl::multiset',
 // implementing the standard container holding an ordered sequence of possibly
@@ -32,18 +32,18 @@ BSLS_IDENT("$Id: $")
 //
 // A multiset meets the requirements of an associative container with
 // bidirectional iterators in the C++ standard [23.2.4].  The 'multiset'
-// implemented here adheres to the C++11 standard, except that it does not have
-// interfaces that take rvalue references, 'initializer_lists', 'emplace', or
-// operations taking a variadic number of template parameters.  Note that
-// excluded C++11 features are those that require (or are greatly simplified
-// by) C++11 compiler support.
+// implemented here adheres to the C++11 standard when compiled with a C++11
+// compiler, and makes the best approximation when compiled with a C++03
+// compiler.  In particular, for C++03 we emulate move semantics, but limit
+// forwarding (in 'emplace') to 'const' lvalues, and make no effort to emulate
+// 'noexcept' or initializer-lists.
 //
 ///Requirements on 'KEY'
 ///---------------------
 // A 'multiset' is a fully "Value-Semantic Type" (see {'bsldoc_glossary'}) only
-// if the supplied 'KEY' template parameters is fully value-semantic.  It is
-// possible to instantiate a 'multiset' with 'KEY' parameter arguments that do
-// not provide a full multiset of value-semantic operations, but then some
+// if the supplied 'KEY' template parameter is fully value-semantic.  It is
+// possible to instantiate a 'multiset' with a 'KEY' parameter argument that
+// does not provide a full set of value-semantic operations, but then some
 // methods of the container may not be instantiable.  The following
 // terminology, adopted from the C++11 standard, is used in the function
 // documentation of 'multiset' to describe a function's requirements for the
@@ -52,31 +52,76 @@ BSLS_IDENT("$Id: $")
 // instantiation, the requirements apply specifically to the multiset's entry
 // type, 'value_type', which is an alias for 'KEY'.
 //
-//: "default-constructible": The type provides a default constructor.
+//  Legend
+//  ------
+//  'X'    - denotes an allocator-aware container type (e.g., 'multiset')
+//  'T'    - 'value_type' associated with 'X'
+//  'A'    - type of the allocator used by 'X'
+//  'm'    - lvalue of type 'A' (allocator)
+//  'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
+//  'rv'   - rvalue of type (non-'const') 'T'
+//  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+//  'args' - 0 or more arguments
+//
+// The following terms are used to more precisely specify the requirements on
+// template parameter types in function-level documentation.
 //:
-//: "copy-constructible": The type provides a copy constructor.
+//: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
+//:     is 'default-insertable' into 'X' means that the following expression is
+//:     well-formed:
 //:
-//: "equality-comparable": The type provides an equality-comparison operator
+//:      'allocator_traits<A>::construct(m, p)'
+//:
+//: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
+//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:     means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, rv)'
+//:
+//: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
+//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:     'copy-insertable' into 'X' means that the following expression is
+//:     well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, v)'
+//:
+//: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
+//:     of type (non-'const') 'T'.
+//:
+//: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
+//:     or rvalue of type (possibly 'const') 'T'.
+//:
+//: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
+//:     'args' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::construct(m, p, args)'
+//:
+//: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
+//:     from 'X' means that the following expression is well-formed:
+//:
+//:      'allocator_traits<A>::destroy(m, p)'
+//:
+//: *equality-comparable*: The type provides an equality-comparison operator
 //:     that defines an equivalence relationship and is both reflexive and
 //:     transitive.
 //:
-//: "less-than-comparable": The type provides a less-than operator, which
-//:     defines a strict weak ordering relation on values of the type.
+//: *less-than-comparable*: The type provides a less-than operator that defines
+//:     a strict weak ordering relation on values of the type.
 //
 ///Memory Allocation
 ///-----------------
 // The type supplied as a multiset's 'ALLOCATOR' template parameter determines
 // how that multiset will allocate memory.  The 'multiset' template supports
-// allocators meeting the requirements of the C++11 standard [17.6.3.5], in
-// addition it supports scoped-allocators derived from the 'bslma::Allocator'
-// memory allocation protocol.  Clients intending to use 'bslma' style
+// allocators meeting the requirements of the C++11 standard [17.6.3.5]; in
+// addition, it supports scoped-allocators derived from the 'bslma::Allocator'
+// memory allocation protocol.  Clients intending to use 'bslma'-style
 // allocators should use the template's default 'ALLOCATOR' type: The default
 // type for the 'ALLOCATOR' template parameter, 'bsl::allocator', provides a
 // C++11 standard-compatible adapter for a 'bslma::Allocator' object.
 //
 ///'bslma'-Style Allocators
 /// - - - - - - - - - - - -
-// If the (template parameter) type 'ALLOCATOR' of an 'multiset' instantiation'
+// If the (template parameter) type 'ALLOCATOR' of a 'multiset' instantiation
 // is 'bsl::allocator', then objects of that multiset type will conform to the
 // standard behavior of a 'bslma'-allocator-enabled type.  Such a multiset
 // accepts an optional 'bslma::Allocator' argument at construction.  If the
@@ -87,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // addition to directly allocating memory from the indicated
 // 'bslma::Allocator', a multiset supplies that allocator's address to the
 // constructors of contained objects of the (template parameter) type 'KEY'
-// with the 'bslma::UsesBslmaAllocator' trait.
+// having the 'bslma::UsesBslmaAllocator' trait.
 //
 ///Operations
 ///----------
@@ -98,34 +143,62 @@ BSLS_IDENT("$Id: $")
 //  ------
 //  'K'             - (template parameter) type 'KEY' of the multiset
 //  'a', 'b'        - two distinct objects of type 'multiset<K>'
+//  'rv'            - modifiable rvalue of type 'multiset<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
 //  'c'             - comparator providing an ordering for objects of type 'K'
-//  'al             - an STL-style memory allocator
+//  'al'            - STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
-//  'k'             - an object of type 'K'
-//  'p1', 'p2'      - two iterators belonging to 'a'
-//  distance(i1,i2) - the number of elements in the range [i1, i2)
+//  'li'            - object of type 'initializer_list<K>'
+//  'k'             - object of type 'K'
+//  'rk'            - modifiable rvalue of type 'K'
+//  'p1', 'p2'      - two 'const_iterator's belonging to 'a'
+//  distance(i1,i2) - number of elements in the range '[i1 .. i2)'
+//  distance(p1,p2) - number of elements in the range '[p1 .. p2)'
 //
 //  +----------------------------------------------------+--------------------+
 //  | Operation                                          | Complexity         |
 //  +====================================================+====================+
-//  | multiset<K> a;    (default construction)           | O[1]               |
+//  | multiset<K> a;               (default construction)| O[1]               |
 //  | multiset<K> a(al);                                 |                    |
 //  | multiset<K> a(c, al);                              |                    |
 //  +----------------------------------------------------+--------------------+
-//  | multiset<K> a(b); (copy construction)              | O[n]               |
+//  | multiset<K> a(b);            (copy construction)   | O[n]               |
 //  | multiset<K> a(b, al);                              |                    |
 //  +----------------------------------------------------+--------------------+
-//  | multiset<K> a(i1, i2);                             | O[N] if [i1, i2)   |
-//  | multiset<K> a(i1, i2, al);                         | is sorted with     |
-//  | multiset<K> a(i1, i2, c, al);                      | 'a.value_comp()',  |
+//  | multiset<K> a(rv);           (move construction)   | O[1] if 'a' and    |
+//  | multiset<K> a(rv, al);                             | 'rv' use the same  |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n] otherwise     |
+//  +----------------------------------------------------+--------------------+
+//  | multiset<K> a(i1, i2, al);   (range construction)  | O[N] if [i1, i2)   |
+//  | multiset<K> a(i1, i2, c, al);                      | is sorted with     |
+//  |                                                    | 'a.value_comp()',  |
 //  |                                                    | O[N * log(N)]      |
 //  |                                                    | otherwise, where N |
 //  |                                                    | is distance(i1,i2) |
 //  +----------------------------------------------------+--------------------+
-//  | a.~multiset<K>(); (destruction)                    | O[n]               |
+//  | multiset<K> a(li);                                 | O[N] if 'li' is    |
+//  | multiset<K> a(li, al);                             | sorted with        |
+//  | multiset<K> a(li, c);                              | 'a.value_comp()',  |
+//  | multiset<K> a(li, c, al);                          | O[N * log(N)]      |
+//  |                                                    | otherwise, where   |
+//  |                                                    | N = 'li.size()'    |
 //  +----------------------------------------------------+--------------------+
-//  | a = b;            (assignment)                     | O[n]               |
+//  | a.~multiset<K>();            (destruction)         | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = b;                       (copy assignment)     | O[n]               |
+//  +----------------------------------------------------+--------------------+
+//  | a = rv;                      (move assignment)     | O[1] if 'a' and    |
+//  |                                                    | 'rv' use the same  |
+//  |                                                    | allocator,         |
+//  |                                                    | O[n] otherwise     |
+//  +----------------------------------------------------+--------------------+
+//  | a = li;                                            | O[N] if 'li' is    |
+//  |                                                    | sorted with        |
+//  |                                                    | 'a.value_comp()',  |
+//  |                                                    | O[N * log(N)]      |
+//  |                                                    | otherwise, where   |
+//  |                                                    | N = 'li.size()'    |
 //  +----------------------------------------------------+--------------------+
 //  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
 //  | a.rbegin(), a.rend(), a.crbegin(), a.crend()       |                    |
@@ -148,27 +221,28 @@ BSLS_IDENT("$Id: $")
 //  | get_allocator()                                    | O[1]               |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(k)                                        | O[log(n)]          |
+//  | a.insert(rk)                                       |                    |
+//  | a.emplace(Args&&...)                               |                    |
 //  +----------------------------------------------------+--------------------+
 //  | a.insert(p1, k)                                    | amortized constant |
-//  |                                                    | if the value is    |
-//  |                                                    | inserted right     |
+//  | a.insert(p1, rk)                                   | if the value is    |
+//  | a.emplace_hint(p1, Args&&...)                      | inserted right     |
 //  |                                                    | before p1,         |
 //  |                                                    | O[log(n)]          |
 //  |                                                    | otherwise          |
 //  +----------------------------------------------------+--------------------+
-//  | a.insert(i1, i2)                                   | O[log(N) *         |
-//  |                                                    |   distance(i1,i2)] |
-//  |                                                    |                    |
+//  | a.insert(i1, i2)                                   | O[N * log(n + N)]  |
 //  |                                                    | where N is         |
-//  |                                                    | n + distance(i1,i2)|
+//  |                                                    | distance(i1,i2)    |
+//  +----------------------------------------------------+--------------------+
+//  | a.insert(li)                                       | O[N * log(n + N)]  |
+//  |                                                    | where N =          |
+//  |                                                    |         'li.size()'|
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1)                                        | amortized constant |
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(k)                                         | O[log(n) +         |
 //  |                                                    | a.count(k)]        |
-//  +----------------------------------------------------+--------------------+
-//  | a.erase(p1, p2)                                    | O[log(n) +         |
-//  |                                                    | distance(p1, p2)]  |
 //  +----------------------------------------------------+--------------------+
 //  | a.erase(p1, p2)                                    | O[log(n) +         |
 //  |                                                    | distance(p1, p2)]  |
@@ -236,11 +310,11 @@ BSLS_IDENT("$Id: $")
 //..
 //      // PRIVATE TYPES
 //      typedef bsl::multiset<string, StringComparator> StringSet;
-//          // This 'typedef' is an alias for a set of 'string' objects, each
-//          // representing an item in a shopping cart;
+//          // This 'typedef' is an alias for a multiset of 'string' objects,
+//          // each representing an item in a shopping cart;
 //
 //      // DATA
-//      StringSet d_items;  // set of items in the shopping cart
+//      StringSet d_items;  // multiset of items in the shopping cart
 //
 //      // FRIENDS
 //      friend bool operator==(const ShoppingCart& lhs,
@@ -279,14 +353,14 @@ BSLS_IDENT("$Id: $")
 //          // Add an item with the specified 'name' to this shopping cart.
 //          // The behavior is undefined unless 'name' is a non-empty strings.
 //
-//      int removeItems(const string& name);
-//          // Remove from this phone book all items having the specified
+//      size_t removeItems(const string& name);
+//          // Remove from this shopping cart all items having the specified
 //          // 'name', if they exist, and return the number of removed items;
 //          // otherwise, return 0 with no other effects.  The behavior is
 //          // undefined unless 'name' is a non-empty strings.
 //
 //      // ACCESSORS
-//      int count(const string& name) const;
+//      size_t count(const string& name) const;
 //          // Return the number of items in the shopping cart with the
 //          // specified 'name'.  The behavior is undefined unless 'name' is a
 //          // non-empty strings.
@@ -301,7 +375,7 @@ BSLS_IDENT("$Id: $")
 //          // past-the-end item in the ordered sequence of items maintained by
 //          // this shopping cart.
 //
-//      int numItems() const;
+//      size_t numItems() const;
 //          // Return the number of items contained in this shopping cart.
 //  };
 //..
@@ -318,8 +392,8 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  bool operator!=(const ShoppingCart& lhs, const ShoppingCart& rhs);
 //      // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-//      // the same value, and 'false' otherwise.  Two 'PhoneBook' objects do
-//      // not have the same value if they either differ in their number of
+//      // the same value, and 'false' otherwise.  Two 'ShoppingCart' objects
+//      // do not have the same value if they either differ in their number of
 //      // contained items, or if any of the corresponding items, in their
 //      // respective ordered sequences of items, is not the same.
 //..
@@ -359,7 +433,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  int ShoppingCart::removeItems(const string& name)
+//  size_t ShoppingCart::removeItems(const string& name)
 //  {
 //      BSLS_ASSERT(!name.empty());
 //
@@ -367,7 +441,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
-//  int ShoppingCart::count(const string& name) const
+//  size_t ShoppingCart::count(const string& name) const
 //  {
 //      BSLS_ASSERT(!name.empty());
 //
@@ -384,7 +458,7 @@ BSLS_IDENT("$Id: $")
 //      return d_items.end();
 //  }
 //
-//  int ShoppingCart::numItems() const
+//  size_t ShoppingCart::numItems() const
 //  {
 //      return d_items.size();
 //  }
@@ -413,8 +487,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ALLOCATOR
-#include <bslstl_allocator.h>
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_PAIR
@@ -465,17 +539,56 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifndef INCLUDED_INITIALIZER_LIST
+#include <initializer_list>
+#define INCLUDED_INITIALIZER_LIST
+#endif
 #endif
 
 namespace bsl {
@@ -485,8 +598,8 @@ namespace bsl {
                              // ==============
 
 template <class KEY,
-          class COMPARATOR  = std::less<KEY>,
-          class ALLOCATOR = bsl::allocator<KEY> >
+          class COMPARATOR = std::less<KEY>,
+          class ALLOCATOR  = bsl::allocator<KEY> >
 class multiset {
     // This class template implements a value-semantic container type holding
     // an ordered sequence of possibly duplicate keys (of the template
@@ -494,7 +607,7 @@ class multiset {
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
+    //:   o except for BDEX serialization
     //: o is *exception-neutral* (agnostic except for the 'at' method)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
@@ -509,33 +622,62 @@ class multiset {
         // This typedef is an alias for the comparator used internally by this
         // multiset.
 
-    typedef BloombergLP::bslstl::TreeNode<KEY>                  Node;
+    typedef BloombergLP::bslstl::TreeNode<KEY>                 Node;
         // This typedef is an alias for the type of nodes held by the tree (of
         // nodes) used to implement this multiset.
 
-    typedef BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>   NodeFactory;
+    typedef BloombergLP::bslstl::TreeNodePool<KEY, ALLOCATOR>  NodeFactory;
         // This typedef is an alias for the factory type used to create and
         // destroy 'Node' objects.
 
-    typedef typename bsl::allocator_traits<ALLOCATOR>          AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOCATOR>                   AllocatorTraits;
         // This typedef is an alias for the allocator traits type associated
         // with this container.
 
-    struct DataWrapper : public Comparator {
-        // This struct is wrapper around the comparator and allocator data
+    typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // movable references.
+
+    class DataWrapper : public Comparator {
+        // This class is a wrapper around the comparator and allocator data
         // members.  It takes advantage of the empty-base optimization (EBO) so
-        // that if the allocator is stateless, it takes up no space.
+        // that if the comparator is stateless, it takes up no space.
         //
-        // TBD: This struct should eventually be replaced by the use of a
+        // TBD: This class should eventually be replaced by the use of a
         // general EBO-enabled component that provides a 'pair'-like interface
         // or a 'tuple'.
 
+        // DATA
         NodeFactory d_pool;  // pool of 'Node' objects
 
+        // NOT IMPLEMENTED
+        DataWrapper(const DataWrapper&);
+        DataWrapper& operator=(const DataWrapper&);
+
+      public:
+        // CREATORS
         explicit DataWrapper(const COMPARATOR& comparator,
                              const ALLOCATOR&  basicAllocator);
-            // Create a 'DataWrapper' object with the specified 'comparator'
-            // and 'basicAllocator'.
+            // Create a data wrapper using a copy of the specified 'comparator'
+            // to order keys and a copy of the specified 'basicAllocator' to
+            // supply memory.
+
+        DataWrapper(BloombergLP::bslmf::MovableRef<DataWrapper> original);
+            // Create a data wrapper initialized to the contents of the 'pool'
+            // associated with the specified 'original' data wrapper.  The
+            // comparator and allocator associated with 'original' are
+            // propagated to the new data wrapper.  'original' is left in a
+            // valid but unspecified state.
+
+        // MANIPULATORS
+        NodeFactory& nodeFactory();
+            // Return a reference providing modifiable access to the node
+            // factory associated with this data wrapper.
+
+        // ACCESSORS
+        const NodeFactory& nodeFactory() const;
+            // Return a reference providing non-modifiable access to the node
+            // factory associated with this data wrapper.
     };
 
     // DATA
@@ -572,13 +714,13 @@ class multiset {
 
   private:
     // PRIVATE MANIPULATORS
-    NodeFactory& nodeFactory();
-        // Return a reference providing modifiable access to the node-allocator
-        // for this tree.
-
     Comparator& comparator();
         // Return a reference providing modifiable access to the comparator for
-        // this tree.
+        // this multiset.
+
+    NodeFactory& nodeFactory();
+        // Return a reference providing modifiable access to the node-allocator
+        // for this multiset.
 
     void quickSwap(multiset& other);
         // Efficiently exchange the value and comparator of this object with
@@ -587,193 +729,603 @@ class multiset {
         // unless this object was created with the same allocator as 'other'.
 
     // PRIVATE ACCESSORS
-    const NodeFactory& nodeFactory() const;
-        // Return a reference providing non-modifiable access to the
-        // node-allocator for this tree.
-
     const Comparator& comparator() const;
         // Return a reference providing non-modifiable access to the comparator
-        // for this tree.
+        // for this multiset.
+
+    const NodeFactory& nodeFactory() const;
+        // Return a reference providing non-modifiable access to the
+        // node-allocator for this multiset.
 
   public:
     // CREATORS
     explicit multiset(const COMPARATOR& comparator     = COMPARATOR(),
                       const ALLOCATOR&  basicAllocator = ALLOCATOR())
-        // Construct an empty multiset.  Optionally specify a 'comparator' used
-        // to order keys contained in this object.  If 'comparator' is not
+        // Create an empty multiset.  Optionally specify a 'comparator' used to
+        // order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
-        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used to
-        // supply memory.
+        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
+        // (the default), then 'basicAllocator', if supplied, shall be
+        // convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.
     : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
-        // The implementation is placed here in the class definition to
-        // workaround an AIX compiler bug, where the constructor can fail to
+        // The implementation is placed here in the class definition to work
+        // around an AIX compiler bug, where the constructor can fail to
         // compile because it is unable to find the definition of the default
         // argument.  This occurs when a templatized class wraps around the
         // container and the comparator is defined after the new class.
     }
 
     explicit multiset(const ALLOCATOR& basicAllocator);
-        // Construct an empty multiset that will use the specified
-        // 'basicAllocator' to supply memory.  Use a default-constructed object
-        // of the (template parameter) type 'COMPARATOR' to order the keys
-        // contained in this multiset.  If the template parameter 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
-        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
+        // Create an empty multiset that uses the specified 'basicAllocator' to
+        // supply memory.  Use a default-constructed object of the (template
+        // parameter) type 'COMPARATOR' to order the keys contained in this
+        // multiset.  Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the (template parameter) 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
 
     multiset(const multiset& original);
-        // Construct a multiset having the same value as the specified
-        // 'original'.  Use a copy of 'original.key_comp()' to order the keys
+        // Create a multiset having the same value as the specified 'original'
+        // object.  Use a copy of 'original.key_comp()' to order the keys
         // contained in this multiset.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
-        // select_on_container_copy_construction(original.allocator())' to
-        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is of
-        // type 'bsl::allocator' (the default), the currently installed default
-        // allocator is used to supply memory.  Note that this method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // allocate memory.  This method requires that the (template parameter)
+        // type 'KEY' be 'copy-insertable' into this multiset (see
+        // {Requirements on 'KEY'}).
+
+    multiset(BloombergLP::bslmf::MovableRef<multiset> original);
+        // Create a multiset having the same value as that of the specified
+        // 'original' object by moving (in constant time) the contents of
+        // 'original' to the new multiset.  Use a copy of 'original.key_comp()'
+        // to order the keys contained in this multiset.  The allocator
+        // associated with 'original' is propagated for use in the
+        // newly-created multiset.  'original' is left in a valid but
+        // unspecified state.
 
     multiset(const multiset& original, const ALLOCATOR& basicAllocator);
-        // Construct a multiset having the same value as that of the specified
-        // 'original' that will use the specified 'basicAllocator' to supply
-        // memory.  Use a copy of 'original.key_comp()' to order the keys
-        // contained in this multiset.  If the template parameter 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
-        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.  Note
-        // that this method requires that the (template parameter) type 'KEY'
-        // be "copy-constructible" (see {Requirements on 'KEY'}).
+        // Create a multiset having the same value as the specified 'original'
+        // object that uses the specified 'basicAllocator' to supply memory.
+        // Use a copy of 'original.key_comp()' to order the keys contained in
+        // this multiset.  This method requires that the (template parameter)
+        // type 'KEY' be 'copy-insertable' into this multiset (see
+        // {Requirements on 'KEY'}).  Note that a 'bslma::Allocator *' can be
+        // supplied for 'basicAllocator' if the (template parameter) type
+        // 'ALLOCATOR' is 'bsl::allocator' (the default).
+
+    multiset(BloombergLP::bslmf::MovableRef<multiset> original,
+             const ALLOCATOR&                         basicAllocator);
+        // Create a multiset having the same value as the specified 'original'
+        // object that uses the specified 'basicAllocator' to supply memory.
+        // The contents of 'original' are moved (in constant time) to the new
+        // multiset if 'basicAllocator == original.get_allocator()', and are
+        // move-inserted (in linear time) using 'basicAllocator' otherwise.
+        // 'original' is left in a valid but unspecified state.  Use a copy of
+        // 'original.key_comp()' to order the keys contained in this multiset.
+        // This method requires that the (template parameter) type 'KEY' be
+        // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
+        // Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
 
     template <class INPUT_ITERATOR>
     multiset(INPUT_ITERATOR    first,
              INPUT_ITERATOR    last,
              const COMPARATOR& comparator     = COMPARATOR(),
              const ALLOCATOR&  basicAllocator = ALLOCATOR());
-        // Construct a set, and insert each 'value_type' object in the sequence
-        // starting at the specified 'first' element, and ending immediately
-        // before the specified 'last' element, ignoring those keys that
-        // appears earlier in the sequence.  Optionally specify a 'comparator'
-        // used to order keys contained in this object.  If 'comparator' is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the template parameter 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' (the default), then 'basicAllocator', if
-        // supplied, shall be convertible to 'bslma::Allocator *'.  If the
-        // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
-        // and 'basicAllocator' is not supplied, the currently installed
-        // default allocator is used to supply memory.  If the sequence 'first'
-        // and 'last' is ordered according to the identified 'comparator', then
-        // this operation has 'O[N]' complexity, where 'N' is the number of
-        // elements between 'first' and 'last', otherwise this operation has
-        // 'O[N * log(N)]' complexity.  The (template parameter) type
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  The behavior is undefined
-        // unless 'first' and 'last' refer to a sequence of valid values where
-        // 'first' is at a position at or before 'last'.  Note that this method
-        // requires that the (template parameter) type 'KEY' be
-        // "copy-constructible" (see {Requirements on 'KEY'}).
+    template <class INPUT_ITERATOR>
+    multiset(INPUT_ITERATOR    first,
+             INPUT_ITERATOR    last,
+             const ALLOCATOR&  basicAllocator);
+        // Create a multiset, and insert each 'value_type' object in the
+        // sequence starting at the specified 'first' element, and ending
+        // immediately before the specified 'last' element.  Optionally specify
+        // a 'comparator' used to order keys contained in this object.  If
+        // 'comparator' is not supplied, a default-constructed object of the
+        // (template parameter) type 'COMPARATOR' is used.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // not supplied, a default-constructed object of the (template
+        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  If the sequence 'first' to
+        // 'last' is ordered according to 'comparator', then this operation has
+        // 'O[N]' complexity, where 'N' is the number of elements between
+        // 'first' and 'last', otherwise this operation has 'O[N * log(N)]'
+        // complexity.  The (template parameter) type 'INPUT_ITERATOR' shall
+        // meet the requirements of an input iterator defined in the C++11
+        // standard [24.2.3] providing access to values of a type convertible
+        // to 'value_type', and 'value_type' must be 'emplace-constructible'
+        // from '*i' into this multiset, where 'i' is a dereferenceable
+        // iterator in the range '[first .. last)' (see {Requirements on
+        // 'KEY'}).  The behavior is undefined unless 'first' and 'last' refer
+        // to a sequence of valid values where 'first' is at a position at or
+        // before 'last'.  Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    multiset(std::initializer_list<KEY> values,
+             const COMPARATOR&          comparator     = COMPARATOR(),
+             const ALLOCATOR&           basicAllocator = ALLOCATOR());
+    multiset(std::initializer_list<KEY> values,
+             const ALLOCATOR&           basicAllocator);
+        // Create a multiset and insert each 'value_type' object in the
+        // specified 'values' initializer list.  Optionally specify a
+        // 'comparator' used to order keys contained in this object.  If
+        // 'comparator' is not supplied, a default-constructed object of the
+        // (template parameter) type 'COMPARATOR' is used.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // not supplied, a default-constructed object of the (template
+        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  If 'values' is ordered
+        // according to 'comparator', then this operation has 'O[N]'
+        // complexity, where 'N' is the number of elements in 'values';
+        // otherwise this operation has 'O[N * log(N)]' complexity.  This
+        // method requires that the (template parameter) type 'KEY' be
+        // 'copy-insertable' into this multiset (see {Requirements on 'KEY'}).
+        // Note that a 'bslma::Allocator *' can be supplied for
+        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
+        // default).
+#endif
 
     ~multiset();
         // Destroy this object.
 
     // MANIPULATORS
-    multiset<KEY, COMPARATOR, ALLOCATOR>&
-    operator=(const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+    multiset& operator=(const multiset& rhs);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_copy_assignment',
         // and return a reference providing modifiable access to this object.
-        // Note that this method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // If an exception is thrown, '*this' is left in a valid but
+        // unspecified state.  This method requires that the (template
+        // parameter) type 'KEY' be 'copy-assignable' and 'copy-insertable'
+        // into this multiset (see {Requirements on 'KEY'}).
 
-    iterator begin();
+    multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs);
+        // Assign to this object the value and comparator of the specified
+        // 'rhs' object, propagate to this object the allocator of 'rhs' if the
+        // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
+        // and return a reference providing modifiable access to this object.
+        // The contents of 'rhs' are moved (in constant time) to this multiset
+        // if 'get_allocator() == rhs.get_allocator()' (after accounting for
+        // the aforementioned trait); otherwise, all elements in this multiset
+        // are either destroyed or move-assigned to and each additional element
+        // in 'rhs' is move-inserted into this multiset.  'rhs' is left in a
+        // valid but unspecified state, and if an exception is thrown, '*this'
+        // is left in a valid but unspecified state.  This method requires that
+        // the (template parameter) type 'KEY' be 'move-assignable' and
+        // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    multiset& operator=(std::initializer_list<KEY> values);
+        // Assign to this object the value resulting from first clearing this
+        // multiset and then inserting each 'value_type' object in the
+        // specified 'values' initializer list and return a reference providing
+        // modifiable access to this object.  This method requires that the
+        // (template parameter) type 'KEY' be 'copy-insertable' into this
+        // multiset (see {Requirements on 'KEY'}).
+#endif
+
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    iterator end();
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the ordered sequence of 'value_type' objects maintained
         // by this multiset.
 
-    reverse_iterator rbegin();
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or 'rend' if this multiset is empty.
 
-    reverse_iterator rend();
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
 
     iterator insert(const value_type& value);
         // Insert the specified 'value' into this multiset.  If a range
-        // containing elements equivalent to 'value' already exist, insert
-        // 'value' at the end of that range.  Note that this method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
+        // containing elements equivalent to 'value' already exists, insert the
+        // 'value' at the end of that range.  Return an iterator referring to
+        // the newly inserted 'value_type' object.  This method requires that
+        // the (template parameter) type 'KEY' be 'copy-insertable' into this
+        // multiset (see {Requirements on 'KEY'}).
 
-    iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into this multiset as close as possible
-        // to the position just prior to the specified 'hint' (in amortized
-        // constant time if the 'hint' is a valid immediate successor to
-        // 'value').  If 'hint' is not a valid immediate successor to 'value',
-        // this operation has 'O[log(N)]' complexity, where 'N' is the size of
-        // this set.  The behavior is undefined unless 'hint' is a valid
-        // iterator into this set.  Note that this method requires that the
-        // (template parameter) type 'KEY' be "copy-constructible" (see
+    iterator insert(BloombergLP::bslmf::MovableRef<value_type> value);
+        // Insert the specified 'value' into this multiset.  If a range
+        // containing elements equivalent to 'value' already exists in this
+        // multiset, insert 'value' at the end of that range.  'value' is left
+        // in a valid but unspecified state.  Return an iterator referring to
+        // the newly inserted 'value_type' object in this multiset that is
+        // equivalent to 'value'.  This method requires that the (template
+        // parameter) type 'KEY' be 'move-insertable' into this multiset (see
         // {Requirements on 'KEY'}).
 
-    template <class InputIterator>
-    void insert(InputIterator first, InputIterator last);
+    iterator insert(const_iterator hint, const value_type& value);
+        // Insert the specified 'value' into this multiset (in amortized
+        // constant time if the specified 'hint' is a valid immediate successor
+        // to 'value').  Return an iterator referring to the newly inserted
+        // 'value_type' object in this multiset that is equivalent to 'value'.
+        // If 'hint' is not a valid immediate successor to 'value', this
+        // operation has 'O[log(N)]' complexity, where 'N' is the size of this
+        // multiset.  This method requires that the (template parameter) type
+        // 'KEY' be 'copy-insertable' into this multiset (see {Requirements on
+        // 'KEY'}).  The behavior is undefined unless 'hint' is a valid
+        // iterator into this multiset.
+
+    iterator insert(const_iterator                             hint,
+                    BloombergLP::bslmf::MovableRef<value_type> value);
+        // Insert the specified 'value' into this multiset (in amortized
+        // constant time if the specified 'hint' is a valid immediate successor
+        // to 'value').  'value' is left in a valid but unspecified state.
+        // Return an iterator referring to the newly inserted 'value_type'
+        // object in this multiset that is equivalent to 'value'.  If 'hint' is
+        // not a valid immediate successor to 'value', this operation has
+        // 'O[log(N)]' complexity, where 'N' is the size of this multiset.
+        // This method requires that the (template parameter) type 'KEY' be
+        // 'move-insertable' into this multiset (see {Requirements on 'KEY'}).
+        // The behavior is undefined unless 'hint' is a valid iterator into
+        // this multiset.
+
+    template <class INPUT_ITERATOR>
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Insert into this multiset the value of each 'value_type' object in
         // the range starting at the specified 'first' iterator and ending
         // immediately before the specified 'last' iterator.  The (template
         // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
         // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type'.  The
-        // behavior is undefined unless 'first' and 'last' refer to a sequence
-        // of valid values where 'first' is at a position at or before 'last'.
-        // Note that this method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
+        // access to values of a type convertible to 'value_type', and
+        // 'value_type' must be 'emplace-constructible' from '*i' into this
+        // multiset, where 'i' is a dereferenceable iterator in the range
+        // '[first .. last)' (see {Requirements on 'KEY'}).  The behavior is
+        // undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void insert(std::initializer_list<KEY> values);
+        // Insert into this multiset the value of each 'value_type' object in
+        // the specified 'values' initializer list.  This method requires that
+        // the (template parameter) type 'KEY' be 'copy-insertable' into this
+        // multiset (see {Requirements on 'KEY'}).
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <class... Args>
+    iterator emplace(Args&&... args);
+        // Insert into this multiset a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type'.  Return an iterator referring to the
+        // newly created and inserted object in this multiset.  This method
+        // requires that the (template parameter) type 'KEY' be
+        // 'emplace-constructible' from 'args' (see {Requirements on 'KEY'}).
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint, Args&&... args);
+        // Insert into this multiset a newly-created 'value_type' object,
+        // constructed by forwarding 'get_allocator()' (if required) and the
+        // specified (variable number of) 'args' to the corresponding
+        // constructor of 'value_type' (in amortized constant time if the
+        // specified 'hint' is a valid immediate successor to the 'value_type'
+        // object constructed from 'args').  Return an iterator referring to
+        // the newly created and inserted object in this multiset.  If 'hint'
+        // is not a valid immediate successor to the 'value_type' object
+        // implied by 'args', this operation has 'O[log(N)]' complexity where
+        // 'N' is the size of this multiset.  This method requires that the
+        // (template parameter) type 'KEY' be 'emplace-constructible' from
+        // 'args' (see {Requirements on 'KEY'}).
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_multiset.h
+    iterator emplace();
+
+    template <class Args_01>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+
+    iterator emplace_hint(const_iterator hint);
+
+    template <class Args_01>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+
+    template <class Args_01,
+              class Args_02>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    iterator emplace_hint(const_iterator hint,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <class... Args>
+    iterator emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+    template <class... Args>
+    iterator emplace_hint(const_iterator hint,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
+// }}} END GENERATED CODE
+#endif
 
     iterator erase(const_iterator position);
-        // Remove from this set the 'value_type' object at the specified
+        // Remove from this multiset the 'value_type' object at the specified
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
         // position if the removed element was the last element in the sequence
-        // of elements maintained by this set.  The behavior is undefined
+        // of elements maintained by this multiset.  The behavior is undefined
         // unless 'position' refers to a 'value_type' object in this multiset.
 
     size_type erase(const key_type& key);
-        // Remote from this multiset all 'value_type' objects having the
+        // Remove from this multiset all 'value_type' objects equivalent to the
         // specified 'key', if they exist, and return the number of erased
-        // objects; otherwise, if there is no 'value_type' objects having
-        // 'key', return 0 with no other effect.
+        // objects; otherwise, if there is no 'value_type' objects having an
+        // equivalent key, return 0 with no other effect.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this multiset the 'value_type' objects starting at the
-        // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this multiset or are
-        // the 'end' iterator, and the 'first' position is at or before the
-        // 'last' position in the ordered sequence provided by this container.
+        // specified 'first' position up to, but not including the specified
+        // 'last' position, and return 'last'.  The behavior is undefined
+        // unless 'first' and 'last' either refer to elements in this multiset
+        // or are the 'end' iterator, and the 'first' position is at or before
+        // the 'last' position in the ordered sequence provided by this
+        // container.
 
-    void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& other);
-        // Exchange the value of this object as well as its comparator with
-        // those of the specified 'other' object.  Additionally, if
-        // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
+    void swap(multiset& other);
+        // Exchange the value and comparator of this object with the value and
+        // comparator of the specified 'other' object.  Additionally, if
+        // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true', then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
@@ -781,107 +1333,108 @@ class multiset {
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
-    void clear();
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this multiset.  Note that the multiset is
         // empty after this call, but allocated memory may be retained for
         // future use.
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
-        // 'value_type' object that is the same as the specified 'key' in
-        // ordered sequence maintained by this multiset, if such an object
-        // exists; otherwise, return the past-the-end ('end') iterator.
+        // 'value_type' object in this multiset equivalent to the specified
+        // 'key', if such an object exists, and the past-the-end ('end')
+        // iterator otherwise.
 
     iterator lower_bound(const key_type& key);
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this multiset greater-than or
         // equal-to the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' greater-than or equal-to
-        // 'key'.  Note that this function returns the *first* position before
-        // which 'key' could be inserted into the ordered sequence maintained
-        // by this multiset, while preserving its ordering.
+        // multiset does not contain a 'value_type' object greater-than or
+        // equal-to 'key'.  Note that this function returns the *first*
+        // position before which a 'value_type' object equivalent to 'key'
+        // could be inserted into the ordered sequence maintained by this
+        // multiset, while preserving its ordering.
 
     iterator upper_bound(const key_type& key);
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this multiset greater than the
         // specified 'key', and the past-the-end iterator if this multiset does
-        // not contain a 'value_type' object whose key is greater-than 'key'.
-        // Note that this function returns the *last* position before which a
-        // 'key' could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
+        // not contain a 'value_type' object greater-than 'key'.  Note that
+        // this function returns the *last* position before which a
+        // 'value_type' object equivalent to 'key' could be inserted into the
+        // ordered sequence maintained by this multiset, while preserving its
+        // ordering.
 
-    bsl::pair<iterator, iterator> equal_range(const key_type& key);
+    pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this multiset the same as the
-        // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence, and the second is positioned one past the end
-        // of the sequence.  The first returned iterator will be
-        // 'lower_bound(key)'; the second returned iterator will be
-        // 'upper_bound(key)'; and, if this multiset contains no 'value_type'
-        // objects having 'key', then the two returned iterators will have the
-        // same value.
+        // sequence of 'value_type' objects in this multiset equivalent to the
+        // specified 'key', where the first iterator is positioned at the start
+        // of the sequence and the second is positioned one past the end of the
+        // sequence.  The first returned iterator will be 'lower_bound(key)',
+        // the second returned iterator will be 'upper_bound(key)', and, if
+        // this multiset contains no 'value_type' objects with an equivalent
+        // key, then the two returned iterators will have the same value.
 
     // ACCESSORS
-    allocator_type get_allocator() const;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // multiset.
 
-    const_iterator begin() const;
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    const_iterator end() const;
+    const_iterator end() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type' objects
         // maintained by this multiset.
 
-    const_reverse_iterator rbegin() const;
+    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this multiset, or 'rend' if this multiset is
         // empty.
 
-    const_reverse_iterator rend() const;
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
 
-    const_iterator cbegin() const;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    const_iterator cend() const;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type' objects
         // maintained by this multiset.
 
-    const_reverse_iterator crbegin() const;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this multiset, or 'rend' if this multiset is
         // empty.
 
-    const_reverse_iterator crend() const;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
 
-    bool empty() const;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this multiset contains no elements, and 'false'
         // otherwise.
 
-    size_type size() const;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this multiset.
 
-    size_type max_size() const;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this multiset could possibly hold.  Note that there is no
-        // guarantee that the set can successfully grow to the returned size,
-        // or even close to that size without running out of resources.
+        // guarantee that the multiset can successfully grow to the returned
+        // size, or even close to that size without running out of resources.
 
     key_compare key_comp() const;
         // Return the key-comparison functor (or function pointer) used by this
@@ -893,17 +1446,17 @@ class multiset {
     value_compare value_comp() const;
         // Return a functor for comparing two 'value_type' objects using
         // 'key_comp()'.  Note that since 'value_type' is an alias to 'KEY' for
-        // 'set', this method returns the same functor as 'key_comp()'.
+        // 'multiset', this method returns the same functor as 'key_comp()'.
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object that is the same as the specified 'key' in
+        // 'value_type' object that is equivalent to the specified 'key' in
         // ordered sequence maintained by this multiset, if such an object
-        // exists; otherwise, return the past-the-end ('end') iterator.
+        // exists, and the past-the-end ('end') iterator otherwise.
 
     size_type count(const key_type& key) const;
-        // Return the number of 'value_type' objects within this multiset the
-        // the same as the specified 'key'.
+        // Return the number of 'value_type' objects within this multiset that
+        // are equivalent to the specified 'key'.
 
     const_iterator lower_bound(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -911,60 +1464,34 @@ class multiset {
         // greater-than or equal-to the specified 'key', and the past-the-end
         // iterator if this multiset does not contain a 'value_type'
         // greater-than or equal-to 'key'.  Note that this function returns the
-        // *first* position before which 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
+        // *first* position before which a 'value_type' object equivalent to
+        // 'key' could be inserted into the ordered sequence maintained by this
+        // multiset, while preserving its ordering.
 
     const_iterator upper_bound(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // (i.e., ordered least) 'value_type' object in this multiset greater
         // than the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object whose key is
-        // greater-than 'key'.  Note that this function returns the *last*
-        // position before which a 'key' could be inserted into the ordered
-        // sequence maintained by this multiset, while preserving its ordering.
+        // multiset does not contain a 'value_type' object greater-than 'key'.
+        // Note that this function returns the *last* position before which a
+        // 'value_type' object equivalent to 'key' could be inserted into the
+        // ordered sequence maintained by this multiset, while preserving its
+        // ordering.
 
-    bsl::pair<const_iterator, const_iterator> equal_range(
+    pair<const_iterator, const_iterator> equal_range(
                                                     const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this multiset the same as the
-        // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence, and the second is positioned one past the end
-        // of the sequence.  The first returned iterator will be
-        // 'lower_bound(key)'; the second returned iterator will be
-        // 'upper_bound(key)'; and, if this multiset contains no 'value_type'
-        // objects having 'key', then the two returned iterators will have the
-        // same value.
-
-    // NOT IMPLEMENTED
-        // The following methods are defined by the C++11 standard, but they
-        // are not implemented as they require some level of C++11 compiler
-        // support not currently available on all supported platforms.
-
-    // multiset(multiset<KEY, COMPARATOR, ALLOCATOR>&& original);
-
-    // multiset(multiset&& original, const ALLOCATOR& allocator);
-
-    // multiset(initializer_list<value_type>,
-    //          const COMPARATOR& = COMPARATOR(),
-    //          const ALLOCATOR& = ALLOCATOR());
-
-    // multiset<KEY, COMPARATOR, ALLOCATOR>&
-    // operator=(multiset<KEY, COMPARATOR, ALLOCATOR>&& x);
-
-    // multiset& operator=(initializer_list<value_type>);
-
-    // template <class... Args> iterator emplace(Args&&... args);
-    // template <class... Args> iterator emplace_hint(const_iterator position,
-    //                                                Args&&... args);
-
-    // iterator insert(value_type&& value);
-
-    // iterator insert(const_iterator position, value_type&& value);
-
-    // void insert(initializer_list<value_type>);
+        // sequence of 'value_type' objects in this multiset that are
+        // equivalent to the specified 'key', where the the first iterator is
+        // positioned at the start of the sequence, and the second is
+        // positioned one past the end of the sequence.  The first returned
+        // iterator will be 'lower_bound(key)'; the second returned iterator
+        // will be 'upper_bound(key)'; and, if this multiset contains no
+        // 'value_type' objects equivalent to 'key', then the two returned
+        // iterators will have the same value.
 };
 
+// FREE OPERATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
@@ -973,17 +1500,17 @@ bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // value if they have the same number of keys, and each key that is
     // contained in one of the objects is also contained in the other object.
     // Note that this method requires that the (template parameter) type 'KEY'
-    // be "equality-comparable" (see {Requirements on 'KEY'}).
+    // be 'equality-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator!=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
                 const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'multiset' objects do not have
-    // the same value if they do not have the same number of keys, or some keys
+    // the same value if they do not have the same number of keys, or some key
     // that is contained in one of the objects is not also contained in the
     // other object.  Note that this method requires that the (template
-    // parameter) type 'KEY' be "equality-comparable" (see {Requirements on
+    // parameter) type 'KEY' be 'equality-comparable' (see {Requirements on
     // 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -995,7 +1522,7 @@ bool operator< (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // key in their respective sequences, the 'lhs' key is less than the 'rhs'
     // key, or, if all their corresponding keys compare equal, 'lhs' has fewer
     // keys than 'rhs'.  Note that this method requires that the (template
-    // parameter) type 'KEY' be "less-than-comparable" (see {Requirements on
+    // parameter) type 'KEY' be 'less-than-comparable' (see {Requirements on
     // 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1007,7 +1534,7 @@ bool operator> (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // key in their respective sequences, the 'lhs' key is greater than the
     // 'rhs' key, or, if all their keys compare equal, 'lhs' has more keys than
     // 'rhs'.  Note that this method requires that the (template parameter)
-    // type 'KEY' be "less-than-comparable" (see {Requirements on 'KEY'}).
+    // type 'KEY' be 'less-than-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -1019,7 +1546,7 @@ bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // is less than the 'rhs' key, or, if all of their corresponding keys
     // compare equal, 'lhs' has less-than or equal number of keys as 'rhs'.
     // Note that this method requires that the (template parameter) type 'KEY'
-    // be "less-than-comparable" (see {Requirements on 'KEY'}).
+    // be 'less-than-comparable' (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
@@ -1031,20 +1558,25 @@ bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
     // greater than the 'rhs' key, or, if all of their corresponding keys
     // compare equal, 'lhs' has greater-than or equal number of keys 'rhs'.
     // Note that this method requires that the (template parameter) type 'KEY'
-    // be "less-than-comparable" (see {Requirements on 'KEY'}).
+    // be 'less-than-comparable' (see {Requirements on 'KEY'}).
 
-// specialized algorithms:
+// FREE FUNCTIONS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
           multiset<KEY, COMPARATOR, ALLOCATOR>& b);
-    // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally, if
-    // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b', and do not
-    // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees 'O[1]' complexity.  The
-    // behavior is undefined unless either this object was created with the
-    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // Exchange the value and comparator of the specified 'a' object with the
+    // value and comparator of the specified 'b' object.  Additionally, if
+    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
+    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
+    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
+    // the same allocator, then this method provides the no-throw
+    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
+    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
+    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
+    // in valid but unspecified states if an exception is thrown (in the case
+    // where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
+    // created with different allocators), such as when the comparator objects
+    // are swapped.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1065,6 +1597,33 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
 {
 }
 
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
+                          BloombergLP::bslmf::MovableRef<DataWrapper> original)
+: ::bsl::multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator(
+                                    MoveUtil::access(original).keyComparator())
+, d_pool(MoveUtil::move(MoveUtil::access(original).d_pool))
+{
+}
+
+// MANIPULATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
+multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::nodeFactory()
+{
+    return d_pool;
+}
+
+// ACCESSORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
+multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::nodeFactory() const
+{
+    return d_pool;
+}
                              // --------------
                              // class multiset
                              // --------------
@@ -1072,18 +1631,18 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
 // PRIVATE MANIPULATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
-multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
-{
-    return d_compAndAlloc.d_pool;
-}
-
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator()
 {
     return d_compAndAlloc;
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
+multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory()
+{
+    return d_compAndAlloc.nodeFactory();
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1104,21 +1663,99 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::quickSwap(multiset& other)
 // PRIVATE ACCESSORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
-multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
-{
-    return d_compAndAlloc.d_pool;
-}
-
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
 const typename multiset<KEY, COMPARATOR, ALLOCATOR>::Comparator&
 multiset<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 {
     return d_compAndAlloc;
 }
 
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+const typename multiset<KEY, COMPARATOR, ALLOCATOR>::NodeFactory&
+multiset<KEY, COMPARATOR, ALLOCATOR>::nodeFactory() const
+{
+    return d_compAndAlloc.nodeFactory();
+}
+
 // CREATORS
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(COMPARATOR(), basicAllocator)
+, d_tree()
+{
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
+: d_compAndAlloc(original.comparator().keyComparator(),
+                 AllocatorTraits::select_on_container_copy_construction(
+                                           original.nodeFactory().allocator()))
+, d_tree()
+{
+    if (0 < original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&d_tree,
+                                                  original.d_tree,
+                                                  &nodeFactory());
+    }
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
+                             BloombergLP::bslmf::MovableRef<multiset> original)
+: d_compAndAlloc(MoveUtil::move(MoveUtil::access(original).d_compAndAlloc))
+, d_tree()
+{
+    multiset& lvalue = original;
+    BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &lvalue.d_tree);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
+                                               const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
+, d_tree()
+{
+    if (0 < original.size()) {
+        nodeFactory().reserveNodes(original.size());
+        BloombergLP::bslalg::RbTreeUtil::copyTree(&d_tree,
+                                                  original.d_tree,
+                                                  &nodeFactory());
+    }
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
+                       BloombergLP::bslmf::MovableRef<multiset> original,
+                       const ALLOCATOR&                         basicAllocator)
+: d_compAndAlloc(MoveUtil::access(original).comparator().keyComparator(),
+                 basicAllocator)
+, d_tree()
+{
+    multiset& lvalue = original;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+              nodeFactory().allocator() == lvalue.nodeFactory().allocator())) {
+        d_compAndAlloc.nodeFactory().adopt(
+                          MoveUtil::move(lvalue.d_compAndAlloc.nodeFactory()));
+        BloombergLP::bslalg::RbTreeUtil::swap(&d_tree, &lvalue.d_tree);
+    }
+    else {
+        if (0 < lvalue.size()) {
+            nodeFactory().reserveNodes(lvalue.size());
+            BloombergLP::bslalg::RbTreeUtil::moveTree(&d_tree,
+                                                      &lvalue.d_tree,
+                                                      &nodeFactory(),
+                                                      &lvalue.nodeFactory());
+        }
+    }
+}
+
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline
@@ -1152,8 +1789,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
                 insert(++first, last);
                 break;
             }
-            BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(
-                                                                        value);
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(value);
             BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                                       prevNode,
                                                       false,
@@ -1165,45 +1802,71 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
     }
 }
 
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR>
 inline
-multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset& original)
-: d_compAndAlloc(original.comparator().keyComparator(),
-                 AllocatorTraits::select_on_container_copy_construction(
-                                           original.nodeFactory().allocator()))
-, d_tree()
-{
-    if (0 < original.size()) {
-        nodeFactory().reserveNodes(original.size());
-        BloombergLP::bslalg::RbTreeUtil::copyTree(&d_tree,
-                                                  original.d_tree,
-                                                  &nodeFactory());
-    }
-}
-
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
-multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const ALLOCATOR& basicAllocator)
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
+                                              INPUT_ITERATOR    first,
+                                              INPUT_ITERATOR    last,
+                                              const ALLOCATOR&  basicAllocator)
 : d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
 {
+    if (first != last) {
+        BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
+                                                               &d_tree,
+                                                               &nodeFactory());
+
+        // The following loop guarantees amortized linear time to insert an
+        // ordered sequence of values (as required by the standard).   If the
+        // values are in sorted order, we are guaranteed the next node can be
+        // inserted as the right child of the previous node, and can call
+        // 'insertAt' without 'findUniqueInsertLocation'.
+
+        insert(*first);
+        BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+        while (++first != last) {
+            // The values are not in order, so insert them normally.
+
+            const value_type& value = *first;
+            if (this->comparator()(value, *prevNode)) {
+                insert(value);
+                insert(++first, last);
+                break;
+            }
+            BloombergLP::bslalg::RbTreeNode *node =
+                nodeFactory().emplaceIntoNewNode(value);
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      prevNode,
+                                                      false,
+                                                      node);
+            prevNode = node;
+        }
+
+        proctor.release();
+    }
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
+                                     std::initializer_list<KEY> values,
+                                     const COMPARATOR&          comparator,
+                                     const ALLOCATOR&           basicAllocator)
+: multiset(values.begin(), values.end(), comparator, basicAllocator)
+{
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(const multiset&  original,
-                                               const ALLOCATOR& basicAllocator)
-: d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
-, d_tree()
+multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
+                                     std::initializer_list<KEY> values,
+                                     const ALLOCATOR&           basicAllocator)
+: multiset(values.begin(), values.end(), COMPARATOR(), basicAllocator)
 {
-    if (0 < original.size()) {
-        nodeFactory().reserveNodes(original.size());
-        BloombergLP::bslalg::RbTreeUtil::copyTree(&d_tree,
-                                                  original.d_tree,
-                                                  &nodeFactory());
-    }
 }
+#endif
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
@@ -1211,7 +1874,6 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::~multiset()
 {
     clear();
 }
-
 
 // MANIPULATORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1238,17 +1900,57 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(const multiset& rhs)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::begin()
+multiset<KEY, COMPARATOR, ALLOCATOR>&
+multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
+                                  BloombergLP::bslmf::MovableRef<multiset> rhs)
 {
-    return iterator(d_tree.firstNode());
+    multiset& lvalue = rhs;
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
+        if (nodeFactory().allocator() == lvalue.nodeFactory().allocator()) {
+            multiset other(MoveUtil::move(lvalue));
+            quickSwap(other);
+        }
+        else if (
+              AllocatorTraits::propagate_on_container_move_assignment::value) {
+            multiset other(MoveUtil::move(lvalue));
+            BloombergLP::bslalg::SwapUtil::swap(
+                                             &nodeFactory().allocator(),
+                                             &other.nodeFactory().allocator());
+            quickSwap(other);
+        }
+        else {
+            multiset other(MoveUtil::move(lvalue), nodeFactory().allocator());
+            quickSwap(other);
+        }
+    }
+    return *this;
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+multiset<KEY, COMPARATOR, ALLOCATOR>&
+multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
+                                             std::initializer_list<KEY> values)
+{
+    clear();
+    insert(values.begin(), values.end());
+    return *this;
+}
+#endif
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::end()
+multiset<KEY, COMPARATOR, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
+{
+    return iterator(d_tree.firstNode());
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_tree.sentinel());
 }
@@ -1256,7 +1958,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::end()
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin()
+multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -1264,7 +1966,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin()
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rend()
+multiset<KEY, COMPARATOR, ALLOCATOR>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -1275,12 +1977,41 @@ typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
 multiset<KEY, COMPARATOR, ALLOCATOR>::insert(const value_type& value)
 {
     bool leftChild;
+
     BloombergLP::bslalg::RbTreeNode *insertLocation =
         BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
                                                             &d_tree,
                                                             this->comparator(),
                                                             value);
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+
+    BloombergLP::bslalg::RbTreeNode *node =
+        nodeFactory().emplaceIntoNewNode(value);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::insert(
+                              BloombergLP::bslmf::MovableRef<value_type> value)
+{
+    value_type& lvalue = value;
+    bool        leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                                            lvalue);
+
+    BloombergLP::bslalg::RbTreeNode *node =
+        nodeFactory().emplaceIntoNewNode(MoveUtil::move(lvalue));
+
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
                                               leftChild,
@@ -1295,8 +2026,10 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::insert(const_iterator    hint,
                                              const value_type& value)
 {
     bool leftChild;
+
     BloombergLP::bslalg::RbTreeNode *hintNode =
                 const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
     BloombergLP::bslalg::RbTreeNode *insertLocation =
         BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
                                                             &d_tree,
@@ -1304,7 +2037,39 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::insert(const_iterator    hint,
                                                             value,
                                                             hintNode);
 
-    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().createNode(value);
+    BloombergLP::bslalg::RbTreeNode *node =
+        nodeFactory().emplaceIntoNewNode(value);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::insert(
+                              const_iterator                             hint,
+                              BloombergLP::bslmf::MovableRef<value_type> value)
+{
+    value_type& lvalue = value;
+    bool        leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                                            lvalue,
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeNode *node =
+        nodeFactory().emplaceIntoNewNode(MoveUtil::move(lvalue));
+
     BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
                                               insertLocation,
                                               leftChild,
@@ -1323,6 +2088,994 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
         ++first;
     }
 }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+void multiset<KEY, COMPARATOR, ALLOCATOR>::insert(
+                                             std::initializer_list<KEY> values)
+{
+    insert(values.begin(), values.end());
+}
+#endif
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(Args&&... args)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                                                   Args&&...      args)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslstl_multiset.h
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                               )
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  );
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  );
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                               BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
+                               BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace(
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                     static_cast<const Node *>(node)->value());
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+template <class... Args>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::emplace_hint(const_iterator hint,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
+{
+    bool leftChild;
+
+    BloombergLP::bslalg::RbTreeNode *node = nodeFactory().emplaceIntoNewNode(
+                                  BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+
+    BloombergLP::bslalg::RbTreeNode *hintNode =
+                const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
+
+    BloombergLP::bslalg::RbTreeNode *insertLocation =
+        BloombergLP::bslalg::RbTreeUtil::findInsertLocation(&leftChild,
+                                                            &d_tree,
+                                                            this->comparator(),
+                                      static_cast<const Node *>(node)->value(),
+                                                            hintNode);
+
+    BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                              insertLocation,
+                                              leftChild,
+                                              node);
+    return iterator(node);
+}
+// }}} END GENERATED CODE
+#endif
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
@@ -1345,7 +3098,7 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
 multiset<KEY, COMPARATOR, ALLOCATOR>::erase(const key_type& key)
 {
-    size_type count = 0;
+    size_type      count = 0;
     const_iterator first = find(key);
     if (first != end()) {
         const_iterator last = upper_bound(key);
@@ -1400,7 +3153,7 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-void multiset<KEY, COMPARATOR, ALLOCATOR>::clear()
+void multiset<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
     if (d_tree.rootNode()) {
@@ -1451,8 +3204,8 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-bsl::pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator,
-          typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator>
+pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator,
+     typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator>
 multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key) const
 {
     const_iterator startIt = lower_bound(key);
@@ -1460,14 +3213,14 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key) const
     if (endIt != end() && !comparator()(key, *endIt.node())) {
         endIt = upper_bound(key);
     }
-    return bsl::pair<const_iterator, const_iterator>(startIt, endIt);
+    return pair<const_iterator, const_iterator>(startIt, endIt);
 }
 
 // ACCESSORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::allocator_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const BSLS_CPP11_NOEXCEPT
 {
     return nodeFactory().allocator();
 }
@@ -1475,7 +3228,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return cbegin();
 }
@@ -1483,7 +3236,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::end() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return cend();
 }
@@ -1491,7 +3244,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::end() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_CPP11_NOEXCEPT
 {
     return crbegin();
 }
@@ -1499,7 +3252,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const BSLS_CPP11_NOEXCEPT
 {
     return crend();
 }
@@ -1507,7 +3260,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_tree.firstNode());
 }
@@ -1515,7 +3268,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_tree.sentinel());
 }
@@ -1523,7 +3276,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -1531,7 +3284,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -1539,7 +3292,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const
 // capacity:
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const
+bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
 {
     return 0 == d_tree.numNodes();
 }
@@ -1547,7 +3300,7 @@ bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::size() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::size() const BSLS_CPP11_NOEXCEPT
 {
     return d_tree.numNodes();
 }
@@ -1556,7 +3309,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::size() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::max_size() const
+multiset<KEY, COMPARATOR, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
 {
     return AllocatorTraits::max_size(get_allocator());
 }
@@ -1591,13 +3344,14 @@ inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
 multiset<KEY, COMPARATOR, ALLOCATOR>::count(const key_type& key) const
 {
-    int cnt = 0;
-    const_iterator it = lower_bound(key);
+    int            count = 0;
+    const_iterator it    = lower_bound(key);
+
     while (it != end() && !comparator()(key, *it.node())) {
         ++it;
-        ++cnt;
+        ++count;
     }
-    return cnt;
+    return count;
 }
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
@@ -1624,16 +3378,17 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key) const
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-bsl::pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator,
-          typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator>
+pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator,
+     typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator>
 multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key)
 {
     iterator startIt = lower_bound(key);
     iterator endIt   = startIt;
+
     if (endIt != end() && !comparator()(key, *endIt.node())) {
         endIt = upper_bound(key);
     }
-    return bsl::pair<iterator, iterator>(startIt, endIt);
+    return pair<iterator, iterator>(startIt, endIt);
 }
 
 }  // close namespace bsl

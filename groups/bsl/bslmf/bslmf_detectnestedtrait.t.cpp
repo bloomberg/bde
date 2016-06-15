@@ -299,9 +299,9 @@ struct ConvertibleToAny
     }
 //..
 
-// ============================================================================
+//=============================================================================
 //                              MAIN PROGRAM
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -311,9 +311,13 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)             veryVerbose;
-    (void)         veryVeryVerbose;
-    (void)     veryVeryVeryVerbose;
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);       // Use unbuffered output
+
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {

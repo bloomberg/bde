@@ -152,18 +152,25 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-
         typedef bsltf::DegenerateFunctor<Compare<int> > ComparatorType;
         typedef bsltf::DegenerateFunctor<Compare<int>, true > SwappableType;
 
-        const ComparatorType x = ComparatorType::cloneBaseObject(
-                                                               Compare<int>());
-        ASSERT(( x(1, 1)));
-        ASSERT((!x(1, 2)));
+        Compare<int> mC = {};  const Compare<int> C = mC;
 
-        ComparatorType y = ComparatorType::cloneBaseObject(Compare<int>());
-        ComparatorType z = ComparatorType::cloneBaseObject(Compare<int>());
-        swap(y, z);
+        ComparatorType mX = ComparatorType::cloneBaseObject(C);
+        const ComparatorType& X = mX ;
+        ASSERT(( X(1, 1)));
+        ASSERT((!X(1, 2)));
+
+        // Confirm move-constructor
+        ComparatorType XX(bslmf::MovableRefUtil::move(mX));
+
+        ASSERT(( XX(1, 1)));
+        ASSERT((!X(1, 2)));
+
+        ComparatorType mY = ComparatorType::cloneBaseObject(Compare<int>());
+        ComparatorType mZ = ComparatorType::cloneBaseObject(Compare<int>());
+        swap(mY, mZ);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

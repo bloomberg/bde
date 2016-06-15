@@ -74,45 +74,54 @@ using namespace BloombergLP;
 // allocate returns a valid usable amount of memory.
 //
 //-----------------------------------------------------------------------------
-// [ 4] bslma::SequentialPool(allocator);
-// [ 4] bslma::SequentialPool(strategy, allocator);
-// [ 5] bslma::SequentialPool(initialSize, allocator);
-// [ 5] bslma::SequentialPool(initialSize, strategy, allocator);
-// [ 4] bslma::SequentialPool(buffer, bufSize, allocator);
-// [ 4] bslma::SequentialPool(buffer, bufSize, strategy, allocator);
-// [ 5] bslma::SequentialPool(initialSize, maxSize, allocator);
-// [ 5] bslma::SequentialPool(initialSize, maxSize, strategy, alloc);
-// [ 4] bslma::SequentialPool(buffer, bufSize, maxSize, allocator);
-// [ 4] bslma::SequentialPool(buffer, bufSize, maxSize, strategy, ta);
-// [ 4] ~bslma::SequentialPool();
-// [ ] void *allocate(size);
-// [ ] void release();
+// [ 4] SequentialPool(Allocator *basicAllocator = 0);
+// [ 4] SequentialPool(strategy, allocator = 0);
+// [ 5] SequentialPool(initialSize, allocator);
+// [ 5] SequentialPool(initialSize, strategy, allocator);
+// [ 4] SequentialPool(buffer, bufferSize, allocator = 0);
+// [ 4] SequentialPool(buffer, bufferSize, strategy, allocator = 0);
+// [ 5] SequentialPool(initialSize, maxSize, allocator);
+// [ 5] SequentialPool(initialSize, maxSize, strategy, alloc);
+// [ 4] SequentialPool(buffer, bufferSize, maxSize, allocator = 0);
+// [ 4] SequentialPool(buffer, bufferSize, maxSize, strategy, alloc = 0);
+// [ 4] ~SequentialPool();
+// [ 4] void *allocate(size);
+// [  ] void release();
 //-----------------------------------------------------------------------------
-// [6] USAGE TEST
-// [5] Initial Size Test
-// [4] Optional Buffer Test
-// [2] Ensure internal buffer grows as specified (goal 2)
-// [1] int blockSize(numBytes);
+// [ 6] USAGE TEST
+// [ 5] Initial Size Test
+// [ 4] Optional Buffer Test
+// [ 2] Ensure internal buffer grows as specified (goal 2)
+// [ 1] int blockSize(numBytes);
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -121,13 +130,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define A(X) printf( #X " = %p\n", (X)); // Print address
 #define A_(X) printf( #X " = %p, ", (X));
@@ -205,9 +213,9 @@ static int calculateNextSize(int currSize, int size, int maxSize = INT_MAX)
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// my_list.h
+// MyList.h
 
-class my_List {
+class MyList {
     char                   *d_typeArray_p;
     void                  **d_list_p;
     int                     d_length;
@@ -216,7 +224,7 @@ class my_List {
     bslma::Allocator       *d_allocator_p;
 
   private: // not implemented
-    my_List(const my_List& original);
+    MyList(const MyList& original);
 
   private:
     void increaseSize();
@@ -224,67 +232,71 @@ class my_List {
   public :
     enum Type { INT, DOUBLE, INT64 };
 
-    my_List(bslma::Allocator *basicAllocator);
-    my_List(char * buffer, int bufferSize, bslma::Allocator *basicAllocator);
+    // CREATORS
+    explicit MyList(bslma::Allocator *basicAllocator);
+    MyList(char * buffer, int bufferSize, bslma::Allocator *basicAllocator);
 
-    ~my_List();
-    my_List& operator=(const my_List& rhs);
+    ~MyList();
+
+    // MANIPULATORS
+    MyList& operator=(const MyList& rhs);
     void append(int value);
     void append(double value);
     void append(bsls::Types::Int64 value);
     void removeAll();
 
-    const int *theInt(int index) const;
+    // ACCESSORS
+    int length() const;
     const double *theDouble(int index) const;
+    const int *theInt(int index) const;
     const bsls::Types::Int64 *theInt64(int index) const;
     Type type(int index) const;
-    int length() const;
 };
 
 inline
-void my_List::removeAll()
+void MyList::removeAll()
 {
     d_pool.release();
     d_length = 0;
 }
 
 inline
-const int *my_List::theInt(int index) const
+int MyList::length() const
 {
-    return (int *) d_list_p[index];
+    return d_length;
 }
 
 inline
-const double *my_List::theDouble(int index) const
+const double *MyList::theDouble(int index) const
 {
     return (double *) d_list_p[index];
 }
 
 inline
-const bsls::Types::Int64 *my_List::theInt64(int index) const
+const int *MyList::theInt(int index) const
+{
+    return (int *) d_list_p[index];
+}
+
+inline
+const bsls::Types::Int64 *MyList::theInt64(int index) const
 {
     return (bsls::Types::Int64 *) d_list_p[index];
 }
 
 inline
-my_List::Type my_List::type(int index) const
+MyList::Type MyList::type(int index) const
 {
     return (Type) d_typeArray_p[index];
 }
 
-inline
-int my_List::length() const
-{
-    return d_length;
-}
-
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// my_list.cpp
+// MyList.cpp
 
 enum { MY_INITIAL_SIZE = 1, MY_GROW_FACTOR = 2 };
 
 static
-void copyElement(void **list, my_List::Type type, int index, void *srcElement,
+void copyElement(void **list, MyList::Type type, int index, void *srcElement,
                  bslma::SequentialPool *pool)
     // Copy the value of the specified 'srcElement' of the specified 'type' to
     // the specified 'index' position in the specified 'list'.  Use the
@@ -298,20 +310,20 @@ void copyElement(void **list, my_List::Type type, int index, void *srcElement,
     typedef bsls::Types::Int64 Int64;
 
     switch (type) {
-      case my_List::INT:
+      case MyList::INT:
         list[index] = new(pool->allocate(sizeof(int)))
                       int(*((int *) srcElement));
         break;
-      case my_List::DOUBLE:
+      case MyList::DOUBLE:
         list[index] = new(pool->allocate(sizeof(double)))
                       double(*((double *) srcElement));
         break;
-      case my_List::INT64:
+      case MyList::INT64:
         list[index] = new(pool->allocate(sizeof(Int64)))
                       Int64(*((Int64 *) srcElement));
         break;
       default:
-        ASSERT(0 && "ERROR (my_List): Invalid element type.");
+        ASSERT(0 && "ERROR (MyList): Invalid element type.");
     }
 }
 
@@ -320,11 +332,10 @@ void reallocate(void ***list, char **typeArray, int *size,
                 int newSize, int length, bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'list' and 'typeArray' using the
     // specified 'basicAllocator' and update the specified size to the
-    // specified 'newSize'.  The specified 'length' number of leading
-    // elements are preserved in 'list' and 'typeArray'.  If 'allocate'
-    // should throw an exception, this function has no effect.  The
-    // behavior is undefined unless 1 <= newSize, 0 <= length, and
-    // newSize <= length.
+    // specified 'newSize'.  The specified 'length' number of leading elements
+    // are preserved in 'list' and 'typeArray'.  If 'allocate' should throw an
+    // exception, this function has no effect.  The behavior is undefined
+    // unless '1 <= newSize', '0 <= length', and 'newSize <= length'.
 {
     ASSERT(list);
     ASSERT(*list);
@@ -350,14 +361,14 @@ void reallocate(void ***list, char **typeArray, int *size,
     *size = newSize;
 }
 
-void my_List::increaseSize()
+void MyList::increaseSize()
 {
      int newSize = d_size * MY_GROW_FACTOR;
      reallocate(&d_list_p, &d_typeArray_p, &d_size, newSize,
                 d_length, d_allocator_p);
 }
 
-my_List::my_List(char *buffer,int bufferSize, bslma::Allocator *basicAllocator)
+MyList::MyList(char *buffer,int bufferSize, bslma::Allocator *basicAllocator)
 : d_length()
 , d_size(MY_INITIAL_SIZE)
 , d_pool(buffer, bufferSize, basicAllocator)
@@ -371,7 +382,7 @@ my_List::my_List(char *buffer,int bufferSize, bslma::Allocator *basicAllocator)
         (void **) d_allocator_p->allocate(d_size * sizeof *d_list_p);
 }
 
-my_List::my_List(bslma::Allocator *basicAllocator)
+MyList::MyList(bslma::Allocator *basicAllocator)
 : d_length(0)
 , d_size(MY_INITIAL_SIZE)
 , d_pool(basicAllocator)
@@ -385,7 +396,7 @@ my_List::my_List(bslma::Allocator *basicAllocator)
         (void **) d_allocator_p->allocate(d_size * sizeof *d_list_p);
 }
 
-my_List::~my_List()
+MyList::~MyList()
 {
     ASSERT(d_typeArray_p);
     ASSERT(d_list_p);
@@ -397,7 +408,7 @@ my_List::~my_List()
     d_allocator_p->deallocate(d_list_p);
 }
 
-my_List& my_List::operator=(const my_List& rhs)
+MyList& MyList::operator=(const MyList& rhs)
 {
     if (&rhs != this) {
         // not aliased
@@ -420,29 +431,29 @@ my_List& my_List::operator=(const my_List& rhs)
     return *this;
 }
 
-void my_List::append(int value)
+void MyList::append(int value)
 {
     if (d_length >= d_size) {
         increaseSize();
     }
     int *item = (int *) d_pool.allocate(sizeof *item);
     *item = value;
-    d_typeArray_p[d_length] = (char) my_List::INT;
+    d_typeArray_p[d_length] = (char) MyList::INT;
     d_list_p[d_length++] = item;
 }
 
-void my_List::append(double value)
+void MyList::append(double value)
 {
     if (d_length >= d_size) {
         increaseSize();
     }
     double *item = (double *) d_pool.allocate(sizeof *item);
     *item = value;
-    d_typeArray_p[d_length] = (char) my_List::DOUBLE;
+    d_typeArray_p[d_length] = (char) MyList::DOUBLE;
     d_list_p[d_length++] = item;
 }
 
-void my_List::append(bsls::Types::Int64 value)
+void MyList::append(bsls::Types::Int64 value)
 {
     typedef bsls::Types::Int64 Int64;
 
@@ -451,7 +462,7 @@ void my_List::append(bsls::Types::Int64 value)
     }
     Int64 *item = (Int64 *) d_pool.allocate(sizeof *item);
     *item = value;
-    d_typeArray_p[d_length] = (char) my_List::INT64;
+    d_typeArray_p[d_length] = (char) MyList::INT64;
     d_list_p[d_length++] = item;
 }
 
@@ -471,7 +482,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
-        // USAGE TEST
+        // USAGE EXAMPLE
         //
         // Testing:
         //   USAGE TEST - Make sure main usage example compiles and works.
@@ -484,31 +495,31 @@ int main(int argc, char *argv[])
         {
             char buf[64];
             char *buf_p = buf;
-            my_List mX(buf_p, 64, &ta);    const my_List &X = mX;
+            MyList mX(buf_p, 64, &ta);    const MyList &X = mX;
             ASSERT(0 == X.length());
 
             const bsls::Types::Int64 K = 1;
             mX.append(K);
             if (veryVerbose) { T_ P(*X.theInt64(0)); }
             ASSERT(1 ==  X.length());
-            ASSERT(K == *X.theInt64(0));  ASSERT(my_List::INT64 == X.type(0));
+            ASSERT(K == *X.theInt64(0));  ASSERT(MyList::INT64 == X.type(0));
 
             const int I = 5;
             mX.append(I);
             if (veryVerbose) { T_ P(*X.theInt(1)); }
             ASSERT(2 ==  X.length());
-            ASSERT(K == *X.theInt64(0));  ASSERT(my_List::INT64 == X.type(0));
-            ASSERT(I == *X.theInt(1));    ASSERT(my_List::INT   == X.type(1));
+            ASSERT(K == *X.theInt64(0));  ASSERT(MyList::INT64 == X.type(0));
+            ASSERT(I == *X.theInt(1));    ASSERT(MyList::INT   == X.type(1));
 
             const double D = 2.5;
             mX.append(D);
             if (veryVerbose) { T_ P(*X.theDouble(2)); }
             ASSERT(3 ==  X.length());
-            ASSERT(K == *X.theInt64(0));  ASSERT(my_List::INT64  == X.type(0));
-            ASSERT(I == *X.theInt(1));    ASSERT(my_List::INT    == X.type(1));
-            ASSERT(D == *X.theDouble(2)); ASSERT(my_List::DOUBLE == X.type(2));
+            ASSERT(K == *X.theInt64(0));  ASSERT(MyList::INT64  == X.type(0));
+            ASSERT(I == *X.theInt(1));    ASSERT(MyList::INT    == X.type(1));
+            ASSERT(D == *X.theDouble(2)); ASSERT(MyList::DOUBLE == X.type(2));
 
-            my_List mY(&ta);    const my_List& Y = mY;
+            MyList mY(&ta);    const MyList& Y = mY;
             mY.append(D);
             mY.append(K);
 
@@ -750,33 +761,14 @@ int main(int argc, char *argv[])
         //      that the memory for the static buffer still exists.
         //
         // Testing:
-        // explicit bslma::SequentialPool(
-        //      bslma::Allocator                          *basicAllocator = 0);
-        // explicit bslma::SequentialPool(
-        //      bslma::BufferAllocator::AlignmentStrategy  strategy,
-        //      bslma::Allocator                          *basicAlloc = 0);
-        // bslma::SequentialPool(
-        //      char                                      *buffer,
-        //      int                                        bufferSize,
-        //      bslma::Allocator                          *basicAllocator = 0);
-        // bslma::SequentialPool(
-        //      char                                      *buffer,
-        //      int                                        bufferSize,
-        //      bslma::BufferAllocator::AlignmentStrategy  strategy,
-        //      bslma::Allocator                          *basicAllocator = 0);
-        // bslma::SequentialPool(
-        //      char                                      *buffer,
-        //      int                                        bufferSize,
-        //      int                                        maxBufferSize,
-        //      bslma::Allocator                          *basicAllocator = 0);
-        // bslma::SequentialPool(
-        //      char                                      *buffer,
-        //      int                                        bufferSize,
-        //      int                                        maxBufferSize,
-        //      bslma::BufferAllocator::AlignmentStrategy  strategy,
-        //      bslma::Allocator                          *basicAllocator = 0);
-        // ~bslma::SequentialPool();
-        // void *allocate(int size);
+        //   SequentialPool(Allocator *basicAllocator = 0);
+        //   SequentialPool(strategy, allocator = 0);
+        //   SequentialPool(buffer, bufferSize, allocator = 0);
+        //   SequentialPool(buffer, bufferSize, strategy, allocator = 0);
+        //   SequentialPool(buffer, bufferSize, maxSize, allocator = 0);
+        //   SequentialPool(buffer, bufferSize, maxSize, strategy, alloc = 0);
+        //   ~SequentialPool();
+        //   void *allocate(int size);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nOPTIONAL BUFFER TEST"
@@ -1056,9 +1048,9 @@ int main(int argc, char *argv[])
                 {
                     // Allocate until static buffer is not completely full,
                     // additional usable free memory in the buffer is not
-                    // enough to fulfill the request.  There is enough
-                    // free memory to fulfill the request, but most of it
-                    // is scattered and fragmented and unusable.
+                    // enough to fulfill the request.  There is enough free
+                    // memory to fulfill the request, but most of it is
+                    // scattered and fragmented and unusable.
 
                     int blockSize = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
@@ -1131,10 +1123,10 @@ int main(int argc, char *argv[])
                 }
                 {
                     buffer += 63;
-                    // Mis align the buffer such that the buffer does not
-                    // start aligned.  Thus, a 64 byte allocation
-                    // cannot be allocated off the static buffer, even though
-                    // there is enough space.
+                    // Mis-align the buffer such that the buffer does not start
+                    // aligned.  Thus, a 64 byte allocation cannot be allocated
+                    // off the static buffer, even though there is enough
+                    // space.
 
                     bslma::SequentialPool seqPool(buffer, bufferSize,
                                                   strategy, &ta);
@@ -1221,15 +1213,13 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // RELEASE TEST:
+        // RELEASE TEST
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nRELEASE TEST"
                             "\n============\n");
-
-        typedef bslma::BufferAllocator BA;
 
         const int TH = 64;
         struct {
@@ -1366,7 +1356,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'allocate' FUNCTION:
+        // TESTING 'allocate' FUNCTION
         //
         // Concerns:
         //   1. If no buffer is specified then the pool always allocates
@@ -1407,8 +1397,8 @@ int main(int argc, char *argv[])
         //   void *allocate(int size);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nALLOCATE TEST"
-                            "\n=============\n");
+        if (verbose) printf("\nTESTING 'allocate' FUNCTION"
+                            "\n===========================\n");
 
         const int DATA[]   = { 0, 1, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
                                63, 64, 65, 66, 127, 128, 129, 255, 256,
@@ -1643,8 +1633,8 @@ int main(int argc, char *argv[])
         {
             const int BUFFER_SIZE = 2048;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.
-            // Note that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
+            // that 'bufferStorage' *must* be declared 'static' to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1726,8 +1716,8 @@ int main(int argc, char *argv[])
         {
             const int BUFFER_SIZE = 2048;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.
-            // Note that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
+            // that 'bufferStorage' *must* be declared 'static' to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1836,12 +1826,11 @@ int main(int argc, char *argv[])
         }
         {
             typedef bslma::BufferAllocator BA;
-            typedef bsls::AlignmentUtil    AL;
 
             const int BUFFER_SIZE = 8192;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.
-            // Note that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
+            // that 'bufferStorage' *must* be declared 'static' to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1895,8 +1884,8 @@ int main(int argc, char *argv[])
                     ptrdiff_t offset = pX - HEAD;
                     if (veryVerbose) { T_ P_(offset); T_ P(EXP); T_ P(SIZE); }
 
-                    // Ensure memory offset from the pool's 'allocate' is
-                    // equal to that from 'allocateFromBuffer'.
+                    // Ensure memory offset from the pool's 'allocate' is equal
+                    // to that from 'allocateFromBuffer'.
 
                     LOOP2_ASSERT(ai, di, EXP == offset);
 
@@ -1935,7 +1924,7 @@ int main(int argc, char *argv[])
             int blkSize = blockSize(SIZE);
             bl.allocate(SIZE);
 
-            // if the first 'SIZE' is 0, the allocator's 'allocate' is never
+            // If the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called, thus, 'lastAllocatedSize' will return -1 instead of 0.
 
             const int EXP = i || SIZE

@@ -1,21 +1,32 @@
 // bslstl_bitset.t.cpp                                                -*-C++-*-
 #include <bslstl_bitset.h>
 
-#include <bslstl_string.h>
-
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 #include <bslmf_assert.h>
-
-#include <bsls_nativestd.h>
+#include <bsls_bsltestutil.h>
+#include <bsls_types.h>
 
 #include <cstdlib>
 #include <iostream>
-#include <string>
 
 #include <cmath>  // native_std::sqrt
 
-using namespace BloombergLP;
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>      // 'atoi'
+#include <string.h>      // 'strcmp', 'strcpy'
 
+using namespace BloombergLP;
+using namespace std;    // still using iostream
+
+// Pragmas to disable noisiest bde_verify warnings
+
+// BDE_VERIFY pragma:-IND01 // Test blocks not indenting after if (printf(""))
+// BDE_VERIFY pragma:-IND04 // Many violations of aligned variable declarations
+// BDE_VERIFY pragma:-TP03  // Many functions not yet tested  *NEEDS ATTENTION*
+//
+// BDE_VERIFY pragma:-MN01  // public data in test tables; cannot be avoided
+// BDE_VERIFY pragma:-MN04  // pointer values in test tables
 //=============================================================================
 //                                 TEST  PLAN
 //-----------------------------------------------------------------------------
@@ -55,108 +66,130 @@ using namespace std;
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
-// [ 2] bitset()
-// [ 3] bitset(unsigned long)
-// [ 4] bitset(native_std::basic_string, size_type, size_type)
-// [ 4] bitset(bslstl::basic_string, size_type, size_type)
-// [ 2] ~bitset()
+// [ 2] constexpr bitset() noexcept;
+// [ 3] constexpr bitset(unsigned long) noexcept;
+// [ 4] bitset(native_std::basic_string, size_type, size_type, char, char);
+// [ 4] bitset(bsl::basic_string, size_type, size_type, char, char);
+// [ 2] ~bitset();
 //
 // MANIPULATORS:
-// [ 3] reference operator[](std::size_t pos)
-// [  ] bitset& operator&=(const bitset &lhs)
-// [  ] bitset& operator|=(const bitset &lhs)
-// [  ] bitset& operator^=(const bitset &lhs)
-// [11] bitset& operator<<=(std::size_t pos)
-// [11] bitset& operator>>=(std::size_t pos)
-// [  ] bitset& flip()
+// [ 2] reference operator[](std::size_t pos);
+// [  ] bitset& operator&=(const bitset &lhs);
+// [  ] bitset& operator|=(const bitset &lhs);
+// [  ] bitset& operator^=(const bitset &lhs);
+// [11] bitset& operator<<=(std::size_t pos);
+// [11] bitset& operator>>=(std::size_t pos);
+// [  ] bitset& flip() noexcept;
 // [  ] bitset& flip(std::size_t pos)
-// [  ] bitset& reset()
+// [  ] bitset& reset() noexcept;
 // [  ] bitset& reset(std::size_t pos)
-// [  ] bitset& set()
+// [  ] bitset& set() noexcept;
 // [  ] bitset& set(std::size_t pos, int val = true)
 //
 // ACCESSORS:
 // [  ] bitset operator<<(std::size_t pos) const
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
-// [  ] bsl::string to_string() const
-// [  ] bool operator[](std::size_t pos) const
-// [  ] bool operator==(std::size_t pos) const
-// [  ] bool operator!=(std::size_t pos) const
-// [ 3] bool any() const
-// [ 3] bool none() const
-// [  ] std::size_t size() const
-// [  ] std::size_t count() const
-// [  ] bool test(std::size_t) const
-// [  ] unsigned long to_ulong() const
+// [ 4] bsl::string to_string(char, char) const;
+// [ 3] constexpr bool operator[](std::size_t pos) const;
+// [  ] bool operator==(std::size_t pos) const noexcept;
+// [  ] bool operator!=(std::size_t pos) const noexcept;
+// [  ] bool all() const noexcept;
+// [ 2] bool any() const noexcept;
+// [ 2] bool none() const noexcept;
+// [ 2] constexpr std::size_t size() const noexcept;
+// [  ] std::size_t count() const noexcept;
+// [  ] bool test(std::size_t) const;
+// [  ] unsigned long to_ulong() const noexcept;
 //
 //
 // FREE OPERATORS:
-// [  ] bitset<N> operator|(const bitset<N> &lhs, const bitset<N> &rhs)
-// [  ] bitset<N> operator&(const bitset<N> &lhs, const bitset<N> &rhs)
-// [  ] bitset<N> operator^(const bitset<N> &lhs, const bitset<N> &rhs)
-// [  ] operator>>(std::istream &is, bitset<N>& x)
-// [  ] operator<<(std::ostream &os, const bitset<N>& x)
+// [  ] bitset<N> operator|(const bitset<N> &lhs, const bitset<N> &rhs);
+// [  ] bitset<N> operator&(const bitset<N> &lhs, const bitset<N> &rhs);
+// [  ] bitset<N> operator^(const bitset<N> &lhs, const bitset<N> &rhs);
+// [  ] operator>>(std::istream &is, bitset<N>& x);
+// [  ] operator<<(std::ostream &os, const bitset<N>& x);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
+
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
+
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//              PLATFORM DEFECT TRACKING MACROS TO SUPPORT TESTING
 //-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    // Last tested with the 12.3 compiler chain, and applies only to the
+    // (default) Rogue Wave library
+# define BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR
+#endif
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -164,9 +197,38 @@ void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+namespace bsl {
+template <size_t N>
+void debugprint(const bitset<N>& rhs) {
+    size_t i = N;
+    while(i) {
+        if (rhs[--i]) {
+            bsls::debugprint('1');
+        }
+        else {
+            bsls::debugprint('0');
+        }
+    }
+}
+}
+
+template <class StringType>
+void changeBitString(StringType* str, char zeroChar, char oneChar)
+{
+    StringType& strRef = *str;
+    for (size_t i = 0; i < strRef.size(); ++i) {
+        char newChar = strRef[i] == '0' ? zeroChar : oneChar;
+        strRef[i] = newChar;
+    }
+}
 
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
+    // Return true if the specified bitset 'obj' has the bit pattern described
+    // by the first 'N' characters of the specified 'expected' string, where
+    // the 'char' value '0' corresponds to an unset bit, and the char value '1'
+    // corresponds to a set bit, and return false otherwise.  The behavior is
+    // undefined unless 'expected' has at least 'N' characters.
 {
     for (unsigned int i = 0; i < N; ++i) {
         ASSERT(expected[i] == '1' || expected[i] == '0');
@@ -178,21 +240,20 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
 }
 
 template <size_t N>
-bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
+bool verifyBitset(const bsl::bitset<N> obj,
+                  size_t               expected,
+                  bool                 verbose)
 {
     for (size_t bitIndex = 0; bitIndex < N; ++bitIndex) {
-        int expectedBit = 0;
+        size_t expectedBit = 0;
 
         if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
             expectedBit = ((expected >> bitIndex) & 1);
         }
 
-        if (expectedBit != obj[bitIndex]) {
-            ASSERT(expectedBit == obj[bitIndex]);
-
-            if (verbose) {
-                T_ P_(N) P_(bitIndex) P_(expectedBit) P(obj[bitIndex]);
-            }
+        if (static_cast<bool>(expectedBit) != obj[bitIndex]) {
+            ASSERTV(bitIndex, expectedBit, obj[bitIndex],
+                    static_cast<bool>(expectedBit) == obj[bitIndex]);
 
             return false;                                             // RETURN
         }
@@ -201,88 +262,143 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
     return true;
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+
+template <size_t N>
+constexpr bool verifyBitConstexpr(size_t                bitIndex,
+                                  const bsl::bitset<N>& obj,
+                                  unsigned long         expected)
+{
+    return bitIndex < sizeof(unsigned long) * CHAR_BIT
+        ? (((expected >> bitIndex) & 1)) == obj[bitIndex]
+        : 0 == obj[bitIndex];
+}
+
+template <size_t BIT_INDEX, size_t N>
+struct VerifyBitsetHelper {
+    constexpr VerifyBitsetHelper() {}
+
+    constexpr
+    bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const
+    {
+        return verifyBitConstexpr(BIT_INDEX, obj, expected) &&
+            VerifyBitsetHelper<BIT_INDEX - 1, N>()(obj, expected);
+    }
+};
+
+template <size_t N>
+struct VerifyBitsetHelper<0, N> {
+    constexpr VerifyBitsetHelper() {}
+
+    constexpr
+    bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const
+    {
+        return verifyBitConstexpr(0, obj, expected);
+    }
+};
+
+template <size_t N>
+constexpr
+bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsigned long value)
+{
+    return VerifyBitsetHelper<N - 1, N>()(obj, value);
+}
+
+#endif
+
+
 //=============================================================================
 //                      TEST CASE SUPPORT FUNCTIONS
 //-----------------------------------------------------------------------------
 
 namespace {
 
-template <int TESTSIZE>
-void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
+template <size_t TESTSIZE>
+void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 {
-    if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
-    bsl::bitset<TESTSIZE> v;
+    if (verbose) printf("\tCheck bitset<" ZU ">\n", TESTSIZE);
+    {   // Runtime test
+        bsl::bitset<TESTSIZE> v;
 
-    ASSERT(TESTSIZE == v.size());
-    ASSERT(v.none());
-    ASSERT(!v.any());
+        ASSERT(TESTSIZE == v.size());
+        ASSERT(v.none());
+        ASSERT(!v.any());
 
-    v[0] = 1;
+        v[0] = 1;
 
-    ASSERT(!v.none());
-    ASSERT(v.any());
+        ASSERT(!v.none());
+        ASSERT(v.any());
 
-    v[0] = 0;
+        v[0] = 0;
 
-    ASSERT(v.none());
-    ASSERT(!v.any());
+        ASSERT(v.none());
+        ASSERT(!v.any());
 
-    v[TESTSIZE - 1] = 1;
+        v[TESTSIZE - 1] = 1;
 
-    ASSERT(!v.none());
-    ASSERT(v.any());
+        ASSERT(!v.none());
+        ASSERT(v.any());
 
-    v[TESTSIZE - 1] = 0;
+        v[TESTSIZE - 1] = 0;
 
-    ASSERT(v.none());
-    ASSERT(!v.any());
+        ASSERT(v.none());
+        ASSERT(!v.any());
+    }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+    {   // constexpr test
+        constexpr bsl::bitset<TESTSIZE> v;
+        ASSERT(TESTSIZE == v.size());
+        ASSERT(v.none());
+        ASSERT(!v.any());
+        BSLMF_ASSERT(TESTSIZE == v.size());
+        BSLMF_ASSERT(0 == v[0]);
+    }
+#endif
 }
 
-template <int TESTSIZE>
-void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
+template <unsigned int LINE, size_t TESTSIZE, unsigned long VALUE>
+void testCase3Imp(bool verbose, bool veryVerbose)
 {
-    static const struct {
-        unsigned int  d_lineNum;  // source line number
-        unsigned long d_value;    // bitset value
-    } DATA[] = {
-        //LINE  VALUE
-        //----  -------------------
-        { L_,   0,                 },
-        { L_,   0x10101010         },
-        { L_,   0xabcdef01         },
-        { L_,   0x12345678         },
-        { L_,   0xffffffff         },
-        { L_,   0x87654321         },
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-        { L_,   0x1010101010101010 },
-        { L_,   0xabcdef01abcdef01 },
-        { L_,   0x1234567812345678 },
-        { L_,   0xffffffffffffffff },
-        { L_,   0x8765432187654321 },
-#endif
-    };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
     typedef bsl::bitset<TESTSIZE> Obj;
-
-    if (verbose) cout << "Testing bitset<"
-                      << TESTSIZE
-                      << ">(unsigned long) constructor"
-                      << endl;
-
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const unsigned int  LINE      = DATA[ti].d_lineNum;
-        const unsigned long VALUE     = DATA[ti].d_value;
-
-        if (veryVerbose) {
-            T_ P_(TESTSIZE) P_(LINE) P(VALUE);
-        }
-
-        Obj mX(VALUE);
-
-        ASSERT(verifyBitset(mX, VALUE, verbose));
+    if (veryVerbose) {
+        T_ P_(TESTSIZE) P_(LINE) P(VALUE);
     }
+
+    Obj mX(VALUE);
+    ASSERT(verifyBitset(mX, VALUE, verbose));
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+    BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
+    ASSERT(verifyBitset(mX2, VALUE, verbose));
+    BSLMF_ASSERT(mX2.size() == TESTSIZE);
+    BSLMF_ASSERT(verifyBitsetConstexpr(mX2, VALUE));
+#endif
+};
+
+template <size_t TESTSIZE>
+void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
+{
+    if (verbose) printf("Testing bitset<" ZU ">(unsigned long) constructor\n",
+                        TESTSIZE);
+                          //LINE  VALUE
+                          //----  -------------------
+    testCase3Imp<L_, TESTSIZE,   0                  >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x10101010         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xabcdef01         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x12345678         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xffffffff         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x87654321         >(verbose, veryVerbose);
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+    testCase3Imp<L_, TESTSIZE,   0x1010101010101010 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xabcdef01abcdef01 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x1234567812345678 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xffffffffffffffff >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x8765432187654321 >(verbose, veryVerbose);
+#endif
+
 }
 
 }  // close unnamed namespace
@@ -298,10 +414,10 @@ void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
 // repeatedly walk the sequence of integer values and mark any numbers up to
 // and including the particular value of interest that are integer multiples of
 // first 2, then 3, then 5 etc., (skipping 4 because it was previously marked
-// when we walked the sequence by 2's).  Once we have walked the sequence
-// with all primes up to and including the square root of the number of
-// interest, we check to see if that number has been marked: If it has, it's
-// composite; otherwise it's prime.
+// when we walked the sequence by 2's).  Once we have walked the sequence with
+// all primes up to and including the square root of the number of interest, we
+// check to see if that number has been marked: If it has, it's composite;
+// otherwise it's prime.
 //
 // When implementing this classic algorithm, we need an efficient way of
 // representing a flag for each potential prime number.  The following
@@ -313,8 +429,8 @@ void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
 //..
 template <unsigned int MAX_VALUE>
 bool isPrime(int candidate)
-    // Return 'true' if the specified 'candidate' value is a prime number,
-    // and 'false' otherwise.  The behavior is undefined unless
+    // Return 'true' if the specified 'candidate' value is a prime number, and
+    // 'false' otherwise.  The behavior is undefined unless
     // '2 <= candidate <= MAX_VALUE'
 {
     BSLMF_ASSERT(2 <= MAX_VALUE);
@@ -340,8 +456,8 @@ bool isPrime(int candidate)
     ASSERT(0     == compositeFlags.count());
 //..
 // Then, we note that a 'bsl::bitset' has a fixed 'size' (the set can't be
-// grown or shrunk) and verify that 'size' is the same as the template
-// argument used to create the 'bsl::bitset':
+// grown or shrunk) and verify that 'size' is the same as the template argument
+// used to create the 'bsl::bitset':
 //..
    ASSERT(MAX_VALUE + 1 == compositeFlags.size());
 //..
@@ -354,8 +470,8 @@ bool isPrime(int candidate)
 // Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
 // eliminate non-primes:
 //..
-    // Note that we treat 'false' values as potential primes,
-    // since that is how 'bsl::bitset' is default-initialized.
+    // Note that we treat 'false' values as potential primes, since that is how
+    // 'bsl::bitset' is default-initialized.
 
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (compositeFlags[i]) {
@@ -390,13 +506,38 @@ bool isPrime(int candidate)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    switch (test) { case 0:  // zero is always the leading case
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
+
+
+    bslma::TestAllocator ta("general", veryVeryVeryVerbose);
+
+    bsls::Types::Int64 numDeallocations;
+    bsls::Types::Int64 numAllocations;
+    bsls::Types::Int64 numDeletes = 0;
+
+    bsls::Types::Int64 numDefaultDeallocations =
+                                           defaultAllocator.numDeallocations();
+    bsls::Types::Int64 numDefaultAllocations =
+                                             defaultAllocator.numAllocations();
+    switch (test) { case 0:  // Zero is always the leading case.
     case 12: {
       // --------------------------------------------------------------------
       // USAGE EXAMPLE TEST
@@ -427,7 +568,7 @@ int main(int argc, char *argv[])
 
     case 11: {
       // --------------------------------------------------------------------
-      // SHIFT OPERATOR TEST
+      // TESTING SHIFT OPERATORS
       //
       // Concerns:
       //   1. That a bitset can be shifted across word boundaries.
@@ -445,8 +586,8 @@ int main(int argc, char *argv[])
       //   bitset& operator>>=(std::size_t pos);
       // --------------------------------------------------------------------
 
-      if (verbose) cout << endl << "SHIFT OPERATOR TEST"
-                        << endl << "===================" << endl;
+      if (verbose) printf("\nTESTING SHIFT OPERATORS"
+                          "\n=======================\n");
 
       {
 
@@ -490,8 +631,8 @@ int main(int argc, char *argv[])
       const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
       const int TESTSIZE = 17;  // num bits of char + 1
-      if (verbose) cout <<
-         "\nTesting shift operators with bitset<" << TESTSIZE << ">" << endl;
+      if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
+                          TESTSIZE);
 
       typedef bsl::bitset<TESTSIZE> Obj;
 
@@ -623,8 +764,8 @@ int main(int argc, char *argv[])
       const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
       const int TESTSIZE = 33;  // num bits of char + 1
-      if (verbose) cout <<
-         "\nTesting shift operators with bitset<" << TESTSIZE << ">" << endl;
+      if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
+                          TESTSIZE);
 
       typedef bsl::bitset<TESTSIZE> Obj;
 
@@ -688,25 +829,27 @@ int main(int argc, char *argv[])
 
     case 4: {
       // --------------------------------------------------------------------
-      // STRING CONSTRUCTOR TEST
+      // TESTING STRING CONSTRUCTORS
       //
       // Concerns:
       //   Ensure that a bitset can be constructed from both native strings
       //   and bslstl strings.
       //
       // Plan:
-      //   Using the table-driven technique, construct bitset from both
+      //   Using the table-driven technique, construct a bitset, 'X', from both
       //   native and bslstl strings.  Verify the value of the constructed
-      //   bitset is as expected.
+      //   bitset is as expected. Then transform those strings so that they
+      //   use different characters to represent '0' and '1'. For each
+      //   transformed string construct a bitset 'Y' and verify its value.
       //
       // Testing:
-      //   bitset(native_std::basic_string, size_type, size_type);
-      //   bitset(bsl::basic_string, size_type, size_type);
+      //  bitset(native_std::basic_string, size_type, size_type, char, char);
+      //  bitset(bsl::basic_string, size_type, size_type, char, char);
+      //  bsl::string to_string(char, char) const;
       // --------------------------------------------------------------------
 
-      if (verbose) cout << endl << "STRING CONSTRUCTOR TEST"
-                        << endl << "=======================" << endl;
-
+      if (verbose) printf("\nTESTING STRING CONSTRUCTORS"
+                          "\n===========================\n");
 
       const int TESTSIZE = 32;  // 'bitset' size.
       typedef bsl::bitset<TESTSIZE> Obj;
@@ -727,8 +870,19 @@ int main(int argc, char *argv[])
       };
       const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-      if (verbose) cout << "\nTesting constructor with native string"
-                        << endl;
+      static const struct {
+          unsigned int d_lineNum;
+          char d_zeroChar;
+          char d_oneChar;
+      } TRANSLATION_DATA[] = {
+            { L_, '0', '1'},
+            { L_, '1', '0'},
+            { L_, '!', 'A'}
+      };
+      const int NUM_TRANSLATION_DATA =
+              sizeof TRANSLATION_DATA / sizeof *TRANSLATION_DATA;
+
+      if (verbose) printf("\nTesting constructor with native string\n");
 
       for (int ti = 0; ti < NUM_DATA; ++ti) {
           const unsigned int LINE   = DATA[ti].d_lineNum;
@@ -737,62 +891,120 @@ int main(int argc, char *argv[])
 
           if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
 
-//          Obj mX(native_std::string(STRING));         // fails to compile
-//          Obj mX(native_std::string(STRING), 0, ~0);  // works
-
-          native_std::string s(STRING);
+          const native_std::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
-
           if (veryVeryVerbose) { T_ T_ P(X) }
+
           LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
           LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+#if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
+          LOOP_ASSERT(LINE, (X.to_string<char, native_std::char_traits<char>,
+                             native_std::allocator<char> >() == s));
+#endif
+
+          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+
+              native_std::string sY(STRING);
+              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
+              Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
+              const Obj& Y = mY;
+              if (veryVeryVerbose) { T_ T_ P(Y) }
+
+              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
+              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+#if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
+              LOOP_ASSERT(LINE2, (Y.to_string<char,
+                      native_std::string::traits_type,
+                      native_std::string::allocator_type>() == s));
+              LOOP_ASSERT(LINE2, (X.to_string<char,
+                      native_std::string::traits_type,
+                      native_std::string::allocator_type>(
+                          ZERO_CHAR, ONE_CHAR) == sY));
+#endif
+
+#if __cplusplus >= 201103L
+              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+#endif
+              LOOP2_ASSERT(LINE, LINE2, X == Y);
+          }
       }
 
-      if (verbose) cout << "\nTesting constructor with bslstl string"
-                        << endl;
+      if (verbose) printf("\nTesting constructor with bslstl string\n");
 
       for (int ti = 0; ti < NUM_DATA; ++ti) {
           const unsigned int LINE   = DATA[ti].d_lineNum;
           const unsigned int VALUE  = DATA[ti].d_value;
           const char *       STRING = DATA[ti].d_string;
 
-          if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
-
-//          Obj mX(bsl::string(STRING));         // fails to compile
-//          Obj mX(bsl::string(STRING), 0, ~0);  // works
-
-          bsl::string s(STRING);
+          const bsl::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
-
           if (veryVeryVerbose) { T_ T_ P(X) }
+
+          // Shorten these type names so that an explicit call to 'to_string'
+          // can fit on a single 79-char line.
+          typedef bsl::string::traits_type    TraitsType;
+          typedef bsl::string::allocator_type AllocType;
+
           LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
           LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+          LOOP_ASSERT(LINE, (X.to_string<char, TraitsType, AllocType>() == s));
+
+          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+
+              bsl::string sY(STRING);
+              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
+              Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
+              const Obj& Y = mY;
+              if (veryVeryVerbose) { T_ T_ P(Y) }
+
+              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
+              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+              LOOP_ASSERT(LINE2, (Y.to_string<char, bsl::string::traits_type,
+                     bsl::string::allocator_type>() == s));
+              LOOP_ASSERT(LINE2, (X.to_string<char, bsl::string::traits_type,
+                     bsl::string::allocator_type>(ZERO_CHAR, ONE_CHAR) == sY));
+#if __cplusplus >= 201103L
+              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+#endif
+              LOOP2_ASSERT(LINE, LINE2, X == Y);
+          }
       }
 
     } break;
 
     case 3: {
       // --------------------------------------------------------------------
-      // UNSIGNED INT CONSTRUCTOR TEST
+      // TESTING UNSIGNED LONG CONSTRUCTOR
       //   Ensure that the unsigned long constructor leaves the object in the
       //   expected state for different initial sizes.
       //
       // Concerns:
       //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
       //:   low bits of 'k'.
+      //:
+      //: 2 'bitset<N>(k)' can be used in a constant expression. (C++11 only).
       //
       // Plan:
       //   Construct bitsets of different sizes with different unsigned long
       //   arguments 'k', and check that all 'N' bits in the bitset match the
-      //   'N' lowest bits of 'k'.
+      //   'N' lowest bits of 'k'. Then repeat the same process except that
+      //   the construction and checks are done at compile time (C++11 only).
       //
-      // TESTING:
-      //  'unsigned long' construction.
+      // Testing:
+      //  constexpr bitset(unsigned long) noexcept;
+      //  constexpr bool operator[](std::size_t pos) const;
       //---------------------------------------------------------------------
-      if (verbose) cout << endl << "UNSIGNED LONG CONSTRUCTOR TEST"
-                        << endl << "==============================" << endl;
+
+      if (verbose) printf("\nTESTING UNSIGNED LONG CONSTRUCTOR"
+                          "\n=================================\n");
 
       testCase3<1>(verbose, veryVerbose, veryVeryVerbose);
       testCase3<2>(verbose, veryVerbose, veryVeryVerbose);
@@ -817,27 +1029,36 @@ int main(int argc, char *argv[])
 
     case 2: {
       // --------------------------------------------------------------------
-      // DEFAULT CONSTRUCTOR TEST
+      // TESTING DEFAULT CONSTRUCTOR
       //   Ensure that the default constructor leaves the object in the
       //   expected state for different initial sizes.
       //
       // Concerns:
-      //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially
-      //:   0.
+      //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially 0.
       //:
-      //: 2 'bitset<N>' implies 'size()==N'.
+      //: 2 'bitset<N>' implies 'N == size()'.
+      //:
+      //: 3 'bitset<N>' has a constexpr default constructor.
       //
       // Plan:
       //   Default construct bitsets of different sizes and check 'size',
       //   'none', and 'any', then modify the first and last bits back and
       //   forth and make sure 'none' and 'any' report the expected results.
+      //   Also default construct the bitsets as constant expressions and use
+      //   the constexpr members 'size()' and 'operator[0]' to check the
+      //   invariants in a static_assert.
       //
-      // TESTING:
-      //  Default construction, 'size', 'none', 'any'
+      // Testing:
+      //  constexpr bitset() noexcept;
+      //  ~bitset();
+      //  reference operator[](std::size_t pos);
+      //  constexpr std::size_t size() const noexcept;
+      //  bool any() const noexcept;
+      //  bool none() const noexcept;
       //---------------------------------------------------------------------
 
-      if (verbose) cout << endl << "DEFAULT CONSTRUCTOR TEST"
-                        << endl << "========================" << endl;
+      if (verbose) printf("\nTESTING DEFAULT CONSTRUCTOR"
+                          "\n===========================\n");
 
       testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
       testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
@@ -893,8 +1114,8 @@ int main(int argc, char *argv[])
       //   BREATHING TEST
       // --------------------------------------------------------------------
 
-      if (verbose) cout << endl << "BREATHING TEST"
-                        << endl << "==============" << endl;
+      if (verbose) printf("\nBREATHING TEST"
+                          "\n==============\n");
 
       const int TESTSIZE = 32;  // 'bitset' size.
       typedef bsl::bitset<TESTSIZE> Obj;
@@ -921,76 +1142,76 @@ int main(int argc, char *argv[])
                   *VU = DATA[0].d_string;
 
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) cout << "\n 1. Create an object x1 (init to SA)."
-                           "\t\t{ x1:SA }" << endl;
+      if (verbose) printf(
+                     "\n 1. Create an object x1 (init to SA).\t\t{ x1:SA }\n");
       Obj mX1(SA);
       const Obj& X1 = mX1;
       if (verbose) { T_ P(X1); }
 
-      if (verbose) cout << "\ta. Check initial state of x1." << endl;
+      if (verbose) printf("\ta. Check initial state of x1.\n");
       ASSERT(verifyBitset(X1, VA));
 
-      if (verbose) cout << "\tb. Try equality operators: x1 <op> x1."
-                        << endl;
+      if (verbose) printf("\tb. Try equality operators: x1 <op> x1.\n");
+
       ASSERT(1 == (X1 == X1));
       ASSERT(0 == (X1 != X1));
 
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) cout << "\n 3. Create an object x3 (default ctor)."
-                           "\t\t{ x1:SA x2:SA x3:U }" << endl;
+      if (verbose) printf("\n 3. Create an object x3 (default ctor)."
+                          "\t\t{ x1:SA x2:SA x3:U }\n");
       Obj mX3;
       const Obj& X3 = mX3;
       if (verbose) { T_ P(X3); }
 
-      if (verbose) cout << "\ta. Check initial state of x3." << endl;
+      if (verbose) printf("\ta. Check initial state of x3.\n");
       ASSERT(verifyBitset(X3, VU));
 
-      if (verbose) cout << "\tb. Try equality operators: "
-                           "x3 <op> x1, x2, x3." << endl;
+      if (verbose) printf("\tb. Try equality operators: "
+                          "x3 <op> x1, x2, x3.\n");
       ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
       ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
 
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) cout << "\n 5. Set x3 using primary manip (set to VB)."
-                           "\t\t{ x1:SA x2:SA x3:SB x4:U }" << endl;
+      if (verbose) printf("\n 5. Set x3 using primary manip (set to VB)."
+                          "\t\t{ x1:SA x2:SA x3:SB x4:U }\n");
       mX3.reset();
       mX3 |= Obj(SB);
       if (verbose) { T_ P(X3); }
 
-      if (verbose) cout << "\ta. Check new state of x3." << endl;
+      if (verbose) printf("\ta. Check new state of x3.\n");
       ASSERT(verifyBitset(X3, VB));
 
-      if (verbose) cout << "\tb. Try equality operators: "
-                           "x3 <op> x1, x2, x3, x4." << endl;
+      if (verbose) printf(
+                     "\tb. Try equality operators: x3 <op> x1, x2, x3, x4.\n");
       ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
       ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
 
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) cout << "\n 6. Change x1 using 'reset'."
-                           "\t\t{ x1:U x2:SA x3:SB x4:U }" << endl;
+      if (verbose) printf(
+              "\n 6. Change x1 using 'reset'.\t\t{ x1:U x2:SA x3:SB x4:U }\n");
       mX1.reset();
       if (verbose) { T_ P(X1); }
 
-      if (verbose) cout << "\ta. Check new state of x1." << endl;
+      if (verbose) printf("\ta. Check new state of x1.\n");
       ASSERT(verifyBitset(X1, VU));
 
-      if (verbose) cout << "\tb. Try equality operators: "
-                           "x1 <op> x1, x2, x3, x4." << endl;
+      if (verbose) printf(
+                     "\tb. Try equality operators: x1 <op> x1, x2, x3, x4.\n");
       ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
       ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
 
       // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) cout << "\n 7. Change x1 (primary manip, set to VC)."
-                           "\t\t{ x1:SC x2:SA x3:SB x4:U }" << endl;
+      if (verbose) printf("\n 7. Change x1 (primary manip, set to VC)."
+                          "\t\t{ x1:SC x2:SA x3:SB x4:U }\n");
       mX1.reset();
       mX1 |= Obj(SC);
       if (verbose) { T_ P(X1); }
 
-      if (verbose) cout << "\ta. Check new state of x1." << endl;
+      if (verbose) printf("\ta. Check new state of x1.\n");
       ASSERT(verifyBitset(X1, VC));
 
-      if (verbose) cout << "\tb. Try equality operators: "
-                           "x1 <op> x1, x2, x3, x4." << endl;
+      if (verbose) printf(
+                     "\tb. Try equality operators: x1 <op> x1, x2, x3, x4.\n");
       ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
       ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
 
@@ -998,25 +1219,32 @@ int main(int argc, char *argv[])
     } break;
 
     case -1: {
-      cout << "2147483647 is prime? " << isPrime<2147483647>(2147483647)
-           << endl;
-    } break;
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        // This test case tends to break compilers, consuming too much virtual
+        // memory for a 32-build of the compiler
+        printf("2147483647 is prime? %s\n",
+               isPrime<2147483647>(2147483647) ? "true" : "false");
+#endif
+      } break;
+      default: {
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        testStatus = -1;
+      }
+    }
 
-    default: {
-      cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-      testStatus = -1;
-    }
-    }
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

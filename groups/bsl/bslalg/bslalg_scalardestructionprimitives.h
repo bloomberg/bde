@@ -138,6 +138,8 @@ struct ScalarDestructionPrimitives {
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *address, bsl::true_type);
     template <class TARGET_TYPE>
+    static void destroy(const TARGET_TYPE *address, bsl::true_type);
+    template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *address, bsl::false_type);
         // Destroy the object of the parameterized 'TARGET_TYPE' at the
         // specified 'address' if the second argument is of type
@@ -180,6 +182,16 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 #else
     (void) address;
 #endif
+}
+
+template <class TARGET_TYPE>
+inline
+void ScalarDestructionPrimitives::destroy(const TARGET_TYPE *address,
+                                          bsl::true_type)
+{
+    // No-op.
+
+    (void) address;
 }
 
 }  // close package namespace

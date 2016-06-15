@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor for destroying arrays.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bslalg::AutoArrayMoveDestructor: exception-neutrality guard for arrays
 //
@@ -248,6 +250,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_arraydestructionprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#include <bslma_stdallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -278,7 +284,7 @@ namespace bslalg {
                     // class AutoArrayMoveDestructor
                     // =============================
 
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR = bsl::allocator<OBJECT_TYPE> >
 class AutoArrayMoveDestructor {
     // This 'class' provides a specialized proctor object that, upon
     // destruction and unless the 'release' method has been called, bit-wise
@@ -302,6 +308,7 @@ class AutoArrayMoveDestructor {
 
     OBJECT_TYPE *d_end_p;    // first address beyond last (moved) element in
                              // guarded range
+    ALLOCATOR    d_allocator;  // allocator
 
     // CLASS INVARIANT
     BSLMF_ASSERT(bslmf::IsBitwiseMoveable<OBJECT_TYPE>::value);
@@ -316,7 +323,9 @@ class AutoArrayMoveDestructor {
     AutoArrayMoveDestructor(OBJECT_TYPE *destination,
                             OBJECT_TYPE *begin,
                             OBJECT_TYPE *middle,
-                            OBJECT_TYPE *end);
+                            OBJECT_TYPE *end,
+                            ALLOCATOR    allocator = ALLOCATOR());
+        // TBD: fix comment
         // Create a proctor for the sequence of elements of the parameterized
         // 'OBJECT_TYPE' in the specified range '[ begin, end )' which, upon
         // destruction, moves the range '[ begin, middle )' to the specified
@@ -363,17 +372,19 @@ class AutoArrayMoveDestructor {
                     // -----------------------------
 
 // CREATORS
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
+AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::AutoArrayMoveDestructor(
                                                       OBJECT_TYPE *destination,
                                                       OBJECT_TYPE *begin,
                                                       OBJECT_TYPE *middle,
-                                                      OBJECT_TYPE *end)
+                                                      OBJECT_TYPE *end,
+                                                      ALLOCATOR    allocator)
 : d_dst_p(destination)
 , d_begin_p(begin)
 , d_middle_p(middle)
 , d_end_p(end)
+, d_allocator(allocator)
 {
     BSLS_ASSERT_SAFE(!begin  == !middle);  // neither or both are null
     BSLS_ASSERT_SAFE(!middle == !end);     // neither or both are null
@@ -383,8 +394,8 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::AutoArrayMoveDestructor(
 
 }
 
-template <class OBJECT_TYPE>
-AutoArrayMoveDestructor<OBJECT_TYPE>::~AutoArrayMoveDestructor()
+template <class OBJECT_TYPE, class ALLOCATOR>
+AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::~AutoArrayMoveDestructor()
 {
     BSLS_ASSERT_SAFE(!d_begin_p  == !d_middle_p);  // neither or both are null
     BSLS_ASSERT_SAFE(!d_middle_p == !d_end_p);     // neither or both are null
@@ -398,14 +409,16 @@ AutoArrayMoveDestructor<OBJECT_TYPE>::~AutoArrayMoveDestructor()
     if (d_middle_p != d_end_p) {
         std::size_t numBytes = (char *)d_end_p - (char *)d_middle_p;
         std::memcpy(d_dst_p, d_middle_p, numBytes);
-        ArrayDestructionPrimitives::destroy(d_begin_p, d_middle_p);
+        ArrayDestructionPrimitives::destroy(d_begin_p,
+                                            d_middle_p,
+                                            d_allocator);
     }
 }
 
 // MANIPULATORS
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
+void AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::advance()
 {
     BSLS_ASSERT_SAFE(d_middle_p < d_end_p);
 
@@ -416,30 +429,31 @@ void AutoArrayMoveDestructor<OBJECT_TYPE>::advance()
 }
 
 // ACCESSORS
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::begin() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::begin() const
 {
     return d_begin_p;
 }
 
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::middle() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::middle() const
 {
     return d_middle_p;
 }
 
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::end() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::end() const
 {
     return d_end_p;
 }
 
-template <class OBJECT_TYPE>
+template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
+OBJECT_TYPE *
+AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::destination() const
 {
     return d_dst_p;
 }

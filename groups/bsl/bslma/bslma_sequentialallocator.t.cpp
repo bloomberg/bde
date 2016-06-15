@@ -61,27 +61,36 @@ using namespace BloombergLP;
 // [ 7] void *allocateAndExpand(int *size);
 // [ 7] void *allocateAndExpand(int *size, int maxNumBytes);
 //-----------------------------------------------------------------------------
-// [8] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -90,13 +99,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -118,107 +126,141 @@ typedef BufferAllocator::AlignmentStrategy AlignStrategy;
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-class my_DoubleStack {
-    double           *d_stack_p;      // dynamically allocated array (d_size
-                                      // elements)
+// Allocators are often supplied to objects requiring dynamically-allocated
+// memory at construction.  For example, consider the following
+// 'my_DoubleStack' class, parameterized by a 'bslma::Allocator':
+//..
+//    // my_doublestack.h
+//  // ...
+//
+//  namespace bslma { class Allocator; }
 
-    int               d_size;         // physical capacity of this stack (in
-                                      // elements)
+    class my_DoubleStack {
+        // DATA
+        double           *d_stack_p;      // dynamically-allocated array
+        int               d_size;         // physical capacity of this stack
+        int               d_length;       // next available index in stack
+        bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
-    int               d_length;       // logical index of next available stack
-                                      // element
+        // FRIENDS
+        friend class my_DoubleStackIter;
 
-    bslma::Allocator *d_allocator_p;  // holds (but does not own) object
+      private:
+        // PRIVATE MANIPULATORS
+        void increaseSize(); // Increase the capacity by at least one element.
 
-    friend class my_DoubleStackIter;
+      public:
+        // CREATORS
+        explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+        my_DoubleStack(const my_DoubleStack&  other,
+                       bslma::Allocator      *basicAllocator = 0);
+        ~my_DoubleStack();
 
-  private:
-    void increaseSize(); // Increase the capacity by at least one element.
+        // MANIPULATORS
+        my_DoubleStack& operator=(const my_DoubleStack& rhs);
+        void push(double value);
+        void pop();
 
-  public:
-    // CREATORS
-    my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-    my_DoubleStack(const my_DoubleStack&  other,
-                   bslma::Allocator      *basicAllocator = 0);
-    ~my_DoubleStack();
+        // ACCESSORS
+        const double& top() const;
+        bool isEmpty() const;
+    };
 
     // MANIPULATORS
-    my_DoubleStack& operator=(const my_DoubleStack& rhs);
-    void push(double value);
-    void pop();
+    inline
+    void my_DoubleStack::push(double value)
+    {
+        if (d_length >= d_size) {
+            increaseSize();
+        }
+        d_stack_p[d_length++] = value;
+    }
 
-    // ACCESSORS
-    const double& top() const;
-    bool isEmpty() const;
-};
+    // ...
+//..
+// The stack interface takes an optional 'basicAllocator' supplied only at
+// construction.  (We avoid use of the name 'allocator' so as not to conflict
+// with the STL use of the word, which differs slightly.)  If non-zero, the
+// stack holds a pointer to this allocator, but does not own it.  If no
+// allocator is supplied, the implementation itself must either conditionally
+// invoke global 'new' and 'delete' explicitly whenever dynamic memory must be
+// managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts
+// use of these global operators to the 'bslma_allocator' interface.  In actual
+// practice, however, we might want the default to be run-time settable from a
+// central location (see 'bslma_default').
+//..
+//  // my_doublestack.cpp
+//  // ...
+//  #include <my_doublestack.h>
+//  #include <bslma_allocator.h>
+//  #include <bslma_default.h>  // adapter for 'new' and 'delete'
 
-enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
+    enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 // ...
 
-my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
-: d_size(INITIAL_SIZE)
-, d_length(0)
-, d_allocator_p(basicAllocator)
-{
-    ASSERT(d_allocator_p);
-    d_stack_p = (double *) d_allocator_p->allocate(d_size * sizeof *d_stack_p);
-}
+    // CREATORS
+    my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
+    : d_size(INITIAL_SIZE)
+    , d_length(0)
+    , d_allocator_p(basicAllocator)
+    {
+        ASSERT(d_allocator_p);
 
-my_DoubleStack::~my_DoubleStack()
-{
-    // CLASS INVARIANTS
-    ASSERT(d_allocator_p);
-    ASSERT(d_stack_p);
-    ASSERT(0 <= d_length);
-    ASSERT(0 <= d_size);
-    ASSERT(d_length <= d_size);
-
-    d_allocator_p->deallocate(d_stack_p);
-}
-
-inline void my_DoubleStack::push(double value)
-{
-    if (d_length >= d_size) {
-        increaseSize();
+        d_stack_p = (double *)
+                    d_allocator_p->allocate(d_size * sizeof *d_stack_p);
     }
-    d_stack_p[d_length++] = value;
-}
 
-inline static
-void reallocate(double **array, int newSize, int length,
-                bslma::Allocator *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified
-    // 'newSize' using the specified 'basicAllocator'.  The specified
-    // 'length' number of leading elements are preserved.  Since the
-    //  class invariant requires that the physical capacity of the
-    // container may grow but never shrink; the behavior is undefined
-    // unless length <= newSize.
-{
-    ASSERT(array);
-    ASSERT(1 <= newSize);
-    ASSERT(0 <= length);
-    ASSERT(basicAllocator);
-    ASSERT(length <= newSize);        // enforce class invariant
+    my_DoubleStack::~my_DoubleStack()
+    {
+        // CLASS INVARIANTS
+        ASSERT(d_allocator_p);
+        ASSERT(d_stack_p);
+        ASSERT(0 <= d_length);
+        ASSERT(0 <= d_size);
+        ASSERT(d_length <= d_size);
 
-    double *tmp = *array;             // support exception neutrality
-    *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
+        d_allocator_p->deallocate(d_stack_p);
+    }
+//..
+// Even in this simplified implementation, all use of the allocator protocol is
+// relegated to the '.cpp' file.  Subsequent use of the allocator is
+// demonstrated by the following file-scope static reallocation function:
+//..
+    static
+    void reallocate(double **array, int newSize, int length,
+                    bslma::Allocator *basicAllocator)
+        // Reallocate memory in the specified 'array' to the specified
+        // 'newSize' using the specified 'basicAllocator'.  The specified
+        // 'length' number of leading elements are preserved.  Since the class
+        // invariant requires that the physical capacity of the container may
+        // grow but never shrink; the behavior is undefined unless
+        // 'length <= newSize'.
+    {
+        ASSERT(array);
+        ASSERT(1 <= newSize);
+        ASSERT(0 <= length);
+        ASSERT(basicAllocator);
+        ASSERT(length <= newSize);        // enforce class invariant
 
-    // COMMIT POINT
+        double *tmp = *array;             // support exception neutrality
+        *array = (double *) basicAllocator->allocate(newSize * sizeof **array);
 
-    memcpy(*array, tmp, length * sizeof **array);
-    basicAllocator->deallocate(tmp);
-}
+        // COMMIT POINT
 
-void my_DoubleStack::increaseSize()
-{
-     int proposedNewSize = d_size * GROW_FACTOR;      // reallocate can throw
-     ASSERT(proposedNewSize > d_length);
-     reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
-     d_size = proposedNewSize;                        // we're committed
-}
+        memcpy(*array, tmp, length * sizeof **array);
+        basicAllocator->deallocate(tmp);
+    }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    void my_DoubleStack::increaseSize()
+    {
+         int proposedNewSize = d_size * GROW_FACTOR;    // reallocate can throw
+         ASSERT(proposedNewSize > d_length);
+         reallocate(&d_stack_p, proposedNewSize, d_length, d_allocator_p);
+         d_size = proposedNewSize;                      // we're committed
+    }
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Need to Complete Usage Test Case
 
 class my_DoubleStackIter {
@@ -228,23 +270,18 @@ class my_DoubleStackIter {
     my_DoubleStackIter(const my_DoubleStackIter&);
     my_DoubleStackIter& operator=(const my_DoubleStackIter&);
   public:
-    my_DoubleStackIter(const my_DoubleStack& stack)
+    // CREATORS
+    explicit my_DoubleStackIter(const my_DoubleStack& stack)
     : d_stack_p(stack.d_stack_p), d_index(stack.d_length - 1) { }
+
+    // MANIPULATORS
     void operator++() { --d_index; }
+
+    // ACCESSORS
     operator const void *() const { return d_index >= 0 ? this : 0; }
     const double& operator()() const { return d_stack_p[d_index]; }
 };
 
-#if 0
-ostream& operator<<(ostream& stream, const my_DoubleStack& stack)
-{
-    stream << "(top) [";
-    for (my_DoubleStackIter it(stack); it; ++it) {
-        stream << ' ' << it();
-    }
-    return stream << " ] (bottom)" << flush;
-}
-#else
 void debugprint(const my_DoubleStack& value)
 {
     printf("(top) [");
@@ -253,7 +290,6 @@ void debugprint(const my_DoubleStack& value)
     }
     printf(" ] (bottom)");
 }
-#endif
 
 enum { INITIAL_BUF_SIZE = 256 };
 
@@ -273,7 +309,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
-        // USAGE TEST
+        // USAGE EXAMPLE
         //   Ensure usage example compiles and works.
         //
         // Testing:

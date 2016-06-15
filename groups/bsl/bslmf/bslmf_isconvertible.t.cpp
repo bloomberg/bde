@@ -414,6 +414,8 @@ int main(int argc, char *argv[])
     (void) C12[0];
     (void) C13[0];
 
+    setbuf(stdout, NULL);       // Use unbuffered output
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.

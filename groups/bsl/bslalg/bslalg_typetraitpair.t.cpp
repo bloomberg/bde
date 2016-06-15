@@ -2,6 +2,8 @@
 
 #include <bslalg_typetraitpair.h>
 
+#include <bslalg_hastrait.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -68,6 +70,23 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslalg::TypeTraitPair  Obj;
 
+struct PairLike {
+    int    first;
+    double second;
+};
+
+class NotAPair {
+
+};
+
+namespace BloombergLP {
+namespace bslmf {
+template <>
+struct IsPair<PairLike> : bsl::true_type {};
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -127,6 +146,9 @@ int main(int argc, char *argv[])
 
         Obj mX;
         (void) mX;
+
+        ASSERT(( bslalg::HasTrait<PairLike,  Obj>::VALUE));
+        ASSERT((!bslalg::HasTrait<NotAPair,  Obj>::VALUE));
 
       } break;
 

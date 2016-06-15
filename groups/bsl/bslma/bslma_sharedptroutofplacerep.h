@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
 //
 //@CLASSES:
-//  bslma::SharedPtrOutofplaceRep: out-of-place shared ptr implementation
+//  bslma::SharedPtrOutofplaceRep: out-of-place shared pointer implementation
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //         Herve Bronnimann (hbronnim)
@@ -139,7 +139,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //      // MANIPULATORS
 //      bdet_Datetime& operator*() const;
-//          // Return a modifiable reference to the shared datetime.
+//          // Return a reference offering modifiable access to the shared
+//          // datetime.
 //
 //      bdet_Datetime *operator->() const;
 //          // Return the address of the modifiable 'bdet_Datetime' to which
@@ -409,7 +410,7 @@ template <class DELETER, bool IS_ALLOC_PTR>
 class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp {
     // This 'class' provides the implementation of the
     // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER' template
-    // parameter type which is not 'Allocator *'.
+    // parameter type, which is not 'Allocator *'.
 
     // PRIVATE TYPES
     enum {
@@ -448,7 +449,7 @@ template <class DELETER>
 class SharedPtrOutofplaceRep_DeleterDiscriminator_Imp<DELETER, true> {
     // This 'class' provides the implementation of the
     // 'SharedPtrOutofplaceRep_DeleterDiscriminator' for the 'DELETER' template
-    // parameter type which is 'Allocator *'.
+    // parameter type, which is 'Allocator *'.
 
     // PRIVATE TYPES
     typedef SharedPtrOutofplaceRep_DeleterType DeleterType;
@@ -563,8 +564,8 @@ struct SharedPtrOutofplaceRep_InitProctor {
     // and must remain valid for the lifetime of the proctor.  If the proctor
     // is not released before it's destruction, a copy of the deleter is
     // instantiated to delete the pointer (in case 'operator()' is
-    // non-'const').  Also note that if the deleter throws during
-    // copy construction, the provided pointer will not be destroyed.
+    // non-'const').  Also note that if the deleter throws during copy
+    // construction, the provided pointer will not be destroyed.
 
     // DATA
     TYPE           *d_ptr_p;    // address of the managed object (held, not
@@ -588,7 +589,7 @@ struct SharedPtrOutofplaceRep_InitProctor {
 };
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                      // ----------------------------

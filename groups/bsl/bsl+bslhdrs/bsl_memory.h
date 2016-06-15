@@ -96,11 +96,11 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslmf_allocatorargt.h>
-#include <bslstl_allocator.h>
-#include <bslstl_allocatortraits.h>
+#include <bslma_stdallocator.h>
 #include <bslstl_badweakptr.h>
 #include <bslstl_ownerless.h>
 #include <bslstl_sharedptr.h>
+#include <bslma_allocatortraits.h>
 #endif
 
 #endif

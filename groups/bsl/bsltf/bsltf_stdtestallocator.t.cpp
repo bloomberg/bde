@@ -537,14 +537,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'size_type'.\n");
         {
-            ASSERT((bsl::is_same<AI::size_type, unsigned int>::value));
-            ASSERT((bsl::is_same<AV::size_type, unsigned int>::value));
+            ASSERT((bsl::is_same<AI::size_type, size_t>::value));
+            ASSERT((bsl::is_same<AV::size_type, size_t>::value));
         }
 
         if (verbose) printf("\tTesting 'difference_type'.\n");
         {
-            ASSERT((bsl::is_same<AI::difference_type, int>::value));
-            ASSERT((bsl::is_same<AV::difference_type, int>::value));
+            ASSERT((bsl::is_same<AI::difference_type, ptrdiff_t>::value));
+            ASSERT((bsl::is_same<AV::difference_type, ptrdiff_t>::value));
         }
 
         if (verbose) printf("\tTesting 'pointer'.\n");

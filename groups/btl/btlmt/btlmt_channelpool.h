@@ -579,6 +579,10 @@ BSLS_IDENT("$Id: $")
 #include <btlso_sockethandle.h>
 #endif
 
+#ifndef INCLUDED_BTLSO_SOCKETOPTIONS
+#include <btlso_socketoptions.h>
+#endif
+
 #ifndef INCLUDED_BDLCC_OBJECTCATALOG
 #include <bdlcc_objectcatalog.h>
 #endif
@@ -666,7 +670,7 @@ namespace BloombergLP {
 namespace btlso {
 
 class IPv4Address;
-class SocketOptions;
+//class SocketOptions;
 
 }
 
@@ -675,6 +679,115 @@ namespace btlmt {
 class Channel;
 class Connector;
 class ServerState;
+
+                    // =====================
+                    // local class Connector
+                    // =====================
+
+// IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support 'map's
+// holding types that are incomplete at the point of declaration of a data
+// member.  Other compilers allow us to complete 'Connector' at a later point
+// in the code, but before any operation (such as 'insert') that would require
+// the type to be complete.  If we did not have to support this compiler, this
+// whole class could be defined in the .cpp file; as it stands, it *must* be
+// defined before class 'ChannelPool'.
+
+class Connector {
+  public:
+    // This small object is stored in channel pool 'd_connectors' and holds all
+    // (but does not own any of) the information needed while an asynchronous
+    // call to 'ChannelPool::connect' is in progress.
+
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(Connector,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // DATA MEMBERS
+    bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >
+                                   d_socket;           // connecting socket
+
+    TcpTimerEventManager          *d_manager_p;        // event manager in
+                                                       // which the timeout is
+                                                       // registered (not
+                                                       // necessarily the one
+                                                       // used for creating the
+                                                       // connection channel)
+
+    bsl::string                    d_serverName;       // server name to
+                                                       // resolve, unused
+                                                       // unless the resolution
+                                                       // flag is set
+
+    btlso::IPv4Address             d_serverAddress;    // server to connect to
+
+    bsls::TimeInterval             d_creationTime;     // time at which
+                                                       // connection was
+                                                       // initiated
+
+    bsls::TimeInterval             d_period;           // timeout period
+                                                       // between connection
+                                                       //  attempts
+
+    bsls::TimeInterval             d_start;            // last absolute
+                                                       // timeout
+
+    void                          *d_timeoutTimerId;   // timer registered by
+                                                       // event manager
+
+    int                            d_numAttempts;      // remaining number of
+                                                       // attempts
+
+    bool                           d_inProgress;       // last call to connect
+                                                       // returned WOULD_BLOCK,
+                                                       // socket event is still
+                                                       // registered
+
+    bool                           d_resolutionFlag;   // whether to perform
+                                                       // name resolution,
+                                                       // inside
+                                                       // connectInitiateCb
+
+    bool                           d_readEnabledFlag;  // flag set to initiate
+                                                       // read command upon
+                                                       // e_CHANNEL_UP
+
+    bool                           d_keepHalfOpenMode; // mode with which
+                                                       // connections must
+                                                       // create channels
+
+    bdlb::NullableValue<btlso::SocketOptions>
+                                   d_socketOptions;    // socket options
+                                                       // provided for connect
+
+    bdlb::NullableValue<btlso::IPv4Address>
+                                   d_localAddress;     // client address to
+                                                       // bind while connecting
+
+    // CREATORS
+    Connector(const bsl::shared_ptr<btlso::StreamSocket<btlso::IPv4Address> >&
+                                          socket,
+              TcpTimerEventManager       *manager,
+              int                         numAttempts,
+              const bsls::TimeInterval&   interval,
+              bool                        readEnabledFlag,
+              bool                        keepHalfOpenMode,
+              const btlso::SocketOptions *socketOptions = 0,
+              const btlso::IPv4Address   *localAddress = 0,
+              bslma::Allocator           *basicAllocator = 0);
+        // Create an connector initialized with the specified 'manager',
+        // 'numAttempts', and 'interval' period parameters and the specified
+        // 'readEnabledFlag' and 'keepHalfOpenMode' flags.  If the specified
+        // 'socketOptions' and 'localAddress' are not 0, use those parameters.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, use the currently installed default
+        // allocator.
+
+    Connector(const Connector& original, bslma::Allocator *basicAllocator = 0);
+        // Create a copy of the specified 'original' connector.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, use the currently installed default
+        // allocator.
+};
 
                        //==================
                        // struct TimerState

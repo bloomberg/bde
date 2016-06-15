@@ -30,23 +30,23 @@ BSLS_IDENT("$Id: $")
 // as does the destructor.  Note, however, that individual allocated blocks of
 // memory cannot be separately deallocated.
 //..
-//   ,-------------------------.
+//   ,--------------------------.
 //  ( bslma::SequentialAllocator )
-//   `-------------------------'
+//   `--------------------------'
 //                |         ctor/dtor
 //                |         allocateAndExpand
 //                |         expand
 //                |         reserveCapacity
 //                |         truncate
 //                V
-//    ,----------------------.
+//    ,-----------------------.
 //   ( bslma::ManagedAllocator )
-//    `----------------------'
+//    `-----------------------'
 //                |        release
 //                V
-//       ,----------------.
+//       ,-----------------.
 //      (  bslma::Allocator )
-//       `----------------'
+//       `-----------------'
 //                       allocate
 //                       deallocate
 //..
@@ -190,7 +190,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  // my_doublestack.cpp
 //  // ...
-//  #include <my_doublestack.cpp>
+//  #include <my_doublestack.h>
 //  #include <bslma_allocator.h>
 //  #include <bslma_default.h>  // adapter for 'new' and 'delete'
 //
@@ -495,7 +495,7 @@ class SequentialAllocator : public ManagedAllocator {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 // CREATORS

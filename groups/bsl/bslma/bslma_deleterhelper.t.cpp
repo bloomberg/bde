@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -444,8 +444,7 @@ int main(int argc, char *argv[])
         {
             if (verbose) printf("\tNegative testing\n");
 
-            bsls::AssertFailureHandlerGuard guard(
-                                            &bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;
@@ -580,8 +579,7 @@ int main(int argc, char *argv[])
         {
             if (verbose) printf("\tNegative testing\n");
 
-            bsls::AssertFailureHandlerGuard guard(
-                                            &bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             my_NewDeleteAllocator a;
             my_NewDeleteAllocator *null = 0;

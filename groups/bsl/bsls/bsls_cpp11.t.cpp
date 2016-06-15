@@ -632,6 +632,7 @@ int main(int argc, char *argv[])
 #else
           int X (B);
 #endif
+          (void)X;  // unused variable warning
       } break;
       default: {
         std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;

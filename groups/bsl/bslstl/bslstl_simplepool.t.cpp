@@ -1,9 +1,8 @@
 // bslstl_simplepool.t.cpp                                            -*-C++-*-
 #include <bslstl_simplepool.h>
 
-#include <bslstl_allocator.h>
-
 #include <bslma_allocator.h>
+#include <bslma_stdallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
@@ -40,9 +39,11 @@ using namespace bslstl;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] explicit SimplePool(const ALLOCATOR& allocator);
+// [10] explicit SimplePool(MovableRef<SimplePool> original);
 // [ 2] ~SimplePool();
-
+//
 // MANIPULATORS
+// [11] SimplePool& operator=(MovableRef<SimplePool> rhs);
 // [ 4] AllocatorType& allocator();
 // [ 2] VALUE *allocate();
 // [ 5] void deallocate(void *address);
@@ -54,7 +55,7 @@ using namespace bslstl;
 // [ 4] const AllocatorType& allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [ 9] CONCERN: Standard allocator can be used
 // [ 3] TEST APPARATUS
 
@@ -258,8 +259,14 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase10();
+    static void testCase12();
         // Test usage example.
+
+    static void testCase11();
+        // Test move assignment operator.
+
+    static void testCase10();
+        // Test move constructor.
 
     static void testCase9();
         // Test alignment concern.
@@ -340,6 +347,202 @@ void TestDriver<VALUE>::createFreeBlocks(Obj *result, int numBlocks)
     for (int i = 0; i < numBlocks; ++i) {
         result->deallocate(blocks.top());
         blocks.pop();
+    }
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase11()
+{
+    // ------------------------------------------------------------------------
+    // MOVE ASSIGNMENT
+    //
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
+                       "\n========================\n");
+
+    // TBD: implement this test.
+    if (verbose)
+        printf("This test needs to be implemented.\n");
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase10()
+{
+    // ------------------------------------------------------------------------
+    // MOVE CONSTRUCTOR
+    //   Ensure that we can use the move constructor to create an object that
+    //   takes ownership of all currently active memory allocations associated
+    //   with the source pool parameter and propagates the source allocator for
+    //   future allocations.
+    //
+    // Concerns:
+    //: 1 The source pool's allocator is propagated to the newly created pool.
+    //:
+    //: 2 The newly created pool takes ownership of all allocations associated
+    //:   with the source pool.
+    //:
+    //: 3 The source pool is left in the default state, i.e., one where there
+    //:   are no associated allocations.
+    //:
+    //: 4 No memory is allocated or deallocated during move construction.
+    //:
+    //: 5 Pointer returned by 'allocate' on the newly created pool is aligned
+    //:   correctly.
+    //:
+    //: 6 Every allocation allocate contiguous blocks.
+    //:
+    //: 7 The newly created pool releases all memory on destruction.
+    //:
+    //: 8 The function is exception neutral w.r.t memory allocation.
+    //
+    // Plan:
+    //: 1 For each allocator configuration:
+    //:
+    //:   1 Create a source pool object 'mZ' with an object allocator 'oa'.
+    //:
+    //:   2 For each of a number of values representing the initial allocation
+    //:     count, 'N':
+    //:
+    //:     1 Call 'allocate' on 'mZ' 'N' times and record the last allocation
+    //        result.
+    //:
+    //:     2 Move 'mZ' to a new object 'mX' in presence of injected exceptions
+    //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros)   (C-8)
+    //:
+    //:     3 Verify that 'X' now has the same allocator as 'Z'.          (C-1)
+    //:
+    //:     3 Verify that no memory was allocated or deallocated during the
+    //:       move.                                                       (C-4)
+    //:
+    //:     4 Delete 'mZ' and verify that no memory was allocated or
+    //:       deallocated.                                                (C-3)
+    //:
+    //:   4 Call 'allocate' on the 'mX' object another 96 times; for each
+    //:     iteration:                                              (C 2, 5..7)
+    //:
+    //:     1 Verify that memory allocation continues from where 'Z' left off,
+    //:       is only allocated from object allocator, and only when expected.
+    //:                                                                   (C-2)
+    //:
+    //:     2 Verify address returned is aligned.                         (C-5)
+    //:
+    //:     3 If memory is not allocated, the address is the max of
+    //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
+    //:       address.                                                    (C-6)
+    //:
+    //:   5 Delete the object and verify all memory is deallocated.       (C-7)
+    //
+    // Testing:
+    //   explicit SimplePool(MovableRef<SimplePool> original);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf(
+                 "\nMOVE CONSTRUCTOR"
+                 "\n================\n");
+
+    if (verbose) printf("\nTesting with various source pool states.\n");
+
+    const int ALLOCS[]   = { 0, 1, 2, 3, 4, 16, 31, 32, 33, 48 };
+    const int NUM_ALLOCS = sizeof ALLOCS / sizeof *ALLOCS;
+
+    for (int ti = 0; ti < NUM_ALLOCS; ++ti) {
+        bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator oa("supplied",  veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+
+        Obj *mZPtr = new (fa) Obj(&oa);
+        Obj& mZ = *mZPtr; const Obj& Z = mZ;
+
+        ASSERTV(&oa == Z.allocator());
+
+        // Verify no allocation from the object/non-object allocators.
+
+        ASSERTV( oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+
+        int tj;
+        VALUE *prevPtr = 0;
+        for (tj = 0; tj < ALLOCS[ti]; ++tj) {
+            VALUE *ptr;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                ptr = mZ.allocate();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            prevPtr = ptr;
+        }
+
+        bslma::TestAllocatorMonitor oam(&oa);
+
+        Obj *mXPtr = new (fa) Obj(bslmf::MovableRefUtil::move(mZ));
+        Obj& mX = *mXPtr; const Obj& X = mX;
+
+        ASSERTV(&oa == X.allocator());
+        ASSERTV(&oa == Z.allocator());
+
+        // Verify that no memory was allocated or deallocated when we got rid
+        // of the original, now empty, pool.
+
+        ASSERT(1 == oam.isTotalSame());
+        ASSERT(1 == oam.isInUseSame());
+
+        // Get rid of the original object and ensure that no memory was
+        // allocated or deallocated.
+
+        fa.deleteObject(mZPtr);
+
+        // Verify that no memory was allocated or deallocated when we got rid
+        // of the original, now empty, pool.
+
+        ASSERT(1 == oam.isTotalSame());
+        ASSERT(1 == oam.isInUseSame());
+
+        // Verify that the newly created object is in exactly the same state
+        // as the original source object before the move.
+
+        for (tj = 0; tj < 96; ++tj) {
+            oam.reset(&oa);
+
+            VALUE *ptr;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                ptr = mX.allocate();
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (expectToAllocate(tj + ALLOCS[ti] + 1)) {
+                ASSERTV(oam.isInUseUp());
+            }
+            else {
+                ptrdiff_t offset = sizeof(VALUE);
+                offset += bsls::AlignmentUtil::calculateAlignmentOffset(
+                                       (void *) offset,
+                                       bsls::AlignmentFromType<void *>::VALUE);
+                ASSERTV(oam.isTotalSame());
+                ASSERTV(prevPtr, ptr, (char *)prevPtr + offset == (char*)ptr);
+            }
+            memset(ptr, 0xff, sizeof(VALUE));
+
+            std::size_t address = reinterpret_cast<std::size_t>(ptr);
+            ASSERTV(ti, 0 == address % bsls::AlignmentFromType<VALUE>::VALUE);
+            ASSERTV(ti, 0 == address % bsls::AlignmentFromType<void *>::VALUE);
+
+            prevPtr = ptr;
+        }
+
+        // Verify no temporary memory is allocated from the object
+        // allocator.
+
+        ASSERTV(oa.numBlocksTotal(), oa.numBlocksInUse(),
+                oa.numBlocksTotal() == oa.numBlocksInUse());
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(mXPtr);
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+        ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
     }
 }
 
@@ -1266,7 +1469,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1311,6 +1514,24 @@ int main(int argc, char *argv[])
     ASSERT(0 == stack.size());
 //..
 
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // MOVE ASSIGNMENT TEST
+        //
+        // Concern:
+        //
+        // --------------------------------------------------------------------
+        RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES);
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // MOVE CONSTRUCTOR TEST
+        //
+        // Concern:
+        //
+        // --------------------------------------------------------------------
+        RUN_EACH_TYPE(TestDriver, testCase10, TEST_TYPES);
       } break;
       case 9: {
         // --------------------------------------------------------------------

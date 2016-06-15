@@ -120,7 +120,7 @@ void bslmt::Sluice::wait(const void *token)
             const int numThreads  = --g->d_numThreads;
 
             (void)numSignaled;
-            
+
             BSLS_ASSERT(numThreads >= numSignaled);
             BSLS_ASSERT(d_pendingGeneration != g);
 

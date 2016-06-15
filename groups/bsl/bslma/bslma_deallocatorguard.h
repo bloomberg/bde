@@ -16,11 +16,12 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a guard class template to
-// unconditionally manage a block of (otherwise-unmanaged) memory.  The managed
-// memory is deallocated automatically when the guard object goes out of scope
-// using the 'deallocate' method of the parameterized 'ALLOCATOR' (allocator or
-// pool) supplied at construction.
+//@DESCRIPTION: This component provides a guard class template,
+// 'bslma::DeallocatorGuard', to unconditionally manage a block of
+// (otherwise-unmanaged) memory.  The managed memory is deallocated
+// automatically when the guard object goes out of scope using the 'deallocate'
+// method of the parameterized 'ALLOCATOR' (allocator or pool) supplied at
+// construction.
 //
 ///Requirement
 ///-----------
@@ -156,7 +157,7 @@ class DeallocatorGuard {
 };
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // ----------------------

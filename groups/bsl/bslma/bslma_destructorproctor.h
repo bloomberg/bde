@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage an object.
 //
+//@REVIEW_FOR_MASTER:
+//
 //@CLASSES:
 //  bslma::DestructorProctor: proctor to conditionally manage an object
 //
@@ -16,13 +18,14 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: This component provides a proctor class template to
-// conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'
-// supplied at construction.  If not explicitly released, the managed object is
-// destroyed automatically when the proctor object goes out of scope by calling
-// the object's destructor.  Note that after a proctor object releases its
-// managed object, the same proctor can be reused to conditionally manage
-// another object by invoking the 'reset' method.
+//@DESCRIPTION: This component provides a proctor class template,
+// 'bslma::DestructorProctor', to conditionally manage an (otherwise-unmanaged)
+// object of parameterized 'TYPE' supplied at construction.  If not explicitly
+// released, the managed object is destroyed automatically when the proctor
+// object goes out of scope by calling the object's destructor.  Note that
+// after a proctor object releases its managed object, the same proctor can be
+// reused to conditionally manage another object by invoking the 'reset'
+// method.
 //
 ///Usage
 ///-----
@@ -31,18 +34,18 @@ BSLS_IDENT("$Id: $")
 // case when memory management and primitive helpers are implemented in
 // different components.  An example would be the construction of a pair object
 // within another container with the help of a scalar primitive helper (see
-// 'bslalg_scalarprimitives').  After the first object is constructed in the
+// 'bslma_constructionutil').  After the first object is constructed in the
 // provided memory, it should be protected in case the constructor of the
 // second object throws.  The following example illustrates a typical use of
 // the 'bslma::DestructorProctor'.
 //
 // First, suppose we have a pair class similar to 'std::pair':
 //..
-//  // my_pair.h
+//  // MyPair.h
 //  // ...
 //
 //  template <class TYPE1, class TYPE2>
-//  class my_Pair {
+//  class MyPair {
 //      // This class provides a pair container to pair two different objects,
 //      // one of parameterized 'TYPE1', and the other of parameterized
 //      // 'TYPE2'.
@@ -63,12 +66,16 @@ BSLS_IDENT("$Id: $")
 //      // CREATORS
 //      // ...
 //
-//      my_Pair(const TYPE1&     iFirst,
-//              const TYPE2&     iSecond)
-//          // Create a 'my_Pair' object that holds a copy of the specified
-//          // 'iFirst' and 'iSecond'.
+//      MyPair(const TYPE1&      iFirst,
+//             const TYPE2&      iSecond,
+//             bslma::Allocator *basic_Allocator = 0)
+//          // Create a 'MyPair' object that holds a copy of the specified
+//          // 'iFirst' and 'iSecond'.  Optionally specify 'basicAllocator' to
+//          // supply memory.  If 'basicAllocator' is zero,  the global default
+//          // allocator will be used to supply memory.
 //      : first(iFirst)
 //      , second(iSecond)
+//      , d_allocator_p(bslma::Default::allocator(basic_Allocator))
 //      {
 //      }
 //
@@ -82,13 +89,12 @@ BSLS_IDENT("$Id: $")
 //
 // We now implement the primitive helper:
 //..
-//  // my_primitives.h
+//  // MyPrimitives.h
 //  // ...
 //
-//  struct my_Primitives {
-//      // This struct provides a namespace for pure procedure primitive
-//      // functions used to construct, destroy, insert, append and remove
-//      // objects.
+//  struct MyPrimitives {
+//      // This 'struct' provides a namespace for primitive functions used to
+//      // construct, destroy, insert, append and remove objects.
 //
 //    private:
 //      // PRIVATE TYPES
@@ -128,9 +134,9 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE             *address,
-//                                    const TYPE&       original,
-//                                    bslma::Allocator *basicAllocator)
+//  void MyPrimitives::copyConstruct(TYPE             *address,
+//                                   const TYPE&       original,
+//                                   bslma::Allocator *basicAllocator)
 //  {
 //      copyConstruct(address,
 //                    original,
@@ -146,10 +152,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE             *address,
-//                                    const TYPE&       original,
-//                                    bslma::Allocator *basicAllocator,
-//                                    bsl::integral_constant<int, PAIR_TRAIT> *)
+//  void MyPrimitives::copyConstruct(TYPE             *address,
+//                                   const TYPE&       original,
+//                                   bslma::Allocator *basicAllocator,
+//                                   bsl::integral_constant<int, PAIR_TRAIT> *)
 //  {
 //      copyConstruct(&address->first, original.first, basicAllocator);
 //
@@ -171,34 +177,38 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE             *address,
-//                                    const TYPE&       original,
-//                                    bslma::Allocator *basicAllocator,
-//                                    bsl::integral_constant<int, NIL_TRAIT> *)
+//  void MyPrimitives::copyConstruct(TYPE             *address,
+//                                   const TYPE&       original,
+//                                   bslma::Allocator *basicAllocator,
+//                                   bsl::integral_constant<int, NIL_TRAIT> *)
 //  {
 //      new(address)TYPE(original, basicAllocator);
 //  }
 //..
-// Note that the implementation of 'my_HasPairTrait' is not shown.  It is
-// used to detect whether 'TYPE' has 'my_PairTrait' or not
-// (see 'bslalg_typetraits', 'bslalg_typetraitpair').
+// Note that the implementation of 'my_HasPairTrait' is not shown.  It is used
+// to detect whether 'TYPE' has 'my_PairTrait' or not (see 'bslalg_typetraits',
+// 'bslalg_typetraitpair').
 //
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the
 // 'bslma::DestructorProctor' prevents the leaks by invoking the destructor of
-// the proctored object automatically should the proctor go out of scope
-// before the 'release' method of the proctor is called (such as when the
-// function exits prematurely due to an exception).
+// the proctored object automatically should the proctor go out of scope before
+// the 'release' method of the proctor is called (such as when the function
+// exits prematurely due to an exception).
 //
 // Note that the 'copyConstruct' method assumes the copy constructor of
 // 'TYPE::firstType' and 'TYPE::secondType' takes an allocator as a second
-// argument.  In production code, a constructor proxy that checks the traits
-// of 'TYPE::firstType' and 'TYPE::secondType' (to determine whether they uses
+// argument.  In production code, a constructor proxy that checks the traits of
+// 'TYPE::firstType' and 'TYPE::secondType' (to determine whether they uses
 // 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -232,11 +242,11 @@ class DestructorProctor {
 
   public:
     // CREATORS
-    DestructorProctor(TYPE *object);
-        // Create a destructor proctor that conditionally manages the
-        // specified 'object' (if non-zero) by invoking the destructor of the
-        // object managed by this proctor (if not released -- see 'release')
-        // upon destruction.
+    explicit DestructorProctor(TYPE *object);
+        // Create a destructor proctor that conditionally manages the specified
+        // 'object' (if non-zero) by invoking the destructor of the object
+        // managed by this proctor (if not released -- see 'release') upon
+        // destruction.
 
     ~DestructorProctor();
         // Destroy this destructor proctor, and destroy the object it manages
@@ -258,7 +268,7 @@ class DestructorProctor {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                         // -----------------------
@@ -278,7 +288,7 @@ inline
 DestructorProctor<TYPE>::~DestructorProctor()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != d_object_p)) {
-        d_object_p->~TYPE();
+        DestructionUtil::destroy(d_object_p);
     }
 }
 
