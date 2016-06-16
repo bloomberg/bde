@@ -343,8 +343,8 @@ void EncoderOptions::setEncodeNullElements(bool value)
 inline
 void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 {
-    BSLS_ASSERT_SAFE(0 <= value);
-    BSLS_ASSERT_SAFE(value <= 6);
+    BSLS_ASSERT_SAFE(0 <= value     );
+    BSLS_ASSERT_SAFE(     value <= 6);
     d_datetimeFractionalSecondPrecision = value;
 }
 
