@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlt_dateutil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {
-
 namespace {
 
 int dayOfWeekDifference(DayOfWeek::Enum day1, DayOfWeek::Enum day2)
@@ -23,9 +22,9 @@ int dayOfWeekDifference(DayOfWeek::Enum day1, DayOfWeek::Enum day2)
 
 }  // close unnamed namespace
 
-                            // ---------------
-                            // struct DateUtil
-                            // ---------------
+                             // ---------------
+                             // struct DateUtil
+                             // ---------------
 
 // PRIVATE CLASS METHODS
 Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
@@ -140,13 +139,23 @@ Date DateUtil::nthDayOfWeekInMonth(int             year,
                                    DayOfWeek::Enum dayOfWeek,
                                    int             n)
 {
-    BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
-    BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
-    BSLS_ASSERT_SAFE(1 <= n);      BSLS_ASSERT_SAFE(n     <= 5);
+    BSLS_ASSERT_SAFE( 1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
+    BSLS_ASSERT_SAFE( 1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
+    BSLS_ASSERT_SAFE( 0 != n);
+    BSLS_ASSERT_SAFE(-5 <= n);      BSLS_ASSERT_SAFE(n     <= 5);
 
-    const Date date = nextDayOfWeekInclusive(dayOfWeek, Date(year, month, 1));
+    if (n > 0) {
+        const Date date = nextDayOfWeekInclusive(dayOfWeek,
+                                                 Date(year, month, 1));
 
-    return date + 7 * (n - 1);
+        return date + 7 * (n - 1);                                    // RETURN
+    }
+
+    const int  eom = SerialDateImpUtil::lastDayOfMonth(year, month);
+    const Date date = previousDayOfWeekInclusive(dayOfWeek,
+                                                 Date(year, month, eom));
+
+    return date + 7 * (n + 1);
 }
 
 Date DateUtil::previousDayOfWeek(DayOfWeek::Enum dayOfWeek, const Date& date)
@@ -166,7 +175,7 @@ Date DateUtil::previousDayOfWeekInclusive(DayOfWeek::Enum dayOfWeek,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
