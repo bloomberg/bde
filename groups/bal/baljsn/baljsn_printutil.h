@@ -103,6 +103,10 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
+#ifndef INCLUDED_BAEJSN_ENCODEROPTIONS
+#include <baljsn_encoderoptions.h>
+#endif
+
 #ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
 #endif
@@ -156,46 +160,91 @@ struct PrintUtil {
 
     // PRIVATE CLASS METHODS
     template <class TYPE>
-    static int printDateAndTime(bsl::ostream& stream, const TYPE& value);
+    static int printDateAndTime(bsl::ostream&         stream,
+                                const TYPE&           value,
+                                const EncoderOptions *options);
         // Encode the specified 'value' into JSON using ISO 8601 format and
-        // output the result to the specified 'stream'.
+        // output the result to the specified 'stream' using the specified
+        // 'options'.
 
     template <class TYPE>
     static int printFloatingPoint(bsl::ostream& stream, TYPE value);
         // Encode the specified floating point 'value' into JSON and output the
         // result to the specified 'stream'.
 
-    static int printString(bsl::ostream&            stream,
-                           const bslstl::StringRef& value);
+    static int printString(bsl::ostream&             stream,
+                           const bslstl::StringRef&  value);
         // Encode the specified string 'value' into JSON format and output the
         // result to the specified 'stream'.
 
   public:
     // CLASS METHODS
-    static int printValue(bsl::ostream& stream, bool                    value);
-    static int printValue(bsl::ostream& stream, char                    value);
-    static int printValue(bsl::ostream& stream, signed char             value);
-    static int printValue(bsl::ostream& stream, unsigned char           value);
-    static int printValue(bsl::ostream& stream, short                   value);
-    static int printValue(bsl::ostream& stream, unsigned short          value);
-    static int printValue(bsl::ostream& stream, int                     value);
-    static int printValue(bsl::ostream& stream, unsigned int            value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Int64      value);
-    static int printValue(bsl::ostream& stream, bsls::Types::Uint64     value);
-    static int printValue(bsl::ostream& stream, float                   value);
-    static int printValue(bsl::ostream& stream, double                  value);
-    static int printValue(bsl::ostream& stream, bdldfp::Decimal64       value);
-    static int printValue(bsl::ostream& stream, const char             *value);
-    static int printValue(bsl::ostream& stream, const bsl::string&      value);
-    static int printValue(bsl::ostream& stream, const bdlt::Time&       value);
-    static int printValue(bsl::ostream& stream, const bdlt::Date&       value);
-    static int printValue(bsl::ostream& stream, const bdlt::Datetime&   value);
-    static int printValue(bsl::ostream& stream, const bdlt::TimeTz&     value);
-    static int printValue(bsl::ostream& stream, const bdlt::DateTz&     value);
-    static int printValue(bsl::ostream& stream, const bdlt::DatetimeTz& value);
+    static int printValue(bsl::ostream&         stream,
+                          bool                  value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          char                  value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          signed char           value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          unsigned char         value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          short                 value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          unsigned short        value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          int                   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          unsigned int          value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          bsls::Types::Int64    value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          bsls::Types::Uint64   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          float                 value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          double                value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          bdldfp::Decimal64     value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const char           *value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const bsl::string&    value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const bdlt::Time&     value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const bdlt::Date&     value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&          stream,
+                          const bdlt::Datetime&  value,
+                          const EncoderOptions  *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const bdlt::TimeTz&   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          const bdlt::DateTz&   value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&            stream,
+                          const bdlt::DatetimeTz&  value,
+                          const EncoderOptions    *options = 0);
         // Encode the specified 'value' into JSON format and output the result
-        // to the specified 'stream'.  Return 0 on success and a non-zero value
-        // otherwise.
+        // to the specified 'stream' using the specified 'options'.  Return 0
+        // on success and a non-zero value otherwise.
 };
 
 // ============================================================================
@@ -209,11 +258,20 @@ struct PrintUtil {
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline
-int PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
+int PrintUtil::printDateAndTime(bsl::ostream&         stream,
+                                const TYPE&           value,
+                                const EncoderOptions *options)
 {
     char buffer[bdlt::Iso8601Util::k_MAX_STRLEN + 1];
     bdlt::Iso8601UtilConfiguration config;
-    config.setFractionalSecondPrecision(6);
+
+    if (options) {
+        config.setFractionalSecondPrecision(
+                                 options->datetimeFractionalSecondPrecision());
+    }
+    else {
+        config.setFractionalSecondPrecision(3);
+    }
 
     bdlt::Iso8601Util::generate(buffer, sizeof buffer, value, config);
     return printValue(stream, buffer);
@@ -241,75 +299,97 @@ int PrintUtil::printFloatingPoint(bsl::ostream& stream, TYPE value)
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, bool value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          bool          value,
+                          const EncoderOptions *)
 {
     stream << (value ? "true" : "false");
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, short value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          short         value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, int value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          int           value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, bsls::Types::Int64 value)
+int PrintUtil::printValue(bsl::ostream&      stream,
+                          bsls::Types::Int64 value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, unsigned char value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          unsigned char value,
+                          const EncoderOptions *)
 {
     stream << static_cast<int>(value);
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, unsigned short value)
+int PrintUtil::printValue(bsl::ostream&  stream,
+                          unsigned short value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, unsigned int value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          unsigned int  value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, bsls::Types::Uint64 value)
+int PrintUtil::printValue(bsl::ostream&       stream,
+                          bsls::Types::Uint64 value,
+                          const EncoderOptions *)
 {
     stream << value;
     return 0;
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, float value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          float         value,
+                          const EncoderOptions *)
 {
     return printFloatingPoint(stream, value);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, double value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          double        value,
+                          const EncoderOptions *)
 {
     return printFloatingPoint(stream, value);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, bdldfp::Decimal64 value)
+int PrintUtil::printValue(bsl::ostream&     stream,
+                          bdldfp::Decimal64 value,
+                          const EncoderOptions *)
 {
     if (!bdldfp::DecimalUtil::isFinite(value)) {
         return -1;                                                    // RETURN
@@ -323,13 +403,17 @@ int PrintUtil::printValue(bsl::ostream& stream, bdldfp::Decimal64 value)
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const char *value)
+int PrintUtil::printValue(bsl::ostream&  stream,
+                          const char    *value,
+                          const EncoderOptions *)
 {
     return printString(stream, value);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, char value)
+int PrintUtil::printValue(bsl::ostream& stream,
+                          char          value,
+                          const EncoderOptions *)
 {
     signed char tmp(value);  // Note that 'char' is unsigned on IBM.
 
@@ -338,45 +422,59 @@ int PrintUtil::printValue(bsl::ostream& stream, char value)
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bsl::string& value)
+int PrintUtil::printValue(bsl::ostream&      stream,
+                          const bsl::string& value,
+                          const EncoderOptions *)
 {
     return printString(stream, value);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::Time& value)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const bdlt::Time&     value,
+                          const EncoderOptions *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::Date& value)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const bdlt::Date&     value,
+                          const EncoderOptions *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::Datetime& value)
+int PrintUtil::printValue(bsl::ostream&          stream,
+                          const bdlt::Datetime&  value,
+                          const EncoderOptions  *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::TimeTz& value)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const bdlt::TimeTz&   value,
+                          const EncoderOptions *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::DateTz& value)
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          const bdlt::DateTz&   value,
+                          const EncoderOptions *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 
 inline
-int PrintUtil::printValue(bsl::ostream& stream, const bdlt::DatetimeTz& value)
+int PrintUtil::printValue(bsl::ostream&            stream,
+                          const bdlt::DatetimeTz&  value,
+                          const EncoderOptions    *options)
 {
-    return printDateAndTime(stream, value);
+    return printDateAndTime(stream, value, options);
 }
 }  // close package namespace
 
