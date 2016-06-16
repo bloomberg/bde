@@ -1,4 +1,4 @@
-// bslstl_allocator.cpp          -*-C++-*-
+// bslstl_allocator.cpp                                               -*-C++-*-
 #include <bslstl_allocator.h>
 
 #include <bsls_ident.h>

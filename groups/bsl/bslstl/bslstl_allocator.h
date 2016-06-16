@@ -1,4 +1,4 @@
-// bslstl_allocator.h            -*-C++-*-
+// bslstl_allocator.h                                                 -*-C++-*-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #define INCLUDED_BSLSTL_ALLOCATOR
 
