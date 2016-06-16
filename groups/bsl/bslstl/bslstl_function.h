@@ -242,51 +242,52 @@ struct Function_NothrowWrapperUtil;
                 // class template Function_DisableIfLosslessCnvrsn
                 // ===============================================
 
-template <class FROM, class TO, class RESULT>
+template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
 struct Function_DisableIfLosslessCnvrsn
-    : enable_if<! is_same<FROM, TO >::value, RESULT>
+    : enable_if<! is_same<FROM_TYPE, TO_TYPE>::value, RESULT_TYPE>
 {
-    // This metafunction defines a 'type' aliased to the specified 'RESULT'
-    // parameter if the specified 'FROM' parameter type is *not* convertible
-    // to the specified 'TO' parameter type with no loss of information;
-    // otherwise, no 'type' member is defined.  By default, this metafunction
-    // always yields a 'type' member if, after stripping off any reference
-    // and/or 'const' qualifier from 'FROM', it is different from 'TO'.
-    // However, this template can be specialized to suppress 'type' for other
-    // parameters that supply lossless conversions. This metafunction is used
-    // to prevent types that provide lossless conversions to 'bsl::function'
-    // from matching template parameters in 'function' constructors and
-    // assignment operators, prefering, instead, the non-template overloads.
+    // This metafunction defines a 'type' aliased to the specified
+    // 'RESULT_TYPE' parameter if the specified 'FROM_TYPE' parameter type is
+    // *not* convertible to the specified 'TO_TYPE' parameter type with no loss
+    // of information; otherwise, no 'type' member is defined.  By default,
+    // this metafunction always yields a 'type' member if, after stripping off
+    // any reference and/or 'const' qualifier from 'FROM_TYPE', it is different
+    // from 'TO_TYPE'.  However, this template can be specialized to suppress
+    // 'type' for other parameters that supply lossless conversions. This
+    // metafunction is used to prevent types that provide lossless conversions
+    // to 'bsl::function' from matching template parameters in 'function'
+    // constructors and assignment operators, prefering, instead, the
+    // non-template overloads.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Note: 'bdef_Function' should specialize this template to suppress
-    // 'type' when 'FROM' is an instantiation of 'bdef_Function' and 'TO' is
-    // the corresponding instantiation of 'bsl::function'.
+    // 'type' when 'FROM_TYPE' is an instantiation of 'bdef_Function' and
+    // 'TO_TYPE' is the corresponding instantiation of 'bsl::function'.
 #endif
 };
 
-template <class FROM, class TO, class RESULT>
-struct Function_DisableIfLosslessCnvrsn<const FROM, TO, RESULT>
-    : Function_DisableIfLosslessCnvrsn<FROM, TO, RESULT>
+template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
+struct Function_DisableIfLosslessCnvrsn<const FROM_TYPE, TO_TYPE, RESULT_TYPE>
+    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM' being
-    // const.
+    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
+    // being const.
 };
 
-template <class FROM, class TO, class RESULT>
-struct Function_DisableIfLosslessCnvrsn<FROM&, TO, RESULT>
-    : Function_DisableIfLosslessCnvrsn<FROM, TO, RESULT>
+template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
+struct Function_DisableIfLosslessCnvrsn<FROM_TYPE&, TO_TYPE, RESULT_TYPE>
+    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM' being
-    // an lvalue reference.
+    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
+    // being an lvalue reference.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class FROM, class TO, class RESULT>
-struct Function_DisableIfLosslessCnvrsn<FROM&&, TO, RESULT>
-    : Function_DisableIfLosslessCnvrsn<FROM, TO, RESULT>
+template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
+struct Function_DisableIfLosslessCnvrsn<FROM_TYPE&&, TO_TYPE, RESULT_TYPE>
+    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM' being
-    // an rvalue reference.
+    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
+    // being an rvalue reference.
 };
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
