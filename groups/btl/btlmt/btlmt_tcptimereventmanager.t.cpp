@@ -170,6 +170,74 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef btlmt::TcpTimerEventManager Obj;
 
+namespace TEST_CASE_DEREGISTERING_TIMERS_DURING_CALLBACK {
+
+const int        NUM_TIMERS = 1000;
+void            *s_timers[NUM_TIMERS];
+bsls::AtomicInt  s_count;
+
+void singleTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+{
+    eventManager->deregisterTimer(s_timers[0]);
+     ++s_count;
+}
+
+void twoTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+{
+    eventManager->deregisterTimer(s_timers[0]);
+    eventManager->deregisterTimer(s_timers[1]);
+     ++s_count;
+}
+
+void twoTimerDeregisterInReverse(btlmt::TcpTimerEventManager *eventManager)
+{
+    eventManager->deregisterTimer(s_timers[1]);
+    eventManager->deregisterTimer(s_timers[0]);
+     ++s_count;
+}
+
+void threeTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+{
+    eventManager->deregisterTimer(s_timers[2]);
+    eventManager->deregisterTimer(s_timers[1]);
+    eventManager->deregisterTimer(s_timers[0]);
+     ++s_count;
+}
+
+void deregisterAllFunction(btlmt::TcpTimerEventManager *eventManager)
+{
+    eventManager->deregisterAllTimers();
+     ++s_count;
+}
+
+void deregisterWithBarriers(btlmt::TcpTimerEventManager *eventManager,
+                            bslmt::Barrier              *multiThreadBarrier,
+                            bslmt::Barrier              *twoThreadBarrier)
+{
+    multiThreadBarrier->wait();
+    for (int i = 0; i < NUM_TIMERS; ++i) {
+        eventManager->deregisterTimer(s_timers[rand() % NUM_TIMERS]);
+    }
+    ++s_count;
+    twoThreadBarrier->wait();
+}
+
+void multiTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+{
+     ++s_count;
+}
+
+void multiThreadDeregister(btlmt::TcpTimerEventManager *eventManager,
+                           bslmt::Barrier              *barrier)
+{
+    barrier->wait();
+    for (int i = 0; i < NUM_TIMERS; ++i) {
+        eventManager->deregisterTimer(s_timers[rand() % NUM_TIMERS]);
+    }
+}
+
+}
+
 //=============================================================================
 //           TEST: 'collectTimeMetrics' configuration flag
 //-----------------------------------------------------------------------------
@@ -833,7 +901,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // ----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -883,7 +951,212 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 16: {
+          // ----------------------------------------------------------------
+          // TESTING deregistering timers during callbacks
+          //
+          // Concern:
+          //: 1 Deregistering an expired timer from a user callback ensures
+          //:   that the corresponding callback is not subsequently invoked.
+          //:
+          //: 2 Deregistering *all* timers from a user callback results in no
+          //:   subsequent callbacks being invoked.
+          //:
+          //: 3 The order in which expired timers are deregistered from a user
+          //:   callback has no impact on whether subsequent callbacks are
+          //:   invoked or not.
+          //:
+          //: 4 Deregistering expired timers from multiple threads that are
+          //:   not the dispatcher thread still results in subsequent
+          //:   callbacks being invoked.
+          //
+          // Plan:
+          //: 1 Create a 'btlmt::TcpTimerEventManager' object and register a
+          //:   timer to be invoked.  Wait for the timer to expire and in the
+          //:   callback deregister the timer.  Confirm that the timer is
+          //:   deregistered but the callback is nonetheless invoked.
+          //:
+          //: 2 Create a 'btlmt::TcpTimerEventManager' object and register in
+          //:   sequence two, three, and more than three timers.  Deregister
+          //:   one or more of the registered timers in the first timer's user
+          //:   callback.  Confirm that the callback of deregistered timers
+          //:   are not subsequently invoked.
+          //:
+          //: 3 Create a 'btlmt::TcpTimerEventManager' object and register
+          //:   lots of timers.  In the first timer's user callback call
+          //:   'deregisterAllTimers' to deregister all of them at once.
+          //:   Confirm that the callback of a deregistered timer is not
+          //:   subsequently invoked.
+          //:
+          //: 4 Create a 'btlmt::TcpTimerEventManager' object and register
+          //:   lots of timers.  Create multiple threads and deregister timers
+          //:   randomly from all the created threads.  Confirm that the
+          //:   callbacks of deregistered timers are subsequently invoked.
+          //
+          // Testing:
+          // ----------------------------------------------------------------
 
+          if (verbose)
+             cout << "TESTING deregistering timer during callbacks" << endl
+                  << "============================================" << endl;
+
+          using namespace TEST_CASE_DEREGISTERING_TIMERS_DURING_CALLBACK;
+
+          Obj mX;  const Obj& X = mX;
+          mX.enable();
+
+          // One timer deregistered
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(100);
+
+              s_timers[0] = mX.registerTimer(
+                             timeDue,
+                             bdlf::BindUtil::bind(singleTimerDeregister, &mX));
+              LOOP_ASSERT(X.numTimers(), 1 == X.numTimers());
+
+              bslmt::ThreadUtil::microSleep(10000, 0);
+
+              LOOP_ASSERT(s_count,       1 == s_count);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+
+          // Two timers deregistered
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(100);
+
+              const int NT = 2;
+              for (int i = 0; i < NT; ++i) {
+                  s_timers[i] = mX.registerTimer(
+                                timeDue,
+                                bdlf::BindUtil::bind(twoTimerDeregister, &mX));
+              }
+              LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
+
+              bslmt::ThreadUtil::microSleep(10000, 0);
+
+              LOOP_ASSERT(s_count,       2 == s_count);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+
+          // Two timers deregistered in reverse order
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(100);
+
+              const int NT = 2;
+              for (int i = 0; i < NT; ++i) {
+                  s_timers[i] = mX.registerTimer(
+                       timeDue,
+                       bdlf::BindUtil::bind(twoTimerDeregisterInReverse, &mX));
+              }
+              LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
+
+              bslmt::ThreadUtil::microSleep(10000, 0);
+
+              LOOP_ASSERT(s_count,       3 == s_count);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+
+          // Three timers deregistered in reverse order
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(100);
+
+              const int NT = 3;
+              for (int i = 0; i < NT; ++i) {
+                  s_timers[i] = mX.registerTimer(
+                              timeDue,
+                              bdlf::BindUtil::bind(threeTimerDeregister, &mX));
+              }
+              LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
+
+              bslmt::ThreadUtil::microSleep(10000, 0);
+
+              LOOP_ASSERT(s_count,       4 == s_count);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+
+          // Multiple timers deregistered using 'deregisterAllTimers'
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(10000);
+
+              for (int i = 0; i < NUM_TIMERS; ++i) {
+                  s_timers[i] = mX.registerTimer(
+                                    timeDue,
+                                    bdlf::BindUtil::bind(deregisterAllFunction,
+                                                         &mX));
+              }
+              LOOP_ASSERT(X.numTimers(), NUM_TIMERS == X.numTimers());
+
+              bslmt::ThreadUtil::microSleep(10000, 0);
+
+              LOOP_ASSERT(s_count,       5 == s_count);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+
+          // Multiple timers deregistered in different threads
+          {
+              bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              timeDue.addMicroseconds(100000);
+
+              bslmt::Barrier multiThreadBarrier(12), twoThreadBarrier(2);
+
+              s_timers[0] = mX.registerTimer(
+                                    timeDue,
+                                   bdlf::BindUtil::bind(deregisterWithBarriers,
+                                                        &mX,
+                                                        &multiThreadBarrier,
+                                                        &twoThreadBarrier));
+              for (int i = 1; i < NUM_TIMERS; ++i) {
+                  s_timers[i] = mX.registerTimer(
+                               timeDue,
+                               bdlf::BindUtil::bind(multiTimerDeregister,
+                                                    &mX));
+              }
+              LOOP_ASSERT(X.numTimers(), NUM_TIMERS == X.numTimers());
+
+              const int                NUM_THREADS = 10;
+              bslmt::ThreadUtil::Handle threads[NUM_THREADS];
+
+              for (int i = 0; i < NUM_THREADS; ++i) {
+                  ASSERT(0 == bslmt::ThreadUtil::create(
+                                                     &threads[i],
+                                                     bslmt::ThreadAttributes(),
+                                                     bdlf::BindUtil::bind(
+                                                        multiThreadDeregister,
+                                                        &mX,
+                                                        &multiThreadBarrier)));
+              }
+
+              srand((int) bdlt::CurrentTime::now().totalMilliseconds());
+
+              multiThreadBarrier.wait();
+
+              for (int i = 0; i < NUM_TIMERS; ++i) {
+                  mX.deregisterTimer(s_timers[rand() % NUM_TIMERS]);
+              }
+
+              for (int i = 0; i < NUM_THREADS; ++i) {
+                  bslmt::ThreadUtil::join(threads[i]);
+              }
+
+              if (0 != X.numTimers()) {
+                  if (veryVerbose) P(X.numTimers())
+
+                  mX.deregisterAllTimers();
+              }
+
+              twoThreadBarrier.wait();
+
+              bslmt::ThreadUtil::microSleep(100, 0);
+
+              LOOP_ASSERT(s_count,       s_count > 6);
+              LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
+          }
+      } break;
       case 15: {
         // -----------------------------------------------------------------
         // TEST closure of control channel sockets

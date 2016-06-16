@@ -288,6 +288,7 @@ namespace BloombergLP {
 namespace btlmt {
 
 class TcpTimerEventManager_Request;
+class TcpTimerEventManager_ExpiredTimersManager;
 
               // =========================================
               // class TcpTimerEventManager_ControlChannel
@@ -426,6 +427,22 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     mutable bslmt::Mutex           d_executeQueueLock;
                                                       // protects access to the
                                                       // execute queue
+
+
+    TcpTimerEventManager_ExpiredTimersManager
+                              *d_expiredTimersManager_p;
+                                                  // pointer to an object that
+                                                  // manages (invoking and
+                                                  // removing) callbacks for
+                                                  // expired timers.  The
+                                                  // pointed to object is
+                                                  // constructed on the stack
+                                                  // during the invocation of
+                                                  // the timers.  This pointer
+                                                  // is not protected by a
+                                                  // lock and must be accessed
+                                                  // only in the dispatcher
+                                                  // thread
 
     bdlcc::TimeQueue<bsl::function<void()> >
                                    d_timerQueue;      // queue of registered

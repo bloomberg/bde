@@ -324,6 +324,70 @@ class TcpTimerEventManager_Request {
         // 'e_RESCHEDULE_TIMER' or 'e_DEREGISTER_TIMER'.
 };
 
+                 // =====================================================
+                 // class btemt_TcpTimerEventManager_ExpiredTimersManager
+                 // =====================================================
+
+class TcpTimerEventManager_ExpiredTimersManager {
+    // This 'class' provides a manager for registered timers that have expired.
+    // It provides the following methods: 1) 'invokeCallbacksForExpiredTimers'
+    // that invokes callbacks for expired timers, 2) 'disableCallback' that
+    // disables the invocation of a specific expired timer's callback, and 3)
+    // 'disableAllCallbacks' that disables invocation of all expired timers'
+    // callbacks.  The 'invokeCallbacksForExpiredTimers' method identifies the
+    // timers that have expired and invokes their corresponding callbacks.  The
+    // 'disableCallback' and 'disableAllCallbacks' are expected to be invoked
+    // re-entrantly from 'invokeCallbacksForExpiredTimers' and should not be
+    // called from a thread while 'invokedCallbacksForExpiredTimers' is being
+    // executed in a separate thread.  Objects of this 'class' do not perform
+    // any serialization and each object should therefore only be accessed
+    // concurrently from one thread at a time.
+
+    // TYPES
+    typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
+                                                               CallbacksVector;
+
+    // DATA
+    CallbacksVector d_callbacks; // array of expired timer callbacks
+
+    int             d_index;     // index in 'd_callbacks' of active callback
+                                 // being currently invoked
+
+  public:
+    // CREATORS
+    TcpTimerEventManager_ExpiredTimersManager(
+                                         bslma::Allocator *basicAllocator = 0);
+        // Default construct a 'TcpTimerEventManager_ExpiredTimersManager'
+        // object.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
+    ~TcpTimerEventManager_ExpiredTimersManager();
+        // Destroy this object.
+
+    // MANIPULATORS
+    void invokeCallbacksForExpiredTimers(
+                         bdlcc::TimeQueue<bsl::function<void()> > *timerQueue);
+        // Invoke the callbacks for all timers registered with the specified
+        // 'timerQueue' that have expired.
+
+    // ACCESSORS
+    void disableCallback(int handle);
+        // If this manager is currently invoking callbacks for expired timers,
+        // disable the invocation of the callback for the expired timer
+        // referenced by the specified 'handle', if it has not already been
+        // invoked.  The behavior is undefined unless this method is called
+        // re-entrantly from 'invokeCallbacksForExpiredTimers' in the
+        // dispatcher thread.
+
+    void disableAllCallbacks();
+        // If this manager is currently invoking callbacks for expired timers,
+        // disable the invocation of all callbacks for expired timers that have
+        // not been invoked.  The behavior is undefined unless this method is
+        // called re-entrantly from 'invokeCallbacksForExpiredTimers' in the
+        // dispatcher thread.
+};
+
                    // ----------------------------------
                    // class TcpTimerEventManager_Request
                    // ----------------------------------
@@ -784,6 +848,68 @@ int TcpTimerEventManager_ControlChannel::serverRead()
     return rc;
 }
 
+                 // -----------------------------------------------
+                 // class TcpTimerEventManager_ExpiredTimersManager
+                 // -----------------------------------------------
+
+// CREATORS
+TcpTimerEventManager_ExpiredTimersManager::
+    TcpTimerEventManager_ExpiredTimersManager(bslma::Allocator *basicAllocator)
+: d_callbacks(basicAllocator)
+, d_index(0)
+{
+}
+
+TcpTimerEventManager_ExpiredTimersManager::
+                                   ~TcpTimerEventManager_ExpiredTimersManager()
+{
+}
+
+// MANIPULATORS
+void
+TcpTimerEventManager_ExpiredTimersManager::invokeCallbacksForExpiredTimers(
+                          bdlcc::TimeQueue<bsl::function<void()> > *timerQueue)
+{
+    timerQueue->popLE(bdlt::CurrentTime::now(), &d_callbacks);
+
+    for (d_index = 0;
+         d_index < static_cast<int>(d_callbacks.size());
+         ++d_index) {
+        d_callbacks[d_index].data()();
+    }
+
+    d_callbacks.resize(0);
+    d_index = 0;
+}
+
+// ACCESSORS
+void
+TcpTimerEventManager_ExpiredTimersManager::disableCallback(int handle)
+{
+    if (!d_callbacks.empty()) {
+        for (CallbacksVector::const_iterator iter =
+                                             d_callbacks.begin() + d_index + 1;
+             iter != d_callbacks.end();
+             ++iter) {
+
+            if (handle == iter->handle()) {
+                d_callbacks.erase(iter);
+                return;                                               // RETURN
+            }
+        }
+    }
+}
+
+void TcpTimerEventManager_ExpiredTimersManager::disableAllCallbacks()
+{
+    if (!d_callbacks.empty()) {
+        CallbacksVector::const_iterator iter =
+                                             d_callbacks.begin() + d_index + 1;
+
+        d_callbacks.erase(iter, d_callbacks.end());
+    }
+}
+
                          // --------------------------
                          // class TcpTimerEventManager
                          // --------------------------
@@ -1024,22 +1150,23 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
 
         // Process expired timers in increasing time order.
         if (d_timerQueue.length()) {
+            BSLS_ASSERT(0 == d_expiredTimersManager_p);
+
             const int NUM_TIMERS = 32;
             const int SIZE = NUM_TIMERS *
                      sizeof(bdlcc::TimeQueueItem<bsl::function<void()> >);
 
-            char BUFFER[SIZE];
-            bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+            char buffer[SIZE];
+            bdlma::BufferedSequentialAllocator bufferAllocator(buffer, SIZE);
 
-            typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
-                    RequestList;
+            TcpTimerEventManager_ExpiredTimersManager manager(
+                                                             &bufferAllocator);
 
-            RequestList requests(&bufferAllocator);
-            d_timerQueue.popLE(bdlt::CurrentTime::now(), &requests);
-            RequestList::size_type numTimers = requests.size();
-            for (RequestList::size_type i = 0; i < numTimers; ++i) {
-                requests[i].data()();
-            }
+            d_expiredTimersManager_p = &manager;
+
+            d_expiredTimersManager_p->invokeCallbacksForExpiredTimers(
+                                                                &d_timerQueue);
+            d_expiredTimersManager_p = 0;
         }
 
         // If a signal to quit has been issued leave immediately,
@@ -1112,6 +1239,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_dispatcher(bslmt::ThreadUtil::invalidHandle())
 , d_state(e_DISABLED)
 , d_terminateThread(0)
+, d_expiredTimersManager_p(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
             btlso::TimeMetrics::e_IO_BOUND,
@@ -1132,6 +1260,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_dispatcher(bslmt::ThreadUtil::invalidHandle())
 , d_state(e_DISABLED)
 , d_terminateThread(0)
+, d_expiredTimersManager_p(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
             btlso::TimeMetrics::e_IO_BOUND,
@@ -1153,6 +1282,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_dispatcher(bslmt::ThreadUtil::invalidHandle())
 , d_state(e_DISABLED)
 , d_terminateThread(0)
+, d_expiredTimersManager_p(0)
 , d_timerQueue(poolTimerMemory, threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
             btlso::TimeMetrics::e_IO_BOUND,
@@ -1175,6 +1305,7 @@ TcpTimerEventManager::TcpTimerEventManager(
 , d_terminateThread(0)
 , d_manager_p(rawEventManager)
 , d_isManagedFlag(0)
+, d_expiredTimersManager_p(0)
 , d_timerQueue(threadSafeAllocator)
 , d_metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
             btlso::TimeMetrics::e_IO_BOUND,
@@ -1720,16 +1851,38 @@ void TcpTimerEventManager::deregisterAllSocketEvents()
 
 void TcpTimerEventManager::deregisterTimer(const void *id)
 {
-    // We can just remove it.  If its at the top, dispatcher will
-    // pick a new top on the next iteration.
+    // We can just remove it.  If its at the top, dispatcher will pick a new
+    // top on the next iteration.
 
-    d_timerQueue.remove(static_cast<int>(
-                                   reinterpret_cast<bsls::Types::IntPtr>(id)));
+    int handle = static_cast<int>(reinterpret_cast<bsls::Types::IntPtr>(id));
+    d_timerQueue.remove(handle);
+
+    // Allow deregistering expired timers whose callbacks have not yet been
+    // invoked only from the dispatcher thread.  Removing callbacks from any
+    // other thread would require us to serialize access (through a lock) to
+    // the vector of expired timer callbacks making it prohibitively expensive
+    // in the general case.
+
+    if (bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(), d_dispatcher)
+     && 0 != d_expiredTimersManager_p) {
+        d_expiredTimersManager_p->disableCallback(handle);
+    }
 }
 
 void TcpTimerEventManager::deregisterAllTimers()
 {
     d_timerQueue.removeAll();
+
+    // Allow deregistering expired timers whose callbacks have not yet been
+    // invoked only from the dispatcher thread.  Removing callbacks from any
+    // other thread would require us to serialize access (through a lock) to
+    // the vector of expired timer callbacks making it prohibitively expensive
+    // in the general case.
+
+    if (bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(), d_dispatcher)
+     && 0 != d_expiredTimersManager_p) {
+        d_expiredTimersManager_p->disableAllCallbacks();
+    }
 }
 
 void TcpTimerEventManager::deregisterAll()
