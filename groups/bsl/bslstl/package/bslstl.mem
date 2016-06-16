@@ -1,4 +1,5 @@
 bslstl_algorithmworkaround
+bslstl_allocator
 bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool

@@ -1058,8 +1058,8 @@ class AtomicBool {
 
     // DATA
     enum {
-        False,
-        True
+        e_FALSE,
+        e_TRUE
     };
     AtomicOperations::AtomicTypes::Int d_value;
 
@@ -1073,7 +1073,7 @@ class AtomicBool {
   public:
     // CREATORS
     AtomicBool();
-        // Create an atomic boolean object having the default value False.
+        // Create an atomic boolean object having the default value 'false'.
 
     AtomicBool(bool value);
         // Create an atomic boolean object having the specified 'value'.
@@ -1583,7 +1583,7 @@ TYPE *AtomicPointer<TYPE>::loadAcquire() const
 inline
 AtomicBool::AtomicBool()
 {
-    AtomicOperations_Imp::initInt(&d_value, AtomicBool::False);
+    AtomicOperations_Imp::initInt(&d_value, AtomicBool::e_FALSE);
 }
 
 inline
@@ -1591,7 +1591,7 @@ AtomicBool::AtomicBool(bool value)
 {
     AtomicOperations_Imp::initInt(
         &d_value,
-        value ? AtomicBool::True : AtomicBool::False);
+        value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
 }
 
 // MANIPULATORS
@@ -1600,7 +1600,7 @@ AtomicBool& AtomicBool::operator=(bool value)
 {
     AtomicOperations_Imp::setInt(
         &d_value,
-        value ? AtomicBool::True : AtomicBool::False);
+        value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
     return *this;
 }
 
@@ -1609,7 +1609,7 @@ void AtomicBool::storeRelaxed(bool value)
 {
     AtomicOperations_Imp::setIntRelaxed(
         &d_value,
-        value ? AtomicBool::True : AtomicBool::False);
+        value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
 }
 
 inline
@@ -1617,7 +1617,7 @@ void AtomicBool::storeRelease(bool value)
 {
     AtomicOperations_Imp::setIntRelease(
         &d_value,
-        value ? AtomicBool::True : AtomicBool::False);
+        value ? AtomicBool::e_TRUE : AtomicBool::e_FALSE);
 }
 
 inline
@@ -1625,8 +1625,8 @@ bool AtomicBool::swap(bool swapValue)
 {
     return AtomicOperations_Imp::swapInt(
             &d_value,
-            swapValue ? AtomicBool::True : AtomicBool::False)
-        == AtomicBool::True;
+            swapValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE)
+        == AtomicBool::e_TRUE;
 }
 
 inline
@@ -1634,8 +1634,8 @@ bool AtomicBool::swapAcqRel(bool swapValue)
 {
     return AtomicOperations_Imp::swapIntAcqRel(
             &d_value,
-            swapValue ? AtomicBool::True : AtomicBool::False)
-        == AtomicBool::True;
+            swapValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE)
+        == AtomicBool::e_TRUE;
 }
 
 inline
@@ -1643,9 +1643,9 @@ bool AtomicBool::testAndSwap(bool compareValue, bool swapValue)
 {
     return AtomicOperations_Imp::testAndSwapInt(
             &d_value,
-            compareValue ? AtomicBool::True : AtomicBool::False,
-            swapValue ? AtomicBool::True : AtomicBool::False)
-        == AtomicBool::True;
+            compareValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE,
+            swapValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE)
+        == AtomicBool::e_TRUE;
 }
 
 inline
@@ -1653,9 +1653,9 @@ bool AtomicBool::testAndSwapAcqRel(bool compareValue, bool swapValue)
 {
     return AtomicOperations_Imp::testAndSwapIntAcqRel(
             &d_value,
-            compareValue ? AtomicBool::True : AtomicBool::False,
-            swapValue ? AtomicBool::True : AtomicBool::False)
-        == AtomicBool::True;
+            compareValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE,
+            swapValue ? AtomicBool::e_TRUE : AtomicBool::e_FALSE)
+        == AtomicBool::e_TRUE;
 }
 
 // ACCESSORS
@@ -1663,7 +1663,7 @@ bool AtomicBool::testAndSwapAcqRel(bool compareValue, bool swapValue)
 inline
 AtomicBool::operator bool() const
 {
-    return AtomicOperations_Imp::getInt(&d_value) == AtomicBool::True;
+    return AtomicOperations_Imp::getInt(&d_value) == AtomicBool::e_TRUE;
 }
 
 inline
@@ -1675,13 +1675,13 @@ bool AtomicBool::load() const
 inline
 bool AtomicBool::loadRelaxed() const
 {
-    return AtomicOperations_Imp::getIntRelaxed(&d_value) == AtomicBool::True;
+    return AtomicOperations_Imp::getIntRelaxed(&d_value) == AtomicBool::e_TRUE;
 }
 
 inline
 bool AtomicBool::loadAcquire() const
 {
-    return AtomicOperations_Imp::getIntAcquire(&d_value) == AtomicBool::True;
+    return AtomicOperations_Imp::getIntAcquire(&d_value) == AtomicBool::e_TRUE;
 }
 
 }  // close package namespace
