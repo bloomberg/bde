@@ -120,6 +120,8 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #ifdef BSLS_IDENT_OFF
 
 
+#undef BSLS_IDENT
+#undef BSLS_IDENT_RCSID
 #define BSLS_IDENT(str)
 #define BSLS_IDENT_RCSID(tag,str)
 
