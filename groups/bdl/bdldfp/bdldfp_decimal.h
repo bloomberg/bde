@@ -38,6 +38,11 @@ BSLS_IDENT("$Id$")
 // for complex computation but cannot exactly represent commonly encountered
 // numbers such as 0.1, 0.2, and 0.99.
 //
+// NOTE: Interconversion between binary and decimal floating-point values is
+// fraught with misunderstanding and must be done carefully and with intent,
+// taking into account the provenance of the data.  See the discussion on
+// conversion below and in the 'bdldfp_decimalconvertutil' component.
+//
 // The BDE decimal floating-point system has been designed from the ground up
 // to be portable and support writing portable decimal floating-point user
 // code, even for systems that do not have compiler or native library support
