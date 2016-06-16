@@ -192,41 +192,21 @@ inline
 unsigned short
 myGenericSwap16(unsigned short x)
 {
-//  return static_cast<unsigned short>((x >> 8) | (x << 8));
-
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
 }
 
 inline
 unsigned int
 myGenericSwap32(unsigned int x)
 {
-#if 0
-    return ( x               << 24)
-         | ((x & 0x0000ff00) <<  8)
-         | ((x & 0x00ff0000) >>  8)
-         | ( x               >> 24);
-#endif
-
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);          // RETURN
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
 }
 
 inline
 bsls::Types::Uint64
 myGenericSwap64(bsls::Types::Uint64 x)
 {
-#if 0
-    return ( x                         << 56)
-         | ((x & 0x000000000000ff00LL) << 40)
-         | ((x & 0x0000000000ff0000LL) << 24)
-         | ((x & 0x00000000ff000000LL) <<  8)
-         | ((x & 0x000000ff00000000LL) >>  8)
-         | ((x & 0x0000ff0000000000LL) >> 24)
-         | ((x & 0x00ff000000000000LL) >> 40)
-         | ( x                         >> 56);
-#endif
-
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);   // RETURN
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 }
 
 }  // close unnamed namespace
