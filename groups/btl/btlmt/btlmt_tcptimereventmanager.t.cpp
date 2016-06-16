@@ -1091,7 +1091,7 @@ int main(int argc, char *argv[])
               }
               LOOP_ASSERT(X.numTimers(), NUM_TIMERS == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(10000, 0);
+              bslmt::ThreadUtil::microSleep(100000, 0);
 
               LOOP_ASSERT(s_count,       5 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
