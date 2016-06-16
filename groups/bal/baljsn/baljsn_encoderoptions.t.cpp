@@ -36,6 +36,7 @@ using namespace bsl;
 //: o 'setEncodingStyle'
 //: o 'setEncodeEmptyArrays'
 //: o 'setEncodeNullElements'
+//: o 'setDatetimeFractionalSecondPrecision'
 //
 // Basic Accessors:
 //: o 'initialIndentLevel'
@@ -43,6 +44,7 @@ using namespace bsl;
 //: o 'encodingStyle'
 //: o 'encodeEmptyArrays'
 //: o 'encodeNullElements'
+//: o 'datetimeFractionalSecondPrecision'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -976,31 +978,37 @@ int main(int argc, char *argv[])
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
 //----  -  ---  ---  --- ----- --- --- ---
 
- { L_,  0,  0,  89,  10,    C,  T,  T, "["                                   NL
-                                       "initialIndentLevel = 89"             NL
-                                       "spacesPerLevel = 10"                 NL
-                                       "encodingStyle = 0"                   NL
-                                       "encodeEmptyArrays = true"            NL
-                                       "encodeNullElements = true"           NL
-                                       "]"                                   NL
+ { L_,  0,  0,  89,  10,    C,  T,  T,
+   "["                                      NL
+   "initialIndentLevel = 89"                NL
+   "spacesPerLevel = 10"                    NL
+   "encodingStyle = 0"                      NL
+   "encodeEmptyArrays = true"               NL
+   "encodeNullElements = true"              NL
+   "datetimeFractionalSecondPrecision = 3"  NL
+   "]"                                      NL
                                                                              },
 
- { L_,  0,  1,  89,  10,    P,  T,  T, "["                                   NL
-                                       " initialIndentLevel = 89"            NL
-                                       " spacesPerLevel = 10"                NL
-                                       " encodingStyle = 1"                  NL
-                                       " encodeEmptyArrays = true"           NL
-                                       " encodeNullElements = true"          NL
-                                       "]"                                   NL
+ { L_,  0,  1,  89,  10,    P,  T,  T,
+   "["                                       NL
+   " initialIndentLevel = 89"                NL
+   " spacesPerLevel = 10"                    NL
+   " encodingStyle = 1"                      NL
+   " encodeEmptyArrays = true"               NL
+   " encodeNullElements = true"              NL
+   " datetimeFractionalSecondPrecision = 3"  NL
+   "]"                                       NL
                                                                              },
 
- { L_,  0, -1,  89,  10,    C,  T,  F, "["                                   SP
-                                       "initialIndentLevel = 89"             SP
-                                       "spacesPerLevel = 10"                 SP
-                                       "encodingStyle = 0"                   SP
-                                       "encodeEmptyArrays = true"            SP
-                                       "encodeNullElements = false"          SP
-                                       "]"
+ { L_,  0, -1,  89,  10,    C,  T,  F,
+   "["                                      SP
+   "initialIndentLevel = 89"                SP
+   "spacesPerLevel = 10"                    SP
+   "encodingStyle = 0"                      SP
+   "encodeEmptyArrays = true"               SP
+   "encodeNullElements = false"             SP
+   "datetimeFractionalSecondPrecision = 3"  SP
+   "]"
                                                                              },
 
    // ------------------------------------------------------------------
@@ -1010,58 +1018,70 @@ int main(int argc, char *argv[])
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
 //----  -  ---  ---  --- ----- --- --- ---
 
- { L_,  3,  0,  89,  10,    C,  T,  T, "["                                   NL
-                                       "initialIndentLevel = 89"             NL
-                                       "spacesPerLevel = 10"                 NL
-                                       "encodingStyle = 0"                   NL
-                                       "encodeEmptyArrays = true"            NL
-                                       "encodeNullElements = true"           NL
-                                       "]"                                   NL
+ { L_,  3,  0,  89,  10,    C,  T,  T,
+   "["                                      NL
+   "initialIndentLevel = 89"                NL
+   "spacesPerLevel = 10"                    NL
+   "encodingStyle = 0"                      NL
+   "encodeEmptyArrays = true"               NL
+   "encodeNullElements = true"              NL
+   "datetimeFractionalSecondPrecision = 3"  NL
+   "]"                                      NL
                                                                              },
 
- { L_,  3,  2,  89,  10,    P,  F,  F, "      ["                             NL
-                                       "        initialIndentLevel = 89"     NL
-                                       "        spacesPerLevel = 10"         NL
-                                       "        encodingStyle = 1"           NL
-                                       "        encodeEmptyArrays = false"   NL
-                                       "        encodeNullElements = false"  NL
-                                       "      ]"                             NL
+ { L_,  3,  2,  89,  10,    P,  F,  F,
+   "      ["                                        NL
+   "        initialIndentLevel = 89"                NL
+   "        spacesPerLevel = 10"                    NL
+   "        encodingStyle = 1"                      NL
+   "        encodeEmptyArrays = false"              NL
+   "        encodeNullElements = false"             NL
+   "        datetimeFractionalSecondPrecision = 3"  NL
+   "      ]"                                        NL
+ },
+
+ { L_,  3, -2,  89,  10,    C,  T,  F,
+   "      ["                                SP
+   "initialIndentLevel = 89"                SP
+   "spacesPerLevel = 10"                    SP
+   "encodingStyle = 0"                      SP
+   "encodeEmptyArrays = true"               SP
+   "encodeNullElements = false"             SP
+   "datetimeFractionalSecondPrecision = 3"  SP
+   "]"
                                                                              },
 
- { L_,  3, -2,  89,  10,    C,  T,  F, "      ["                             SP
-                                       "initialIndentLevel = 89"             SP
-                                       "spacesPerLevel = 10"                 SP
-                                       "encodingStyle = 0"                   SP
-                                       "encodeEmptyArrays = true"            SP
-                                       "encodeNullElements = false"          SP
-                                       "]"
+ { L_, -3,  0,  89,  10,    P,  F,  T,
+   "["                                      NL
+   "initialIndentLevel = 89"                NL
+   "spacesPerLevel = 10"                    NL
+   "encodingStyle = 1"                      NL
+   "encodeEmptyArrays = false"              NL
+   "encodeNullElements = true"              NL
+   "datetimeFractionalSecondPrecision = 3"  NL
+   "]"                                      NL
                                                                              },
 
- { L_, -3,  0,  89,  10,    P,  F,  T, "["                                   NL
-                                       "initialIndentLevel = 89"             NL
-                                       "spacesPerLevel = 10"                 NL
-                                       "encodingStyle = 1"                   NL
-                                       "encodeEmptyArrays = false"           NL
-                                       "encodeNullElements = true"           NL
-                                       "]"                                   NL
+ { L_, -3,  2,  89,  10,    P,  T,  F,
+   "["                                              NL
+   "        initialIndentLevel = 89"                NL
+   "        spacesPerLevel = 10"                    NL
+   "        encodingStyle = 1"                      NL
+   "        encodeEmptyArrays = true"               NL
+   "        encodeNullElements = false"             NL
+   "        datetimeFractionalSecondPrecision = 3"  NL
+   "      ]"                                        NL
                                                                              },
 
- { L_, -3,  2,  89,  10,    P,  T,  F, "["                                   NL
-                                       "        initialIndentLevel = 89"     NL
-                                       "        spacesPerLevel = 10"         NL
-                                       "        encodingStyle = 1"           NL
-                                       "        encodeEmptyArrays = true"    NL
-                                       "        encodeNullElements = false"  NL
-                                       "      ]"                             NL
-                                                                             },
-
- { L_, -3, -2,  89,  10,    C,  T,  T, "["                                   SP
-                                       "initialIndentLevel = 89"             SP
-                                       "spacesPerLevel = 10"                 SP
-                                       "encodingStyle = 0"                   SP
-                                       "encodeEmptyArrays = true"            SP
-                                       "encodeNullElements = true"           SP
-                                       "]"
+ { L_, -3, -2,  89,  10,    C,  T,  T,
+   "["                                      SP
+   "initialIndentLevel = 89"                SP
+   "spacesPerLevel = 10"                    SP
+   "encodingStyle = 0"                      SP
+   "encodeEmptyArrays = true"               SP
+   "encodeNullElements = true"              SP
+   "datetimeFractionalSecondPrecision = 3"  SP
+   "]"
                                                                              },
 
            // ----------------------------------------------------
@@ -1071,13 +1091,15 @@ int main(int argc, char *argv[])
 //LINE  L  SPL  IND  SPL STYLE EEA ENE EXP
 //----  -  ---  ---  --- ----- --- --- ---
 
- { L_,  2,  3,  89,  10,    P,  T,  T, "      ["                             NL
-                                       "         initialIndentLevel = 89"    NL
-                                       "         spacesPerLevel = 10"        NL
-                                       "         encodingStyle = 1"          NL
-                                       "         encodeEmptyArrays = true"   NL
-                                       "         encodeNullElements = true"  NL
-                                       "      ]"                             NL
+ { L_,  2,  3,  89,  10,    P,  T,  T,
+   "      ["                                         NL
+   "         initialIndentLevel = 89"                NL
+   "         spacesPerLevel = 10"                    NL
+   "         encodingStyle = 1"                      NL
+   "         encodeEmptyArrays = true"               NL
+   "         encodeNullElements = true"              NL
+   "         datetimeFractionalSecondPrecision = 3"  NL
+   "      ]"                                         NL
                                                                              },
 
         // -----------------------------------------------------------------
@@ -1087,9 +1109,8 @@ int main(int argc, char *argv[])
 //LINE  L  SPL  IND  SPL STYLE EEA  ENE EXP
 //----  -  ---  ---  --- ----- ---  --- ---
 
- { L_, -9, -9,  89,  10,    C,  F,  T, "[ 89 10 0 false true ]"              },
-
- { L_, -9, -9,   7,   5,    P,  F,  F, "[ 7 5 1 false false ]"               },
+ { L_, -9, -9,  89,  10,    C,  F,  T, "[ 89 10 0 false true 3 ]"           },
+ { L_, -9, -9,   7,   5,    P,  F,  F, "[ 7 5 1 false false 3 ]"            },
 
 #undef NL
 #undef SP
@@ -1672,6 +1693,7 @@ int main(int argc, char *argv[])
         typedef Style T3;        // 'encodingStyle'
         typedef bool  T4;        // 'encodeEmptyArrays'
         typedef bool  T5;        // 'encodeNullElements'
+        typedef int   T6;        // 'datetimeFractionalSecondPrecision'
 
         // Attribute 1 Values: 'initialIndentLevel'
 
@@ -1698,6 +1720,11 @@ int main(int argc, char *argv[])
         const T5 D5 = false;    // default value
         const T5 A5 = true;
 
+        // Attribute 6 Values: 'datetimeFractionalSecondPrecision'
+
+        const T6 D6 = 3;    // default value
+        const T6 A6 = 6;
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -1713,6 +1740,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.encodingStyle());
         ASSERT(D4 == W.encodeEmptyArrays());
         ASSERT(D5 == W.encodeNullElements());
+        ASSERT(D6 == W.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -1734,6 +1762,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == X.encodingStyle());
         ASSERT(D4 == X.encodeEmptyArrays());
         ASSERT(D5 == X.encodeNullElements());
+        ASSERT(D6 == X.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1751,6 +1780,7 @@ int main(int argc, char *argv[])
         mX.setEncodingStyle(A3);
         mX.setEncodeEmptyArrays(A4);
         mX.setEncodeNullElements(A5);
+        mX.setDatetimeFractionalSecondPrecision(A6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -1760,6 +1790,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.encodingStyle());
         ASSERT(A4 == X.encodeEmptyArrays());
         ASSERT(A5 == X.encodeNullElements());
+        ASSERT(A6 == X.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -1778,6 +1809,7 @@ int main(int argc, char *argv[])
         mY.setEncodingStyle(A3);
         mY.setEncodeEmptyArrays(A4);
         mY.setEncodeNullElements(A5);
+        mY.setDatetimeFractionalSecondPrecision(A6);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -1787,6 +1819,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == Y.encodingStyle());
         ASSERT(A4 == Y.encodeEmptyArrays());
         ASSERT(A5 == Y.encodeNullElements());
+        ASSERT(A6 == Y.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -1810,6 +1843,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == Z.encodingStyle());
         ASSERT(A4 == Z.encodeEmptyArrays());
         ASSERT(A5 == Z.encodeNullElements());
+        ASSERT(A6 == Z.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1829,6 +1863,7 @@ int main(int argc, char *argv[])
         mZ.setEncodingStyle(D3);
         mZ.setEncodeEmptyArrays(D4);
         mZ.setEncodeNullElements(D5);
+        mZ.setDatetimeFractionalSecondPrecision(D6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -1838,6 +1873,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == Z.encodingStyle());
         ASSERT(D4 == Z.encodeEmptyArrays());
         ASSERT(D5 == Z.encodeNullElements());
+        ASSERT(D6 == Z.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1861,6 +1897,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == W.encodingStyle());
         ASSERT(A4 == W.encodeEmptyArrays());
         ASSERT(A5 == W.encodeNullElements());
+        ASSERT(A6 == W.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1884,6 +1921,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.encodingStyle());
         ASSERT(D4 == W.encodeEmptyArrays());
         ASSERT(D5 == W.encodeNullElements());
+        ASSERT(D6 == W.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -1907,6 +1945,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.encodingStyle());
         ASSERT(A4 == X.encodeEmptyArrays());
         ASSERT(A5 == X.encodeNullElements());
+        ASSERT(A6 == X.datetimeFractionalSecondPrecision());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

@@ -31,6 +31,8 @@ bsl::ostream& EncoderOptions::print(bsl::ostream& stream,
     printer.printAttribute("encodingStyle",      d_encodingStyle);
     printer.printAttribute("encodeEmptyArrays",  d_encodeEmptyArrays);
     printer.printAttribute("encodeNullElements", d_encodeNullElements);
+    printer.printAttribute("datetimeFractionalSecondPrecision",
+                           d_datetimeFractionalSecondPrecision);
     printer.end();
 
     return stream;
@@ -48,6 +50,7 @@ bsl::ostream& baljsn::operator<<(bsl::ostream&         stream,
     printer.printValue(object.encodingStyle());
     printer.printValue(object.encodeEmptyArrays());
     printer.printValue(object.encodeNullElements());
+    printer.printValue(object.datetimeFractionalSecondPrecision());
     printer.end();
 
     return stream;
