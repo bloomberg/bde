@@ -368,6 +368,11 @@ inline
 bool quickDecimal64FromDouble(Decimal64 *result,
                               double     binary,
                               double     threshold)
+    // Return 'true' iff an attempt to set the specified 'result' to a "quick"
+    // conversion from the specified 'binary' succeeds.  This occurs when
+    // 'binary' is in an appropriate range and scaling and rounding it to an
+    // integer results in a remainder whose ratio with the result is less than
+    // the specified 'threshold'.
 {
     BSLS_ASSERT(result);
 
@@ -424,6 +429,11 @@ bool quickDecimal64FromDouble(Decimal64 *result,
 
 inline
 bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
+    // Return 'true' iff an attempt to set the specified 'result' to a "quick"
+    // conversion from the specified 'binary' succeeds.  This occurs when
+    // 'binary' is in an appropriate range and scaling and rounding it to an
+    // integer results in a remainder whose ratio with the result is less than
+    // the specified 'threshold'.
 {
     // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the float by a
     // power of 10, round it to an integer, then use the faster scaled
