@@ -6264,10 +6264,8 @@ class TestDriver {
                         ALLOC,
                         u::CharToPairConverter<TValueType, ALLOC> > TestValues;
 
-    static const bsltf::MoveState::Enum e_MOVED     =
-                                                 bsltf::MoveState::e_MOVED;
-    static const bsltf::MoveState::Enum e_NOT_MOVED =
-                                                 bsltf::MoveState::e_NOT_MOVED;
+    static const bsltf::MoveState::Enum e_MOVED;
+    static const bsltf::MoveState::Enum e_NOT_MOVED;
 
     enum { k_TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
                           bslma::UsesBslmaAllocator<MAPPED>::value,
@@ -6545,6 +6543,16 @@ class TestDriver {
     static void testCase2_WithCopy();    // only types with copy c'tor
         // Basic manipulator test.
 };
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+const bsltf::MoveState::Enum
+TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::e_MOVED =
+                                                     bsltf::MoveState::e_MOVED;
+
+template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
+const bsltf::MoveState::Enum
+TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::e_NOT_MOVED =
+                                                 bsltf::MoveState::e_NOT_MOVED;
 
 template <class KEY>
 class StdAllocTestDriver :

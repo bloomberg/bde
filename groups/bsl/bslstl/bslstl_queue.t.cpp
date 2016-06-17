@@ -1184,7 +1184,7 @@ GGG(NonMovableVector *object,
     bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
 
-    typename TestDriver<NonMovableVector::value_type,
+    typename TestDriver<value_type,
                         NonMovableVector>::TestValues VALUES;
 
     enum { SUCCESS = -1 };
@@ -1804,7 +1804,7 @@ GGG(MovableVector *object,
     bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
 
-    typename TestDriver<MovableVector::value_type,
+    typename TestDriver<value_type,
                         MovableVector>::TestValues VALUES;
 
     enum { SUCCESS = -1 };

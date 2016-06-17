@@ -217,13 +217,15 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STRING_H
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
+   (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40400)
     // Last tested against MSVC 2013.  The Microsoft compiler cannot parse the
     // nested typenames for function parameters with default arguments, where
     // the function parameter type is a dependent type within a template, such
     // as 'typename std::basic_string<C,T,A>::size_type'.  The error message
     // complains about invalid identiefiers on the right of the '::', and this
-    // feature macro is named accordingly.
+    // feature macro is named accordingly.  Older version of g++ also have this
+    // problem.
 # define BSLSTL_BITSET_MSVC_CANNOT_PARSE_DEFAULTS_WITH_COLONS
 #endif
 
