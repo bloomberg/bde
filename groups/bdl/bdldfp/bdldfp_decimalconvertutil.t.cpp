@@ -15,6 +15,7 @@
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_sstream.h>
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_climits.h>
 #include <bsl_limits.h>
@@ -37,19 +38,78 @@ using namespace bsl;
 // TBD:
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 3] Decimal64 decimal64FromMultiWidthEncoding(*buffer, size);
-// [ 3] Decimal64 decimal64FromMultiWidthEncodingRaw(*buffer, size);
-// [ 2] size_type decimal64ToMultiWidthEncoding(*buffer, decimal);
-// [ 2] size_type decimal64ToMultiWidthEncodingRaw(*buffer, decimal);
-// [ 4] unsigned char *decimal64FromVariableWidthEncoding(*decimal, *buffer);
-// [ 4] unsigned char *decimal64ToVariableWidthEncoding(*buffer, value);
+// [  ] double decimal32ToDouble(Decimal32);
+// [  ] double decimal64ToDouble(Decimal64);
+// [  ] double decimal128ToDouble(Decimal128);
+// [  ] double decimalToDouble(Decimal32);
+// [  ] double decimalToDouble(Decimal64);
+// [  ] double decimalToDouble(Decimal128);
+// [  ] float decimal32ToFloat(Decimal32);
+// [  ] float decimal64ToFloat(Decimal64);
+// [  ] float decimal128ToFloat(Decimal128);
+// [  ] float decimalToFloat(Decimal32);
+// [  ] float decimalToFloat(Decimal64);
+// [  ] float decimalToFloat(Decimal128);
+// [  ] Decimal32 decimal32FromDouble(double);
 // [ 5] Decimal64 decimal64FromDouble(double);
-// [ 6] restoreDecimal32Digits(float, int);
-// [ 6] restoreDecimal32Digits(double, int);
-// [ 6] restoreDecimal64Digits(float, int);
-// [ 6] restoreDecimal64Digits(double, int);
-// [ 6] restoreDecimal128Digits(float, int);
-// [ 6] restoreDecimal128Digits(double, int);
+// [  ] Decimal128 decimal128FromDouble(double);
+// [  ] Decimal32 decimal32FromFloat(float);
+// [  ] Decimal64 decimal64FromFloat(float);
+// [  ] Decimal128 decimal128FromFloat(float);
+// [ 6] Decimal32 restoreDecimal32Digits(float, int = 7);
+// [ 6] Decimal32 restoreDecimal32Digits(double, int = 7);
+// [ 6] Decimal64 restoreDecimal64Digits(float, int = 9);
+// [ 6] Decimal64 restoreDecimal64Digits(double, int = 16);
+// [ 6] Decimal128 restoreDecimal128Digits(float, int = 9);
+// [ 6] Decimal128 restoreDecimal128Digits(double, int = 17);
+// [  ] decimal32ToBID(uc*, Decimal32);
+// [  ] decimal64ToBID(uc*, Decimal64);
+// [  ] decimal128ToBID(uc*, Decimal128);
+// [  ] decimalToBID(uc*, Decimal32);
+// [  ] decimalToBID(uc*, Decimal64);
+// [  ] decimalToBID(uc*, Decimal128);
+// [  ] Decimal32 decimal32FromBID(cuc*);
+// [  ] Decimal64 decimal64FromBID(cuc*);
+// [  ] Decimal128 decimal128FromBID(cuc*);
+// [  ] decimal32FromBID(Decimal32*, cuc*);
+// [  ] decimal64FromBID(Decimal64*, cuc*);
+// [  ] decimal128FromBID(Decimal128*, cuc*);
+// [  ] decimalFromBID(Decimal32*, cuc*);
+// [  ] decimalFromBID(Decimal64*, cuc*);
+// [  ] decimalFromBID(Decimal128*, cuc*);
+// [  ] decimal32ToDPD(uc*, Decimal32);
+// [  ] decimal64ToDPD(uc*, Decimal64);
+// [  ] decimal128ToDPD(uc*, Decimal128);
+// [  ] decimalToDPD(uc*, Decimal32);
+// [  ] decimalToDPD(uc*, Decimal64);
+// [  ] decimalToDPD(uc*, Decimal128);
+// [  ] Decimal32 decimal32FromDPD(cuc*);
+// [  ] Decimal64 decimal64FromDPD(cuc*);
+// [  ] Decimal128 decimal128FromDPD(cuc*);
+// [  ] decimal32FromDPD(Decimal32*, cuc*);
+// [  ] decimal64FromDPD(Decimal64*, cuc*);
+// [  ] decimal128FromDPD(Decimal128*, cuc*);
+// [  ] decimalFromDPD(Decimal32*, cuc*);
+// [  ] decimalFromDPD(Decimal64*, cuc*);
+// [  ] decimalFromDPD(Decimal128*, cuc*);
+// [  ] uc* decimal32ToNetwork(uc*, Decimal32);
+// [  ] uc* decimal64ToNetwork(uc*, Decimal64);
+// [  ] uc* decimal128ToNetwork(uc*, Decimal128);
+// [  ] uc* decimalToNetwork(uc*, Decimal32);
+// [  ] uc* decimalToNetwork(uc*, Decimal64);
+// [  ] uc* decimalToNetwork(uc*, Decimal128);
+// [  ] cuc* decimal32FromNetwork(Decimal32*, cuc*);
+// [  ] cuc* decimal64FromNetwork(Decimal64*, cuc*);
+// [  ] cuc* decimal128FromNetwork(Decimal128*, cuc*);
+// [  ] cuc* decimalFromNetwork(Decimal32*, cuc*);
+// [  ] cuc* decimalFromNetwork(Decimal64*, cuc*);
+// [  ] cuc* decimalFromNetwork(Decimal128*, cuc*);
+// [ 2] size_type decimal64ToMultiWidthEncoding(uc*, Decimal64);
+// [ 2] size_type decimal64ToMultiWidthEncodingRaw(uc*, Decimal64);
+// [ 3] Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
+// [ 3] Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
+// [ 4] uc* decimal64ToVariableWidthEncoding(uc*, Decimal64);
+// [ 4] cuc* decimal64FromVariableWidthEncoding(Decimal64*, cuc*);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -57,31 +117,35 @@ using namespace bsl;
 // [-2] ROUND TRIP CONVERSION TEST
 // ----------------------------------------------------------------------------
 
-
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
@@ -90,7 +154,6 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -126,7 +189,7 @@ typedef bdldfp::DecimalConvertUtil Util;
 struct DecBinTestCase {
     int         d_line;
     unsigned    d_decimalType;
-    const char *d_decimalLiteral;
+    const char *d_decimalLiteral_p;
     long double d_ld;
     double      d_d;
     float       d_f;
@@ -154,20 +217,20 @@ struct DecBinTestCase {
         return d_decimalType & 128;
     }
 
-                        // Decmial construction functions
+                        // Decimal construction functions
 
     BDEC::Decimal32 d32() const
         // Return a 'Decimal32' value for use in a test case, if applicable,
         // and '0' otherwise.
     {
-        return doD32()?PARSEDEC32(d_decimalLiteral):BDEC::Decimal32(0);
+        return doD32()?PARSEDEC32(d_decimalLiteral_p):BDEC::Decimal32(0);
     }
 
     BDEC::Decimal64 d64() const
         // Return a 'Decimal32' value for use in a test case, if applicable,
         // and '0' otherwise.
     {
-        return doD64()?PARSEDEC64(d_decimalLiteral):BDEC::Decimal64(0);
+        return doD64()?PARSEDEC64(d_decimalLiteral_p):BDEC::Decimal64(0);
     }
 
     BDEC::Decimal128 d128() const
@@ -176,12 +239,12 @@ struct DecBinTestCase {
     {
         // workaround for IBM compiler bug
         typedef BDEC::DecimalImpUtil::ValueType128 Vt128;
-        Vt128 x(BDEC::DecimalImpUtil::parse128(d_decimalLiteral));
+        Vt128 x(BDEC::DecimalImpUtil::parse128(d_decimalLiteral_p));
         return doD128()?BDEC::Decimal128(x):BDEC::Decimal128(0);      // RETURN
         // END - workaround for IBM compiler bug
 
         // Restore this when IBM bugfix is in production
-        return doD128()?PARSEDEC128(d_decimalLiteral):BDEC::Decimal128(0);
+        return doD128()?PARSEDEC128(d_decimalLiteral_p):BDEC::Decimal128(0);
     }
 };
 
@@ -255,7 +318,7 @@ static void memrev(void *buffer, size_t count)
     bsl::reverse(b, b + count);
 }
 
-                        // Mem copy with reversal functions
+                        // Memory copy with reversal functions
 
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
     // Reverse the first specified 'count' bytes from the specified 'buffer`,
@@ -287,7 +350,7 @@ void getStringFromStream(bsl::ostringstream &o, bsl::string  *out)
     // Set the specified 'out' string to the characters inserted into the
     // specified 'o' output stream.
 {
-    bslma::TestAllocator osa("osstream");
+    bslma::TestAllocator         osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
     *out = o.str();
 }
@@ -296,7 +359,7 @@ void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
     // Set the specified 'out' wide-string to the (wide) characters inserted
     // into the specified 'o' wide output stream.
 {
-    bslma::TestAllocator osa("osstream");
+    bslma::TestAllocator         osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
     *out = o.str();
 }
@@ -331,14 +394,14 @@ void checkType(const RECEIVED&)
 
                           // Stream buffer helpers
 
-template <int Size>
+template <int BUFFER_SIZE>
 struct BufferBuf : bsl::streambuf {
     BufferBuf() { reset(); }
-    void reset() { this->setp(this->d_buf, this->d_buf + Size); }
+    void reset() { this->setp(this->d_buf, this->d_buf + BUFFER_SIZE); }
         // Overrides, and implements 'streambuf::reset'.
-    const char *str() { *this->pptr() =0; return this->pbase(); }
+    const char *str() { *this->pptr() = 0; return this->pbase(); }
         // Overrides, and implements 'streambuf::str'.
-    char d_buf[Size + 1];
+    char d_buf[BUFFER_SIZE + 1];
 };
 
 struct PtrInputBuf : bsl::streambuf {
@@ -376,45 +439,47 @@ static float interdata(int digits, int power)
         return 0;                                                     // RETURN
     }
 
-    long long num(digits);
-    long long den(1);
+    long long numerator(digits);
+    long long denominator(1);
 
-    // Exactly represent the input value as the rational number num / den.
+    // Exactly represent the input value as the rational number
+    // 'numerator / denominator'.
     while (power > 0) {
-        num *= 10;
+        numerator *= 10;
         --power;
     }
     while (power < 0) {
-        den *= 10;
+        denominator *= 10;
         ++power;
     }
 
     int exponent = 126;  // The exponent for the final float value.
 
     // Scale the rational number so that it lies in '[1/16 .. 1)'.
-    while (num > den) {
-        den *= 16;
+    while (numerator > denominator) {
+        denominator *= 16;
         exponent += 4;
     }
-    while (16 * num < den) {
-        num *= 16;
+    while (16 * numerator < denominator) {
+        numerator *= 16;
         exponent -= 4;
     }
 
-    // Extract the first 24 bits of the binary representation of num / den.
+    // Extract the first 24 bits of the binary representation of
+    // 'numerator / denominator'.
     int mantissa = 0;
     for (int i = 0; i < 24; ++i) {
         mantissa *= 2;
-        if (2 * num >= den) {
+        if (2 * numerator >= denominator) {
             ++mantissa;
-            num += num - den;
-            den *= 2;
+            numerator += numerator - denominator;
+            denominator *= 2;
         }
-        num *= 2;
+        numerator *= 2;
     }
 
     // Round up if the remainder is at least one-half.
-    if (2 * num >= den) {
+    if (2 * numerator >= denominator) {
         ++mantissa;
         // If rounding overflows to 25 bits, scale down by 4 bits.
         if (mantissa >= (1 << 24)) {
@@ -449,23 +514,25 @@ bool strictEqual(DECIMAL_TYPE lhs, DECIMAL_TYPE rhs)
     return bsl::memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
 }
 
-void bufferToStream(bsl::ostream           &out,
+void bufferToStream(bsl::ostream&           out,
                     unsigned char          *buffer,
                     bsls::Types::size_type  size)
+    // Write the specified 'size' characters in 'buffer' to the specified 'out'
+    // as two-digit hexadecimal values separated by a space.
 {
-    out << hex;
+    const char *sep = "";
     for (bsls::Types::size_type b = 0; b < size; ++b) {
-        out << setfill('0') << setw(2)
-            << static_cast<int>(buffer[b]);
-        if (b != size - 1) {
-            out<< " ";
-        }
+        out << sep
+            << "0123456789abcdef"[buffer[b] >> 4]
+            << "0123456789abcdef"[buffer[b] & 0xF];
+        sep = " ";
     }
-    out << dec;
 }
 
-unsigned char * decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
-                                                 Decimal64 decimal)
+unsigned char *decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
+                                                Decimal64      decimal)
+    // Write the bid-encoded specified 'decimal' as a network-ordered 8-byte
+    // integer to the specified 'buffer'.
 {
     bsls::Types::Uint64 encoded;
     Util::decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
@@ -533,12 +600,13 @@ int main(int argc, char* argv[])
         // network format before sending:
         //..
         { // "server"
-            unsigned char   msgbuffer[256];
+            unsigned char  msgbuffer[256];
+            unsigned char *next = msgbuffer;
+
             BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
             unsigned char   expected[] = {
                 0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
 
-            unsigned char *next = msgbuffer;
             next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
 
             ASSERT(bsl::memcmp(msgbuffer, expected, sizeof(number)) == 0);
@@ -548,12 +616,13 @@ int main(int argc, char* argv[])
         // format:
         //..
         { // "client"
-            const unsigned char   msgbuffer[] ={
+            const unsigned char  msgbuffer[] ={
                               0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+            const unsigned char *next = msgbuffer;
+
             BDEC::Decimal64 number;
             BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 
-            const unsigned char *next = msgbuffer;
             next = bdldfp::DecimalConvertUtil::decimalFromNetwork(&number,
                                                                   next);
 
@@ -615,12 +684,12 @@ int main(int argc, char* argv[])
         // This needs more thorough testing.
         //
         // Testing:
-        //   restoreDecimal32Digits(float, int);
-        //   restoreDecimal32Digits(double, int);
-        //   restoreDecimal64Digits(float, int);
-        //   restoreDecimal64Digits(double, int);
-        //   restoreDecimal128Digits(float, int);
-        //   restoreDecimal128Digits(double, int);
+        //   Decimal32 restoreDecimal32Digits(float, int = 7);
+        //   Decimal32 restoreDecimal32Digits(double, int = 7);
+        //   Decimal64 restoreDecimal64Digits(float, int = 9);
+        //   Decimal64 restoreDecimal64Digits(double, int = 16);
+        //   Decimal128 restoreDecimal128Digits(float, int = 9);
+        //   Decimal128 restoreDecimal128Digits(double, int = 17);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nRESTORE DECIMAL TEST"
@@ -647,22 +716,23 @@ int main(int argc, char* argv[])
                     bsl::sscanf(buf2, "%f", &f);
                     volatile double d;
                     bsl::sscanf(buf2, "%lf", &d);
-                    Decimal32 df32 = Util::restoreDecimal32Digits(f, 7);
+                    Decimal32      df32 = Util::restoreDecimal32Digits(f, 7);
                     volatile float rf32 = Util::decimalToFloat(df32);
                     ASSERTV(buf2, df32, f, rf32, f == rf32);
-                    Decimal32 dd32 = Util::restoreDecimal32Digits(d, 7);
+                    Decimal32       dd32 = Util::restoreDecimal32Digits(d, 7);
                     volatile double rd32 = Util::decimalToDouble(dd32);
                     ASSERTV(buf2, dd32, d, rd32, d == rd32);
-                    Decimal64 df64 = Util::restoreDecimal64Digits(f, 7);
+                    Decimal64      df64 = Util::restoreDecimal64Digits(f, 7);
                     volatile float rf64 = Util::decimalToFloat(df64);
                     ASSERTV(buf2, df64, f, rf64, f == rf64);
-                    Decimal64 dd64 = Util::restoreDecimal64Digits(d, 7);
+                    Decimal64       dd64 = Util::restoreDecimal64Digits(d, 7);
                     volatile double rd64 = Util::decimalToDouble(dd64);
                     ASSERTV(buf2, dd64, d, rd64, d == rd64);
-                    Decimal128 df128 = Util::restoreDecimal128Digits(f, 7);
+                    Decimal128     df128 = Util::restoreDecimal128Digits(f, 7);
                     volatile float rf128 = Util::decimalToFloat(df128);
                     ASSERTV(buf2, df128, f, rf128, f == rf128);
-                    Decimal128 dd128 = Util::restoreDecimal128Digits(d, 7);
+                    Decimal128      dd128 =
+                                           Util::restoreDecimal128Digits(d, 7);
                     volatile double rd128 = Util::decimalToDouble(dd128);
                     ASSERTV(buf2, dd128, d, rd128, d == rd128);
                 }
@@ -682,7 +752,7 @@ int main(int argc, char* argv[])
                     float f;
                     bsl::sscanf(buf2, "%f", &f);
                     volatile float pe = interdata(i, j - 7);
-                    Decimal32 df32 = Util::restoreDecimal32Digits(pe, 6);
+                    Decimal32      df32 = Util::restoreDecimal32Digits(pe, 6);
                     volatile float rf32 = Util::decimalToFloat(df32);
                     if (veryVerbose) {
                         if (rand() % 500 == 0 && rand() % 500 == 0) {
@@ -709,17 +779,17 @@ int main(int argc, char* argv[])
         //:   is produced.
         //
         // Testing:
-        //   unsigned char *decimal64FromDouble(double);
+        //   Decimal64 decimal64FromDouble(double);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nDTOA CONVERSION TEST"
                              "\n====================\n";
 
         static const struct {
-            int         d_line;         // line number
-            double      d_binary;       // binary floating point value
-            const char *d_significand;  // shortest decimal significand
-            int         d_exponent;     // power of ten multiplier
+            int         d_line;           // line number
+            double      d_binary;         // binary floating point value
+            const char *d_significand_p;  // shortest decimal significand
+            int         d_exponent;       // power of ten multiplier
         } DATA[] = {
             { L_, 1.0013008351397400105892583e-037, "100130083513974",  -36 },
             { L_, 1.0026086550369900394909922e+047, "100260865503699",   48 },
@@ -6802,7 +6872,7 @@ int main(int argc, char* argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             int         LINE        = DATA[i].d_line;
             double      BINARY      = DATA[i].d_binary;
-            const char *SIGNIFICAND = DATA[i].d_significand;
+            const char *SIGNIFICAND = DATA[i].d_significand_p;
             int         EXPONENT    = DATA[i].d_exponent;
             long long   sig         = strtoll(SIGNIFICAND, 0, 10);
             int         exp         = EXPONENT - int(strlen(SIGNIFICAND));
@@ -6813,7 +6883,7 @@ int main(int argc, char* argv[])
                 P_(LINE) P_(BINARY) P_(sig) P_(exp) P_(expected) P(fromBinary)
             }
 
-            ASSERTV(LINE, BINARY, sig, exp, fromBinary, expected,
+            ASSERTV(LINE, BINARY, exp, fromBinary, expected,
                     strictEqual(fromBinary, expected));
         }
       } break;
@@ -6836,19 +6906,19 @@ int main(int argc, char* argv[])
         //:    using 'decimal64ToVariableWidthEncoding'.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of decimal
-        //:   values, and their expected encoded values when using the
-        //:   variable-width encoding format.  Ensure that the set of values
-        //:   include bondary values in all supported widths of the
-        //:   encoder. Use 'decimal64ToVariableWidthEncoding' to encode each
-        //:   decimal value in the set. Verify that the encoded values matches
-        //:   the expected values.  Additional, verify the encoded values can
-        //:   be decoded back to the original decimal values using
+        //: 1 Using the table-driven technique, specify a set of decimal values
+        //:   and their expected encoded values when using the variable-width
+        //:   encoding format.  Ensure that the set of values include boundary
+        //:   values in all supported widths of the encoder. Use
+        //:   'decimal64ToVariableWidthEncoding' to encode each decimal value
+        //:   in the set. Verify that the encoded values matches the expected
+        //:   values.  Additional, verify the encoded values can be decoded
+        //:   back to the original decimal values using
         //:   'decimal64FromVaribleWidthEncoding'.  (C-1..3)
         //
         // Testing:
-        //   decimal64FromVariableWidthEncoding(*decimal, *buffer);
-        //   decimal64ToVariableWidthEncoding(*buffer, value);
+        //   cuc* decimal64FromVariableWidthEncoding(Decimal64*, cuc*);
+        //   uc* decimal64ToVariableWidthEncoding(uc*, Decimal64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -6914,7 +6984,7 @@ int main(int argc, char* argv[])
 
             if (ENCODED_VALUE[0]) {
                 istringstream encodedBufferString(ENCODED_VALUE);
-                int temp;
+                int           temp;
                 while (encodedBufferString >> hex >> temp) {
                     encodedBuffer[encodedSize] =
                                               static_cast<unsigned char>(temp);
@@ -6946,8 +7016,9 @@ int main(int argc, char* argv[])
                                                       0xDE, 0xAD, 0xBE, 0xEF,
                                                       0xDE, 0xAD, 0xBE, 0xEF,
                                                       0xDE, 0xAD, 0xBE, 0xEF };
+
             const bsls::Types::size_type actualEncodedBufferOffset = 4;
-            bsls::Types::size_type actualEncodedSize;
+            bsls::Types::size_type       actualEncodedSize;
 
             actualEncodedSize = Util::decimal64ToVariableWidthEncoding(
                 actualEncodedBuffer + actualEncodedBufferOffset,
@@ -7028,8 +7099,8 @@ int main(int argc, char* argv[])
         //:   (C-2)
         //
         // Testing:
-        //   Decimal64 decimal64FromMultiWidthEncoding(*buffer, size);
-        //   Decimal64 decimal64FromMultiWidthEncodingRaw(*buffer, size);
+        //   Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
+        //   Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7111,13 +7182,13 @@ int main(int argc, char* argv[])
             const Decimal64  DECODED_VALUE = DATA[i].d_decodedValue;
             const char      *ENCODED_VALUE = DATA[i].d_encodedValue;
 
-            unsigned char encodedBuffer[12];
+            unsigned char          encodedBuffer[12];
             bsls::Types::size_type encodedSize = 0;
 
             const bool useFullEncodingFlag = !(ENCODED_VALUE[0]);
             if (!useFullEncodingFlag) {
                 istringstream encodedBufferString(ENCODED_VALUE);
-                int temp;
+                int           temp;
                 while (encodedBufferString >> hex >> temp) {
                     encodedBuffer[encodedSize] =
                                               static_cast<unsigned char>(temp);
@@ -7260,7 +7331,7 @@ int main(int argc, char* argv[])
         //: 1 Using the table-driven technique, specify a set of decimal
         //:   values, and their expected encoded values when using the
         //:   multi-width encoding format.  Ensure that the set of values
-        //:   include bondary values in all supported widths of the
+        //:   include boundary values in all supported widths of the
         //:   encoder. Use 'decimal64ToMultiWidthEncoding' and
         //:   'decimal64ToMultiWidthEncodingRaw' to encode each decimal value
         //:   in the set. Verify that the encoded values matches the expected
@@ -7270,8 +7341,8 @@ int main(int argc, char* argv[])
         //:   'decimal64FromMultiWidthEncodingRaw'.  (C-1..6)
         //
         // Testing:
-        //   size_type decimal64ToMultiWidthEncoding(*buffer, decimal);
-        //   size_type decimal64ToMultiWidthEncodingRaw(*buffer, decimal);
+        //   size_type decimal64ToMultiWidthEncoding(uc*, Decimal64);
+        //   size_type decimal64ToMultiWidthEncodingRaw(uc*, Decimal64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7346,14 +7417,14 @@ int main(int argc, char* argv[])
             const Decimal64  DECODED_VALUE = DATA[i].d_decodedValue;
             const char      *ENCODED_VALUE = DATA[i].d_encodedValue;
 
-            unsigned char encodedBuffer[12];
+            unsigned char          encodedBuffer[12];
             bsls::Types::size_type encodedSize = 0;
 
             const bool useFullEncodingFlag = !(ENCODED_VALUE[0]);
 
             if (!useFullEncodingFlag) {
                 istringstream encodedBufferString(ENCODED_VALUE);
-                int temp;
+                int           temp;
                 while (encodedBufferString >> hex >> temp) {
                     encodedBuffer[encodedSize] =
                                               static_cast<unsigned char>(temp);
@@ -7386,8 +7457,9 @@ int main(int argc, char* argv[])
                     0xDE, 0xAD, 0xBE, 0xEF,
                     0xDE, 0xAD, 0xBE, 0xEF,
                     0xDE, 0xAD, 0xBE, 0xEF };
+
                 const bsls::Types::size_type actualEncodedBufferOffset = 4;
-                bsls::Types::size_type actualEncodedSize;
+                bsls::Types::size_type       actualEncodedSize;
 
                 actualEncodedSize = Util::decimal64ToMultiWidthEncoding(
                     actualEncodedBuffer + actualEncodedBufferOffset,
@@ -7440,7 +7512,7 @@ int main(int argc, char* argv[])
             // Test 'decimal64ToMultiWidthEncodingRaw'.
 
             if (useFullEncodingFlag) {
-                unsigned char buffer[16];
+                unsigned char          buffer[16];
                 bsls::Types::size_type ret =
                     Util::decimal64ToMultiWidthEncodingRaw(buffer,
                                                            DECODED_VALUE);
@@ -7457,8 +7529,9 @@ int main(int argc, char* argv[])
                     0xDE, 0xAD, 0xBE, 0xEF,
                     0xDE, 0xAD, 0xBE, 0xEF,
                     0xDE, 0xAD, 0xBE, 0xEF };
+
                 const bsls::Types::size_type actualEncodedBufferOffset = 4;
-                bsls::Types::size_type actualEncodedSize;
+                bsls::Types::size_type       actualEncodedSize;
 
                 actualEncodedSize = Util::decimal64ToMultiWidthEncodingRaw(
                                actualEncodedBuffer + actualEncodedBufferOffset,
@@ -7560,9 +7633,9 @@ int main(int argc, char* argv[])
                                    << bsl::endl;
 
         { // 32
-            unsigned char n_d32[] = { 0x26, 0x54, 0xD2, 0xE7 };
+            unsigned char   n_d32[] = {0x26, 0x54, 0xD2, 0xE7};
             BDEC::Decimal32 h_d32(1234567);
-            unsigned char buffer[sizeof(BDEC::Decimal32)];
+            unsigned char   buffer[sizeof(BDEC::Decimal32)];
             BDEC::Decimal32 d32;
 
             Util::decimalToNetwork(buffer, h_d32);
@@ -7589,10 +7662,10 @@ int main(int argc, char* argv[])
         }
 
         { // 64
-            unsigned char n_d64[] = { 0x26, 0x39, 0x34, 0xB9,
-                                      0xC1, 0xE2, 0x8E, 0x56 };
+            unsigned char   n_d64[] = {
+                0x26, 0x39, 0x34, 0xB9, 0xC1, 0xE2, 0x8E, 0x56};
             BDEC::Decimal64 h_d64(1234567890123456ull);
-            unsigned char buffer[sizeof(BDEC::Decimal64)];
+            unsigned char   buffer[sizeof(BDEC::Decimal64)];
             BDEC::Decimal64 d64;
 
             Util::decimalToNetwork(buffer, h_d64);
@@ -7619,13 +7692,13 @@ int main(int argc, char* argv[])
         }
 
         { // 128
-            unsigned char n_d128[] = { 0x26, 0x08, 0x13, 0x4B,
-                                       0x9C, 0x1E, 0x28, 0xE5,
-                                       0x6F, 0x3C, 0x12, 0x71,
-                                       0x77, 0x82, 0x35, 0x34,};
+            unsigned char    n_d128[] = {
+                0x26, 0x08, 0x13, 0x4B, 0x9C, 0x1E, 0x28, 0xE5,
+                0x6F, 0x3C, 0x12, 0x71, 0x77, 0x82, 0x35, 0x34,
+            };
             BDEC::Decimal128 h_d128(
                        BDLDFP_DECIMAL_DL(1234567890123456789012345678901234.));
-            unsigned char buffer[sizeof(BDEC::Decimal128)];
+            unsigned char    buffer[sizeof(BDEC::Decimal128)];
             BDEC::Decimal128 d128;
 
             Util::decimalToNetwork(buffer, h_d128);
@@ -8211,12 +8284,12 @@ int main(int argc, char* argv[])
         //
         // Plan:
         //: 1 For each digit string of the form -/+NNNNNNNNeE, -9 <= E <= 0,
-        //:   use strtod to convert it to 'double', convert the result to
+        //:   use 'strtod' to convert it to 'double', convert the result to
         //:   'Decimal64', then convert that back to 'double', and verify that
         //:   the two 'double' values are identical.
         //:
         //: 2 For each digit string of the form -/+NNNNNNeE, -9 <= E <= 4,
-        //:   use sscanf to convert it to 'float', convert the result to
+        //:   use 'sscanf' to convert it to 'float', convert the result to
         //:   'Decimal64', then convert that back to 'float', and verify that
         //:   the two 'float' values are identical.  (The exponent range is
         //:   somewhat arbitrary; it overlaps the optimized range on both
@@ -8246,10 +8319,10 @@ int main(int argc, char* argv[])
                     sscanf(buf, "%f", &b);
                     Decimal64 d = Util::decimal64FromFloat(b);
                     Decimal64 p = PARSEDEC64(buf);
-                    float t = Util::decimalToFloat(d);
+                    float     t = Util::decimalToFloat(d);
                     ASSERTV(e, n, d, p, b, t, b == t);
                     ASSERTV(e, n, d, p, b, t, p == d);
-                    if (verbose) {
+                    if (veryVerbose) {
                         if (rand() % 500 == 0 && rand() % 500 == 0) {
                             P_(e) P_(n) P_(d) P(b)
                         }
@@ -8271,12 +8344,12 @@ int main(int argc, char* argv[])
                         sscanf(buf, "%f", &b);
                         Decimal64 d = Util::decimal64FromFloat(b);
                         Decimal64 p = PARSEDEC64(buf);
-                        float t = Util::decimalToFloat(d);
-                        int n = 1000000 * l + (l < 0 ? -m : m);
+                        float     t = Util::decimalToFloat(d);
+                        int       n = 1000000 * l + (l < 0 ? -m : m);
                         ASSERTV(buf, b == t && p == d);
                         ASSERTV(e, n, d, p, b, t, b == t);
                         ASSERTV(e, n, d, p, b, t, p == d);
-                        if (verbose) {
+                        if (veryVerbose) {
                             if (rand() % 1500 == 0 && rand() % 1500 == 0) {
                                 P_(buf) P_(e) P_(n) P_(d) P(b)
                             }
@@ -8294,13 +8367,13 @@ int main(int argc, char* argv[])
                 for (int n = -99999999; n <= 99999999; ++n) {
                     char buf[30];
                     sprintf(buf, "%de%d", n, e);
-                    double b = strtod(buf, 0);
+                    double    b = strtod(buf, 0);
                     Decimal64 d = Util::decimal64FromDouble(b);
                     Decimal64 p = PARSEDEC64(buf);
-                    double t = Util::decimalToDouble(d);
+                    double    t = Util::decimalToDouble(d);
                     ASSERTV(e, n, d, p, b, t, b == t);
                     ASSERTV(e, n, d, p, b, t, p == d);
-                    if (verbose) {
+                    if (veryVerbose) {
                         if (rand() % 5000 == 0 && rand() % 5000 == 0) {
                             P_(e) P_(n) P_(d) P(b)
                         }
@@ -8317,7 +8390,7 @@ int main(int argc, char* argv[])
         //: 1 Decimal string round-trips correctly.
         //
         // Plan:
-        //: 1 For each command-line argument, use strtod to convert it to
+        //: 1 For each command-line argument, use 'strtod' to convert it to
         //:   'double', convert the result to 'Decimal64', then convert that
         //:   back to 'double', and verify that the two 'double' values are
         //:   identical.
@@ -8335,14 +8408,14 @@ int main(int argc, char* argv[])
                 float b;
                 sscanf(s, "%f", &b);
                 Decimal64 d = Util::decimal64FromFloat(b);
-                float t = Util::decimalToFloat(d);
+                float     t = Util::decimalToFloat(d);
                 ASSERTV("float", s, d, b, t, b == t);
                 P_(s) P_(d) P_(b) Q("float")
             }
             {
-                double b = strtod(s, 0);
+                double    b = strtod(s, 0);
                 Decimal64 d = Util::decimal64FromDouble(b);
-                double t = Util::decimalToDouble(d);
+                double    t = Util::decimalToDouble(d);
                 ASSERTV("double", s, d, b, t, b == t);
                 P_(s) P_(d) P_(b) Q("double")
             }
@@ -8365,7 +8438,8 @@ int main(int argc, char* argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "BUSINESS FLOAT CONVERSION TEST\n";
+            bsl::cout << "BUSINESS FLOAT CONVERSION TEST\n"
+                         "==============================\n";
         }
         {
             srand(unsigned(time(0)));
@@ -8373,7 +8447,7 @@ int main(int argc, char* argv[])
             const int tens[] = {
                 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000
             };
-            int z = tens[digits];
+            int       z = tens[digits];
             for (int i = 0; i < z; ++i) {
                 char buf[32];
                 sprintf(buf, "%0*d", digits, i);
@@ -8386,10 +8460,10 @@ int main(int argc, char* argv[])
                     sscanf(buf2, "%f", &b);
                     Decimal64 d = Util::decimal64FromFloat(b);
                     Decimal64 p = PARSEDEC64(buf2);
-                    float t = Util::decimalToFloat(d);
+                    float     t = Util::decimalToFloat(d);
                     ASSERTV(buf2, d, p, b, t, b == t);
                     ASSERTV(buf2, d, p, b, t, p == d);
-                    if (verbose) {
+                    if (veryVerbose) {
                         if (rand() % 1000 == 0 && rand() % 1000 == 0) {
                             P_(buf2) P_(d) P(b)
                         }

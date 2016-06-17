@@ -50,7 +50,7 @@ void memrev(void *buffer, size_t count)
     bsl::reverse(b, b + count);
 }
 
-                        // Mem copy with reversal functions
+                        // Memory copy with reversal functions
 
 inline
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
@@ -140,8 +140,8 @@ struct StdioFormat<double> {
 inline
 const char* StdioFormat<float>::format(float v)
 {
-    // 9.999993e-4 and 9.999994e-4 convert to the same float.
-    // 8.589973e+9 and 8.589974e+9 convert to the same float.
+    //  9.999993e-4 and 9.999994e-4 convert to the same float.
+    //  8.589973e+9 and 8.589974e+9 convert to the same float.
     // All decimals with seven significant digits that lie in the range
     // '[ 9.999995e-4 .. 8.589972e+9 ]' convert to a unique float, so we can
     // do a seven-digit conversion to eke out an extra decimal places for this
@@ -254,33 +254,34 @@ bool isInRange<Decimal32, double>(double value)
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 static inline
-bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
-    // If the specified 'bfp' is a singular value ('Inf', 'Nan', or -0) or is
-    // out of range of 'DECIMAL_TYPE', construct the equivalent decimal form or
-    // the infinity of the appropriate sign in the specified 'dfp' and return
-    // true, otherwise leave 'dfp' unchanged and return false.
+bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
+                                      BINARY_TYPE   binary)
+    // If the specified 'binary' is a singular value ('Inf', 'Nan', or -0) or
+    // is out of range of 'DECIMAL_TYPE', construct the equivalent decimal form
+    // or the infinity of the appropriate sign in the specified 'decimal' and
+    // return true, otherwise leave 'decimal' unchanged and return false.
 {
-    bool negative = bdlb::Float::signBit(bfp);
+    bool negative = bdlb::Float::signBit(binary);
 
-    if (bdlb::Float::isNan(bfp)) {
-        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
+    if (bdlb::Float::isNan(binary)) {
+        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
         if (negative) {
-            *dfp = -*dfp;
+            *decimal = -*decimal;
         }
         return true;                                                  // RETURN
     }
 
-    if (bdlb::Float::isInfinite(bfp) || !isInRange<DECIMAL_TYPE>(bfp)) {
-        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
+    if (bdlb::Float::isInfinite(binary) || !isInRange<DECIMAL_TYPE>(binary)) {
+        *decimal = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         if (negative) {
-            *dfp = -*dfp;
+            *decimal = -*decimal;
         }
         return true;                                                  // RETURN
     }
 
-    if (bfp == 0 && negative) {
-        *dfp = DECIMAL_TYPE(0);
-        *dfp = -*dfp;
+    if (binary == 0 && negative) {
+        *decimal = DECIMAL_TYPE(0);
+        *decimal = -*decimal;
         return true;                                                  // RETURN
     }
 
@@ -288,25 +289,27 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
 }
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
-void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
-    // Construct, in the specified 'dfp', a decimal floating point
+void restoreDecimalFromBinary(DECIMAL_TYPE *decimal, BINARY_TYPE binary)
+    // Construct, in the specified 'decimal', a decimal floating point
     // representation of the value of the binary floating point value specified
-    // by 'bfp'.
+    // by 'binary'.
 {
 
-    if (restoreSingularDecimalFromBinary(dfp, bfp)) {
+    if (restoreSingularDecimalFromBinary(decimal, binary)) {
         return;                                                       // RETURN
     }
 
     char buffer[48];
-    int  rc = snprintf(
-           buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(bfp), bfp);
+    int  rc = snprintf(buffer,
+                      sizeof(buffer),
+                      StdioFormat<BINARY_TYPE>::format(binary),
+                      binary);
     (void)rc;
     BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
 
     typename DecimalTraits<DECIMAL_TYPE>::SignificandType significand(0);
-    int  exponent(0);
-    bool negative(false);
+    int                                                   exponent(0);
+    bool                                                  negative(false);
 
     char const* it(buffer);
     if (*it == '-') {
@@ -328,23 +331,24 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
         exponent += bsl::atoi(it);
     }
 
-    *dfp = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
+    *decimal = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
 
     if (negative) {
-        *dfp = -*dfp;
+        *decimal = -*decimal;
     }
 }
 
 template <class INTEGER_TYPE>
-inline void reduce(INTEGER_TYPE *psignificand, int *pscale)
-    // Divide the value of the specified '*psignificand' by 10 and increment
-    // '*pscale' as few times as needed to either make '*psignificand' not be
-    // divisible by 10 or to make '*pscale' non-negative.  The purpose is to
-    // avoid scaling artifacts when converting to decimal floating point; e.g.,
-    // given .001, we want 1e-3 instead of 1000e-6.
+inline void reduce(INTEGER_TYPE *significand, int *exponent)
+    // Divide the value of the specified '*significand' by 10 and increment the
+    // specified '*exponent' as few times as needed to either make
+    // '*significand' not be divisible by 10 or to make '*exponent'
+    // non-negative.  The purpose is to avoid scaling artifacts when converting
+    // to decimal floating point; e.g., given .001, we want 1e-3 instead of
+    // 1000e-6.
 {
-    INTEGER_TYPE n = *psignificand;
-    int scale = *pscale;
+    INTEGER_TYPE n     = *significand;
+    int          scale = *exponent;
 
     // Do a quick check for trailing 0 bits before the more expensive % check
     // since each factor of 10 has a corresponding factor of 2.  Try to lop off
@@ -360,8 +364,8 @@ inline void reduce(INTEGER_TYPE *psignificand, int *pscale)
         ++scale;
     }
 
-    *psignificand = n;
-    *pscale = scale;
+    *significand = n;
+    *exponent = scale;
 }
 
 inline
@@ -387,9 +391,9 @@ bool quickDecimal64FromDouble(Decimal64 *result,
     // 1e9, and therefore the magnitude of the original number must be less
     // than 1e6.
     if (binary != 0 && -1e6 < binary && binary < 1e6) {
-        double d = binary * 1e9;
+        double    d = binary * 1e9;
         long long n = static_cast<long long>(d + copysign(.5, d));  // round
-        int scale = -9;
+        int       scale = -9;
 
         // Divide powers of 10 out of n to avoid unpleasant scaling artifacts.
         // E.g., we want .001 to appear to have 3 digits, not 9.
@@ -515,8 +519,7 @@ bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
             return true;                                              // RETURN
         }
 
-        // Otherwise, see if the decimal converts back to the original
-        // value.
+        // Otherwise, see if the decimal converts back to the original value.
         float test = DecimalConvertUtil::decimalToFloat(*result);
         if (test == binary) {
             return true;                                              // RETURN
@@ -529,7 +532,7 @@ bool quickDecimal64FromFloat(Decimal64 *result, float binary, float threshold)
 
                         // Network format converters
 
-// Note that we do not use platform or bslsl supported converters because they
+// Note that we do not use platform or bslsl-supported converters because they
 // work in terms of integers, so they would probably bleed out on the
 // strict-aliasing rules.  We may solve that later on using the "union trick"
 // and delegating to 'bsls_byteorder', but for now let's take it slow.
@@ -717,7 +720,7 @@ void parseDecimal(Decimal128 *result, const char *buffer)
 
 template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
 static DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
-    // Return the closest decimal value with the specfied 'digits' significant
+    // Return the closest decimal value with the specified 'digits' significant
     // digits to the specified 'binary'.  Singular (infinity, NaN, and -0) and
     // out-of-range 'binary' values are converted to appropriate decimal
     // singular values.  If 'digits' is less than 1, use 'LIMIT' instead, and
@@ -747,25 +750,19 @@ Decimal32 DecimalConvertUtil::restoreDecimal32Digits(float binary, int digits)
     return restoreDecimalDigits<Decimal32, 7>(binary, digits);
 }
 
-Decimal64 DecimalConvertUtil::restoreDecimal64Digits(float binary, int digits)
-{
-    Decimal64 rv;
-    if (digits <= 6 && quickDecimal64FromFloat(&rv, binary, 5e-7f) ||
-        digits == 7 && quickDecimal64FromFloat(&rv, binary, 1e-8)) {
-        return rv;                                                    // RETURN
-    }
-    return restoreDecimalDigits<Decimal64, 9>(binary, digits);
-}
-
-Decimal128 DecimalConvertUtil::restoreDecimal128Digits(float binary,
-                                                       int   digits)
-{
-    return restoreDecimalDigits<Decimal128, 9>(binary, digits);
-}
-
 Decimal32 DecimalConvertUtil::restoreDecimal32Digits(double binary, int digits)
 {
     return restoreDecimalDigits<Decimal32, 7>(binary, digits);
+}
+
+Decimal64 DecimalConvertUtil::restoreDecimal64Digits(float binary, int digits)
+{
+    Decimal64 rv;
+    if ((digits <= 6 && quickDecimal64FromFloat(&rv, binary, 5e-7f)) ||
+        (digits == 7 && quickDecimal64FromFloat(&rv, binary, 1e-8))) {
+        return rv;                                                    // RETURN
+    }
+    return restoreDecimalDigits<Decimal64, 9>(binary, digits);
 }
 
 Decimal64 DecimalConvertUtil::restoreDecimal64Digits(double binary, int digits)
@@ -777,12 +774,17 @@ Decimal64 DecimalConvertUtil::restoreDecimal64Digits(double binary, int digits)
     return restoreDecimalDigits<Decimal64, 16>(binary, digits);
 }
 
+Decimal128 DecimalConvertUtil::restoreDecimal128Digits(float binary,
+                                                       int   digits)
+{
+    return restoreDecimalDigits<Decimal128, 9>(binary, digits);
+}
+
 Decimal128 DecimalConvertUtil::restoreDecimal128Digits(double binary,
                                                        int    digits)
 {
     return restoreDecimalDigits<Decimal128, 17>(binary, digits);
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace
