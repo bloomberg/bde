@@ -2039,6 +2039,9 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
     if (reserveFlag) {
         // Reserve space the old-fashioned way.
 
+        if (0 == increment) {
+            increment = k_DEFAULT_FILE_GROWTH_INCREMENT;
+        }
         char *buffer = static_cast<char*>(allocator_p->allocate(increment));
         bsl::memset(buffer, 1, increment);
         Offset bytesToGrow = size - currentSize;
