@@ -883,8 +883,9 @@ struct FilesystemUtil {
         // allocated on demand, preventing a possible out-of-disk-space error
         // when accessing the data on file systems with sparse file support.
         // Preallocation is done by writing unspecified data to file in blocks
-        // of the optionally specified 'increment'.  Note that if the size of
-        // the file is greater than or equal to 'size', this function has no
+        // of the optionally specified 'increment' or a default value if
+        // 'increment' is zero or unspecified.  Note that if the size of the
+        // file is greater than or equal to 'size', this function has no
         // effect.  Also note that the contents of the newly grown portion of
         // the file is undefined.
 };
