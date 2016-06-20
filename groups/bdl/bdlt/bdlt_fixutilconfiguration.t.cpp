@@ -247,12 +247,12 @@ int main(int argc, char *argv[])
 // 'my::FixUtil' produces, by default, the following string (which is a valid
 // FIX string):
 //..
-//  31JAN2005_08:59:59.123+00:00
+//  20050131-08:59:59.123+00:00
 //..
 // However, we would like to produce the following (also valid FIX) string
 // instead:
 //..
-//  31JAN2005_08:59:59.123000Z
+//  20050131-08:59:59.123000Z
 //..
 // 'bdlt::FixUtilConfiguration' can be used to obtain the desired result
 // assuming that 'my::FixUtil' uses 'bdlt::FixUtilConfiguration' to affect the
