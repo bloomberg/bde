@@ -2414,6 +2414,9 @@ int main(int argc, char *argv[])
             bslstl::StringRef              p, *zp = 0;
             bsl::vector<bslstl::StringRef> v, *zv = 0;
 
+            (void)zp;
+            (void)zv;
+
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0));
 
             // 'match' taking 'StringRef'
@@ -2799,6 +2802,9 @@ int main(int argc, char *argv[])
             bsl::pair<size_t, size_t>               p, *zp = 0;
             bsl::vector<bsl::pair<size_t, size_t> > v, *zv = 0;
 
+            (void)zp;
+            (void)zv;
+
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0, 0));
 
             // basic 'match
@@ -3084,7 +3090,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const int INVALID_FLAG = Obj::k_FLAG_JIT + 1;
+            const int INVALID_FLAG = -1;
             (void) INVALID_FLAG;
 
             Obj mX(&ta);
