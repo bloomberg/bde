@@ -420,8 +420,8 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     int numNodes = scandir(taskFilename.str().c_str(), &entry, 0, 0);
     for (int nodeIndex = 0; nodeIndex < numNodes; ++nodeIndex) {
         if (DT_DIR == entry[nodeIndex]->d_type &&
-            strcmp(".",  entry[nodeIndex]->d_name) != 0 &&
-            strcmp("..", entry[nodeIndex]->d_name) != 0) {
+            bsl::strcmp(".",  entry[nodeIndex]->d_name) != 0 &&
+            bsl::strcmp("..", entry[nodeIndex]->d_name) != 0) {
             ++numThreads;
         }
         bsl::free(entry[nodeIndex]);
