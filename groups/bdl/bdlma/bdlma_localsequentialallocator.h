@@ -34,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //                    |        allocate
 //                    |        deallocate
 //                    |        release
+//                    |        rewind
 //                    V
 //        ,-----------------------.
 //       ( bdlma::ManagedAllocator )
