@@ -1,6 +1,14 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
 #include <bslstl_pair.h>
 
+#include <bsltf_allocbitwisemoveabletesttype.h>
+#include <bsltf_movablealloctesttype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_movestate.h>
+#include <bsltf_simpletesttype.h>
+#include <bsltf_templatetestfacility.h>
+
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
 #include <bslma_default.h>
@@ -21,11 +29,7 @@
 #include <bslmf_usesallocatorargt.h>
 
 #include <bsls_bsltestutil.h>
-
-#include <bsltf_movablealloctesttype.h>
-#include <bsltf_movestate.h>
-#include <bsltf_simpletesttype.h>
-#include <bsltf_templatetestfacility.h>
+#include <bsls_nameof.h>
 
 #include <stddef.h>
 #include <stdio.h>      // 'printf'
@@ -35,7 +39,7 @@
 #include <algorithm>    // 'std::swap'
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsls::NameOf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -156,6 +160,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+
+#define EXCEPTION_TEST_BEGIN(CONTAINER)                                       \
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(                             \
+          (* (bslma::TestAllocator *) (CONTAINER).get_allocator().mechanism()))
+
+#define EXCEPTION_TEST_END  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
 // Pragmas to silence format warnings, should be cleaned up before final commit
 // BDE_VERIFY pragma: -AC01  // bde_verify does not recognise generic allocator
 // BDE_VERIFY pragma: -AL01  // Strict aliasing concerns should be addressed
@@ -170,14 +182,308 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static bool             verbose = false;
-static bool         veryVerbose = false;
-static bool     veryVeryVerbose = false;
-static bool veryVeryVeryVerbose = false;
+typedef bsltf::TemplateTestFacility TTF;
+typedef bslmf::MovableRefUtil       MoveUtil;
+
+bool             verbose = false;
+bool         veryVerbose = false;
+bool     veryVeryVerbose = false;
+bool veryVeryVeryVerbose = false;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+enum { k_VALUE_SHIFT = 10 };
+
+class Base {
+    // DATA
+    int d_data;
+
+  public:
+    // CREATORS
+    Base() : d_data(0) {}
+    Base(int data) : d_data(data) {}
+    Base(const Base& original) :d_data(original.d_data) {}
+
+    //! ~Base() = default;
+    //! Base& operator=(const Base&) = default;
+
+    // ACCESSORS
+    operator int() const { return d_data; }
+};
+
+typedef Base *BasePtr;
+
+struct Derived : public Base {
+    // CREATORS
+    Derived() : Base() {}
+    Derived(int data) : Base(data) {}
+    Derived(const Derived& original) : Base(original) {}
+};
+
+typedef Derived *DerivedPtr;
+
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bsltf {
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<u::BasePtr>(const u::BasePtr& ptr)
+{
+    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
+    return static_cast<int>(value);
+}
+
+template <>
+inline
+int TemplateTestFacility::getIdentifier<u::DerivedPtr>(
+                                                      const u::DerivedPtr& ptr)
+{
+    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
+    return static_cast<int>(value);
+}
+
+}  // close namespace bsltf
+}  // close enterprise namespace
+
+namespace {
+namespace u {
+
+template <class TYPE, bool hasAllocatorAccessor = 
+                 bsl::is_same<TYPE, bsltf::AllocBitwiseMoveableTestType>::value
+              || bsl::is_same<TYPE, bsltf::AllocTestType>::value
+              || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
+              || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value>
+struct AllocatorMatchesImp;
+
+template <class TYPE>
+struct AllocatorMatchesImp<TYPE, true> {
+    bool operator()(const TYPE&       object,
+                    bslma::Allocator *alloc) const
+        // The specified 'object' has an 'allocator' accessor.  Check that the
+        // specied 'alloc' matches the allocator of 'object'.
+    {
+        bool ret;
+        ASSERTV(NameOf<TYPE>(), (ret = alloc == object.allocator()));
+
+        return ret;
+    }
+};
+
+template <class TYPE>
+struct AllocatorMatchesImp<TYPE, false> {
+    bool operator()(const TYPE&, bslma::Allocator *) const
+        // The specified 'TYPE' has no 'allocator' accessor.  Dummy function.
+    {
+        return true;
+    }
+};
+
+template <class TYPE>
+bool allocatorMatches(const TYPE& object, bslma::Allocator *alloc)
+{
+    return AllocatorMatchesImp<TYPE>()(object, alloc);
+}
+
+template <class TYPE>
+inline
+bool isMoveAware(const TYPE&)
+{
+    return bsl::is_same<TYPE, bsltf::MovableTestType>::value
+        || bsl::is_same<TYPE, bsltf::MovableAllocTestType>::value
+        || bsl::is_same<TYPE, bsltf::MoveOnlyAllocTestType>::value;
+}
+
+template <class TYPE>
+inline
+bool isMovedFrom(const TYPE& object)
+{
+    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+                                                TTF::getMovedFromState(object);
+}
+
+template <class TYPE>
+inline
+bool isNotMovedFrom(const TYPE& object)
+{
+    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+                                                TTF::getMovedFromState(object);
+}
+
+template <class TYPE>
+inline
+bool isMovedInto(const TYPE& object)
+{
+    return !isMoveAware(object) || bsltf::MoveState::e_MOVED ==
+                                                TTF::getMovedIntoState(object);
+}
+
+template <class TYPE>
+inline
+bool isNotMovedInto(const TYPE& object)
+{
+    return !isMoveAware(object) || bsltf::MoveState::e_NOT_MOVED ==
+                                                TTF::getMovedIntoState(object);
+}
+
+template <class U, class V>
+inline
+bool isNotMovedFrom(const bsl::pair<U, V>& pr)
+{
+    return (!isMoveAware(pr.first) ||
+            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.first))
+       && (!isMoveAware(pr.second) ||
+            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedFromState(pr.second));
+}
+
+template <class U, class V>
+inline
+bool isNotMovedInto(const bsl::pair<U, V>& pr)
+{
+    return (!isMoveAware(pr.first) ||
+            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.first))
+       && (!isMoveAware(pr.second) ||
+            bsltf::MoveState::e_NOT_MOVED ==TTF::getMovedIntoState(pr.second));
+}
+
+template <class PAIR>
+inline
+bool isNotMoved(const PAIR& pr)
+{
+    return isNotMovedInfo(pr) && isNotMovedFrom(pr);
+}
+
+template <class TYPE>
+int valueOf(const TYPE& object)
+{
+    return TTF::getIdentifier(object);
+}
+
+template <class U, class V>
+int valueOf(const bsl::pair<U, V>& pr)
+    // Return the value of the specified pair 'pr'.  A scalar value of a pair
+    // only makes sense if both members have correspondingsame values.  If they
+    // don't, return -1 (an illegal value -- legal values are in '[ 0, 128 )'.
+{
+    const int f = valueOf<U>(pr.first);
+    const int s = valueOf<V>(pr.second);
+
+    return f + k_VALUE_SHIFT == s ? f : -1;
+}
+
+template <class OBJECTBUFFER_PAIR, class ALLOCATOR>
+typename OBJECTBUFFER_PAIR::Type& initPair(OBJECTBUFFER_PAIR  *buffer,
+                                           int                 value,
+                                           ALLOCATOR           alloc)
+    // Note that the specified 'buffer' must be a pointer to an
+    // 'bsls::ObjectBuffer<bsl::pair<U, V> >'.  Construct the 'first' and
+    // 'second' fields of the pair in the specified 'buffer' according to the
+    // specified 'value', and pass the specified allocator 'alloc' as
+    // appropriate.
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= value);  BSLS_ASSERT_SAFE(value < 128);    
+
+    TTF::emplace(bsls::Util::addressOf(buffer->object().first),
+                 value,
+                 alloc);
+    TTF::emplace(bsls::Util::addressOf(buffer->object().second),
+                 value + k_VALUE_SHIFT,
+                 alloc);
+
+    ASSERT(valueOf(buffer->object()) == value);
+
+    return buffer->object();
+}
+
+template <class PAIR>
+struct PairGuard {
+    // DATA
+    PAIR *d_pair_p;
+
+  private:
+    // NOT IMPLEMENTED
+    PairGuard(const PAIR&);
+    PairGuard& operator=(const PAIR&);
+
+  public:
+    // CREATORS
+    PairGuard(PAIR *pr)
+    : d_pair_p(pr)
+    {}
+
+    ~PairGuard()
+    {
+        if (d_pair_p) {
+            destroy();
+        }
+    }
+
+    // MANIPULATORS
+    void destroy()
+    {
+        d_pair_p->~PAIR();
+    }
+
+    void release()
+    {
+        d_pair_p = 0;
+    }
+};
+
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace bsl {
+
+template <class FIRST, class SECOND>
+inline
+void debugprint(const bsl::pair<FIRST, SECOND>& p)
+{
+    printf("(");
+    bsls::BslTestUtil::callDebugprint(static_cast<char>(
+                                                TTF::getIdentifier(p.first)));
+    printf(",");
+    bsls::BslTestUtil::callDebugprint(static_cast<char>(
+                                                TTF::getIdentifier(p.second)));
+    printf(")");
+}
+
+template <class FIRST, class SECOND>
+inline
+void debugprint(const u::Base& base)
+{
+    bsls::BslTestUtil::callDebugprint(static_cast<char>(
+                                                    TTF::getIdentifier(base)));
+}
+
+} // close namespace bsl
+                        // -----------------
+                        // struct TypeBundle
+                        // -----------------
+
+template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
+struct TypeBundle {
+    // This 'struct' is a way of combining an arbitrary combination of two
+    // 'pair' types into a single type, suitable for passing to
+    // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.
+
+    typedef TO_FIRST                           ToFirst;
+    typedef TO_SECOND                          ToSecond;
+
+    typedef FROM_FIRST                         FromFirst;
+    typedef FROM_SECOND                        FromSecond;
+
+    typedef bsl::pair<TO_FIRST,   TO_SECOND>   ToPair;
+    typedef bsl::pair<FROM_FIRST, FROM_SECOND> FromPair;
+};
 
                 // ===========================================
                 // class my_String (supplied by Usage example)
@@ -1407,7 +1713,7 @@ void testFunctionality(bsl::true_type /* UsesBslmaAllocator */)
     // explicitly-supplied 'bslma::Allocator*' constructor arguments.
 {
     // Test without explicit allocator
-    testFunctionality<T1,T2>(false_type());
+    testFunctionality<T1,T2>(bsl::false_type());
 
     typedef bsl::pair<T1, T2> Obj;
 
@@ -1475,9 +1781,246 @@ void testFunctionality(bsl::true_type /* UsesBslmaAllocator */)
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
-class Base { };
-class Derived : public Base { };
+template <class BUNDLE_TYPE>
+class TestDriver {
+    // PRIVATE TYPES
+    typedef BUNDLE_TYPE BT;
 
+    typedef typename BT::ToFirst    ToFirst;
+    typedef typename BT::ToSecond   ToSecond;
+
+    typedef typename BT::FromFirst  FromFirst;
+    typedef typename BT::FromSecond FromSecond;
+
+    typedef typename BT::ToPair     ToPair;
+    typedef typename BT::FromPair   FromPair;
+
+  public:
+    // MANIPULATOR
+    static void testCase9();
+        // Testing constructors with different type pairs.
+};
+
+template <class BUNDLE_TYPE>
+void TestDriver<BUNDLE_TYPE>::testCase9()
+{
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
+#if 0
+    {
+        FromFirst  ff = TTF::create<FromFirst>( 'A');
+        FromSecond fs = TTF::create<FromSecond>('B');
+
+        FromPair pr(MoveUtil::move(ff), MoveUtil::move(fs));
+
+        ASSERT(u::isMovedFrom(ff));
+        ASSERT(u::isMovedFrom(fs));
+
+        ASSERT(u::isMovedInto(pr));
+
+        ASSERT(u::allocatorMatches(pr.first,  &da));
+        ASSERT(u::allocatorMatches(pr.second, &da));
+
+        ASSERT('A' == u::valueOf(pr.first));
+        ASSERT('B' == u::valueOf(pr.second));
+    }
+#endif
+
+    {
+        bsls::ObjectBuffer<FromPair> ofp;
+        FromPair& fp = u::initPair(&ofp, 'A', &ta);
+        u::PairGuard<FromPair> fpg(&fp);
+
+        ASSERT(u::isNotMovedInto(fp));
+        ASSERT(u::allocatorMatches(fp.first,  &ta));
+        ASSERT(u::allocatorMatches(fp.second, &ta));
+
+        const ToPair tp(MoveUtil::move(fp));
+
+        ASSERT(u::isMovedFrom(fp));
+        ASSERT(u::isMovedInto(tp));
+
+        ASSERT(u::allocatorMatches(tp.first,  &da));
+        ASSERT(u::allocatorMatches(tp.second, &da));
+
+        ASSERT('A' == u::valueOf(tp));
+
+        fpg.destroy();
+        u::initPair(&ofp, 'B', &ta);
+
+        const ToPair tpa(MoveUtil::move(fp), &ta);
+
+        ASSERT(u::isMovedFrom(fp));
+        ASSERT(u::isMovedInto(tpa));
+
+        ASSERT(u::allocatorMatches(tpa.first,  &ta));
+        ASSERT(u::allocatorMatches(tpa.second, &ta));
+
+        ASSERT('B' == u::valueOf(tpa));
+
+        fpg.destroy();
+        u::initPair(&ofp, 'C', &ta);
+
+        const ToPair tpb(MoveUtil::move(fp), &tb);
+
+        ASSERT(u::isMovedFrom(fp));
+        ASSERT(u::isMovedInto(tpb));
+
+        ASSERT(u::allocatorMatches(tpb.first,  &tb));
+        ASSERT(u::allocatorMatches(tpb.second, &tb));
+
+        ASSERT('C' == u::valueOf(tpb));
+    }
+#if 0
+        typedef bsl::pair<u::Base *,    bsltf::MovableAllocTestType>  ObjA1;
+        typedef bsl::pair<u::Derived *, bsltf::MovableAllocTestType>  ObjB1;
+
+        typedef bsl::pair<bsltf::MovableAllocTestType, u::Base *>     ObjA2;
+        typedef bsl::pair<bsltf::MovableAllocTestType, u::Derived *>  ObjB2;
+
+        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
+        typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
+
+        typedef bsl::pair<int, const bsltf::MoveOnlyAllocTestType> ObjA4;
+        typedef bsl::pair<int, bsltf::MoveOnlyAllocTestType>       ObjB4;
+
+        typedef bsltf::TemplateTestFacility TstFacility;
+        typedef bsltf::MoveState           MovState;
+
+        bsltf::MoveState::Enum miState, mfState;
+        // Without allocator
+        {
+            bsltf::MovableAllocTestType t;
+            ObjB1 b1((u::Derived *) 0, t);
+            ObjB2 b2(t, (u::Derived *) 0);
+
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 a1(bslmf::MovableRefUtil::move(b1));
+            mfState = TstFacility::getMovedFromState(b1.second);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA2 a2(bslmf::MovableRefUtil::move(b2));
+            mfState = TstFacility::getMovedFromState(b2.first);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m1(1);
+            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1);
+            mfState = TstFacility::getMovedFromState(m1);
+            miState = TstFacility::getMovedIntoState(b3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA3 a3(bslmf::MovableRefUtil::move(b3));
+            ASSERT(1 == a3.second);
+            ASSERT(1 == TstFacility::getIdentifier(a3.first));
+            mfState = TstFacility::getMovedFromState(b3.first);
+            miState = TstFacility::getMovedIntoState(a3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m2(2);
+            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2));
+            mfState = TstFacility::getMovedFromState(m2);
+            miState = TstFacility::getMovedIntoState(b4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
+            ASSERT(2 == a4.first);
+            ASSERT(2 == TstFacility::getIdentifier(a4.second));
+            mfState = TstFacility::getMovedFromState(b4.second);
+            miState = TstFacility::getMovedIntoState(a4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+        }
+        // With allocator
+        {
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::TestAllocatorMonitor dam(&da);
+
+            bsltf::MovableAllocTestType t(&oa);
+            ObjB1 b1((u::Derived *) 0, t, &oa);
+            ObjB2 b2(t, (u::Derived *) 0, &oa);
+
+            mfState = TstFacility::getMovedFromState(t);
+            ASSERT(MovState::e_NOT_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+
+            ObjA1 a1(bslmf::MovableRefUtil::move(b1), &oa);
+            mfState = TstFacility::getMovedFromState(b1.second);
+            miState = TstFacility::getMovedIntoState(a1.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA2 a2(bslmf::MovableRefUtil::move(b2), &oa);
+            mfState = TstFacility::getMovedFromState(b2.first);
+            miState = TstFacility::getMovedIntoState(a2.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m1(1, &oa);
+            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1, &oa);
+
+            ObjA3 a3(bslmf::MovableRefUtil::move(b3), &oa);
+            ASSERT(1 == a3.second);
+            mfState = TstFacility::getMovedFromState(b3.first);
+            miState = TstFacility::getMovedIntoState(a3.first);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            bsltf::MoveOnlyAllocTestType m2(2, &oa);
+            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2), &oa);
+            mfState = TstFacility::getMovedFromState(m2);
+            miState = TstFacility::getMovedIntoState(b4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
+            ASSERT(2 == a4.first);
+            ASSERT(2 == TstFacility::getIdentifier(a4.second));
+            mfState = TstFacility::getMovedFromState(b4.second);
+            miState = TstFacility::getMovedIntoState(a4.second);
+            ASSERT(MovState::e_MOVED == mfState
+                || MovState::e_UNKNOWN == mfState);
+            ASSERT(MovState::e_MOVED == miState
+                || MovState::e_UNKNOWN == miState);
+
+            ASSERT(dam.isTotalSame());
+        }
+#endif
+}
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -1644,11 +2187,11 @@ int main(int argc, char *argv[])
         //   template <class U1, class U2> pair& operator=(pair<U1, U2>&& rhs);
         // --------------------------------------------------------------------
 
-        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType> ObjA1;
-        typedef bsl::pair<Derived *, bsltf::MovableAllocTestType> ObjB1;
+        typedef bsl::pair<u::Base *,    bsltf::MovableAllocTestType> ObjA1;
+        typedef bsl::pair<u::Derived *, bsltf::MovableAllocTestType> ObjB1;
 
-        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>    ObjA2;
-        typedef bsl::pair<bsltf::MovableAllocTestType, Derived *> ObjB2;
+        typedef bsl::pair<bsltf::MovableAllocTestType, u::Base *>    ObjA2;
+        typedef bsl::pair<bsltf::MovableAllocTestType, u::Derived *> ObjB2;
 
         typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
         typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
@@ -1660,12 +2203,12 @@ int main(int argc, char *argv[])
         bsltf::MoveState::Enum miState, mfState;
         {
             bsltf::MovableAllocTestType t;
-            ObjB1 b1((Derived *) 0, t);
+            ObjB1 b1((u::Derived *) 0, t);
             mfState = TstFacility::getMovedFromState(b1.second);
             ASSERT(MovState::e_NOT_MOVED == mfState
                 || MovState::e_UNKNOWN == mfState);
 
-            ObjA1 a1((Base *) 0, t);
+            ObjA1 a1((u::Base *) 0, t);
             miState = TstFacility::getMovedIntoState(a1.second);
             ASSERT(MovState::e_NOT_MOVED == miState
                 || MovState::e_UNKNOWN == miState);
@@ -1681,12 +2224,12 @@ int main(int argc, char *argv[])
         }
         {
             bsltf::MovableAllocTestType t;
-            ObjB2 b2(t, (Derived *) 0);
+            ObjB2 b2(t, (u::Derived *) 0);
             mfState = TstFacility::getMovedFromState(b2.first);
             ASSERT(MovState::e_NOT_MOVED == mfState
                 || MovState::e_UNKNOWN == mfState);
 
-            ObjA2 a2(t, (Base *) 0);
+            ObjA2 a2(t, (u::Base *) 0);
             miState = TstFacility::getMovedIntoState(a2.first);
             ASSERT(MovState::e_NOT_MOVED == miState
                 || MovState::e_UNKNOWN == miState);
@@ -1737,8 +2280,8 @@ int main(int argc, char *argv[])
         // template <class U1, class U2> pair(U1&& a, U2&& b);
         // template <class U1, class U2> pair(U1&& a, U2&& b, AllocatorPtr a);
         // --------------------------------------------------------------------
-        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType>  ObjA1;
-        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>     ObjA2;
+        typedef bsl::pair<u::Base *,    bsltf::MovableAllocTestType>  ObjA1;
+        typedef bsl::pair<bsltf::MovableAllocTestType, u::Base *>     ObjA2;
         typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
         typedef bsl::pair<int, const bsltf::MoveOnlyAllocTestType> ObjA4;
 
@@ -1751,7 +2294,7 @@ int main(int argc, char *argv[])
         // Without allocator
         {
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1768,7 +2311,7 @@ int main(int argc, char *argv[])
                     || MovState::e_UNKNOWN == miState);
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1785,7 +2328,7 @@ int main(int argc, char *argv[])
                     || MovState::e_UNKNOWN == miState);
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1802,7 +2345,7 @@ int main(int argc, char *argv[])
                     || MovState::e_UNKNOWN == miState);
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1866,7 +2409,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
 
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1, &oa);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1885,7 +2428,7 @@ int main(int argc, char *argv[])
                 ASSERT(&oa == a1.second.allocator());
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1, &oa);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1904,7 +2447,7 @@ int main(int argc, char *argv[])
                 ASSERT(&oa == a2.first.allocator());
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1, &oa);
                 mfState = TstFacility::getMovedFromState(m);
@@ -1923,7 +2466,7 @@ int main(int argc, char *argv[])
                 ASSERT(&oa == a1.second.allocator());
             }
             {
-                Derived *d = (Derived *) 0;
+                u::Derived *d = (u::Derived *) 0;
 
                 bsltf::MovableAllocTestType m(1, &oa);
                 mfState = TstFacility::getMovedFromState(m);
@@ -2129,156 +2672,29 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // BREATHING TEST for
+        // TESTING CONSTRUCTOR FOR DIFFERENT TYPE PAIR
         //
         //   template <class U1, class U2> pair(pair<U1, U2>&&)
         //   template <class U1, class U2> pair(pair<U1, U2>&&, AllocatorPtr)
         // --------------------------------------------------------------------
 
-        typedef bsl::pair<Base *,    bsltf::MovableAllocTestType>  ObjA1;
-        typedef bsl::pair<Derived *, bsltf::MovableAllocTestType>  ObjB1;
+        typedef TypeBundle<int, int, int, int> AllInts;
+        typedef TypeBundle<bsltf::MovableAllocTestType, u::Base,
+                           bsltf::MovableAllocTestType, u::Derived>    TypeA;
+        typedef TypeBundle<bsltf::MovableAllocTestType, u::Base *,
+                           bsltf::MovableAllocTestType, u::Derived *>  TypeB;
+        typedef TypeBundle<bsltf::MovableTestType, u::Base *,
+                           bsltf::MovableTestType, u::Derived *>       TypeC;
+        typedef TypeBundle<bsltf::MoveOnlyAllocTestType, u::Base *,
+                           bsltf::MoveOnlyAllocTestType, u::Derived *> TypeD;
 
-        typedef bsl::pair<bsltf::MovableAllocTestType, Base *>     ObjA2;
-        typedef bsl::pair<bsltf::MovableAllocTestType, Derived *>  ObjB2;
-
-        typedef bsl::pair<const bsltf::MoveOnlyAllocTestType, int> ObjA3;
-        typedef bsl::pair<bsltf::MoveOnlyAllocTestType, int>       ObjB3;
-
-        typedef bsl::pair<int, const bsltf::MoveOnlyAllocTestType> ObjA4;
-        typedef bsl::pair<int, bsltf::MoveOnlyAllocTestType>       ObjB4;
-
-        typedef bsltf::TemplateTestFacility TstFacility;
-        typedef bsltf::MoveState           MovState;
-
-        bsltf::MoveState::Enum miState, mfState;
-        // Without allocator
-        {
-            bsltf::MovableAllocTestType t;
-            ObjB1 b1((Derived *) 0, t);
-            ObjB2 b2(t, (Derived *) 0);
-
-            mfState = TstFacility::getMovedFromState(t);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA1 a1(bslmf::MovableRefUtil::move(b1));
-            mfState = TstFacility::getMovedFromState(b1.second);
-            miState = TstFacility::getMovedIntoState(a1.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ObjA2 a2(bslmf::MovableRefUtil::move(b2));
-            mfState = TstFacility::getMovedFromState(b2.first);
-            miState = TstFacility::getMovedIntoState(a2.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            bsltf::MoveOnlyAllocTestType m1(1);
-            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1);
-            mfState = TstFacility::getMovedFromState(m1);
-            miState = TstFacility::getMovedIntoState(b3.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ObjA3 a3(bslmf::MovableRefUtil::move(b3));
-            ASSERT(1 == a3.second);
-            ASSERT(1 == TstFacility::getIdentifier(a3.first));
-            mfState = TstFacility::getMovedFromState(b3.first);
-            miState = TstFacility::getMovedIntoState(a3.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            bsltf::MoveOnlyAllocTestType m2(2);
-            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2));
-            mfState = TstFacility::getMovedFromState(m2);
-            miState = TstFacility::getMovedIntoState(b4.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
-            ASSERT(2 == a4.first);
-            ASSERT(2 == TstFacility::getIdentifier(a4.second));
-            mfState = TstFacility::getMovedFromState(b4.second);
-            miState = TstFacility::getMovedIntoState(a4.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-        }
-        // With allocator
-        {
-            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            bslma::Default::setDefaultAllocatorRaw(&da);
-            bslma::TestAllocatorMonitor dam(&da);
-
-            bsltf::MovableAllocTestType t(&oa);
-            ObjB1 b1((Derived *) 0, t, &oa);
-            ObjB2 b2(t, (Derived *) 0, &oa);
-
-            mfState = TstFacility::getMovedFromState(t);
-            ASSERT(MovState::e_NOT_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-
-            ObjA1 a1(bslmf::MovableRefUtil::move(b1), &oa);
-            mfState = TstFacility::getMovedFromState(b1.second);
-            miState = TstFacility::getMovedIntoState(a1.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ObjA2 a2(bslmf::MovableRefUtil::move(b2), &oa);
-            mfState = TstFacility::getMovedFromState(b2.first);
-            miState = TstFacility::getMovedIntoState(a2.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            bsltf::MoveOnlyAllocTestType m1(1, &oa);
-            ObjB3 b3(bslmf::MovableRefUtil::move(m1), 1, &oa);
-
-            ObjA3 a3(bslmf::MovableRefUtil::move(b3), &oa);
-            ASSERT(1 == a3.second);
-            mfState = TstFacility::getMovedFromState(b3.first);
-            miState = TstFacility::getMovedIntoState(a3.first);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            bsltf::MoveOnlyAllocTestType m2(2, &oa);
-            ObjB4 b4(2, bslmf::MovableRefUtil::move(m2), &oa);
-            mfState = TstFacility::getMovedFromState(m2);
-            miState = TstFacility::getMovedIntoState(b4.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ObjA4 a4(bslmf::MovableRefUtil::move(b4));
-            ASSERT(2 == a4.first);
-            ASSERT(2 == TstFacility::getIdentifier(a4.second));
-            mfState = TstFacility::getMovedFromState(b4.second);
-            miState = TstFacility::getMovedIntoState(a4.second);
-            ASSERT(MovState::e_MOVED == mfState
-                || MovState::e_UNKNOWN == mfState);
-            ASSERT(MovState::e_MOVED == miState
-                || MovState::e_UNKNOWN == miState);
-
-            ASSERT(dam.isTotalSame());
-        }
+        RUN_EACH_TYPE(TestDriver,
+                      testCase9,
+                      AllInts,
+                      TypeA,
+                      TypeB,
+                      TypeC,
+                      TypeD);
       } break;
       case 8: {
         // --------------------------------------------------------------------
