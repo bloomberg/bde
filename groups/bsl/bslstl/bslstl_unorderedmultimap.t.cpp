@@ -1,8 +1,7 @@
 // bslstl_unorderedmultimap.t.cpp                                     -*-C++-*-
 #include <bslstl_unorderedmultimap.h>
 
-#include <bslstl_string.h>
-
+#include <bslstl_string.h>    // for testing only
 #include <bslstl_iterator.h>  // for testing only
 
 #include <bslalg_rangecompare.h>
@@ -11,6 +10,8 @@
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructorguard.h>
+#include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
@@ -64,8 +65,8 @@ using bsls::NameOf;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The object under test is a container whose interface and contract is
-// dictated by the C++ standard.  The general concerns are compliance,
+// The component under test defines a container whose interface and contract
+// are dictated by the C++ standard.  The general concerns are compliance,
 // exception safety, and proper dispatching (for member function templates such
 // as assign and insert).  This container is implemented in the form of a class
 // template, and thus its proper instantiation for several types is a concern.
@@ -93,39 +94,39 @@ using bsls::NameOf;
 // there is not output or streaming below bslstl), we test each individual
 // constructor, manipulator, and accessor in subsequent cases.
 //
-// Initial breathing test iterates all operations with a single template
-// instantiation and test obvious boundary conditions and iterator stability
-// guarantees.
+// An initial breathing test iterates over all operations with a single
+// template instantiation and tests obvious boundary conditions and iterator
+// stability guarantees.
 //
-// MULTIMAP TEST SHOULD TEST DUPLICATE KEYS (by equivalence functor) WITH
+// TBD: MULTIMAP TEST SHOULD TEST DUPLICATE KEYS (by equivalence functor) WITH
 // DIFFERENT VALUES (by operator==).
 //
-// MEMORY CONSUMPTION TESTS ARE GENERALLY DISABLED, OTHER THAN LEAKS AT THE END
-// OF TEST SEQUENCES
+// TBD: MEMORY CONSUMPTION TESTS ARE GENERALLY DISABLED, OTHER THAN LEAKS AT
+// THE END OF TEST SEQUENCES
 //
-// NEED A PROPER TEST TO EVALUATE unordered_multimap INVARIANTS:
+// TBD: NEED A PROPER TEST TO EVALUATE unordered_multimap INVARIANTS:
 //    equivalent keys form contiguous ranges
 //    once inserted, relative order is preserved through all operations
 //    contained values correspond to inserted values, counting duplicates
 // ----------------------------------------------------------------------------
 // [unord.map] construct/copy/destroy:
-//*[11] unordered_multimap(const A& allocator);
-//*[ 2] unordered_multimap(size_t, allocator);
-//*[ 2] unordered_multimap(size_t, hash, allocator);
-//*[ 2] unordered_multimap(size_t, hash, equal, allocator);
+// [ 2] unordered_multimap(const A& allocator);
+// [ 2] unordered_multimap(size_t, allocator);
+// [ 2] unordered_multimap(size_t, hash, allocator);
+// [ 2] unordered_multimap(size_t, hash, equal, allocator);
 // [12] unordered_multimap(ITER, ITER, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, equal, allocator);
-//*[ 7] unordered_multimap(const unordered_multimap& original);
-//*[ 7] unordered_multimap(const unordered_multimap& original, const A& alloc);
-//*[26] unordered_multimap(unordered_multimap&& original);
+// [ 7] unordered_multimap(const unordered_multimap& original);
+// [ 7] unordered_multimap(const unordered_multimap& original, const A& alloc);
+// [26] unordered_multimap(unordered_multimap&& original);
 // [26] unordered_multimap(unordered_multimap&& original, const A& allocator);
 // [32] unordered_multimap(initializer_list, const A& allocator);
 // [32] unordered_multimap(initializer_list, size_t, const A& allocator);
 // [32] unordered_multimap(initializer_list, size_t, hasher, const A& alloc);
 // [32] unordered_multimap(initializer_list, size_t, hasher, equal, const A&);
-//*[ 2] ~unordered_multimap();
+// [ 2] ~unordered_multimap();
 // [11] unordered_multimap& operator=(const unordered_multimap& rhs);
 // [27] unordered_multimap& operator=(unordered_multimap&& rhs);
 // [32] unordered_multimap& operator=(initializer_list<value_type>);
@@ -146,14 +147,14 @@ using bsls::NameOf;
 // modifiers:
 // [ 2] void clear();
 // [30] iterator emplace(Args&&... arguments);
-//*[31] iterator emplace_hint(const_iterator hint, Args&&... args);
+// [31] iterator emplace_hint(const_iterator hint, Args&&... args);
 // [18] iterator erase(const_iterator position);
 // [18] size_type erase(const key_type& key);
 // [18] iterator erase(const_iterator first, const_iterator last);
 // [15] iterator insert(const value_type& value);
 // [28] iterator insert(value_type&& value);
 // [ 2] iterator insert(const_iterator hint, const value_type& value);
-//*[29] iterator insert(const_iterator hint, const value_type&& value);
+// [29] iterator insert(const_iterator hint, const value_type&& value);
 // [32] iterator insert(initializer_list<value_type>);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [ 8] void swap(unordered_multimap& other);
@@ -444,9 +445,9 @@ size_t numCharInstances(const char *SPEC, const char c)
 }
 
 template <class KEY, class VALUE, class ALLOC>
-struct CharToPairConverter {
-    // Convert a 'char' value to a 'bsl::pair' of the parameterized 'KEY' and
-    // 'VALUE' type.
+struct IntToPairConverter {
+    // Convert an 'int' value to a 'bsl::pair' of the (template parameter)
+    // 'KEY' and 'VALUE' type.
 
     // CLASS METHODS
     static void createInplace(bsl::pair<KEY, VALUE> *address,
@@ -455,9 +456,7 @@ struct CharToPairConverter {
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT(0 < value);
-#if CHAR_MAX >= 128
         BSLS_ASSERT(value < 128);
-#endif
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
@@ -493,10 +492,11 @@ struct CharToPairConverter {
 
 template <class CONTAINER>
 bool verifySpec(const CONTAINER& obj, const char *spec, bool keysOnly = false)
-    // Verify that the specified 'spec' accurately and completely describes the
-    // contents of container 'obj'.  It is assumed that 'cbegin', 'cend', and
-    // 'find' work, and that identical nodes are stored adjacent to each other
-    // in the container.
+    // Return 'true' if the specified 'object' exactly matches the specified
+    // 'spec'.  If the spec is invalid (contains characters outside the range
+    // "['A' .. 'Z']") 'false' will be returned.  If the specified 'keysOnly'
+    // is 'true', only key values in the map are verified, otherwisse both key
+    // values and mapped values are verified.
 {
     typedef typename CONTAINER::key_type        Key;
     typedef typename CONTAINER::mapped_type     Value;
@@ -507,14 +507,14 @@ bool verifySpec(const CONTAINER& obj, const char *spec, bool keysOnly = false)
     bslma::Allocator *pDa = &bslma::NewDeleteAllocator::singleton();
     bslma::DefaultAllocatorGuard guard(pDa);
 
-    bsltf::TestValuesArray<ValueType,
-                           Alloc,
-                           CharToPairConverter<const Key, Value, Alloc> > VALUES;
+    bsltf::TestValuesArray<
+                          ValueType,
+                          Alloc,
+                          IntToPairConverter<const Key, Value, Alloc> > VALUES;
     const char *ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    // For the purposes of this test driver, test values must not be outside
-    // the upper case alphabet.
-
+    // If the spec contains any chars outside "['A' .. 'Z']" it's an invalid
+    // spec.
     for (const char *pc = spec; *pc; ++pc) {
         if (*pc < 'A' || *pc > 'Z') {
             return false;                                             // RETURN
@@ -557,19 +557,19 @@ bool verifySpec(const CONTAINER& obj, const char *spec, bool keysOnly = false)
     return true;
 }
 
-                            // ====================
-                            // class ExceptionGuard
-                            // ====================
+                            // ======================
+                            // class ExceptionProctor
+                            // ======================
 
 template <class OBJECT, class ALLOCATOR>
-struct ExceptionGuard {
+struct ExceptionProctor{
     // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // create on construction.  This class requires the copy constructor and
-    // 'operator ==' to be tested before use.
+    // in exception-throwing code.  On construction, this class stores the a
+    // copy of an object of the (template parameter) type 'OBJECT' and the
+    // address of that object.  On destruction, if 'release' was not invoked,
+    // it will verify the value of the object is the same as the value of the
+    // copy create on construction.  This class requires the copy constructor
+    // and 'operator ==' to be tested before use.
 
     // DATA
     int           d_line;      // the line number at construction
@@ -578,13 +578,13 @@ struct ExceptionGuard {
 
   public:
     // CREATORS
-    ExceptionGuard(const OBJECT    *object,
-                   int              line,
-                   const ALLOCATOR &basicAllocator)
+    ExceptionProctor(const OBJECT    *object,
+                     int              line,
+                     const ALLOCATOR& basicAllocator)
     : d_line(line)
     , d_control(*object, basicAllocator)
     , d_object_p(object)
-        // Create an exception guard for the specified 'object' at the
+        // Create an exception proctor for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
@@ -592,20 +592,20 @@ struct ExceptionGuard {
     {
     }
 
-    ExceptionGuard(const OBJECT             *object,
-                   int                       line,
-                   bslmf::MovableRef<OBJECT> control)
+    ExceptionProctor(const OBJECT             *object,
+                     int                       line,
+                     bslmf::MovableRef<OBJECT> control)
     : d_line(line)
     , d_control(MoveUtil::move(control))
     , d_object_p(object)
-        // Create an exception guard for the specified 'object' at the
+        // Create an exception proctor for the specified 'object' at the
         // specified 'line' number using the specified 'control' object.
     {
     }
 
-    ~ExceptionGuard()
-        // Destroy this object.  If the guard was not released, verify that the
-        // state of the object supplied at construction has not change.
+    ~ExceptionProctor()
+        // Destroy this object.  If the procotr was not released, verify that
+        // the state of the object supplied at construction has not change.
     {
         if (d_object_p) {
             const int LINE = d_line;
@@ -615,7 +615,7 @@ struct ExceptionGuard {
 
     // MANIPULATORS
     void release()
-        // Release the guard from verifying the state of the object.
+        // Release this proctor from verifying the state of the object.
     {
         d_object_p = 0;
     }
@@ -630,8 +630,8 @@ bool g_enableAllFunctorsFlag = true;
 template <class TYPE>
 class TestEqualityComparator {
     // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
+    // operator that compares two objects of the (template parameter) 'TYPE'.
+    // The function-call operator is implemented with integer comparison using
     // integers converted from objects of 'TYPE' by the class method
     // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
     // increments a counter used to keep track the method call count.  Object
@@ -675,7 +675,7 @@ class TestEqualityComparator {
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
+        // 'rhs', and 'false' otherwise.
     {
         if (!g_enableAllFunctorsFlag) {
             ASSERTV(!"'TestComparator' was invoked when it was disabled");
@@ -726,7 +726,7 @@ class TestNonConstEqualityComparator {
         // Increment a counter that records the number of times this method is
         // called.   Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
+        // 'rhs', and 'false' otherwise.
     {
         return TstFacility::getIdentifier(lhs)
             == TstFacility::getIdentifier(rhs);
@@ -741,9 +741,9 @@ class TestNonConstEqualityComparator {
 template <class TYPE>
 class TestHashFunctor {
     // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
+    // operator that compute the hash of objects of the (template parameter)
+    // 'TYPE'.  The function-call operator returns the hash value equal to the
+    // integer converted from the object of 'TYPE' by the class method
     // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
     // increments a counter used to keep track the method call count.  Object
     // of this class can be identified by an id passed on construction.
@@ -759,7 +759,7 @@ class TestHashFunctor {
         // Create a copy of the specified 'original'.
 
     explicit TestHashFunctor(int id = 0, bool shortCircuit = false)
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
+        // Create a 'TestHashFunctor'.  Optionally, specify 'id' that can be
         // used to identify the object.  Also optionally specify
         // 'shortCircuit', which, if 'true' indicates that this functor will
         // always return 0.
@@ -772,9 +772,10 @@ class TestHashFunctor {
     // ACCESSORS
     size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
+        // called.   Return the hash value equal to integer converted from the
+        // object of 'TYPE' by the class method
+        // 'TemplateTestFacility::getIdentifier' if 'd_shortCircuit == false',
+        // and '0' otherwise.
     {
         ++d_count;
 
@@ -783,7 +784,7 @@ class TestHashFunctor {
 
     bool operator==(const TestHashFunctor& rhs) const
     {
-        return (id() == rhs.id());// && d_compareLess == rhs.d_compareLess);
+        return (id() == rhs.id());
     }
 
     int id() const
@@ -808,15 +809,14 @@ class TestNonConstHashFunctor {
     // CREATORS
     TestNonConstHashFunctor() {}
         // Create a copy of the specified 'original'.
-    //! TestNonConstHashFunctor(const TestHashFunctor& original) = default;
+    //! TestNonConstHashFunctor(const TestNonConstHashFunctor& original)
+    //                                                               = default;
         // Create a copy of the specified 'original'.
 
     // ACCESSORS
     size_t operator() (const TYPE& obj)
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
+        // Return the hash value equal to integer converted from the object of
+        // 'TYPE' by the class method 'TemplateTestFacility::getIdentifier'.
     {
         return TstFacility::getIdentifier(obj);
     }
@@ -894,13 +894,13 @@ template <class KEY,
           class EQUAL = TestEqualityComparator<KEY>,
           class ALLOC = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class TestDriver {
-    // This templatized class provide a namespace for testing the
-    // 'unordered_multimap' container.  The parameterized 'KEY', 'VALUE',
-    // 'HASH', 'COMP' and 'ALLOC' specifies the key type, the mapped type, the
-    // hash functor, the equality comparator type and allocator type
-    // respectively.  Each "testCase*" method test a specific aspect of
-    // 'unordered_map<KEY, VALUE, HASH, COMP, ALLOC>'.  Every test cases should
-    // be invoked with various parameterized type to fully test the container.
+    // This parameterized class provides a namespace for testing the
+    // 'unordered_multimap' container.  The (template parameter) 'KEY',
+    // 'VALUE', 'HASH', 'EQUAL', and 'ALLOC' types specify the key type, mapped
+    // type, hash functor, key-equivalence comparator, and allocator type,
+    // respectively.  Each "testCase*" method tests a specific aspect of
+    // 'unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>'.  Every test case
+    // should be invoked with various types to fully test the container.
 
   private:
     // TYPES
@@ -925,7 +925,7 @@ class TestDriver {
     typedef bsltf::TestValuesArray<
                                  ValueType,
                                  ALLOC,
-                                 CharToPairConverter<const KEY, VALUE, ALLOC> >
+                                 IntToPairConverter<const KEY, VALUE, ALLOC> >
                                                                     TestValues;
 
     typedef TestNonConstEqualityComparator<KEY>              NonConstEqual;
@@ -955,13 +955,13 @@ class TestDriver {
     //
     // <LIST>       ::= <ITEM>    | <ITEM><LIST>
     //
-    // <ITEM>       ::= <ELEMENT> | <CLEAR>
+    // <ITEM>       ::= <ELEMENT>
     //
     // <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'Z'
     //                                      // unique but otherwise arbitrary
     // Spec String  Description
     // -----------  -----------------------------------------------------------
-    // ""           Has no effect; leaves the object empty.
+    // ""           Has no effect; leaves the object unchanged.
     // "A"          Insert the value corresponding to A.
     // "AA"         Insert two values both corresponding to A.
     // "ABC"        Insert three values corresponding to A, B and C.
@@ -986,7 +986,7 @@ class TestDriver {
                                  bool              keysOnly = false);
         // Return true if exactly the first specified 'count' values of the
         // specified array 'values' match all of the objects in the specified
-        // 'object'.
+        // 'object', and 'false' otherwise.
 
     static void storeFirstNElemAddr(typename Obj::const_pointer *pointers,
                                     const Obj&                   object,
@@ -1029,10 +1029,9 @@ class TestDriver {
         typedef bsl::pair<KEY, VALUE> TValueType;
 
         bsls::ObjectBuffer<TValueType> buffer;
-        CharToPairConverter<KEY, VALUE, ALLOC>::createInplace(
-                                       buffer.address(),
-                                       identifier,
-                                       allocator);
+        IntToPairConverter<KEY, VALUE, ALLOC>::createInplace(buffer.address(),
+                                                             identifier,
+                                                             allocator);
         bslma::DestructorProctor<TValueType> proctor(buffer.address());
 
         return container->insert(MoveUtil::move(buffer.object()));
@@ -1045,7 +1044,7 @@ class TestDriver {
 
     static CIter getIterForIndex(const Obj& obj, size_t idx);
         // Return the iterator relating to the specified 'obj' with specified
-        // index 'idx'.  It is an error if 'idx >= obj.size()'.
+        // index 'idx'.  The behavior is undefined unless 'idx < obj.size()'.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type )
@@ -1145,10 +1144,6 @@ class TestDriver {
     static void testCase20();
         // Test 'max_size' and 'empty'.
 
-#if 0
-    static void testCase19();
-        // Test comparison free operators. N/A
-#endif
     static void testCase18();
         // Test 'erase'.
 
@@ -1170,12 +1165,6 @@ class TestDriver {
     static void testCase12();
         // Test value and range constructors.
 
-    static void testCase11();
-        // Test generator functions 'g'.
-
-//   static void testCase10();
-//      // bslx streaming -- N/A
-
     static void testCase9();
         // Test assignment operator ('operator=').
 
@@ -1192,13 +1181,13 @@ class TestDriver {
                                        Obj             *pmY,
                                        bsl::true_type   isMoveOnly);
         // If the specified 'isMoveOnly' is 'false_type', meaning that 'VALUE'
-        // has a public copy c'tor a public assignment operator, modify the
-        // 'mapped' elements, but not the 'key' elements of the specified
+        // has a public copy c'tor or public copy-assignment operator, modify
+        // the 'mapped' elements, but not the 'key' elements of the specified
         // container '*pmX', and compare it to the specified container '*pmY'
         // and verify they compare unequal.  Then restore '*pmX' to its initial
         // state and verify the containers compare equal.  If 'isMoveOnly'
-        // argument is a 'true_type', meaning 'VALUE' is moveonly, use
-        // the 'setId' accessor to perturb the 'mapped' elements.
+        // argument is a 'true_type', meaning 'VALUE' is moveonly, use the
+        // 'setData' accessor to perturb the 'mapped' elements.
         //
     static void testCase6();
         // Test equality operator ('operator==').
@@ -1318,7 +1307,8 @@ int TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::getIndexForIter(const Obj& obj,
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-typename bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>::const_iterator
+typename
+        bsl::unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOC>::const_iterator
 TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
                                                             size_t     idx)
 {
@@ -1407,7 +1397,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-        ExceptionGuard<Obj, ALLOC> guard(&X, L_, &scratch);
+        ExceptionProctor<Obj, ALLOC> guard(&X, L_, &scratch);
 
         switch (N_ARGS_KEY) {
           case 0: {
@@ -1652,7 +1642,7 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-        ExceptionGuard<Obj, ALLOC> guard(&X, L_, &scratch);
+        ExceptionProctor<Obj, ALLOC> guard(&X, L_, &scratch);
 
         switch (N_ARGS_KEY) {
           case 0: {
@@ -2036,7 +2026,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
     //:  tested functionality.
     //
     // Plan:
-    //:  TDB
+    //:  TBD
     //:
     // Testing:
     //   unordered_multimap(initializer_list, const A& allocator);
@@ -2051,13 +2041,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
 
     if (veryVerbose) P(NameOf<KEY>().name()) P(NameOf<VALUE>().name());
 
-    if (verbose)
-        printf("\nTesting constructor with initializer lists\n");
-
     typedef std::initializer_list<ValueType> InitList;
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocatorRaw(&da);
+
+    if (verbose)
+        printf("\nTesting constructor with initializer lists.\n");
     {
         const struct {
             int          d_line;   // source line number
@@ -2134,7 +2124,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
                       } break;
                       default: {
                         ASSERTV(cfg, !"Invalid constructor choice.");
-                      } return;                                           // RETURN
+                      } return;                                       // RETURN
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -2168,6 +2158,52 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32()
                 ASSERTV(cfg, 0 == sa.numBlocksInUse());
             }
         }
+    }
+
+    if (verbose)
+        printf("\nTesting constructor with initializer lists.\n");
+    {
+        const struct {
+            int          d_line;   // source line number
+            InitList     d_list;   // source list
+            const char  *d_result; // expected result
+        } DATA[] = {
+            //line  list                   result
+            //----  ---------------------  ------
+            { L_,   {                  },  ""     },
+            { L_,   { V[0]             },  "A"    },
+            { L_,   { V[0], V[0]       },  "AA"   },
+            { L_,   { V[0], V[1]       },  "AB"   },
+            { L_,   { V[1], V[0]       },  "AB"   },
+            { L_,   { V[0], V[1], V[0] },  "AAB"  },
+            { L_,   { V[0], V[1], V[2] },  "ABC"  },
+            { L_,   { V[2], V[1], V[1] },  "BBC"  },
+        };
+
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+        bslma::TestAllocatorMonitor  dam(&da);
+
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mY(&scratch); const Obj& Y = gg(&mY, DATA[ti].d_result);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(da) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                Obj mX = DATA[ti].d_list;  const Obj& X = mX;
+
+                ASSERTV(Y, X, Y == X);
+
+                ASSERT(&da == X.get_allocator());
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(&scratch == Y.get_allocator());
+        }
+        ASSERT(dam.isInUseSame());
     }
 
     if (verbose)
@@ -2712,7 +2748,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
 
                     Iter RESULT;
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        ExceptionGuard<Obj, ALLOC> guard(&X, L_, sscratch);
+                        ExceptionProctor<Obj, ALLOC> guard(&X, L_, sscratch);
 
                         RESULT = mX.emplace_hint(hint, VALUES[tj]);
                         guard.release();
@@ -3087,7 +3123,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30()
 
                 Iter RESULT;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj, ALLOC> guard(&X, L_, sscratch);
+                    ExceptionProctor<Obj, ALLOC> guard(&X, L_, sscratch);
 
                     RESULT = mX.emplace(VALUES[tj]);
 
@@ -3110,10 +3146,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
     // Concerns:
     //: 1 'insert' returns an iterator referring to the newly inserted element.
     //:
-    //: 2 Inserting with the correct hint places the new element right before
-    //:   the hint.
+    //: 2 Inserting with a correct hint places the new element right before the
+    //:   hint.
     //:
-    //: 3 Incorrect hint will be ignored and 'insert' will proceed as if the
+    //: 3 An incorrect hint will be ignored and 'insert' will proceed as if the
     //:   hint is not supplied.
     //:
     //: 4 The new element is move-inserted into the container.
@@ -3251,7 +3287,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                         bsls::ObjectBuffer<TValueType> buffer;
                         TValueType *valptr = buffer.address();
 
-                        CharToPairConverter<KEY, VALUE, ALLOC>::createInplace(
+                        IntToPairConverter<KEY, VALUE, ALLOC>::createInplace(
                                   valptr,
                                   TstFacility::getIdentifier(VALUES[tj].first),
                                   ALLOC(ssa));
@@ -3382,13 +3418,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                             }
                             ASSERTV(Z, X, Z == X);
 
-                            ExceptionGuard<Obj, ALLOC> guard(&X, L_,
+                            ExceptionProctor<Obj, ALLOC> guard(&X, L_,
                                                            MoveUtil::move(mZ));
 
                             bsls::ObjectBuffer<TValueType> buffer;
                             TValueType *valptr = buffer.address();
 
-                            CharToPairConverter<KEY, VALUE, ALLOC>::
+                            IntToPairConverter<KEY, VALUE, ALLOC>::
                                 createInplace(
                                   valptr,
                                   TstFacility::getIdentifier(VALUES[tj].first),
@@ -3535,7 +3571,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 
                     bsls::ObjectBuffer<TValueType> buffer;
                     TValueType *valptr = buffer.address();
-                    CharToPairConverter<KEY, VALUE, ALLOC>::createInplace(
+                    IntToPairConverter<KEY, VALUE, ALLOC>::createInplace(
                                   valptr,
                                   TstFacility::getIdentifier(VALUES[tj].first),
                                   ALLOC(ssa));
@@ -3630,13 +3666,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         }
                         ASSERTV(Z, X, Z == X);
 
-                        ExceptionGuard<Obj, ALLOC> guard(&X, L_,
+                        ExceptionProctor<Obj, ALLOC> guard(&X, L_,
                                                            MoveUtil::move(mZ));
 
                         bsls::ObjectBuffer<TValueType> buffer;
                         TValueType *valptr = buffer.address();
 
-                        CharToPairConverter<KEY, VALUE, ALLOC>::createInplace(
+                        IntToPairConverter<KEY, VALUE, ALLOC>::createInplace(
                                 valptr,
                                 TstFacility::getIdentifier(VALUES[tj].first),
                                 ALLOC(ssa));
@@ -4068,7 +4104,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
                                             sizeof pointers /sizeof *pointers);
 
                         Obj mE(sscratch);
-                        ExceptionGuard<Obj, ALLOC> guard(
+                        ExceptionProctor<Obj, ALLOC> guard(
                                                    &Z, L_, MoveUtil::move(mE));
 
                         oa.setAllocationLimit(al);
@@ -4427,7 +4463,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
                 Obj mE(sscratch);
                 Obj mZ(sza); const Obj& Z = gg(&mZ, SPEC);
 
-                ExceptionGuard<Obj, ALLOC> guard(&Z, L_, MoveUtil::move(mE));
+                ExceptionProctor<Obj, ALLOC> guard(&Z, L_, MoveUtil::move(mE));
 
                 const Obj X(MoveUtil::move(mZ), soa);
 
@@ -4482,7 +4518,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
     //   CONCERN: The object has the necessary type traits
     // ------------------------------------------------------------------------
 
-    // Verify set defines the expected traits.
+    // Verify unordered_multimap defines the expected traits.
 
     typedef bsl::unordered_multimap<KEY, VALUE> UMMKV;
 
@@ -4499,7 +4535,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase23()
                                                                    ObjStlAlloc;
     BSLMF_ASSERT((0 == bslma::UsesBslmaAllocator<ObjStlAlloc>::value));
 
-    // Verify unordered_map does not define other common traits.
+    // Verify unordered_multimap does not define other common traits.
 
     BSLMF_ASSERT((0 == bsl::is_trivially_copyable<UMMKV>::value));
 
@@ -4642,7 +4678,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase21()
     //:   assignment, and swap.
     //
     // Plan:
-    //:  TDB
+    //:  TBD
     //
     // Testing:
     //   hasher hash_function() const;
@@ -5143,7 +5179,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase18()
 
     if (verbose) printf("\nTesting 'erase(first, last)'.\n");
     {
-//#warning "TDB: non-trivial testing"
+//#warning "TBD: non-trivial testing"
         if (verbose) printf("\nTBD: Testing 'erase(first, last)'.\n");
     }
 
@@ -5441,7 +5477,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase16()
 
                     Iter RESULT;
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                        ExceptionGuard<Obj, ALLOC> guard(&X, L_, &scratch);
+                        ExceptionProctor<Obj, ALLOC> guard(&X, L_, &scratch);
 
                         RESULT = mX.insert(hint, VALUES[tj]);
                         guard.release();
@@ -5601,7 +5637,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
                 Iter RESULT;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj, ALLOC> guard(&X, L_, &scratch);
+                    ExceptionProctor<Obj, ALLOC> guard(&X, L_, &scratch);
 
                     RESULT = mX.insert(VALUES[tj]);
                     guard.release();
@@ -5681,7 +5717,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase14()
                                   const bsl::pair<const KEY, VALUE>&>::value));
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-# warning "TDB: implementation is missing"
+# warning "TBD: implementation is missing"
 #endif
 }
 
@@ -5709,7 +5745,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase13()
     //:   the default allocator.
     //
     // Plan:
-    //:  TDB
+    //:  TBD
     //
     // Testing:
     //   size_type count(const key_type& key) const;
@@ -5978,11 +6014,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase11()
-{
-}
-
-template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9()
 {
     // ------------------------------------------------------------------------
@@ -6137,7 +6168,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase9()
     //:   allocated from the default allocator.  (C-3)
     //
     // Testing:
-    //   unordered_map& operator=(const unordered_map& rhs);
+    //   unordered_multimap& operator=(const unordered_multimap& rhs);
     // ------------------------------------------------------------------------
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -6547,8 +6578,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase8()
                 ASSERTV(LINE1, LINE2, oam.isTotalSame());
             }
 
-            // Unlike ordered containers, unordered do not support swapping with
-            // unequal bslma allocators.
+            // Unlike ordered containers, unordered do not support swapping
+            // with unequal bslma allocators.
         }
     }
 
@@ -7199,7 +7230,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-              } return;                                           // RETURN
+              } return;                                               // RETURN
             }
 
             Obj& mX = *objPtr; const Obj& X = gg(&mX, SPEC);
@@ -7268,121 +7299,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
         }
     }
 }
-
-#if 0
-        ASSERTV(dam.isTotalSame());
-
-        for (char c = 'A'; c <= 'Z'; ++c) {
-            const char C = c;
-
-            const size_t EXP = numCharInstances(SPEC, C);
-
-            const ValueType& P = VALUES[C - 'A'];
-            const KEY&       K = P.first;
-
-            Iter it = mX.find(K);
-            ASSERTV(!!EXP == (mX.end() != it));
-            if (EXP) {
-                ASSERTV(*it == P);
-            }
-
-            CIter cit = X.find(K);
-            ASSERTV(!!EXP == (mX.end() != cit));
-            if (EXP) {
-                ASSERTV(*cit == P);
-            }
-
-            ASSERTV(EXP == X.count(K));
-
-            const bsl::pair<Iter, Iter>& EQR = mX.equal_range(K);
-            ASSERTV(EQR.first == it);
-            for (size_t tj = 0; tj < EXP; ++tj) {
-                ASSERTV(mX.end() != it);
-                ++it;
-            }
-            ASSERTV(EQR.second == it);
-
-            const bsl::pair<CIter, CIter>& CEQR = X.equal_range(K);
-            ASSERTV(CEQR.first == cit);
-            for (size_t tj = 0; tj < EXP; ++tj) {
-                ASSERTV(X.end() != cit);
-                ++cit;
-            }
-            ASSERTV(CEQR.second == cit);
-        }
-
-        ASSERTV((size_t) -1 >= X.max_bucket_count());   // TBD: make more
-                                                        // sophisticated.
-        const size_t BC = X.bucket_count();
-
-        ASSERTV(BC >= 1);
-        ASSERTV(!LENGTH == X.empty());
-        ASSERTV(X.empty() == (1 == BC));
-
-        for (size_t tj = 0; tj < BC; ++tj) {
-            BSLMF_ASSERT((! bslmf::IsSame<LIter, CLIter>::value));
-
-            LIter bBegin   = mX.begin(tj);
-            CLIter cbBegin =  X.begin(tj);
-            ASSERTV(bBegin  == cbBegin);
-            cbBegin = X.cbegin(tj);
-            ASSERTV(bBegin  == cbBegin);
-            LIter bEnd     = mX.end(tj);
-            CLIter cbEnd   =  X.end(tj);
-            ASSERTV(bEnd == cbEnd);
-            cbEnd = X.cend(tj);
-            ASSERTV(bEnd == cbEnd);
-
-            {
-                size_t count = 0;
-                for (CLIter lit = cbBegin; cbEnd != lit; ++lit) {
-                    ASSERTV(X.bucket(lit->first) == tj);
-
-                    ++count;
-                }
-                ASSERTV(X.bucket_size(tj) == count);
-            }
-        }
-
-        ASSERTV(sam.isTotalSame());
-
-        // Make sure objects can be modified through 'Iter' and 'LIter'.
-
-        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
-
-        for (Iter it = begin; end != it; ++it) {
-            ValueType  p = *it;
-            VALUE      v = it->second;
-            ASSERTV(it->first != it->second);
-            it->second = it->first;
-            ASSERTV(it->first == it->second);
-            ASSERTV(it->second != v);
-            ASSERTV(*it != p);
-        }
-
-        ASSERTV( verifySpec(X, SPEC, true));          // Keys only
-        ASSERTV(!LENGTH || !verifySpec(X, SPEC, false));   // mapped values too
-
-        size_t count = 0;
-        for (size_t tj = 0; tj < BC; ++tj) {
-            LIter bEnd = mX.end(tj);
-            for (LIter it = mX.begin(tj); bEnd != it; ++it, ++count) {
-                ASSERTV(it->first == it->second);
-                int id = bsltf::TemplateTestFacility::getIdentifier(it->first);
-                int idB = id - 'A' + '0';
-                it->second = bsltf::TemplateTestFacility::create<VALUE>(idB);
-                ASSERTV(VALUES[id - 'A'].second == it->second);
-                ASSERTV(it->first != it->second);
-            }
-        }
-        ASSERTV(LENGTH == count);
-
-        ASSERTV(verifySpec(X, SPEC, true));    // Keys only
-        ASSERTV(verifySpec(X, SPEC, false));   // Looking at mapped values too
-    }
-}
-
-#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase3()
@@ -7533,8 +7449,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     //   The basic concern is that the default constructor, the destructor,
     //   and, under normal conditions (i.e., no aliasing), the primary
     //   manipulators
-    //      - insert
+    //      - insert (via helper function 'primaryManipulator')
     //      - clear
+    //   can be used to create an object and put that object into a state
+    //   relevant for testing.
     //
     // Concerns:
     //: 1 An object created with the default constructor (with or without a
@@ -7847,7 +7765,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
                         }
                         ASSERTV(Z, X, Z == X);
 
-                        ExceptionGuard<Obj, ALLOC> guard(&X, L_,
+                        ExceptionProctor<Obj, ALLOC> guard(&X, L_,
                                                            MoveUtil::move(mZ));
 
                         if (veryVeryVeryVerbose) {
@@ -8040,13 +7958,13 @@ void usage()
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Unordered multimap are useful in situations when there is no meaningful
+// Unordered multimaps are useful in situations when there is no meaningful
 // way to compare key values, when the order of the keys is irrelevant to the
 // problem domain, or (even if there is a meaningful ordering) the benefit of
 // ordering the results is outweighed by the higher performance provided by
-// unordered maps (compared to ordered maps).
+// unordered multimaps (compared to ordered multimaps).
 //
-// One uses a multi-map (ordered or unordered) when there may be more than one
+// One uses a multimap (ordered or unordered) when there may be more than one
 // mapped value associated with a key value.  In this example we will use
 // 'bslstl_unorderedmultimap' to create a concordance (an index of where each
 // unique word appears in the set of documents).
@@ -9210,7 +9128,7 @@ void usage()
                                        };
     const int           numDocuments = sizeof documents / sizeof *documents;
 //..
-// First, we define several aliases to make our code more comprehensible.
+// First, we define several aliases to make our code more comprehensible:
 //..
     typedef bsl::pair<int, int>                  WordLocation;
         // Document code number ('first') and word offset ('second') in that
@@ -9221,7 +9139,7 @@ void usage()
                                                  Concordance;
     typedef Concordance::const_iterator          ConcordanceConstItr;
 //..
-// Next, we create an (empty) unordered map to hold our word tallies.
+// Next, we create an (empty) unordered multimap to hold our word tallies:
 //..
     Concordance concordance;
 //..
@@ -9235,9 +9153,9 @@ void usage()
 // As each word is located, we create a map value -- a pair of the word
 // converted to a 'bsl::string' and a 'WordLocation' object (itself a pair of
 // document code and (word) offset of that word in the document) -- and insert
-// the map value into the map.  Note that (unlike maps and unordered maps)
-// there is no status to check; the insertion succeeds even if the key is
-// already present in the (multi) map.
+// the map value into the unordered multimap.  Note that (unlike maps and
+// unordered maps) there is no status to check; the insertion succeeds even if
+// the key is already present in the unordered multimap.
 //..
     for (int idx = 0; idx < numDocuments; ++idx) {
         int wordOffset = 0;
@@ -9250,8 +9168,8 @@ void usage()
         }
     }
 //..
-// Then, we can readily print a complete concordance by interating through the
-// map.
+// Then, we can print a complete concordance by iterating through the unordered
+// multimap:
 //..
     for (ConcordanceConstItr itr  = concordance.begin(),
                              end  = concordance.end();
@@ -9349,7 +9267,7 @@ template<class CONTAINER>
 const typename CONTAINER::key_type
 keyForValue(const typename CONTAINER::value_type v)
 {
-    return v.first;  // for 'map' containers
+    return v.first;  // for associative containers
 }
 
 template <class CONTAINER>
@@ -9739,8 +9657,11 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator testAlloc("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&testAlloc);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 35: {
@@ -9854,6 +9775,10 @@ int main(int argc, char *argv[])
                       testCase29,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase29();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase29();
         //RUN_EACH_TYPE(StdBslmaTestDriver,
         //              testCase29,
         //              bsltf::StdAllocTestType<bsl::allocator<int> >);
@@ -9869,6 +9794,10 @@ int main(int argc, char *argv[])
                       testCase28,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase28();
+        TestDriver<bsltf::MovableTestType,
+                   bsltf::MoveOnlyAllocTestType>::testCase28();
         //RUN_EACH_TYPE(StdBslmaTestDriver,
         //              testCase28,
         //              bsltf::StdAllocTestType<bsl::allocator<int> >);
@@ -9887,8 +9816,7 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-        TestDriver<signed char,
-                   bsltf::MoveOnlyAllocTestType>::testCase27();
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase27();
         TestDriver<bsltf::MovableTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase27();
 
@@ -9914,8 +9842,7 @@ int main(int argc, char *argv[])
         // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
         // elements, so cannot have move-only 'KEY'.
 
-        TestDriver<signed char,
-                   bsltf::MoveOnlyAllocTestType>::testCase26();
+        TestDriver<int, bsltf::MoveOnlyAllocTestType>::testCase26();
         TestDriver<bsltf::MovableTestType,
                    bsltf::MoveOnlyAllocTestType>::testCase26();
 
@@ -9924,8 +9851,10 @@ int main(int argc, char *argv[])
         //              bsltf::StdAllocTestType<bsl::allocator<int> >);
       } break;
       case 25: {
+        // Placeholder to keep numbering.
       } break;
       case 24: {
+        // Placeholder to keep numbering.
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -10007,13 +9936,11 @@ int main(int argc, char *argv[])
         TestDriver<TestKeyType, TestValueType>::testCase20();
       } break;
       case 19: {
-#if 0
         // --------------------------------------------------------------------
         // TESTING FREE COMPARISON OPERATORS
         //
         // < <= > >= -- N/A for this container
         // --------------------------------------------------------------------
-#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -10096,24 +10023,13 @@ int main(int argc, char *argv[])
         // TYPE TRAITS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("Testing Type Traits\n"
-                            "===================\n");
+        if (verbose) printf("Testing iterators\n"
+                            "=================\n");
 
-        RUN_EACH_TYPE(TestDriver,
-                      testCase14,
-                      signed char,
-                      int,
-                      size_t,
-                      void *);
-
-        // TBD: all of these types not covered above freak out the bslmf
-        // macros, something to do with
-        // 'bslstl::HashTable_HashWrapper<FUNCTOR>::d_functor'.
-#if 0
         RUN_EACH_TYPE(TestDriver,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-#endif
+
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -10305,7 +10221,7 @@ int main(int argc, char *argv[])
 
         using namespace BREATHING_TEST;
 
-        typedef bsl::unordered_multimap<int, int > TestType;
+        typedef bsl::unordered_multimap<int, int> TestType;
 
         if (veryVerbose)
             printf("Default construct an unordered_mutlimap, 'x'\n");
@@ -10500,12 +10416,19 @@ int main(int argc, char *argv[])
       }
     }
 
+    ASSERTV(defaultAllocator.numBlocksInUse(),
+            0 == defaultAllocator.numBlocksInUse());
+
+    // CONCERN: In no case does memory come from the global allocator.
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;
-}  // Empty test driver
+}
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
