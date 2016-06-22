@@ -7470,6 +7470,7 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase34()
     const KEY&    ZK = yz[0].first;   // A value not in any spec.
     const MAPPED& ZM = yz[1].second;  // A value not in any spec.
 
+    int iterations = 0;
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE    = DATA[ti].d_line;
         const char *const SPEC    = DATA[ti].d_spec_p;
@@ -7590,16 +7591,33 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase34()
 
                 const bsls::Types::Int64 A = oa.numBlocksInUse();
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+                (void) iterations;    // suppress 'unused'
                 ASSERTV(NameOf<KEY>(), SPEC, mFromState,
                                 !k_IS_KEY_MOVE_AWARE || e_MOVED == mFromState);
+#else
+                (void) mFromState;    // suppress 'unused'
+                if (0 == iterations++) {
+                    printf("'From' test suppressed on C++03, type: %s\n",
+                           NameOf<KEY>().name());
+                }
+#endif
 
                 ASSERTV(LINE, SIZE, SIZE + 1 == X.size());
                 ASSERTV(LINE, !k_IS_MAPPED_DEFAULT_CONSTRUCTIBLE || D == *ret);
                 ASSERTV(!k_TYPE_ALLOC || B < A);
 
                 mIntoState = TTF::getMovedIntoState(mX.find(ZK)->first);
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                 ASSERTV(NameOf<KEY>(), SPEC, mIntoState,
                                 !k_IS_KEY_MOVE_AWARE || e_MOVED == mIntoState);
+#else
+                (void) mIntoState;    // suppress 'unused'
+                if (1 == iterations++) {
+                    printf("'Into' test suppressed on C++03, type: %s\n",
+                           NameOf<KEY>().name());
+                }
+#endif
             }
 
             ASSERTV(LINE, 0 == da.numAllocations());
