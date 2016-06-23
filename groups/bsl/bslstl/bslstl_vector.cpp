@@ -4,26 +4,26 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-// IMPLEMENTATION NOTES: The class 'bslstl::Vector' is split in two, for a
+// IMPLEMENTATION NOTES: The class 'bsl::vector' is split in two for a
 // conflation of two reasons:
 //
 //  1. We want the members 'd_data...' and 'd_capacity' to appear *before* the
-//     allocator, which is provided by 'bslstl::ContainerBase' (to potentially
+//     allocator, which is provided by 'bslalg::ContainerBase' (to potentially
 //     take advantage of the empty-base-class-optimization).
 //
-//  2. The 'bslstl_Vector_Imp' containing these members need only be
+//  2. The 'bsl::Vector_Imp' containing these members need only be
 //     parameterized by 'VALUE_TYPE' (and not 'ALLOCATOR'), and can provide the
 //     iterator and element access methods, leading to shorter debug strings
 //     for those methods.
 //
 // Moreover, in the spirit of template hoisting (providing functionality to all
-// all templates in a non-templated utility class), the 'swap' methods is
-// implemented below since its definition does not care about the value type.
+// templates in a non-templated utility class), the 'swap' method is
+// implemented below since its definition does not rely on the definition of
+// 'VALUE_TYPE'.
 
 #include <bsls_assert.h>
 
 #include <bslstl_forwarditerator.h>   // for testing only
-#include <bslstl_iterator.h>          // for testing only
 
 #include <string.h>  // for 'memcpy'
 
@@ -35,12 +35,12 @@ namespace {
                           // ------------------
 
 struct Vector_Base {
-    // This 'struct' must have the same layout as a 'Vector_Imp' minus the
-    // 'ContainerBase' inherited portion.
+    // This 'struct' must have the same layout as 'bsl::Vector_ImpBase' 
+    // (defined in the .h file).
 
     // DATA
-    void        *d_dataBegin;
-    void        *d_dataEnd;
+    void        *d_dataBegin_p;
+    void        *d_dataEnd_p;
     std::size_t  d_capacity;
 };
 
