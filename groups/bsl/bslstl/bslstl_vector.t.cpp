@@ -389,8 +389,12 @@ size_t numNotMovedInto(const CONTAINER& X,
     return numNotMoved;
 }
 
+#if defined(BDE_BUILD_TARGET_SAFE)
+
 BSLMF_ASSERT(!Vector_IsRandomAccessIterator<int>::VALUE);
 BSLMF_ASSERT(Vector_IsRandomAccessIterator<bsl::vector<int>::iterator>::VALUE);
+
+#endif
 
 bool expectToAllocate(size_t n)
     // Return 'true' if the container is expected to allocate memory on the
