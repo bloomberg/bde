@@ -23,17 +23,17 @@ BSLS_IDENT("$Id: $")
 //
 // An instantiation of 'unordered_map' is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of keys) and the set of
-// key-value pairs the 'unordered_map' contains, without regard to their order.
-// If 'unordered_map' is instantiated with a key type or mapped value-type that
-// is not itself value-semantic, then it will not retain all of its
-// value-semantic qualities.  In particular, if the key or value type cannot be
-// tested for equality, then an 'unordered_map' containing that type cannot be
-// tested for equality.  It is even possible to instantiate 'unordered_map'
-// with types that do not have an accessible copy-constructor, in which case
-// the 'unordered_map' will not be copyable.  Note that the equality-comparison
-// operator for each key-value pair is used to determine when two
-// 'unordered_map' objects have the same value, and not the instance of the
-// 'EQUAL' template parameter supplied at construction.
+// 'KEY-MAPPED' pairs the 'unordered_map' contains, without regard
+// to their order.  If 'unordered_map' is instantiated with a key type or
+// mapped type that is not itself value-semantic, then it will not retain all
+// of its value-semantic qualities.  In particular, if the key or mapped type
+// cannot be tested for equality, then an 'unordered_map' containing that type
+// cannot be tested for equality.  It is even possible to instantiate
+// 'unordered_map' with types that do not have an accessible copy-constructor,
+// in which case the 'unordered_map' will not be copyable.  Note if a hasher
+// and/or equality-comparison functor are supplied at container construction,
+// they are copied to the container, and those copies, rather than the
+// object(s) supplied, are used for hashing and equality comparison.
 //
 // An 'unordered_map' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [23.2.5].  The
@@ -43,21 +43,21 @@ BSLS_IDENT("$Id: $")
 // limit forwarding (in 'emplace') to 'const' lvalues, and make no effort to
 // emulate 'noexcept' or initializer-lists.  The 'unordered_map' implemented
 // here adheres to the C++ standard, except that it may rehash when setting the
-// 'max_load_factor' in order to preserve the property that the value is always
+// 'max_load_factor' in order to preserve the property that the factor is always
 // respected (which is a potentially throwing operation).
 //
 ///Requirements on 'value_type'
 ///----------------------------
-// A 'map' is a fully Value-Semantic Type (see {'bsldoc_glossary'}) only if the
-// supplied 'KEY' and 'MAPPED' template parameters are themselves fully
-// value-semantic.  The alias 'value_type' is defined as
-// 'pair<const KEY, MAPPED>'.  It is possible to instantiate a 'map' with 'KEY'
-// and 'MAPPED' parameter arguments that do not provide a full set of
-// value-semantic operations, but then some methods of the container may not be
-// instantiable.  The following terminology, adopted from the C++11 standard,
-// is used in the function documentation of 'map' to describe a function's
-// requirements for the 'KEY' and 'MAPPED' template parameters.  These terms
-// are also defined in section [17.6.3.1] of the C++11 standard.
+// An 'unordered_map' is a fully Value-Semantic Type (see {'bsldoc_glossary'})
+// only if the supplied 'KEY' and 'MAPPED' template parameters are themselves
+// fully value-semantic.  The alias 'value_type' is defined as
+// 'pair<const KEY, MAPPED>'.  It is possible to instantiate an 'unordered_map'
+// with 'KEY' and 'MAPPED' parameter arguments that do not provide a full set
+// of value-semantic operations, but then some methods of the container may not
+// be instantiable.  The following terminology, adopted from the C++11
+// standard, is used in the function documentation of 'map' to describe a
+// function's requirements for the 'KEY' and 'MAPPED' template parameters.
+// These terms are also defined in section [17.6.3.1] of the C++11 standard.
 //
 // Legend
 // ------
@@ -149,9 +149,9 @@ BSLS_IDENT("$Id: $")
 // where the definition of the called function defines an equivalence
 // relationship on keys that is both reflexive and transitive.
 //
-// 'HASH' and 'EQUAL' function-objects are further constrained, such for any
-// two objects whose keys compare equal by the comparator, shall produce the
-// same value from the hasher.
+// The 'HASH' and 'EQUAL' function-objects are further constrained, such that
+// for any two objects whose keys compare equivalent by the comparator, shall
+// also produce the same return value from the hasher.
 //
 ///Memory Allocation
 ///-----------------
@@ -179,7 +179,7 @@ BSLS_IDENT("$Id: $")
 // memory from the indicated 'bslma::Allocator', an 'unordered_map' supplies
 // that allocator's address to the constructors of contained objects of the
 // (template parameter) types 'KEY' and 'MAPPED' if, respectively, those types
-// define the 'bslalg::TypeTraitUsesBslmaAllocator' trait to 'true'.
+// define the 'bslma::UsesBslmaAllocator' trait to 'true'.
 //
 ///Operations
 ///----------
@@ -356,16 +356,16 @@ BSLS_IDENT("$Id: $")
 ///Iterator, Pointer, and Reference Invalidation
 ///---------------------------------------------
 // No method of 'unordered_map' invalidates a pointer or reference to an
-// element in the set, unless it also erases that element, such as any 'erase'
-// overload, 'clear', or the destructor (that erases all elements).  Pointers
-// and references are stable through a rehash.
+// element in the unordered map, unless it also erases that element, such as
+// any 'erase' overload, 'clear', or the destructor (that erases all elements).
+// Pointers and references are stable through a rehash.
 //
 // Iterators to elements in the container are invalidated by any rehash, so
 // iterators may be invalidated by an 'insert' or 'emplace' call if it triggers
 // a rehash (but not otherwise).  Iterators to specific elements are also
-// invalidated when that element is erased.  Note that the 'end' iterator is
-// not an iterator referring to any element in the container, so may be
-// invalidated by any non-'const' method.
+// invalidated when that element is erased.  Note that although the 'end'
+// iterator is not an iterator referring to any element in the container, it
+// may be invalidated by any non-'const' method.
 //
 ///Unordered Map Configuration
 ///---------------------------
@@ -773,8 +773,8 @@ BSLS_IDENT("$Id: $")
 // unordered map from a word location to the corresponding word.  The "key"
 // value will be 'WordLocation', a pair of 'int' values: the first being the
 // document code number (arbitrarily assigned), and second the word offset in
-// that document (the first word of the document is at offset 0).  The "value"
-// of each entry is a 'bsl::string' containing the word at that location.
+// that document (the first word of the document is at offset 0).  The "mapped"
+// value of each entry is a 'bsl::string' containing the word at that location.
 //..
 //  typedef bsl::pair<int, int> WordLocation;
 //      // Document code number ('first') and word offset ('second') in that
@@ -1059,11 +1059,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_performancehint.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
@@ -1083,9 +1078,9 @@ template <class KEY,
           class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, MAPPED> > >
 class unordered_map {
     // This class template implements a value-semantic container type holding
-    // an unordered set of key-value pairs having unique keys that provide a
+    // an unordered set of 'KEY-MAPPED' pairs having unique keys that provide a
     // mapping from keys (of template parameter type 'KEY') to their associated
-    // values (of template parameter type 'MAPPED').
+    // mapped values (of template parameter type 'MAPPED').
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -1192,13 +1187,13 @@ class unordered_map {
         // initial size of the array of buckets of this unordered map.  If
         // 'initialNumBuckets' is not supplied, one empty bucket shall be used
         // and no memory allocated.  Optionally specify a 'hashFunction' used
-        // to generate the hash values associated with the key-value pairs
+        // to generate the hash values associated with the 'KEY-MAPPED' pairs
         // contained in this unordered map.  If 'hashFunction' is not supplied,
-        // a default-constructed object of type 'HASH' is used.  Optionally
-        // specify a key-equality functor 'keyEqual' used to determine whether
-        // two keys have the same value.  If 'keyEqual' is not supplied, a
-        // default-constructed object of type 'EQUAL' is used.  Optionally
-        // specify the 'basicAllocator' used to supply memory.  If
+        // a default-constructed object of (template parameter) type 'HASH' is
+        // used.  Optionally specify a key-equality functor 'keyEqual' used to
+        // determine whether two keys are equivalent.  If 'keyEqual' is not
+        // supplied, a default-constructed object of type 'EQUAL' is used.
+        // Optionally specify the 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not supplied, a default-constructed object of
         // the (template parameter) type 'ALLOCATOR' is used.  If the
         // 'ALLOCATOR' type is 'bsl::allocator' (the default), then
@@ -1242,11 +1237,11 @@ class unordered_map {
         // unordered map.  If 'initialNumBuckets' is not supplied, and 'first'
         // and 'last' denote an empty range, a single empty bucket shall be
         // supplied.  Optionally specify a 'hashFunction' used to generate hash
-        // values associated with the key-value pairs contained in this
+        // values associated with the 'KEY-MAPPED' pairs contained in this
         // unordered map.  If 'hashFunction' is not supplied, a
         // default-constructed object of type 'HASH' is used.  Optionally
         // specify a key-equality functor 'keyEqual' used to verify that two
-        // key values are the same.  If 'keyEqual' is not supplied, a
+        // keys are equivalent.  If 'keyEqual' is not supplied, a
         // default-constructed object of type 'EQUAL' is used.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not supplied, a default-constructed object of
@@ -1288,11 +1283,11 @@ class unordered_map {
         // of buckets of this unordered map.  If 'initialNumBuckets' is not
         // supplied, and 'first' and 'last' denote an empty range, a single
         // empty bucket shall be created.  Optionally specify a 'hashFunction'
-        // used to generate hash values associated with the key-value pairs
+        // used to generate hash values associated with the 'KEY-MAPPED' pairs
         // contained in this unordered map.  If 'hashFunction' is not supplied,
         // a default-constructed object of type 'HASH' is used.  Optionally
         // specify a key-equality functor 'keyEqual' used to verify that two
-        // key values are the same.  If 'keyEqual' is not supplied, a
+        // keys are equivalent.  If 'keyEqual' is not supplied, a
         // default-constructed object of type 'EQUAL' is used.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not supplied, a default-constructed object of
@@ -1325,14 +1320,14 @@ class unordered_map {
 
     unordered_map(
           BloombergLP::bslmf::MovableRef<unordered_map> original);  // IMPLICIT
-        // Create an unordered multimap having the same value as the specified
+        // Create an unordered map having the same value as the specified
         // 'original' object by moving (in constant time) the contents of
         // 'original' to the new unordered map.  Use a copy of
         // 'original.hash_function()' to generate hash values for the keys
         // contained in this unordered map.  Use a copy of 'original.key_eq()'
         // to verify that two keys are equivalent.  The allocator associated
         // with 'original' is propagated for use in the newly-created unordered
-        // multimap.  'original' is left in a valid but unspecified state.
+        // map.  'original' is left in a valid but unspecified state.
 
     unordered_map(
                  BloombergLP::bslmf::MovableRef<unordered_map> original,
@@ -1370,7 +1365,7 @@ class unordered_map {
         // are moved (in constant time) to this unordered map if
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the
         // aforementioned trait); otherwise, all elements in this container are
-        // either destroyed or move-assigned to and each additional element in
+        // either destroyed or move-assigned to, and each additional element in
         // 'rhs' is move-inserted into this unordered_map.  'rhs' is left in a
         // valid but unspecified state, and if an exception is thrown, '*this'
         // is left in a valid but unspecified state.  This method requires that
@@ -1419,7 +1414,7 @@ class unordered_map {
 
     iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
-        // element in the sequence of 'value_type' objects maintained by this
+        // position in the sequence of 'value_type' objects maintained by this
         // unordered map.
 
     local_iterator begin(size_type index);
@@ -1432,7 +1427,7 @@ class unordered_map {
 
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of the
+        // past-the-end position in the sequence of 'value_type' objects of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
@@ -1569,12 +1564,12 @@ class unordered_map {
         // whose 'first' member is an iterator referring to the (possibly newly
         // inserted) 'value_type' object in this unordered map whose key is the
         // same as that of the object to be inserted, and whose 'second' member
-        // is 'true' if a new value was inserted, and 'false' if the value was
-        // already present.  Note that this method requires that the (template
-        // parameter) types 'KEY' and 'MAPPED' both be "move-constructible"
-        // (see {Requirements on 'value_type'}).  Also note that this one
-        // template stands in for three 'insert' functions in the C++11
-        // standard.
+        // is 'true' if a new value was inserted, and 'false' if a value having
+        // an equivalent key was already present.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'MAPPED' both
+        // be "move-constructible" (see {Requirements on 'value_type'}).  Also
+        // note that this one template stands in for three 'insert' functions
+        // in the C++11 standard.
     {
         // Note that some compilers require functions declared with 'eanble_if'
         // to be defined inline.
@@ -1729,7 +1724,7 @@ class unordered_map {
     const_iterator  end() const BSLS_CPP11_NOEXCEPT;
     const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects
+        // past-the-end position in the sequence of 'value_type' objects
         // maintained by this unordered map.
 
     const_local_iterator  begin(size_type index) const;
@@ -1744,7 +1739,7 @@ class unordered_map {
     const_local_iterator  end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of the
+        // past-the-end position in the sequence of 'value_type' objects of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
@@ -1804,13 +1799,13 @@ class unordered_map {
 
     HASH hash_function() const;
         // Return (a copy of) the unary hash functor used by this unordered map
-        // to generate a hash value (of type 'std::size_t') for a 'key_type'
+        // to generate a hash value (of type 'size_type') for a 'key_type'
         // object.
 
     EQUAL key_eq() const;
         // Return (a copy of) binary the key-equality functor used by this
-        // unordered map that returns 'true' if two 'key_type' objects have the
-        // same value, and 'false' otherwise.
+        // unordered map that returns 'true' if two 'key_type' objects are
+        // equivalent, and 'false' otherwise.
 
     float load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the current ratio between the 'size' of this unordered map
