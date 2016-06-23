@@ -4775,9 +4775,14 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(const Vector_Imp& rhs)
         if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
             Vector_Imp other(rhs, rhs.get_allocator());
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
+#if defined(BSLS_PLATFORM_CMP_GNU)
+            using std::swap;
+            swap(ContainerBase::allocator(), other.ContainerBase::allocator());
+#else
             BloombergLP::bslalg::SwapUtil::swap(
                                             &ContainerBase::allocator(),
                                             &other.ContainerBase::allocator());
+#endif
         }
         else {
             // Invoke 'erase' only if the current vector is not empty.
@@ -5631,8 +5636,13 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
+#if defined(BSLS_PLATFORM_CMP_GNU)
+        using std::swap;
+        swap(ContainerBase::allocator(), other.ContainerBase::allocator());
+#else
         BloombergLP::bslalg::SwapUtil::swap(&ContainerBase::allocator(),
                                             &other.ContainerBase::allocator());
+#endif
     }
     else {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
