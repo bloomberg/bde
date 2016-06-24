@@ -101,7 +101,7 @@ using namespace bsl;
 //     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
 //     ImpUtil      bsl::Vector_Util
 //-----------------------------------------------------------------------------
-// class Vector_Imp<T,A> (vector)
+// class vector<T,A> (vector)
 // ============================================================================
 // [11] TRAITS
 //
@@ -418,12 +418,12 @@ bool operator<(const AllocTestType& lhs, const AllocTestType& rhs)
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
 
-                            // ====================
-                            // class ExceptionGuard
-                            // ====================
+                            // ======================
+                            // class ExceptionProctor
+                            // ======================
 
 template <class OBJECT>
-struct ExceptionGuard {
+struct ExceptionProctor {
     // This class provide a mechanism to verify the strong exception guarantee
     // in exception-throwing code.  On construction, this class stores the
     // a copy of an object of the parameterized type 'OBJECT' and the address
@@ -439,11 +439,10 @@ struct ExceptionGuard {
 
   public:
     // CREATORS
-    ExceptionGuard(const OBJECT    *object,
-                   int              line,
-                   bslma::Allocator *basicAllocator = 0)
-    : d_line(line)
-    , d_object_p(object)
+    ExceptionProctor(const OBJECT     *object,
+                     int               line,
+                     bslma::Allocator *basicAllocator = 0)
+    : d_line(line), d_object_p(object)
         // Create the exception guard for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.
@@ -453,12 +452,11 @@ struct ExceptionGuard {
         }
     }
 
-    ExceptionGuard(const OBJECT    *object,
-                   const OBJECT&    control,
-                   int              line,
-                   bslma::Allocator *basicAllocator = 0)
-    : d_line(line)
-    , d_object_p(object)
+    ExceptionProctor(const OBJECT     *object,
+                     const OBJECT&     control,
+                     int               line,
+                     bslma::Allocator *basicAllocator = 0)
+    : d_line(line), d_object_p(object)
         // Create the exception guard for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.
@@ -468,11 +466,10 @@ struct ExceptionGuard {
         }
     }
 
-    ExceptionGuard(const OBJECT             *object,
-                   bslmf::MovableRef<OBJECT> control,
-                   int                       line)
-    : d_line(line)
-    , d_object_p(object)
+    ExceptionProctor(const OBJECT              *object,
+                     bslmf::MovableRef<OBJECT>  control,
+                     int                        line)
+    : d_line(line), d_object_p(object)
         // Create the exception guard for the specified 'object' at the
         // specified 'line' number.  Optionally, specify 'basicAllocator' used
         // to supply memory.
@@ -483,7 +480,7 @@ struct ExceptionGuard {
         }
     }
 
-    ~ExceptionGuard()
+    ~ExceptionProctor()
         // Destroy the exception guard.  If the guard was not released, verify
         // that the state of the object supplied at construction has not
         // change.
@@ -980,7 +977,7 @@ struct TestDriver {
     static int ggg(Obj *object, const char *spec, bool verboseFlag = true);
         // Configure the specified 'object' according to the specified 'spec',
         // using only the primary manipulator function 'push_back' and
-        // white-box manipulator 'clear'.  Optionally specify a zero
+        // white-box manipulator 'clear'.  Optionally specify 'false' for
         // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
         // index of the first invalid character, and a negative value
         // otherwise.  Note that this function is used to implement 'gg' as
@@ -2224,9 +2221,10 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     // TESTING 'emplace(const_iterator position, Args&&...)'
     //
     // Concerns:
-    //: 1 A new element is added to the end of the container and the order of
-    //:   the container remains correct.
-    //:
+    //: 1 A newly created element is inserted at the correct position in the 
+    //:   container and the order of elements in the container, before and
+    //:   after the insertion point, remain correct.
+    //: 
     //: 2 The capacity is increased as expected.
     //:
     //: 3 The internal memory management system is hooked up properly so that
@@ -2246,7 +2244,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     //:
     //:   3 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-4)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   void emplace(Args&&...);
@@ -2423,9 +2421,8 @@ void TestDriver<TYPE,ALLOC>::testCase28()
 
                     // The strong exception guarantee is in effect only if
                     // inserting at the end.
-                    ExceptionGuard<Obj> proctor(index == SIZE? &X : 0,
-                                                LINE,
-                                                &scratch);
+                    ExceptionProctor<Obj> proctor(
+                                       index == SIZE ? &X : 0, LINE, &scratch);
                     iterator result = mX.emplace(POS == -1 ? X.begin()
                                                : POS == 99 ? X.end()
                                                            : (X.begin() + POS),
@@ -2620,8 +2617,8 @@ void TestDriver<TYPE,ALLOC>::testCase27()
     // TESTING 'emplace_back(Args&&...)'
     //
     // Concerns:
-    //: 1 A new element is added to the end of the container and the order of
-    //:   the container remains correct.
+    //: 1 A newly created element is added to the end of the container and the
+    //:   order of the container remains correct.
     //:
     //: 2 The capacity is increased as expected.
     //:
@@ -2642,7 +2639,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
     //:
     //:   3 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-4)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   void emplace_back(Args&&... args);
@@ -2781,7 +2778,7 @@ void TestDriver<TYPE,ALLOC>::testCase27()
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     // This method provides the strong exception guarantee.
-                    ExceptionGuard<Obj> proctor(&X, L_, &scratch);
+                    ExceptionProctor<Obj> proctor(&X, L_, &scratch);
 
                     mX.emplace_back(VALUES[ELEMENT - 'A']);
 
@@ -2972,8 +2969,9 @@ void TestDriver<TYPE,ALLOC>::testCase26()
     // TESTING 'iterator insert(const_iterator position, T&&)'
     //
     // Concerns:
-    //: 1 A new element is added to the end of the container and the order of
-    //:   the container remains correct.
+    //: 1 A new element is inserted at the correct position in the container
+    //:   and the order of elements in the container, before and after the
+    //:   insertion point, remain correct.
     //:
     //: 2 The newly inserted item is move-inserted.
     //
@@ -2998,7 +2996,7 @@ void TestDriver<TYPE,ALLOC>::testCase26()
     //:
     //:   4 Verify all allocations are from the object's allocator.       (C-4)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-5)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-5)
     //
     // Testing:
     //   iterator insert(const_iterator position, value_type&&)
@@ -3237,8 +3235,8 @@ void TestDriver<TYPE,ALLOC>::testCase26()
 
                     // The strong exception guarantee is in effect only if
                     // inserting at the end.
-                    ExceptionGuard<Obj> proctor(index == SIZE ? &X : 0,
-                                                MoveUtil::move(mZ), LINE);
+                    ExceptionProctor<Obj> proctor(
+                             index == SIZE ? &X : 0, MoveUtil::move(mZ), LINE);
 
                     iterator result =
                         mX.insert(POS == -1 ? X.begin()
@@ -3293,7 +3291,7 @@ void TestDriver<TYPE,ALLOC>::testCase25()
     //:
     //:   4 Verify all allocations are from the object's allocator.       (C-4)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-5)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-5)
     //
     // Testing:
     //   void push_back(T&&);
@@ -3491,7 +3489,7 @@ void TestDriver<TYPE,ALLOC>::testCase25()
                     Obj mZ(&scratch);   const Obj& Z = gg(&mZ, SPEC);
                     ASSERTV(Z, X, Z == X);
                     // This method provides the strong exception guarantee.
-                    ExceptionGuard<Obj> proctor(&X, MoveUtil::move(mZ), L_);
+                    ExceptionProctor<Obj> proctor(&X, MoveUtil::move(mZ), L_);
 
                     bsls::ObjectBuffer<ValueType> buffer;
                     ValueType *valptr = buffer.address();
@@ -4219,7 +4217,7 @@ void TestDriver<TYPE,ALLOC>::testCase22()
     //:
     //: 3 Insert an element into the vector.
     //:
-    //: 4 Destroy any vecto5rs that was created.
+    //: 4 Destroy any vectors that were created.
     //
     // Testing:
     //  CONCERN: Vector support types with overloaded new/delete
@@ -5934,7 +5932,7 @@ void TestDriver<TYPE,ALLOC>::testCase17a()
     //:
     //:   3 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-4)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   void push_back(const value_type& value);
@@ -6063,7 +6061,7 @@ void TestDriver<TYPE,ALLOC>::testCase17a()
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-                    ExceptionGuard<Obj> proctor(&X, L_, &scratch);
+                    ExceptionProctor<Obj> proctor(&X, L_, &scratch);
 
                     mX.push_back(VALUES[ELEMENT - 'A']);
 
@@ -6086,8 +6084,9 @@ void TestDriver<TYPE,ALLOC>::testCase17b()
     // TESTING 'insert(const_iterator position, const T&)'
     //
     // Concerns:
-    //: 1 A new element is added to the end of the container and the order of
-    //:   the container remains correct.
+    //: 1 A new element is inserted at the correct position in the container
+    //:   and the order of elements in the container, before and after the
+    //:   insertion point, remain correct.
     //:
     //: 2 The capacity is increased as expected.
     //:
@@ -6108,7 +6107,7 @@ void TestDriver<TYPE,ALLOC>::testCase17b()
     //:
     //:   3 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions                     (C-4)
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   iterator insert(const_iterator position, const value_type& value);
@@ -6258,7 +6257,7 @@ void TestDriver<TYPE,ALLOC>::testCase17b()
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     // TBD: no strong exception guarantee
-                    // ExceptionGuard<Obj> guard(&X, L_, &scratch);
+                    // ExceptionProctor<Obj> guard(&X, L_, &scratch);
 
                     const bsls::Types::Int64 AL = oa.allocationLimit();
                     oa.setAllocationLimit(-1);
@@ -6383,7 +6382,7 @@ TestDriver<TYPE, ALLOC>::testCase27a_RunTest(Obj *target)
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-        ExceptionGuard<Obj> proctor(&X, L_, &scratch);
+        ExceptionProctor<Obj> proctor(&X, L_, &scratch);
         switch (N_ARGS) {
           case 0: {
             mX.emplace_back();
@@ -6596,7 +6595,7 @@ TestDriver<TYPE, ALLOC>::testCase28a_RunTest(Obj *target,
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
-        ExceptionGuard<Obj> proctor(&X, L_, &scratch);
+        ExceptionProctor<Obj> proctor(&X, L_, &scratch);
         switch (N_ARGS) {
           case 0: {
             mX.emplace(pos);
@@ -7152,7 +7151,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
 
             Obj mX(&testAllocator);  const Obj& X = mX;              // 1.
             for (size_t i = 0; i < li; ++i) {                           // 2.
-                ExceptionGuard<Obj> proctor(&mX, X, L_);
+                ExceptionProctor<Obj> proctor(&mX, X, L_);
                 testEmplaceBack(mX, numOfArgs, VALUES[i % NUM_VALUES]);
                 proctor.release();
             }
@@ -8178,7 +8177,7 @@ void TestDriver<TYPE,ALLOC>::testCase14a()
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
 
-            ExceptionGuard<Obj> proctor(&mX, X, L_);
+            ExceptionProctor<Obj> proctor(&mX, X, L_);
 
             mX.resize(NSIZE);
 
@@ -8292,7 +8291,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
                                                 testAllocator.numAllocations();
               const size_t CAPACITY         = X.capacity();
               {
-                  ExceptionGuard<Obj> guard(&mX, X, L_);
+                  ExceptionProctor<Obj> guard(&mX, X, L_);
 
                   mX.reserve(NE);
                   LOOP_ASSERT(ti, CAP == X.size());
@@ -8344,7 +8343,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               const bsls::Types::Int64 NUM_ALLOC_BEFORE =
                                                 testAllocator.numAllocations();
               {
-                  ExceptionGuard<Obj> guard(&mX, X, L_);
+                  ExceptionProctor<Obj> guard(&mX, X, L_);
 
                   mX.reserve(NE);
                   LOOP_ASSERT(ti, 0  == X.size());
@@ -8399,7 +8398,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
               testAllocator.setAllocationLimit(AL);
               const bsls::Types::Int64 NUM_ALLOC_BEFORE =
                                                 testAllocator.numAllocations();
-              ExceptionGuard<Obj> proctor(&mX, X, L_);
+              ExceptionProctor<Obj> proctor(&mX, X, L_);
 
               mX.resize(NE, VALUES[ti % NUM_VALUES]);  // test here
 
@@ -8451,7 +8450,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
 
               const bsls::Types::Int64 NUM_ALLOC_BEFORE =
                                                 testAllocator.numAllocations();
-              ExceptionGuard<Obj> proctor(&mX, X, L_);
+              ExceptionProctor<Obj> proctor(&mX, X, L_);
 
               testAllocator.setAllocationLimit(AL);
 
@@ -8507,7 +8506,7 @@ void TestDriver<TYPE,ALLOC>::testCase14()
             testAllocator.setAllocationLimit(AL);
             const bsls::Types::Int64 NUM_ALLOC_BEFORE =
                 testAllocator.numAllocations();
-            ExceptionGuard<Obj> proctor(&mX, X, L_);
+            ExceptionProctor<Obj> proctor(&mX, X, L_);
 
             mX.shrink_to_fit();  // test here
 
@@ -8682,7 +8681,7 @@ void TestDriver<TYPE,ALLOC>::testCase13()
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
                         const Obj& X = mX;
 
-                        ExceptionGuard<Obj> proctor(&mX, Obj(), L_);
+                        ExceptionProctor<Obj> proctor(&mX, Obj(), L_);
 
                         testAllocator.setAllocationLimit(AL);
 
@@ -8883,7 +8882,7 @@ void TestDriver<TYPE,ALLOC>::testCase13Range(const CONTAINER&)
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);  const Obj& X = mX;
-                    ExceptionGuard<Obj> proctor(&mX, Obj(), L_);
+                    ExceptionProctor<Obj> proctor(&mX, Obj(), L_);
 
                     testAllocator.setAllocationLimit(AL);
 
@@ -10079,7 +10078,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
 
                     testAllocator.setAllocationLimit(AL);
                     {
-                        ExceptionGuard<Obj> guard(&mY, Y, L_);
+                        ExceptionProctor<Obj> guard(&mY, Y, L_);
                         mY = Y; // test assignment here
                     }
 
@@ -11802,7 +11801,7 @@ void TestDriver<TYPE,ALLOC>::testCase2a()
 
             Obj mX(&testAllocator);  const Obj& X = mX;              // 1.
             for (size_t i = 0; i < li; ++i) {                           // 2.
-                ExceptionGuard<Obj> proctor(&mX, X, L_);
+                ExceptionProctor<Obj> proctor(&mX, X, L_);
                 mX.push_back(VALUES[i % NUM_VALUES]);
                 proctor.release();
             }
@@ -11844,7 +11843,7 @@ void TestDriver<TYPE,ALLOC>::testCase2a()
 
                 Obj mX(&testAllocator);  const Obj& X = mX;         // 1.
                 for (k = 0; k < i; ++k) {                           // 2.
-                    ExceptionGuard<Obj> proctor(&mX, X, L_);
+                    ExceptionProctor<Obj> proctor(&mX, X, L_);
                     mX.push_back(VALUES[0]);
                     proctor.release();
                 }
@@ -11858,7 +11857,7 @@ void TestDriver<TYPE,ALLOC>::testCase2a()
                 LOOP2_ASSERT(i, j, 0 == X.size());                  // 5.
 
                 for (k = 0; k < j; ++k) {                           // 6.
-                    ExceptionGuard<Obj> proctor(&mX, X, L_);
+                    ExceptionProctor<Obj> proctor(&mX, X, L_);
                     mX.push_back(VALUES[k % NUM_VALUES]);
                     proctor.release();
                 }
@@ -12759,9 +12758,6 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     (void) veryVeryVeryVerbose; // Suppressing the "unused variable" warning
-
-    // As part of our overall allocator testing strategy, we will create three
-    // test allocators.
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&defaultAllocator);

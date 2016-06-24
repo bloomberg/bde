@@ -11,7 +11,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //     allocator, which is provided by 'bslalg::ContainerBase' (to potentially
 //     take advantage of the empty-base-class-optimization).
 //
-//  2. The 'bsl::Vector_Imp' containing these members need only be
+//  2. The 'bsl::Vector_ImpBase' containing these members need only be
 //     parameterized by 'VALUE_TYPE' (and not 'ALLOCATOR'), and can provide the
 //     iterator and element access methods, leading to shorter debug strings
 //     for those methods.

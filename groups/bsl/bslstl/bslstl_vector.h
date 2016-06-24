@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component defines a single class template 'bsl::vector',
+//@DESCRIPTION: This component defines a single class template, 'bsl::vector',
 // implementing the standard sequential container, 'std::vector', holding a
 // dynamic array of values of a template parameter type.
 //
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // that is not value-semantic, then the vector will not retain all of its
 // value-semantic qualities.  In particular, if a value type cannot be tested
 // for equality, then a 'vector' containing objects of that type cannot be
-// tested for equality.  It is even possible to instantiate 'vector' with an
+// tested for equality.  It is even possible to instantiate 'vector' with a
 // value type that does not have a copy-constructor, in which case the 'vector'
 // will not be copyable.
 //
@@ -39,17 +39,6 @@ BSLS_IDENT("$Id: $")
 // for C++03 we emulate move semantics, but limit forwarding (in 'emplace') to
 // 'const' lvalues, and make no effort to emulate 'noexcept' or initializer
 // lists.
-//
-///Specialization for 'bool'     TBD: remove at end
-///-------------------------
-// 'vector' is specialized when its value type is 'bool' to optimize space
-// allocation, so each element occupies only one bit.  The references returned
-// by a 'vector<bool>' object are not references to 'bool', but a class that
-// simulates the behavior of references to a bit in a 'vector<bool>'.
-// Specifically, the class provides a conversion operator that returns 'true'
-// when the referenced bit is set and 'false' otherwise.  The class also
-// provides an assignment operator that sets the referenced bit when the
-// argument is 'true' and clears it otherwise.
 //
 ///Requirements on 'VALUE_TYPE'
 ///----------------------------
@@ -182,6 +171,8 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //  | vector<V> a(k)                          | O[k]                          |
 //  | vector<V> a(k, al)                      |                               |
+//  | vector<V> a(k, vt)                      |                               |
+//  | vector<V> a(k, vt, al)                  |                               |
 //  |-----------------------------------------+-------------------------------|
 //  | vector<V> a(i1, i2)                     | O[distance(i1, i2)]           |
 //  | vector<V> a(i1, i2, al)                 |                               |
@@ -192,7 +183,7 @@ BSLS_IDENT("$Id: $")
 //  | a.~vector<V>()  (destruction)           | O[n]                          |
 //  |-----------------------------------------+-------------------------------|
 //  | a.assign(k, vt)                         | O[k]                          |
-//  | a.assign(k, rvt)                        | O[k]                          |
+//  | a.assign(k, rvt)                        |                               |
 //  |-----------------------------------------+-------------------------------|
 //  | a.assign(i1, i2)                        | O[distance(i1, i2)            |
 //  |-----------------------------------------+-------------------------------|
@@ -935,9 +926,9 @@ class Vector_ImpBase {
         // 'bsl::out_of_range' exception if 'position >= size()'.
 
     const_reference front() const;
-        // Return a reference providing non-modifiable access to the element at
-        // the specified 'position' in this vector.  Throw a
-        // 'bsl::out_of_range' exception if 'position >= size()'.
+        // Return a reference providing non-modifiable access to the first
+        // element in this vector.  The behavior is undefined unless this
+        // vector is not empty.
 
     const_reference back() const;
         // Return a reference providing non-modifiable access to the last
@@ -964,8 +955,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     // the general rules that:
     //..
     //: 1 A call to any method that would result in a vector having a size
-    //:   greater than the value returned by 'max_size' triggers a call to
-    //:   'bslstl::StdExceptUtil::throwLengthError'.
+    //:   or capacity greater than the value returned by 'max_size' triggers a
+    //:   call to 'bslstl::StdExceptUtil::throwLengthError'.
     //:
     //: 2 A call to an 'at' method that attempts to access a position outside
     //:   of the valid range of a vector triggers a call to
@@ -1250,7 +1241,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // vector and then inserting (in order) each 'value_type' object in the
         // range starting at the specified 'first' element, and ending
         // immediately before the specified 'last' element.  If an exception is
-        // thrown, '*this' is left in a valid but unspecified state.  The
+        // thrown, '*this' is left in a valid but unspecified state.  Throw
+        // 'std::length_error' if 'distance(first,last) > max_size()'. The
         // (template parameter) type 'INPUT_ITER' shall meet the requirements
         // of an input iterator defined in the C++11 standard [24.2.3]
         // providing access to values of a type convertible to 'value_type',
@@ -1264,9 +1256,10 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Assign to this object the value resulting from first clearing this
         // vector and then inserting the specified 'numElements' copies of the
         // specified 'value'.  If an exception is thrown, '*this' is left in a
-        // valid but unspecified state.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be 'copy-insertable' into
-        // this vector (see {Requirements on 'VALUE_TYPE'}).
+        // valid but unspecified state.  Throw 'std::length_error' if 
+        // 'numElements > max_size()'.  This method requires that the (template
+        // parameter) type 'VALUE_TYPE' be 'copy-insertable' into this vector
+        // (see {Requirements on 'VALUE_TYPE'}).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     void assign(std::initializer_list<VALUE_TYPE> values);
@@ -2499,11 +2492,11 @@ bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' vector has the same value as the
     // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same/ value if they contain the same number of elements and
-    // corresponding elements at each index position in the range
-    // '[0 .. lhs.size())' have the same value.  This method requires that the
-    // (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).
+    // same value if they contain the same number of elements and corresponding
+    // elements at each index position in the range '[0 .. lhs.size())' have
+    // the same value.  This method requires that the (template parameter)
+    // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
+    // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -2793,11 +2786,11 @@ bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
                 const vector<VALUE_TYPE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' vector has the same value as the
     // specified 'rhs' vector, and 'false' otherwise.  Two vectors have the
-    // same/ value if they contain the same number of elements and
-    // corresponding elements at each index position in the range
-    // '[0 .. lhs.size())' have the same value.  This method requires that the
-    // (template parameter) 'VALUE_TYPE' be 'equality-comparable' (see
-    // {Requirements on 'VALUE_TYPE'}).
+    // same value if they contain the same number of elements and corresponding
+    // elements at each index position in the range '[0 .. lhs.size())' have
+    // the same value.  This method requires that the (template parameter)
+    // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
+    // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -2948,8 +2941,7 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     {
     }
 
-                      // *** construct/copy/assignment ***
-
+    // MANIPULATORS
     vector& operator=(const vector& rhs)
     {
         Base::operator=(rhs);
@@ -3353,9 +3345,6 @@ class vector< VALUE_TYPE *, ALLOCATOR >
     //   These methods can be inherited from Base without a cast.
 
     // ACCESSORS
-
-                      // *** construct/copy/assignment ***
-
     allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT
     {
         return ALLOCATOR(Base::get_allocator());
@@ -3481,7 +3470,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
                     typename ALLOCATOR::template rebind<const void *>::other> {
     // This partial specialization of 'vector' for pointer types to a
     // 'const'-qualified (template parameter) 'VALUE_TYPE' is implemented in
-    // terms of the'Vector_Imp<const void *>' to reduce the amount of code
+    // terms of the 'Vector_Imp<const void *>' to reduce the amount of code
     // generated.  Note that this specialization rebinds the (template
     // parameter) 'ALLOCATOR' type to an allocator of 'const void *' so as to
     // satisfy the invariant in 'Vector_Imp'.  Also note that members which do
@@ -4429,16 +4418,16 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                       INPUT_ITER                      last,
                                       const std::input_iterator_tag&)
 {
-    // IMPLEMENTATION NOTES: We can't compute size in advance.  Bootstrap
+    // IMPLEMENTATION NOTES: We can't compute the size in advance.  Bootstrap
     // insertion with random-access iterator by using a temporary vector (which
     // will also guarantee that if allocator throws, the vector is unchanged).
     // Also, use the same allocator for the temporary vector so that its
     // elements can be moved into the current one, rather than copied.
     // Finally, construct the temporary vector by iterated 'push_back', which
     // may reallocate memory associated with the temporary vector multiple
-    // times, but unfortunately required because we can't compute the size in
-    // advance (as with 'forward_iterator_tag') because input iterators can be
-    // traversed only once.
+    // times, but unfortunately is required because we can't compute the size
+    // in advance (as with 'forward_iterator_tag') because input iterators can
+    // be traversed only once.
 
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
@@ -6185,7 +6174,7 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 //: o A sequence container is bitwise movable if the allocator is bitwise
 //:     movable.
 //: o A sequence container uses 'bslma' allocators if the (template parameter)
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator *'.
+//:     type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
 
 namespace BloombergLP {
 
