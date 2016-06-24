@@ -3470,7 +3470,7 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
                     typename ALLOCATOR::template rebind<const void *>::other> {
     // This partial specialization of 'vector' for pointer types to a
     // 'const'-qualified (template parameter) 'VALUE_TYPE' is implemented in
-    // terms of the 'Vector_Imp<const void *>' to reduce the amount of code
+    // terms of 'Vector_Imp<const void *>' to reduce the amount of code
     // generated.  Note that this specialization rebinds the (template
     // parameter) 'ALLOCATOR' type to an allocator of 'const void *' so as to
     // satisfy the invariant in 'Vector_Imp'.  Also note that members which do

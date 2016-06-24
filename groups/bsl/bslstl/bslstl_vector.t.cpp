@@ -2064,6 +2064,48 @@ void TestDriver<TYPE, ALLOC>::testCase29()
         ASSERT(dam.isTotalUp());
     }
 
+    {
+        const struct {
+            int                         d_line;   // source line number
+            std::initializer_list<TYPE> d_list;   // source list
+            const char                 *d_result; // expected result
+        } DATA[] = {
+                //line          list             result
+                //----          ----             ------
+                { L_,   {                  },        ""   },
+                { L_,   { V[0]             },       "A"   },
+                { L_,   { V[0], V[0]       },      "AA"   },
+                { L_,   { V[1], V[0]       },      "BA"   },
+                { L_,   { V[0], V[1], V[2] },     "ABC"   },
+                { L_,   { V[0], V[1], V[0] },     "ABA"   },
+        };
+
+        const int NUM_SPECS = sizeof DATA / sizeof *DATA;
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        bslma::TestAllocatorMonitor dam(&da);
+        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+            ASSERT(0 == oa.numBytesInUse());
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            Obj mY(&scratch); const Obj& Y = gg(&mY, DATA[ti].d_result);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                Obj mX = DATA[ti].d_list; const Obj& X = mX;
+
+                ASSERTV(Y, X, Y == X);
+
+                ASSERT(&da == X.get_allocator());
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERT(&scratch == Y.get_allocator());
+        }
+        ASSERT(dam.isTotalUp());
+    }
+
     if (verbose)
         printf("\nTesting 'operator=' with initializer lists\n");
 
@@ -2234,17 +2276,26 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     //: 4 Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For 'push_back' we will create objects of varying sizes and
-    //:   capacities containing default values, and insert a 'value'.
+    //: 1 We will use 'value' as the single argument to the 'emplace' function
+    //:   and will test proper forwarding of constructor arguments in test
+    //:   'testCase31a'.
     //:
-    //:   1 Verify that the element was added to the end of the container.(C-1)
+    //: 2 For 'emplace' we will create objects of varying sizes and
+    //:   capacities containing default values, and emplace a 'value' at
+    //:   various positions.
     //:
-    //:   2 Compute the number of allocations and verify it is as expected.
+    //:   1 Verify that the element was added at the expected position in the
+    //:     container.(C-1)
+    //:
+    //:   2 Ensure that the order is preserved for elements before and after
+    //:     the insertion point.
+    //:
+    //:   3 Compute the number of allocations and verify it is as expected.
     //:                                                                   (C-2)
     //:
-    //:   3 Verify all allocations are from the object's allocator.       (C-3)
+    //:   4 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
+    //: 3 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   void emplace(Args&&...);
@@ -2629,17 +2680,25 @@ void TestDriver<TYPE,ALLOC>::testCase27()
     //: 4 Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For 'push_back' we will create objects of varying sizes and
-    //:   capacities containing default values, and insert a 'value'.
+    //: 1 We will use 'value' as the single argument to the 'emplace_back'
+    //:   function and will test proper forwarding of constructor arguments
+    //:   in test 'testCase27a'.
     //:
-    //:   1 Verify that the element was added to the end of the container.(C-1)
+    //: 2 For 'emplace_back' we will create objects of varying sizes and
+    //:   capacities containing default values, and insert a 'value' at the
+    //:   end.
     //:
-    //:   2 Compute the number of allocations and verify it is as expected.
+    //:   1 Verify that the element was added to the end of the container.
+    //:
+    //:   2 Ensure that the order is preserved for elements before and after
+    //:     the insertion point.
+    //:
+    //:   3 Compute the number of allocations and verify it is as expected.
     //:                                                                   (C-2)
     //:
-    //:   3 Verify all allocations are from the object's allocator.       (C-3)
+    //:   4 Verify all allocations are from the object's allocator.       (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
+    //: 3 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
     // Testing:
     //   void emplace_back(Args&&... args);
@@ -2984,10 +3043,11 @@ void TestDriver<TYPE,ALLOC>::testCase26()
     //: 5 Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For 'push_back' we will create objects of varying sizes and
-    //:   capacities containing default values, and insert a 'value'.
+    //: 1 For 'insert' we will create objects of varying sizes and capacities
+    //:   containing default values, and insert a 'value' at various positions.
     //:
-    //:   1 Verify that the element was added to the end of the container.(C-1)
+    //:   1 Verify that the element was added at the correct position in the
+    //:     container.(C-1)
     //:
     //:   2 Verify that the moved-into state for the new element is MOVED.(C-2)
     //:
@@ -6097,15 +6157,20 @@ void TestDriver<TYPE,ALLOC>::testCase17b()
     //: 4 Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For 'push_back' we will create objects of varying sizes and
-    //:   capacities containing default values, and insert a 'value'.
+    //: 1 For 'insert' we will create objects of varying sizes and
+    //:   capacities containing default values, and insert a 'value' at
+    //:   various positions.
     //:
-    //:   1 Verify that the element was added to the end of the container.(C-1)
+    //:   1 Verify that the element was added at the expected position in the
+    //:     container.(C-1)
     //:
-    //:   2 Compute the number of allocations and verify it is as expected.
+    //:   2 Ensure that the order is preserved for elements before and after
+    //:     the insertion point.
+    //:
+    //:   3 Compute the number of allocations and verify it is as expected.
     //:                                                                   (C-2)
     //:
-    //:   3 Verify all allocations are from the object's allocator.       (C-3)
+    //:   4 Verify all allocations are from the object's allocator.       (C-3)
     //:
     //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
     //
