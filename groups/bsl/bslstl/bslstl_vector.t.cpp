@@ -2278,7 +2278,7 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     // Plan:
     //: 1 We will use 'value' as the single argument to the 'emplace' function
     //:   and will test proper forwarding of constructor arguments in test
-    //:   'testCase31a'.
+    //:   'testCase28a'.
     //:
     //: 2 For 'emplace' we will create objects of varying sizes and
     //:   capacities containing default values, and emplace a 'value' at
