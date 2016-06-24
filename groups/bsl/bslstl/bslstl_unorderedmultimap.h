@@ -216,20 +216,28 @@ BSLS_IDENT("$Id: $")
 //  | unordered_multimap<K, V> a(b, al);                 | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_multimap<K, V> a(w);                     | O[n]               |
+//  | unordered_multimap<K, V> a(w, al);                 |                    |
 //  | unordered_multimap<K, V> a(w, hf);                 |                    |
+//  | unordered_multimap<K, V> a(w, hf, al);             |                    |
 //  | unordered_multimap<K, V> a(w, hf, eq);             |                    |
 //  | unordered_multimap<K, V> a(w, hf, eq, al);         |                    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_multimap<K, V> a(i1, i2);                | Average: O[N]      |
-//  | unordered_multimap<K, V> a(i1, i2, w)              | Worst:   O[N^2]    |
-//  | unordered_multimap<K, V> a(i1, i2, w, hf);         | where N =          |
-//  | unordered_multimap<K, V> a(i1, i2, w, hf, eq);     |  distance(i1, i2)] |
+//  | unordered_multimap<K, V> a(i1, i2, al);            | Worst:   O[N^2]    |
+//  | unordered_multimap<K, V> a(i1, i2, w);             | where N =          |
+//  | unordered_multimap<K, V> a(i1, i2, w, al);         |  distance(i1, i2)] |
+//  | unordered_multimap<K, V> a(i1, i2, w, hf);         |                    |
+//  | unordered_multimap<K, V> a(i1, i2, w, hf, al);     |                    |
+//  | unordered_multimap<K, V> a(i1, i2, w, hf, eq);     |                    |
 //  | unordered_multimap<K, V> a(i1, i2, w, hf, eq, al); |                    |
 //  +----------------------------------------------------+--------------------+
 //  | unordered_multimap<K, V> a(li);                    | Average: O[N]      |
 //  | unordered_multimap<K, V> a(li, al);                | Worst:   O[N^2]    |
-//  | unordered_multimap<K, V> a(li, w, al);             | where N =          |
-//  | unordered_multimap<K, V> a(li, w, hf, al);         |         'li.size()'|
+//  | unordered_multimap<K, V> a(li, w);                 | where N =          |
+//  | unordered_multimap<K, V> a(li, w, al);             |         'li.size()'|
+//  | unordered_multimap<K, V> a(li, w, hf);             |                    |
+//  | unordered_multimap<K, V> a(li, w, hf, al);         |                    |
+//  | unordered_multimap<K, V> a(li, w, hf, eq);         |                    |
 //  | unordered_multimap<K, V> a(li, w, hf, eq, al);     |                    |
 //  +----------------------------------------------------+--------------------+
 //  | a.~unordered_multimap<K, V>(); (destruction)       | O[n]               |
@@ -247,7 +255,7 @@ BSLS_IDENT("$Id: $")
 //  |                                                    | where N =          |
 //  |                                                    |         'li.size()'|
 //  +----------------------------------------------------+--------------------+
-//  | a.begin(), a.end(), a.cbegin(), a.cend(),          | O[1]               |
+//  | a.begin(), a.end(), a.cbegin(), a.cend()           | O[1]               |
 //  +----------------------------------------------------+--------------------+
 //  | a.begin(idx), a.end(idx), a.cbegin(idx),           | O[1]               |
 //  | a.cend(idx)                                        |                    |
@@ -345,7 +353,7 @@ BSLS_IDENT("$Id: $")
 // Iterators to elements in the container are invalidated by any rehash, so
 // iterators may be invalidated by an 'insert' or 'emplace' call if it triggers
 // a rehash (but not otherwise).  Iterators to specific elements are also
-// invalidated when that element is erased.  Note that although the 'end'
+// invalidated when those elements are erased.  Note that although the 'end'
 // iterator does not refer to any element in the container, it may be
 // invalidated by any non-'const' method.
 //
@@ -898,31 +906,31 @@ class unordered_multimap {
         // immediately before the specified 'last' element.  Optionally specify
         // an 'initialNumBuckets' indicating the minimum initial size of the
         // array of buckets of this container.  If 'initialNumBuckets' is not
-        // supplied, and 'first' and 'last' denote an empty range, a single
-        // empty bucket shall be supplied.  Optionally specify a 'hashFunction'
-        // used to generate hash values for the keys contained in this
-        // unordered multimap.  If 'hashFunction' is not supplied, a
-        // default-constructed object of (template parameter) type 'HASH' is
-        // used.  Optionally specify a key-equivalence functor 'keyEqual' used
-        // to verify that two keys are equivalent.  If 'keyEqual' is not
-        // supplied, a default-constructed object of (template parameter) type
-        // 'EQUAL' is used.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
-        // and 'basicAllocator' is not supplied, the currently installed
-        // default allocator is used to supply memory.  The (template
-        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
-        // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type', and
-        // 'value_type' must be 'emplace-constructible' from '*i' into this
-        // unordered multimap, where 'i' is a dereferenceable iterator in the
-        // range '[first .. last)' (see {Requirements on 'KEY' and 'VALUE'}).
-        // The behavior is undefined unless 'first' and 'last' refer to a
-        // sequence of valid values where 'first' is at a position at or before
-        // 'last'.  Note that a 'bslma::Allocator *' can be supplied for
-        // 'basicAllocator' if the type 'ALLOCATOR' is 'bsl::allocator' (the
-        // default).
+        // supplied, a single empty bucket is used if 'first' and 'last' denote
+        // an empty range, and an unspecified number of buckets is used
+        // otherwise.  Optionally specify a 'hashFunction' used to generate
+        // hash values for the keys contained in this unordered multimap.  If
+        // 'hashFunction' is not supplied, a default-constructed object of
+        // (template parameter) type 'HASH' is used.  Optionally specify a
+        // key-equivalence functor 'keyEqual' used to verify that two keys are
+        // equivalent.  If 'keyEqual' is not supplied, a default-constructed
+        // object of (template parameter) type 'EQUAL' is used.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) type 'ALLOCATOR' is used.  If the type
+        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator is used to
+        // supply memory.  The (template parameter) type 'INPUT_ITERATOR' shall
+        // meet the requirements of an input iterator defined in the C++11
+        // standard [24.2.3] providing access to values of a type convertible
+        // to 'value_type', and 'value_type' must be 'emplace-constructible'
+        // from '*i' into this unordered multimap, where 'i' is a
+        // dereferenceable iterator in the range '[first .. last)' (see
+        // {Requirements on 'KEY' and 'VALUE'}).  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     unordered_multimap(
@@ -944,24 +952,25 @@ class unordered_multimap {
         // the specified 'values' initializer list.  Optionally specify an
         // 'initialNumBuckets' indicating the minimum initial size of the array
         // of buckets of this container.  If 'initialNumBuckets' is not
-        // supplied, and initializer list is empty, a single empty bucket shall
-        // be supplied.  Optionally specify a 'hashFunction' used to generate
-        // the hash values for the keys contained in this unordered multimap.
-        // If 'hashFunction' is not supplied, a default-constructed object of
-        // the (template parameter) type 'HASH' is used.  Optionally specify a
-        // key-equivalence functor 'keyEqual' used to verify that two keys are
-        // equivalent.  If 'keyEqual' is not supplied, a default-constructed
-        // object of the (template parameter) type 'EQUAL' is used.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of
-        // the (template parameter) type 'ALLOCATOR' is used.  If the type
-        // 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator is used to
-        // supply memory.  This method requires that the (template parameter)
-        // types 'KEY' and 'VALUE' both be 'copy-insertable' into this
-        // unordered multimap (see {Requirements on 'KEY' and 'VALUE'}).  Note
-        // that a 'bslma::Allocator *' can be supplied for 'basicAllocator' if
-        // the type 'ALLOCATOR' is 'bsl::allocator' (the default).
+        // supplied, a single empty bucket is used if 'values' is empty, and an
+        // unspecified number of buckets is used otherwise.  Optionally specify
+        // a 'hashFunction' used to generate the hash values for the keys
+        // contained in this unordered multimap.  If 'hashFunction' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'HASH' is used.  Optionally specify a key-equivalence functor
+        // 'keyEqual' used to verify that two keys are equivalent.  If
+        // 'keyEqual' is not supplied, a default-constructed object of the
+        // (template parameter) type 'EQUAL' is used.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used to supply memory.  This method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be 'copy-insertable' into this unordered multimap (see {Requirements
+        // on 'KEY' and 'VALUE'}).  Note that a 'bslma::Allocator *' can be
+        // supplied for 'basicAllocator' if the type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
 #endif
 
     ~unordered_multimap();
@@ -1031,7 +1040,7 @@ class unordered_multimap {
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
         // past-the-end position in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index', in the array of buckets
+        // bucket having the specified 'index' in the array of buckets
         // maintained by this unordered multimap.  The behavior is undefined
         // unless 'index < bucket_count()'.
 
@@ -1357,7 +1366,7 @@ class unordered_multimap {
         // 'value_type' object (in the sequence of 'value_type' objects) of the
         // bucket having the specified 'index' in the array of buckets
         // maintained by this unordered multimap, or the 'end(index)' iterator
-        // is the indexed bucket is empty.  The behavior is undefined unless
+        // if the indexed bucket is empty.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
     const_local_iterator end(size_type index) const;
@@ -1399,10 +1408,10 @@ class unordered_multimap {
 
     float max_load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the maximum load factor allowed for this container.  Note
-        // that If an insert operation would cause the load factor to exceed
+        // that if an insert operation would cause the load factor to exceed
         // the 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
-        // those buckets the (see 'rehash').
+        // those buckets (see 'rehash').
 };
 
 // FREE OPERATORS

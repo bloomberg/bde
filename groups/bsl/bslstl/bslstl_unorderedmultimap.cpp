@@ -4,6 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslstl_iterator.h>  // for testing only
+#include <bslstl_string.h>    // for testing only
+
 namespace bsl
 {
 

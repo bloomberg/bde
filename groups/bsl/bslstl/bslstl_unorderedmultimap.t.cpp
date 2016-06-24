@@ -1,8 +1,8 @@
 // bslstl_unorderedmultimap.t.cpp                                     -*-C++-*-
 #include <bslstl_unorderedmultimap.h>
 
-#include <bslstl_string.h>    // for testing only
 #include <bslstl_iterator.h>  // for testing only
+#include <bslstl_string.h>    // for testing only
 
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
@@ -212,7 +212,7 @@ using bsls::NameOf;
 // [35] CONCERN: The values are spread into different buckets.
 
 // ============================================================================
-//                     STANDARD BSL ASSERT TEST FUNCTION
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -233,7 +233,7 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -447,7 +447,7 @@ size_t numCharInstances(const char *SPEC, const char c)
 template <class KEY, class VALUE, class ALLOC>
 struct IntToPairConverter {
     // Convert an 'int' value to a 'bsl::pair' of the (template parameter)
-    // 'KEY' and 'VALUE' type.
+    // 'KEY' and 'VALUE' types.
 
     // CLASS METHODS
     static void createInplace(bsl::pair<KEY, VALUE> *address,
@@ -455,8 +455,7 @@ struct IntToPairConverter {
                               ALLOC                  allocator)
     {
         BSLS_ASSERT(address);
-        BSLS_ASSERT(0 < value);
-        BSLS_ASSERT(value < 128);
+        BSLS_ASSERT(0 < value && value < 128);
 
         // If creating the 'key' and 'value' temporary objects requires an
         // allocator, it should not be the default allocator as that will
@@ -495,7 +494,7 @@ bool verifySpec(const CONTAINER& obj, const char *spec, bool keysOnly = false)
     // Return 'true' if the specified 'object' exactly matches the specified
     // 'spec'.  If the spec is invalid (contains characters outside the range
     // "['A' .. 'Z']") 'false' will be returned.  If the specified 'keysOnly'
-    // is 'true', only key values in the map are verified, otherwisse both key
+    // is 'true', only key values in the map are verified, otherwise both key
     // values and mapped values are verified.
 {
     typedef typename CONTAINER::key_type        Key;
@@ -564,12 +563,12 @@ bool verifySpec(const CONTAINER& obj, const char *spec, bool keysOnly = false)
 template <class OBJECT, class ALLOCATOR>
 struct ExceptionProctor{
     // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the a
-    // copy of an object of the (template parameter) type 'OBJECT' and the
-    // address of that object.  On destruction, if 'release' was not invoked,
-    // it will verify the value of the object is the same as the value of the
-    // copy create on construction.  This class requires the copy constructor
-    // and 'operator ==' to be tested before use.
+    // in exception-throwing code.  On construction, this class stores a copy
+    // of an object of the (template parameter) type 'OBJECT' and the address
+    // of that object.  On destruction, if 'release' was not invoked, it will
+    // verify the value of the object is the same as the value of the copy
+    // created on construction.  This class requires the copy constructor and
+    // 'operator ==' to be tested before use.
 
     // DATA
     int           d_line;      // the line number at construction
@@ -604,7 +603,7 @@ struct ExceptionProctor{
     }
 
     ~ExceptionProctor()
-        // Destroy this object.  If the procotr was not released, verify that
+        // Destroy this object.  If the proctor was not released, verify that
         // the state of the object supplied at construction has not change.
     {
         if (d_object_p) {
@@ -741,7 +740,7 @@ class TestNonConstEqualityComparator {
 template <class TYPE>
 class TestHashFunctor {
     // This test class provides a mechanism that defines a function-call
-    // operator that compute the hash of objects of the (template parameter)
+    // operator that computes the hash of objects of the (template parameter)
     // 'TYPE'.  The function-call operator returns the hash value equal to the
     // integer converted from the object of 'TYPE' by the class method
     // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
@@ -772,8 +771,8 @@ class TestHashFunctor {
     // ACCESSORS
     size_t operator() (const TYPE& obj) const
         // Increment a counter that records the number of times this method is
-        // called.   Return the hash value equal to integer converted from the
-        // object of 'TYPE' by the class method
+        // called.   Return the hash value equal to the integer converted from
+        // the object of 'TYPE' by the class method
         // 'TemplateTestFacility::getIdentifier' if 'd_shortCircuit == false',
         // and '0' otherwise.
     {
@@ -815,8 +814,8 @@ class TestNonConstHashFunctor {
 
     // ACCESSORS
     size_t operator() (const TYPE& obj)
-        // Return the hash value equal to integer converted from the object of
-        // 'TYPE' by the class method 'TemplateTestFacility::getIdentifier'.
+        // Return the hash value equal to the integer converted from the object
+        // of 'TYPE' by the class method 'TemplateTestFacility::getIdentifier'.
     {
         return TstFacility::getIdentifier(obj);
     }
@@ -1032,7 +1031,7 @@ class TestDriver {
         IntToPairConverter<KEY, VALUE, ALLOC>::createInplace(buffer.address(),
                                                              identifier,
                                                              allocator);
-        bslma::DestructorProctor<TValueType> proctor(buffer.address());
+        bslma::DestructorGuard<TValueType> guard(buffer.address());
 
         return container->insert(MoveUtil::move(buffer.object()));
     }
@@ -1186,7 +1185,7 @@ class TestDriver {
         // container '*pmX', and compare it to the specified container '*pmY'
         // and verify they compare unequal.  Then restore '*pmX' to its initial
         // state and verify the containers compare equal.  If 'isMoveOnly'
-        // argument is a 'true_type', meaning 'VALUE' is moveonly, use the
+        // argument is a 'true_type', meaning 'VALUE' is move-only, use the
         // 'setData' accessor to perturb the 'mapped' elements.
         //
     static void testCase6();
@@ -1366,32 +1365,32 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase30a_RunTest(Obj *target)
     bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
     ConsUtil::construct(BUFK1.address(), &aa,   1);
     typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorProctor<typename KEY::ArgType01> PK1(&AK1);
+    bslma::DestructorGuard<typename KEY::ArgType01> GK1(&AK1);
 
     bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
     ConsUtil::construct(BUFK2.address(), &aa,  20);
     typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorProctor<typename KEY::ArgType02> PK2(&AK2);
+    bslma::DestructorGuard<typename KEY::ArgType02> GK2(&AK2);
 
     bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
     ConsUtil::construct(BUFK3.address(), &aa,  23);
     typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorProctor<typename KEY::ArgType03> P03(&AK3);
+    bslma::DestructorGuard<typename KEY::ArgType03> GK3(&AK3);
 
     bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
     ConsUtil::construct(BUFV1.address(), &aa,   2);
     typename VALUE::ArgType01& AV1 = BUFV1.object();
-    bslma::DestructorProctor<typename VALUE::ArgType01> PV1(&AV1);
+    bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
 
     bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
     ConsUtil::construct(BUFV2.address(), &aa,  18);
     typename VALUE::ArgType02& AV2 = BUFV2.object();
-    bslma::DestructorProctor<typename VALUE::ArgType02> PV2(&AV2);
+    bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
 
     bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
     ConsUtil::construct(BUFV3.address(), &aa,  31);
     typename VALUE::ArgType03& AV3 = BUFV3.object();
-    bslma::DestructorProctor<typename VALUE::ArgType03> PV3(&AV3);
+    bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
 
     Iter result;
 
@@ -1611,32 +1610,32 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
     bsls::ObjectBuffer<typename KEY::ArgType01> BUFK1;
     ConsUtil::construct(BUFK1.address(), &aa,   1);
     typename KEY::ArgType01& AK1 = BUFK1.object();
-    bslma::DestructorProctor<typename KEY::ArgType01> PK1(&AK1);
+    bslma::DestructorGuard<typename KEY::ArgType01> GK1(&AK1);
 
     bsls::ObjectBuffer<typename KEY::ArgType02> BUFK2;
     ConsUtil::construct(BUFK2.address(), &aa,  20);
     typename KEY::ArgType02& AK2 = BUFK2.object();
-    bslma::DestructorProctor<typename KEY::ArgType02> PK2(&AK2);
+    bslma::DestructorGuard<typename KEY::ArgType02> GK2(&AK2);
 
     bsls::ObjectBuffer<typename KEY::ArgType03> BUFK3;
     ConsUtil::construct(BUFK3.address(), &aa,  23);
     typename KEY::ArgType03& AK3 = BUFK3.object();
-    bslma::DestructorProctor<typename KEY::ArgType03> P03(&AK3);
+    bslma::DestructorGuard<typename KEY::ArgType03> GK3(&AK3);
 
     bsls::ObjectBuffer<typename VALUE::ArgType01> BUFV1;
     ConsUtil::construct(BUFV1.address(), &aa,   2);
     typename VALUE::ArgType01& AV1 = BUFV1.object();
-    bslma::DestructorProctor<typename VALUE::ArgType01> PV1(&AV1);
+    bslma::DestructorGuard<typename VALUE::ArgType01> GV1(&AV1);
 
     bsls::ObjectBuffer<typename VALUE::ArgType02> BUFV2;
     ConsUtil::construct(BUFV2.address(), &aa,  18);
     typename VALUE::ArgType02& AV2 = BUFV2.object();
-    bslma::DestructorProctor<typename VALUE::ArgType02> PV2(&AV2);
+    bslma::DestructorGuard<typename VALUE::ArgType02> GV2(&AV2);
 
     bsls::ObjectBuffer<typename VALUE::ArgType03> BUFV3;
     ConsUtil::construct(BUFV3.address(), &aa,  31);
     typename VALUE::ArgType03& AV3 = BUFV3.object();
-    bslma::DestructorProctor<typename VALUE::ArgType03> PV3(&AV3);
+    bslma::DestructorGuard<typename VALUE::ArgType03> GV3(&AV3);
 
     Iter result;
 
@@ -2637,7 +2636,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
 
                 Obj mX(soa); const Obj &X = mX;
 
-                for (size_t tj = 0; tj != LENGTH; ++tj) {
+                for (size_t tj = 0; tj < LENGTH; ++tj) {
                     const bool   IS_UNIQ = UNIQUE[tj] == 'Y';
                     const size_t SIZE    = X.size();
 
@@ -3418,7 +3417,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                             }
                             ASSERTV(Z, X, Z == X);
 
-                            ExceptionProctor<Obj, ALLOC> guard(&X, L_,
+                            ExceptionProctor<Obj, ALLOC> proctor(&X, L_,
                                                            MoveUtil::move(mZ));
 
                             bsls::ObjectBuffer<TValueType> buffer;
@@ -3430,12 +3429,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                                   TstFacility::getIdentifier(VALUES[tj].first),
                                   ALLOC(ssa));
 
-                            bslma::DestructorProctor<TValueType> proctor(
-                                                                       valptr);
+                            bslma::DestructorGuard<TValueType> guard(valptr);
 
                             RESULT = mX.insert(hint, MoveUtil::move(*valptr));
 
-                            guard.release();
+                            proctor.release();
 
                             ASSERTV(LINE, CONFIG, tj, SIZE,
                                                         VALUES[tj] == *RESULT);
@@ -3666,7 +3664,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                         }
                         ASSERTV(Z, X, Z == X);
 
-                        ExceptionProctor<Obj, ALLOC> guard(&X, L_,
+                        ExceptionProctor<Obj, ALLOC> proctor(&X, L_,
                                                            MoveUtil::move(mZ));
 
                         bsls::ObjectBuffer<TValueType> buffer;
@@ -3677,12 +3675,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
                                 TstFacility::getIdentifier(VALUES[tj].first),
                                 ALLOC(ssa));
 
-                        bslma::DestructorProctor<TValueType> proctor(valptr);
+                        bslma::DestructorGuard<TValueType> guard(valptr);
 
                         Iter RESULT = mX.insert(MoveUtil::move(*valptr));
 
                         ASSERTV(LINE, CONFIG, tj, SIZE, VALUES[tj] == *RESULT);
-                        guard.release();
+                        proctor.release();
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     ASSERTV(LINE, tj, verifySpec(X, EXPECTED));
@@ -4432,7 +4430,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase26()
         printf("\nTesting move constructor with injected exceptions.\n");
 #if defined(BDE_BUILD_TARGET_EXC)
     {
-        for (size_t ti = 0; ti != NUM_SPECS; ++ti) {
+        for (size_t ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];
             const size_t      LENGTH = strlen(SPEC);
 
@@ -4955,7 +4953,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase20()
 
     if (verbose) printf("\tTesting 'empty'.\n");
     {
-        for (size_t ti = 0; ti != NUM_DATA; ++ti) {
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE   = DATA[ti].d_lineNum;
             const char *SPEC   = DATA[ti].d_spec;
 
@@ -10020,7 +10018,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TYPE TRAITS
+        // TESTING ITERATORS
         // --------------------------------------------------------------------
 
         if (verbose) printf("Testing iterators\n"
