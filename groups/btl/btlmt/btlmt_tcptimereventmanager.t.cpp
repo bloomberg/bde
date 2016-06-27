@@ -176,38 +176,48 @@ const int        NUM_TIMERS = 1000;
 void            *s_timers[NUM_TIMERS];
 bsls::AtomicInt  s_count;
 
-void singleTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+void singleTimerDeregister(btlmt::TcpTimerEventManager *eventManager,
+                           bslmt::Barrier              *barrier)
 {
     eventManager->deregisterTimer(s_timers[0]);
-     ++s_count;
+    ++s_count;
+    barrier->wait();
 }
 
-void twoTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+void twoTimerDeregister(btlmt::TcpTimerEventManager *eventManager,
+                        bslmt::Barrier              *barrier)
 {
     eventManager->deregisterTimer(s_timers[0]);
     eventManager->deregisterTimer(s_timers[1]);
-     ++s_count;
+    ++s_count;
+    barrier->wait();
 }
 
-void twoTimerDeregisterInReverse(btlmt::TcpTimerEventManager *eventManager)
+void twoTimerDeregisterInReverse(btlmt::TcpTimerEventManager *eventManager,
+                                 bslmt::Barrier              *barrier)
 {
     eventManager->deregisterTimer(s_timers[1]);
     eventManager->deregisterTimer(s_timers[0]);
-     ++s_count;
+    ++s_count;
+    barrier->wait();
 }
 
-void threeTimerDeregister(btlmt::TcpTimerEventManager *eventManager)
+void threeTimerDeregister(btlmt::TcpTimerEventManager *eventManager,
+                          bslmt::Barrier              *barrier)
 {
     eventManager->deregisterTimer(s_timers[2]);
     eventManager->deregisterTimer(s_timers[1]);
     eventManager->deregisterTimer(s_timers[0]);
      ++s_count;
+    barrier->wait();
 }
 
-void deregisterAllFunction(btlmt::TcpTimerEventManager *eventManager)
+void deregisterAllFunction(btlmt::TcpTimerEventManager *eventManager,
+                           bslmt::Barrier              *barrier)
 {
     eventManager->deregisterAllTimers();
      ++s_count;
+    barrier->wait();
 }
 
 void deregisterWithBarriers(btlmt::TcpTimerEventManager *eventManager,
@@ -1008,14 +1018,18 @@ int main(int argc, char *argv[])
           // One timer deregistered
           {
               bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              bslmt::Barrier     barrier(2);
+
               timeDue.addMicroseconds(100);
 
               s_timers[0] = mX.registerTimer(
                              timeDue,
-                             bdlf::BindUtil::bind(singleTimerDeregister, &mX));
+                             bdlf::BindUtil::bind(singleTimerDeregister,
+                                                  &mX,
+                                                  &barrier));
               LOOP_ASSERT(X.numTimers(), 1 == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(10000, 0);
+              barrier.wait();
 
               LOOP_ASSERT(s_count,       1 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
@@ -1024,17 +1038,21 @@ int main(int argc, char *argv[])
           // Two timers deregistered
           {
               bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              bslmt::Barrier     barrier(2);
+
               timeDue.addMicroseconds(100);
 
               const int NT = 2;
               for (int i = 0; i < NT; ++i) {
                   s_timers[i] = mX.registerTimer(
                                 timeDue,
-                                bdlf::BindUtil::bind(twoTimerDeregister, &mX));
+                                bdlf::BindUtil::bind(twoTimerDeregister,
+                                                     &mX,
+                                                     &barrier));
               }
               LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(10000, 0);
+              barrier.wait();
 
               LOOP_ASSERT(s_count,       2 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
@@ -1043,17 +1061,21 @@ int main(int argc, char *argv[])
           // Two timers deregistered in reverse order
           {
               bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              bslmt::Barrier     barrier(2);
+
               timeDue.addMicroseconds(100);
 
               const int NT = 2;
               for (int i = 0; i < NT; ++i) {
                   s_timers[i] = mX.registerTimer(
                        timeDue,
-                       bdlf::BindUtil::bind(twoTimerDeregisterInReverse, &mX));
+                       bdlf::BindUtil::bind(twoTimerDeregisterInReverse,
+                                            &mX,
+                                            &barrier));
               }
               LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(10000, 0);
+              barrier.wait();
 
               LOOP_ASSERT(s_count,       3 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
@@ -1062,17 +1084,21 @@ int main(int argc, char *argv[])
           // Three timers deregistered in reverse order
           {
               bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              bslmt::Barrier     barrier(2);
+
               timeDue.addMicroseconds(100);
 
               const int NT = 3;
               for (int i = 0; i < NT; ++i) {
                   s_timers[i] = mX.registerTimer(
                               timeDue,
-                              bdlf::BindUtil::bind(threeTimerDeregister, &mX));
+                              bdlf::BindUtil::bind(threeTimerDeregister,
+                                                   &mX,
+                                                   &barrier));
               }
               LOOP_ASSERT(X.numTimers(), NT == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(10000, 0);
+              barrier.wait();
 
               LOOP_ASSERT(s_count,       4 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
@@ -1081,17 +1107,20 @@ int main(int argc, char *argv[])
           // Multiple timers deregistered using 'deregisterAllTimers'
           {
               bsls::TimeInterval timeDue(bdlt::CurrentTime::now());
+              bslmt::Barrier     barrier(2);
+
               timeDue.addMicroseconds(10000);
 
               for (int i = 0; i < NUM_TIMERS; ++i) {
                   s_timers[i] = mX.registerTimer(
                                     timeDue,
                                     bdlf::BindUtil::bind(deregisterAllFunction,
-                                                         &mX));
+                                                         &mX,
+                                                         &barrier));
               }
               LOOP_ASSERT(X.numTimers(), NUM_TIMERS == X.numTimers());
 
-              bslmt::ThreadUtil::microSleep(100000, 0);
+              barrier.wait();
 
               LOOP_ASSERT(s_count,       5 == s_count);
               LOOP_ASSERT(X.numTimers(), 0 == X.numTimers());
